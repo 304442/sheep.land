@@ -4,12 +4,12 @@
     --b1:var(--td);--b2:#F0EBE3;--bc:#fff;--bs:#DDE0E3;
     --rad:6px;--s0:.2rem;--s1:.4rem;--s2:.8rem;--s3:1.2rem;--s4:1.6rem;--s5:2.4rem;
     --fe:'Inter',sans-serif;--fa:'Noto Kufi Arabic',sans-serif;--lh:1.5;
-    --header-height: 70px; /* Added for convenience */
+    --header-height: 70px;
 }
 
 *,::after,::before{box-sizing:border-box;margin:0;padding:0}
 html{font-size:15px;scroll-behavior:smooth;overflow-x:clip}
-body{font-family:var(--fe);line-height:var(--lh);color:var(--t1);background:var(--b1);padding-top:var(--header-height);overflow-x:clip} /* Use variable */
+body{font-family:var(--fe);line-height:var(--lh);color:var(--t1);background:var(--b1);padding-top:var(--header-height);overflow-x:clip}
 img{max-width:100%;display:block}
 a{text-decoration:none;color:var(--c2);transition:color .2s,background-color .2s,border-color .2s}
 a:hover{color:var(--c1d)}
@@ -19,25 +19,43 @@ h1{font-size:2.2rem;margin-bottom:var(--s2)} h2{font-size:1.75rem;margin-bottom:
 h3{font-size:1.35rem} h4{font-size:1.1rem} h5{font-size:1rem}
 
 /* Enhanced: General rule for headings containing .en/.ar spans */
-:is(h1,h2,h3,h4,h5):has(> span.en):has(> span.ar),
-.card-h.en + .card-h.ar, .card-h.ar + .card-h.en {
+:is(h1,h2,h3,h4,h5):has(> span.en):has(> span.ar) {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline; 
+    align-items: baseline;
     width: 100%;
 }
-:is(h1,h2,h3,h4,h5) > span.en, :is(h1,h2,h3,h4,h5) > span.ar,
-.card-h.en, .card-h.ar {
-    flex: 0 1 auto; 
+:is(h1,h2,h3,h4,h5) > span.en {
+    text-align: left;
+    margin-right: auto;
+    flex: 0 1 auto;
 }
-:is(h1,h2,h3,h4,h5) > span.ar, .card-h.ar {
+:is(h1,h2,h3,h4,h5) > span.ar {
+    font-family: var(--fa);
+    direction: rtl;
+    text-align: right;
+    margin-left: auto;
+    flex: 0 1 auto;
+}
+
+/* For card titles within .bil-row structure */
+.card-h.en + .card-h.ar, .card-h.ar + .card-h.en {
+    display: flex; /* This is on the parent of card-h usually, the div inside bil-row */
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+}
+.card-h.en, .card-h.ar {
+    flex: 0 1 auto;
+}
+.card-h.ar {
     font-family: var(--fa);
     direction: rtl;
     text-align: right;
 }
-:is(h1,h2,h3,h4,h5) > span.en, .card-h.en {
+.card-h.en {
     text-align: left;
 }
+
 
 p{margin:0 0 var(--s1)}p:last-child{margin-bottom:0}
 ul,ol{list-style:none}
@@ -61,7 +79,7 @@ ul,ol{list-style:none}
 
 .hero-desc-row { max-width: 100%; margin: var(--s2) auto var(--s3); }
 .why-choose-us-hero-grid, .how-it-works-grid { margin-top: var(--s3); }
-.how-it-works-grid { margin-top: var(--s2); } 
+.how-it-works-grid { margin-top: var(--s2); }
 .booking-section-head { margin-bottom: var(--s3); }
 .livestock-sharia-note { font-size: 0.9em; color: var(--tm); margin: var(--s0) 0 var(--s2); }
 .custom-prep-details-container { max-width: 800px; margin: var(--s2) auto 0; }
@@ -82,39 +100,43 @@ ul,ol{list-style:none}
 .confirmation-intro-text { justify-content: center; margin-bottom: var(--s1); }
 .confirmation-intro-text p { font-size: 1.2em; }
 
-.booking-id-card, 
-.quick-recap-wrapper, 
-.payment-instructions-wrapper { 
-    max-width: 100%; 
-    margin-left: 0;  
+.booking-id-card,
+.quick-recap-wrapper,
+.payment-instructions-wrapper {
+    max-width: 100%;
+    margin-left: 0;
     margin-right: 0;
 }
-.booking-id-card { 
-    margin-top: var(--s2); 
-    margin-bottom: var(--s3); 
-    text-align: center; 
-    background-color: var(--b1); 
-    border: 2px solid var(--c2); 
+.booking-id-card {
+    margin-top: var(--s2);
+    margin-bottom: var(--s3);
+    text-align: center;
+    background-color: var(--b1);
+    border: 2px solid var(--c2);
 }
 .quick-recap-wrapper, .payment-instructions-wrapper {
     margin-top: 0;
     margin-bottom: var(--s1);
     text-align: left;
 }
-#step5-booking-confirmation .form-action.page-step-action { 
+#step5-booking-confirmation .form-action.page-step-action {
     width: 100%;
     max-width: 100%;
 }
 
 .booking-id-card-body { padding: var(--s2) var(--s3); }
-.booking-id-card .bil-row { 
+.booking-id-card .bil-row {
     margin-bottom: var(--s0);
 }
-.booking-id-card-important { margin-bottom: 0; font-size:1.1em; color: var(--c1d); } 
-.booking-id-card-label { font-size: 1em; margin-bottom: 0; } 
+.booking-id-card-important { margin-bottom: 0; font-size:1.1em; color: var(--c1d); }
+.booking-id-card-label { font-size: 1em; margin-bottom: 0; }
 
 .booking-id-display { font-size: 1.5em; font-weight: 700; color: var(--c2); margin-bottom: var(--s2); background-color: var(--b2); padding: var(--s0) var(--s2); border-radius: var(--rad); display: inline-block; }
-.booking-id-card-note { font-size: 0.9em; color: var(--tm); margin-bottom: 0; }
+.booking-id-card-note.en { text-align: left; }
+.booking-id-card-note.ar { text-align: right; direction: rtl; font-family: var(--fa); }
+p.booking-id-card-note { font-size: 0.9em; color: var(--tm); margin-bottom: 0; } /* Combined selector for general style */
+
+
 .payment-instructions-wrapper { margin-bottom:var(--s3); }
 .quick-recap-title, .payment-instructions-title { border-top: 1px solid var(--bs); padding-top: var(--s2); }
 .payment-instructions-title { margin-bottom: var(--s1); }
@@ -132,14 +154,14 @@ ul,ol{list-style:none}
 
 .site-footer-main { background-color: var(--c1d); color: var(--b2); padding: var(--s3) 0; }
 .footer-grid { text-align: left; gap: var(--s4); }
-.footer-brand-desc { 
+.footer-brand-desc {
     font-size: 0.85em; color: var(--b2);
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
 }
-.footer-brand-desc .en { text-align: left; flex: 0 1 auto; }
-.footer-brand-desc .ar { font-family: var(--fa); direction: rtl; text-align: right; flex: 0 1 auto; }
+.footer-brand-desc .en { text-align: left; flex: 0 1 auto; margin-right: auto; }
+.footer-brand-desc .ar { font-family: var(--fa); direction: rtl; text-align: right; flex: 0 1 auto; margin-left: auto; }
+
 
 .footer-links-list, .footer-contact-item { font-size: 0.85em; color: var(--b2); }
 .footer-links-list { padding: 0; }
@@ -147,19 +169,19 @@ ul,ol{list-style:none}
 .footer-contact-item { margin-bottom: var(--s0) !important; }
 .footer-contact-item.footer-contact-email { margin-bottom: 0 !important; }
 .footer-divider { border-color: rgba(255,255,255,0.2); margin: var(--s2) 0 var(--s1); }
-.footer-copyright { 
-    font-size: 0.8em; 
-    text-align: center; 
-    color: var(--b2); 
-    opacity: 0.7; 
-    margin-bottom:0 !important; 
+.footer-copyright {
+    font-size: 0.8em;
+    text-align: center;
+    color: var(--b2);
+    opacity: 0.7;
+    margin-bottom:0 !important;
 }
 .bil-copyright-suffix {
-    display: inline-flex; 
+    display: inline-flex;
     justify-content: space-between;
     align-items: baseline;
-    width: auto; 
-    margin-left: var(--s0); 
+    width: auto;
+    margin-left: var(--s0);
 }
 .bil-copyright-suffix .en { text-align: left; }
 .bil-copyright-suffix .ar { font-family: var(--fa); direction: rtl; text-align: right;}
@@ -174,7 +196,6 @@ ul,ol{list-style:none}
 }
 .form-step-content {
     padding: var(--s3) var(--s2); /* Padding for each step's content */
-    /* border-bottom: 1px dashed var(--bs); Remove if not desired between steps */
 }
 .form-step-content:last-of-type {
     border-bottom: none;
@@ -190,7 +211,7 @@ ul,ol{list-style:none}
 .form-step-content .sec-head {
     margin-bottom: var(--s2);
 }
-/* Review summary and additional options wrapper within step 5 */
+/* Review summary and additional options wrapper within step 5 (now step 4 content) */
 .review-summary-wrapper, .additional-options-payment-wrapper {
     padding: var(--s1) 0; /* Give some internal spacing */
     margin-bottom: var(--s2);
@@ -216,6 +237,10 @@ ul,ol{list-style:none}
 
 .feature-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s3); text-align: center; }
 .why-choose-us-hero-grid, .how-it-works-grid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important; gap: var(--s3) !important; text-align: center !important; }
+
+.feature-item > p.card-p.en { text-align: left; }
+.feature-item > p.card-p.ar { text-align: right; direction: rtl; font-family: var(--fa); }
+
 
 .bil-row{display:flex;justify-content:space-between;width:100%;gap:var(--s2); flex-wrap: wrap;}
 .bil-row.center-v{align-items:center}
@@ -245,28 +270,27 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 .pban .pban-cta-btn{font-size:.85rem;padding:var(--s0) var(--s2);margin-top:var(--s0);width:auto;max-width:300px}
 
 .card{background:var(--bc);border-radius:var(--rad);box-shadow:0 1px 3px #0000000f;border:1px solid var(--bs);display:flex;flex-direction:column;height:100%;overflow:hidden}
-.card:is(:hover, .selected, .livestock-card-selected){box-shadow:0 3px 10px #0000001a,0 0 0 2px var(--c2l)}
-.prep-style-card.selected, .packaging-card.selected, .livestock-card.livestock-card-selected { border-color: var(--c2); }
+.card:is(:hover, .livestock-card-selected){box-shadow:0 3px 10px #0000001a,0 0 0 2px var(--c2l)}
+.livestock-card.livestock-card-selected { border-color: var(--c2); }
+
 
 .card-img{position:relative;padding-top:60%;overflow:hidden;background-color:var(--b2)}
-.packaging-card .card-img{padding-top:45%}
 .card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease-out}
 .card:hover .card-img img{transform:scale(1.05)}
 .card-b{padding:var(--s1);flex-grow:1;display:flex;flex-direction:column}
 .card-content{margin-bottom:var(--s1);flex-grow:1}
-.card-content .bil-row{gap:var(--s0)} 
+.card-content .bil-row{gap:var(--s0)}
 .card-content .bil-row .card-p{margin-bottom:0}
-.card-h{font-size:1.05rem;margin:0 0 var(--s0)} 
+.card-h{font-size:1.05rem;margin:0 0 var(--s0)}
 
 .card-p{font-size:.85rem;color:var(--tm);margin:0;line-height:1.4}
 .card-foot{margin-top:auto;padding-top:var(--s1);border-top:1px solid var(--b2)}
 .card-foot .price{font-size:1rem;font-weight:700;color:var(--c1);margin-bottom:var(--s0);line-height:1}
-.card-foot .price-addon{font-size:.75em;color:var(--tm);display:block;text-align:center;margin-bottom:2px}
 
 .card-act{display:flex;gap:var(--s0);align-items:center}
 .livestock-card .card-act {
     flex-direction: column;
-    align-items: stretch; 
+    align-items: stretch;
     gap: var(--s0);
 }
 .livestock-card .card-act .livestock-select-btn {
@@ -284,8 +308,8 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 .badge .en{margin-right:.2em}.badge .ar{margin-left:.2em;font-size:.9em}
 .bhalal{background:var(--c2)}.bsale{background:var(--c3);color:var(--c1d)}
 
-.form-panel-card{margin-bottom:0} 
-.form-panel-card .card-b{padding:var(--s1) var(--s2)} 
+.form-panel-card{margin-bottom:0}
+.form-panel-card .card-b{padding:var(--s1) var(--s2)}
 .page-step-action{max-width:100%;margin:var(--s2) auto 0}
 .fg{margin-bottom:var(--s1)}
 .fg label.bil-row{margin-bottom:2px;align-items:baseline}
@@ -312,7 +336,7 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 .pm input[type=radio]:checked+label,.pm.sel label{border-color:var(--c1d);background:var(--c2);color:var(--td)}
 .form-panel-title{font-size:1.1rem;color:var(--c1d);margin:0 0 var(--s1);padding-bottom:var(--s0);border-bottom:1px solid var(--c1)}
 .form-step-content > .form-panel-title:first-of-type,
-.form-step-content > .form-subhead:first-of-type { margin-top: 0; } 
+.form-step-content > .form-subhead:first-of-type { margin-top: 0; }
 
 .form-subhead{font-size:1rem;color:var(--c1);margin:var(--s2) 0 var(--s0);padding-bottom:2px;border-bottom:1px solid var(--b2)}
 .form-divider{border:0;border-top:1px dashed var(--bs);margin:var(--s2) 0}
@@ -325,20 +349,17 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 
 .summary-item .bil-row > div.en { text-align: left; }
 .summary-item .bil-row > div.ar { text-align: right; direction: rtl; font-family: var(--fa); }
-.summary-item div{font-size:.9rem;color:var(--tm)} 
+.summary-item div{font-size:.9rem;color:var(--tm)}
 .summary-item strong{color:var(--c1d)}
 .summary-hr{border:0;border-top:1px solid var(--c1);margin:var(--s1) 0}
-.summary-total .bil-row > div.en { text-align: left; } 
+.summary-total .bil-row > div.en { text-align: left; }
 .summary-total .bil-row > div.ar { text-align: right; direction: rtl; font-family: var(--fa); }
 .summary-total div{font-size:1.1rem;font-weight:700;color:var(--c1)}
 
-.prep-style-card .card-content .bil-row .card-p{font-size:.8rem}
-.prep-card-foot{border-top:none;padding-top:var(--s0)}
-.prep-style-card:is(:hover, .selected) .select-prep-btn,
-.packaging-card:is(:hover, .selected) .select-packaging-btn {
-    background-color:var(--c1d);border-color:var(--c1d);
-}
+/* Styles for Preparation/Packaging dropdowns (if any specific beyond .form-input-styled) */
+/* .prep-style-card, .packaging-card specific styles removed as they are no longer cards */
 .livestock-card.livestock-card-selected .livestock-select-btn{background-color:var(--c2);color:var(--td);border-color:var(--c2)}
+
 
 .confirmation-message p{font-size:1rem;line-height:1.5;margin-bottom:var(--s1)}
 .confirmation-message strong{color:var(--c2);font-weight:700}
@@ -358,7 +379,7 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 #booking-status-results .summary-item strong{min-width:100px;display:inline-block}
 #status-no-results p{color:var(--c3);font-weight:bold;padding:var(--s1)}
 
-.stepper-outer-wrapper {position:sticky;top:var(--header-height);background-color:var(--b1);z-index:999;border-bottom:1px solid var(--bs);box-shadow:0 2px 4px rgba(0,0,0,.03);padding:0;margin-bottom:var(--s2)} /* Use variable */
+.stepper-outer-wrapper {position:sticky;top:var(--header-height);background-color:var(--b1);z-index:999;border-bottom:1px solid var(--bs);box-shadow:0 2px 4px rgba(0,0,0,.03);padding:0;margin-bottom:var(--s2)}
 .stepper-outer-wrapper .c {padding:var(--s1) 0}
 .stepper-content-flex {display:flex;justify-content:space-between;align-items:center}
 .stepper-item{display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--tm);font-size:.8rem;position:relative;text-decoration:none;cursor:pointer;padding:0 var(--s0)}
@@ -373,7 +394,7 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 .stepper-item.disabled {opacity:.6;pointer-events:none;cursor:not-allowed}
 .stepper-item.disabled .step-number {border-color:var(--bs);background-color:var(--b2);color:var(--tm)}
 
-.site-header{background-color:var(--b2);padding:var(--s1) 0;box-shadow:0 2px 4px rgba(0,0,0,.05);position:fixed;top:0;left:0;width:100%;z-index:1000; height:var(--header-height)} /* Use variable */
+.site-header{background-color:var(--b2);padding:var(--s1) 0;box-shadow:0 2px 4px rgba(0,0,0,.05);position:fixed;top:0;left:0;width:100%;z-index:1000; height:var(--header-height)}
 .nav-container{display:flex;justify-content:space-between;align-items:center;height:100%}
 .brand-logo{font-size:1.1rem;font-weight:700;color:var(--c1d);display:flex;align-items:baseline;margin-right:auto}
 .brand-logo .ar{font-family:var(--fa);margin-left:.5em;direction:rtl}
@@ -392,38 +413,33 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 
 /* HERO SECTION FULL SCREEN */
 .hero-section{
-    background-color:var(--b2); /* Fallback color */
-    padding: 0; /* Remove existing padding to use flexbox for centering */
+    background-color:var(--b2);
+    padding: 0;
     background-image:linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url('/images/hero-sheep-farm.jpg');
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
     color:var(--td);
-    min-height: 100vh; /* Make hero at least full viewport height */
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center .c container horizontally */
-    justify-content: center; /* Center .c container vertically */
-    /* To ensure content starts below fixed header if needed, but body already has padding-top */
-    box-sizing: border-box; /* Ensure padding/border are included in height */
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
-.hero-section > .c { /* The container within the hero */
-    /* max-width: 960px; /* from .c */
-    /* width: 90%; /* from .c */
-    /* padding: 0 var(--s2); /* from .c */
-    /* These properties are already handled by .c, just ensuring context */
+.hero-section > .c {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center content within .c if it's not full width */
-    justify-content: center; /* Center content within .c */
+    align-items: center;
+    justify-content: center;
 }
 
 .hero-section :is(h1,h2,p){color:var(--td)}
 .pban .prm-h,.pban .prm-h strong,.pban .prm-h span{color:var(--c1d)}
-.prep-column .product-grid.grid4, .package-column .product-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+
 .hamburger-btn {display:none;background:none;border:none;cursor:pointer;padding:var(--s0);color:var(--c1d);z-index:1010}
 .hamburger-btn:hover {color:var(--c2)}
-.mobile-nav-menu {position:absolute;top:var(--header-height);left:0;right:0;background-color:var(--b2);padding:var(--s2) var(--s2) var(--s3);box-shadow:0 4px 6px rgba(0,0,0,0.1);z-index:1005;border-top:1px solid var(--bs)} /* Use variable */
+.mobile-nav-menu {position:absolute;top:var(--header-height);left:0;right:0;background-color:var(--b2);padding:var(--s2) var(--s2) var(--s3);box-shadow:0 4px 6px rgba(0,0,0,0.1);z-index:1005;border-top:1px solid var(--bs)}
 .nav-list-mobile {list-style:none;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:var(--s1)}
 .nav-link-mobile {font-size:1rem;color:var(--tm);font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--rad);display:flex;align-items:center;justify-content:center;text-decoration:none;width:100%;box-sizing:border-box}
 .nav-link-mobile:hover {color:var(--c1d);background-color:rgba(0,0,0,.03)}
@@ -433,40 +449,47 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
 .mobile-header-extras .currency-switcher select {font-size:.9rem;padding:var(--s0) var(--s1)}
 .mobile-header-extras .whatsapp-contact a {font-size:1rem}
 
-.hero-section .hero-why-choose {margin-top:var(--s5);padding-top:var(--s3);border-top:1px solid rgba(255,255,255,.2)}
+.hero-section .hero-why-choose {
+    margin-top:var(--s5);
+    padding-top:var(--s3);
+    border-top:1px solid rgba(255,255,255,.2);
+    width: 100%; /* Ensures it takes full width of parent .c */
+}
 .hero-section .hero-why-choose :is(.sec-head h2, .feature-item h4) {color:var(--td)}
-.hero-section .hero-why-choose .sec-head h2 > span.en::after, 
+.hero-section .hero-why-choose .sec-head h2 > span.en::after,
 .hero-section .hero-why-choose .sec-head h2 > span.ar::after {background:var(--c3)}
 .hero-section .hero-why-choose .feature-item p.card-p {color:#e0e0e0}
 .hero-section .hero-why-choose .feature-item .icon-placeholder {background-color:rgba(255,255,255,.15);color:var(--td);border:1px solid rgba(255,255,255,.2)}
 
 @media(min-width:992px){
-    .prep-column .product-grid.grid4, .package-column .product-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+    /* No specific rules for .prep-column or .package-column as they are removed */
 }
 
 @media(max-width:768px){
-    html{font-size:14px} 
-    body{padding-top:var(--header-height)} /* Ensure this uses the variable or a smaller fixed value if header shrinks */
+    html{font-size:14px}
+    body{padding-top:var(--header-height)}
     .c{padding:0 var(--s1)} .sec{padding:var(--s3) 0}
-    #udheya-booking-form-panel { scroll-margin-top: calc(var(--header-height) + 45px); } /* Adjust stepper part if it shrinks */
+    #udheya-booking-form-panel { scroll-margin-top: calc(var(--header-height) + 45px); }
     .form-step-content { padding: var(--s2) var(--s1); }
     .form-step-content.seca { margin: 0 calc(var(--s1) * -1); padding-left: var(--s1); padding-right: var(--s1); }
 
     :is(.grid1,.grid2,.grid3,.grid4,.content-grid):not(.product-grid):not(.feature-grid):not(.why-choose-us-hero-grid):not(.how-it-works-grid){grid-template-columns:1fr!important}
-    :is(.product-grid.grid2,.product-grid.grid4,.package-column .product-grid.grid2){grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important}
+    /* .product-grid.grid2 (for animals) remains as is or ensure it's 1fr if needed */
+     .product-grid.grid2 {grid-template-columns:1fr!important} /* Example: make animal cards stack */
+
     :is(.why-choose-us-hero-grid,.how-it-works-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important;gap:var(--s2)!important}
-    
+
     .bil-row:not(.bil-row-prefer-inline):not(.rgrp label):not(.badge span):not(.step-text-content):not(.card-content .bil-row):not(.summary-item .bil-row):not(.summary-total .bil-row):not(.form-panel-title.bil-row):not(.form-subhead.bil-row):not(.confirmation-message .bil-row):not(#check-booking-status .card-act):not(.pban-text-content .bil-row):not(.payment-instructions ul):not(.bank-details-list){
         flex-direction:column!important;gap:var(--s0)!important;align-items:stretch!important
     }
     .bil-row.bil-row-prefer-inline {
-        flex-wrap: wrap; 
-        flex-direction: row !important; 
+        flex-wrap: wrap;
+        flex-direction: row !important;
     }
     .bil-row.bil-row-prefer-inline > :is(.en, p.en),
     .bil-row.bil-row-prefer-inline > :is(.ar, p.ar) {
-        flex-basis: 100% !important; 
-        width: 100% !important; 
+        flex-basis: 100% !important;
+        width: 100% !important;
         text-align: left !important;
         margin-bottom: var(--s0);
     }
@@ -487,47 +510,48 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
     }
 
     :is(h1,h2,h3,h4,h5):has(> span.en):has(> span.ar) {
-        flex-direction: column; 
-        align-items: center; 
-        gap: 0; 
+        flex-direction: column;
+        align-items: center; /* Center the .en/.ar blocks */
+        gap: 0;
     }
     :is(h1,h2,h3,h4,h5) > span.en, :is(h1,h2,h3,h4,h5) > span.ar {
         width:100% !important;
-        text-align:center !important; 
+        /* text-align:center !important; /* REMOVED - text inside will align L/R */
     }
     .sec-head h2 > span.en::after, .sec-head h2 > span.ar::after,
-    .hero-section .hero-why-choose .sec-head h2 > span.en::after, 
+    .hero-section .hero-why-choose .sec-head h2 > span.en::after,
     .hero-section .hero-why-choose .sec-head h2 > span.ar::after {
         left: 50%;
         transform: translateX(-50%);
-        right: auto; 
+        right: auto;
     }
 
-    .footer-brand-desc { 
+    .footer-brand-desc {
         flex-direction: column;
-        align-items: center;
+        align-items: center; /* Center the .en/.ar blocks */
     }
     .footer-brand-desc .en, .footer-brand-desc .ar {
         width: 100%;
-        text-align: center !important;
+        /* text-align: center !important; /* REMOVED - text inside will align L/R */
     }
     .footer-copyright { text-align: center; }
-    .bil-copyright-suffix { 
-        display: block; 
+    .bil-copyright-suffix {
+        display: block;
         width: 100%;
         text-align: center;
         margin-left: 0;
         margin-top: var(--s0);
     }
     .bil-copyright-suffix .en, .bil-copyright-suffix .ar {
-        display: block; 
+        display: block;
         width: 100%;
-        text-align: center !important;
+        /* text-align: center !important; /* REMOVED - text inside will align L/R */
     }
 
-    :is(.pban .bil-row, .rgrp label, .badge span, .summary-item .bil-row, .summary-total .bil-row, 
-    .form-panel-title.bil-row, .form-subhead.bil-row, 
-    .confirmation-message .bil-row:not(.confirmation-intro-text), 
+
+    :is(.pban .bil-row, .rgrp label, .badge span, .summary-item .bil-row, .summary-total .bil-row,
+    .form-panel-title.bil-row, .form-subhead.bil-row,
+    .confirmation-message .bil-row:not(.confirmation-intro-text),
     #check-booking-status .card-act, .pban-text-content .bil-row) {
         flex-direction:row!important;align-items:center!important;gap:var(--s1)!important
     }
@@ -535,7 +559,7 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
     .card-content .bil-row > .en,.card-content .bil-row > .ar{text-align:left!important;width:100%!important} .card-content .bil-row > .ar{text-align:right!important}
     #check-booking-status .card-act{flex-direction:row!important;gap:var(--s1)!important}
     .confirmation-message .bil-row:not(.quick-recap-title):not(.payment-instructions-title):not(.booking-id-card .bil-row) > div {text-align:center!important}
-    .booking-id-card .bil-row > p.en {text-align:left!important} 
+    .booking-id-card .bil-row > p.en {text-align:left!important}
     .booking-id-card .bil-row > p.ar {text-align:right!important}
     .confirmation-message .quick-recap-title > span, .confirmation-message .payment-instructions-title > span { text-align: left !important; }
     .confirmation-message .quick-recap-title > span.ar, .confirmation-message .payment-instructions-title > span.ar { text-align: right !important; }
@@ -545,7 +569,7 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
     .tslots{justify-content:center} .ts{font-size:.8rem;padding:var(--s0) var(--s1);min-width:90px}
     .pban-text-content .bil-row .en, .pban-text-content .bil-row .ar {text-align:center!important}
     .sec-head{margin-bottom:var(--s2);padding-bottom:var(--s0)} .pban{text-align:center} .pban .btn{width:auto;padding:var(--s0) var(--s2)}
-    .card-b{padding:var(--s1)} 
+    .card-b{padding:var(--s1)}
     .card-content{margin-bottom:var(--s0)} .card-foot{padding-top:var(--s0)}
     .card-act select,.card-act .btn{height:30px;font-size:.7rem}
     .btn{font-size:.8rem} .btn-lg{font-size:.85rem}
@@ -553,7 +577,7 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
     #check-booking-status .form-panel-card{margin-top:var(--s1)}
     #check-booking-status .card-act{flex-direction:column!important;gap:var(--s1)!important}
     #check-booking-status .card-act input.form-input-styled{margin-bottom:var(--s0)}
-    .stepper-outer-wrapper {top:var(--header-height)} /* Use variable, assuming it might change in media queries */
+    .stepper-outer-wrapper {top:var(--header-height)}
     .stepper-item .step-label.en,.stepper-item .step-label.ar{font-size:.7rem} .stepper-item .step-label.ar{margin-top:1px}
     .stepper-connector{top:-9px;margin:0 var(--s0)} .stepper-item .step-number{width:20px;height:20px;line-height:18px}
     .nav-container {flex-direction:row;align-items:center;justify-content:space-between}
@@ -564,25 +588,14 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
     .pm label{min-height:50px} .payment-icon{height:32px;max-width:55px}
 }
 @media(max-width:480px){
-    /* If header height changes at this breakpoint, update --header-height or use a new variable */
-    /* For example, if header becomes 60px: */
-    /* :root { --header-height-mobile-sm: 60px; } */
-    /* body { padding-top: var(--header-height-mobile-sm); } */
-    /* .site-header { height: var(--header-height-mobile-sm); } */
-    /* .mobile-nav-menu { top: var(--header-height-mobile-sm); } */
-    /* .stepper-outer-wrapper { top: var(--header-height-mobile-sm); } */
-    
-    /* Assuming header is 60px from original styles: */
     body {padding-top: 60px;}
     .site-header {height: 60px;}
     .mobile-nav-menu {top: 60px;}
     .stepper-outer-wrapper {top: 60px;}
-    #udheya-booking-form-panel { scroll-margin-top: calc(60px + 40px); } /* 60px header + ~40px stepper */
+    #udheya-booking-form-panel { scroll-margin-top: calc(60px + 40px); }
 
 
     .stepper-item .step-label.en{display:none} .stepper-item .step-label.ar{font-size:.65rem}
-    /* .site-header {height:60px;padding:var(--s0) var(--s1)} body {padding-top:60px} */ /* Covered above */
-    /* .mobile-nav-menu {top:60px} .stepper-outer-wrapper {top:60px} */ /* Covered above */
     .brand-logo {font-size:1rem} .hamburger-btn svg {width:24px;height:24px}
     .payment-icon{height:28px;max-width:50px} .ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
     .bil-copyright-suffix {
@@ -592,6 +605,7 @@ label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
         margin-left:0;
     }
     .bil-copyright-suffix .en, .bil-copyright-suffix .ar {
-        display: block; width: 100%; text-align: center !important;
+        display: block; width: 100%;
+        /* text-align: center !important; /* REMOVED */
     }
 }
