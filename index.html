@@ -75,7 +75,7 @@
     </header>
 
     <main>
-        <section class="hero-section sec"> <!-- Removed padding:var(--s4) 0 var(--s5); from here, handled by flex -->
+        <section class="hero-section sec">
             <div class="c tc">
                 <div class="hero-title-row"><h1><span class="en">Book Your Udhiya Online</span><span class="ar" dir="rtl">احجز أضحيتك عبر الإنترنت</span></h1></div>
                 <div class="hero-subtitle-row"><h2><span class="en">Farm to Your Table, Sharia Compliant</span><span class="ar" dir="rtl">من المزرعة إلى مائدتك، وفق الشريعة</span></h2></div>
@@ -175,15 +175,44 @@
                 <div class="stepper-outer-wrapper" x-show="!bookingConfirmed">
                     <div class="c">
                         <div class="stepper-content-flex">
-                            <a href="#udheya-booking-form-panel" class="stepper-item" :class="{ 'active': currentActiveStep === 1, 'completed': selectedAnimal.type }" @click.prevent="updateStepperState(1); scrollToSection('#udheya-booking-form-panel')"><span class="step-number">1</span><span class="step-label en">Animal</span><span class="step-label ar">الحيوان</span></a>
+                            <!-- Step 1: Animal -->
+                            <a href="#udheya-booking-form-panel" class="stepper-item"
+                               :class="{ 'active': currentActiveStep === 1, 'completed': selectedAnimal.type }"
+                               @click.prevent="updateStepperState(1); scrollToSection('#udheya-booking-form-panel')">
+                               <span class="step-number">1</span><span class="step-label en">Animal</span><span class="step-label ar">الحيوان</span>
+                            </a>
                             <div class="stepper-connector"></div>
-                            <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 2 && selectedAnimal.type, 'completed': selectedAnimal.type && selectedPrepStyle.value, 'disabled': !selectedAnimal.type}" @click.prevent="if(selectedAnimal.type) { updateStepperState(2); scrollToSection('#udheya-booking-form-panel'); }"><span class="step-number">2</span><span class="step-label en">Preparation</span><span class="step-label ar">التجهيز</span></a>
+                            <!-- Step 2: Prep & Package -->
+                            <a href="#udheya-booking-form-panel" class="stepper-item"
+                               :class="{
+                                   'active': currentActiveStep === 2 && selectedAnimal.type,
+                                   'completed': selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value,
+                                   'disabled': !selectedAnimal.type
+                               }"
+                               @click.prevent="if(selectedAnimal.type) { updateStepperState(2); scrollToSection('#udheya-booking-form-panel'); }">
+                               <span class="step-number">2</span><span class="step-label en">Prep & Package</span><span class="step-label ar">التجهيز والتغليف</span>
+                            </a>
                             <div class="stepper-connector"></div>
-                            <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 3 && selectedAnimal.type && selectedPrepStyle.value, 'completed': selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value, 'disabled': !(selectedAnimal.type && selectedPrepStyle.value)}" @click.prevent="if(selectedAnimal.type && selectedPrepStyle.value) { updateStepperState(3); scrollToSection('#udheya-booking-form-panel'); }"><span class="step-number">3</span><span class="step-label en">Packaging</span><span class="step-label ar">التغليف</span></a>
+                            <!-- Step 3: Logistics -->
+                            <a href="#udheya-booking-form-panel" class="stepper-item"
+                               :class="{
+                                   'active': currentActiveStep === 3 && selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value,
+                                   'completed': selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value && canProceedFromLogistics(),
+                                   'disabled': !(selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value)
+                               }"
+                               @click.prevent="if(selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value) { updateStepperState(3); scrollToSection('#udheya-booking-form-panel'); }">
+                               <span class="step-number">3</span><span class="step-label en">Logistics</span><span class="step-label ar">التفاصيل</span>
+                            </a>
                             <div class="stepper-connector"></div>
-                            <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 4 && selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value && !canProceedFromLogistics(), 'completed': selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value && canProceedFromLogistics(), 'disabled': !(selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value)}" @click.prevent="if(selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value) { updateStepperState(4); scrollToSection('#udheya-booking-form-panel'); }"><span class="step-number">4</span><span class="step-label en">Logistics</span><span class="step-label ar">التفاصيل</span></a>
-                            <div class="stepper-connector"></div>
-                            <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 5 && canProceedFromLogistics(), 'disabled': !canProceedFromLogistics()}" @click.prevent="if(canProceedFromLogistics()) { updateStepperState(5); scrollToSection('#udheya-booking-form-panel'); }"><span class="step-number">5</span><span class="step-label en">Review</span><span class="step-label ar">المراجعة</span></a>
+                            <!-- Step 4: Review -->
+                            <a href="#udheya-booking-form-panel" class="stepper-item"
+                               :class="{
+                                   'active': currentActiveStep === 4 && canProceedFromLogistics(),
+                                   'disabled': !canProceedFromLogistics()
+                               }"
+                               @click.prevent="if(canProceedFromLogistics()) { updateStepperState(4); scrollToSection('#udheya-booking-form-panel'); }">
+                               <span class="step-number">4</span><span class="step-label en">Review</span><span class="step-label ar">المراجعة</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -207,7 +236,7 @@
                                     </div>
                                     <div class="product-grid grid2">
                                         <div id="baladi" class="card livestock-card" :class="{'livestock-card-selected': selectedAnimal.value === 'baladi'}">
-                                            <div class="card-img"><img src="/images/baladi-sheep.jpg" alt="Baladi Sheep"><div class="badge"><span class="en">BALADI</span><span class="ar" dir="rtl">بلدي</span></div></div>
+                                            <div class="card-img"><img src="/images/baladi-sheep.jpg" alt="Baladi Sheep"><div class="badge bhalal"><span class="en">BALADI</span><span class="ar" dir="rtl">بلدي</span></div></div>
                                             <div class="card-b">
                                                 <div class="card-content"><div class="bil-row"><div><h3 class="card-h en">Baladi Sheep</h3><p class="card-p en">Local breed, rich flavor.</p></div><div><h3 class="card-h ar" dir="rtl">خروف بلدي</h3><p class="card-p ar" dir="rtl">سلالة محلية، نكهة غنية.</p></div></div></div>
                                                 <div class="card-foot">
@@ -220,7 +249,7 @@
                                             </div>
                                         </div>
                                         <div id="barki" class="card livestock-card" :class="{'livestock-card-selected': selectedAnimal.value === 'barki'}">
-                                            <div class="card-img"><img src="/images/barki-sheep.jpg" alt="Barki Sheep"><div class="badge"><span class="en">BARKI</span><span class="ar" dir="rtl">برقي</span></div></div>
+                                            <div class="card-img"><img src="/images/barki-sheep.jpg" alt="Barki Sheep"><div class="badge bhalal"><span class="en">BARKI</span><span class="ar" dir="rtl">برقي</span></div></div>
                                             <div class="card-b">
                                                 <div class="card-content"><div class="bil-row"><div><h3 class="card-h en">Barki Sheep</h3><p class="card-p en">Desert breed, lean meat.</p></div><div><h3 class="card-h ar" dir="rtl">خروف برقي</h3><p class="card-p ar" dir="rtl">سلالة صحراوية، لحم قليل الدهن.</p></div></div></div>
                                                 <div class="card-foot">
@@ -233,57 +262,55 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-action tc page-step-action">
+                                        <button type="button" class="btn bac btn-lg" @click="if(selectedAnimal.type) { updateStepperState(2); scrollToSection('#udheya-booking-form-panel'); } else { alert('Please select an animal and weight.');}" :disabled="!selectedAnimal.type" :class="{'disabled-btn': !selectedAnimal.type }">
+                                            <span class="en">Next: Preparation & Packaging</span><span class="ar">التالي: التجهيز والتغليف</span>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <!-- Step 2: Preparation Style -->
+                                <!-- Step 2: Preparation & Packaging (Combined) -->
                                 <div id="step2-content" x-show="currentActiveStep === 2 && selectedAnimal.type" class="form-step-content seca" x-transition>
-                                    <div class="sec-head"><h2><span class="en">Step 2: Choose Preparation Style</span><span class="ar">الخطوة الثانية: اختر طريقة التجهيز</span></h2></div>
-                                    <div class="prep-column">
-                                        <div class="product-grid grid4">
-                                            <div class="card prep-style-card" :class="{'selected': selectedPrepStyle.value === 'Standard Mixed Cuts'}" @click="selectPrepStyle({ value: 'Standard Mixed Cuts', nameEN: 'Standard Mix', nameAR: 'مزيج قياسي', is_custom: false })">
-                                                <div class="card-img"><img src="/images/prep-standard-mixed-cuts.jpg" alt="Standard Mix"></div>
-                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Standard Mix</span><span class="ar" dir="rtl">مزيج قياسي</span></h4></div><div class="bil-row"><p class="card-p en">Balanced cuts for family use.</p><p class="card-p ar" dir="rtl">تقطيع متوازن للاستخدام العائلي.</p></div></div><div class="card-foot prep-card-foot"><button type="button" class="btn bac btn-block select-prep-btn"><span class="en">Select Style</span><span class="ar">اختر</span></button></div></div>
-                                            </div>
-                                            <div class="card prep-style-card" :class="{'selected': selectedPrepStyle.value === 'Charity Portions'}" @click="selectPrepStyle({ value: 'Charity Portions', nameEN: 'Charity Portions', nameAR: 'حصص صدقة', is_custom: false })">
-                                                <div class="card-img"><img src="/images/prep-charity-portions.jpg" alt="Charity Portions"></div>
-                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Charity Portions</span><span class="ar" dir="rtl">حصص صدقة</span></h4></div><div class="bil-row"><p class="card-p en">Prepared in equal shares for donation.</p><p class="card-p ar" dir="rtl">تُجهز حصص متساوية للتبرع.</p></div></div><div class="card-foot prep-card-foot"><button type="button" class="btn bac btn-block select-prep-btn"><span class="en">Select Style</span><span class="ar">اختر</span></button></div></div>
-                                            </div>
-                                            <div class="card prep-style-card" :class="{'selected': selectedPrepStyle.value === 'Feast Preparation'}" @click="selectPrepStyle({ value: 'Feast Preparation', nameEN: 'Feast Preparation', nameAR: 'تجهيز ولائم', is_custom: false })">
-                                                <div class="card-img"><img src="/images/prep-feast-preparation.jpg" alt="Feast Preparation"></div>
-                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Feast Preparation</span><span class="ar" dir="rtl">تجهيز ولائم</span></h4></div><div class="bil-row"><p class="card-p en">Larger cuts, perfect for gatherings.</p><p class="card-p ar" dir="rtl">قطع أكبر، مثالية للتجمعات.</p></div></div><div class="card-foot prep-card-foot"><button type="button" class="btn bac btn-block select-prep-btn"><span class="en">Select Style</span><span class="ar">اختر</span></button></div></div>
-                                            </div>
-                                            <div class="card prep-style-card" :class="{'selected': selectedPrepStyle.value === 'Custom & Ground Mix'}" @click="selectPrepStyle({ value: 'Custom & Ground Mix', nameEN: 'Custom & Ground', nameAR: 'مخصص ومفروم', is_custom: true })">
-                                                <div class="card-img"><img src="/images/prep-custom-ground-mix.jpg" alt="Custom & Ground Mix"></div>
-                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Custom & Ground</span><span class="ar" dir="rtl">مخصص ومفروم</span></h4></div><div class="bil-row"><p class="card-p en">Specify cuts & mince portions.</p><p class="card-p ar" dir="rtl">حدد تقطيعاتك وحصص المفروم.</p></div></div><div class="card-foot prep-card-foot"><button type="button" class="btn bac btn-block select-prep-btn"><span class="en">Select Style</span><span class="ar">اختر</span></button></div></div>
-                                            </div>
-                                        </div>
-                                        <div class="fg custom-prep-details-container" x-show="selectedPrepStyle.is_custom" x-transition>
-                                            <label for="custom_prep_details_s2" class="bil-row"><span class="en">Custom Preparation Details</span><span class="ar">تفاصيل التجهيز المخصص</span></label>
-                                            <textarea id="custom_prep_details_s2" name="custom_preparation_details" class="form-input-styled" x-model="customPrepDetails"></textarea>
-                                        </div>
+                                    <div class="sec-head"><h2><span class="en">Step 2: Choose Preparation & Packaging</span><span class="ar">الخطوة الثانية: اختر طريقة التجهيز والتغليف</span></h2></div>
+                                    
+                                    <div class="fg">
+                                        <label for="prep_style_select_s2" class="bil-row"><span class="en">Preparation Style</span><span class="ar">طريقة التجهيز</span></label>
+                                        <select id="prep_style_select_s2" name="preparation_style_dropdown" class="form-input-styled"
+                                                x-model="selectedPrepStyle.value" @change="handlePrepStyleChangeFromDropdown($event.target.value)">
+                                            <option value="" disabled x-text="appSettings.text_select_preparation_en + ' / ' + appSettings.text_select_preparation_ar">-- Select Preparation --</option>
+                                            <option value="Standard Mixed Cuts" data-is-custom="false" data-name-en="Standard Mix" data-name-ar="مزيج قياسي">Standard Mix / مزيج قياسي</option>
+                                            <option value="Charity Portions" data-is-custom="false" data-name-en="Charity Portions" data-name-ar="حصص صدقة">Charity Portions / حصص صدقة</option>
+                                            <option value="Feast Preparation" data-is-custom="false" data-name-en="Feast Preparation" data-name-ar="تجهيز ولائم">Feast Preparation / تجهيز ولائم</option>
+                                            <option value="Custom & Ground Mix" data-is-custom="true" data-name-en="Custom & Ground" data-name-ar="مخصص ومفروم">Custom & Ground / مخصص ومفروم</option>
+                                        </select>
+                                    </div>
+                                    <div class="fg custom-prep-details-container" x-show="selectedPrepStyle.is_custom" x-transition>
+                                        <label for="custom_prep_details_s2" class="bil-row"><span class="en">Custom Preparation Details</span><span class="ar">تفاصيل التجهيز المخصص</span></label>
+                                        <textarea id="custom_prep_details_s2" name="custom_preparation_details" class="form-input-styled" x-model="customPrepDetails" placeholder="e.g., mostly leg cuts, 1kg mince"></textarea>
+                                    </div>
+
+                                    <div class="fg" style="margin-top: var(--s3);"> <!-- Added margin for separation -->
+                                        <label for="packaging_select_s2" class="bil-row"><span class="en">Packaging Preference</span><span class="ar">طريقة التغليف</span></label>
+                                        <select id="packaging_select_s2" name="packaging_preference_dropdown" class="form-input-styled"
+                                                x-model="selectedPackaging.value" @change="handlePackagingChangeFromDropdown($event.target.value)">
+                                            <option value="" disabled x-text="appSettings.text_select_packaging_en + ' / ' + appSettings.text_select_packaging_ar">-- Select Packaging --</option>
+                                            <option value="standard" data-addon-price-egp="0" data-name-en="Standard Packaging" data-name-ar="تعبئة قياسية">Standard Packaging / تعبئة قياسية</option>
+                                            <option value="vacuum_sealed" data-addon-price-egp="100" data-name-en="Vacuum Sealed" data-name-ar="تعبئة مفرغة">Vacuum Sealed (Add <span x-text="getFormattedPrice(appSettings.packaging_addons.vacuum_sealed_price_egp || 100)"></span>) / تعبئة مفرغة (إضافة <span x-text="getFormattedPrice(appSettings.packaging_addons.vacuum_sealed_price_egp || 100)"></span>)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-action tc page-step-action">
+                                        <button type="button" class="btn bac btn-lg" 
+                                                @click="if(selectedPrepStyle.value && selectedPackaging.value) { updateStepperState(3); scrollToSection('#udheya-booking-form-panel'); } else { alert(appSettings.alert_select_prep_packaging_en + ' / ' + appSettings.alert_select_prep_packaging_ar);}"
+                                                :disabled="!selectedPrepStyle.value || !selectedPackaging.value"
+                                                :class="{'disabled-btn': !selectedPrepStyle.value || !selectedPackaging.value }">
+                                            <span class="en">Next: Logistics</span><span class="ar">التالي: التفاصيل</span>
+                                        </button>
                                     </div>
                                 </div>
-
-                                <!-- Step 3: Packaging -->
-                                <div id="step3-content" x-show="currentActiveStep === 3 && selectedAnimal.type && selectedPrepStyle.value" class="form-step-content" x-transition>
-                                    <div class="sec-head"><h2><span class="en">Step 3: Choose Your Packaging</span><span class="ar">الخطوة الثالثة: اختر طريقة التغليف</span></h2></div>
-                                    <div class="package-column">
-                                        <div class="product-grid grid2">
-                                            <div class="card packaging-card" :class="{'selected': selectedPackaging.value === 'standard'}" @click="selectPackaging({ value: 'standard', nameEN: 'Standard Packaging', nameAR: 'تعبئة قياسية', addonPriceEGP: 0 })">
-                                                <div class="card-img"><img src="/images/packaging-standard.jpg" alt="Standard Packaging"></div>
-                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Standard Packaging</span><span class="ar" dir="rtl">تعبئة قياسية</span></h4></div><div class="bil-row"><p class="card-p en">Hygienic, freezer-ready.</p><p class="card-p ar" dir="rtl">صحية وجاهزة للتجميد.</p></div></div><div class="card-foot prep-card-foot"><button type="button" class="btn bac btn-block select-packaging-btn"><span class="en">Select</span><span class="ar">اختر</span></button></div></div>
-                                            </div>
-                                            <div class="card packaging-card" data-packaging-value="vacuum_sealed" :class="{'selected': selectedPackaging.value === 'vacuum_sealed'}" @click="selectPackaging({ value: 'vacuum_sealed', nameEN: 'Vacuum Sealed', nameAR: 'تعبئة مفرغة', addonPriceEGP: 100 })">
-                                                <div class="card-img"><img src="/images/packaging-vacuum-sealed.jpg" alt="Vacuum Sealed"></div>
-                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Vacuum Sealed</span><span class="ar" dir="rtl">تعبئة مفرغة</span></h4></div><div class="bil-row"><p class="card-p en">Extends freshness, ideal for storage.</p><p class="card-p ar" dir="rtl">تحافظ على النضارة، مثالية للتخزين.</p></div></div><div class="card-foot prep-card-foot"><div><div class="price-addon en">(Add <span></span>)</div><div class="price-addon ar" dir="rtl">(إضافة <span></span>)</div></div><button type="button" class="btn bac btn-block select-packaging-btn"><span class="en">Select</span><span class="ar">اختر</span></button></div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Step 4: Logistics & Personalization -->
-                                <div id="step4-content" x-show="currentActiveStep === 4 && selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value" class="form-step-content seca" x-transition>
-                                    <div class="sec-head"><h2><span class="en">Step 4: Logistics & Personalization</span><span class="ar">الخطوة الرابعة: الخدمات اللوجستية والتخصيص</span></h2></div>
+                                
+                                <!-- Step 3: Logistics & Personalization (Original Step 4 Content) -->
+                                <div id="step4-content" x-show="currentActiveStep === 3 && selectedAnimal.type && selectedPrepStyle.value && selectedPackaging.value" class="form-step-content" x-transition>
+                                    <div class="sec-head"><h2><span class="en">Step 3: Logistics & Personalization</span><span class="ar">الخطوة الثالثة: الخدمات اللوجستية والتخصيص</span></h2></div>
                                     <div class="content-grid grid1 logistics-content-grid">
                                         <h4 class="form-panel-title bil-row"><span class="en">Scheduling</span><span class="ar">المواعيد</span></h4>
                                         <div class="fg">
@@ -352,9 +379,9 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 5: Review, Options & Payment -->
-                                <div id="step5-content" x-show="currentActiveStep === 5 && canProceedFromLogistics()" class="form-step-content" x-transition>
-                                    <div class="sec-head"><h2><span class="en">Step 5: Review, Options & Payment</span><span class="ar">الخطوة الخامسة: المراجعة، الخيارات والدفع</span></h2></div>
+                                <!-- Step 4: Review, Options & Payment (Original Step 5 Content) -->
+                                <div id="step5-content" x-show="currentActiveStep === 4 && canProceedFromLogistics()" class="form-step-content" x-transition>
+                                    <div class="sec-head"><h2><span class="en">Step 4: Review, Options & Payment</span><span class="ar">الخطوة الرابعة: المراجعة، الخيارات والدفع</span></h2></div>
                                     <div class="review-summary-wrapper">
                                         <h3 class="form-panel-title bil-row review-summary-title"><span class="en">Your Udheya Booking Summary</span><span class="ar">ملخص حجز أضحيتك</span></h3>
                                         <div x-show="selectedAnimal.type">
@@ -413,7 +440,7 @@
                                     <p class="ar booking-id-card-label" dir="rtl">رقم حجزكم:</p>
                                 </div>
                                 <p class="booking-id-display" x-text="bookingID"></p>
-                                <p class="en booking-id-card-note">Save ID for status check. Confirmation email sent to <strong x-text="customerEmail && isValidEmail(customerEmail) ? customerEmail : 'your email (if provided)'"></strong>.</p><p class="ar dir="rtl" booking-id-card-note">احفظ الرقم للتحقق. تم إرسال تأكيد إلى <strong x-text="customerEmail && isValidEmail(customerEmail) ? customerEmail : 'بريدك (إذا قُدم)'"></strong>.</p>
+                                <p class="en booking-id-card-note">Save ID for status check. Confirmation email sent to <strong x-text="customerEmail && isValidEmail(customerEmail) ? customerEmail : 'your email (if provided)'"></strong>.</p><p class="ar booking-id-card-note" dir="rtl">احفظ الرقم للتحقق. تم إرسال تأكيد إلى <strong x-text="customerEmail && isValidEmail(customerEmail) ? customerEmail : 'بريدك (إذا قُدم)'"></strong>.</p>
                             </div></div>
                             <div class="quick-recap-wrapper">
                                 <h4 class="form-panel-title bil-row quick-recap-title"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
@@ -471,7 +498,7 @@
 
     <footer class="site-footer-main main-page-section"><div class="c">
         <div class="grid3 footer-grid">
-                <p class="footer-brand-desc"> 
+                <p class="footer-brand-desc">
                     <span class="en">We are your full-service Egyptian team, committed to meeting your needs with exceptional speed and quality, sparing you the inconvenience of market visits.</span>
                     <span class="ar">نحن فريق متكامل لتلبية احتياجاتك بأسرع وقت وأفضل جودة، ونكفيك عناء الذهاب للسوق.</span>
                 </p>
