@@ -1,0 +1,104 @@
+/* --- NEW STYLES FOR ENHANCEMENTS --- */
+
+/* Required Fields Note */
+.required-fields-note {
+    font-size: 0.75em;
+    color: var(--tm);
+    margin-bottom: var(--s2); /* Add some space below it */
+    padding: var(--s0) var(--s1);
+    background-color: var(--b2);
+    border-radius: var(--rad);
+}
+.required-fields-note p {
+    margin: 0;
+}
+
+/* Stepper Checkmark */
+.stepper-item .step-checkmark {
+    width: 24px; /* Match step-number */
+    height: 24px; /* Match step-number */
+    color: var(--td); /* White color for checkmark */
+    background-color: var(--c2l); /* Same as completed step number background */
+    border: 1px solid var(--c2l); /* Same as completed step number border */
+    border-radius: 50%;
+    padding: 2px; /* Adjust padding for visual balance */
+    margin-bottom: 2px; /* Same as step-number */
+    box-sizing: border-box;
+    display: inline-flex; /* Ensure it behaves like an icon */
+    align-items: center;
+    justify-content: center;
+}
+.stepper-item.active .step-checkmark { /* Should not be visible if active, number shows */
+    display: none;
+}
+
+/* Edit button in Review Summary */
+.summary-item { /* Ensure summary items can contain the button nicely */
+    display: flex; /* Use flex to align content and button */
+    justify-content: space-between;
+    align-items: center; /* Vertically align items */
+    gap: var(--s1);
+}
+.summary-item-content { /* Wrapper for the text part of the summary item */
+    flex-grow: 1; /* Allow text content to take available space */
+}
+/* Override for existing bil-row within summary-item if it was just for text */
+.summary-item .bil-row {
+    width: auto; /* Allow bil-row to not take full width if it's just text */
+    flex-grow: 1;
+}
+.summary-item .summary-item-content > .en,
+.summary-item .summary-item-content > .ar {
+    display: block; /* Ensure EN/AR text parts stack if needed or take full width of content area */
+}
+
+
+.btn-edit-summary {
+    padding: 2px var(--s0);
+    font-size: 0.7rem;
+    font-weight: normal;
+    line-height: 1;
+    background-color: transparent;
+    border: 1px solid var(--bs);
+    color: var(--tm);
+    border-radius: var(--rad);
+    text-transform: uppercase;
+    margin-left: var(--s1); /* Space from the text */
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+.btn-edit-summary:hover {
+    background-color: var(--b2);
+    border-color: var(--c2l);
+    color: var(--c1d);
+    transform: none; /* No hover transform for these small buttons */
+    filter: none;
+}
+.btn-edit-summary .ar {
+    font-size: 0.9em; /* Adjust Arabic font size if needed */
+}
+
+
+/* Input tap target size improvements (example, adjust as needed) */
+.form-input-styled, .fg input[type=text], .fg input[type=tel], .fg input[type=date], .fg input[type=email], .fg select, .fg textarea {
+    min-height: 36px; /* Ensure a decent minimum height */
+}
+.ts { /* Time slots */
+    min-height: 38px; /* Make time slots a bit taller */
+    padding: var(--s1) var(--s1); /* Adjust padding for touch */
+}
+.rgrp label {
+    padding-top: 5px; /* Add some vertical padding to radio/checkbox labels */
+    padding-bottom: 5px;
+}
+.rgrp input[type=radio], .rgrp input[type=checkbox] {
+    transform: scale(1.1); /* Slightly larger radio/checkbox */
+    margin-right: calc(var(--s0) + 2px);
+}
+
+
+/* Styling for livestock weight select placeholder if needed */
+.livestock-weight-select option[value=""] {
+    color: var(--tm); /* Muted color for placeholder */
+}
+
+/* --- END NEW STYLES --- */
