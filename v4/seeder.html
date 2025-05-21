@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PocketBase Data Seeder</title>
+    <title>PocketBase Full Seeder (Collections & Data)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; line-height: 1.6; padding: 20px; background-color: #f0f2f5; color: #1c1e21; }
         .container { max-width: 800px; margin: 20px auto; background-color: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1); }
         h1 { color: #1877f2; margin-bottom: 20px; text-align: center; }
-        .important { color: #fa383e; font-weight: bold; border: 1px solid #fcc2c2; background-color: #ffe5e5; padding: 15px; border-radius: 6px; margin-bottom: 20px;}
-        .important strong { display: block; margin-bottom: 5px; }
-        .important ol { padding-left: 20px; margin: 0; }
-        .important li { margin-bottom: 5px; }
-        .log-output { margin-top: 20px; padding: 15px; background-color: #282c34; color: #abb2bf; border: 1px solid #31353f; border-radius: 6px; white-space: pre-wrap; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; max-height: 400px; overflow-y: auto; font-size: 0.9em; }
+        .warning { color: #c00; font-weight: bold; border: 2px solid #c00; background-color: #ffe0e0; padding: 15px; border-radius: 6px; margin-bottom: 20px;}
+        .warning strong { display: block; margin-bottom: 5px; }
+        .warning ul { padding-left: 20px; margin: 0; }
+        .warning li { margin-bottom: 5px; }
+        .log-output { margin-top: 20px; padding: 15px; background-color: #282c34; color: #abb2bf; border: 1px solid #31353f; border-radius: 6px; white-space: pre-wrap; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; max-height: 500px; overflow-y: auto; font-size: 0.9em; }
         .log-output .info { color: #61afef; }
         .log-output .error { color: #e06c75; }
         .log-output .warn { color: #e5c07b; }
@@ -28,24 +28,24 @@
 </head>
 <body>
     <div class="container">
-        <h1>PocketBase Data Seeder</h1>
+        <h1>PocketBase Full Seeder (Collections & Data)</h1>
 
-        <div class="important">
-            <strong>IMPORTANT INSTRUCTIONS:</strong>
-            <ol>
-                <li>Ensure your PocketBase instance is running.</li>
-                <li><strong>API URL:</strong> The script below defaults to <code>/api/</code>. If your PocketBase instance is on a different URL (e.g., <code>http://localhost:8090</code>), you <strong>MUST</strong> update the <code>API_URL_PREFIX</code> variable in the script section of this file.</li>
-                <li><strong>Collections Must Exist:</strong> This script seeds data into existing collections. If collections like 'app_settings' or 'livestock_types' don't exist, you need to create them first, typically by importing your <code>pb_schema.json</code> in the PocketBase Admin UI (Settings -> Import collections).</li>
-                <li><strong>API Rules for Records:</strong> Temporarily open API rules in PocketBase for 'app_settings' and 'livestock_types' collections (specifically 'Create Rule' and 'Update Rule' for *records*, e.g., set to <code>""</code> for public access) if running this seeder unauthenticated.</li>
-                <li><strong>RE-SECURE YOUR API RULES IMMEDIATELY</strong> after seeding is complete!</li>
-            </ol>
+        <div class="warning">
+            <strong>EXTREME CAUTION REQUIRED:</strong>
+            <ul>
+                <li>This script attempts to CREATE COLLECTIONS. This requires the 'Create Rule' for the <code>_collections</code> system collection in PocketBase to be TEMPORARILY public (e.g., <code>""</code>).</li>
+                <li>API rules for creating/updating RECORDS in 'app_settings' and 'livestock_types' also need to be temporarily open if running unauthenticated.</li>
+                <li><strong>IMMEDIATELY RE-SECURE ALL API RULES</strong> in PocketBase after this script finishes. Failure to do so is a MAJOR SECURITY RISK.</li>
+                <li>If PocketBase is not at <code>/api/</code> relative to this page, update <code>API_URL_PREFIX</code> in the script.</li>
+                <li>This script is for initial setup or controlled development environments. NOT for production use.</li>
+            </ul>
         </div>
 
         <div class="config-note">
             Current API Prefix: <code id="current-api-prefix">/api/</code> (Update in script if needed)
         </div>
 
-        <button onclick="manualRunSeeder()">Run Seeder Manually</button>
+        <button onclick="manualRunSeeder()">Run Full Seeder Manually</button>
         <p><em>The seeder will attempt to run automatically if this page is opened on <code>localhost</code>, <code>127.0.0.1</code>, or via <code>file:///</code> protocol.</em></p>
 
         <div class="status info" id="status-message">Status: Waiting...</div>
@@ -70,48 +70,148 @@
             logOutputDiv.scrollTop = logOutputDiv.scrollHeight; 
         }
 
-        async function checkCollectionExists(collectionName) {
+        // --- SCHEMA DEFINITIONS (derived from your pb_schema.json) ---
+        const collectionsSchema = [
+            {
+                name: "app_settings",
+                type: "base",
+                system: false,
+                schema: [
+                    // PocketBase auto-adds 'id', 'created', 'updated' system fields for base type.
+                    // We only define non-system fields here for creation.
+                    { name: "setting_key", type: "text", required: true, system: false, unique: true, options: { min:1, max: null, pattern: "" }},
+                    { name: "exchange_rates", type: "json", system: false, options: { maxSize: 5242880 }},
+                    { name: "default_currency", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "whatsapp_number_raw", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "whatsapp_number_display", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "promo_end_date", type: "date", system: false, options: { min: "", max: "" }},
+                    { name: "promo_discount_percent", type: "number", system: false, options: { min: null, max: null }},
+                    { name: "promo_is_active", type: "bool", system: false },
+                    { name: "delivery_areas", type: "json", system: false, options: { maxSize: 5242880 }},
+                    { name: "payment_details", type: "json", system: false, options: { maxSize: 5242880 }}
+                ],
+                indexes: ["CREATE UNIQUE INDEX `idx_app_settings_setting_key` ON `app_settings` (`setting_key`)"], // Example, check PB docs for exact syntax
+                listRule: null, viewRule: null, createRule: null, updateRule: null, deleteRule: null // Set to "" temporarily for seeding
+            },
+            {
+                name: "livestock_types",
+                type: "base",
+                system: false,
+                schema: [
+                    { name: "value_key", type: "text", required: true, system: false, unique: true, options: {min:1, max: null, pattern: ""}},
+                    { name: "name_en", type: "text", required: true, system: false, options: {min:1, max: null, pattern: ""}},
+                    { name: "name_ar", type: "text", required: true, system: false, options: {min:1, max: null, pattern: ""}},
+                    { name: "weights_prices", type: "json", system: false, options: { maxSize: 5242880 }}
+                ],
+                indexes: ["CREATE UNIQUE INDEX `idx_livestock_types_value_key` ON `livestock_types` (`value_key`)"],
+                listRule: null, viewRule: null, createRule: null, updateRule: null, deleteRule: null
+            },
+            {
+                name: "bookings",
+                type: "base",
+                system: false,
+                schema: [
+                    { name: "booking_id_text", type: "text", required: true, system: false, unique: true, options: {min:1, max: null, pattern: ""}},
+                    { name: "animal_type_key", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "animal_type_name_en", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "animal_type_name_ar", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "animal_weight_selected", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "animal_base_price_egp", type: "number", required: true, system: false, options: { min: null, max: null }},
+                    { name: "preparation_style_value", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "preparation_style_name_en", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "preparation_style_name_ar", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "is_custom_prep", type: "bool", system: false },
+                    { name: "custom_prep_details", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "packaging_value", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "packaging_name_en", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "packaging_name_ar", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "packaging_addon_price_egp", type: "number", system: false, options: { min: null, max: null }},
+                    { name: "total_price_egp", type: "number", required: true, system: false, options: { min: null, max: null }},
+                    { name: "sacrifice_day_value", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "time_slot", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "distribution_choice", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "split_details_option", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "custom_split_details_text", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "niyyah_names", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "customer_email", type: "text", system: false, options: {min:null, max: null, pattern: ""}}, // Should be email type in schema ideally
+                    { name: "group_purchase_interest", type: "bool", system: false },
+                    { name: "delivery_name", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "delivery_phone", type: "text", system: false, options: {min:null, max: null, pattern: ""}}, // Should be tel type
+                    { name: "delivery_governorate_id", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "delivery_city_id", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "delivery_address", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "delivery_instructions", type: "text", system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "payment_method", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "payment_status", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}},
+                    { name: "booking_status", type: "text", required: true, system: false, options: {min:null, max: null, pattern: ""}}
+                ],
+                indexes: ["CREATE UNIQUE INDEX `idx_bookings_booking_id_text` ON `bookings` (`booking_id_text`)"],
+                listRule: null, viewRule: null, createRule: null, updateRule: null, deleteRule: null
+            }
+        ];
+
+        async function ensureCollection(collectionSchema) {
+            customLog(`Checking/Creating collection: ${collectionSchema.name}`, 'info');
             try {
-                // Attempt a lightweight query to check if the collection is accessible
-                const response = await fetch(`${API_URL_PREFIX}/collections/${collectionName}/records?perPage=1`);
-                if (response.status === 404) { // Check if specifically a 404, could mean collection not found
-                    const errorData = await response.json().catch(() => ({})); // Try to parse error
-                    if (errorData.message && errorData.message.toLowerCase().includes("isn't a valid collection id or name")) {
-                        return false; // Collection definitely doesn't exist
+                const response = await fetch(`${API_URL_PREFIX}/collections/${collectionSchema.name}`, { method: 'GET' }); // No admin token, relies on open view rule for _collections or it will 404
+                if (response.status === 404 || response.status === 403) { // 403 if view rule is restrictive
+                    customLog(`Collection '${collectionSchema.name}' not found or not accessible. Attempting to create... (Ensure _collections Create Rule is public)`, 'warn');
+                    // NOTE: The 'indexes' part is tricky to send via JSON API for creation.
+                    // PocketBase usually handles index creation based on 'unique' field options.
+                    // For full index control, migrations are better. We'll omit 'indexes' for API creation simplicity.
+                    const createPayload = {
+                        name: collectionSchema.name,
+                        type: collectionSchema.type,
+                        system: collectionSchema.system,
+                        schema: collectionSchema.schema,
+                        listRule: collectionSchema.listRule,
+                        viewRule: collectionSchema.viewRule,
+                        createRule: collectionSchema.createRule, // IMPORTANT: Temporarily allow public for seeding records later
+                        updateRule: collectionSchema.updateRule, // IMPORTANT: Temporarily allow public for seeding records later
+                        deleteRule: collectionSchema.deleteRule
+                    };
+
+                    const createResponse = await fetch(`${API_URL_PREFIX}/collections`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(createPayload)
+                    });
+                    if (!createResponse.ok) {
+                        throw new Error(`Failed to create collection '${collectionSchema.name}': ${await createResponse.text()}`);
                     }
-                    // If 404 but not specific message, could be other issue, but we'll treat as possibly missing
-                    // or an API rule issue on list/view. For simplicity here, we assume it might be missing.
-                    customLog(`Warning: Collection '${collectionName}' query returned 404. It might be missing or List/View API rules are restrictive. Error: ${errorData.message || response.statusText}`, 'warn');
-                    return false; 
+                    customLog(`Collection '${collectionSchema.name}' created successfully. You may need to manually verify indexes.`, 'success');
+                    return true;
+                } else if (!response.ok) {
+                    throw new Error(`Error checking collection '${collectionSchema.name}': ${await response.text()}`);
                 }
-                return response.ok; // If not 404, and ok, it exists and is listable
+                customLog(`Collection '${collectionSchema.name}' already exists.`, 'info');
+                return true;
             } catch (e) {
-                customLog(`Network error while checking collection '${collectionName}': ${e.message}`, 'error');
-                return false; // Network error, can't confirm
+                customLog(`Error ensuring collection '${collectionSchema.name}': ${e.message}`, 'error');
+                alert(`Critical error for collection '${collectionSchema.name}': ${e.message}. Cannot proceed with seeding this collection. Ensure PocketBase is running, API_URL_PREFIX is correct, and _collections 'Create Rule' is temporarily public.`);
+                return false;
             }
         }
         
         async function seedPocketBaseData() {
-            customLog("Attempting to seed PocketBase data...", 'info');
+            customLog("Attempting to seed PocketBase data (Collections & Records)...", 'info');
             statusMessageDiv.className = 'status info';
             statusMessageDiv.textContent = "Status: Seeding in progress...";
             
-            const requiredCollections = ['app_settings', 'livestock_types'];
-            for (const collName of requiredCollections) {
-                customLog(`Checking if collection '${collName}' exists...`, 'info');
-                const exists = await checkCollectionExists(collName);
-                if (!exists) {
-                    const errorMsg = `Collection '${collName}' does not seem to exist or is not accessible. Please create it (e.g., by importing pb_schema.json in PocketBase Admin UI) and ensure List/View API rules are permissive enough for this check, then try seeding again.`;
-                    customLog(errorMsg, 'error');
+            for (const collSchema of collectionsSchema) {
+                const collectionReady = await ensureCollection(collSchema);
+                if (!collectionReady && (collSchema.name === 'app_settings' || collSchema.name === 'livestock_types')) {
+                    customLog(`Halting seeding due to failure with required collection: ${collSchema.name}`, 'error');
                     statusMessageDiv.className = 'status error';
-                    statusMessageDiv.textContent = `Status: Error - Collection '${collName}' missing or inaccessible. See logs.`;
-                    alert(errorMsg);
-                    return; // Stop seeding if a required collection is missing
+                    statusMessageDiv.textContent = `Status: Failed to ensure collection ${collSchema.name}. Seeding halted.`;
+                    return;
                 }
-                customLog(`Collection '${collName}' confirmed to exist.`, 'success');
             }
             
-            const defaultAppSettingsData = {
+            customLog("All collections checked/created. Proceeding to seed records...", 'info');
+
+            // --- App Settings Records ---
+            const defaultAppSettingsData = { /* ... (same as your last version, site_name removed) ... */
                 setting_key: "global_config",
                 exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true } },
                 default_currency: "EGP",
@@ -121,12 +221,11 @@
                 delivery_areas: [ { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]}, { id: 'giza', name_en: 'Giza', name_ar: 'الجيزة', cities: [ {id: 'dokki', name_en: 'Dokki', name_ar: 'الدقي'}, {id: 'mohandessin', name_en: 'Mohandessin', name_ar: 'المهندسين'}, {id: 'haram', name_en: 'Haram', name_ar: 'الهرم'} ]}, { id: 'alexandria', name_en: 'Alexandria', name_ar: 'الإسكندرية', cities: [ {id: 'smouha', name_en: 'Smouha', name_ar: 'سموحة'}, {id: 'miami', name_en: 'Miami', name_ar: 'ميامي'} ]}, { id: 'other_gov', name_en: 'Other Governorate', name_ar: 'محافظة أخرى', cities: [] } ],
                 payment_details: { vodafone_cash: "010 YOUR VODA NUMBER", instapay_ipn: "YOUR.IPN@instapay", revolut_details: "@YOUR_REVTAG or Phone: +XX XXXXXXXX", bank_name: "YOUR BANK NAME", bank_account_name: "YOUR ACCOUNT HOLDER NAME", bank_account_number: "YOUR ACCOUNT NUMBER", bank_iban: "YOUR IBAN (Optional)", bank_swift: "YOUR SWIFT/BIC (Optional)" }
             };
-
             try {
                 customLog("Processing app_settings records...", 'info');
                 const checkSettingsUrl = `${API_URL_PREFIX}/collections/app_settings/records?filter=(setting_key='global_config')&perPage=1`;
-                const checkResponse = await fetch(checkSettingsUrl); // API rule for List must be open enough
-                if (!checkResponse.ok) throw new Error(`Checking settings failed (ensure List API Rule for app_settings is open): ${checkResponse.statusText} - ${await checkResponse.text()}`);
+                const checkResponse = await fetch(checkSettingsUrl);
+                if (!checkResponse.ok) throw new Error(`Checking settings record failed (ensure List API Rule for app_settings is open): ${checkResponse.statusText} - ${await checkResponse.text()}`);
                 const checkData = await checkResponse.json();
                 
                 if (checkData.items && checkData.items.length > 0) {
@@ -143,11 +242,12 @@
                 }
             } catch (error) {
                 customLog("Error seeding app_settings records: " + error.message, 'error');
-                statusMessageDiv.className = 'status error'; statusMessageDiv.textContent = "Status: Error with app_settings records. Check API rules (Create/Update/List) & console."; return;
+                statusMessageDiv.className = 'status error'; statusMessageDiv.textContent = "Status: Error with app_settings records. Check API rules (Create/Update/List for records) & console."; return;
             }
 
+            // --- Livestock Types Records ---
             customLog("Processing livestock_types records...", 'info');
-            const defaultLivestockData = [
+            const defaultLivestockData = [ /* ... (same as your last version) ... */
                 { value_key: 'baladi', name_en: 'Baladi Sheep', name_ar: 'خروف بلدي', weights_prices: [ { weight_range: "30-40 kg", price_egp: 4500, stock: 15, is_active: true }, { weight_range: "40-50 kg", price_egp: 5200, stock: 10, is_active: true }, { weight_range: "50+ kg", price_egp: 6000, stock: 0, is_active: true } ] },
                 { value_key: 'barki', name_en: 'Barki Sheep', name_ar: 'خروف برقي', weights_prices: [ { weight_range: "35-45 kg", price_egp: 5100, stock: 8, is_active: true }, { weight_range: "45-55 kg", price_egp: 5900, stock: 12, is_active: true } ] }
             ];
@@ -156,7 +256,7 @@
                 try {
                     customLog(`Processing livestock record: ${livestock.value_key}`, 'info');
                     const checkLivestockUrl = `${API_URL_PREFIX}/collections/livestock_types/records?filter=(value_key='${livestock.value_key}')&perPage=1`;
-                    const checkResponse = await fetch(checkLivestockUrl); // API rule for List must be open enough
+                    const checkResponse = await fetch(checkLivestockUrl);
                     if (!checkResponse.ok) throw new Error(`Checking livestock ${livestock.value_key} failed (ensure List API Rule for livestock_types is open): ${checkResponse.statusText} - ${await checkResponse.text()}`);
                     const checkData = await checkResponse.json();
 
@@ -174,13 +274,14 @@
                     livestockSuccessCount++;
                 } catch (error) { customLog(`Error seeding livestock record ${livestock.value_key}: ` + error.message, 'error'); }
             }
-            if (livestockSuccessCount === defaultLivestockData.length) customLog("All livestock records processed successfully.", 'success');
-            else customLog(`${livestockSuccessCount} of ${defaultLivestockData.length} livestock records processed. Some had errors. Check API rules (Create/Update/List).`, 'warn');
+             if (livestockSuccessCount === defaultLivestockData.length) customLog("All livestock records processed successfully.", 'success');
+            else customLog(`${livestockSuccessCount} of ${defaultLivestockData.length} livestock records processed. Some had errors. Check API rules (Create/Update/List for records).`, 'warn');
 
-            customLog("Data seeding process finished. REMEMBER TO RE-SECURE YOUR API RULES!", 'warn');
+
+            customLog("Data seeding process finished. REMEMBER TO RE-SECURE ALL API RULES (collections and records)!", 'warn');
             statusMessageDiv.className = 'status success';
-            statusMessageDiv.textContent = "Status: Seeding process finished. Check logs. RE-SECURE API RULES!";
-            alert("Data seeding finished. Refresh your main application page to see changes if any. Remember to re-secure your API rules in PocketBase!");
+            statusMessageDiv.textContent = "Status: Seeding process finished. Check logs. RE-SECURE ALL API RULES!";
+            alert("Data seeding finished. Refresh your main application page to see changes if any. Remember to re-secure your API rules in PocketBase (for _collections, app_settings, and livestock_types)!");
         }
 
         async function manualRunSeeder() {
