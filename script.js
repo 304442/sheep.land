@@ -37,8 +37,9 @@ document.addEventListener('alpine:init', () => {
             default_currency: "EGP",
             whatsapp_number_raw: "201234567890",
             whatsapp_number_display: "+20 123 456 7890",
-            promo_days_left: 45,
+            promo_end_date: "2024-08-15T23:59:59Z", // EXAMPLE: Set your actual promo end date
             promo_discount_percent: 15,
+            promo_is_active: true, 
             site_name: "Sheep Land",
             delivery_areas: [
                 { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]},
@@ -124,8 +125,9 @@ document.addEventListener('alpine:init', () => {
             default_currency: "EGP",
             whatsapp_number_raw: "",
             whatsapp_number_display: "",
-            promo_days_left: 0,
+            promo_end_date: null, 
             promo_discount_percent: 0,
+            promo_is_active: true, 
             site_name: "Sheep Land",
             delivery_areas: [],
             payment_details: { 
@@ -140,6 +142,7 @@ document.addEventListener('alpine:init', () => {
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: '', currentCurrency: 'EGP',
         bookingID: '', currentActiveStep: 1, isMobileMenuOpen: false,
         stepSectionsMeta: [],
+        calculatedPromoDaysLeft: 0, 
 
         get _needsDeliveryDetails() {
             const customText = (this.customSplitDetailsText || '').toLowerCase();
@@ -197,6 +200,21 @@ document.addEventListener('alpine:init', () => {
         get summaryDistributionEN() { return (this.distributionChoice === 'me') ? 'All to me' : (this.distributionChoice === 'char' ? 'All to charity (by Sheep Land)' : `Split: ${(this.splitDetails || "").trim() || '(Not specified)'}`); },
         get summaryDistributionAR() { return (this.distributionChoice === 'me') ? 'الكل لي (لتوزيعه بنفسك)' : (this.distributionChoice === 'char' ? 'تبرع بالكل للصدقة (أرض الأغنام توزع نيابة عنك)' : `تقسيم الحصص: ${(this.splitDetails || "").trim() || '(لم يحدد)'}`); },
 
+        updateCalculatedPromoDaysLeft() {
+            if (this.appSettings.promo_end_date) {
+                const endDate = new Date(this.appSettings.promo_end_date);
+                const now = new Date();
+                const diffTime = endDate - now; 
+                if (diffTime > 0) {
+                    this.calculatedPromoDaysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                } else {
+                    this.calculatedPromoDaysLeft = 0;
+                }
+            } else {
+                this.calculatedPromoDaysLeft = 0;
+            }
+        },
+
         async initApp() {
             this.isLoading.init = true; 
             this.apiError = null;
@@ -243,6 +261,16 @@ document.addEventListener('alpine:init', () => {
                 this.isLoading.init = false; 
             }
 
+            this.updateCalculatedPromoDaysLeft(); 
+            setInterval(() => {
+                this.updateCalculatedPromoDaysLeft();
+            }, 1000 * 60 * 60); 
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    this.updateCalculatedPromoDaysLeft();
+                }
+            });
+
             this.currentCurrency = this.appSettings.default_currency || "EGP"; 
             this.updateSacrificeDayTexts(); 
             this.updateAllDisplayedPrices(); 
@@ -260,7 +288,7 @@ document.addEventListener('alpine:init', () => {
             this.$watch('splitDetailsOption', val => { if (val !== 'custom') this.customSplitDetailsText = ''; });
             this.$watch('selectedGovernorate', () => this.updateCities());
             
-            this.stepSectionsMeta = ['#step1-livestock', '#step2-preparation', '#step3-packaging', '#step4-logistics-personalization', '#step5-review-pay']
+            this.stepSectionsMeta = ['#step1-content', '#step2-content', '#step3-content', '#step4-content', '#step5-content'] // Using content div IDs
                 .map((id, index) => ({ id, step: index + 1, element: document.querySelector(id) }));
             
             this.$nextTick(() => { this.handleScroll(); });
@@ -270,13 +298,48 @@ document.addEventListener('alpine:init', () => {
         handleScroll() { 
             if (this.bookingConfirmed || !this.stepSectionsMeta.some(s => s.element)) return;
             const offset = (document.querySelector('.site-header')?.offsetHeight || 70) + (document.querySelector('.stepper-outer-wrapper')?.offsetHeight || 55) + 20;
-            let newActiveStep = 1;
-            for (let i = this.stepSectionsMeta.length - 1; i >= 0; i--) {
-                if (this.stepSectionsMeta[i].element && this.stepSectionsMeta[i].element.getBoundingClientRect().top < offset) {
-                    newActiveStep = this.stepSectionsMeta[i].step; break;
+            let newActiveStep = this.currentActiveStep; // Default to current to avoid unnecessary changes
+            const scrollPosition = window.scrollY + offset;
+
+            for (let i = 0; i < this.stepSectionsMeta.length; i++) {
+                const section = this.stepSectionsMeta[i];
+                if (section.element) {
+                    const sectionTop = section.element.offsetTop;
+                    const sectionBottom = sectionTop + section.element.offsetHeight;
+                    // Check if the current scroll position is within this section's view
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                         // Prioritize step if its top is visible or just passed
+                        if (section.element.getBoundingClientRect().top < offset) {
+                           newActiveStep = section.step;
+                           // If it's the last section and we've scrolled past its start, it should be active
+                           if (i === this.stepSectionsMeta.length - 1 && scrollPosition >= sectionTop) {
+                               newActiveStep = section.step;
+                           }
+                           // Break if we find the current section, but allow checking further down for last section case
+                           // break; // Potentially remove break to ensure last section check
+                        }
+                    } else if (scrollPosition < sectionTop && i === 0) { // Scrolled above the first section
+                        newActiveStep = 1;
+                    }
                 }
             }
-            if (this.currentActiveStep !== newActiveStep) this.currentActiveStep = newActiveStep;
+             // A fallback if scrolled past all sections, keep last step active
+            const lastStepElement = this.stepSectionsMeta[this.stepSectionsMeta.length - 1].element;
+            if (lastStepElement && scrollPosition >= lastStepElement.offsetTop + lastStepElement.offsetHeight) {
+                newActiveStep = this.stepSectionsMeta[this.stepSectionsMeta.length - 1].step;
+            }
+
+
+            if (this.currentActiveStep !== newActiveStep) {
+                 // Basic validation before changing step via scroll
+                if (newActiveStep === 2 && !this.selectedAnimal.type) { /* stay on 1 */ }
+                else if (newActiveStep === 3 && !(this.selectedAnimal.type && this.selectedPrepStyle.value)) { /* stay on prev valid */ }
+                else if (newActiveStep === 4 && !(this.selectedAnimal.type && this.selectedPrepStyle.value && this.selectedPackaging.value)) { /* stay on prev valid */ }
+                else if (newActiveStep === 5 && !this.canProceedFromLogistics()) { /* stay on prev valid */ }
+                else {
+                    this.currentActiveStep = newActiveStep;
+                }
+            }
         },
         updateCities() { 
             const gov = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
@@ -288,8 +351,34 @@ document.addEventListener('alpine:init', () => {
             return (price == null || !r || typeof r.rate_from_egp !== 'number') ? `${r?.symbol || '?'} ---` : `${r.symbol} ${(price * r.rate_from_egp).toFixed(2)}`;
         },
         isValidEmail: email => (!email || !email.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-        scrollToSection: sel => document.querySelector(sel)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-        updateStepperState(step) { this.currentActiveStep = step; },
+        scrollToSection: sel => {
+            const element = document.querySelector(sel);
+            if (element) {
+                const headerOffset = (document.querySelector('.site-header')?.offsetHeight || 0) + (document.querySelector('.stepper-outer-wrapper')?.offsetHeight || 0);
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                
+                window.scrollTo({
+                     top: offsetPosition,
+                     behavior: "smooth"
+                });
+            }
+        },
+        updateStepperState(step) { 
+            // Add validation before allowing step change via stepper click
+            if (step > 1 && !this.selectedAnimal.type) { this.currentActiveStep = 1; this.scrollToSection('#step1-content'); return; }
+            if (step > 2 && !this.selectedPrepStyle.value) { this.currentActiveStep = 2; this.scrollToSection('#step2-content'); return; }
+            if (step > 3 && !this.selectedPackaging.value) { this.currentActiveStep = 3; this.scrollToSection('#step3-content'); return; }
+            if (step > 4 && !this.canProceedFromLogistics()) { // This covers logistics for step 5
+                 if (!(this.selectedAnimal.type && this.selectedPrepStyle.value && this.selectedPackaging.value)) {
+                    this.currentActiveStep = 3; this.scrollToSection('#step3-content'); return;
+                 }
+                 this.currentActiveStep = 4; this.scrollToSection('#step4-content'); 
+                 if (step === 5) this.proceedToReview(); // Specifically if trying to go to step 5 and logistics incomplete
+                 return;
+            }
+            this.currentActiveStep = step; 
+        },
         selectAnimal(cardEl, key) { 
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
             const sel = cardEl.querySelector('.livestock-weight-select');
@@ -300,7 +389,7 @@ document.addEventListener('alpine:init', () => {
             }
             this.selectedAnimal = { type: animal.value_key, value: animal.value_key, weight: wp.weight_range, basePriceEGP: parseFloat(wp.price_egp), stock: wp.stock, originalStock: wp.stock, nameEN: animal.name_en, nameAR: animal.name_ar, pbId: animal.pbId };
             this.calculateTotalPrice();
-            this.$nextTick(() => { this.scrollToSection('#step2-preparation'); this.updateStepperState(2); });
+            this.$nextTick(() => { this.updateStepperState(2); this.scrollToSection('#step2-content'); }); 
         },
         isLivestockWeightOutOfStock(selEl, key) { 
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
@@ -308,8 +397,8 @@ document.addEventListener('alpine:init', () => {
             const wp = animal.weights_prices.find(w => w.weight_range === selEl.value);
             return !wp || !wp.is_active || (wp.stock != null && wp.stock <= 0);
         },
-        selectPrepStyle(prep) { this.selectedPrepStyle = { ...prep, is_custom: !!prep.is_custom }; this.calculateTotalPrice(); this.$nextTick(() => { this.scrollToSection('#step3-packaging'); this.updateStepperState(3); }); },
-        selectPackaging(pkg) { this.selectedPackaging = { ...pkg, addonPriceEGP: parseFloat(pkg.addonPriceEGP || 0) }; this.calculateTotalPrice(); this.$nextTick(() => { this.scrollToSection('#step4-logistics-personalization'); this.updateStepperState(4); }); },
+        selectPrepStyle(prep) { this.selectedPrepStyle = { ...prep, is_custom: !!prep.is_custom }; this.calculateTotalPrice(); this.$nextTick(() => { this.updateStepperState(3); this.scrollToSection('#step3-content'); }); }, 
+        selectPackaging(pkg) { this.selectedPackaging = { ...pkg, addonPriceEGP: parseFloat(pkg.addonPriceEGP || 0) }; this.calculateTotalPrice(); this.$nextTick(() => { this.updateStepperState(4); this.scrollToSection('#step4-content'); }); }, 
         canProceedFromLogistics() { 
             if (!this.selectedAnimal.type || !this.selectedPrepStyle.value || !this.selectedPackaging.value) return false;
             if (this.customerEmail && !this.isValidEmail(this.customerEmail)) return false;
@@ -322,7 +411,7 @@ document.addEventListener('alpine:init', () => {
             return true;
         },
         proceedToReview() { 
-            if (this.canProceedFromLogistics()) { this.$nextTick(() => { this.scrollToSection('#step5-review-pay'); this.updateStepperState(5); }); return; }
+            if (this.canProceedFromLogistics()) { this.$nextTick(() => { this.updateStepperState(5); this.scrollToSection('#step5-content'); }); return; } 
             const errors = ['Complete required fields in Logistics (Step 4):'];
             if (this.customerEmail && !this.isValidEmail(this.customerEmail)) errors.push('- Invalid Email.');
             if (this.distributionChoice === 'split' && (!this.splitDetailsOption || (this.splitDetailsOption === 'custom' && !this.customSplitDetailsText?.trim()))) errors.push('- Invalid split details.');
@@ -334,7 +423,7 @@ document.addEventListener('alpine:init', () => {
                 if (!this.deliveryAddress?.trim()) errors.push('- Delivery Address.');
             }
             alert(errors.join('\n')); this.updateStepperState(4);
-            this.scrollToSection('#step4-logistics-personalization');
+            this.scrollToSection('#step4-content'); 
         },
         updateSacrificeDayTexts() { const opt = document.querySelector(`#sacrifice_day_select_s4 option[value="${this.selectedSacrificeDay.value}"]`); if (opt) Object.assign(this.selectedSacrificeDay, { textEN: opt.dataset.en, textAR: opt.dataset.ar }); },
         calculateTotalPrice() { this.totalPriceEGP = (this.selectedAnimal.basePriceEGP || 0) + (this.selectedPackaging.addonPriceEGP || 0); },
@@ -361,12 +450,12 @@ document.addEventListener('alpine:init', () => {
                 if(priceEnSpan) priceEnSpan.textContent = this.getFormattedPrice(price);
                 if(priceArSpan) priceArSpan.textContent = this.getFormattedPrice(price);
             });
-            document.querySelectorAll('.packaging-card[data-packaging-value="vacuum_sealed"] .price-addon span').forEach(s => { s.textContent = this.getFormattedPrice(100); });
+            document.querySelectorAll('.packaging-card[data-packaging-value="vacuum_sealed"] .price-addon span').forEach(s => { s.textContent = this.getFormattedPrice(100); }); 
             this.calculateTotalPrice();
         },
         async submitBooking() { 
             const v = [!this.selectedAnimal.type, !this.selectedPrepStyle.value, !this.selectedPackaging.value, !this.canProceedFromLogistics()];
-            const sections = ['#step1-livestock', '#step2-preparation', '#step3-packaging', '#step4-logistics-personalization'];
+            const sections = ['#step1-content', '#step2-content', '#step3-content', '#step4-content'];
             for (let i = 0; i < v.length; i++) {
                 if (v[i]) {
                     if (i === 3) this.proceedToReview(); else alert(`Please complete Step ${i + 1}.`);
@@ -378,7 +467,7 @@ document.addEventListener('alpine:init', () => {
             if (!animal || !wpData || !wpData.is_active || (wpData.stock != null && wpData.stock <= 0)) {
                 alert(`Sorry, ${this.selectedAnimal.nameEN || 'item'} is no longer available.`);
                 this.selectedAnimal = { ...initialBookingFormState.selectedAnimal }; this.updateAllDisplayedPrices();
-                this.updateStepperState(1); this.scrollToSection('#step1-livestock'); return;
+                this.updateStepperState(1); this.scrollToSection('#step1-content'); return;
             }
 
             this.isLoading.booking = true; this.apiError = null; this.calculateTotalPrice();
@@ -409,7 +498,6 @@ document.addEventListener('alpine:init', () => {
                 if (wpData.stock != null && wpData.stock > 0) {
                     wpData.stock--; 
                     this.updateAllDisplayedPrices();
-                    // Server-side stock update is crucial for production. This is a client-side simulation.
                 }
                 this.bookingConfirmed = true; this.$nextTick(() => this.scrollToSection('#step5-booking-confirmation'));
                 if(p.customerEmail && p.isValidEmail(p.customerEmail)) console.log(`Booking ${this.bookingID} success. Simulating email to ${p.customerEmail}.`);
@@ -431,8 +519,8 @@ document.addEventListener('alpine:init', () => {
         },
         getSacrificeDayText(val) { const opt = document.querySelector(`#sacrifice_day_select_s4 option[value="${val}"]`); return opt ? { en: opt.dataset.en, ar: opt.dataset.ar } : { en: val, ar: val }; },
         resetAndStartOver() { 
-            Object.assign(this, JSON.parse(JSON.stringify(initialBookingFormState)), { bookingConfirmed: false, bookingID: '', lookupBookingID: '', statusResult: null, statusNotFound: false, currentActiveStep: 1, isMobileMenuOpen: false, apiError: null });
+            Object.assign(this, JSON.parse(JSON.stringify(initialBookingFormState)), { bookingConfirmed: false, bookingID: '', lookupBookingID: '', statusResult: null, statusNotFound: false, currentActiveStep: 1, isMobileMenuOpen: false, apiError: null, calculatedPromoDaysLeft: 0 });
             this.initApp(); 
         }
     }));
-});
+}); 
