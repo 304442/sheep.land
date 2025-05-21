@@ -2,7 +2,7 @@
 
 // --- CONFIGURATION ---
 // !IMPORTANT: Set this to your PocketBase API URL.
-const API_BASE_URL = 'http://localhost:8090/api/'; // EXAMPLE: Change this
+const API_BASE_URL = 'https://sheep.land/api/'; // EXAMPLE: Change this
 // --- END CONFIGURATION ---
 
 // Data to be seeded. This script will attempt to CREATE these records.
