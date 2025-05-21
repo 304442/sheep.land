@@ -72,13 +72,17 @@ document.addEventListener('alpine:init', () => {
         activeNavLinkHref: "",
 
         async initApp() {
-            this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = "";
+            this.isLoading.init = true;
+            this.apiError = null;
+            this.userFriendlyApiError = "";
             const defaultLocalSettings = JSON.parse(JSON.stringify(this.appSettings));
+
             try {
                 const [appSettingsResponse, livestockResponse] = await Promise.all([
                     fetchApiData("app_settings", { queryParams: "filter=(setting_key='global_config')&perPage=1" }),
                     fetchApiData("livestock_types")
                 ]);
+
                 if (appSettingsResponse?.items?.length) {
                     const remoteSettingsRecord = appSettingsResponse.items[0];
                     const mergedSettings = JSON.parse(JSON.stringify(defaultLocalSettings));
@@ -92,22 +96,51 @@ document.addEventListener('alpine:init', () => {
                     }
                     if (!mergedSettings.whatsapp_number_raw) mergedSettings.whatsapp_number_raw = defaultLocalSettings.whatsapp_number_raw;
                     if (!mergedSettings.whatsapp_number_display) mergedSettings.whatsapp_number_display = defaultLocalSettings.whatsapp_number_display;
-                    for (const detailKey in defaultLocalSettings.payment_details) {
+                     for (const detailKey in defaultLocalSettings.payment_details) {
                         if (!mergedSettings.payment_details[detailKey] && mergedSettings.payment_details[detailKey] !== null) {
                              mergedSettings.payment_details[detailKey] = defaultLocalSettings.payment_details[detailKey];
                         }
                     }
                     this.appSettings = mergedSettings;
-                } else { this.appSettings = defaultLocalSettings; }
-                this.productOptions.livestock = livestockResponse?.items?.map(item => ({ pbId: item.id, value_key: item.value_key, name_en: item.name_en, name_ar: item.name_ar, weights_prices: Array.isArray(item.weights_prices) ? item.weights_prices.map(wp => ({ ...wp })) : [] })) || [];
+                } else {
+                    this.appSettings = defaultLocalSettings;
+                }
+
+                this.productOptions.livestock = livestockResponse?.items?.map(item => ({
+                    pbId: item.id,
+                    value_key: item.value_key,
+                    name_en: item.name_en,
+                    name_ar: item.name_ar,
+                    weights_prices: Array.isArray(item.weights_prices) ? item.weights_prices.map(wp => ({ ...wp })) : []
+                })) || [];
+
             } catch (error) {
                 this.apiError = String(error.message || "Unknown error during data fetch.");
                 this.userFriendlyApiError = String(error?.message).includes("Network Error") ? String(error.message) : (String(error?.message) || "Failed to load settings. Please refresh or try again later.");
-                this.appSettings = JSON.parse(JSON.stringify(defaultLocalSettings)); this.productOptions.livestock = [];
+                this.appSettings = JSON.parse(JSON.stringify(defaultLocalSettings));
+                this.productOptions.livestock = [];
+            } finally {
+                if (typeof this.appSettings.default_currency !== "string" || !this.appSettings.exchange_rates[this.appSettings.default_currency]) {
+                    this.appSettings.default_currency = "EGP";
+                }
+                this.currentCurrency = this.appSettings.default_currency;
+                this.startOfferDHDMSCountdown();
+                this.updateSacrificeDayTexts();
+                this.clearAllErrors();
+
+                this.$nextTick(() => {
+                    if (this.productOptions.livestock && this.productOptions.livestock.length > 0) {
+                        this.updateAllDisplayedPrices();
+                    } else if (!this.apiError) {
+                         this.userFriendlyApiError = this.userFriendlyApiError || "Livestock options could not be loaded. Please try again later.";
+                    }
+                    this.updateAllStepCompletionStates();
+                    this.handleScroll();
+                    const initialFocusRef = this.bookingConfirmed ? "bookingConfirmedTitle" : (this.$refs.step1Title ? "step1Title" : "bookingSectionTitle");
+                    this.focusOnRef(initialFocusRef);
+                    this.isLoading.init = false;
+                });
             }
-            if (typeof this.appSettings.default_currency !== "string" || !this.appSettings.exchange_rates[this.appSettings.default_currency]) this.appSettings.default_currency = "EGP";
-            this.currentCurrency = this.appSettings.default_currency;
-            this.startOfferDHDMSCountdown(); this.updateSacrificeDayTexts(); this.clearAllErrors();
 
             this.$watch(['selectedAnimal.basePriceEGP', 'selectedPackaging.addonPriceEGP', 'currentCurrency'], () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
             this.$watch('selectedSacrificeDay.value', () => { this.updateSacrificeDayTexts(); this.updateStepCompletionStatus(3);});
@@ -121,12 +154,6 @@ document.addEventListener('alpine:init', () => {
             this.$watch('paymentMethod', () => this.updateStepCompletionStatus(5));
 
             this.stepSectionsMeta = ["#step1-content", "#step2-content", "#step3-content", "#step4-content", "#step5-content"].map((selector, index) => ({ id: selector, conceptualStep: index + 1, element: document.querySelector(selector), titleRef: `step${index + 1}Title`, firstFocusableErrorRef: null }));
-            this.$nextTick(() => {
-                this.updateAllDisplayedPrices(); this.isLoading.init = false;
-                this.updateAllStepCompletionStates(); this.handleScroll();
-                const initialFocusRef = this.bookingConfirmed ? "bookingConfirmedTitle" : (this.$refs.step1Title ? "step1Title" : "bookingSectionTitle");
-                this.focusOnRef(initialFocusRef);
-            });
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
@@ -180,7 +207,56 @@ document.addEventListener('alpine:init', () => {
         updateSelectedPackaging(value) { const selectedOption = this.productOptions.packagingOptions.find(pkg => pkg.value === value); this.selectedPackaging = selectedOption ? { ...selectedOption, addonPriceEGP: parseFloat(selectedOption.addonPriceEGP || 0) } : { value: "", addonPriceEGP: 0, nameEN: "", nameAR: "" }; this.calculateTotalPrice(); this.updateStepCompletionStatus(2); },
         updateSacrificeDayTexts() { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${this.selectedSacrificeDay.value}"]`); if (optionElement) Object.assign(this.selectedSacrificeDay, { textEN: optionElement.dataset.en, textAR: optionElement.dataset.ar }); },
         calculateTotalPrice() { this.totalPriceEGP = (this.selectedAnimal.basePriceEGP || 0) + (this.selectedPackaging.addonPriceEGP || 0); },
-        updateAllDisplayedPrices() { try { (this.productOptions.livestock || []).forEach(livestockType => { const cardElement = document.getElementById(livestockType.value_key); const weightSelectElement = cardElement?.querySelector('select'); if (!cardElement || !weightSelectElement) return; const currentSelectedWeightInDropdown = weightSelectElement.value; weightSelectElement.innerHTML = ""; const defaultOption = document.createElement('option'); defaultOption.value = ""; defaultOption.textContent = this.currentLang === 'ar' ? "-- اختر الوزن --" : "-- Select Weight --"; weightSelectElement.appendChild(defaultOption); let currentSelectionStillValid = false; (livestockType.weights_prices || []).forEach(weightPrice => { const optionEl = document.createElement('option'); optionEl.value = weightPrice.weight_range; const isOutOfStock = !weightPrice.is_active || (weightPrice.stock != null && weightPrice.stock <= 0); const stockTextEN = isOutOfStock ? " - Out of Stock" : (weightPrice.stock != null ? ` - Stock: ${weightPrice.stock}` : ""); const stockTextAR = isOutOfStock ? " - نفذت الكمية" : (weightPrice.stock != null ? ` - الكمية: ${weightPrice.stock}` : ""); optionEl.textContent = `${weightPrice.weight_range || ""} (${this.getFormattedPrice(weightPrice.price_egp)})${this.currentLang === 'ar' ? stockTextAR : stockTextEN}`; optionEl.disabled = isOutOfStock; weightSelectElement.appendChild(optionEl); if (weightPrice.weight_range === currentSelectedWeightInDropdown && !isOutOfStock) currentSelectionStillValid = true; }); if (currentSelectedWeightInDropdown && currentSelectionStillValid) weightSelectElement.value = currentSelectedWeightInDropdown; else if (this.selectedAnimal.type === livestockType.value_key && this.selectedAnimal.weight && livestockType.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight && wp.is_active && (wp.stock == null || wp.stock > 0))) { weightSelectElement.value = this.selectedAnimal.weight; } else weightSelectElement.value = ""; const firstActiveWeightPrice = (livestockType.weights_prices || []).find(wp => wp.is_active && (wp.stock == null || wp.stock > 0)); const fromPriceEgp = firstActiveWeightPrice ? firstActiveWeightPrice.price_egp : ((livestockType.weights_prices || [])[0]?.price_egp || 0); const priceSpanEN = cardElement.querySelector('.price.bil-row .en span'); const priceSpanAR = cardElement.querySelector('.price.bil-row .ar span'); if (priceSpanEN) priceSpanEN.textContent = this.getFormattedPrice(fromPriceEgp); if (priceSpanAR) priceSpanAR.textContent = this.getFormattedPrice(fromPriceEgp); }); this.calculateTotalPrice(); } catch (error) { this.userFriendlyApiError = "Error updating price displays."; } },
+        updateAllDisplayedPrices() {
+            try {
+                (this.productOptions.livestock || []).forEach(livestockType => {
+                    const weightSelectElement = this.$refs[`${livestockType.value_key}WeightSelect`];
+                    const cardElement = document.getElementById(livestockType.value_key);
+                    if (!weightSelectElement || !cardElement) return;
+
+                    const currentSelectedWeightInDropdown = weightSelectElement.value;
+                    weightSelectElement.innerHTML = "";
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = "";
+                    defaultOption.textContent = this.currentLang === 'ar' ? "-- اختر الوزن --" : "-- Select Weight --";
+                    weightSelectElement.appendChild(defaultOption);
+                    let currentSelectionStillValid = false;
+
+                    (livestockType.weights_prices || []).forEach(weightPrice => {
+                        const optionEl = document.createElement('option');
+                        optionEl.value = weightPrice.weight_range;
+                        const isOutOfStock = !weightPrice.is_active || (weightPrice.stock != null && weightPrice.stock <= 0);
+                        const stockTextEN = isOutOfStock ? " - Out of Stock" : (weightPrice.stock != null ? ` - Stock: ${weightPrice.stock}` : "");
+                        const stockTextAR = isOutOfStock ? " - نفذت الكمية" : (weightPrice.stock != null ? ` - الكمية: ${weightPrice.stock}` : "");
+                        optionEl.textContent = `${weightPrice.weight_range || ""} (${this.getFormattedPrice(weightPrice.price_egp)})${this.currentLang === 'ar' ? stockTextAR : stockTextEN}`;
+                        optionEl.disabled = isOutOfStock;
+                        weightSelectElement.appendChild(optionEl);
+                        if (weightPrice.weight_range === currentSelectedWeightInDropdown && !isOutOfStock) {
+                            currentSelectionStillValid = true;
+                        }
+                    });
+
+                    if (currentSelectedWeightInDropdown && currentSelectionStillValid) {
+                        weightSelectElement.value = currentSelectedWeightInDropdown;
+                    } else if (this.selectedAnimal.type === livestockType.value_key && this.selectedAnimal.weight &&
+                               livestockType.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight && wp.is_active && (wp.stock == null || wp.stock > 0))) {
+                        weightSelectElement.value = this.selectedAnimal.weight;
+                    } else {
+                        weightSelectElement.value = "";
+                    }
+
+                    const firstActiveWeightPrice = (livestockType.weights_prices || []).find(wp => wp.is_active && (wp.stock == null || wp.stock > 0));
+                    const fromPriceEgp = firstActiveWeightPrice ? firstActiveWeightPrice.price_egp : ((livestockType.weights_prices || [])[0]?.price_egp || 0);
+                    const priceSpanEN = cardElement.querySelector('.price.bil-row .en span');
+                    const priceSpanAR = cardElement.querySelector('.price.bil-row .ar span');
+                    if (priceSpanEN) priceSpanEN.textContent = this.getFormattedPrice(fromPriceEgp);
+                    if (priceSpanAR) priceSpanAR.textContent = this.getFormattedPrice(fromPriceEgp);
+                });
+                this.calculateTotalPrice();
+            } catch (error) {
+                this.userFriendlyApiError = "Error updating price displays.";
+            }
+        },
         async validateAndSubmitBooking() { this.clearAllErrors(); let isFormValid = true; for (let step = 1; step <= 5; step++) { if (!this.validateConceptualStep(step, true)) { isFormValid = false; const stepMeta = this.stepSectionsMeta[step - 1]; if (stepMeta) { this.focusOnRef(stepMeta.firstFocusableErrorRef || stepMeta.titleRef); this.scrollToSection(stepMeta.id || '#udheya-booking-start'); } break; }} if (!isFormValid) return; const selectedAnimalConfig = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.value); const selectedWeightPriceInfo = selectedAnimalConfig?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight); if (!selectedAnimalConfig || !selectedWeightPriceInfo || !selectedWeightPriceInfo.is_active || (selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock <= 0)) { this.setError('animal', { en: `Sorry, ${this.selectedAnimal.nameEN || "selected item"} (${this.selectedAnimal.weight}) is unavailable. Please reselect.`, ar: `عذراً، ${this.selectedAnimal.nameAR || "المنتج المختار"} (${this.selectedAnimal.weight}) غير متوفر. يرجى إعادة الاختيار.` }); this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.updateAllDisplayedPrices(); this.updateStepCompletionStatus(1); this.scrollToSection('#step1-content'); this.focusOnRef(this.stepSectionsMeta[0].titleRef); return; } this.isLoading.booking = true; this.apiError = null; this.userFriendlyApiError = ""; this.calculateTotalPrice(); const bookingPayload = { booking_id_text: `SL-UDHY-${(new Date()).getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000).padStart(5, '0')}`, animal_type_key: this.selectedAnimal.value, animal_type_name_en: this.selectedAnimal.nameEN, animal_type_name_ar: this.selectedAnimal.nameAR, animal_weight_selected: this.selectedAnimal.weight, animal_base_price_egp: this.selectedAnimal.basePriceEGP, preparation_style_value: this.selectedPrepStyle.value, preparation_style_name_en: this.selectedPrepStyle.nameEN, preparation_style_name_ar: this.selectedPrepStyle.nameAR, is_custom_prep: this.selectedPrepStyle.is_custom, custom_prep_details: this.selectedPrepStyle.is_custom ? (this.customPrepDetails || "").trim() : "", packaging_value: this.selectedPackaging.value, packaging_name_en: this.selectedPackaging.nameEN, packaging_name_ar: this.selectedPackaging.nameAR, packaging_addon_price_egp: this.selectedPackaging.addonPriceEGP, total_price_egp: this.totalPriceEGP, sacrifice_day_value: this.selectedSacrificeDay.value, time_slot: this.distributionChoice === 'char' ? 'N/A' : this.selectedTimeSlot, distribution_choice: this.distributionChoice, split_details_option: this.distributionChoice === 'split' ? this.splitDetailsOption : "", custom_split_details_text: (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom') ? (this.customSplitDetailsText || "").trim() : "", niyyah_names: (this.niyyahNames || "").trim(), customer_email: (this.customerEmail || "").trim(), group_purchase_interest: this.groupPurchase, delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "", delivery_governorate_id: this._needsDeliveryDetails ? this.selectedGovernorate : "", delivery_city_id: this._needsDeliveryDetails ? this.deliveryCity : "", delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "", payment_method: this.paymentMethod, payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) ? 'cod_pending' : 'pending', booking_status: 'confirmed_pending_payment', }; try { const postResponse = await fetch('/api/collections/bookings/records', { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(bookingPayload) }); if (!postResponse.ok) { let apiErrorMessage = "Failed to submit booking"; try { const errorBody = await postResponse.json(); apiErrorMessage = (errorBody?.data && Object.values(errorBody.data).map(err => String(err.message || JSON.stringify(err))).join("; ")) || errorBody?.message || `Server error: ${postResponse.status}`; } catch (e) { apiErrorMessage = await postResponse.text() || `Server error: ${postResponse.status}`; } throw new Error(apiErrorMessage); } const createdRecord = await postResponse.json(); this.bookingID = createdRecord.booking_id_text || createdRecord.id; if (selectedWeightPriceInfo && selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock > 0) selectedWeightPriceInfo.stock--; this.bookingConfirmed = true; this.$nextTick(() => { this.scrollToSection('#booking-confirmation-section'); this.focusOnRef('bookingConfirmedTitle'); }); } catch (error) { this.apiError = String(error.message); this.userFriendlyApiError = String(error.message).includes("Network Error") ? String(error.message) : "Issue submitting booking. Review details, try again, or contact support."; this.scrollToSection('.global-error-indicator'); } finally { this.isLoading.booking = false; } },
         async validateAndCheckBookingStatus() { this.clearError('lookupBookingID'); if ((this.lookupBookingID || "").trim()) await this.checkBookingStatus(); else { this.setError('lookupBookingID', 'required'); this.focusOnRef('lookupBookingIdInput'); } },
         async checkBookingStatus() { this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const trimmedLookupID = (this.lookupBookingID || "").trim(); try { const response = await fetchApiData("bookings", { queryParams: `filter=(booking_id_text='${encodeURIComponent(trimmedLookupID)}')&perPage=1` }); if (response.items?.length > 0) { const booking = response.items[0]; this.statusResult = { booking_id_text: booking.booking_id_text || booking.id, status: booking.booking_status || "Unknown", animal_type: booking.animal_type_name_en || booking.animal_type_key, animal_weight_selected: booking.animal_weight_selected, sacrifice_day: booking.sacrifice_day_value, time_slot: booking.time_slot }; } else this.statusNotFound = true; } catch (error) { this.apiError = String(error.message); this.userFriendlyApiError = String(error.message).includes("Network Error") ? String(error.message) : "Could not retrieve booking status. Check ID or try again."; this.statusNotFound = true; } finally { this.isLoading.status = false; } },
