@@ -33,7 +33,7 @@
             <ol>
                 <li>Ensure your PocketBase instance is running.</li>
                 <li><strong>Collections Must Exist:</strong> This script assumes collections 'app_settings' and 'livestock_types' (and 'bookings') are ALREADY CREATED (e.g., by importing <code>pb_schema.json</code>).</li>
-                <li><strong>API URL:</strong> The script defaults to <code>/</code>. If PocketBase is on a different URL (e.g., <code>http://localhost:8090</code>) AND you are NOT serving this HTML file from PocketBase itself, update <code>API_URL_PREFIX</code> in the script below. If PocketBase serves this file, <code>/api/</code> is correct.</li>
+                <li><strong>API URL:</strong> The script defaults to <code>/api/</code>. If PocketBase is on a different URL (e.g., <code>http://localhost:8090</code>) AND you are NOT serving this HTML file from PocketBase itself, update <code>API_URL_PREFIX</code> in the script below. If PocketBase serves this file, <code>/api/</code> is correct.</li>
                 <li><strong>Record API Rules:</strong> Temporarily open API rules for 'app_settings' and 'livestock_types' collections (specifically 'List Rule', 'Create Rule', and 'Update Rule' for *records*, e.g., set to <code>""</code> for public) if running this unauthenticated.</li>
                 <li><strong>RE-SECURE YOUR RECORD API RULES IMMEDIATELY</strong> after seeding is complete!</li>
                 <li>This page will attempt to run the seeder automatically when loaded in a development environment (localhost, 127.0.0.1, file protocol).</li>
@@ -53,7 +53,7 @@
         const statusMessageDiv = document.getElementById('status-message');
         const apiPrefixDisplay = document.getElementById('current-api-prefix-display');
 
-        const API_URL_PREFIX = '/'; 
+        const API_URL_PREFIX = '/api/'; 
         apiPrefixDisplay.textContent = API_URL_PREFIX;
 
 
