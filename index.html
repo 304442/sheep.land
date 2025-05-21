@@ -277,7 +277,7 @@
                                         <label for="prep_style_select_s2" class="bil-row"><span class="en">Preparation Style</span><span class="ar">طريقة التجهيز</span></label>
                                         <select id="prep_style_select_s2" name="preparation_style_dropdown" class="form-input-styled"
                                                 x-model="selectedPrepStyle.value" @change="handlePrepStyleChangeFromDropdown($event.target.value)">
-                                            <option value="" disabled x-text="appSettings.text_select_preparation_en + ' / ' + appSettings.text_select_preparation_ar">-- Select Preparation --</option>
+                                            <option value="" disabled><span class="en">-- Select Preparation --</span><span class="ar" dir="rtl">-- اختر طريقة التجهيز --</span></option>
                                             <option value="Standard Mixed Cuts" data-is-custom="false" data-name-en="Standard Mix" data-name-ar="مزيج قياسي">Standard Mix / مزيج قياسي</option>
                                             <option value="Charity Portions" data-is-custom="false" data-name-en="Charity Portions" data-name-ar="حصص صدقة">Charity Portions / حصص صدقة</option>
                                             <option value="Feast Preparation" data-is-custom="false" data-name-en="Feast Preparation" data-name-ar="تجهيز ولائم">Feast Preparation / تجهيز ولائم</option>
@@ -293,7 +293,7 @@
                                         <label for="packaging_select_s2" class="bil-row"><span class="en">Packaging Preference</span><span class="ar">طريقة التغليف</span></label>
                                         <select id="packaging_select_s2" name="packaging_preference_dropdown" class="form-input-styled"
                                                 x-model="selectedPackaging.value" @change="handlePackagingChangeFromDropdown($event.target.value)">
-                                            <option value="" disabled x-text="appSettings.text_select_packaging_en + ' / ' + appSettings.text_select_packaging_ar">-- Select Packaging --</option>
+                                            <option value="" disabled><span class="en">-- Select Packaging --</span><span class="ar" dir="rtl">-- اختر طريقة التغليف --</span></option>
                                             <option value="standard" data-addon-price-egp="0" data-name-en="Standard Packaging" data-name-ar="تعبئة قياسية">Standard Packaging / تعبئة قياسية</option>
                                             <option value="vacuum_sealed" data-addon-price-egp="100" data-name-en="Vacuum Sealed" data-name-ar="تعبئة مفرغة">Vacuum Sealed (Add <span x-text="getFormattedPrice(appSettings.packaging_addons.vacuum_sealed_price_egp || 100)"></span>) / تعبئة مفرغة (إضافة <span x-text="getFormattedPrice(appSettings.packaging_addons.vacuum_sealed_price_egp || 100)"></span>)</option>
                                         </select>
