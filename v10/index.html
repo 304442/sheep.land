@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Easily book your Sharia-compliant Udheya online with Sheep Land. Choose from Baladi & Barki sheep, customize your preparation, and enjoy reliable delivery.">
-    <title>Sheep Land - Udheya Booking</title>
+    <title>Sheep Land - Udheya Booking, Livestock & Meat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
@@ -23,9 +23,19 @@
             </a>
             <nav class="main-nav desktop-nav" aria-label="Main navigation">
                 <ul class="nav-list">
-                    <li><a href="#udheya-booking-start" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click.prevent="scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
-                    <li><a href="#how-it-works" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click.prevent="scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
-                    <li><a href="#check-booking-status" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
+                    <li class="nav-item-dropdown" @mouseenter="isUdheyaDropdownOpen = true" @mouseleave="isUdheyaDropdownOpen = false"  @keydown.escape.window="isUdheyaDropdownOpen = false"  x-ref="udheyaDropdown">
+                        <a href="#" @click.prevent="isUdheyaDropdownOpen = !isUdheyaDropdownOpen" class="nav-link bil-parent-spread-intrinsic dropdown-toggle" aria-haspopup="true" :aria-expanded="isUdheyaDropdownOpen.toString()">
+                            <span class="en">Udheya</span><span class="ar">الأضحية</span>
+                            <svg class="dropdown-arrow" :class="{ 'rotate-180': isUdheyaDropdownOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </a>
+                        <ul class="dropdown-menu" x-show="isUdheyaDropdownOpen" x-transition @click.outside="if(isUdheyaDropdownOpen) isUdheyaDropdownOpen = false">
+                            <li><a href="#udheya-booking-start" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start' || activeNavLinkHref === '#how-it-works'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
+                            <li><a href="#how-it-works" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
+                            <li><a href="#check-booking-status" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#livestock-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#livestock-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#livestock-section')"><span class="en">Livestock</span><span class="ar">المواشي</span></a></li>
+                    <li><a href="#meat-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#meat-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#meat-section')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
                 </ul>
             </nav>
             <div class="header-extras desktop-extras">
@@ -54,9 +64,19 @@
         <div class="mobile-nav-menu" id="mobile-nav-menu-content" x-show="isMobileMenuOpen" x-transition @click.outside="isMobileMenuOpen = false">
             <nav aria-label="Mobile navigation">
                 <ul class="nav-list-mobile">
-                    <li><a href="#udheya-booking-start" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click="isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
-                    <li><a href="#how-it-works" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click="isMobileMenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
-                    <li><a href="#check-booking-status" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click="isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
+                    <li>
+                        <button type="button" @click="isUdheyaMobileSubmenuOpen = !isUdheyaMobileSubmenuOpen" class="nav-link-mobile bil-parent-spread-intrinsic dropdown-toggle-mobile" aria-haspopup="true" :aria-expanded="isUdheyaMobileSubmenuOpen.toString()">
+                            <span class="en">Udheya</span><span class="ar">الأضحية</span>
+                            <svg class="dropdown-arrow" :class="{ 'rotate-180': isUdheyaMobileSubmenuOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <ul class="mobile-submenu" x-show="isUdheyaMobileSubmenuOpen" x-collapse>
+                            <li><a href="#udheya-booking-start" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click="isMobileMenuOpen = false; isUdheyaMobileSubmenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
+                            <li><a href="#how-it-works" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click="isMobileMenuOpen = false; isUdheyaMobileSubmenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
+                            <li><a href="#check-booking-status" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click="isMobileMenuOpen = false; isUdheyaMobileSubmenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#livestock-section" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#livestock-section'}" @click="isMobileMenuOpen = false; scrollToSection('#livestock-section')"><span class="en">Livestock</span><span class="ar">المواشي</span></a></li>
+                    <li><a href="#meat-section" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#meat-section'}" @click="isMobileMenuOpen = false; scrollToSection('#meat-section')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
                 </ul>
             </nav>
             <div class="mobile-header-extras">
@@ -199,6 +219,26 @@
             </div></div></div>
         </section>
 
+        <section id="livestock-section" class="main-page-section sec" style="background-color: var(--b2);">
+            <div class="c">
+                <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Our Livestock</span><span class="ar">مواشينا</span></h2></div>
+                <p class="bil-row tc">
+                    <span class="en" style="flex-basis: 100%;">More information about our general livestock offerings (for purposes other than Udheya) will be available here soon. Stay tuned!</span>
+                    <span class="ar" dir="rtl" style="flex-basis: 100%;">ستتوفر هنا قريبًا المزيد من المعلومات حول عروض المواشي العامة لدينا (لأغراض أخرى غير الأضحية). ترقبونا!</span>
+                </p>
+            </div>
+        </section>
+
+        <section id="meat-section" class="main-page-section sec">
+            <div class="c">
+                <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span></h2></div>
+                 <p class="bil-row tc">
+                    <span class="en" style="flex-basis: 100%;">Explore our range of premium, fresh meat cuts directly from our farm. Details coming soon!</span>
+                    <span class="ar" dir="rtl" style="flex-basis: 100%;">اكتشف تشكيلتنا من قطعيات اللحوم الطازجة والممتازة مباشرة من مزرعتنا. التفاصيل قريبًا!</span>
+                </p>
+            </div>
+        </section>
+
         <section class="udheya-booking-section main-page-section sec" id="udheya-booking-start">
             <div class="c">                
                 <div x-show="!bookingConfirmed">
@@ -330,19 +370,22 @@
                                 </div>
 
                                 <div id="step3-content" class="form-step-content form-step-divider">
-                                    <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Step 3: Schedule Sacrifice *</span><span class="ar">الخطوة الثالثة: جدولة الذبح *</span></h2></div>
+                                    <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Step 3: Schedule Delivery *</span><span class="ar">الخطوة الثالثة: جدولة التوصيل *</span></h2></div>
                                     <div class="fg">
-                                        <label for="sacrifice_day_select_s3" class="bil-row"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
+                                        <label for="sacrifice_day_select_s3" class="bil-row"><span class="en">Preferred Sacrifice & Delivery Day *</span><span class="ar">يوم الذبح والتوصيل المفضل *</span></label>
                                         <select id="sacrifice_day_select_s3" name="sacrifice_day" class="form-input-styled" x-model="selectedSacrificeDay.value" x-ref="sacrificeDaySelect">
                                             <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)">Day 1 of Eid / اليوم الأول</option>
                                             <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)">Day 2 of Eid / اليوم الثاني</option>
                                             <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)">Day 3 of Eid / اليوم الثالث</option>
                                             <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)">Day 4 of Eid / اليوم الرابع</option>
                                         </select>
-                                        <div class="bil-row field-note-wrapper sacrifice-day-note"><p class="field-note en">Day 1: after Eid prayers. Day 4: permissible by some scholars.</p><p class="field-note ar" dir="rtl">اليوم الأول: بعد صلاة العيد. اليوم الرابع: جائز عند بعض أهل العلم.</p></div>
+                                        <div class="bil-row field-note-wrapper sacrifice-day-note">
+                                            <p class="field-note en">Sacrifice occurs per Sharia timings on the selected Eid day. Delivery will be scheduled based on your preferences below.</p>
+                                            <p class="field-note ar" dir="rtl">يتم الذبح وفقًا للتوقيتات الشرعية في يوم العيد المختار. سيتم جدولة التوصيل بناءً على تفضيلاتكم أدناه.</p>
+                                        </div>
                                     </div>
                                     <div class="fg">
-                                        <label class="bil-row"><span class="en">Preferred Time Slot *</span><span class="ar">الوقت المفضل *</span></label>
+                                        <label class="bil-row"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
                                         <div class="tslots" x-ref="timeSlotContainer">
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '7 AM-8 AM'}" @click="selectedTimeSlot = '7 AM-8 AM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '7 AM-8 AM'">7-8 AM</div>
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '8 AM-9 AM'}" @click="selectedTimeSlot = '8 AM-9 AM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '8 AM-9 AM'">8-9 AM</div>
@@ -353,7 +396,10 @@
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '1 PM-2 PM'}" @click="selectedTimeSlot = '1 PM-2 PM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '1 PM-2 PM'">1-2 PM</div>
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '2 PM-3 PM'}" @click="selectedTimeSlot = '2 PM-3 PM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '2 PM-3 PM'">2-3 PM</div>
                                         </div>
-                                        <div class="bil-row field-note-wrapper time-slot-note"><p class="field-note en">Sacrifice time. Delivery confirmed separately if chosen.</p><p class="field-note ar" dir="rtl">وقت الذبح. وقت التوصيل يؤكد منفصلاً إذا اخترت التوصيل.</p></div>
+                                        <div class="bil-row field-note-wrapper time-slot-note">
+                                            <p class="field-note en">This is your preferred time for delivery. We will contact you to confirm the exact delivery window.</p>
+                                            <p class="field-note ar" dir="rtl">هذا هو وقتكم المفضل للتوصيل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -448,20 +494,20 @@
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
                                                     <div class="bil-row">
-                                                        <div class="en"><strong><span class="en">Sacrifice Day:</span><span class="ar">يوم الذبح:</span></strong> <span x-text="selectedSacrificeDay.textEN"></span></div>
-                                                        <div class="ar" dir="rtl"><strong><span class="ar">يوم الذبح:</span><span class="en">Sacrifice Day:</span></strong> <span x-text="selectedSacrificeDay.textAR"></span></div>
+                                                        <div class="en"><strong><span class="en">Sacrifice & Delivery Day:</span><span class="ar">يوم الذبح والتوصيل:</span></strong> <span x-text="selectedSacrificeDay.textEN"></span></div>
+                                                        <div class="ar" dir="rtl"><strong><span class="ar">يوم الذبح والتوصيل:</span><span class="en">Sacrifice & Delivery Day:</span></strong> <span x-text="selectedSacrificeDay.textAR"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Sacrifice Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Sacrifice & Delivery Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                  <div class="summary-item-content">
                                                     <div class="bil-row">
-                                                        <div class="en"><strong><span class="en">Time Slot:</span><span class="ar">الوقت:</span></strong> <span x-text="selectedTimeSlot"></span></div>
-                                                        <div class="ar" dir="rtl"><strong><span class="ar">الوقت:</span><span class="en">Time Slot:</span></strong> <span x-text="selectedTimeSlot"></span></div>
+                                                        <div class="en"><strong><span class="en">Delivery Time:</span><span class="ar">وقت التوصيل:</span></strong> <span x-text="selectedTimeSlot"></span></div>
+                                                        <div class="ar" dir="rtl"><strong><span class="ar">وقت التوصيل:</span><span class="en">Delivery Time:</span></strong> <span x-text="selectedTimeSlot"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
@@ -537,7 +583,7 @@
                                     <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN + ', ' + selectedAnimal.weight"></span></div><div class="ar" dir="rtl"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR + '\u060C ' + selectedAnimal.weight"></span></div></div>
                                     <div class="summary-item bil-row"><div class="en"><strong>Prep:</strong> <span x-text="selectedPrepStyle.nameEN"></span></div><div class="ar" dir="rtl"><strong>التجهيز:</strong> <span x-text="selectedPrepStyle.nameAR"></span></div></div>
                                     <div class="summary-item bil-row"><div class="en"><strong>Package:</strong> <span x-text="selectedPackaging.nameEN"></span></div><div class="ar" dir="rtl"><strong>التعبئة:</strong> <span x-text="selectedPackaging.nameAR"></span></div></div>
-                                    <div class="summary-item bil-row"><div class="en"><strong>Sacrifice:</strong> <span x-text="selectedSacrificeDay.textEN + ', ' + selectedTimeSlot"></span></div><div class="ar" dir="rtl"><strong>الذبح:</strong> <span x-text="selectedSacrificeDay.textAR + '\u060C ' + selectedTimeSlot"></span></div></div>
+                                    <div class="summary-item bil-row"><div class="en"><strong>Sacrifice & Delivery:</strong> <span x-text="selectedSacrificeDay.textEN + ', Preferred Delivery: ' + selectedTimeSlot"></span></div><div class="ar" dir="rtl"><strong>الذبح والتوصيل:</strong> <span x-text="selectedSacrificeDay.textAR + '\u060C التوصيل المفضل: ' + selectedTimeSlot"></span></div></div>
                                 </div>
                                 <div class="payment-instructions-wrapper">
                                     <h4 class="form-subhead bil-parent-spread payment-instructions-title"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
@@ -580,7 +626,7 @@
                         <div class="summary-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statusResult?.booking_id_text"></span></div><div class="ar" dir="rtl"><strong>رقم الحجز:</strong> <span x-text="statusResult?.booking_id_text"></span></div></div>
                         <div class="summary-item bil-row"><div class="en"><strong>Status:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div><div class="ar" dir="rtl"><strong>الحالة:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div></div>
                         <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statusResult?.animal_type"></span>, <span x-text="statusResult?.animal_weight_selected"></span></div><div class="ar" dir="rtl"><strong>الحيوان:</strong> <span x-text="statusResult?.animal_type"></span>، <span x-text="statusResult?.animal_weight_selected"></span></div></div>
-                        <div class="summary-item bil-row"><div class="en"><strong>Scheduled:</strong> <span x-text="(statusResult?.sacrifice_day ? getSacrificeDayText(statusResult.sacrifice_day).en : '') + ', ' + statusResult?.time_slot"></span></div><div class="ar" dir="rtl"><strong>الموعد:</strong> <span x-text="(statusResult?.sacrifice_day ? getSacrificeDayText(statusResult.sacrifice_day).ar : '') + '\u060C ' + statusResult?.time_slot"></span></div></div>
+                        <div class="summary-item bil-row"><div class="en"><strong>Scheduled Day:</strong> <span x-text="(statusResult?.sacrifice_day ? getSacrificeDayText(statusResult.sacrifice_day).en : '')"></span>, <strong>Pref. Delivery Time:</strong> <span x-text="statusResult?.time_slot"></span></div><div class="ar" dir="rtl"><strong>اليوم المجدول:</strong> <span x-text="(statusResult?.sacrifice_day ? getSacrificeDayText(statusResult.sacrifice_day).ar : '')"></span>، <strong>وقت التوصيل المفضل:</strong> <span x-text="statusResult?.time_slot"></span></div></div>
                     </div>
                 </div>
                 <div id="status-no-results" class="status-no-results-text bil-row" x-show="statusNotFound && !isLoading.status"><p class="en">No booking found. Check ID or contact support.</p><p class="ar" dir="rtl">لم يتم العثور على حجز. تحقق من الرقم أو اتصل بالدعم.</p></div>
