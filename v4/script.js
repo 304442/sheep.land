@@ -159,7 +159,7 @@ document.addEventListener('alpine:init', () => {
                     this.appSettings = newAppSettings;
                 } else {
                     this.appSettings = initialDefaultAppSettings;
-                    throw new Error("Critical: Global app settings ('global_config') not found.");
+                    console.warn("Global app settings ('global_config') not found in DB. Using defaults. Consider running the seeder if this is a new setup: index.html?run_db_seed=true");
                 }
                 this.productOptions.livestock = livestockData.items.map(item => ({
                     pbId: item.id, value_key: item.value_key, name_en: item.name_en, name_ar: item.name_ar,
@@ -169,6 +169,7 @@ document.addEventListener('alpine:init', () => {
                 this.apiError = error.message;
                 this.userFriendlyApiError = error.message.includes('Network Error') ? error.message : 'Failed to load application settings. Please refresh or try again later.';
                 this.appSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
+                 console.error("Error fetching initial app data:", error);
             } finally { this.isLoading.init = false; }
 
             this.startOfferDHDMSCountdown();
@@ -275,9 +276,8 @@ document.addEventListener('alpine:init', () => {
         navigateToStep(targetStep) {
             this.clearAllErrors();
             for (let i = 1; i < targetStep; i++) {
-                if (!this.currentStepCompleted(i, true)) { // Show errors for the first incomplete step before allowing jump
+                if (!this.currentStepCompleted(i, true)) { 
                     this.currentActiveStep = i;
-                    // Focus logic will be handled by validateStepX or validateAndProceedToStep
                     this.scrollToSection(this.stepSectionsMeta[i-1].id || '#udheya-booking-form-panel');
                     return;
                 }
@@ -295,7 +295,7 @@ document.addEventListener('alpine:init', () => {
                 case 2: isValid = this.validateStep2(isCurrentValidatingStep); break;
                 case 3: isValid = this.validateStep3(isCurrentValidatingStep); break;
                 case 4: isValid = this.validateStep4(isCurrentValidatingStep); break;
-                case 5: isValid = this.validateStep5(isCurrentValidatingStep); break; // For final submit
+                case 5: isValid = this.validateStep5(isCurrentValidatingStep); break; 
                 default: isValid = false;
             }
             if (isValid && isCurrentValidatingStep && this.stepSectionsMeta[stepNumber-1]) {
@@ -315,7 +315,6 @@ document.addEventListener('alpine:init', () => {
                     this.scrollToSection(this.stepSectionsMeta[nextStep-1].id || '#udheya-booking-form-panel');
                 }
             } else {
-                // Focus already set by individual validation function if it found an error.
                 this.scrollToSection(this.stepSectionsMeta[this.currentActiveStep-1].id || '#udheya-booking-form-panel');
             }
         },
@@ -331,7 +330,7 @@ document.addEventListener('alpine:init', () => {
             if(this.stepSectionsMeta[0]) this.stepSectionsMeta[0].firstFocusableErrorRef = null;
             return true;
         },
-        validateStep2(showErrors = true) { // Customize: Prep, Pack, Niyyah
+        validateStep2(showErrors = true) { 
             if(showErrors) { this.clearError('prepStyle'); this.clearError('packaging'); }
             let isValid = true; let firstErrorRef = null;
             if (!this.selectedPrepStyle.value) {
@@ -344,11 +343,11 @@ document.addEventListener('alpine:init', () => {
             if(this.stepSectionsMeta[1]) this.stepSectionsMeta[1].firstFocusableErrorRef = firstErrorRef;
             return isValid;
         },
-        validateStep3(showErrors = true) { // Schedule: Day, Time
+        validateStep3(showErrors = true) { 
             if(this.stepSectionsMeta[2]) this.stepSectionsMeta[2].firstFocusableErrorRef = null; return true;
         },
-        validateStep4(showErrors = true) { // Distribution & Delivery
-            if(showErrors) { /* Clear relevant errors */ this.clearError('splitDetails'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('customerEmail'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress');}
+        validateStep4(showErrors = true) { 
+            if(showErrors) { this.clearError('splitDetails'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('customerEmail'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress');}
             let isValid = true; let firstErrorRef = null;
             const setValError = (f, t, r) => { if(showErrors) this.setError(f,t); isValid=false; if(showErrors && !firstErrorRef) firstErrorRef=r;};
 
@@ -370,7 +369,7 @@ document.addEventListener('alpine:init', () => {
             if(this.stepSectionsMeta[3]) this.stepSectionsMeta[3].firstFocusableErrorRef = firstErrorRef;
             return isValid;
         },
-        validateStep5(showErrors = true) { // Review & Payment
+        validateStep5(showErrors = true) { 
             if(showErrors) this.clearError('paymentMethod');
             let firstErrorRef = null;
             if(!this.paymentMethod) {
@@ -394,7 +393,7 @@ document.addEventListener('alpine:init', () => {
             }
             this.selectedAnimal = { type: animal.value_key, value: animal.value_key, weight: wp.weight_range, basePriceEGP: parseFloat(wp.price_egp), stock: wp.stock, originalStock: wp.stock, nameEN: animal.name_en, nameAR: animal.name_ar, pbId: animal.pbId };
             this.calculateTotalPrice();
-            this.validateAndProceedToStep(2); // Auto-advance to Step 2
+            this.validateAndProceedToStep(2); 
         },
         isLivestockWeightOutOfStock(selEl, key) {
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
@@ -504,11 +503,6 @@ document.addEventListener('alpine:init', () => {
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = '';
             const id = (this.lookupBookingID || "").trim();
             try {
-                // SECURITY NOTE: This public lookup relies heavily on strict PocketBase API rules for the 'bookings' collection.
-                // The listRule should ideally:
-                // 1. ONLY allow queries that filter *exactly* by `booking_id_text`.
-                // 2. Return a very limited set of fields (e.g., only status, animal type, schedule - no PII).
-                // A more secure method involves a server-side endpoint or a unique, unguessable status access token per booking.
                 const data = await pbFetch('bookings', { params: `filter=(booking_id_text='${encodeURIComponent(id)}')&perPage=1` });
                 if (data.items && data.items.length > 0) {
                     const b = data.items[0];
@@ -537,3 +531,96 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 });
+
+// ----- START: INLINE POCKETBASE SEEDER -----
+(function() { 
+    const SEEDER_QUERY_PARAM = 'run_db_seed';
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    if (getQueryParam(SEEDER_QUERY_PARAM) === 'true') {
+        console.warn("==== INLINE POCKETBASE SEEDER: Query parameter found, attempting to seed database. ====");
+        console.log("Ensure 'app_settings' and 'livestock_types' collections exist and 'Create Rule' is temporarily open for them.");
+
+        const SEEDER_API_BASE_URL = '/api/'; 
+
+        const SEEDER_RECORDS_TO_CREATE = [
+            {
+                collection: 'app_settings',
+                data: {
+                    setting_key: "global_config",
+                    exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true } },
+                    default_currency: "EGP",
+                    whatsapp_number_raw: "201234567890",
+                    whatsapp_number_display: "+20 123 456 7890",
+                    promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+                    promo_discount_percent: 15,
+                    promo_is_active: true,
+                    delivery_areas: [ { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]}, { id: 'giza', name_en: 'Giza', name_ar: 'الجيزة', cities: [ {id: 'dokki', name_en: 'Dokki', name_ar: 'الدقي'}, {id: 'mohandessin', name_en: 'Mohandessin', name_ar: 'المهندسين'}, {id: 'haram', name_en: 'Haram', name_ar: 'الهرم'} ]}, { id: 'alexandria', name_en: 'Alexandria', name_ar: 'الإسكندرية', cities: [ {id: 'smouha', name_en: 'Smouha', name_ar: 'سموحة'}, {id: 'miami', name_en: 'Miami', name_ar: 'ميامي'} ]}, { id: 'other_gov', name_en: 'Other Governorate', name_ar: 'محافظة أخرى', cities: [] } ],
+                    payment_details: { vodafone_cash: "010 YOUR VODA NUMBER", instapay_ipn: "YOUR.IPN@instapay", revolut_details: "@YOUR_REVTAG or Phone: +XX XXXXXXXX", bank_name: "YOUR BANK NAME", bank_account_name: "YOUR ACCOUNT HOLDER NAME", bank_account_number: "YOUR ACCOUNT NUMBER", bank_iban: "YOUR IBAN (Optional)", bank_swift: "YOUR SWIFT/BIC (Optional)" }
+                }
+            },
+            {
+                collection: 'livestock_types',
+                data: {
+                    value_key: 'baladi', name_en: 'Baladi Sheep', name_ar: 'خروف بلدي', weights_prices: [ { weight_range: "30-40 kg", price_egp: 4500, stock: 15, is_active: true }, { weight_range: "40-50 kg", price_egp: 5200, stock: 10, is_active: true }, { weight_range: "50+ kg", price_egp: 6000, stock: 0, is_active: true } ]
+                }
+            },
+            {
+                collection: 'livestock_types',
+                data: {
+                    value_key: 'barki', name_en: 'Barki Sheep', name_ar: 'خروف برقي', weights_prices: [ { weight_range: "35-45 kg", price_egp: 5100, stock: 8, is_active: true }, { weight_range: "45-55 kg", price_egp: 5900, stock: 12, is_active: true } ]
+                }
+            }
+        ];
+
+        async function runInlineSeed() {
+            console.log("SEEDER: Starting inline data seed process...");
+            let allSuccessful = true;
+
+            for (const record of SEEDER_RECORDS_TO_CREATE) {
+                const recordIdentifier = record.data.setting_key || record.data.value_key || 'N/A (unknown)';
+                try {
+                    const response = await fetch(`${SEEDER_API_BASE_URL}collections/${record.collection}/records`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(record.data)
+                    });
+
+                    if (!response.ok) {
+                        const responseText = await response.text();
+                        if (response.status === 404 && responseText.toLowerCase().includes("collection not found")) {
+                             console.error(`SEEDER_ERROR: Collection '${record.collection}' not found. Cannot seed record: ${recordIdentifier}`);
+                        } else {
+                             console.error(`SEEDER_ERROR: Failed to create record in '${record.collection}': ${response.status} ${response.statusText} - ${responseText}. Record identifier: ${recordIdentifier}`);
+                        }
+                        allSuccessful = false;
+                    } else {
+                        console.log(`SEEDER_SUCCESS: Record created/updated in '${record.collection}'. Identifier: ${recordIdentifier}`);
+                    }
+                } catch (error) {
+                    console.error(`SEEDER_EXCEPTION: Network or other error for record in '${record.collection}' (ID: ${recordIdentifier}):`, error);
+                    allSuccessful = false;
+                }
+            }
+
+            if (allSuccessful) {
+                console.log("SEEDER: Inline data seed process finished successfully.");
+            } else {
+                console.warn("SEEDER: Inline data seed process finished, but some records may have failed. Check logs above.");
+            }
+            console.warn("SEEDER: IMPORTANT! Remember to re-secure your API rules in PocketBase if you opened them.");
+
+            if (window.history.replaceState) {
+                const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({path: cleanURL}, '', cleanURL);
+                console.log("SEEDER: Cleared seed query parameter from URL.");
+            }
+        }
+        runInlineSeed();
+    }
+})();
+// ----- END: INLINE POCKETBASE SEEDER -----
