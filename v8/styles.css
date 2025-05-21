@@ -103,3 +103,49 @@
 }
 
 /* --- END NEW STYLES --- */
+
+/* ... (Keep all previous styles, including the ones for stepper checkmarks, edit buttons, etc.) ... */
+
+/* --- STYLES FOR STANDALONE "WHY CHOOSE US" SECTION --- */
+.why-choose-us-standalone-section {
+    background-color: var(--b2); /* Or var(--b1) if you prefer white */
+    /* If using var(--b2), text colors inside might need adjustment if they were white for hero */
+}
+
+.why-choose-us-standalone-head h2.bil-parent-spread .en,
+.why-choose-us-standalone-head h2.bil-parent-spread .ar {
+    color: var(--c1d); /* Standard heading color */
+}
+
+.why-choose-us-standalone-head h2.bil-parent-spread .en::after,
+.why-choose-us-standalone-head h2.bil-parent-spread .ar::after {
+    background: var(--c2l); /* Standard accent for section head underline */
+}
+
+.why-choose-us-standalone-grid {
+    margin-top: var(--s3); /* Space between heading and grid */
+}
+
+/* Ensure feature items in this section use standard text colors */
+.why-choose-us-standalone-grid .feature-item h4.bil-parent-spread .en,
+.why-choose-us-standalone-grid .feature-item h4.bil-parent-spread .ar {
+    color: var(--c1d); /* Standard heading color for features */
+}
+
+.why-choose-us-standalone-grid .feature-item p.card-p {
+    color: var(--tm); /* Standard paragraph color */
+}
+
+.why-choose-us-standalone-grid .feature-item .icon-placeholder {
+    background-color: var(--c2l); /* Icon background */
+    color: var(--c2); /* Icon color */
+    /* border: 1px solid var(--c2); Optional: if you want a border */
+}
+
+/* --- END STYLES FOR STANDALONE "WHY CHOOSE US" --- */
+
+/* Adjustments for Hero section if "Why Choose Us" was removed */
+.hero-section {
+    /* min-height: 100vh; You might want to reduce this if the content is less, or keep it if you like the full viewport feel initially */
+    /* padding-bottom: var(--s5); Remove if this was for the "Why Choose Us" block */
+}
