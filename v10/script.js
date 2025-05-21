@@ -87,12 +87,12 @@ document.addEventListener('alpine:init', () => {
         ...JSON.parse(JSON.stringify(initialBookingFormState)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: '', currentCurrency: 'EGP',
         bookingID: '', 
-        currentConceptualStep: 1, // Used by stepper for highlighting active conceptual step
-        stepProgress: { // Tracks if a conceptual step's fields are considered valid
+        currentConceptualStep: 1, 
+        stepProgress: { 
             step1: false, step2: false, step3: false, step4: false, step5: false
         },
         isMobileMenuOpen: false,
-        stepSectionsMeta: [], // Will store {id, conceptualStep, element, titleRef, firstFocusableErrorRef}
+        stepSectionsMeta: [],
         countdown: { days: '00', hours: '00', minutes: '00', seconds: '00', ended: false },
         promoHasEnded: false, calculatedPromoDaysLeft: 0, countdownTimerInterval: null,
         currentLang: 'en',
@@ -103,7 +103,7 @@ document.addEventListener('alpine:init', () => {
             email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." },
             phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }
         },
-        navLinksData: [ 
+        navLinksData: [ // Updated: Removed Why Us and Our Process as separate nav targets
             { href: '#udheya-booking-start', sectionId: 'udheya-booking-start' },
             { href: '#check-booking-status', sectionId: 'check-booking-status' }
         ],
@@ -156,8 +156,16 @@ document.addEventListener('alpine:init', () => {
 
             } catch (error) {
                 console.error("Error fetching initial app data:", error);
-                this.apiError = error.message || "An unknown error occurred during data fetch.";
-                this.userFriendlyApiError = (typeof error.message === 'string' && error.message.includes('Network Error')) ? error.message : 'Failed to load application settings. Please refresh or try again later.';
+                this.apiError = String(error.message || "An unknown error occurred during data fetch.");
+                let friendlyMsg = 'Failed to load application settings. Please refresh or try again later.';
+                if (error && typeof error.message === 'string') {
+                    if (error.message.includes('Network Error')) {
+                        friendlyMsg = error.message;
+                    } else if (error.message) { 
+                        friendlyMsg = error.message; 
+                    }
+                }
+                this.userFriendlyApiError = friendlyMsg;
                 this.appSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
                 this.productOptions.livestock = [];
             } finally {
@@ -183,19 +191,19 @@ document.addEventListener('alpine:init', () => {
                     Object.assign(this, { deliveryName: '', deliveryPhone: '', selectedGovernorate: '', deliveryCity: '', deliveryAddress: '', deliveryInstructions: '', availableCities: [] });
                 }
                 this.clearError('splitDetails');
-                this.updateStepCompletionStatus(4); // Re-validate step 4 on change
+                this.updateStepCompletionStatus(4);
             });
             this.$watch('selectedPrepStyle.value', () => { 
                 if (!this.selectedPrepStyle.is_custom) this.customPrepDetails = ''; 
-                this.updateStepCompletionStatus(2); // Re-validate step 2
+                this.updateStepCompletionStatus(2);
             });
             this.$watch('selectedPackaging.value', () => {
-                this.updateStepCompletionStatus(2); // Re-validate step 2
+                this.updateStepCompletionStatus(2);
             });
             this.$watch('splitDetailsOption', val => { 
                 if (val !== 'custom') this.customSplitDetailsText = ''; 
                 this.clearError('splitDetails'); 
-                this.updateStepCompletionStatus(4); // Re-validate step 4
+                this.updateStepCompletionStatus(4);
             });
              this.$watch('customSplitDetailsText', () => this.updateStepCompletionStatus(4));
             this.$watch('selectedGovernorate', () => { 
@@ -209,19 +217,18 @@ document.addEventListener('alpine:init', () => {
             this.$watch('deliveryAddress', () => this.updateStepCompletionStatus(4));
             this.$watch('paymentMethod', () => this.updateStepCompletionStatus(5));
 
-
             this.stepSectionsMeta = ['#step1-content', '#step2-content', '#step3-content', '#step4-content', '#step5-content']
                 .map((id, index) => ({
                     id,
-                    conceptualStep: index + 1, // Renamed from 'step'
+                    conceptualStep: index + 1,
                     element: document.querySelector(id),
                     titleRef: `step${index+1}Title`,
                     firstFocusableErrorRef: null
                 }));
 
             this.$nextTick(() => {
-                this.updateAllStepCompletionStates(); // Initial check for all steps
-                this.handleScroll(); // For nav and potentially stepper conceptual step highlight
+                this.updateAllStepCompletionStates();
+                this.handleScroll(); 
                 const initialFocusTarget = this.bookingConfirmed ? 'bookingConfirmedTitle' : (this.$refs.step1Title ? 'step1Title' : 'bookingSectionTitle');
                 this.focusOnRef(initialFocusTarget);
             });
@@ -233,7 +240,6 @@ document.addEventListener('alpine:init', () => {
         },
 
         handleScroll() {
-            // Stepper active conceptual step logic (based on which section is most visible)
             if (!this.bookingConfirmed && this.stepSectionsMeta.some(s => s.element && typeof s.element.offsetTop === 'number')) {
                 const viewportCenter = window.scrollY + (window.innerHeight / 2);
                 let closestStep = 1;
@@ -253,7 +259,6 @@ document.addEventListener('alpine:init', () => {
                 this.currentConceptualStep = closestStep;
             }
 
-            // Active Nav Link Logic (remains the same)
             const headerHeight = document.querySelector('.site-header')?.offsetHeight || 70;
             const navOffset = headerHeight + (window.innerHeight * 0.1);
             const scrollPositionForNav = window.scrollY + navOffset; 
@@ -407,7 +412,7 @@ document.addEventListener('alpine:init', () => {
                 const element = document.querySelector(sel);
                 if (element) {
                     let headerOffset = document.querySelector('.site-header')?.offsetHeight || 0;
-                    if (sel.startsWith('#step') || sel.startsWith('#udheya-booking-form-panel') || sel.startsWith('#udheya-booking-start')) {
+                    if (sel.startsWith('#udheya-booking-start') || sel.startsWith('#step') || sel.startsWith('#udheya-booking-form-panel')) {
                         const stepper = document.querySelector('.stepper-outer-wrapper');
                         if (stepper && getComputedStyle(stepper).position === 'sticky') {
                             headerOffset += stepper.offsetHeight;
@@ -420,7 +425,6 @@ document.addEventListener('alpine:init', () => {
             } catch(e) {}
         },
 
-        // --- Stepper and Form Logic for "All Steps Shown" mode ---
         validateConceptualStep(conceptualStepNumber, showErrors = true) {
             let isValid = false;
             switch (conceptualStepNumber) {
@@ -428,7 +432,7 @@ document.addEventListener('alpine:init', () => {
                 case 2: isValid = this.validateStep2(showErrors); break;
                 case 3: isValid = this.validateStep3(showErrors); break;
                 case 4: isValid = this.validateStep4(showErrors); break;
-                case 5: isValid = this.validateStep5(showErrors); break; // For payment method in review section
+                case 5: isValid = this.validateStep5(showErrors); break;
                 default: isValid = false;
             }
             this.stepProgress[`step${conceptualStepNumber}`] = isValid;
@@ -436,7 +440,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         updateStepCompletionStatus(conceptualStepNumber) {
-            this.stepProgress[`step${conceptualStepNumber}`] = this.validateConceptualStep(conceptualStepNumber, false); // Validate without showing errors for live update
+            this.stepProgress[`step${conceptualStepNumber}`] = this.validateConceptualStep(conceptualStepNumber, false); 
         },
 
         updateAllStepCompletionStates() {
@@ -449,8 +453,8 @@ document.addEventListener('alpine:init', () => {
             this.clearAllErrors();
             let canNavigate = true;
             for (let i = 1; i < targetConceptualStep; i++) {
-                if (!this.validateConceptualStep(i, true)) { // Show errors for unvalidated previous steps
-                    this.currentConceptualStep = i; // Highlight the first problematic step in stepper
+                if (!this.validateConceptualStep(i, true)) { 
+                    this.currentConceptualStep = i; 
                     const errorMeta = this.stepSectionsMeta[i-1];
                     if(errorMeta && errorMeta.firstFocusableErrorRef) this.focusOnRef(errorMeta.firstFocusableErrorRef);
                     else if(errorMeta) this.focusOnRef(errorMeta.titleRef);
@@ -468,15 +472,16 @@ document.addEventListener('alpine:init', () => {
 
         validateAndScrollOrFocus(currentConceptualStep, nextSectionSelector) {
             this.clearAllErrors();
-            this.updateStepCompletionStatus(currentConceptualStep); // Update this step's status
+            // Validate the current conceptual step and show errors
+            const isCurrentStepValid = this.validateConceptualStep(currentConceptualStep, true); 
+            this.stepProgress[`step${currentConceptualStep}`] = isCurrentStepValid; // Update progress state
 
-            if (this.stepProgress[`step${currentConceptualStep}`]) {
-                this.currentConceptualStep = currentConceptualStep + 1 > 5 ? 5 : currentConceptualStep + 1; // Highlight next step in stepper
+            if (isCurrentStepValid) {
+                this.currentConceptualStep = currentConceptualStep + 1 > 5 ? 5 : currentConceptualStep + 1; 
                 this.scrollToSection(nextSectionSelector);
-                this.focusOnRef(this.stepSectionsMeta[currentConceptualStep]?.titleRef || nextSectionSelector); // Focus on next section's title
+                const nextStepMeta = this.stepSectionsMeta.find(sm => sm.id === nextSectionSelector || sm.id === nextSectionSelector.substring(1));
+                this.focusOnRef(nextStepMeta?.titleRef || this.stepSectionsMeta[currentConceptualStep]?.titleRef || nextSectionSelector);
             } else {
-                // Error should have been shown by validateConceptualStep if showErrors was true
-                // Ensure focus goes to the first error in the current section
                 const currentStepMeta = this.stepSectionsMeta[currentConceptualStep - 1];
                 if (currentStepMeta && currentStepMeta.firstFocusableErrorRef) {
                     this.focusOnRef(currentStepMeta.firstFocusableErrorRef);
@@ -487,12 +492,10 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        // --- Individual Step Validation Functions (validateStep1 to validateStep5) ---
-        // These remain largely the same but now set `firstFocusableErrorRef` on `this.stepSectionsMeta[X]`
         validateStep1(showErrors = true) {
             if (showErrors) this.clearError('animal');
             let firstErrorRef = null;
-            const stepMeta = this.stepSectionsMeta[0]; // conceptualStep 1 corresponds to index 0
+            const stepMeta = this.stepSectionsMeta[0]; 
 
             if (!this.selectedAnimal.type || !this.selectedAnimal.weight) {
                 if (showErrors) {
@@ -506,7 +509,7 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
                 if(stepMeta) stepMeta.firstFocusableErrorRef = firstErrorRef;
-                return false;
+                this.stepProgress.step1 = false; return false;
             }
             const animalDefinition = this.productOptions.livestock.find(a => a.value_key === this.selectedAnimal.type);
             const weightDefinition = animalDefinition?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight);
@@ -524,11 +527,10 @@ document.addEventListener('alpine:init', () => {
                      document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected'));
                 }
                 if(stepMeta) stepMeta.firstFocusableErrorRef = firstErrorRef;
-                return false;
+                this.stepProgress.step1 = false; return false;
             }
             if(stepMeta) stepMeta.firstFocusableErrorRef = null;
-            this.stepProgress.step1 = true; // Mark as complete if validation passes
-            return true;
+            this.stepProgress.step1 = true; return true;
         },
         validateStep2(showErrors = true) {
             if(showErrors) { this.clearError('prepStyle'); this.clearError('packaging'); }
@@ -543,15 +545,12 @@ document.addEventListener('alpine:init', () => {
                 isValid = false;
             }
             if(stepMeta) stepMeta.firstFocusableErrorRef = firstErrorRef;
-            if(isValid) this.stepProgress.step2 = true;
-            return isValid;
+            this.stepProgress.step2 = isValid; return isValid;
         },
         validateStep3(showErrors = true) { 
             const stepMeta = this.stepSectionsMeta[2];
-            // No specific validation fields here, so it's always "valid" for progression
             if(stepMeta) stepMeta.firstFocusableErrorRef = null;
-            this.stepProgress.step3 = true;
-            return true;
+            this.stepProgress.step3 = true; return true;
         },
         validateStep4(showErrors = true) {
             if(showErrors) { this.clearError('splitDetails'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('customerEmail'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress');}
@@ -576,21 +575,19 @@ document.addEventListener('alpine:init', () => {
                 if (!(this.deliveryAddress || "").trim()) setValError('deliveryAddress', 'required', 'deliveryAddressInput');
             }
             if(stepMeta) stepMeta.firstFocusableErrorRef = firstErrorRef;
-            if(isValid) this.stepProgress.step4 = true;
-            return isValid;
+            this.stepProgress.step4 = isValid; return isValid;
         },
-        validateStep5(showErrors = true) { // This now validates before final submission
+        validateStep5(showErrors = true) { 
             if(showErrors) this.clearError('paymentMethod');
             let firstErrorRef = null;
             const stepMeta = this.stepSectionsMeta[4];
             if(!this.paymentMethod) {
                 if(showErrors) {this.setError('paymentMethod', 'select'); firstErrorRef = 'paymentMethodRadios';}
                 if(stepMeta) stepMeta.firstFocusableErrorRef = firstErrorRef;
-                return false; // Payment method is required
+                this.stepProgress.step5 = false; return false; 
             }
             if(stepMeta) stepMeta.firstFocusableErrorRef = null;
-            this.stepProgress.step5 = true;
-            return true;
+            this.stepProgress.step5 = true; return true;
         },
 
         selectAnimal(animalKey, weightSelectElement) {
@@ -622,7 +619,7 @@ document.addEventListener('alpine:init', () => {
                      document.getElementById(animalKey)?.classList.remove('livestock-card-selected');
                 }
                 this.calculateTotalPrice();
-                this.focusOnRef(weightSelectElement.id);
+                if (this.$refs[weightSelectElement.id]) this.focusOnRef(weightSelectElement.id); // Focus on the problematic select
                 this.updateStepCompletionStatus(1);
                 return;
             }
@@ -642,13 +639,11 @@ document.addEventListener('alpine:init', () => {
             document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected'));
             weightSelectElement.closest('.livestock-card').classList.add('livestock-card-selected');
             
-            this.updateStepCompletionStatus(1); // Validate and update step 1 progress
-            if (this.stepProgress.step1) { // If step 1 is now valid
-                this.validateAndScrollOrFocus(1, '#step2-content'); // Proceed to scroll/focus step 2
+            this.updateStepCompletionStatus(1); 
+            if (this.stepProgress.step1) { 
+                this.validateAndScrollOrFocus(1, '#step2-content'); 
             }
         },
-
-        // updateSelectedPrepStyle, updateSelectedPackaging remain same, but call updateStepCompletionStatus
         updateSelectedPrepStyle(value) {
             const style = this.productOptions.preparationStyles.find(s => s.value === value);
             if (style) this.selectedPrepStyle = { ...style }; 
@@ -667,7 +662,7 @@ document.addEventListener('alpine:init', () => {
         updateSacrificeDayTexts() { 
             const opt = document.querySelector(`#sacrifice_day_select_s3 option[value="${this.selectedSacrificeDay.value}"]`);
             if (opt) Object.assign(this.selectedSacrificeDay, { textEN: opt.dataset.en, textAR: opt.dataset.ar });
-            this.updateStepCompletionStatus(3); // Step 3 might be considered complete once a day is chosen
+            this.updateStepCompletionStatus(3);
         },
         calculateTotalPrice() { this.totalPriceEGP = (this.selectedAnimal.basePriceEGP || 0) + (this.selectedPackaging.addonPriceEGP || 0); },
         updateAllDisplayedPrices() { 
@@ -728,23 +723,20 @@ document.addEventListener('alpine:init', () => {
             this.clearAllErrors();
             let allStepsValid = true;
             for (let i = 1; i <= 5; i++) {
-                if (!this.validateConceptualStep(i, true)) { // Validate and show errors for each step
+                if (!this.validateConceptualStep(i, true)) { 
                     allStepsValid = false;
-                    // Focus on the first error of the first invalid step
                     const stepMeta = this.stepSectionsMeta[i-1];
-                    if(stepMeta?.firstFocusableErrorRef) {
-                        this.focusOnRef(stepMeta.firstFocusableErrorRef);
-                        this.scrollToSection(stepMeta.id);
-                    } else if (stepMeta) {
-                        this.focusOnRef(stepMeta.titleRef);
-                        this.scrollToSection(stepMeta.id);
+                    if(stepMeta) { // Ensure stepMeta is defined
+                        const focusTarget = stepMeta.firstFocusableErrorRef || stepMeta.titleRef;
+                        if (focusTarget) this.focusOnRef(focusTarget);
+                        this.scrollToSection(stepMeta.id || '#udheya-booking-start'); // Fallback scroll
                     }
-                    break; // Stop at the first invalid step
+                    break; 
                 }
             }
 
             if (!allStepsValid) {
-                return; // Don't submit if any step is invalid
+                return;
             }
 
             const animal = this.productOptions.livestock.find(a => a.value_key === this.selectedAnimal.value);
