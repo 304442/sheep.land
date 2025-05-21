@@ -24,7 +24,6 @@
             <nav class="main-nav desktop-nav" aria-label="Main navigation">
                 <ul class="nav-list">
                     <li><a href="#udheya-booking-start" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click.prevent="scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
-                    <li><a href="#why-choose-us" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#why-choose-us'}" @click.prevent="scrollToSection('#why-choose-us')"><span class="en">Why Us?</span><span class="ar">لماذا نحن؟</span></a></li>
                     <li><a href="#how-it-works" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click.prevent="scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
                     <li><a href="#check-booking-status" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                 </ul>
@@ -47,16 +46,15 @@
             </div>
             <button class="hamburger-btn" @click="isMobileMenuOpen = !isMobileMenuOpen" aria-label="Toggle menu" :aria-expanded="isMobileMenuOpen.toString()" aria-controls="mobile-nav-menu-content">
                 <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-                    <path x-show="!isMobileMenuOpen" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" style="display:none;"></path>
-                    <path x-show="isMobileMenuOpen" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" style="display:none;"></path>
+                    <path x-show="!isMobileMenuOpen" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+                    <path x-show="isMobileMenuOpen" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
                 </svg>
             </button>
         </div>
-        <div class="mobile-nav-menu" id="mobile-nav-menu-content" x-show="isMobileMenuOpen" x-transition @click.outside="isMobileMenuOpen = false" style="display:none;">
+        <div class="mobile-nav-menu" id="mobile-nav-menu-content" x-show="isMobileMenuOpen" x-transition @click.outside="isMobileMenuOpen = false">
             <nav aria-label="Mobile navigation">
                 <ul class="nav-list-mobile">
                     <li><a href="#udheya-booking-start" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click="isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
-                    <li><a href="#why-choose-us" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#why-choose-us'}" @click="isMobileMenuOpen = false; scrollToSection('#why-choose-us')"><span class="en">Why Us?</span><span class="ar">لماذا نحن؟</span></a></li>
                     <li><a href="#how-it-works" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click="isMobileMenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
                     <li><a href="#check-booking-status" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click="isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                 </ul>
@@ -131,45 +129,43 @@
                         </div>
                     </a>
                 </div>
-            </div>
-        </section>
 
-        <section class="main-page-section why-choose-us-standalone-section sec" id="why-choose-us">
-            <div class="c tc">
-                <div class="sec-head tc why-choose-us-standalone-head">
-                    <h2 class="bil-parent-spread" x-ref="whyChooseUsTitle" tabindex="-1">
-                        <span class="en">Why Choose Sheep Land?</span>
-                        <span class="ar">لماذا أرض الأغنام؟</span>
-                    </h2>
-                </div>
-                <div class="feature-grid why-choose-us-standalone-grid">
-                    <div class="feature-item">
-                        <div class="icon-placeholder" aria-hidden="true">
-                            <img src="/images/icon-sharia.svg" alt="Sharia Compliant Icon" class="icon-custom sharia-compliant-icon">
-                        </div>
-                        <h4 class="bil-parent-spread"><span class="en">Sharia Compliant</span><span class="ar">متوافق مع الشريعة</span></h4>
-                        <div class="bil-row"><p class="card-p en">All animals meet age, health, and Zabiha requirements.</p><p class="card-p ar">جميع الحيوانات تستوفي متطلبات العمر والصحة والذبيحة.</p></div>
+                <div class="why-choose-us-content-wrapper hero-why-choose">
+                    <div class="sec-head tc why-choose-us-hero-head">
+                        <h2 class="bil-parent-spread">
+                            <span class="en">Why Choose Sheep Land?</span>
+                            <span class="ar">لماذا أرض الأغنام؟</span>
+                        </h2>
                     </div>
-                    <div class="feature-item">
-                        <div class="icon-placeholder" aria-hidden="true">
-                            <img src="/images/icon-premium.svg" alt="Premium Quality Icon" class="icon-custom premium-quality-icon">
+                    <div class="feature-grid why-choose-us-hero-grid">
+                        <div class="feature-item">
+                            <div class="icon-placeholder" aria-hidden="true">
+                                <img src="/images/icon-sharia.svg" alt="Sharia Compliant Icon" class="icon-custom sharia-compliant-icon">
+                            </div>
+                            <h4 class="bil-parent-spread"><span class="en">Sharia Compliant</span><span class="ar">متوافق مع الشريعة</span></h4>
+                            <div class="bil-row"><p class="card-p en">All animals meet age, health, and Zabiha requirements.</p><p class="card-p ar">جميع الحيوانات تستوفي متطلبات العمر والصحة والذبيحة.</p></div>
                         </div>
-                        <h4 class="bil-parent-spread"><span class="en">Premium Quality</span><span class="ar">جودة عالية</span></h4>
-                        <div class="bil-row"><p class="card-p en">Healthy, well-cared-for livestock for the best meat.</p><p class="card-p ar">ماشية صحية مُعتنى بها جيدًا لأفضل أنواع اللحوم.</p></div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="icon-placeholder" aria-hidden="true">
-                            <img src="/images/icon-easybooking.svg" alt="Easy Booking Icon" class="icon-custom easy-booking-icon">
+                        <div class="feature-item">
+                            <div class="icon-placeholder" aria-hidden="true">
+                                <img src="/images/icon-premium.svg" alt="Premium Quality Icon" class="icon-custom premium-quality-icon">
+                            </div>
+                            <h4 class="bil-parent-spread"><span class="en">Premium Quality</span><span class="ar">جودة عالية</span></h4>
+                            <div class="bil-row"><p class="card-p en">Healthy, well-cared-for livestock for the best meat.</p><p class="card-p ar">ماشية صحية مُعتنى بها جيدًا لأفضل أنواع اللحوم.</p></div>
                         </div>
-                        <h4 class="bil-parent-spread"><span class="en">Easy Online Booking</span><span class="ar">حجز سهل عبر الإنترنت</span></h4>
-                        <div class="bil-row"><p class="card-p en">Secure your Udheya conveniently from anywhere.</p><p class="card-p ar">احجز أضحيتك بسهولة من أي مكان.</p></div>
-                    </div>
-                     <div class="feature-item">
-                        <div class="icon-placeholder" aria-hidden="true">
-                            <img src="/images/icon-delivery.svg" alt="Reliable Delivery Icon" class="icon-custom reliable-delivery-icon">
+                        <div class="feature-item">
+                            <div class="icon-placeholder" aria-hidden="true">
+                                 <img src="/images/icon-easybooking.svg" alt="Easy Booking Icon" class="icon-custom easy-booking-icon">
+                            </div>
+                            <h4 class="bil-parent-spread"><span class="en">Easy Online Booking</span><span class="ar">حجز سهل عبر الإنترنت</span></h4>
+                            <div class="bil-row"><p class="card-p en">Secure your Udheya conveniently from anywhere.</p><p class="card-p ar">احجز أضحيتك بسهولة من أي مكان.</p></div>
                         </div>
-                        <h4 class="bil-parent-spread"><span class="en">Reliable Delivery</span><span class="ar">توصيل موثوق</span></h4>
-                        <div class="bil-row"><p class="card-p en">Prepared and delivered according to your choices.</p><p class="card-p ar">تُجهز وتُوصل وفقًا لاختياراتك.</p></div>
+                         <div class="feature-item">
+                            <div class="icon-placeholder" aria-hidden="true">
+                                <img src="/images/icon-delivery.svg" alt="Reliable Delivery Icon" class="icon-custom reliable-delivery-icon">
+                            </div>
+                            <h4 class="bil-parent-spread"><span class="en">Reliable Delivery</span><span class="ar">توصيل موثوق</span></h4>
+                            <div class="bil-row"><p class="card-p en">Prepared and delivered according to your choices.</p><p class="card-p ar">تُجهز وتُوصل وفقًا لاختياراتك.</p></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -304,9 +300,6 @@
                                         </div>
                                     </div>
                                     <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
-                                    <div class="form-action tc page-step-action">
-                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndProceedToStep(2)" :disabled="!selectedAnimal.type || !selectedAnimal.weight" :class="{'disabled-btn': !selectedAnimal.type || !selectedAnimal.weight}"><span class="en">Continue to Customize</span><span class="ar">المتابعة للتخصيص</span></button>
-                                    </div>
                                 </div>
 
                                 <div id="step2-content" x-show="currentActiveStep === 2" class="form-step-content" x-transition>
