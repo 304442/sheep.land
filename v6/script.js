@@ -13,10 +13,10 @@ document.addEventListener('alpine:init', () => {
     async function pbFetch(collection, options = {}) {
         const { recordId = '', params = '' } = options;
         const url = `/api/collections/${collection}/records${recordId ? `/${recordId}` : ''}${params ? `?${params}` : ''}`;
-        // console.log(`PBFETCH: Requesting ${url}`); // Removed
+        console.log(`PBFETCH: Requesting ${url}`); // Keep user's logs
         try {
             const response = await fetch(url, options.fetchOptions);
-            // console.log(`PBFETCH: Response status for ${url}: ${response.status}`); // Removed
+            console.log(`PBFETCH: Response status for ${url}: ${response.status}`); // Keep user's logs
             if (!response.ok) {
                 let errorDataMessage = response.statusText;
                 let responseBodyForError = '';
@@ -26,25 +26,23 @@ document.addEventListener('alpine:init', () => {
                     if (errorData && typeof errorData.data === 'object' && errorData.data !== null) {
                         errorDataMessage = Object.values(errorData.data).map(e => e.message || JSON.stringify(e)).join('; ');
                     } else if (errorData && errorData.message) { errorDataMessage = errorData.message; }
-                } catch (e) { 
-                    // console.warn(`PBFETCH: Could not parse error response as JSON for ${url}. Body: ${responseBodyForError}`, e); // Removed
-                    errorDataMessage = responseBodyForError || response.statusText;
-                 }
+                } catch (e) { console.warn(`PBFETCH: Could not parse error response as JSON for ${url}. Body: ${responseBodyForError}`, e); errorDataMessage = responseBodyForError || response.statusText; }
                 throw new Error(`API Error (${collection} ${recordId || params}): ${response.status} ${errorDataMessage}`);
             }
-            const responseBody = await response.text();
+            // return response.json(); // User's original was this
+            const responseBody = await response.text(); // More robust parsing
             if (!responseBody) {
-                // console.log(`PBFETCH: Received empty successful response for ${url}`); // Removed
-                return { items: [] };
+                console.log(`PBFETCH: Received empty successful response for ${url}`); // Keep user's logs
+                return { items: [] }; 
             }
             try {
                 return JSON.parse(responseBody);
             } catch (e_parse_ok) {
-                console.error(`PBFETCH: Could not parse successful response as JSON for ${url}. Body: ${responseBody}`, e_parse_ok); // Kept critical error
+                console.error(`PBFETCH: Could not parse successful response as JSON for ${url}. Body: ${responseBody}`, e_parse_ok);
                 throw new Error(`API Error (${collection} ${recordId || params}): Failed to parse successful response. ${e_parse_ok.message}`);
             }
         } catch (networkError) {
-             // console.error(`PBFETCH: Network error for ${url}`, networkError); // Kept critical error
+             console.error(`PBFETCH: Network error for ${url}`, networkError); // Keep user's logs
              const errorMessage = typeof networkError.message === 'string' ? networkError.message : 'Unknown network error';
              throw new Error(`Network Error: Could not connect to API. (${errorMessage})`);
         }
@@ -81,7 +79,7 @@ document.addEventListener('alpine:init', () => {
         countdown: { days: '00', hours: '00', minutes: '00', seconds: '00', ended: false },
         promoHasEnded: false, calculatedPromoDaysLeft: 0, countdownTimerInterval: null,
         currentLang: 'en',
-        errors: {},
+        errors: {}, // This ensures 'errors' is always an object on the component instance
         errorMessages: {
             required: { en: "This field is required.", ar: "هذا الحقل مطلوب." },
             select: { en: "Please make a selection.", ar: "يرجى الاختيار." },
@@ -90,21 +88,26 @@ document.addEventListener('alpine:init', () => {
         },
 
         setError(field, typeOrMessage) {
-            let messageObject;
+            console.log(`setError called for field: ${field}, type/message:`, typeOrMessage); // Keep user's logs
             if (typeof typeOrMessage === 'string') {
-                messageObject = this.errorMessages[typeOrMessage] || this.errorMessages.required;
+                const messageObj = this.errorMessages[typeOrMessage] || this.errorMessages.required;
+                if (typeof messageObj?.en === 'string' && typeof messageObj?.ar === 'string') {
+                    this.errors[field] = messageObj;
+                } else {
+                    console.warn(`setError: Invalid error message type '${typeOrMessage}' or message object structure for field '${field}'. Defaulting. Message obj:`, messageObj); // Keep user's logs
+                    this.errors[field] = this.errorMessages.required;
+                }
+            } else if (typeof typeOrMessage === 'object' && typeOrMessage !== null && typeof typeOrMessage.en === 'string' && typeof typeOrMessage.ar === 'string') {
+                this.errors[field] = typeOrMessage;
             } else {
-                messageObject = typeOrMessage;
-            }
-            if (typeof messageObject === 'object' && messageObject !== null && typeof messageObject.en === 'string' && typeof messageObject.ar === 'string') {
-                this.errors[field] = messageObject;
-            } else {
+                 console.warn(`setError: typeOrMessage is not a recognized string key or a valid message object for field '${field}'. Value:`, typeOrMessage); // Keep user's logs
                  this.errors[field] = this.errorMessages.required;
             }
+            console.log('Errors object after setError:', JSON.parse(JSON.stringify(this.errors))); // Keep user's logs
         },
-        clearError(field) { if (this.errors[field]) this.$delete(this.errors, field); },
-        clearAllErrors() { this.errors = {}; },
-        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:false}); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e){/*ignore scroll err*/} }, 50); } }); },
+        clearError(field) { console.log(`Clearing error for field: ${field}`); if (this.errors[field]) this.$delete(this.errors, field); }, // Keep user's logs
+        clearAllErrors() { console.log('Clearing all errors.'); this.errors = {}; }, // Keep user's logs
+        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:false}); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e){ console.warn("Error scrolling to ref:", refName, e); } }, 50); } }); },
 
         get _needsDeliveryDetails() {
             const customText = (this.customSplitDetailsText || '').toLowerCase();
@@ -165,20 +168,20 @@ document.addEventListener('alpine:init', () => {
         get summaryDistributionAR() { return (this.distributionChoice === 'me') ? 'الكل لي (لتوزيعه بنفسك)' : (this.distributionChoice === 'char' ? 'تبرع بالكل للصدقة (أرض الأغنام توزع نيابة عنك)' : `تقسيم الحصص: ${(this.splitDetails || "").trim() || '(لم يحدد)'}`); },
 
         async initApp() {
+            console.log("INITAPP: Alpine component initApp starting..."); // Keep user's logs
             this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = '';
             const initialDefaultAppSettings = JSON.parse(JSON.stringify(this.appSettings));
             try {
                 const settingsParams = `filter=(setting_key='global_config')&perPage=1`;
-                const [settingsCollectionData, livestockData] = await Promise.all([
-                    pbFetch('app_settings', { params: settingsParams }),
-                    pbFetch('livestock_types') // Removed sort=created
-                ]);
+                console.log("INITAPP: Fetching app_settings..."); // Keep user's logs
+                const settingsCollectionData = await pbFetch('app_settings', { params: settingsParams });
+                console.log("INITAPP: app_settings RAW DATA:", settingsCollectionData ? JSON.stringify(settingsCollectionData).substring(0,500) + "..." : "null/undefined"); // Keep user's logs
 
                 if (settingsCollectionData && settingsCollectionData.items && settingsCollectionData.items.length > 0) {
                     const fetchedSettings = settingsCollectionData.items[0];
                     const newAppSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
                     for (const key in fetchedSettings) {
-                        if (fetchedSettings.hasOwnProperty(key) && key !== 'site_name') {
+                        if (fetchedSettings.hasOwnProperty(key) && key !== 'site_name') { // Retained user's site_name exclusion
                             if (typeof fetchedSettings[key] === 'object' && fetchedSettings[key] !== null &&
                                 newAppSettings[key] !== undefined && typeof newAppSettings[key] === 'object' && newAppSettings[key] !== null &&
                                 !Array.isArray(fetchedSettings[key])) {
@@ -191,8 +194,13 @@ document.addEventListener('alpine:init', () => {
                     this.appSettings = newAppSettings;
                 } else {
                     this.appSettings = initialDefaultAppSettings;
-                    // console.warn for missing global_config removed
+                    console.warn("INITAPP: Global app settings ('global_config') not found in DB. Using defaults. Consider running seeder: index.html?run_db_seed=true"); // Keep user's logs
                 }
+                console.log("INITAPP: this.appSettings FINAL:", this.appSettings ? JSON.stringify(this.appSettings).substring(0,500) + "..." : "null/undefined" ); // Keep user's logs
+
+                console.log("INITAPP: Fetching livestock_types..."); // Keep user's logs
+                const livestockData = await pbFetch('livestock_types'); // Using the version from user's script (no sort)
+                console.log("INITAPP: livestock_types RAW DATA:", livestockData ? JSON.stringify(livestockData).substring(0,500) + "..." : "null/undefined"); // Keep user's logs
 
                 if (livestockData && livestockData.items) {
                     this.productOptions.livestock = livestockData.items.map(item => ({
@@ -201,32 +209,42 @@ document.addEventListener('alpine:init', () => {
                     }));
                 } else {
                     this.productOptions.livestock = [];
-                    // console.warn for missing livestock removed
+                     console.warn("INITAPP: Livestock data not found or invalid. productOptions.livestock set to [].") // Keep user's logs
                 }
+                console.log("INITAPP: this.productOptions.livestock FINAL:", this.productOptions.livestock ? JSON.stringify(this.productOptions.livestock).substring(0,500) + "..." : "null/undefined"); // Keep user's logs
+
             } catch (error) {
-                console.error("Error fetching initial app data:", error); // Keep this critical error log
+                console.error("INITAPP: Error during initial data fetching:", error); // Keep user's logs
                 this.apiError = error.message || "An unknown error occurred during data fetch.";
                 this.userFriendlyApiError = (typeof error.message === 'string' && error.message.includes('Network Error')) ? error.message : 'Failed to load application settings. Please refresh or try again later.';
                 this.appSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
                 this.productOptions.livestock = [];
             } finally {
                 this.isLoading.init = false;
+                console.log("INITAPP: Exiting try...catch...finally for data fetch."); // Keep user's logs
             }
 
-            if (typeof this.appSettings.default_currency !== 'string') {
+            if (typeof this.appSettings.default_currency !== 'string') { // Keep safety check
+                console.warn('INITAPP: this.appSettings.default_currency is not a string:', this.appSettings.default_currency, 'Setting to EGP.'); // Keep user's logs
                 this.appSettings.default_currency = "EGP";
             }
             this.currentCurrency = this.appSettings.default_currency || "EGP";
 
+            console.log("INITAPP: Calling startOfferDHDMSCountdown..."); // Keep user's logs
             this.startOfferDHDMSCountdown();
+            console.log("INITAPP: Calling updateSacrificeDayTexts..."); // Keep user's logs
             this.updateSacrificeDayTexts();
+            console.log("INITAPP: Calling updateAllDisplayedPrices..."); // Keep user's logs
             this.updateAllDisplayedPrices();
+            console.log("INITAPP: Calling clearAllErrors..."); // Keep user's logs
             this.clearAllErrors();
 
+            console.log("INITAPP: Setting up $watchers..."); // Keep user's logs
             this.$watch(['selectedAnimal.basePriceEGP', 'selectedPackaging.addonPriceEGP'], () => this.calculateTotalPrice());
-            this.$watch('currentCurrency', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
+            this.$watch('currentCurrency', () => { console.log("WATCH: currentCurrency changed to", this.currentCurrency); this.calculateTotalPrice(); this.updateAllDisplayedPrices(); }); // Keep user's logs
             this.$watch('selectedSacrificeDay.value', () => this.updateSacrificeDayTexts());
             this.$watch('distributionChoice', val => {
+                console.log('WATCH: distributionChoice changed to', val); // Keep user's logs
                 if (val !== 'split') { this.splitDetailsOption = ''; this.customSplitDetailsText = ''; }
                 if (val === 'char') { Object.assign(this, { deliveryName: '', deliveryPhone: '', selectedGovernorate: '', deliveryCity: '', deliveryAddress: '', deliveryInstructions: '', availableCities: [] });}
                 this.clearError('splitDetails');
@@ -238,16 +256,21 @@ document.addEventListener('alpine:init', () => {
             this.stepSectionsMeta = ['#step1-content', '#step2-content', '#step3-content', '#step4-content', '#step5-content']
                 .map((id, index) => ({ id, step: index + 1, element: document.querySelector(id), titleRef: `step${index+1}Title`, firstFocusableErrorRef: null }));
 
+            console.log("INITAPP: Setting up $nextTick for scroll and focus..."); // Keep user's logs
             this.$nextTick(() => {
+                console.log("INITAPP: Inside $nextTick."); // Keep user's logs
                 this.handleScroll();
                 const initialFocusTarget = this.bookingConfirmed ? 'bookingConfirmedTitle' : (this.$refs.step1Title ? 'step1Title' : 'bookingSectionTitle');
                 this.focusOnRef(initialFocusTarget);
+                console.log("INITAPP: $nextTick finished."); // Keep user's logs
             });
+            console.log("INITAPP: Adding scroll listener..."); // Keep user's logs
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
-            document.addEventListener('visibilitychange', () => {
+            document.addEventListener('visibilitychange', () => { // Moved from earlier in initApp
                 if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown();
                 else if(this.countdownTimerInterval) clearInterval(this.countdownTimerInterval);
             });
+            console.log("INITAPP: Finished initApp successfully."); // Keep user's logs
         },
 
         startOfferDHDMSCountdown() {
@@ -256,10 +279,12 @@ document.addEventListener('alpine:init', () => {
                 this.countdown.ended = true; this.promoHasEnded = true; this.calculatedPromoDaysLeft = 0; return;
             }
             if (!this.appSettings.promo_end_date || typeof this.appSettings.promo_end_date !== 'string') {
+                console.warn("COUNTDOWN: promo_end_date is invalid or missing.", this.appSettings.promo_end_date); // Keep user's logs
                 this.countdown.ended = true; return;
             }
             const endDate = new Date(this.appSettings.promo_end_date).getTime();
             if (isNaN(endDate)) {
+                console.warn("COUNTDOWN: promo_end_date resulted in an invalid date.", this.appSettings.promo_end_date); // Keep user's logs
                 this.countdown.ended = true; return;
             }
             this.updateDHDMSCountdownDisplay(endDate);
@@ -333,20 +358,24 @@ document.addEventListener('alpine:init', () => {
         },
 
         navigateToStep(targetStep) {
+            console.log(`NAVIGATE TO STEP: Attempting to navigate to step ${targetStep}. Current: ${this.currentActiveStep}`); // Keep user's logs
             this.clearAllErrors();
             for (let i = 1; i < targetStep; i++) {
                 if (!this.currentStepCompleted(i, true)) {
+                    console.log(`NAVIGATE TO STEP: Step ${i} not completed. Setting active step to ${i} and stopping navigation.`); // Keep user's logs
                     this.currentActiveStep = i;
                     this.scrollToSection(this.stepSectionsMeta[i-1]?.id || '#udheya-booking-form-panel');
                     return;
                 }
             }
+            console.log(`NAVIGATE TO STEP: All previous steps completed. Setting active step to ${targetStep}.`); // Keep user's logs
             this.currentActiveStep = targetStep;
             this.focusOnRef(this.stepSectionsMeta[targetStep - 1]?.titleRef);
             this.scrollToSection(this.stepSectionsMeta[targetStep-1]?.id || '#udheya-booking-form-panel');
         },
 
         currentStepCompleted(stepNumber, showErrorsIfCurrent = true) {
+            console.log(`currentStepCompleted: Checking step ${stepNumber}, showErrors: ${showErrorsIfCurrent}, currentActiveStep: ${this.currentActiveStep}`); // Keep user's logs
             let isValid = false;
             const isCurrentValidatingStep = showErrorsIfCurrent && this.currentActiveStep === stepNumber;
             switch (stepNumber) {
@@ -357,6 +386,7 @@ document.addEventListener('alpine:init', () => {
                 case 5: isValid = this.validateStep5(isCurrentValidatingStep); break;
                 default: isValid = false;
             }
+            console.log(`currentStepCompleted: Step ${stepNumber} validation result: ${isValid}`); // Keep user's logs
             if (isValid && isCurrentValidatingStep && this.stepSectionsMeta[stepNumber-1]) {
                 this.stepSectionsMeta[stepNumber-1].firstFocusableErrorRef = null;
             }
@@ -364,18 +394,24 @@ document.addEventListener('alpine:init', () => {
         },
 
         validateAndProceedToStep(nextStep) {
+            console.log(`VALIDATE AND PROCEED: To step ${nextStep}. Current active step: ${this.currentActiveStep}`); // Keep user's logs
             this.clearAllErrors();
             let isValidCurrentStep = this.currentStepCompleted(this.currentActiveStep, true);
+            console.log(`VALIDATE AND PROCEED: Current step (${this.currentActiveStep}) validation result: ${isValidCurrentStep}`); // Keep user's logs
 
             if (isValidCurrentStep) {
                 if (nextStep <= this.stepSectionsMeta.length) {
+                    console.log(`VALIDATE AND PROCEED: Proceeding to step ${nextStep}.`); // Keep user's logs
                     this.currentActiveStep = nextStep;
                     this.$nextTick(() => {
                         this.focusOnRef(this.stepSectionsMeta[nextStep - 1]?.titleRef);
                         this.scrollToSection(this.stepSectionsMeta[nextStep-1]?.id || '#udheya-booking-form-panel');
                     });
+                } else {
+                    console.log(`VALIDATE AND PROCEED: nextStep ${nextStep} is out of bounds.`); // Keep user's logs
                 }
             } else {
+                console.log(`VALIDATE AND PROCEED: Current step ${this.currentActiveStep} is not valid. Staying on current step.`); // Keep user's logs
                 this.$nextTick(() => {
                     this.scrollToSection(this.stepSectionsMeta[this.currentActiveStep-1]?.id || '#udheya-booking-form-panel');
                 });
@@ -383,21 +419,25 @@ document.addEventListener('alpine:init', () => {
         },
 
         validateStep1(showErrors = true) {
+            console.log('VALIDATE STEP 1: showErrors =', showErrors, 'Selected animal type:', this.selectedAnimal.type); // Keep user's logs
             if(showErrors) this.clearError('animal');
             let firstErrorRef = null;
             if (!this.selectedAnimal.type) {
                 if(showErrors) {
                     this.setError('animal', 'select');
                     firstErrorRef = this.$refs.baladiWeightSelect?.closest('.livestock-card') ? 'baladiWeightSelect' : 'barkiWeightSelect';
+                    console.log('VALIDATE STEP 1: Animal not selected, focusing on:', firstErrorRef); // Keep user's logs
                     this.focusOnRef(firstErrorRef);
                 }
                 if(this.stepSectionsMeta[0]) this.stepSectionsMeta[0].firstFocusableErrorRef = firstErrorRef;
                 return false;
             }
             if(this.stepSectionsMeta[0]) this.stepSectionsMeta[0].firstFocusableErrorRef = null;
+            console.log('VALIDATE STEP 1: Passed.'); // Keep user's logs
             return true;
         },
         validateStep2(showErrors = true) {
+            console.log('VALIDATE STEP 2: showErrors =', showErrors); // Keep user's logs
             if(showErrors) { this.clearError('prepStyle'); this.clearError('packaging'); }
             let isValid = true; let firstErrorRef = null;
             if (!this.selectedPrepStyle.value) {
@@ -406,14 +446,17 @@ document.addEventListener('alpine:init', () => {
             if (!this.selectedPackaging.value) {
                 if(showErrors) {this.setError('packaging', 'select'); if(!firstErrorRef) firstErrorRef = 'packagingSelect';} isValid = false;
             }
-            if(showErrors && firstErrorRef) { this.focusOnRef(firstErrorRef); }
+            if(showErrors && firstErrorRef) { console.log('VALIDATE STEP 2: Error found, focusing on:', firstErrorRef); this.focusOnRef(firstErrorRef); } // Keep user's logs
             if(this.stepSectionsMeta[1]) this.stepSectionsMeta[1].firstFocusableErrorRef = firstErrorRef;
+            console.log('VALIDATE STEP 2: Result =', isValid); // Keep user's logs
             return isValid;
         },
         validateStep3(showErrors = true) {
+            console.log('VALIDATE STEP 3: showErrors =', showErrors, '(Always returns true for now)'); // Keep user's logs
             if(this.stepSectionsMeta[2]) this.stepSectionsMeta[2].firstFocusableErrorRef = null; return true;
         },
         validateStep4(showErrors = true) {
+            console.log('VALIDATE STEP 4: showErrors =', showErrors); // Keep user's logs
             if(showErrors) { this.clearError('splitDetails'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('customerEmail'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress');}
             let isValid = true; let firstErrorRef = null;
             const setValError = (f, t, r) => { if(showErrors) this.setError(f,t); isValid=false; if(showErrors && !firstErrorRef) firstErrorRef=r;};
@@ -432,36 +475,47 @@ document.addEventListener('alpine:init', () => {
                 if (gov && gov.cities?.length > 0 && !this.deliveryCity) setValError('deliveryCity', 'select', 'deliveryCitySelect');
                 if (!(this.deliveryAddress || "").trim()) setValError('deliveryAddress', 'required', 'deliveryAddressInput');
             }
-            if(showErrors && firstErrorRef) { this.focusOnRef(firstErrorRef); }
+            if(showErrors && firstErrorRef) { console.log('VALIDATE STEP 4: Error found, focusing on:', firstErrorRef); this.focusOnRef(firstErrorRef); } // Keep user's logs
             if(this.stepSectionsMeta[3]) this.stepSectionsMeta[3].firstFocusableErrorRef = firstErrorRef;
+            console.log('VALIDATE STEP 4: Result =', isValid); // Keep user's logs
             return isValid;
         },
         validateStep5(showErrors = true) {
+            console.log('VALIDATE STEP 5: showErrors =', showErrors); // Keep user's logs
             if(showErrors) this.clearError('paymentMethod');
             let firstErrorRef = null;
             if(!this.paymentMethod) {
                 if(showErrors) {this.setError('paymentMethod', 'select'); firstErrorRef = 'paymentMethodRadios'; this.focusOnRef(firstErrorRef);}
                 if(this.stepSectionsMeta[4]) this.stepSectionsMeta[4].firstFocusableErrorRef = firstErrorRef;
+                console.log('VALIDATE STEP 5: Payment method not selected.'); // Keep user's logs
                 return false;
             }
             if(this.stepSectionsMeta[4]) this.stepSectionsMeta[4].firstFocusableErrorRef = null;
+            console.log('VALIDATE STEP 5: Passed.'); // Keep user's logs
             return true;
         },
 
         selectAnimal(cardEl, key) {
+            console.log(`SELECT ANIMAL: Key = ${key}`); // Keep user's logs
             this.clearError('animal');
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
             const sel = cardEl.querySelector('.livestock-weight-select');
-            if (!animal || !sel || !sel.value) { this.setError('animal', 'select'); this.focusOnRef(sel && sel.id.includes('baladi') ? 'baladiWeightSelect' : 'barkiWeightSelect'); return; }
+            if (!animal || !sel || !sel.value) {
+                console.error("SELECT ANIMAL: Animal or select element/value missing.", animal, sel, sel?.value); // Keep user's logs
+                this.setError('animal', 'select');
+                this.focusOnRef(sel && sel.id.includes('baladi') ? 'baladiWeightSelect' : 'barkiWeightSelect');
+                return;
+            }
             const wp = animal.weights_prices.find(w => w.weight_range === sel.value);
             if (!wp || !wp.is_active || (wp.stock != null && wp.stock <= 0)) {
+                console.warn("SELECT ANIMAL: Weight/price data missing or out of stock.", wp); // Keep user's logs
                 this.setError('animal', {en: `${animal.name_en || 'Selected animal'} (${sel.value}) is out of stock.`, ar: `${animal.name_ar || 'الحيوان المختار'} (${sel.value}) غير متوفر.`});
                 this.updateAllDisplayedPrices(); return;
             }
             this.selectedAnimal = { type: animal.value_key, value: animal.value_key, weight: wp.weight_range, basePriceEGP: parseFloat(wp.price_egp), stock: wp.stock, originalStock: wp.stock, nameEN: animal.name_en, nameAR: animal.name_ar, pbId: animal.pbId };
+            console.log("SELECT ANIMAL: Selected animal object:", JSON.parse(JSON.stringify(this.selectedAnimal))); // Keep user's logs
             this.calculateTotalPrice();
-            // Auto-advance from Step 1 is now handled by the "Continue to Customize" button.
-            // No call to validateAndProceedToStep(2) here.
+            // MODIFIED: No longer auto-advances. The "Continue to Customize" button in index.html for Step 1 will call validateAndProceedToStep(2).
         },
         isLivestockWeightOutOfStock(selEl, key) {
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
@@ -608,7 +662,7 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 
-// ----- START: INLINE POCKETBASE SEEDER (Corrected Structure) -----
+// ----- START: INLINE POCKETBASE SEEDER (Minimal Logs)-----
 (function() {
     const SEEDER_QUERY_PARAM = 'run_db_seed';
 
@@ -618,11 +672,7 @@ document.addEventListener('alpine:init', () => {
     }
 
     if (getQueryParam(SEEDER_QUERY_PARAM) === 'true') {
-        // Minimal console output for seeder trigger
-        // console.warn("==== INLINE POCKETBASE SEEDER: Query parameter found, attempting to seed database. ====");
-
         const SEEDER_API_BASE_URL = '/api/';
-
         const SEEDER_RECORDS_TO_CREATE = [
             {
                 collection: 'app_settings',
@@ -653,8 +703,7 @@ document.addEventListener('alpine:init', () => {
             }
         ];
 
-        async function runInlineSeed() {
-            // Minimal logging for seeder
+        (async function runInlineSeedActual() {
             for (const record of SEEDER_RECORDS_TO_CREATE) {
                 const recordIdentifier = record.data.setting_key || record.data.value_key || 'N/A (unknown)';
                 try {
@@ -663,22 +712,19 @@ document.addEventListener('alpine:init', () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(record.data)
                     });
-
                     if (!response.ok) {
-                        const responseText = await response.text(); // Get response text for error
+                        const responseText = await response.text();
                         console.error(`SEEDER_ERROR: Failed to create record in '${record.collection}': ${response.status} ${response.statusText} - ${responseText}. Record identifier: ${recordIdentifier}`);
                     }
                 } catch (error) {
                     console.error(`SEEDER_EXCEPTION: Network or other error for record in '${record.collection}' (ID: ${recordIdentifier}):`, error);
                 }
             }
-
             if (window.history.replaceState) {
                 const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.replaceState({path: cleanURL}, '', cleanURL);
             }
-        }
-        runInlineSeed(); // Call the seeder function
+        })();
     }
-})(); // Correctly closing the outer IIFE
+})();
 // ----- END: INLINE POCKETBASE SEEDER -----
