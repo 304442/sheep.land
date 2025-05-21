@@ -51,21 +51,23 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('udheyaBooking', () => ({
         isLoading: { status: false, booking: false, init: true },
         appSettings: {
-            exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0, symbol: '$', is_active: false }, GBP: { rate_from_egp: 0, symbol: '£', is_active: false }},
+            exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: false }, GBP: { rate_from_egp: 0.016, symbol: '£', is_active: false }}, // Example rates
             default_currency: "EGP",
-            whatsapp_number_raw: "201001234567", // TODO: REPLACE with actual live number
-            whatsapp_number_display: "+20 100 123 4567", // TODO: REPLACE with actual live number
-            promo_end_date: null, promo_discount_percent: 0, promo_is_active: true,
-            delivery_areas: [],
-            payment_details: { 
-                vodafone_cash: "010_YOUR_LIVE_VODA_NUMBER", // TODO: REPLACE
-                instapay_ipn: "YOUR_LIVE_IPN@instapay", // TODO: REPLACE
-                revolut_details: "@YOUR_LIVE_REVTAG", // TODO: REPLACE
-                bank_name: "YOUR_LIVE_BANK_NAME", // TODO: REPLACE
-                bank_account_name: "YOUR_LIVE_ACCOUNT_NAME", // TODO: REPLACE
-                bank_account_number: "YOUR_LIVE_ACCOUNT_NUMBER", // TODO: REPLACE
-                bank_iban: "", 
-                bank_swift: "" 
+            whatsapp_number_raw: "201001234567", // TODO: REPLACE with actual live number. Example only.
+            whatsapp_number_display: "+20 100 123 4567", // TODO: REPLACE with actual live number. Example only.
+            promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), // Default: 15 days from now
+            promo_discount_percent: 10, // Default discount
+            promo_is_active: true,
+            delivery_areas: [], // To be fetched
+            payment_details: {  // TODO: REPLACE ALL THESE WITH YOUR ACTUAL LIVE DETAILS
+                vodafone_cash: "010-YOUR-VODA-NUMBER", 
+                instapay_ipn: "YOUR-IPN@instapay", 
+                revolut_details: "@YOUR-REVTAG / +XX XXXX XXXX", 
+                bank_name: "YOUR BANK NAME", 
+                bank_account_name: "YOUR ACCOUNT HOLDER NAME", 
+                bank_account_number: "YOUR ACCOUNT NUMBER", 
+                bank_iban: "YOUR IBAN (Optional)", 
+                bank_swift: "YOUR SWIFT/BIC (Optional)" 
             }
         },
         productOptions: {
@@ -78,7 +80,7 @@ document.addEventListener('alpine:init', () => {
             ],
             packagingOptions: [
                 { value: 'standard', nameEN: 'Standard Packaging', nameAR: 'تعبئة قياسية', addonPriceEGP: 0 },
-                { value: 'vacuum_sealed', nameEN: 'Vacuum Sealed', nameAR: 'تعبئة مفرغة', addonPriceEGP: 100 }
+                { value: 'vacuum_sealed', nameEN: 'Vacuum Sealed', nameAR: 'تعبئة مفرغة', addonPriceEGP: 100 } // Example price
             ]
         },
         apiError: null, userFriendlyApiError: '',
@@ -108,9 +110,6 @@ document.addEventListener('alpine:init', () => {
             this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = '';
             const initialDefaultAppSettings = JSON.parse(JSON.stringify(this.appSettings)); 
             
-            // Apply hardcoded defaults from the appSettings object defined above.
-            // These might be overridden by fetched settings if present and valid.
-            
             try {
                 const settingsParams = `filter=(setting_key='global_config')&perPage=1`;
                 const [settingsCollectionData, livestockData] = await Promise.all([
@@ -133,11 +132,10 @@ document.addEventListener('alpine:init', () => {
                             }
                         }
                     }
-                    // Ensure hardcoded defaults are kept if fetched values are missing/empty
                     if (!newAppSettings.whatsapp_number_raw) newAppSettings.whatsapp_number_raw = initialDefaultAppSettings.whatsapp_number_raw;
                     if (!newAppSettings.whatsapp_number_display) newAppSettings.whatsapp_number_display = initialDefaultAppSettings.whatsapp_number_display;
                     for(const pKey in initialDefaultAppSettings.payment_details){
-                        if(!newAppSettings.payment_details[pKey]) newAppSettings.payment_details[pKey] = initialDefaultAppSettings.payment_details[pKey];
+                        if(!newAppSettings.payment_details[pKey] && newAppSettings.payment_details[pKey] !== null) newAppSettings.payment_details[pKey] = initialDefaultAppSettings.payment_details[pKey];
                     }
                     this.appSettings = newAppSettings;
                 } else {
@@ -280,7 +278,7 @@ document.addEventListener('alpine:init', () => {
         },
         clearError(field) { if (this.errors[field]) this.$delete(this.errors, field); },
         clearAllErrors() { this.errors = {}; },
-        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:false}); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e) {/*ignore scroll err*/} }, 50); } }); },
+        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:false}); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e) {} }, 50); } }); },
 
         get _needsDeliveryDetails() {
             const customText = (this.customSplitDetailsText || '').toLowerCase();
@@ -396,7 +394,7 @@ document.addEventListener('alpine:init', () => {
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 10; 
                     window.scrollTo({ top: offsetPosition, behavior: "smooth" });
                 }
-            } catch(e) {/* ignore scroll err */}
+            } catch(e) {}
         },
 
         navigateToStep(targetStep) {
@@ -506,10 +504,12 @@ document.addEventListener('alpine:init', () => {
             let isValid = true; let firstErrorRef = null;
             const stepMeta = this.stepSectionsMeta[1];
             if (!this.selectedPrepStyle.value) {
-                if(showErrors) {this.setError('prepStyle', 'select'); if(!firstErrorRef) firstErrorRef = 'prepStyleSelect';} isValid = false;
+                if(showErrors) {this.setError('prepStyle', 'select'); if(!firstErrorRef) firstErrorRef = 'prepStyleSelect';} 
+                isValid = false;
             }
             if (!this.selectedPackaging.value) {
-                if(showErrors) {this.setError('packaging', 'select'); if(!firstErrorRef) firstErrorRef = 'packagingSelect';} isValid = false;
+                if(showErrors) {this.setError('packaging', 'select'); if(!firstErrorRef) firstErrorRef = 'packagingSelect';} 
+                isValid = false;
             }
             if(showErrors && firstErrorRef) { this.focusOnRef(firstErrorRef); }
             if(stepMeta) stepMeta.firstFocusableErrorRef = firstErrorRef;
@@ -809,7 +809,7 @@ document.addEventListener('alpine:init', () => {
                     // --- TODO: REPLACE THESE WITH YOUR ACTUAL LIVE DETAILS FOR SEEDING ---
                     whatsapp_number_raw: "201001234567", // Example: International format without '+' or spaces
                     whatsapp_number_display: "+20 100 123 4567", // Example: User-friendly display
-                    promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), // Ends in 15 days
+                    promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), 
                     promo_discount_percent: 15,
                     promo_is_active: true,
                     delivery_areas: [ 
