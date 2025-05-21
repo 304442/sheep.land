@@ -34,7 +34,7 @@ a:hover{color:var(--c1d)}
 
 h1,h2,h3,h4,h5{font-weight:700;line-height:1.25;color:var(--c1d);margin-bottom:var(--s1)}
 h1{font-size:1.9rem;margin-bottom:var(--s2)}
-h2{font-size:1.1rem;margin-bottom:var(--s2)} /* Increased H2 slightly for better section hierarchy */
+h2{font-size:1.1rem;margin-bottom:var(--s2)}
 h3{font-size:1.1rem}
 h4{font-size:1rem}
 h5{font-size:.9rem}
@@ -64,10 +64,7 @@ ul,ol{list-style:none}
 .hero-promo-cta-link:hover{transform:translateY(-3px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
 .hero-desc-row{max-width:100%;margin:var(--s2) auto var(--s3)}
 
-.why-choose-us-standalone-grid, /* Updated */
-.how-it-works-grid{
-    margin-top:var(--s3)
-}
+.how-it-works-grid{margin-top:var(--s3)} /* Combined with why-choose-us-standalone-grid before, now separate */
 .booking-section-head{margin-bottom:var(--s3)}
 .livestock-sharia-note{font-size:.9em;color:var(--tm);margin:var(--s0) 0 var(--s2)}
 .custom-prep-details-container{max-width:100%;margin:var(--s2) auto 0}
@@ -108,7 +105,6 @@ ul,ol{list-style:none}
 .bank-details-list .en,.bank-details-list .ar{width:100%}
 .bank-transfer-crucial-note{margin-top:var(--s1)}
 
-.check-status-section{padding-top:var(--s2)} /* If this class is used */
 .check-status-form-card,.booking-status-results-card{margin-top:var(--s3)}
 .check-status-label{margin-bottom:var(--s1)}
 .check-status-input,.check-status-button{height:36px}
@@ -134,7 +130,7 @@ ul,ol{list-style:none}
 .bil-copyright-suffix .en{text-align:left}
 .bil-copyright-suffix .ar{font-family:var(--fa);direction:rtl;text-align:right}
 
-#udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height) + 55px);margin-top:0} /* Adjusted margin-top */
+#udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height) + 55px);margin-top:0}
 .all-steps-panel>.card-b{padding:0}
 .form-step-content{padding:var(--s3) var(--s2);background-color:var(--bc)}
 .form-step-content:last-of-type{border-bottom:none}
@@ -150,7 +146,7 @@ ul,ol{list-style:none}
 .grid3{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
 .grid4{grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
 .feature-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);text-align:center}
-.why-choose-us-standalone-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s2);text-align:center;margin-top:var(--s3)}
+.why-choose-us-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s2);text-align:center; margin-top: var(--s3);}
 .how-it-works-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);text-align:center;margin-top:var(--s3)}
 
 .bil-row{display:flex;justify-content:space-between;width:100%;gap:var(--s1);align-items:baseline}
@@ -305,8 +301,8 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .stepper-connector{flex-grow:1;height:2px;background-color:var(--bs);margin:0 var(--s1);position:relative;top:-10px}
 .stepper-item.active .step-number{background-color:var(--c2);border-color:var(--c2);color:var(--td)}
 .stepper-item.active{color:var(--c1d);font-weight:700}
-.stepper-item.completed .step-number{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d)} /* Number when completed but also active */
-.stepper-item.completed .step-checkmark{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px} /* Checkmark when completed and not active */
+.stepper-item.completed .step-number{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d)}
+.stepper-item.completed .step-checkmark{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px}
 .stepper-item.completed{color:var(--tm)}
 .stepper-item.disabled{opacity:.6;pointer-events:none;cursor:not-allowed}
 .stepper-item.disabled .step-number{border-color:var(--bs);background-color:var(--b2);color:var(--tm)}
@@ -332,6 +328,12 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .hero-section{background-color:var(--b2);padding:var(--s4) 0 var(--s5);background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),url(/images/hero-sheep-farm.jpg);background-size:cover;background-position:center;background-repeat:no-repeat;color:var(--td);min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box}
 .hero-section>.c{display:flex;flex-direction:column;align-items:center;justify-content:center}
 .hero-section :is(h1,h2,p){color:var(--td)}
+.hero-section .hero-why-choose{margin-top:var(--s5);padding-top:var(--s3);border-top:1px solid rgba(255,255,255,.2);width:100%}
+.hero-section .hero-why-choose .bil-parent-spread>.en,.hero-section .hero-why-choose .bil-parent-spread>.ar{color:var(--td)}
+.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after{background:var(--c3)}
+.hero-section .hero-why-choose .feature-item p.card-p{color:#e0e0e0}
+.hero-section .hero-why-choose .feature-item .icon-placeholder{background-color:rgba(255,255,255,.15);color:var(--td);border:1px solid rgba(255,255,255,.2)}
+
 .pban .prm-h,.pban .prm-h strong,.pban .prm-h span{color:var(--c1d)}
 .countdown-timer-wrapper{display:flex;justify-content:center;width:100%;margin-top:var(--s0);margin-bottom:var(--s1)}
 .pban-text-content .bil-row>div:first-child{text-align:center;display:flex;flex-direction:column;align-items:center}
@@ -357,25 +359,16 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .required-fields-note p{margin:0}
 .livestock-weight-select option[value=""]{color:var(--tm)}
 
-.why-choose-us-standalone-section { background-color: var(--b1); }
-.why-choose-us-standalone-head h2.bil-parent-spread .en,
-.why-choose-us-standalone-head h2.bil-parent-spread .ar { color: var(--c1d); }
-.why-choose-us-standalone-head h2.bil-parent-spread .en::after,
-.why-choose-us-standalone-head h2.bil-parent-spread .ar::after { background: var(--c2l); }
-.why-choose-us-standalone-grid .feature-item h4.bil-parent-spread .en,
-.why-choose-us-standalone-grid .feature-item h4.bil-parent-spread .ar { color: var(--c1d); }
-.why-choose-us-standalone-grid .feature-item p.card-p { color: var(--tm); }
-.why-choose-us-standalone-grid .feature-item .icon-placeholder { background-color: var(--c2l); color: var(--c2); }
-
+/* Styles for icons in "Why Choose Us" in Hero (ensure they are visible on dark background) */
+.hero-section .hero-why-choose .feature-item .icon-placeholder .icon-custom {
+    /* If SVGs, their fill/stroke might need to be set to var(--td) or a light color */
+    /* If PNGs, ensure they are light-colored PNGs or have a transparent background */
+    filter: brightness(0) invert(1); /* Example: if you use dark icons and need them white */
+}
 .icon-placeholder .icon-custom{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:1.2em;}
 .icon-custom img,.icon-custom svg{width:100%;height:100%;object-fit:contain}
-/* Example specific icon styling if needed, assuming you have these SVGs in /images/ */
-.icon-custom.sharia-compliant-icon { /* background-image: url('/images/icon-sharia.svg'); background-size: contain; background-repeat: no-repeat; background-color: transparent; */ }
-.icon-custom.premium-quality-icon { /* background-image: url('/images/icon-premium.svg'); */ }
-.icon-custom.easy-booking-icon { /* background-image: url('/images/icon-easybooking.svg'); */ }
-.icon-custom.reliable-delivery-icon { /* background-image: url('/images/icon-delivery.svg'); */ }
 
-.udheya-booking-section { background-color: var(--b2); }
+.udheya-booking-section { background-color: var(--b2); } /* Example: Booking section distinct background */
 #udheya-booking-form-panel.card { background-color: var(--bc); }
 .how-it-works-section, #check-booking-status.sec { background-color: var(--b1); }
 
@@ -394,7 +387,8 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .bil-parent-spread>.ar{direction:rtl}
     .bil-parent-spread>:last-child{margin-bottom:0!important}
     .sec-head h2.bil-parent-spread .en::after,.sec-head h2.bil-parent-spread .ar::after,
-    .why-choose-us-standalone-head h2.bil-parent-spread .en::after,.why-choose-us-standalone-head h2.bil-parent-spread .ar::after{left:50%;transform:translateX(-50%);right:auto}
+    .hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after, /* Added for hero why choose */
+    .hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after {left:50%;transform:translateX(-50%);right:auto}
     .bil-parent-spread-intrinsic>.en,.bil-parent-spread-intrinsic>.ar{margin:0!important;padding:0!important}
     .pban-text-content .bil-row{flex-direction:column;align-items:center}
     .pban-text-content .bil-row>div{text-align:center!important}
@@ -406,12 +400,11 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .sec{padding:var(--s3) 0}
     #udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height) + 45px)}
     .form-step-content{padding:var(--s2) var(--s1)}
-    .form-step-content.seca{margin:0 calc(var(--s1) * -1);padding-left:var(--s1);padding-right:var(--s1)}
-    :is(.grid1,.grid2,.grid3,.grid4,.content-grid):not(.product-grid):not(.feature-grid):not(.why-choose-us-standalone-grid):not(.how-it-works-grid){grid-template-columns:1fr}
+    :is(.grid1,.grid2,.grid3,.grid4,.content-grid):not(.product-grid):not(.feature-grid):not(.why-choose-us-hero-grid):not(.how-it-works-grid){grid-template-columns:1fr}
     :is(.product-grid.grid2,.product-grid.grid4){grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-    :is(.why-choose-us-standalone-grid,.how-it-works-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
+    :is(.why-choose-us-hero-grid,.how-it-works-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
     .rgrp label,.badge.bil-parent-spread-intrinsic{flex-direction:row;align-items:center;gap:var(--s1);flex-wrap:nowrap}
-    .summary-item .summary-item-content .bil-row,.summary-total .bil-row{flex-direction:row;align-items:baseline;flex-wrap:nowrap}
+    .summary-item .summary-item-content .bil-row,.summary-total .bil-row{flex-direction:row;align-items:baseline; flex-wrap:nowrap}
     .summary-item .summary-item-content .bil-row > div,.summary-total .bil-row > div{flex-basis:auto}
     #check-status-form-tag .card-act{display:flex;flex-wrap:wrap;gap:var(--s1)}
     #check-status-form-tag .card-act input.form-input-styled.check-status-input{flex:1 1 200px;margin-bottom:0}
