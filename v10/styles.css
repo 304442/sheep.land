@@ -63,7 +63,7 @@ ul,ol{list-style:none}
 .hero-promo-cta-link:hover{transform:translateY(-3px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
 .hero-desc-row{max-width:100%;margin:var(--s2) auto var(--s3)}
 
-.booking-section-head{margin-bottom:var(--s2)}
+.booking-section-head{margin-bottom:var(--s3)} /* Reverted to s3 as integrated process is gone */
 .livestock-sharia-note{font-size:.9em;color:var(--tm);margin:var(--s0) 0 var(--s2)}
 .custom-prep-details-container{max-width:100%;margin:var(--s2) auto 0}
 .sacrifice-day-note,.time-slot-note,.distribution-note,.wakeel-note,.niyyah-note{margin-top:var(--s0)}
@@ -72,7 +72,7 @@ ul,ol{list-style:none}
 .custom-split-textarea{margin-top:var(--s0);font-size:.85em}
 .niyyah-names-wrapper{margin-top:var(--s1)}
 .no-delivery-note{margin:var(--s2) 0 var(--s1)}
-.form-action.page-step-action{margin-top:var(--s3)}
+/* .form-action.page-step-action{margin-top:var(--s3)} /* This class was on removed buttons */
 .final-submit-action{margin-top:var(--s4)}
 
 .review-summary-wrapper .form-subhead{font-size:1.1rem;border-bottom:1px solid var(--c1);padding-bottom:var(--s1)}
@@ -132,8 +132,8 @@ ul,ol{list-style:none}
 .all-steps-panel>.card-b{padding:0}
 .form-step-content{padding:var(--s3) var(--s2);background-color:var(--bc)}
 .form-step-content:not(:first-child) {
-    border-top: 1px dashed var(--bs); /* Add divider between stacked steps */
-    margin-top: var(--s2); /* Add some space for the divider */
+    border-top: 1px dashed var(--bs); 
+    margin-top: var(--s2); 
     padding-top: var(--s3);
 }
 .form-step-content:last-of-type{border-bottom:none}
@@ -230,7 +230,7 @@ ul,ol{list-style:none}
 
 .form-panel-card{margin-bottom:0}
 .form-panel-card .card-b{padding:var(--s1) var(--s2)}
-.page-step-action{max-width:100%;margin:var(--s2) auto 0}
+/* .page-step-action{max-width:100%;margin:var(--s2) auto 0} */ /* No longer needed for intermediate buttons */
 .fg{margin-bottom:var(--s1);position:relative}
 .fg label.bil-row .en,.fg label.bil-row .ar{font-weight:500;font-size:.85rem;color:var(--tm);display:block;width:100%}
 .form-input-styled,.fg input[type=text],.fg input[type=tel],.fg input[type=date],.fg input[type=email],.fg select,.fg textarea{width:100%;border:1px solid var(--bs);border-radius:var(--rad);font-size:.8rem;background:var(--bc);min-height:36px}
@@ -367,54 +367,11 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 
 .udheya-booking-section { background-color: var(--b2); }
 #udheya-booking-form-panel.card { background-color: var(--bc); }
-/* How it works (standalone section) styles are removed as it's integrated now */
 #check-booking-status.sec { background-color: var(--b1); }
 
 .footer-payment-icon{height:30px;max-width:60px;object-fit:contain;border:1px solid var(--bs);border-radius:var(--rad);padding:3px;background-color:#fff;margin:2px}
 
-.integrated-process-wrapper {
-    background-color: var(--b1); 
-    padding: var(--s2) var(--s1);
-    border-radius: var(--rad);
-    margin-bottom: var(--s3);
-    border: 1px solid var(--bs);
-}
-.uprocess-wrap-integrated .integrated-process-title {
-    text-align: center;
-    margin-bottom: var(--s2);
-    font-size: 1rem; 
-}
-.uprocess-wrap-integrated .integrated-process-title .en::after,
-.uprocess-wrap-integrated .integrated-process-title .ar::after {
-    content:'';display:block;width:40px;height:2px;background:var(--c2l);
-    position:absolute;bottom:-6px;border-radius:2px;
-    left: 50%; transform: translateX(-50%);
-}
-.how-it-works-grid-integrated {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* More compact items for 5 steps */
-    gap: var(--s0); /* Reduced gap */
-    text-align: center;
-}
-.how-it-works-grid-integrated .feature-item {
-    padding: var(--s0);
-}
-.how-it-works-grid-integrated .feature-item .icon-placeholder {
-    width: 30px; 
-    height: 30px;
-    font-size: 1rem; 
-    margin-bottom: calc(var(--s0)/2);
-}
-.how-it-works-grid-integrated .feature-item h4 {
-    font-size: 0.70rem; /* Further reduced for 5 items */
-    line-height: 1.2; /* Adjusted line height */
-    margin-bottom: 0;
-    font-weight: 500; /* Less bold */
-}
-.how-it-works-grid-integrated .feature-item h4 .en,
-.how-it-works-grid-integrated .feature-item h4 .ar {
-    padding: 0;
-}
+/* Removed .integrated-process-wrapper and related styles as this section was deleted */
 
 @media(max-width:991px){
     .bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total .bil-row):not(.bank-details-list):not(.fg label.bil-row){flex-wrap:wrap}
@@ -430,8 +387,7 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .bil-parent-spread>:last-child{margin-bottom:0!important}
     .sec-head h2.bil-parent-spread .en::after,.sec-head h2.bil-parent-spread .ar::after,
     .hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after, 
-    .hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after,
-    .integrated-process-title .en::after, .integrated-process-title .ar::after {left:50%;transform:translateX(-50%);right:auto}
+    .hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after {left:50%;transform:translateX(-50%);right:auto}
     .bil-parent-spread-intrinsic>.en,.bil-parent-spread-intrinsic>.ar{margin:0!important;padding:0!important}
     .pban-text-content .bil-row{flex-direction:column;align-items:center}
     .pban-text-content .bil-row>div{text-align:center!important}
@@ -443,11 +399,9 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .sec{padding:var(--s3) 0}
     #udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height) + 45px)}
     .form-step-content{padding:var(--s2) var(--s1)}
-    :is(.grid1,.grid2,.grid3,.grid4,.content-grid):not(.product-grid):not(.feature-grid):not(.why-choose-us-hero-grid):not(.how-it-works-grid-integrated){grid-template-columns:1fr}
+    :is(.grid1,.grid2,.grid3,.grid4,.content-grid):not(.product-grid):not(.feature-grid):not(.why-choose-us-hero-grid){grid-template-columns:1fr}
     :is(.product-grid.grid2,.product-grid.grid4){grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-    :is(.why-choose-us-hero-grid,.how-it-works-grid-integrated){grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:var(--s0)} 
-    .how-it-works-grid-integrated .feature-item h4 {font-size: 0.65rem;}
-
+    .why-choose-us-hero-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)} 
     .rgrp label,.badge.bil-parent-spread-intrinsic{flex-direction:row;align-items:center;gap:var(--s1);flex-wrap:nowrap}
     .summary-item .summary-item-content .bil-row,.summary-total .bil-row{flex-direction:row;align-items:baseline; flex-wrap:nowrap}
     .summary-item .summary-item-content .bil-row > div,.summary-total .bil-row > div{flex-basis:auto}
@@ -470,7 +424,7 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .card-act select,.card-act .btn{height:30px;font-size:.7rem}
     .btn{font-size:.8rem}
     .btn-lg{font-size:.85rem}
-    .page-step-action{margin-top:var(--s1)}
+    /* .page-step-action{margin-top:var(--s1)} /* No longer needed for intermediate buttons */
     #check-booking-status .form-panel-card{margin-top:var(--s1)}
     .stepper-outer-wrapper{top:var(--header-height)}
     .stepper-item .step-label.en,.stepper-item .step-label.ar{font-size:.7rem}
@@ -511,7 +465,4 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .countdown-separator{padding:0 1px}
     .hero-section h1{font-size:1.4rem}
     .hero-section h2{font-size:1.0rem}
-    .how-it-works-grid-integrated {grid-template-columns: repeat(3, 1fr);} /* 3 items per row on smallest screens */
-    .how-it-works-grid-integrated .feature-item h4 {font-size: 0.6rem;}
-    .how-it-works-grid-integrated .feature-item .icon-placeholder {width: 24px; height: 24px; font-size: 0.8rem;}
 }
