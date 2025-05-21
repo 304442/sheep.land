@@ -1,611 +1,526 @@
-:root{
-    --c1:#5D4037;--c1d:#3E2723;--c2:#386641;--c2l:#A3B18A;--c3:#F28C28;
-    --t1:#212529;--tm:#6c757d;--td:#FAF8F5;
-    --b1:var(--td);--b2:#F0EBE3;--bc:#fff;--bs:#DDE0E3;
-    --rad:6px;--s0:.2rem;--s1:.4rem;--s2:.8rem;--s3:1.2rem;--s4:1.6rem;--s5:2.4rem;
-    --fe:'Inter',sans-serif;--fa:'Noto Kufi Arabic',sans-serif;--lh:1.5;
-    --header-height: 70px;
-}
+document.addEventListener('alpine:init', () => {
+    
+    const initialBookingFormState = {
+        selectedAnimal: { type: '', value: '', weight: '', basePriceEGP: 0, nameEN: '', nameAR: '', stock: null, pbId: null, originalStock: null },
+        selectedPrepStyle: { value: '', nameEN: '', nameAR: '', is_custom: false }, customPrepDetails: '',
+        selectedPackaging: { value: '', addonPriceEGP: 0, nameEN: '', nameAR: '' }, totalPriceEGP: 0,
+        customerEmail: '', deliveryName: '', deliveryPhone: '', selectedGovernorate: '', deliveryCity: '', availableCities: [], deliveryAddress: '', deliveryInstructions: '',
+        niyyahNames: '', splitDetailsOption: '', customSplitDetailsText: '', groupPurchase: false,
+        selectedSacrificeDay: { value: 'day1_10_dhul_hijjah', textEN: 'Day 1 of Eid (10th Dhul Hijjah)', textAR: 'اليوم الأول (10 ذو الحجة)' },
+        selectedTimeSlot: '8 AM-9 AM', distributionChoice: 'me', paymentMethod: 'vi',
+    };
 
-*,::after,::before{box-sizing:border-box;margin:0;padding:0}
-html{font-size:15px;scroll-behavior:smooth;overflow-x:clip}
-body{font-family:var(--fe);line-height:var(--lh);color:var(--t1);background:var(--b1);padding-top:var(--header-height);overflow-x:clip}
-img{max-width:100%;display:block}
-a{text-decoration:none;color:var(--c2);transition:color .2s,background-color .2s,border-color .2s}
-a:hover{color:var(--c1d)}
-
-h1,h2,h3,h4,h5{font-weight:700;line-height:1.25;color:var(--c1d);margin-bottom:var(--s1)}
-h1{font-size:2.2rem;margin-bottom:var(--s2)} h2{font-size:1.75rem;margin-bottom:var(--s2)}
-h3{font-size:1.35rem} h4{font-size:1.1rem} h5{font-size:1rem}
-
-/* Enhanced: General rule for headings containing .en/.ar spans */
-:is(h1,h2,h3,h4,h5):has(> span.en):has(> span.ar) {
-    display: flex;
-    align-items: baseline;
-    width: 100%;
-}
-:is(h1,h2,h3,h4,h5) > span.en {
-    text-align: left;
-    margin-right: auto;
-    flex: 0 1 auto;
-}
-:is(h1,h2,h3,h4,h5) > span.ar {
-    font-family: var(--fa);
-    direction: rtl;
-    text-align: right;
-    margin-left: auto;
-    flex: 0 1 auto;
-}
-
-/* For card titles within .bil-row structure */
-.card-h.en + .card-h.ar, .card-h.ar + .card-h.en {
-    display: flex; /* This is on the parent of card-h usually, the div inside bil-row */
-    justify-content: space-between;
-    align-items: baseline;
-    width: 100%;
-}
-.card-h.en, .card-h.ar {
-    flex: 0 1 auto;
-}
-.card-h.ar {
-    font-family: var(--fa);
-    direction: rtl;
-    text-align: right;
-}
-.card-h.en {
-    text-align: left;
-}
-
-
-p{margin:0 0 var(--s1)}p:last-child{margin-bottom:0}
-ul,ol{list-style:none}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
-
-.global-loading-indicator, .global-error-indicator { position: fixed; top: 45%; left: 0; right: 0; z-index: 2000; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border-radius: var(--rad); max-width: 400px; margin: auto; }
-.global-loading-indicator { background: rgba(255,255,255,0.9); color: var(--c1d); }
-.global-error-indicator { background: rgba(220,53,69,0.9); color: white; }
-
-.c{width:90%;max-width:960px;margin:0 auto;padding:0 var(--s2)}
-.sec, .main-page-section{padding:var(--s4) 0}
-.main-page-section.seca, .seca{background-color:var(--b2)}
-
-.loading-text { padding: var(--s3) 0; text-align: center; color: var(--tm); }
-.disabled-btn { background-color: var(--tm) !important; border-color: var(--tm) !important; cursor: not-allowed !important; }
-.disabled-btn:hover { filter: none !important; transform: none !important; }
-.card-img img { background-color: #eee; }
-.hero-promo-wrapper { margin-top: var(--s3); }
-.hero-promo-cta-link { display: block; text-decoration: none; max-width: 100%; margin:0 auto; border-radius: var(--rad); transition: transform 0.2s, box-shadow 0.2s; }
-.hero-promo-cta-link:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-.hero-desc-row { max-width: 100%; margin: var(--s2) auto var(--s3); }
-.why-choose-us-hero-grid, .how-it-works-grid { margin-top: var(--s3); }
-.how-it-works-grid { margin-top: var(--s2); }
-.booking-section-head { margin-bottom: var(--s3); }
-.livestock-sharia-note { font-size: 0.9em; color: var(--tm); margin: var(--s0) 0 var(--s2); }
-.custom-prep-details-container { max-width: 800px; margin: var(--s2) auto 0; }
-.logistics-content-grid, .additional-options-grid { margin-top: var(--s3); }
-.sacrifice-day-note, .time-slot-note, .distribution-note, .wakeel-note, .niyyah-note { margin-top: var(--s0); }
-.distribution-dedication-title, .delivery-details-title, .wakeel-note { margin-top: var(--s2); }
-.split-options-rgrp { margin: var(--s1) 0 0 var(--s2); }
-.custom-split-textarea { margin-top: var(--s0); font-size: 0.85em; }
-.niyyah-names-wrapper { margin-top: var(--s1); }
-.no-delivery-note { margin: var(--s2) 0 var(--s1); }
-.logistics-form-action, .final-submit-action { margin-top:var(--s3); }
-.final-submit-action { margin-top:var(--s4); }
-.review-summary-title { font-size: 1.3rem !important; border-bottom: 1px solid var(--c1) !important; padding-bottom: var(--s1) !important; }
-.review-no-selection-text { padding: var(--s2) 0; color: var(--tm); }
-.review-care-note { margin-top: var(--s3); }
-.review-care-note-text { font-size: 0.9em; color: var(--tm); }
-.booking-confirmed-head { border-bottom: none; margin-bottom: var(--s2); }
-.confirmation-intro-text { justify-content: center; margin-bottom: var(--s1); }
-.confirmation-intro-text p { font-size: 1.2em; }
-
-.booking-id-card,
-.quick-recap-wrapper,
-.payment-instructions-wrapper {
-    max-width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-}
-.booking-id-card {
-    margin-top: var(--s2);
-    margin-bottom: var(--s3);
-    text-align: center;
-    background-color: var(--b1);
-    border: 2px solid var(--c2);
-}
-.quick-recap-wrapper, .payment-instructions-wrapper {
-    margin-top: 0;
-    margin-bottom: var(--s1);
-    text-align: left;
-}
-#step5-booking-confirmation .form-action.page-step-action {
-    width: 100%;
-    max-width: 100%;
-}
-
-.booking-id-card-body { padding: var(--s2) var(--s3); }
-.booking-id-card .bil-row {
-    margin-bottom: var(--s0);
-}
-.booking-id-card-important { margin-bottom: 0; font-size:1.1em; color: var(--c1d); }
-.booking-id-card-label { font-size: 1em; margin-bottom: 0; }
-
-.booking-id-display { font-size: 1.5em; font-weight: 700; color: var(--c2); margin-bottom: var(--s2); background-color: var(--b2); padding: var(--s0) var(--s2); border-radius: var(--rad); display: inline-block; }
-.booking-id-card-note.en { text-align: left; }
-.booking-id-card-note.ar { text-align: right; direction: rtl; font-family: var(--fa); }
-p.booking-id-card-note { font-size: 0.9em; color: var(--tm); margin-bottom: 0; } /* Combined selector for general style */
-
-
-.payment-instructions-wrapper { margin-bottom:var(--s3); }
-.quick-recap-title, .payment-instructions-title { border-top: 1px solid var(--bs); padding-top: var(--s2); }
-.payment-instructions-title { margin-bottom: var(--s1); }
-.payment-ref-highlight { color:var(--c2); }
-.bank-details-list { list-style-type: disc; margin: 0 0 var(--s1) var(--s3); font-size:0.9em; }
-.bank-transfer-crucial-note { margin-top:var(--s1); }
-.check-status-section { padding-top: var(--s2); }
-.check-status-form-card, .booking-status-results-card { margin-top: var(--s3); }
-.check-status-label { margin-bottom: var(--s1); }
-.check-status-input, .check-status-button { height: 36px; }
-.check-status-button { padding: var(--s0); }
-.booking-status-results-card { background-color: var(--b2); }
-.status-highlight { color: var(--c2); font-weight: bold; }
-.status-no-results-text { text-align: center; }
-
-.site-footer-main { background-color: var(--c1d); color: var(--b2); padding: var(--s3) 0; }
-.footer-grid { text-align: left; gap: var(--s4); }
-.footer-brand-desc {
-    font-size: 0.85em; color: var(--b2);
-    display: flex;
-    align-items: baseline;
-}
-.footer-brand-desc .en { text-align: left; flex: 0 1 auto; margin-right: auto; }
-.footer-brand-desc .ar { font-family: var(--fa); direction: rtl; text-align: right; flex: 0 1 auto; margin-left: auto; }
-
-
-.footer-links-list, .footer-contact-item { font-size: 0.85em; color: var(--b2); }
-.footer-links-list { padding: 0; }
-.footer-link, .footer-contact-link { color: var(--b2); }
-.footer-contact-item { margin-bottom: var(--s0) !important; }
-.footer-contact-item.footer-contact-email { margin-bottom: 0 !important; }
-.footer-divider { border-color: rgba(255,255,255,0.2); margin: var(--s2) 0 var(--s1); }
-.footer-copyright {
-    font-size: 0.8em;
-    text-align: center;
-    color: var(--b2);
-    opacity: 0.7;
-    margin-bottom:0 !important;
-}
-.bil-copyright-suffix {
-    display: inline-flex;
-    justify-content: space-between;
-    align-items: baseline;
-    width: auto;
-    margin-left: var(--s0);
-}
-.bil-copyright-suffix .en { text-align: left; }
-.bil-copyright-suffix .ar { font-family: var(--fa); direction: rtl; text-align: right;}
-
-/* Styles for the single form panel */
-#udheya-booking-form-panel {
-    scroll-margin-top: calc(var(--header-height) + 55px); /* Accounts for sticky header and stepper */
-    margin-top: var(--s2); /* Space below the stepper */
-}
-.all-steps-panel > .card-b {
-    padding: 0; /* Remove card-b padding, apply to step content */
-}
-.form-step-content {
-    padding: var(--s3) var(--s2); /* Padding for each step's content */
-}
-.form-step-content:last-of-type {
-    border-bottom: none;
-}
-.form-step-content.seca { /* For alternating background */
-    background-color: var(--b2);
-    padding-top: var(--s3);
-    padding-bottom: var(--s3);
-    margin: 0 calc(var(--s2) * -1); /* Extend background to card edges */
-    padding-left: var(--s2);
-    padding-right: var(--s2);
-}
-.form-step-content .sec-head {
-    margin-bottom: var(--s2);
-}
-/* Review summary and additional options wrapper within step 5 (now step 4 content) */
-.review-summary-wrapper, .additional-options-payment-wrapper {
-    padding: var(--s1) 0; /* Give some internal spacing */
-    margin-bottom: var(--s2);
-}
-.review-summary-wrapper {
-    border: 1px solid var(--bs);
-    border-radius: var(--rad);
-    padding: var(--s2);
-    background-color: var(--b1);
-}
-.additional-options-payment-wrapper {
-    margin-top: var(--s3);
-}
-.additional-options-payment-wrapper .form-panel-title {
-    margin-bottom: var(--s2);
-}
-
-.grid1{grid-template-columns:1fr}
-.grid2,.grid3,.grid4,.product-grid,.content-grid,.feature-grid{display:grid;gap:var(--s2)}
-.grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
-.grid3{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
-.grid4{grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
-
-.feature-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--s3); text-align: center; }
-.why-choose-us-hero-grid, .how-it-works-grid { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important; gap: var(--s3) !important; text-align: center !important; }
-
-.feature-item > p.card-p.en { text-align: left; }
-.feature-item > p.card-p.ar { text-align: right; direction: rtl; font-family: var(--fa); }
-
-
-.bil-row{display:flex;justify-content:space-between;width:100%;gap:var(--s2); flex-wrap: wrap;}
-.bil-row.center-v{align-items:center}
-.bil-row > :is(.en, p.en) {flex:1 1 48%;text-align:left; min-width: 120px;}
-.bil-row > :is(.ar, p.ar) {flex:1 1 48%;font-family:var(--fa);direction:rtl;text-align:right; min-width: 120px;}
-
-label.bil-row .ar{text-align:right}label.bil-row .en{text-align:left}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--s1) var(--s2);font-weight:700;border-radius:var(--rad);border:2px solid transparent;cursor:pointer;transition:transform .2s,filter .2s,background-color .2s,border-color .2s,color .2s;white-space:nowrap;font-size:.85rem;line-height:1.4;text-align:center}
-.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
-.btn > .en,.btn > .ar{display:inline;vertical-align:middle;line-height:inherit}
-.btn .en + .ar,.btn .ar + .en{margin-left:.4em}
-.btn.bp, .btn.bac{color:var(--td)}
-.btn.bp{background:var(--c1);border-color:var(--c1)}.btn.bp:hover{background:var(--c1d);border-color:var(--c1d)}
-.btn.bac{background:var(--c2);border-color:var(--c2)}.btn.bac:hover{background:var(--c1d);border-color:var(--c1d)}
-.btn-block{display:flex;width:100%} .btn-lg{padding:var(--s1) var(--s2);font-size:.9rem}
-.mt1{margin-top:var(--s1)!important} .tc{text-align:center}
-
-.sec-head{margin-bottom:var(--s2)}
-.sec-head h2{margin-bottom:0;position:relative; font-size:1.6rem}
-.sec-head h2 > span.en::after{content:'';display:block;width:50px;height:3px;background:var(--c2l);position:absolute;bottom:-8px;left:0;border-radius:2px}
-.sec-head h2 > span.ar::after{content:'';display:block;width:50px;height:3px;background:var(--c2l);position:absolute;bottom:-8px;right:0;border-radius:2px}
-
-.pban{padding:var(--s2);background:linear-gradient(135deg,var(--c3),#FFD1A3);color:var(--c1d);border-radius:var(--rad);box-shadow:0 2px 8px #00000017;display:flex;flex-direction:column;align-items:center;gap:var(--s1);text-align:center}
-.pban-text-content .bil-row{gap:var(--s0);align-items:center;justify-content:center}
-.prm-h{color:var(--c1d);font-size:1rem;margin:0;line-height:1.3}
-.prm-h strong, .prm-h span{font-weight:700;color:var(--c1d)}
-.pban .pban-cta-btn{font-size:.85rem;padding:var(--s0) var(--s2);margin-top:var(--s0);width:auto;max-width:300px}
-
-.card{background:var(--bc);border-radius:var(--rad);box-shadow:0 1px 3px #0000000f;border:1px solid var(--bs);display:flex;flex-direction:column;height:100%;overflow:hidden}
-.card:is(:hover, .livestock-card-selected){box-shadow:0 3px 10px #0000001a,0 0 0 2px var(--c2l)}
-.livestock-card.livestock-card-selected { border-color: var(--c2); }
-
-
-.card-img{position:relative;padding-top:60%;overflow:hidden;background-color:var(--b2)}
-.card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease-out}
-.card:hover .card-img img{transform:scale(1.05)}
-.card-b{padding:var(--s1);flex-grow:1;display:flex;flex-direction:column}
-.card-content{margin-bottom:var(--s1);flex-grow:1}
-.card-content .bil-row{gap:var(--s0)}
-.card-content .bil-row .card-p{margin-bottom:0}
-.card-h{font-size:1.05rem;margin:0 0 var(--s0)}
-
-.card-p{font-size:.85rem;color:var(--tm);margin:0;line-height:1.4}
-.card-foot{margin-top:auto;padding-top:var(--s1);border-top:1px solid var(--b2)}
-.card-foot .price{font-size:1rem;font-weight:700;color:var(--c1);margin-bottom:var(--s0);line-height:1}
-
-.card-act{display:flex;gap:var(--s0);align-items:center}
-.livestock-card .card-act {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--s0);
-}
-.livestock-card .card-act .livestock-select-btn {
-    width: 100%;
-}
-.livestock-card .card-act .livestock-weight-select {
-    width: 100%;
-}
-
-.card-act select,.card-act .btn{border:1px solid var(--bs);border-radius:4px;font-size:.75rem;background-color:var(--b1);height:34px}
-.card-act select{padding:var(--s0) var(--s1);flex-grow:1}
-.card-act .btn{flex-shrink:0;padding:var(--s0) .6rem}
-.card-act .btn.bp{background-color:var(--c1);color:var(--td);border-color:var(--c1)}.card-act .btn.bp:hover{background-color:var(--c1d);border-color:var(--c1d)}
-.badge{position:absolute;top:var(--s0);left:var(--s0);font-size:.65rem;font-weight:600;padding:2px var(--s0);border-radius:var(--rad);color:var(--td);z-index:1;text-transform:uppercase;line-height:1}
-.badge .en{margin-right:.2em}.badge .ar{margin-left:.2em;font-size:.9em}
-.bhalal{background:var(--c2)}.bsale{background:var(--c3);color:var(--c1d)}
-
-.form-panel-card{margin-bottom:0}
-.form-panel-card .card-b{padding:var(--s1) var(--s2)}
-.page-step-action{max-width:100%;margin:var(--s2) auto 0}
-.fg{margin-bottom:var(--s1)}
-.fg label.bil-row{margin-bottom:2px;align-items:baseline}
-.fg label > .en,.fg label > .ar{font-weight:500;font-size:.85rem;color:var(--tm);display:block;width:100%}
-.form-input-styled,.fg input[type=text],.fg input[type=tel],.fg input[type=date],.fg input[type=email],.fg select,.fg textarea{width:100%;border:1px solid var(--bs);border-radius:var(--rad);font-size:.8rem;background:var(--bc)}
-.form-input-styled,.fg input[type=text]:not(textarea),.fg input[type=tel],.fg input[type=email],.fg input[type=date],.fg select{padding:var(--s0) var(--s1);line-height:1.4;height:34px}
-.fg textarea,textarea.form-input-styled{padding:var(--s1);line-height:1.3;min-height:50px}
-.fg select[disabled],.form-input-styled[disabled]{background-color:var(--b2);color:var(--tm);cursor:not-allowed}
-.tslots{display:flex;flex-wrap:wrap;gap:var(--s0);margin-top:var(--s0);justify-content:center}
-.ts{padding:var(--s1);border:1px solid var(--bs);border-radius:var(--rad);font-size:.8rem;cursor:pointer;background:var(--bc);line-height:1.3;white-space:nowrap;min-width: 80px;}
-.ts:hover{border-color:var(--c2l);background:var(--c2l)}
-.ts.sel{background:var(--c2);color:var(--td);border-color:var(--c2)}
-.rgrp{margin-top:var(--s0)}
-.rgrp label{display:flex;align-items:center;margin-bottom:2px;font-size:.85rem;cursor:pointer}
-.rgrp label span.ar{direction:rtl;text-align:right;font-family:var(--fa)}
-.rgrp input[type=radio]{margin-right:var(--s0);transform:scale(.9)}
-.split-options-rgrp label {font-size: 0.8rem;} .split-options-rgrp label span.ar {font-size: 0.95em;}
-.split-options-rgrp textarea.form-input-styled {margin-left: calc(var(--s0) + 16px); width: calc(100% - (var(--s0) + 16px));}
-.pmeths{display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:var(--s1);margin-top:var(--s0)}
-.pm input[type=radio]{display:none}
-.pm label{display:flex;align-items:center;justify-content:center;padding:var(--s1);border:1px solid var(--bs);border-radius:var(--rad);cursor:pointer;text-align:center;min-height:56px;line-height:1;overflow:hidden}
-.payment-icon{height:40px;width:auto;object-fit:contain;display:block}
-.payment-icon-placeholder{display:flex;align-items:center;justify-content:center;width:55px;height:30px;background-color:#f0f0f0;border:1px dashed #ccc;border-radius:var(--rad);font-size:.7em;color:#777;text-align:center}
-.pm input[type=radio]:checked+label,.pm.sel label{border-color:var(--c1d);background:var(--c2);color:var(--td)}
-.form-panel-title{font-size:1.1rem;color:var(--c1d);margin:0 0 var(--s1);padding-bottom:var(--s0);border-bottom:1px solid var(--c1)}
-.form-step-content > .form-panel-title:first-of-type,
-.form-step-content > .form-subhead:first-of-type { margin-top: 0; }
-
-.form-subhead{font-size:1rem;color:var(--c1);margin:var(--s2) 0 var(--s0);padding-bottom:2px;border-bottom:1px solid var(--b2)}
-.form-divider{border:0;border-top:1px dashed var(--bs);margin:var(--s2) 0}
-.field-note{font-size:.75em;color:var(--tm);margin-top:2px;line-height:1.25} .field-note.ar{text-align:right}
-.feature-item .icon-placeholder{width:60px;height:60px;margin:0 auto var(--s1);background-color:var(--c2l);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--c2)}
-.feature-item .icon-placeholder.number-icon{font-size:1.3rem;font-weight:700}
-.summary-panel-card .form-panel-title{font-size:1.2rem!important;border-bottom:1px solid var(--c1)!important;padding-bottom:var(--s0)!important;margin-bottom:var(--s1)!important}
-.summary-item{padding:var(--s0) 0;border-bottom:1px dashed var(--bs)}
-.summary-item:last-of-type{border-bottom:none}
-
-.summary-item .bil-row > div.en { text-align: left; }
-.summary-item .bil-row > div.ar { text-align: right; direction: rtl; font-family: var(--fa); }
-.summary-item div{font-size:.9rem;color:var(--tm)}
-.summary-item strong{color:var(--c1d)}
-.summary-hr{border:0;border-top:1px solid var(--c1);margin:var(--s1) 0}
-.summary-total .bil-row > div.en { text-align: left; }
-.summary-total .bil-row > div.ar { text-align: right; direction: rtl; font-family: var(--fa); }
-.summary-total div{font-size:1.1rem;font-weight:700;color:var(--c1)}
-
-/* Styles for Preparation/Packaging dropdowns (if any specific beyond .form-input-styled) */
-/* .prep-style-card, .packaging-card specific styles removed as they are no longer cards */
-.livestock-card.livestock-card-selected .livestock-select-btn{background-color:var(--c2);color:var(--td);border-color:var(--c2)}
-
-
-.confirmation-message p{font-size:1rem;line-height:1.5;margin-bottom:var(--s1)}
-.confirmation-message strong{color:var(--c2);font-weight:700}
-.confirmation-message h4{color:var(--c1);margin-bottom:2px;text-align:left}
-.confirmation-message .ar h4{text-align:right}
-.confirmation-message .bil-row > div {flex-basis:100%}
-.payment-instructions p {font-size:0.95em; margin-bottom:var(--s1); line-height:1.6;}
-.payment-instructions strong {color:var(--c1d);} .payment-instructions a {font-weight:600;}
-.payment-instructions ul {margin-bottom: var(--s1); list-style-position: inside;}
-.payment-instructions ul li {margin-bottom: var(--s0); line-height: 1.4;}
-
-#check-booking-status .form-panel-card{margin-top:var(--s2)}
-#check-booking-status .card-act input.form-input-styled,#check-booking-status .card-act .btn{height:36px}
-#check-booking-status .card-act input.form-input-styled{flex-grow:1}
-#check-booking-status .card-act .btn{flex-shrink:0;padding:2px var(--s1);line-height:1.3}
-#booking-status-results{background-color:var(--b2);border-top:3px solid var(--c1);margin-top:var(--s2)}
-#booking-status-results .summary-item strong{min-width:100px;display:inline-block}
-#status-no-results p{color:var(--c3);font-weight:bold;padding:var(--s1)}
-
-.stepper-outer-wrapper {position:sticky;top:var(--header-height);background-color:var(--b1);z-index:999;border-bottom:1px solid var(--bs);box-shadow:0 2px 4px rgba(0,0,0,.03);padding:0;margin-bottom:var(--s2)}
-.stepper-outer-wrapper .c {padding:var(--s1) 0}
-.stepper-content-flex {display:flex;justify-content:space-between;align-items:center}
-.stepper-item{display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--tm);font-size:.8rem;position:relative;text-decoration:none;cursor:pointer;padding:0 var(--s0)}
-.stepper-item:hover{color:var(--c1d)}
-.stepper-item .step-number{width:24px;height:24px;line-height:22px;border-radius:50%;border:1px solid var(--tm);margin-bottom:2px;font-weight:700;transition:background-color .3s,border-color .3s,color .3s}
-.stepper-item .step-label.ar{font-family:var(--fa)}
-.stepper-connector{flex-grow:1;height:2px;background-color:var(--bs);margin:0 var(--s1);position:relative;top:-10px}
-.stepper-item.active .step-number{background-color:var(--c2);border-color:var(--c2);color:var(--td)}
-.stepper-item.active{color:var(--c1d);font-weight:700}
-.stepper-item.completed .step-number{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d)}
-.stepper-item.completed{color:var(--tm)}
-.stepper-item.disabled {opacity:.6;pointer-events:none;cursor:not-allowed}
-.stepper-item.disabled .step-number {border-color:var(--bs);background-color:var(--b2);color:var(--tm)}
-
-.site-header{background-color:var(--b2);padding:var(--s1) 0;box-shadow:0 2px 4px rgba(0,0,0,.05);position:fixed;top:0;left:0;width:100%;z-index:1000; height:var(--header-height)}
-.nav-container{display:flex;justify-content:space-between;align-items:center;height:100%}
-.brand-logo{font-size:1.1rem;font-weight:700;color:var(--c1d);display:flex;align-items:baseline;margin-right:auto}
-.brand-logo .ar{font-family:var(--fa);margin-left:.5em;direction:rtl}
-.brand-logo:hover .en,.brand-logo:hover .ar{color:var(--c2)}
-.main-nav.desktop-nav{margin: 0 var(--s1)}
-.main-nav.desktop-nav .nav-list{display:flex;gap:var(--s1)}
-.main-nav.desktop-nav .nav-link{font-size:.9rem;color:var(--tm);font-weight:500;padding:var(--s0) var(--s1);border-radius:var(--rad);display:flex;align-items:center}
-.main-nav.desktop-nav .nav-link:hover,.main-nav.desktop-nav .nav-link.active-nav-link{color:var(--c1d);background-color:rgba(0,0,0,.03)}
-.main-nav.desktop-nav .nav-link .en + .ar,.main-nav.desktop-nav .nav-link .ar + .en{margin-left:.4em}
-.main-nav.desktop-nav .nav-link .ar{font-family:var(--fa)}
-.header-extras.desktop-extras{display:flex;align-items:center;gap:var(--s0)}
-.currency-switcher select{padding:var(--s0) calc(var(--s1)/2);font-size:.8rem;border:1px solid var(--bs);border-radius:var(--rad);background-color:var(--bc);height:30px;color:var(--tm)}
-.whatsapp-contact a{display:flex;align-items:center;gap:.4em;color:var(--c1);text-decoration:none;padding:var(--s0) var(--s1);border-radius:var(--rad);font-size:.9rem}
-.whatsapp-contact a:hover{color:var(--c1d);background-color:rgba(0,0,0,.03)}
-.whatsapp-icon{width:20px;height:20px} .whatsapp-number{font-weight:500;white-space:nowrap}
-
-/* HERO SECTION FULL SCREEN */
-.hero-section{
-    background-color:var(--b2);
-    padding: 0;
-    background-image:linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url('/images/hero-sheep-farm.jpg');
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    color:var(--td);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-}
-.hero-section > .c {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.hero-section :is(h1,h2,p){color:var(--td)}
-.pban .prm-h,.pban .prm-h strong,.pban .prm-h span{color:var(--c1d)}
-
-.hamburger-btn {display:none;background:none;border:none;cursor:pointer;padding:var(--s0);color:var(--c1d);z-index:1010}
-.hamburger-btn:hover {color:var(--c2)}
-.mobile-nav-menu {position:absolute;top:var(--header-height);left:0;right:0;background-color:var(--b2);padding:var(--s2) var(--s2) var(--s3);box-shadow:0 4px 6px rgba(0,0,0,0.1);z-index:1005;border-top:1px solid var(--bs)}
-.nav-list-mobile {list-style:none;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:var(--s1)}
-.nav-link-mobile {font-size:1rem;color:var(--tm);font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--rad);display:flex;align-items:center;justify-content:center;text-decoration:none;width:100%;box-sizing:border-box}
-.nav-link-mobile:hover {color:var(--c1d);background-color:rgba(0,0,0,.03)}
-.nav-link-mobile .en + .ar, .nav-link-mobile .ar + .en {margin-left:.4em}
-.nav-link-mobile .ar {font-family:var(--fa)}
-.mobile-header-extras {margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--bs);display:flex;flex-direction:column;align-items:center;gap:var(--s2)}
-.mobile-header-extras .currency-switcher select {font-size:.9rem;padding:var(--s0) var(--s1)}
-.mobile-header-extras .whatsapp-contact a {font-size:1rem}
-
-.hero-section .hero-why-choose {
-    margin-top:var(--s5);
-    padding-top:var(--s3);
-    border-top:1px solid rgba(255,255,255,.2);
-    width: 100%; /* Ensures it takes full width of parent .c */
-}
-.hero-section .hero-why-choose :is(.sec-head h2, .feature-item h4) {color:var(--td)}
-.hero-section .hero-why-choose .sec-head h2 > span.en::after,
-.hero-section .hero-why-choose .sec-head h2 > span.ar::after {background:var(--c3)}
-.hero-section .hero-why-choose .feature-item p.card-p {color:#e0e0e0}
-.hero-section .hero-why-choose .feature-item .icon-placeholder {background-color:rgba(255,255,255,.15);color:var(--td);border:1px solid rgba(255,255,255,.2)}
-
-@media(min-width:992px){
-    /* No specific rules for .prep-column or .package-column as they are removed */
-}
-
-@media(max-width:768px){
-    html{font-size:14px}
-    body{padding-top:var(--header-height)}
-    .c{padding:0 var(--s1)} .sec{padding:var(--s3) 0}
-    #udheya-booking-form-panel { scroll-margin-top: calc(var(--header-height) + 45px); }
-    .form-step-content { padding: var(--s2) var(--s1); }
-    .form-step-content.seca { margin: 0 calc(var(--s1) * -1); padding-left: var(--s1); padding-right: var(--s1); }
-
-    :is(.grid1,.grid2,.grid3,.grid4,.content-grid):not(.product-grid):not(.feature-grid):not(.why-choose-us-hero-grid):not(.how-it-works-grid){grid-template-columns:1fr!important}
-    /* .product-grid.grid2 (for animals) remains as is or ensure it's 1fr if needed */
-     .product-grid.grid2 {grid-template-columns:1fr!important} /* Example: make animal cards stack */
-
-    :is(.why-choose-us-hero-grid,.how-it-works-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important;gap:var(--s2)!important}
-
-    .bil-row:not(.bil-row-prefer-inline):not(.rgrp label):not(.badge span):not(.step-text-content):not(.card-content .bil-row):not(.summary-item .bil-row):not(.summary-total .bil-row):not(.form-panel-title.bil-row):not(.form-subhead.bil-row):not(.confirmation-message .bil-row):not(#check-booking-status .card-act):not(.pban-text-content .bil-row):not(.payment-instructions ul):not(.bank-details-list){
-        flex-direction:column!important;gap:var(--s0)!important;align-items:stretch!important
-    }
-    .bil-row.bil-row-prefer-inline {
-        flex-wrap: wrap;
-        flex-direction: row !important;
-    }
-    .bil-row.bil-row-prefer-inline > :is(.en, p.en),
-    .bil-row.bil-row-prefer-inline > :is(.ar, p.ar) {
-        flex-basis: 100% !important;
-        width: 100% !important;
-        text-align: left !important;
-        margin-bottom: var(--s0);
-    }
-    .bil-row.bil-row-prefer-inline > :is(.ar, p.ar) {
-        text-align: right !important;
-    }
-    .bil-row.bil-row-prefer-inline > :is(.en, p.en):last-child,
-    .bil-row.bil-row-prefer-inline > :is(.ar, p.ar):last-child {
-        margin-bottom: 0;
+    async function pbFetch(collection, options = {}) {
+        const { recordId = '', params = '' } = options;
+        const url = `/api/collections/${collection}/records${recordId ? `/${recordId}` : ''}${params ? `?${params}` : ''}`;
+        const response = await fetch(url, options.fetchOptions);
+        if (!response.ok) {
+            let errorDataMessage = response.statusText;
+            try { 
+                const errorData = await response.json(); 
+                if (errorData && typeof errorData.data === 'object' && errorData.data !== null) {
+                    errorDataMessage = JSON.stringify(errorData.data);
+                } else if (errorData && errorData.message) { errorDataMessage = errorData.message; }
+            } catch (e) { /* ignore if response body is not JSON */ }
+            throw new Error(`API Error (${collection} ${recordId || params}): ${response.status} ${errorDataMessage}`);
+        }
+        return response.json();
     }
 
-    .bil-row:not(.bil-row-prefer-inline) > :is(.en, p.en),
-    .bil-row:not(.bil-row-prefer-inline) > :is(.ar, p.ar) {
-        text-align:left!important;width:100%!important;flex-basis:auto!important
-    }
-    .bil-row:not(.bil-row-prefer-inline) > :is(.ar, p.ar) {
-        font-family:var(--fa);direction:rtl;text-align:right!important
-    }
+    async function seedPocketBaseData() {
+        console.log("Attempting to seed PocketBase data... Ensure API Create/Update rules for app_settings and livestock_types are temporarily public (\"\") if running this from an unauthenticated session.");
+        const API_URL_PREFIX = '/api'; 
 
-    :is(h1,h2,h3,h4,h5):has(> span.en):has(> span.ar) {
-        flex-direction: column;
-        align-items: center; /* Center the .en/.ar blocks */
-        gap: 0;
-    }
-    :is(h1,h2,h3,h4,h5) > span.en, :is(h1,h2,h3,h4,h5) > span.ar {
-        width:100% !important;
-        /* text-align:center !important; /* REMOVED - text inside will align L/R */
-    }
-    .sec-head h2 > span.en::after, .sec-head h2 > span.ar::after,
-    .hero-section .hero-why-choose .sec-head h2 > span.en::after,
-    .hero-section .hero-why-choose .sec-head h2 > span.ar::after {
-        left: 50%;
-        transform: translateX(-50%);
-        right: auto;
-    }
+        const defaultAppSettingsData = {
+            setting_key: "global_config", 
+            exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true }},
+            default_currency: "EGP",
+            whatsapp_number_raw: "201234567890",
+            whatsapp_number_display: "+20 123 456 7890",
+            promo_end_date: "2024-08-15T23:59:59Z", // EXAMPLE: Set your actual promo end date
+            promo_discount_percent: 15,
+            promo_is_active: true, 
+            site_name: "Sheep Land",
+            delivery_areas: [
+                { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]},
+                { id: 'giza', name_en: 'Giza', name_ar: 'الجيزة', cities: [ {id: 'dokki', name_en: 'Dokki', name_ar: 'الدقي'}, {id: 'mohandessin', name_en: 'Mohandessin', name_ar: 'المهندسين'}, {id: 'haram', name_en: 'Haram', name_ar: 'الهرم'} ]},
+                { id: 'alexandria', name_en: 'Alexandria', name_ar: 'الإسكندرية', cities: [ {id: 'smouha', name_en: 'Smouha', name_ar: 'سموحة'}, {id: 'miami', name_en: 'Miami', name_ar: 'ميامي'} ]},
+                { id: 'other_gov', name_en: 'Other Governorate', name_ar: 'محافظة أخرى', cities: [] }
+            ],
+            payment_details: { 
+                vodafone_cash: "010 YOUR VODA NUMBER", instapay_ipn: "YOUR.IPN@instapay", revolut_details: "@YOUR_REVTAG or Phone: +XX XXXXXXXX",
+                bank_name: "YOUR BANK NAME", bank_account_name: "YOUR ACCOUNT HOLDER NAME", bank_account_number: "YOUR ACCOUNT NUMBER",
+                bank_iban: "YOUR IBAN (Optional)", bank_swift: "YOUR SWIFT/BIC (Optional)"
+            }
+        };
 
-    .footer-brand-desc {
-        flex-direction: column;
-        align-items: center; /* Center the .en/.ar blocks */
+        try {
+            const checkSettingsUrl = `${API_URL_PREFIX}/collections/app_settings/records?filter=(setting_key='global_config')&perPage=1`;
+            const checkResponse = await fetch(checkSettingsUrl);
+            if (!checkResponse.ok && checkResponse.status !== 404) throw new Error(`Checking settings failed: ${checkResponse.statusText} - ${await checkResponse.text()}`);
+            const checkData = await checkResponse.json();
+            let recordIdToAlert = '';
+
+            if (checkData.items && checkData.items.length > 0) {
+                console.log("App settings 'global_config' already exists. Updating it.");
+                const existingSettingsId = checkData.items[0].id; recordIdToAlert = existingSettingsId;
+                const updateResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records/${existingSettingsId}`, {
+                    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData)
+                });
+                if (!updateResponse.ok) { const errText = await updateResponse.text(); throw new Error(`Failed to update app_settings: ${errText}`);}
+                console.log("App settings updated:", await updateResponse.json());
+            } else {
+                console.log("App settings 'global_config' not found. Creating it.");
+                const createResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData)
+                });
+                if (!createResponse.ok) { const errText = await createResponse.text(); throw new Error(`Failed to create app_settings: ${errText}`);}
+                const createdRecord = await createResponse.json(); recordIdToAlert = createdRecord.id;
+                console.log("App settings created:", createdRecord);
+            }
+            alert(`App settings 'global_config' (ID: ${recordIdToAlert}) processed. initApp fetches by setting_key.`);
+        } catch (error) { console.error("Error seeding app_settings:", error); alert("Error seeding app_settings: " + error.message); }
+
+        const defaultLivestockData = [
+            { value_key: 'baladi', name_en: 'Baladi Sheep', name_ar: 'خروف بلدي', weights_prices: [ { weight_range: "30-40 kg", price_egp: 4500, stock: 15, is_active: true }, { weight_range: "40-50 kg", price_egp: 5200, stock: 10, is_active: true }, { weight_range: "50+ kg", price_egp: 6000, stock: 0, is_active: true } ] },
+            { value_key: 'barki', name_en: 'Barki Sheep', name_ar: 'خروف برقي', weights_prices: [ { weight_range: "35-45 kg", price_egp: 5100, stock: 8, is_active: true }, { weight_range: "45-55 kg", price_egp: 5900, stock: 12, is_active: true } ] }
+        ];
+
+        for (const livestock of defaultLivestockData) {
+            try {
+                const checkLivestockUrl = `${API_URL_PREFIX}/collections/livestock_types/records?filter=(value_key='${livestock.value_key}')&perPage=1`;
+                const checkResponse = await fetch(checkLivestockUrl);
+                if (!checkResponse.ok && checkResponse.status !== 404) throw new Error(`Checking livestock ${livestock.value_key} failed: ${checkResponse.statusText} - ${await checkResponse.text()}`);
+                const checkData = await checkResponse.json();
+                if (checkData.items && checkData.items.length > 0) {
+                    console.log(`Livestock type '${livestock.value_key}' already exists. Updating.`);
+                    const updateResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records/${checkData.items[0].id}`, {
+                        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock)
+                    });
+                    if (!updateResponse.ok) { const errText = await updateResponse.text(); throw new Error(`Update failed for ${livestock.value_key}: ${errText}`);}
+                    console.log("Livestock updated:", await updateResponse.json());
+                } else {
+                    console.log(`Livestock type '${livestock.value_key}' not found. Creating.`);
+                    const createResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock)
+                    });
+                    if (!createResponse.ok) { const errText = await createResponse.text(); throw new Error(`Create failed for ${livestock.value_key}: ${errText}`);}
+                    console.log("Livestock created:", await createResponse.json());
+                }
+            } catch (error) { console.error(`Error seeding livestock ${livestock.value_key}:`, error); alert(`Error for ${livestock.value_key}: ` + error.message); }
+        }
+        console.log("Data seeding process finished. IMPORTANT: Secure API rules for app_settings and livestock_types if you loosened them."); 
+        alert("Data seeding finished. Refresh page. Remember to secure API rules!");
     }
-    .footer-brand-desc .en, .footer-brand-desc .ar {
-        width: 100%;
-        /* text-align: center !important; /* REMOVED - text inside will align L/R */
-    }
-    .footer-copyright { text-align: center; }
-    .bil-copyright-suffix {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-left: 0;
-        margin-top: var(--s0);
-    }
-    .bil-copyright-suffix .en, .bil-copyright-suffix .ar {
-        display: block;
-        width: 100%;
-        /* text-align: center !important; /* REMOVED - text inside will align L/R */
-    }
+    window.seedPocketBaseData = seedPocketBaseData;
+
+    Alpine.data('udheyaBooking', () => ({
+        isLoading: { status: false, booking: false, init: true },
+        appSettings: {
+            exchange_rates: { 
+                EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true },
+                USD: { rate_from_egp: 0, symbol: '$', is_active: false }, 
+                GBP: { rate_from_egp: 0, symbol: '£', is_active: false }
+            },
+            default_currency: "EGP",
+            whatsapp_number_raw: "",
+            whatsapp_number_display: "",
+            promo_end_date: null, 
+            promo_discount_percent: 0,
+            promo_is_active: true, 
+            site_name: "Sheep Land",
+            delivery_areas: [],
+            payment_details: { 
+                vodafone_cash: "", instapay_ipn: "", revolut_details: "",
+                bank_name: "", bank_account_name: "", bank_account_number: "",
+                bank_iban: "", bank_swift: ""
+            }
+        },
+        productOptions: { livestock: [] },
+        apiError: null,
+        ...JSON.parse(JSON.stringify(initialBookingFormState)),
+        bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: '', currentCurrency: 'EGP',
+        bookingID: '', currentActiveStep: 1, isMobileMenuOpen: false,
+        stepSectionsMeta: [],
+        calculatedPromoDaysLeft: 0, 
+
+        get _needsDeliveryDetails() {
+            const customText = (this.customSplitDetailsText || '').toLowerCase();
+            return this.distributionChoice === 'me' || (this.distributionChoice === 'split' && (
+                   ['1/3_me_2/3_charity_sl', '1/2_me_1/2_charity_sl', '2/3_me_1/3_charity_sl', 'all_me_custom_distro'].includes(this.splitDetailsOption) ||
+                   (this.splitDetailsOption === 'custom' && (customText.includes('for me') || customText.includes('all delivered to me'))) ));
+        },
+        get splitDetails() { 
+            if (this.distributionChoice !== 'split') return '';
+            if (this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim();
+            return {
+                '1/3_me_2/3_charity_sl': '1/3 for me (delivered), 2/3 for charity (by Sheep Land)',
+                '1/2_me_1/2_charity_sl': '1/2 for me (delivered), 1/2 for charity (by Sheep Land)',
+                '2/3_me_1/3_charity_sl': '2/3 for me (delivered), 1/3 for charity (by Sheep Land)',
+                'all_me_custom_distro': 'All for me (for my own distribution)'
+            }[this.splitDetailsOption] || this.splitDetailsOption;
+        },
+        _getDeliveryLocation(lang) { 
+            const key = lang === 'en' ? 'name_en' : 'name_ar';
+            const govObj = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
+            const cityObj = govObj?.cities?.find(c => c.id === this.deliveryCity);
+            if (cityObj) return cityObj[key];
+            if (govObj && govObj.cities?.length === 0 && this.selectedGovernorate) return govObj[key];
+            if (govObj && !cityObj && this.selectedGovernorate) return `${govObj[key]} (${lang === 'en' ? 'City not selected' : 'المدينة غير مختارة'})`;
+            return '';
+        },
+        get summaryDeliveryToEN() { 
+            if (this.distributionChoice === 'char') return 'Charity Distribution by Sheep Land';
+            if (this._needsDeliveryDetails) {
+                const name = (this.deliveryName || "").trim() || 'Recipient';
+                const location = this._getDeliveryLocation('en');
+                const address = (this.deliveryAddress || "").trim();
+                const addressSummary = address ? (address.substring(0,20) + (address.length > 20 ? '...' : '')) : '';
+                const parts = [name, location, addressSummary].filter(Boolean);
+                const govObj = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
+                const isGovCityValid = this.selectedGovernorate && ((govObj?.cities?.length === 0) || this.deliveryCity);
+                return (parts.length > 1 && isGovCityValid && address && (this.deliveryName || "").trim()) ? parts.join(', ') : 'Delivery Details Incomplete';
+            }
+            return 'Self Pickup / Distribution as per split';
+        },
+        get summaryDeliveryToAR() { 
+            if (this.distributionChoice === 'char') return 'توزيع خيري بواسطة أرض الأغنام';
+            if (this._needsDeliveryDetails) {
+                const name = (this.deliveryName || "").trim() || 'المستلم';
+                const location = this._getDeliveryLocation('ar');
+                const address = (this.deliveryAddress || "").trim();
+                const addressSummary = address ? (address.substring(0,20) + (address.length > 20 ? '...' : '')) : '';
+                const parts = [name, location, addressSummary].filter(Boolean);
+                const govObj = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
+                const isGovCityValid = this.selectedGovernorate && ((govObj?.cities?.length === 0) || this.deliveryCity);
+                return (parts.length > 1 && isGovCityValid && address && (this.deliveryName || "").trim()) ? parts.join('، ') : 'تفاصيل التوصيل غير مكتملة';
+            }
+            return 'استلام ذاتي / توزيع حسب التقسيم';
+        },
+        get summaryDistributionEN() { return (this.distributionChoice === 'me') ? 'All to me' : (this.distributionChoice === 'char' ? 'All to charity (by Sheep Land)' : `Split: ${(this.splitDetails || "").trim() || '(Not specified)'}`); },
+        get summaryDistributionAR() { return (this.distributionChoice === 'me') ? 'الكل لي (لتوزيعه بنفسك)' : (this.distributionChoice === 'char' ? 'تبرع بالكل للصدقة (أرض الأغنام توزع نيابة عنك)' : `تقسيم الحصص: ${(this.splitDetails || "").trim() || '(لم يحدد)'}`); },
+
+        updateCalculatedPromoDaysLeft() {
+            if (this.appSettings.promo_end_date) {
+                const endDate = new Date(this.appSettings.promo_end_date);
+                const now = new Date();
+                const diffTime = endDate - now; 
+                if (diffTime > 0) {
+                    this.calculatedPromoDaysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                } else {
+                    this.calculatedPromoDaysLeft = 0;
+                }
+            } else {
+                this.calculatedPromoDaysLeft = 0;
+            }
+        },
+
+        async initApp() {
+            this.isLoading.init = true; 
+            this.apiError = null;
+            const initialDefaultAppSettings = JSON.parse(JSON.stringify(this.appSettings));
+
+            try {
+                const settingsParams = `filter=(setting_key='global_config')&perPage=1`;
+                const [settingsCollectionData, livestockData] = await Promise.all([
+                    pbFetch('app_settings', { params: settingsParams }),
+                    pbFetch('livestock_types', { params: 'sort=created' })
+                ]);
+
+                if (settingsCollectionData.items && settingsCollectionData.items.length > 0) {
+                    const fetchedSettings = settingsCollectionData.items[0];
+                    const newAppSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings)); 
+                    for (const key in fetchedSettings) {
+                        if (fetchedSettings.hasOwnProperty(key)) {
+                            if (typeof fetchedSettings[key] === 'object' && fetchedSettings[key] !== null && 
+                                newAppSettings[key] !== undefined && typeof newAppSettings[key] === 'object' && newAppSettings[key] !== null &&
+                                !Array.isArray(fetchedSettings[key])) { 
+                                newAppSettings[key] = { ...newAppSettings[key], ...fetchedSettings[key] };
+                            } else { 
+                                newAppSettings[key] = fetchedSettings[key];
+                            }
+                        }
+                    }
+                    this.appSettings = newAppSettings;
+                } else {
+                    this.appSettings = initialDefaultAppSettings; 
+                    throw new Error("Critical: Global app settings ('global_config') not found. Run seedPocketBaseData() from console & refresh.");
+                }
+                
+                this.productOptions.livestock = livestockData.items.map(item => ({
+                    pbId: item.id, value_key: item.value_key, name_en: item.name_en, name_ar: item.name_ar,
+                    weights_prices: Array.isArray(item.weights_prices) ? item.weights_prices.map(wp => ({...wp})) : []
+                }));
+
+            } catch (error) { 
+                console.error("Init App Error:", error); 
+                this.apiError = error.message; 
+                this.appSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
+            }
+            finally { 
+                this.isLoading.init = false; 
+            }
+
+            this.updateCalculatedPromoDaysLeft(); 
+            setInterval(() => {
+                this.updateCalculatedPromoDaysLeft();
+            }, 1000 * 60 * 60); 
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    this.updateCalculatedPromoDaysLeft();
+                }
+            });
+
+            this.currentCurrency = this.appSettings.default_currency || "EGP"; 
+            this.updateSacrificeDayTexts(); 
+            this.updateAllDisplayedPrices(); 
+
+            this.$watch(['selectedAnimal.basePriceEGP', 'selectedPackaging.addonPriceEGP'], () => this.calculateTotalPrice());
+            this.$watch('currentCurrency', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
+            this.$watch('selectedSacrificeDay.value', () => this.updateSacrificeDayTexts());
+            this.$watch('distributionChoice', val => {
+                if (val !== 'split') { this.splitDetailsOption = ''; this.customSplitDetailsText = ''; }
+                if (val === 'char') { 
+                    Object.assign(this, { deliveryName: '', deliveryPhone: '', selectedGovernorate: '', deliveryCity: '', deliveryAddress: '', deliveryInstructions: '', availableCities: [] });
+                }
+            });
+            this.$watch('selectedPrepStyle.is_custom', isCustom => { if (!isCustom) this.customPrepDetails = ''; });
+            this.$watch('splitDetailsOption', val => { if (val !== 'custom') this.customSplitDetailsText = ''; });
+            this.$watch('selectedGovernorate', () => this.updateCities());
+            
+            this.stepSectionsMeta = ['#step1-content', '#step2-content', '#step3-content', '#step4-content', '#step5-content'] // Using content div IDs
+                .map((id, index) => ({ id, step: index + 1, element: document.querySelector(id) }));
+            
+            this.$nextTick(() => { this.handleScroll(); });
+            window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
+            this.updateStepperState(1);
+        },
+        handleScroll() { 
+            if (this.bookingConfirmed || !this.stepSectionsMeta.some(s => s.element)) return;
+            const offset = (document.querySelector('.site-header')?.offsetHeight || 70) + (document.querySelector('.stepper-outer-wrapper')?.offsetHeight || 55) + 20;
+            let newActiveStep = this.currentActiveStep; // Default to current to avoid unnecessary changes
+            const scrollPosition = window.scrollY + offset;
+
+            for (let i = 0; i < this.stepSectionsMeta.length; i++) {
+                const section = this.stepSectionsMeta[i];
+                if (section.element) {
+                    const sectionTop = section.element.offsetTop;
+                    const sectionBottom = sectionTop + section.element.offsetHeight;
+                    // Check if the current scroll position is within this section's view
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                         // Prioritize step if its top is visible or just passed
+                        if (section.element.getBoundingClientRect().top < offset) {
+                           newActiveStep = section.step;
+                           // If it's the last section and we've scrolled past its start, it should be active
+                           if (i === this.stepSectionsMeta.length - 1 && scrollPosition >= sectionTop) {
+                               newActiveStep = section.step;
+                           }
+                           // Break if we find the current section, but allow checking further down for last section case
+                           // break; // Potentially remove break to ensure last section check
+                        }
+                    } else if (scrollPosition < sectionTop && i === 0) { // Scrolled above the first section
+                        newActiveStep = 1;
+                    }
+                }
+            }
+             // A fallback if scrolled past all sections, keep last step active
+            const lastStepElement = this.stepSectionsMeta[this.stepSectionsMeta.length - 1].element;
+            if (lastStepElement && scrollPosition >= lastStepElement.offsetTop + lastStepElement.offsetHeight) {
+                newActiveStep = this.stepSectionsMeta[this.stepSectionsMeta.length - 1].step;
+            }
 
 
-    :is(.pban .bil-row, .rgrp label, .badge span, .summary-item .bil-row, .summary-total .bil-row,
-    .form-panel-title.bil-row, .form-subhead.bil-row,
-    .confirmation-message .bil-row:not(.confirmation-intro-text),
-    #check-booking-status .card-act, .pban-text-content .bil-row) {
-        flex-direction:row!important;align-items:center!important;gap:var(--s1)!important
-    }
-    .card-content .bil-row{flex-direction:column!important;align-items:flex-start!important;gap:2px!important}
-    .card-content .bil-row > .en,.card-content .bil-row > .ar{text-align:left!important;width:100%!important} .card-content .bil-row > .ar{text-align:right!important}
-    #check-booking-status .card-act{flex-direction:row!important;gap:var(--s1)!important}
-    .confirmation-message .bil-row:not(.quick-recap-title):not(.payment-instructions-title):not(.booking-id-card .bil-row) > div {text-align:center!important}
-    .booking-id-card .bil-row > p.en {text-align:left!important}
-    .booking-id-card .bil-row > p.ar {text-align:right!important}
-    .confirmation-message .quick-recap-title > span, .confirmation-message .payment-instructions-title > span { text-align: left !important; }
-    .confirmation-message .quick-recap-title > span.ar, .confirmation-message .payment-instructions-title > span.ar { text-align: right !important; }
-    .form-panel-title > span,.form-subhead > span{text-align:left!important}
-    .form-panel-title > span.ar,.form-subhead > span.ar{text-align:right!important}
-    .summary-item > div,.summary-total > div{flex-basis:100%!important;text-align:center!important}
-    .tslots{justify-content:center} .ts{font-size:.8rem;padding:var(--s0) var(--s1);min-width:90px}
-    .pban-text-content .bil-row .en, .pban-text-content .bil-row .ar {text-align:center!important}
-    .sec-head{margin-bottom:var(--s2);padding-bottom:var(--s0)} .pban{text-align:center} .pban .btn{width:auto;padding:var(--s0) var(--s2)}
-    .card-b{padding:var(--s1)}
-    .card-content{margin-bottom:var(--s0)} .card-foot{padding-top:var(--s0)}
-    .card-act select,.card-act .btn{height:30px;font-size:.7rem}
-    .btn{font-size:.8rem} .btn-lg{font-size:.85rem}
-    .page-step-action{margin-top:var(--s1)}
-    #check-booking-status .form-panel-card{margin-top:var(--s1)}
-    #check-booking-status .card-act{flex-direction:column!important;gap:var(--s1)!important}
-    #check-booking-status .card-act input.form-input-styled{margin-bottom:var(--s0)}
-    .stepper-outer-wrapper {top:var(--header-height)}
-    .stepper-item .step-label.en,.stepper-item .step-label.ar{font-size:.7rem} .stepper-item .step-label.ar{margin-top:1px}
-    .stepper-connector{top:-9px;margin:0 var(--s0)} .stepper-item .step-number{width:20px;height:20px;line-height:18px}
-    .nav-container {flex-direction:row;align-items:center;justify-content:space-between}
-    .brand-logo {margin-right:0;margin-bottom:0;text-align:left;justify-content:flex-start}
-    .main-nav.desktop-nav, .header-extras.desktop-extras {display:none!important}
-    .hamburger-btn {display:inline-flex;align-items:center;justify-content:center}
-    .hero-section h1{font-size:2rem} .hero-section h2{font-size:1.3rem} .hero-section p{font-size:.9rem}
-    .pm label{min-height:50px} .payment-icon{height:32px;max-width:55px}
-}
-@media(max-width:480px){
-    body {padding-top: 60px;}
-    .site-header {height: 60px;}
-    .mobile-nav-menu {top: 60px;}
-    .stepper-outer-wrapper {top: 60px;}
-    #udheya-booking-form-panel { scroll-margin-top: calc(60px + 40px); }
+            if (this.currentActiveStep !== newActiveStep) {
+                 // Basic validation before changing step via scroll
+                if (newActiveStep === 2 && !this.selectedAnimal.type) { /* stay on 1 */ }
+                else if (newActiveStep === 3 && !(this.selectedAnimal.type && this.selectedPrepStyle.value)) { /* stay on prev valid */ }
+                else if (newActiveStep === 4 && !(this.selectedAnimal.type && this.selectedPrepStyle.value && this.selectedPackaging.value)) { /* stay on prev valid */ }
+                else if (newActiveStep === 5 && !this.canProceedFromLogistics()) { /* stay on prev valid */ }
+                else {
+                    this.currentActiveStep = newActiveStep;
+                }
+            }
+        },
+        updateCities() { 
+            const gov = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
+            this.availableCities = gov?.cities || []; this.deliveryCity = '';
+        },
+        getFormattedPrice(price, currency) { 
+            const c = currency || this.currentCurrency;
+            const r = (this.appSettings.exchange_rates || {})[c]; 
+            return (price == null || !r || typeof r.rate_from_egp !== 'number') ? `${r?.symbol || '?'} ---` : `${r.symbol} ${(price * r.rate_from_egp).toFixed(2)}`;
+        },
+        isValidEmail: email => (!email || !email.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+        scrollToSection: sel => {
+            const element = document.querySelector(sel);
+            if (element) {
+                const headerOffset = (document.querySelector('.site-header')?.offsetHeight || 0) + (document.querySelector('.stepper-outer-wrapper')?.offsetHeight || 0);
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                
+                window.scrollTo({
+                     top: offsetPosition,
+                     behavior: "smooth"
+                });
+            }
+        },
+        updateStepperState(step) { 
+            // Add validation before allowing step change via stepper click
+            if (step > 1 && !this.selectedAnimal.type) { this.currentActiveStep = 1; this.scrollToSection('#step1-content'); return; }
+            if (step > 2 && !this.selectedPrepStyle.value) { this.currentActiveStep = 2; this.scrollToSection('#step2-content'); return; }
+            if (step > 3 && !this.selectedPackaging.value) { this.currentActiveStep = 3; this.scrollToSection('#step3-content'); return; }
+            if (step > 4 && !this.canProceedFromLogistics()) { // This covers logistics for step 5
+                 if (!(this.selectedAnimal.type && this.selectedPrepStyle.value && this.selectedPackaging.value)) {
+                    this.currentActiveStep = 3; this.scrollToSection('#step3-content'); return;
+                 }
+                 this.currentActiveStep = 4; this.scrollToSection('#step4-content'); 
+                 if (step === 5) this.proceedToReview(); // Specifically if trying to go to step 5 and logistics incomplete
+                 return;
+            }
+            this.currentActiveStep = step; 
+        },
+        selectAnimal(cardEl, key) { 
+            const animal = this.productOptions.livestock.find(a => a.value_key === key);
+            const sel = cardEl.querySelector('.livestock-weight-select');
+            if (!animal || !sel || !sel.value) { alert('Error selecting animal/weight.'); return; }
+            const wp = animal.weights_prices.find(w => w.weight_range === sel.value);
+            if (!wp || !wp.is_active || (wp.stock != null && wp.stock <= 0)) {
+                alert(`${animal.name_en || 'Selected animal'} (${sel.value}) is out of stock.`); this.updateAllDisplayedPrices(); return;
+            }
+            this.selectedAnimal = { type: animal.value_key, value: animal.value_key, weight: wp.weight_range, basePriceEGP: parseFloat(wp.price_egp), stock: wp.stock, originalStock: wp.stock, nameEN: animal.name_en, nameAR: animal.name_ar, pbId: animal.pbId };
+            this.calculateTotalPrice();
+            this.$nextTick(() => { this.updateStepperState(2); this.scrollToSection('#step2-content'); }); 
+        },
+        isLivestockWeightOutOfStock(selEl, key) { 
+            const animal = this.productOptions.livestock.find(a => a.value_key === key);
+            if (!animal || !selEl || !selEl.value) return true;
+            const wp = animal.weights_prices.find(w => w.weight_range === selEl.value);
+            return !wp || !wp.is_active || (wp.stock != null && wp.stock <= 0);
+        },
+        selectPrepStyle(prep) { this.selectedPrepStyle = { ...prep, is_custom: !!prep.is_custom }; this.calculateTotalPrice(); this.$nextTick(() => { this.updateStepperState(3); this.scrollToSection('#step3-content'); }); }, 
+        selectPackaging(pkg) { this.selectedPackaging = { ...pkg, addonPriceEGP: parseFloat(pkg.addonPriceEGP || 0) }; this.calculateTotalPrice(); this.$nextTick(() => { this.updateStepperState(4); this.scrollToSection('#step4-content'); }); }, 
+        canProceedFromLogistics() { 
+            if (!this.selectedAnimal.type || !this.selectedPrepStyle.value || !this.selectedPackaging.value) return false;
+            if (this.customerEmail && !this.isValidEmail(this.customerEmail)) return false;
+            if (this.distributionChoice === 'split' && (!this.splitDetailsOption || (this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()))) return false;
+            if (this._needsDeliveryDetails) {
+                const gov = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
+                const cityMissing = gov && gov.cities?.length > 0 && !this.deliveryCity;
+                if (!this.deliveryPhone?.trim() || !this.selectedGovernorate || cityMissing || !this.deliveryAddress?.trim() || !this.deliveryName?.trim()) return false;
+            }
+            return true;
+        },
+        proceedToReview() { 
+            if (this.canProceedFromLogistics()) { this.$nextTick(() => { this.updateStepperState(5); this.scrollToSection('#step5-content'); }); return; } 
+            const errors = ['Complete required fields in Logistics (Step 4):'];
+            if (this.customerEmail && !this.isValidEmail(this.customerEmail)) errors.push('- Invalid Email.');
+            if (this.distributionChoice === 'split' && (!this.splitDetailsOption || (this.splitDetailsOption === 'custom' && !this.customSplitDetailsText?.trim()))) errors.push('- Invalid split details.');
+            if (this._needsDeliveryDetails) {
+                if (!this.deliveryName?.trim()) errors.push('- Delivery Name.'); if (!this.deliveryPhone?.trim()) errors.push('- Delivery Phone.');
+                if (!this.selectedGovernorate) errors.push('- Governorate.');
+                const gov = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
+                if (gov && gov.cities?.length > 0 && !this.deliveryCity) errors.push('- City.');
+                if (!this.deliveryAddress?.trim()) errors.push('- Delivery Address.');
+            }
+            alert(errors.join('\n')); this.updateStepperState(4);
+            this.scrollToSection('#step4-content'); 
+        },
+        updateSacrificeDayTexts() { const opt = document.querySelector(`#sacrifice_day_select_s4 option[value="${this.selectedSacrificeDay.value}"]`); if (opt) Object.assign(this.selectedSacrificeDay, { textEN: opt.dataset.en, textAR: opt.dataset.ar }); },
+        calculateTotalPrice() { this.totalPriceEGP = (this.selectedAnimal.basePriceEGP || 0) + (this.selectedPackaging.addonPriceEGP || 0); },
+        updateAllDisplayedPrices() { 
+            (this.productOptions.livestock || []).forEach(animal => {
+                const card = document.getElementById(animal.value_key);
+                const sel = card?.querySelector('.livestock-weight-select');
+                if (!card || !sel) return;
+                const curVal = sel.value; sel.innerHTML = ''; let firstAvail = null, curAvail = false;
+                (animal.weights_prices || []).forEach(wp => {
+                    const opt = document.createElement('option'); opt.value = wp.weight_range;
+                    const oos = !wp.is_active || (wp.stock != null && wp.stock <= 0);
+                    opt.textContent = `${wp.weight_range} (${this.getFormattedPrice(wp.price_egp)})${oos ? ' - Out of Stock' : (wp.stock != null ? ` - Stock: ${wp.stock}` : '')}`;
+                    opt.disabled = oos; sel.appendChild(opt);
+                    if (!oos && firstAvail === null) firstAvail = wp.weight_range;
+                    if (wp.weight_range === curVal && !oos) curAvail = true;
+                });
+                sel.value = curAvail ? curVal : (firstAvail || (sel.options.length ? sel.options[0].value : ''));
+                const fA = (animal.weights_prices || []).find(wp => wp.is_active && (wp.stock == null || wp.stock > 0));
+                const price = fA ? fA.price_egp : ((animal.weights_prices || [])[0]?.price_egp || 0);
+                
+                const priceEnSpan = card.querySelector('.price.bil-row .en span');
+                const priceArSpan = card.querySelector('.price.bil-row .ar span');
+                if(priceEnSpan) priceEnSpan.textContent = this.getFormattedPrice(price);
+                if(priceArSpan) priceArSpan.textContent = this.getFormattedPrice(price);
+            });
+            document.querySelectorAll('.packaging-card[data-packaging-value="vacuum_sealed"] .price-addon span').forEach(s => { s.textContent = this.getFormattedPrice(100); }); 
+            this.calculateTotalPrice();
+        },
+        async submitBooking() { 
+            const v = [!this.selectedAnimal.type, !this.selectedPrepStyle.value, !this.selectedPackaging.value, !this.canProceedFromLogistics()];
+            const sections = ['#step1-content', '#step2-content', '#step3-content', '#step4-content'];
+            for (let i = 0; i < v.length; i++) {
+                if (v[i]) {
+                    if (i === 3) this.proceedToReview(); else alert(`Please complete Step ${i + 1}.`);
+                    this.updateStepperState(i + 1); this.scrollToSection(sections[i]); return;
+                }
+            }
+            const animal = this.productOptions.livestock.find(a => a.value_key === this.selectedAnimal.value);
+            const wpData = animal?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight);
+            if (!animal || !wpData || !wpData.is_active || (wpData.stock != null && wpData.stock <= 0)) {
+                alert(`Sorry, ${this.selectedAnimal.nameEN || 'item'} is no longer available.`);
+                this.selectedAnimal = { ...initialBookingFormState.selectedAnimal }; this.updateAllDisplayedPrices();
+                this.updateStepperState(1); this.scrollToSection('#step1-content'); return;
+            }
 
+            this.isLoading.booking = true; this.apiError = null; this.calculateTotalPrice();
+            const p = this;
+            const payload = {
+                booking_id_text: `SL-UDHY-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9e4)+1e4).padStart(5,'0')}`,
+                animal_type_key: p.selectedAnimal.value, animal_type_name_en: p.selectedAnimal.nameEN, animal_type_name_ar: p.selectedAnimal.nameAR,
+                animal_weight_selected: p.selectedAnimal.weight, animal_base_price_egp: p.selectedAnimal.basePriceEGP,
+                preparation_style_value: p.selectedPrepStyle.value, preparation_style_name_en: p.selectedPrepStyle.nameEN, preparation_style_name_ar: p.selectedPrepStyle.nameAR,
+                is_custom_prep: p.selectedPrepStyle.is_custom, custom_prep_details: p.selectedPrepStyle.is_custom ? p.customPrepDetails : "",
+                packaging_value: p.selectedPackaging.value, packaging_name_en: p.selectedPackaging.nameEN, packaging_name_ar: p.selectedPackaging.nameAR,
+                packaging_addon_price_egp: p.selectedPackaging.addonPriceEGP, total_price_egp: p.totalPriceEGP,
+                sacrifice_day_value: p.selectedSacrificeDay.value, time_slot: p.selectedTimeSlot,
+                distribution_choice: p.distributionChoice,
+                split_details_option: p.distributionChoice === 'split' ? p.splitDetailsOption : "",
+                custom_split_details_text: (p.distributionChoice === 'split' && p.splitDetailsOption === 'custom') ? p.customSplitDetailsText : "",
+                niyyah_names: p.niyyahNames, customer_email: p.customerEmail, group_purchase_interest: p.groupPurchase,
+                delivery_name: p._needsDeliveryDetails ? p.deliveryName : "", delivery_phone: p._needsDeliveryDetails ? p.deliveryPhone : "",
+                delivery_governorate_id: p._needsDeliveryDetails ? p.selectedGovernorate : "", delivery_city_id: p._needsDeliveryDetails ? p.deliveryCity : "",
+                delivery_address: p._needsDeliveryDetails ? p.deliveryAddress : "", delivery_instructions: p._needsDeliveryDetails ? p.deliveryInstructions : "",
+                payment_method: p.paymentMethod, payment_status: (p.paymentMethod === 'cod' && p._needsDeliveryDetails) ? 'cod_pending' : 'pending',
+                booking_status: 'confirmed_pending_payment',
+            };
 
-    .stepper-item .step-label.en{display:none} .stepper-item .step-label.ar{font-size:.65rem}
-    .brand-logo {font-size:1rem} .hamburger-btn svg {width:24px;height:24px}
-    .payment-icon{height:28px;max-width:50px} .ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
-    .bil-copyright-suffix {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-left:0;
-    }
-    .bil-copyright-suffix .en, .bil-copyright-suffix .ar {
-        display: block; width: 100%;
-        /* text-align: center !important; /* REMOVED */
-    }
-}
+            try {
+                const booking = await pbFetch('bookings', { fetchOptions: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }});
+                this.bookingID = booking.booking_id_text || booking.id; 
+                if (wpData.stock != null && wpData.stock > 0) {
+                    wpData.stock--; 
+                    this.updateAllDisplayedPrices();
+                }
+                this.bookingConfirmed = true; this.$nextTick(() => this.scrollToSection('#step5-booking-confirmation'));
+                if(p.customerEmail && p.isValidEmail(p.customerEmail)) console.log(`Booking ${this.bookingID} success. Simulating email to ${p.customerEmail}.`);
+            } catch (error) { console.error("Booking Submission Error:", error); this.apiError = error.message; alert(`Booking Error: ${error.message}`); }
+            finally { this.isLoading.booking = false; }
+        },
+        async checkBookingStatus() { 
+            this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null;
+            const id = (this.lookupBookingID || "").trim();
+            if (!id) { alert('Please enter Booking ID.'); this.isLoading.status = false; return; }
+            try {
+                const data = await pbFetch('bookings', { params: `filter=(booking_id_text='${encodeURIComponent(id)}')&perPage=1` });
+                if (data.items && data.items.length > 0) {
+                    const b = data.items[0];
+                    this.statusResult = { booking_id_text: b.booking_id_text || b.id, status: b.booking_status || 'Unknown', animal_type: b.animal_type_name_en || b.animal_type_key, animal_weight_selected: b.animal_weight_selected, sacrifice_day: b.sacrifice_day_value, time_slot: b.time_slot };
+                } else this.statusNotFound = true;
+            } catch (error) { console.error("Status Check Error:", error); this.apiError = error.message; this.statusNotFound = true; }
+            finally { this.isLoading.status = false; }
+        },
+        getSacrificeDayText(val) { const opt = document.querySelector(`#sacrifice_day_select_s4 option[value="${val}"]`); return opt ? { en: opt.dataset.en, ar: opt.dataset.ar } : { en: val, ar: val }; },
+        resetAndStartOver() { 
+            Object.assign(this, JSON.parse(JSON.stringify(initialBookingFormState)), { bookingConfirmed: false, bookingID: '', lookupBookingID: '', statusResult: null, statusNotFound: false, currentActiveStep: 1, isMobileMenuOpen: false, apiError: null, calculatedPromoDaysLeft: 0 });
+            this.initApp(); 
+        }
+    }));
+});
