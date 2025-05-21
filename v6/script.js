@@ -13,33 +13,38 @@ document.addEventListener('alpine:init', () => {
     async function pbFetch(collection, options = {}) {
         const { recordId = '', params = '' } = options;
         const url = `/api/collections/${collection}/records${recordId ? `/${recordId}` : ''}${params ? `?${params}` : ''}`;
+        // console.log(`PBFETCH: Requesting ${url}`); // Removed
         try {
             const response = await fetch(url, options.fetchOptions);
+            // console.log(`PBFETCH: Response status for ${url}: ${response.status}`); // Removed
             if (!response.ok) {
                 let errorDataMessage = response.statusText;
                 let responseBodyForError = '';
                 try {
-                    responseBodyForError = await response.text(); 
-                    const errorData = JSON.parse(responseBodyForError); 
+                    responseBodyForError = await response.text();
+                    const errorData = JSON.parse(responseBodyForError);
                     if (errorData && typeof errorData.data === 'object' && errorData.data !== null) {
                         errorDataMessage = Object.values(errorData.data).map(e => e.message || JSON.stringify(e)).join('; ');
                     } else if (errorData && errorData.message) { errorDataMessage = errorData.message; }
                 } catch (e) { 
+                    // console.warn(`PBFETCH: Could not parse error response as JSON for ${url}. Body: ${responseBodyForError}`, e); // Removed
                     errorDataMessage = responseBodyForError || response.statusText;
                  }
                 throw new Error(`API Error (${collection} ${recordId || params}): ${response.status} ${errorDataMessage}`);
             }
             const responseBody = await response.text();
-            if (!responseBody) { 
-                return { items: [] }; 
+            if (!responseBody) {
+                // console.log(`PBFETCH: Received empty successful response for ${url}`); // Removed
+                return { items: [] };
             }
             try {
                 return JSON.parse(responseBody);
             } catch (e_parse_ok) {
-                console.error(`PBFETCH: Could not parse successful response as JSON for ${url}. Body: ${responseBody}`, e_parse_ok);
+                console.error(`PBFETCH: Could not parse successful response as JSON for ${url}. Body: ${responseBody}`, e_parse_ok); // Kept critical error
                 throw new Error(`API Error (${collection} ${recordId || params}): Failed to parse successful response. ${e_parse_ok.message}`);
             }
         } catch (networkError) {
+             // console.error(`PBFETCH: Network error for ${url}`, networkError); // Kept critical error
              const errorMessage = typeof networkError.message === 'string' ? networkError.message : 'Unknown network error';
              throw new Error(`Network Error: Could not connect to API. (${errorMessage})`);
         }
@@ -94,12 +99,12 @@ document.addEventListener('alpine:init', () => {
             if (typeof messageObject === 'object' && messageObject !== null && typeof messageObject.en === 'string' && typeof messageObject.ar === 'string') {
                 this.errors[field] = messageObject;
             } else {
-                 this.errors[field] = this.errorMessages.required; 
+                 this.errors[field] = this.errorMessages.required;
             }
         },
         clearError(field) { if (this.errors[field]) this.$delete(this.errors, field); },
         clearAllErrors() { this.errors = {}; },
-        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:false}); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e) {/* ignore scroll error */} }, 50); } }); },
+        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:false}); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e){/*ignore scroll err*/} }, 50); } }); },
 
         get _needsDeliveryDetails() {
             const customText = (this.customSplitDetailsText || '').toLowerCase();
@@ -166,14 +171,14 @@ document.addEventListener('alpine:init', () => {
                 const settingsParams = `filter=(setting_key='global_config')&perPage=1`;
                 const [settingsCollectionData, livestockData] = await Promise.all([
                     pbFetch('app_settings', { params: settingsParams }),
-                    pbFetch('livestock_types') // No sort=created
+                    pbFetch('livestock_types') // Removed sort=created
                 ]);
 
                 if (settingsCollectionData && settingsCollectionData.items && settingsCollectionData.items.length > 0) {
                     const fetchedSettings = settingsCollectionData.items[0];
                     const newAppSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
                     for (const key in fetchedSettings) {
-                        if (fetchedSettings.hasOwnProperty(key) && key !== 'site_name') { // Retained site_name exclusion
+                        if (fetchedSettings.hasOwnProperty(key) && key !== 'site_name') {
                             if (typeof fetchedSettings[key] === 'object' && fetchedSettings[key] !== null &&
                                 newAppSettings[key] !== undefined && typeof newAppSettings[key] === 'object' && newAppSettings[key] !== null &&
                                 !Array.isArray(fetchedSettings[key])) {
@@ -186,7 +191,7 @@ document.addEventListener('alpine:init', () => {
                     this.appSettings = newAppSettings;
                 } else {
                     this.appSettings = initialDefaultAppSettings;
-                    // console.warn removed
+                    // console.warn for missing global_config removed
                 }
 
                 if (livestockData && livestockData.items) {
@@ -196,10 +201,10 @@ document.addEventListener('alpine:init', () => {
                     }));
                 } else {
                     this.productOptions.livestock = [];
-                    // console.warn removed
+                    // console.warn for missing livestock removed
                 }
             } catch (error) {
-                console.error("Error fetching initial app data:", error); // Keep critical error log
+                console.error("Error fetching initial app data:", error); // Keep this critical error log
                 this.apiError = error.message || "An unknown error occurred during data fetch.";
                 this.userFriendlyApiError = (typeof error.message === 'string' && error.message.includes('Network Error')) ? error.message : 'Failed to load application settings. Please refresh or try again later.';
                 this.appSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
@@ -324,7 +329,7 @@ document.addEventListener('alpine:init', () => {
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
                     window.scrollTo({ top: offsetPosition, behavior: "smooth" });
                 }
-            } catch(e) {/* ignore scroll error */}
+            } catch(e) {/* ignore scroll err */}
         },
 
         navigateToStep(targetStep) {
@@ -405,7 +410,7 @@ document.addEventListener('alpine:init', () => {
             if(this.stepSectionsMeta[1]) this.stepSectionsMeta[1].firstFocusableErrorRef = firstErrorRef;
             return isValid;
         },
-        validateStep3(showErrors = true) { 
+        validateStep3(showErrors = true) {
             if(this.stepSectionsMeta[2]) this.stepSectionsMeta[2].firstFocusableErrorRef = null; return true;
         },
         validateStep4(showErrors = true) {
@@ -456,6 +461,7 @@ document.addEventListener('alpine:init', () => {
             this.selectedAnimal = { type: animal.value_key, value: animal.value_key, weight: wp.weight_range, basePriceEGP: parseFloat(wp.price_egp), stock: wp.stock, originalStock: wp.stock, nameEN: animal.name_en, nameAR: animal.name_ar, pbId: animal.pbId };
             this.calculateTotalPrice();
             // Auto-advance from Step 1 is now handled by the "Continue to Customize" button.
+            // No call to validateAndProceedToStep(2) here.
         },
         isLivestockWeightOutOfStock(selEl, key) {
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
@@ -602,4 +608,77 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 
-(function(){if("true"===new URLSearchParams(window.location.search).get("run_db_seed")){const t="/api/",e=[{collection:"app_settings",data:{setting_key:"global_config",exchange_rates:{EGP:{rate_from_egp:1,symbol:"LE",is_active:!0},USD:{rate_from_egp:.021,symbol:"$",is_active:!0},GBP:{rate_from_egp:.017,symbol:"£",is_active:!0}},default_currency:"EGP",whatsapp_number_raw:"201234567890",whatsapp_number_display:"+20 123 456 7890",promo_end_date:new Date(Date.now()+1296e6).toISOString(),promo_discount_percent:15,promo_is_active:!0,delivery_areas:[{id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"},{id:"maadi",name_en:"Maadi",name_ar:"المعادي"},{id:"heliopolis",name_en:"Heliopolis",name_ar:"مصر الجديدة"}]},{id:"giza",name_en:"Giza",name_ar:"الجيزة",cities:[{id:"dokki",name_en:"Dokki",name_ar:"الدقي"},{id:"mohandessin",name_en:"Mohandessin",name_ar:"المهندسين"},{id:"haram",name_en:"Haram",name_ar:"الهرم"}]},{id:"alexandria",name_en:"Alexandria",name_ar:"الإسكندرية",cities:[{id:"smouha",name_en:"Smouha",name_ar:"سموحة"},{id:"miami",name_en:"Miami",name_ar:"ميامي"}]},{id:"other_gov",name_en:"Other Governorate",name_ar:"محافظة أخرى",cities:[]}],payment_details:{vodafone_cash:"010 YOUR VODA NUMBER",instapay_ipn:"YOUR.IPN@instapay",revolut_details:"@YOUR_REVTAG or Phone: +XX XXXXXXXX",bank_name:"YOUR BANK NAME",bank_account_name:"YOUR ACCOUNT HOLDER NAME",bank_account_number:"YOUR ACCOUNT NUMBER",bank_iban:"YOUR IBAN (Optional)",bank_swift:"YOUR SWIFT/BIC (Optional)"}}},{collection:"livestock_types",data:{value_key:"baladi",name_en:"Baladi Sheep",name_ar:"خروف بلدي",weights_prices:[{weight_range:"30-40 kg",price_egp:4500,stock:15,is_active:!0},{weight_range:"40-50 kg",price_egp:5200,stock:10,is_active:!0},{weight_range:"50+ kg",price_egp:6e3,stock:0,is_active:!0}]}},{collection:"livestock_types",data:{value_key:"barki",name_en:"Barki Sheep",name_ar:"خروف برقي",weights_prices:[{weight_range:"35-45 kg",price_egp:5100,stock:8,is_active:!0},{weight_range:"45-55 kg",price_egp:5900,stock:12,is_active:!0}]}}];(async function(){for(const n of e){const o=n.data.setting_key||n.data.value_key||"N/A (unknown)";try{const s=await fetch(`${t}collections/${n.collection}/records`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(n.data)});if(!s.ok){const t=await s.text();console.error(`SEEDER_ERROR: Failed to create record in '${n.collection}': ${s.status} ${s.statusText} - ${t}. Record identifier: ${o}`)}}catch(t){console.error(`SEEDER_EXCEPTION: Network or other error for record in '${n.collection}' (ID: ${o}):`,t)}}window.history.replaceState&&window.history.replaceState({path:window.location.protocol+"//"+window.location.host+window.location.pathname},"",window.location.protocol+"//"+window.location.host+window.location.pathname)})()}}();
+// ----- START: INLINE POCKETBASE SEEDER (Corrected Structure) -----
+(function() {
+    const SEEDER_QUERY_PARAM = 'run_db_seed';
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    if (getQueryParam(SEEDER_QUERY_PARAM) === 'true') {
+        // Minimal console output for seeder trigger
+        // console.warn("==== INLINE POCKETBASE SEEDER: Query parameter found, attempting to seed database. ====");
+
+        const SEEDER_API_BASE_URL = '/api/';
+
+        const SEEDER_RECORDS_TO_CREATE = [
+            {
+                collection: 'app_settings',
+                data: {
+                    setting_key: "global_config",
+                    exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true } },
+                    default_currency: "EGP",
+                    whatsapp_number_raw: "201234567890",
+                    whatsapp_number_display: "+20 123 456 7890",
+                    promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+                    promo_discount_percent: 15,
+                    promo_is_active: true,
+                    delivery_areas: [ { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]}, { id: 'giza', name_en: 'Giza', name_ar: 'الجيزة', cities: [ {id: 'dokki', name_en: 'Dokki', name_ar: 'الدقي'}, {id: 'mohandessin', name_en: 'Mohandessin', name_ar: 'المهندسين'}, {id: 'haram', name_en: 'Haram', name_ar: 'الهرم'} ]}, { id: 'alexandria', name_en: 'Alexandria', name_ar: 'الإسكندرية', cities: [ {id: 'smouha', name_en: 'Smouha', name_ar: 'سموحة'}, {id: 'miami', name_en: 'Miami', name_ar: 'ميامي'} ]}, { id: 'other_gov', name_en: 'Other Governorate', name_ar: 'محافظة أخرى', cities: [] } ],
+                    payment_details: { vodafone_cash: "010 YOUR VODA NUMBER", instapay_ipn: "YOUR.IPN@instapay", revolut_details: "@YOUR_REVTAG or Phone: +XX XXXXXXXX", bank_name: "YOUR BANK NAME", bank_account_name: "YOUR ACCOUNT HOLDER NAME", bank_account_number: "YOUR ACCOUNT NUMBER", bank_iban: "YOUR IBAN (Optional)", bank_swift: "YOUR SWIFT/BIC (Optional)" }
+                }
+            },
+            {
+                collection: 'livestock_types',
+                data: {
+                    value_key: 'baladi', name_en: 'Baladi Sheep', name_ar: 'خروف بلدي', weights_prices: [ { weight_range: "30-40 kg", price_egp: 4500, stock: 15, is_active: true }, { weight_range: "40-50 kg", price_egp: 5200, stock: 10, is_active: true }, { weight_range: "50+ kg", price_egp: 6000, stock: 0, is_active: true } ]
+                }
+            },
+            {
+                collection: 'livestock_types',
+                data: {
+                    value_key: 'barki', name_en: 'Barki Sheep', name_ar: 'خروف برقي', weights_prices: [ { weight_range: "35-45 kg", price_egp: 5100, stock: 8, is_active: true }, { weight_range: "45-55 kg", price_egp: 5900, stock: 12, is_active: true } ]
+                }
+            }
+        ];
+
+        async function runInlineSeed() {
+            // Minimal logging for seeder
+            for (const record of SEEDER_RECORDS_TO_CREATE) {
+                const recordIdentifier = record.data.setting_key || record.data.value_key || 'N/A (unknown)';
+                try {
+                    const response = await fetch(`${SEEDER_API_BASE_URL}collections/${record.collection}/records`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(record.data)
+                    });
+
+                    if (!response.ok) {
+                        const responseText = await response.text(); // Get response text for error
+                        console.error(`SEEDER_ERROR: Failed to create record in '${record.collection}': ${response.status} ${response.statusText} - ${responseText}. Record identifier: ${recordIdentifier}`);
+                    }
+                } catch (error) {
+                    console.error(`SEEDER_EXCEPTION: Network or other error for record in '${record.collection}' (ID: ${recordIdentifier}):`, error);
+                }
+            }
+
+            if (window.history.replaceState) {
+                const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({path: cleanURL}, '', cleanURL);
+            }
+        }
+        runInlineSeed(); // Call the seeder function
+    }
+})(); // Correctly closing the outer IIFE
+// ----- END: INLINE POCKETBASE SEEDER -----
