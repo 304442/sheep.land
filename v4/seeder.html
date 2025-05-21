@@ -35,7 +35,8 @@
             <ol>
                 <li>Ensure your PocketBase instance is running.</li>
                 <li><strong>API URL:</strong> The script below defaults to <code>/api/</code>. If your PocketBase instance is on a different URL (e.g., <code>http://localhost:8090</code>), you <strong>MUST</strong> update the <code>API_URL_PREFIX</code> variable in the script section of this file.</li>
-                <li><strong>API Rules:</strong> Temporarily open API rules in PocketBase for 'app_settings' and 'livestock_types' collections (specifically 'Create Rule' and 'Update Rule', e.g., set to <code>""</code> for public access) if running this seeder unauthenticated.</li>
+                <li><strong>Collections Must Exist:</strong> This script seeds data into existing collections. If collections like 'app_settings' or 'livestock_types' don't exist, you need to create them first, typically by importing your <code>pb_schema.json</code> in the PocketBase Admin UI (Settings -> Import collections).</li>
+                <li><strong>API Rules for Records:</strong> Temporarily open API rules in PocketBase for 'app_settings' and 'livestock_types' collections (specifically 'Create Rule' and 'Update Rule' for *records*, e.g., set to <code>""</code> for public access) if running this seeder unauthenticated.</li>
                 <li><strong>RE-SECURE YOUR API RULES IMMEDIATELY</strong> after seeding is complete!</li>
             </ol>
         </div>
@@ -56,20 +57,38 @@
         const statusMessageDiv = document.getElementById('status-message');
         const currentApiPrefixSpan = document.getElementById('current-api-prefix');
 
-        // --- IMPORTANT: Configure this if your PB is not at '/api/' relative to this HTML file ---
         const API_URL_PREFIX = '/api/'; 
-        // Example for different origin: const API_URL_PREFIX = 'http://localhost:8090/api';
         currentApiPrefixSpan.textContent = API_URL_PREFIX;
-
 
         function customLog(message, type = 'info') {
             console.log(message); 
             const logEntry = document.createElement('div');
             const timestamp = new Date().toLocaleTimeString();
-            logEntry.innerHTML = `<span>[${timestamp}]</span> ${message.replace(/\n/g, "<br>")}`; // Allow basic newlines in logs
+            logEntry.innerHTML = `<span>[${timestamp}]</span> ${message.replace(/\n/g, "<br>")}`;
             logEntry.className = type;
             logOutputDiv.appendChild(logEntry);
             logOutputDiv.scrollTop = logOutputDiv.scrollHeight; 
+        }
+
+        async function checkCollectionExists(collectionName) {
+            try {
+                // Attempt a lightweight query to check if the collection is accessible
+                const response = await fetch(`${API_URL_PREFIX}/collections/${collectionName}/records?perPage=1`);
+                if (response.status === 404) { // Check if specifically a 404, could mean collection not found
+                    const errorData = await response.json().catch(() => ({})); // Try to parse error
+                    if (errorData.message && errorData.message.toLowerCase().includes("isn't a valid collection id or name")) {
+                        return false; // Collection definitely doesn't exist
+                    }
+                    // If 404 but not specific message, could be other issue, but we'll treat as possibly missing
+                    // or an API rule issue on list/view. For simplicity here, we assume it might be missing.
+                    customLog(`Warning: Collection '${collectionName}' query returned 404. It might be missing or List/View API rules are restrictive. Error: ${errorData.message || response.statusText}`, 'warn');
+                    return false; 
+                }
+                return response.ok; // If not 404, and ok, it exists and is listable
+            } catch (e) {
+                customLog(`Network error while checking collection '${collectionName}': ${e.message}`, 'error');
+                return false; // Network error, can't confirm
+            }
         }
         
         async function seedPocketBaseData() {
@@ -77,112 +96,86 @@
             statusMessageDiv.className = 'status info';
             statusMessageDiv.textContent = "Status: Seeding in progress...";
             
+            const requiredCollections = ['app_settings', 'livestock_types'];
+            for (const collName of requiredCollections) {
+                customLog(`Checking if collection '${collName}' exists...`, 'info');
+                const exists = await checkCollectionExists(collName);
+                if (!exists) {
+                    const errorMsg = `Collection '${collName}' does not seem to exist or is not accessible. Please create it (e.g., by importing pb_schema.json in PocketBase Admin UI) and ensure List/View API rules are permissive enough for this check, then try seeding again.`;
+                    customLog(errorMsg, 'error');
+                    statusMessageDiv.className = 'status error';
+                    statusMessageDiv.textContent = `Status: Error - Collection '${collName}' missing or inaccessible. See logs.`;
+                    alert(errorMsg);
+                    return; // Stop seeding if a required collection is missing
+                }
+                customLog(`Collection '${collName}' confirmed to exist.`, 'success');
+            }
+            
             const defaultAppSettingsData = {
                 setting_key: "global_config",
-                exchange_rates: {
-                    EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true },
-                    USD: { rate_from_egp: 0.021, symbol: '$', is_active: true },
-                    GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true }
-                },
+                exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true } },
                 default_currency: "EGP",
-                whatsapp_number_raw: "201234567890", 
-                whatsapp_number_display: "+20 123 456 7890", 
+                whatsapp_number_raw: "201234567890", whatsapp_number_display: "+20 123 456 7890", 
                 promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-                promo_discount_percent: 15,
-                promo_is_active: true,
-                delivery_areas: [
-                    { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]},
-                    { id: 'giza', name_en: 'Giza', name_ar: 'الجيزة', cities: [ {id: 'dokki', name_en: 'Dokki', name_ar: 'الدقي'}, {id: 'mohandessin', name_en: 'Mohandessin', name_ar: 'المهندسين'}, {id: 'haram', name_en: 'Haram', name_ar: 'الهرم'} ]},
-                    { id: 'alexandria', name_en: 'Alexandria', name_ar: 'الإسكندرية', cities: [ {id: 'smouha', name_en: 'Smouha', name_ar: 'سموحة'}, {id: 'miami', name_en: 'Miami', name_ar: 'ميامي'} ]},
-                    { id: 'other_gov', name_en: 'Other Governorate', name_ar: 'محافظة أخرى', cities: [] }
-                ],
-                payment_details: {
-                    vodafone_cash: "010 YOUR VODA NUMBER", 
-                    instapay_ipn: "YOUR.IPN@instapay", 
-                    revolut_details: "@YOUR_REVTAG or Phone: +XX XXXXXXXX", 
-                    bank_name: "YOUR BANK NAME", 
-                    bank_account_name: "YOUR ACCOUNT HOLDER NAME", 
-                    bank_account_number: "YOUR ACCOUNT NUMBER", 
-                    bank_iban: "YOUR IBAN (Optional)", 
-                    bank_swift: "YOUR SWIFT/BIC (Optional)" 
-                }
+                promo_discount_percent: 15, promo_is_active: true,
+                delivery_areas: [ { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]}, { id: 'giza', name_en: 'Giza', name_ar: 'الجيزة', cities: [ {id: 'dokki', name_en: 'Dokki', name_ar: 'الدقي'}, {id: 'mohandessin', name_en: 'Mohandessin', name_ar: 'المهندسين'}, {id: 'haram', name_en: 'Haram', name_ar: 'الهرم'} ]}, { id: 'alexandria', name_en: 'Alexandria', name_ar: 'الإسكندرية', cities: [ {id: 'smouha', name_en: 'Smouha', name_ar: 'سموحة'}, {id: 'miami', name_en: 'Miami', name_ar: 'ميامي'} ]}, { id: 'other_gov', name_en: 'Other Governorate', name_ar: 'محافظة أخرى', cities: [] } ],
+                payment_details: { vodafone_cash: "010 YOUR VODA NUMBER", instapay_ipn: "YOUR.IPN@instapay", revolut_details: "@YOUR_REVTAG or Phone: +XX XXXXXXXX", bank_name: "YOUR BANK NAME", bank_account_name: "YOUR ACCOUNT HOLDER NAME", bank_account_number: "YOUR ACCOUNT NUMBER", bank_iban: "YOUR IBAN (Optional)", bank_swift: "YOUR SWIFT/BIC (Optional)" }
             };
 
             try {
-                customLog("Processing app_settings...", 'info');
+                customLog("Processing app_settings records...", 'info');
                 const checkSettingsUrl = `${API_URL_PREFIX}/collections/app_settings/records?filter=(setting_key='global_config')&perPage=1`;
-                const checkResponse = await fetch(checkSettingsUrl);
-                if (!checkResponse.ok && checkResponse.status !== 404) {
-                    throw new Error(`Checking settings failed: ${checkResponse.statusText} - ${await checkResponse.text()}`);
-                }
+                const checkResponse = await fetch(checkSettingsUrl); // API rule for List must be open enough
+                if (!checkResponse.ok) throw new Error(`Checking settings failed (ensure List API Rule for app_settings is open): ${checkResponse.statusText} - ${await checkResponse.text()}`);
                 const checkData = await checkResponse.json();
                 
                 if (checkData.items && checkData.items.length > 0) {
-                    customLog("App settings 'global_config' already exists. Updating it.", 'info');
+                    customLog("App settings 'global_config' record already exists. Updating it.", 'info');
                     const existingSettingsId = checkData.items[0].id;
-                    const updateResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records/${existingSettingsId}`, {
-                        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData)
-                    });
-                    if (!updateResponse.ok) throw new Error(`Failed to update app_settings: ${updateResponse.statusText} - ${await updateResponse.text()}`);
-                    customLog("App settings updated successfully.", 'success');
+                    const updateResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records/${existingSettingsId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData) });
+                    if (!updateResponse.ok) throw new Error(`Failed to update app_settings record: ${updateResponse.statusText} - ${await updateResponse.text()}`);
+                    customLog("App settings record updated successfully.", 'success');
                 } else {
-                    customLog("App settings 'global_config' not found. Creating it.", 'info');
-                    const createResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData)
-                    });
-                    if (!createResponse.ok) throw new Error(`Failed to create app_settings: ${createResponse.statusText} - ${await createResponse.text()}`);
-                    customLog("App settings created successfully.", 'success');
+                    customLog("App settings 'global_config' record not found. Creating it.", 'info');
+                    const createResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData) });
+                    if (!createResponse.ok) throw new Error(`Failed to create app_settings record: ${createResponse.statusText} - ${await createResponse.text()}`);
+                    customLog("App settings record created successfully.", 'success');
                 }
             } catch (error) {
-                customLog("Error seeding app_settings: " + error.message, 'error');
-                statusMessageDiv.className = 'status error';
-                statusMessageDiv.textContent = "Status: Error with app_settings. Check console/logs.";
-                return; 
+                customLog("Error seeding app_settings records: " + error.message, 'error');
+                statusMessageDiv.className = 'status error'; statusMessageDiv.textContent = "Status: Error with app_settings records. Check API rules (Create/Update/List) & console."; return;
             }
 
-            customLog("Processing livestock_types...", 'info');
+            customLog("Processing livestock_types records...", 'info');
             const defaultLivestockData = [
                 { value_key: 'baladi', name_en: 'Baladi Sheep', name_ar: 'خروف بلدي', weights_prices: [ { weight_range: "30-40 kg", price_egp: 4500, stock: 15, is_active: true }, { weight_range: "40-50 kg", price_egp: 5200, stock: 10, is_active: true }, { weight_range: "50+ kg", price_egp: 6000, stock: 0, is_active: true } ] },
                 { value_key: 'barki', name_en: 'Barki Sheep', name_ar: 'خروف برقي', weights_prices: [ { weight_range: "35-45 kg", price_egp: 5100, stock: 8, is_active: true }, { weight_range: "45-55 kg", price_egp: 5900, stock: 12, is_active: true } ] }
             ];
-
             let livestockSuccessCount = 0;
             for (const livestock of defaultLivestockData) {
                 try {
-                    customLog(`Processing livestock: ${livestock.value_key}`, 'info');
+                    customLog(`Processing livestock record: ${livestock.value_key}`, 'info');
                     const checkLivestockUrl = `${API_URL_PREFIX}/collections/livestock_types/records?filter=(value_key='${livestock.value_key}')&perPage=1`;
-                    const checkResponse = await fetch(checkLivestockUrl);
-                    if (!checkResponse.ok && checkResponse.status !== 404) {
-                         throw new Error(`Checking livestock ${livestock.value_key} failed: ${checkResponse.statusText} - ${await checkResponse.text()}`);
-                    }
+                    const checkResponse = await fetch(checkLivestockUrl); // API rule for List must be open enough
+                    if (!checkResponse.ok) throw new Error(`Checking livestock ${livestock.value_key} failed (ensure List API Rule for livestock_types is open): ${checkResponse.statusText} - ${await checkResponse.text()}`);
                     const checkData = await checkResponse.json();
 
                     if (checkData.items && checkData.items.length > 0) {
-                        customLog(`Livestock type '${livestock.value_key}' already exists. Updating.`, 'info');
-                        const updateResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records/${checkData.items[0].id}`, {
-                            method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock)
-                        });
+                        customLog(`Livestock record '${livestock.value_key}' already exists. Updating.`, 'info');
+                        const updateResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records/${checkData.items[0].id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock) });
                         if (!updateResponse.ok) throw new Error(`Update failed for ${livestock.value_key}: ${updateResponse.statusText} - ${await updateResponse.text()}`);
-                        customLog(`Livestock '${livestock.value_key}' updated successfully.`, 'success');
+                        customLog(`Livestock record '${livestock.value_key}' updated successfully.`, 'success');
                     } else {
-                        customLog(`Livestock type '${livestock.value_key}' not found. Creating.`, 'info');
-                        const createResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records`, {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock)
-                        });
+                        customLog(`Livestock record '${livestock.value_key}' not found. Creating.`, 'info');
+                        const createResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock) });
                         if (!createResponse.ok) throw new Error(`Create failed for ${livestock.value_key}: ${createResponse.statusText} - ${await createResponse.text()}`);
-                        customLog(`Livestock '${livestock.value_key}' created successfully.`, 'success');
+                        customLog(`Livestock record '${livestock.value_key}' created successfully.`, 'success');
                     }
                     livestockSuccessCount++;
-                } catch (error) {
-                    customLog(`Error seeding livestock ${livestock.value_key}: ` + error.message, 'error');
-                }
+                } catch (error) { customLog(`Error seeding livestock record ${livestock.value_key}: ` + error.message, 'error'); }
             }
-
-            if (livestockSuccessCount === defaultLivestockData.length) {
-                 customLog("All livestock types processed successfully.", 'success');
-            } else {
-                 customLog(`${livestockSuccessCount} of ${defaultLivestockData.length} livestock types processed. Some had errors.`, 'warn');
-            }
+            if (livestockSuccessCount === defaultLivestockData.length) customLog("All livestock records processed successfully.", 'success');
+            else customLog(`${livestockSuccessCount} of ${defaultLivestockData.length} livestock records processed. Some had errors. Check API rules (Create/Update/List).`, 'warn');
 
             customLog("Data seeding process finished. REMEMBER TO RE-SECURE YOUR API RULES!", 'warn');
             statusMessageDiv.className = 'status success';
@@ -192,25 +185,18 @@
 
         async function manualRunSeeder() {
             logOutputDiv.innerHTML = ''; 
-            try {
-                await seedPocketBaseData();
-            } catch (e) {
-                customLog("Manual run of seeder failed overall: " + e.message, 'error');
-                statusMessageDiv.className = 'status error';
-                statusMessageDiv.textContent = "Status: Manual run failed. Check console/logs.";
-            }
+            try { await seedPocketBaseData(); } 
+            catch (e) { customLog("Manual run of seeder failed overall: " + e.message, 'error'); statusMessageDiv.className = 'status error'; statusMessageDiv.textContent = "Status: Manual run failed. Check console/logs."; }
         }
         
         document.addEventListener('DOMContentLoaded', () => {
             if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:") {
                 customLog("Development environment detected, attempting to auto-run seeder...", 'info');
-                statusMessageDiv.className = 'status info';
-                statusMessageDiv.textContent = "Status: Auto-running seeder...";
+                statusMessageDiv.className = 'status info'; statusMessageDiv.textContent = "Status: Auto-running seeder...";
                 manualRunSeeder(); 
             } else {
                 customLog("Seeder auto-run skipped: Not a recognized development environment. Click button to run manually.", 'warn');
-                statusMessageDiv.className = 'status info';
-                statusMessageDiv.textContent = "Status: Auto-run skipped (not dev environment). Click button to run manually.";
+                statusMessageDiv.className = 'status info'; statusMessageDiv.textContent = "Status: Auto-run skipped (not dev environment). Click button to run manually.";
             }
         });
     </script>
