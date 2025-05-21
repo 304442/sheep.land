@@ -264,4 +264,105 @@ document.addEventListener('alpine:init', () => {
         resetAndStartOver() { Object.assign(this, JSON.parse(JSON.stringify(initialBookingState)), { bookingConfirmed: false, bookingID: "", lookupBookingID: "", statusResult: null, statusNotFound: false, currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false, step5: false }, isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false, apiError: null, userFriendlyApiError: "", activeNavLinkHref: "", countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false }, promoHasEnded: false, calculatedPromoDaysLeft: 0, }); if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); this.initApp(); this.$nextTick(() => { this.scrollToSection('#udheya-booking-start'); this.focusOnRef('bookingSectionTitle'); }); }
     }));
 });
-(function() { const SEED_PARAM_NAME = "run_db_seed"; function getQueryParam(paramName) { return new URLSearchParams(window.location.search).get(paramName); } if (getQueryParam(SEED_PARAM_NAME) === "true") { const API_BASE_URL = "/api/"; const seedData = [ { collection: "app_settings", data: { setting_key: "global_config", exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.021, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.017, symbol: "£", is_active: true }}, default_currency: "EGP", whatsapp_number_raw: "201001234567", whatsapp_number_display: "+20 100 123 4567", promo_end_date: new Date(Date.now() + 1296e6).toISOString(), promo_discount_percent: 15, promo_is_active: true, delivery_areas: [ { id: "cairo", name_en: "Cairo", name_ar: "القاهرة", cities: [ { id: "nasr_city", name_en: "Nasr City", name_ar: "مدينة نصر" }, { id: "maadi", name_en: "Maadi", name_ar: "المعادي" }, { id: "heliopolis", name_en: "Heliopolis", name_ar: "مصر الجديدة" }]}, { id: "giza", name_en: "Giza", name_ar: "الجيزة", cities: [{ id: "dokki", name_en: "Dokki", name_ar: "الدقي" }, { id: "mohandessin", name_en: "Mohandessin", name_ar: "المهندسين" }, { id: "haram", name_en: "Haram", name_ar: "الهرم" }]}, { id: "alexandria", name_en: "Alexandria", name_ar: "الإسكندرية", cities: [{ id: "smouha", name_en: "Smouha", name_ar: "سموحة" }, { id: "miami", name_en: "Miami", name_ar: "ميامي" }]}, { id: "other_gov", name_en: "Other Governorate", name_ar: "محافظة أخرى", cities: [] }], payment_details: { vodafone_cash: "010_YOUR_LIVE_VODA_NUMBER_SEEDER", instapay_ipn: "YOUR_LIVE_IPN_SEEDER@instapay", revolut_details: "@YOUR_LIVE_REVTAG_SEEDER", bank_name: "YOUR_LIVE_BANK_NAME_SEEDER", bank_account_name: "YOUR_LIVE_ACCOUNT_NAME_SEEDER", bank_account_number: "YOUR_LIVE_ACCOUNT_NUMBER_SEEDER", bank_iban: "YOUR_LIVE_IBAN_SEEDER", bank_swift: "YOUR_LIVE_SWIFT_SEEDER" }}}, { collection: "livestock_types", data: { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", weights_prices: [ { weight_range: "30-40 kg", price_egp: 4500, stock: 15, is_active: true }, { weight_range: "40-50 kg", price_egp: 5200, stock: 10, is_active: true }, { weight_range: "50+ kg", price_egp: 6000, stock: 0, is_active: true }]} }, { collection: "livestock_types", data: { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", weights_prices: [ { weight_range: "35-45 kg", price_egp: 5100, stock: 8, is_active: true }, { weight_range: "45-55 kg", price_egp: 5900, stock: 12, is_active: true }]}} ]; (async function seedDatabase() { console.log("SEEDER_INFO: Starting database seed process..."); for (const item of seedData) { try { const response = await fetch(`${API_BASE_URL}collections/${item.collection}/records`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(item.data) }); if (response.ok) { const created = await response.json(); console.log(`SEEDER_SUCCESS: Record created/updated in '${item.collection}'. ID: ${created.id}, Key: ${item.data.setting_key || item.data.value_key || 'N/A'}`); } else console.error(`SEEDER_ERROR: Failed to create record in '${item.collection}': ${response.status} ${response.statusText} - ${await response.text()}. Record Key: ${item.data.setting_key || item.data.value_key || "N/A"}`); } catch (error) { console.error(`SEEDER_EXCEPTION: Network/other error for record in '${item.collection}' (Key: ${item.data.setting_key || item.data.value_key || "N/A"}):`, error); }} console.log("SEEDER_INFO: Database seed process finished."); if (window.history.replaceState) { const cleanUrl = location.protocol + "//" + location.host + location.pathname; window.history.replaceState({ path: cleanUrl }, '', cleanUrl); console.log("SEEDER_INFO: Cleaned 'run_db_seed' from URL."); } })(); } })();
+(function() {
+    const SEED_PARAM_NAME = "run_db_seed";
+
+    function getQueryParam(paramName) {
+        return new URLSearchParams(window.location.search).get(paramName);
+    }
+
+    if (getQueryParam(SEED_PARAM_NAME) === "true") {
+        const API_BASE_URL = "/api/";
+        const seedData = [{
+            collection: "app_settings",
+            data: {
+                setting_key: "global_config",
+                exchange_rates: {
+                    EGP: { rate_from_egp: 1, symbol: "LE", is_active: true },
+                    USD: { rate_from_egp: 0.021, symbol: "$", is_active: true },
+                    GBP: { rate_from_egp: 0.017, symbol: "£", is_active: true }
+                },
+                default_currency: "EGP",
+                whatsapp_number_raw: "201001234567",
+                whatsapp_number_display: "+20 100 123 4567",
+                promo_end_date: new Date(Date.now() + 1296e6).toISOString(),
+                promo_discount_percent: 15,
+                promo_is_active: true,
+                delivery_areas: [{
+                    id: "cairo",
+                    name_en: "Cairo",
+                    name_ar: "القاهرة",
+                    cities: [{ id: "nasr_city", name_en: "Nasr City", name_ar: "مدينة نصر" }, { id: "maadi", name_en: "Maadi", name_ar: "المعادي" }, { id: "heliopolis", name_en: "Heliopolis", name_ar: "مصر الجديدة" }]
+                }, {
+                    id: "giza",
+                    name_en: "Giza",
+                    name_ar: "الجيزة",
+                    cities: [{ id: "dokki", name_en: "Dokki", name_ar: "الدقي" }, { id: "mohandessin", name_en: "Mohandessin", name_ar: "المهندسين" }, { id: "haram", name_en: "Haram", name_ar: "الهرم" }]
+                }, {
+                    id: "alexandria",
+                    name_en: "Alexandria",
+                    name_ar: "الإسكندرية",
+                    cities: [{ id: "smouha", name_en: "Smouha", name_ar: "سموحة" }, { id: "miami", name_en: "Miami", name_ar: "ميامي" }]
+                }, {
+                    id: "other_gov",
+                    name_en: "Other Governorate",
+                    name_ar: "محافظة أخرى",
+                    cities: []
+                }],
+                payment_details: {
+                    vodafone_cash: "010_YOUR_LIVE_VODA_NUMBER_SEEDER",
+                    instapay_ipn: "YOUR_LIVE_IPN_SEEDER@instapay",
+                    revolut_details: "@YOUR_LIVE_REVTAG_SEEDER",
+                    bank_name: "YOUR_LIVE_BANK_NAME_SEEDER",
+                    bank_account_name: "YOUR_LIVE_ACCOUNT_NAME_SEEDER",
+                    bank_account_number: "YOUR_LIVE_ACCOUNT_NUMBER_SEEDER",
+                    bank_iban: "YOUR_LIVE_IBAN_SEEDER",
+                    bank_swift: "YOUR_LIVE_SWIFT_SEEDER"
+                }
+            }
+        }, {
+            collection: "livestock_types",
+            data: {
+                value_key: "baladi",
+                name_en: "Baladi Sheep",
+                name_ar: "خروف بلدي",
+                weights_prices: [{ weight_range: "30-40 kg", price_egp: 4500, stock: 15, is_active: true }, { weight_range: "40-50 kg", price_egp: 5200, stock: 10, is_active: true }, { weight_range: "50+ kg", price_egp: 6000, stock: 0, is_active: true }]
+            }
+        }, {
+            collection: "livestock_types",
+            data: {
+                value_key: "barki",
+                name_en: "Barki Sheep",
+                name_ar: "خروف برقي",
+                weights_prices: [{ weight_range: "35-45 kg", price_egp: 5100, stock: 8, is_active: true }, { weight_range: "45-55 kg", price_egp: 5900, stock: 12, is_active: true }]
+            }
+        }];
+
+        (async function seedDatabase() {
+            console.log("SEEDER_INFO: Starting database seed process...");
+            for (const item of seedData) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}collections/${item.collection}/records`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(item.data)
+                    });
+                    if (response.ok) {
+                        const created = await response.json();
+                        console.log(`SEEDER_SUCCESS: Record created/updated in '${item.collection}'. ID: ${created.id}, Key: ${item.data.setting_key || item.data.value_key || 'N/A'}`);
+                    } else {
+                        console.error(`SEEDER_ERROR: Failed to create record in '${item.collection}': ${response.status} ${response.statusText} - ${await response.text()}. Record Key: ${item.data.setting_key || item.data.value_key || "N/A"}`);
+                    }
+                } catch (error) {
+                    console.error(`SEEDER_EXCEPTION: Network/other error for record in '${item.collection}' (Key: ${item.data.setting_key || item.data.value_key || "N/A"}):`, error);
+                }
+            }
+            console.log("SEEDER_INFO: Database seed process finished.");
+            if (window.history.replaceState) {
+                const cleanUrl = location.protocol + "//" + location.host + location.pathname;
+                window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+                console.log("SEEDER_INFO: Cleaned 'run_db_seed' from URL.");
+            }
+        })();
+    }
+})();
