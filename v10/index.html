@@ -30,7 +30,6 @@
                         </a>
                         <ul class="dropdown-menu" x-show="isUdheyaDropdownOpen" x-transition @click.outside="if(isUdheyaDropdownOpen) isUdheyaDropdownOpen = false">
                             <li><a href="#udheya-booking-start" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
-                            <li><a href="#how-it-works" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
                             <li><a href="#check-booking-status" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                         </ul>
                     </li>
@@ -197,6 +196,7 @@
             </div>
         </section>
         
+        <!-- "Our Udheya Service Process" Section -->
         <section class="main-page-section how-it-works-section sec" id="how-it-works">
             <div class="c"><div class="uprocess-wrap"><div class="uprocess">
                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="howItWorksTitle" tabindex="-1"><span class="en">Our Udheya Service Process</span><span class="ar">خطوات خدمة الأضحية لدينا</span></h2></div>
