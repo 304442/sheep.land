@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Inline PocketBase Data Seeder (Records Only)</title>
+    <title>Inline PocketBase Data Seeder (Auto-Run for Dev)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; line-height: 1.6; padding: 20px; background-color: #f0f2f5; color: #1c1e21; }
         .container { max-width: 800px; margin: 20px auto; background-color: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1); }
@@ -21,31 +21,30 @@
         .status.error { background-color: #ffe5e5; color: #fa383e; border: 1px solid #fcc2c2; }
         .status.info { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .config-note { font-size: 0.9em; color: #606770; margin-bottom: 15px; }
-        pre { background-color: #eee; padding: 10px; border-radius: 4px; overflow-x: auto;}
+        button { display: none; /* Hide manual run button if auto-running */ }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Inline PocketBase Data Seeder (Records Only)</h1>
+        <h1>Inline PocketBase Data Seeder (Auto-Run for Dev)</h1>
 
         <div class="important">
             <strong>IMPORTANT INSTRUCTIONS:</strong>
             <ol>
                 <li>Ensure your PocketBase instance is running.</li>
                 <li><strong>Collections Must Exist:</strong> This script assumes collections 'app_settings' and 'livestock_types' (and 'bookings') are ALREADY CREATED (e.g., by importing <code>pb_schema.json</code>).</li>
-                <li><strong>API URL:</strong> The script defaults to <code>/api/</code>. If PocketBase is on a different URL (e.g., <code>http://localhost:8090</code>), update <code>API_URL_PREFIX</code> in the script below.</li>
+                <li><strong>API URL:</strong> The script defaults to <code>/api/</code>. If PocketBase is on a different URL (e.g., <code>http://localhost:8090</code>) AND you are NOT serving this HTML file from PocketBase itself, update <code>API_URL_PREFIX</code> in the script below. If PocketBase serves this file, <code>/api/</code> is correct.</li>
                 <li><strong>Record API Rules:</strong> Temporarily open API rules for 'app_settings' and 'livestock_types' collections (specifically 'List Rule', 'Create Rule', and 'Update Rule' for *records*, e.g., set to <code>""</code> for public) if running this unauthenticated.</li>
                 <li><strong>RE-SECURE YOUR RECORD API RULES IMMEDIATELY</strong> after seeding is complete!</li>
+                <li>This page will attempt to run the seeder automatically when loaded in a development environment (localhost, 127.0.0.1, file protocol).</li>
             </ol>
         </div>
 
         <div class="config-note">
-            Current API Prefix for the script: <code id="current-api-prefix-display">/api/</code> (If this needs to change, edit it directly in the <script> tag below).
+            Current API Prefix for the script: <code id="current-api-prefix-display">/api/</code>
         </div>
         
-        <p>To run the seeder: Open your browser's developer console (F12) and type <code>seedData()</code> then press Enter.</p>
-
-        <div class="status info" id="status-message">Status: Ready. Call seedData() from console.</div>
+        <div class="status info" id="status-message">Status: Initializing...</div>
         <div class="log-output" id="log-output"></div>
     </div>
 
@@ -54,35 +53,32 @@
         const statusMessageDiv = document.getElementById('status-message');
         const apiPrefixDisplay = document.getElementById('current-api-prefix-display');
 
-        // !!! IMPORTANT: Configure this if your PB is not at '/api/' relative to this HTML file !!!
         const API_URL_PREFIX = '/api/'; 
-        // Example for different origin: const API_URL_PREFIX = 'http://127.0.0.1:8090/api';
         apiPrefixDisplay.textContent = API_URL_PREFIX;
 
 
         function customLog(message, type = 'info') {
-            console.log(message); // Also log to actual browser console
+            console.log(message); 
             if (logOutputDiv) {
                 const logEntry = document.createElement('div');
                 const timestamp = new Date().toLocaleTimeString();
                 logEntry.innerHTML = `<span>[${timestamp}]</span> ${message.replace(/\n/g, "<br>")}`;
                 logEntry.className = type;
                 logOutputDiv.appendChild(logEntry);
-                logOutputDiv.scrollTop = logOutputDiv.scrollHeight; // Auto-scroll
+                logOutputDiv.scrollTop = logOutputDiv.scrollHeight; 
             }
         }
 
-        async function seedData() {
-            if (logOutputDiv) logOutputDiv.innerHTML = ''; // Clear previous logs
+        async function seedData() { // Function name changed to seedData
+            if (logOutputDiv) logOutputDiv.innerHTML = ''; 
             customLog("Starting data seeding process...", 'info');
             if (statusMessageDiv) {
                 statusMessageDiv.className = 'status info';
                 statusMessageDiv.textContent = "Status: Seeding records in progress...";
             }
             
-            // --- App Settings Record Data ---
             const defaultAppSettingsData = {
-                setting_key: "global_config", // This is the key used to identify the record
+                setting_key: "global_config", 
                 exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true } },
                 default_currency: "EGP",
                 whatsapp_number_raw: "201234567890", 
@@ -184,7 +180,31 @@
             }
             alert("Data record seeding finished. Refresh your main application page. IMPORTANT: Review and re-secure your PocketBase API rules for app_settings and livestock_types records.");
         }
-        customLog("Seeder script loaded. Call seedData() from console to start.", "info");
+        
+        // Auto-run on page load if in a dev environment
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if served from PocketBase dev server or as a local file
+            if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:") {
+                customLog("Development environment detected, auto-running data seeder...", 'info');
+                if (statusMessageDiv) {
+                    statusMessageDiv.className = 'status info'; 
+                    statusMessageDiv.textContent = "Status: Auto-running data seeder...";
+                }
+                seedData().catch(e => { // Call seedData and catch any top-level errors
+                    customLog("Auto-run of data seeder failed overall: " + e.message, 'error');
+                    if(statusMessageDiv) {
+                        statusMessageDiv.className = 'status error'; 
+                        statusMessageDiv.textContent = "Status: Auto-run failed. Check console/logs.";
+                    }
+                });
+            } else {
+                customLog("Data seeder auto-run skipped: Not a recognized development environment. You may need to call seedData() manually from the console if intended.", 'warn');
+                 if(statusMessageDiv) {
+                    statusMessageDiv.className = 'status info'; 
+                    statusMessageDiv.textContent = "Status: Auto-run skipped (not dev environment).";
+                }
+            }
+        });
     </script>
 </body>
 </html>
