@@ -92,6 +92,8 @@ document.addEventListener('alpine:init', () => {
             step1: false, step2: false, step3: false, step4: false, step5: false
         },
         isMobileMenuOpen: false,
+        isUdheyaDropdownOpen: false, // For desktop Udheya dropdown
+        isUdheyaMobileSubmenuOpen: false, // For mobile Udheya accordion
         stepSectionsMeta: [],
         countdown: { days: '00', hours: '00', minutes: '00', seconds: '00', ended: false },
         promoHasEnded: false, calculatedPromoDaysLeft: 0, countdownTimerInterval: null,
@@ -104,11 +106,14 @@ document.addEventListener('alpine:init', () => {
             phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }
         },
         navLinksData: [ 
-            { href: '#udheya-booking-start', sectionId: 'udheya-booking-start' },
-            // Removed #why-choose-us and #how-it-works as they are not top-level nav items anymore
-            { href: '#check-booking-status', sectionId: 'check-booking-status' }
+            // Udheya sub-items are handled by their direct href in the dropdown
+            { href: '#udheya-booking-start', sectionId: 'udheya-booking-start', parent: 'Udheya' },
+            { href: '#how-it-works', sectionId: 'how-it-works', parent: 'Udheya' },
+            { href: '#check-booking-status', sectionId: 'check-booking-status', parent: 'Udheya' },
+            { href: '#livestock-section', sectionId: 'livestock-section' },
+            { href: '#meat-section', sectionId: 'meat-section' }
         ],
-        activeNavLinkHref: '',
+        activeNavLinkHref: '', // Stores the href of the active link or parent for dropdowns
 
         async initApp() {
             this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = '';
@@ -185,8 +190,8 @@ document.addEventListener('alpine:init', () => {
 
             this.$watch(['selectedAnimal.basePriceEGP', 'selectedPackaging.addonPriceEGP'], () => this.calculateTotalPrice());
             this.$watch('currentCurrency', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
-            this.$watch('selectedSacrificeDay.value', () => this.updateSacrificeDayTexts()); // This will also call updateStepCompletionStatus(3)
-            this.$watch('selectedTimeSlot', () => this.updateStepCompletionStatus(3)); // Step 3 also depends on time slot
+            this.$watch('selectedSacrificeDay.value', () => this.updateSacrificeDayTexts());
+            this.$watch('selectedTimeSlot', () => this.updateStepCompletionStatus(3));
 
             this.$watch('distributionChoice', val => {
                 if (val !== 'split') { this.splitDetailsOption = ''; this.customSplitDetailsText = ''; }
@@ -267,6 +272,7 @@ document.addEventListener('alpine:init', () => {
             const navOffset = headerHeight + (window.innerHeight * 0.1);
             const scrollPositionForNav = window.scrollY + navOffset; 
             let newActiveHref = '';
+            let activeParent = null;
 
             for (const link of this.navLinksData) {
                 const sectionElement = document.getElementById(link.sectionId);
@@ -275,18 +281,25 @@ document.addEventListener('alpine:init', () => {
                     const sectionBottom = sectionTop + sectionElement.offsetHeight;
                     if (sectionTop <= scrollPositionForNav && sectionBottom > scrollPositionForNav) {
                         newActiveHref = link.href;
+                        activeParent = link.parent; // Store parent if this link is active
                         break;
                     }
                 }
             }
             if (window.scrollY < ((document.getElementById(this.navLinksData[0]?.sectionId)?.offsetTop || headerHeight) - headerHeight)) {
                 newActiveHref = '';
+                activeParent = null;
             }
             if ((window.innerHeight + Math.ceil(window.scrollY)) >= document.body.offsetHeight - 2) { 
                  const lastVisibleNavLink = this.navLinksData.slice().reverse().find(link => document.getElementById(link.sectionId));
-                 if(lastVisibleNavLink) newActiveHref = lastVisibleNavLink.href;
+                 if(lastVisibleNavLink) {
+                    newActiveHref = lastVisibleNavLink.href;
+                    activeParent = lastVisibleNavLink.parent;
+                 }
             }
-            this.activeNavLinkHref = newActiveHref;
+            // If a sub-item is active, also mark its parent dropdown toggle as active for styling
+            this.activeNavLinkHref = activeParent || newActiveHref;
+
         },
 
         setError(field, typeOrMessage) {
@@ -416,14 +429,15 @@ document.addEventListener('alpine:init', () => {
                 const element = document.querySelector(sel);
                 if (element) {
                     let headerOffset = document.querySelector('.site-header')?.offsetHeight || 0;
-                    if (sel.startsWith('#udheya-booking-start') || sel.startsWith('#step') || sel.startsWith('#udheya-booking-form-panel')) {
+                    // For form steps, also consider stepper if visible and sticky
+                    if (sel.startsWith('#step') || sel.startsWith('#udheya-booking-form-panel') || sel.startsWith('#udheya-booking-start')) {
                         const stepper = document.querySelector('.stepper-outer-wrapper');
                         if (stepper && getComputedStyle(stepper).position === 'sticky') {
                             headerOffset += stepper.offsetHeight;
                         }
                     }
                     const elementPosition = element.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 10; 
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 10; // 10px buffer
                     window.scrollTo({ top: offsetPosition, behavior: "smooth" });
                 }
             } catch(e) {}
@@ -473,15 +487,15 @@ document.addEventListener('alpine:init', () => {
                 this.focusOnRef(this.stepSectionsMeta[targetConceptualStep-1]?.titleRef);
             }
         },
-
+        
+        // This function is no longer called by intermediate "Continue" buttons, only by selectAnimal
         validateAndScrollOrFocus(currentConceptualStep, nextSectionSelector) {
             this.clearAllErrors();
             const isCurrentStepValid = this.validateConceptualStep(currentConceptualStep, true); 
             this.stepProgress[`step${currentConceptualStep}`] = isCurrentStepValid;
 
             if (isCurrentStepValid) {
-                 // Only update currentConceptualStep if actually moving to a new *conceptual* step
-                if (this.stepSectionsMeta[currentConceptualStep] && this.stepSectionsMeta[currentConceptualStep].id === nextSectionSelector) {
+                 if (this.stepSectionsMeta[currentConceptualStep] && (this.stepSectionsMeta[currentConceptualStep].id === nextSectionSelector || this.stepSectionsMeta[currentConceptualStep].id === nextSectionSelector.substring(1))) {
                     this.currentConceptualStep = currentConceptualStep + 1 > 5 ? 5 : currentConceptualStep + 1;
                 }
                 this.scrollToSection(nextSectionSelector);
