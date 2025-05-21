@@ -212,41 +212,42 @@
                 </div>
 
                 <form id="final-udheya-booking-form" @submit.prevent="validateAndSubmitBooking()" novalidate>
-                    <div class="stepper-outer-wrapper" x-show="!bookingConfirmed">
-                        <div class="c">
-                            <div class="stepper-content-flex">
-                                <a href="#step1-content" class="stepper-item" :class="{ 'active': currentConceptualStep === 1, 'completed': stepProgress.step1 }" @click.prevent="handleStepperNavigation(1)">
-                                    <span class="step-number" x-show="!stepProgress.step1 || currentConceptualStep === 1">1</span>
-                                    <svg x-show="stepProgress.step1 && currentConceptualStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                    <span class="step-label en">Animal</span><span class="step-label ar">الحيوان</span>
-                                </a>
-                                <div class="stepper-connector"></div>
-                                <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
-                                    <span class="step-number" x-show="!stepProgress.step2 || currentConceptualStep === 2">2</span>
-                                    <svg x-show="stepProgress.step2 && currentConceptualStep !== 2" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                    <span class="step-label en">Customize</span><span class="step-label ar">تخصيص</span>
-                                </a>
-                                <div class="stepper-connector"></div>
-                                <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
-                                    <span class="step-number" x-show="!stepProgress.step3 || currentConceptualStep === 3">3</span>
-                                    <svg x-show="stepProgress.step3 && currentConceptualStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                    <span class="step-label en">Schedule</span><span class="step-label ar">المواعيد</span>
-                                </a>
-                                <div class="stepper-connector"></div>
-                                <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
-                                    <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
-                                    <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                    <span class="step-label en">Distribution</span><span class="step-label ar">التوزيع</span>
-                                </a>
-                                <div class="stepper-connector"></div>
-                                <a href="#step5-content" class="stepper-item" :class="{'active': currentConceptualStep === 5, 'completed': stepProgress.step5, 'disabled': !stepProgress.step4}" @click.prevent="handleStepperNavigation(5)">
-                                    <span class="step-number" x-show="!stepProgress.step5 || currentConceptualStep === 5">5</span>
-                                    <svg x-show="stepProgress.step5 && currentConceptualStep !== 5" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                    <span class="step-label en">Review</span><span class="step-label ar">المراجعة</span>
-                                </a>
-                            </div>
+                <div class="stepper-outer-wrapper" x-show="!bookingConfirmed">
+                    <div class="c">
+                        <div class="stepper-content-flex">
+                            <a href="#step1-content" class="stepper-item" :class="{ 'active': currentConceptualStep === 1, 'completed': stepProgress.step1 }" @click.prevent="handleStepperNavigation(1)">
+                                <span class="step-number" x-show="!stepProgress.step1 || currentConceptualStep === 1">1</span>
+                                <svg x-show="stepProgress.step1 && currentConceptualStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <!-- UPDATED LABEL FOR STEP 1 -->
+                                <span class="step-label en">Select Udheya</span><span class="step-label ar">اختر الأضحية</span> 
+                            </a>
+                            <div class="stepper-connector"></div>
+                            <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
+                                <span class="step-number" x-show="!stepProgress.step2 || currentConceptualStep === 2">2</span>
+                                <svg x-show="stepProgress.step2 && currentConceptualStep !== 2" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <span class="step-label en">Customize</span><span class="step-label ar">تخصيص</span>
+                            </a>
+                            <div class="stepper-connector"></div>
+                            <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
+                                <span class="step-number" x-show="!stepProgress.step3 || currentConceptualStep === 3">3</span>
+                                <svg x-show="stepProgress.step3 && currentConceptualStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <span class="step-label en">Schedule</span><span class="step-label ar">المواعيد</span>
+                            </a>
+                            <div class="stepper-connector"></div>
+                            <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
+                                <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
+                                <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <span class="step-label en">Distribution</span><span class="step-label ar">التوزيع</span>
+                            </a>
+                            <div class="stepper-connector"></div>
+                            <a href="#step5-content" class="stepper-item" :class="{'active': currentConceptualStep === 5, 'completed': stepProgress.step5, 'disabled': !stepProgress.step4}" @click.prevent="handleStepperNavigation(5)">
+                                <span class="step-number" x-show="!stepProgress.step5 || currentConceptualStep === 5">5</span>
+                                <svg x-show="stepProgress.step5 && currentConceptualStep !== 5" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <span class="step-label en">Review & Pay</span><span class="step-label ar">المراجعة والدفع</span>
+                            </a>
                         </div>
                     </div>
+                </div>
 
                     <div x-show="!bookingConfirmed">
                         <input type="hidden" name="animal_type" :value="selectedAnimal.type"><input type="hidden" name="animal_weight" :value="selectedAnimal.weight">
