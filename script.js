@@ -55,11 +55,9 @@ document.addEventListener('alpine:init', () => {
                 bank_name: "YOUR BANK NAME", bank_account_name: "YOUR ACCOUNT HOLDER NAME", bank_account_number: "YOUR ACCOUNT NUMBER",
                 bank_iban: "YOUR IBAN (Optional)", bank_swift: "YOUR SWIFT/BIC (Optional)"
             },
-            packaging_addons: { vacuum_sealed_price_egp: 100 }, // Added for dynamic pricing in dropdown
-            text_select_preparation_en: "-- Select Preparation --", text_select_preparation_ar: "-- اختر طريقة التجهيز --",
-            text_select_packaging_en: "-- Select Packaging --", text_select_packaging_ar: "-- اختر طريقة التغليف --",
-            alert_select_prep_packaging_en: "Please select both preparation style and packaging preference.",
-            alert_select_prep_packaging_ar: "يرجى اختيار طريقة التجهيز والتغليف.",
+
+            
+            packaging_addons: { vacuum_sealed_price_egp: 100 },
         };
 
         try {
