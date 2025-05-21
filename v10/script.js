@@ -92,8 +92,8 @@ document.addEventListener('alpine:init', () => {
             step1: false, step2: false, step3: false, step4: false, step5: false
         },
         isMobileMenuOpen: false,
-        isUdheyaDropdownOpen: false, // For desktop Udheya dropdown
-        isUdheyaMobileSubmenuOpen: false, // For mobile Udheya accordion
+        isUdheyaDropdownOpen: false, 
+        isUdheyaMobileSubmenuOpen: false, 
         stepSectionsMeta: [],
         countdown: { days: '00', hours: '00', minutes: '00', seconds: '00', ended: false },
         promoHasEnded: false, calculatedPromoDaysLeft: 0, countdownTimerInterval: null,
@@ -106,14 +106,13 @@ document.addEventListener('alpine:init', () => {
             phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }
         },
         navLinksData: [ 
-            // Udheya sub-items are handled by their direct href in the dropdown
-            { href: '#udheya-booking-start', sectionId: 'udheya-booking-start', parent: 'Udheya' },
-            { href: '#how-it-works', sectionId: 'how-it-works', parent: 'Udheya' },
-            { href: '#check-booking-status', sectionId: 'check-booking-status', parent: 'Udheya' },
+            { href: '#udheya-booking-start', sectionId: 'udheya-booking-start', parentMenu: 'Udheya' },
+            { href: '#how-it-works', sectionId: 'how-it-works', parentMenu: 'Udheya' },
+            { href: '#check-booking-status', sectionId: 'check-booking-status', parentMenu: 'Udheya' },
             { href: '#livestock-section', sectionId: 'livestock-section' },
             { href: '#meat-section', sectionId: 'meat-section' }
         ],
-        activeNavLinkHref: '', // Stores the href of the active link or parent for dropdowns
+        activeNavLinkHref: '', 
 
         async initApp() {
             this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = '';
@@ -272,7 +271,7 @@ document.addEventListener('alpine:init', () => {
             const navOffset = headerHeight + (window.innerHeight * 0.1);
             const scrollPositionForNav = window.scrollY + navOffset; 
             let newActiveHref = '';
-            let activeParent = null;
+            let activeParentMenu = null;
 
             for (const link of this.navLinksData) {
                 const sectionElement = document.getElementById(link.sectionId);
@@ -281,25 +280,23 @@ document.addEventListener('alpine:init', () => {
                     const sectionBottom = sectionTop + sectionElement.offsetHeight;
                     if (sectionTop <= scrollPositionForNav && sectionBottom > scrollPositionForNav) {
                         newActiveHref = link.href;
-                        activeParent = link.parent; // Store parent if this link is active
+                        activeParentMenu = link.parentMenu; // Store parentMenu if this link is active
                         break;
                     }
                 }
             }
             if (window.scrollY < ((document.getElementById(this.navLinksData[0]?.sectionId)?.offsetTop || headerHeight) - headerHeight)) {
                 newActiveHref = '';
-                activeParent = null;
+                activeParentMenu = null;
             }
             if ((window.innerHeight + Math.ceil(window.scrollY)) >= document.body.offsetHeight - 2) { 
                  const lastVisibleNavLink = this.navLinksData.slice().reverse().find(link => document.getElementById(link.sectionId));
                  if(lastVisibleNavLink) {
                     newActiveHref = lastVisibleNavLink.href;
-                    activeParent = lastVisibleNavLink.parent;
+                    activeParentMenu = lastVisibleNavLink.parentMenu;
                  }
             }
-            // If a sub-item is active, also mark its parent dropdown toggle as active for styling
-            this.activeNavLinkHref = activeParent || newActiveHref;
-
+            this.activeNavLinkHref = activeParentMenu || newActiveHref; // Prioritize parent menu for active state if sub-item is active
         },
 
         setError(field, typeOrMessage) {
@@ -429,15 +426,14 @@ document.addEventListener('alpine:init', () => {
                 const element = document.querySelector(sel);
                 if (element) {
                     let headerOffset = document.querySelector('.site-header')?.offsetHeight || 0;
-                    // For form steps, also consider stepper if visible and sticky
-                    if (sel.startsWith('#step') || sel.startsWith('#udheya-booking-form-panel') || sel.startsWith('#udheya-booking-start')) {
+                    if (sel.startsWith('#udheya-booking-start') || sel.startsWith('#step') || sel.startsWith('#udheya-booking-form-panel')) {
                         const stepper = document.querySelector('.stepper-outer-wrapper');
                         if (stepper && getComputedStyle(stepper).position === 'sticky') {
                             headerOffset += stepper.offsetHeight;
                         }
                     }
                     const elementPosition = element.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 10; // 10px buffer
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset - 10; 
                     window.scrollTo({ top: offsetPosition, behavior: "smooth" });
                 }
             } catch(e) {}
@@ -488,15 +484,16 @@ document.addEventListener('alpine:init', () => {
             }
         },
         
-        // This function is no longer called by intermediate "Continue" buttons, only by selectAnimal
         validateAndScrollOrFocus(currentConceptualStep, nextSectionSelector) {
+            // This function is now primarily for the Step 1 auto-advance.
+            // It validates step 1 and, if valid, scrolls to step 2.
             this.clearAllErrors();
             const isCurrentStepValid = this.validateConceptualStep(currentConceptualStep, true); 
             this.stepProgress[`step${currentConceptualStep}`] = isCurrentStepValid;
 
             if (isCurrentStepValid) {
-                 if (this.stepSectionsMeta[currentConceptualStep] && (this.stepSectionsMeta[currentConceptualStep].id === nextSectionSelector || this.stepSectionsMeta[currentConceptualStep].id === nextSectionSelector.substring(1))) {
-                    this.currentConceptualStep = currentConceptualStep + 1 > 5 ? 5 : currentConceptualStep + 1;
+                if (currentConceptualStep === 1 && nextSectionSelector === '#step2-content') {
+                    this.currentConceptualStep = 2; // Explicitly set conceptual step for stepper highlight
                 }
                 this.scrollToSection(nextSectionSelector);
                 const nextStepMeta = this.stepSectionsMeta.find(sm => sm.id === nextSectionSelector || sm.id === nextSectionSelector.substring(1));
@@ -848,7 +845,8 @@ document.addEventListener('alpine:init', () => {
                 bookingConfirmed: false, bookingID: '', lookupBookingID: '', statusResult: null, statusNotFound: false,
                 currentConceptualStep: 1, 
                 stepProgress: { step1: false, step2: false, step3: false, step4: false, step5: false },
-                isMobileMenuOpen: false, apiError: null, userFriendlyApiError: '',
+                isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false, 
+                apiError: null, userFriendlyApiError: '',
                 activeNavLinkHref: '', 
                 countdown: { days: '00', hours: '00', minutes: '00', seconds: '00', ended: false },
                 promoHasEnded: false, calculatedPromoDaysLeft: 0,
@@ -878,9 +876,8 @@ document.addEventListener('alpine:init', () => {
                     setting_key: "global_config",
                     exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true } },
                     default_currency: "EGP",
-                    // --- TODO: REPLACE THESE WITH YOUR ACTUAL LIVE DETAILS FOR SEEDING ---
-                    whatsapp_number_raw: "201001234567", 
-                    whatsapp_number_display: "+20 100 123 4567", 
+                    whatsapp_number_raw: "201001234567", // TODO: REPLACE with actual live number
+                    whatsapp_number_display: "+20 100 123 4567", // TODO: REPLACE with actual live number
                     promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), 
                     promo_discount_percent: 15,
                     promo_is_active: true,
@@ -911,7 +908,6 @@ document.addEventListener('alpine:init', () => {
                         bank_iban: "YOUR_LIVE_IBAN_SEEDER", 
                         bank_swift: "YOUR_LIVE_SWIFT_SEEDER" 
                     }
-                    // --- END TODO ---
                 }
             },
             {
