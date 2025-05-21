@@ -103,8 +103,9 @@ document.addEventListener('alpine:init', () => {
             email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." },
             phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }
         },
-        navLinksData: [ // Updated: Removed Why Us and Our Process as separate nav targets
+        navLinksData: [ 
             { href: '#udheya-booking-start', sectionId: 'udheya-booking-start' },
+            // Removed #why-choose-us and #how-it-works as they are not top-level nav items anymore
             { href: '#check-booking-status', sectionId: 'check-booking-status' }
         ],
         activeNavLinkHref: '',
@@ -184,7 +185,9 @@ document.addEventListener('alpine:init', () => {
 
             this.$watch(['selectedAnimal.basePriceEGP', 'selectedPackaging.addonPriceEGP'], () => this.calculateTotalPrice());
             this.$watch('currentCurrency', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
-            this.$watch('selectedSacrificeDay.value', () => this.updateSacrificeDayTexts());
+            this.$watch('selectedSacrificeDay.value', () => this.updateSacrificeDayTexts()); // This will also call updateStepCompletionStatus(3)
+            this.$watch('selectedTimeSlot', () => this.updateStepCompletionStatus(3)); // Step 3 also depends on time slot
+
             this.$watch('distributionChoice', val => {
                 if (val !== 'split') { this.splitDetailsOption = ''; this.customSplitDetailsText = ''; }
                 if (val === 'char') {
@@ -216,6 +219,7 @@ document.addEventListener('alpine:init', () => {
             this.$watch('deliveryPhone', () => this.updateStepCompletionStatus(4));
             this.$watch('deliveryAddress', () => this.updateStepCompletionStatus(4));
             this.$watch('paymentMethod', () => this.updateStepCompletionStatus(5));
+
 
             this.stepSectionsMeta = ['#step1-content', '#step2-content', '#step3-content', '#step4-content', '#step5-content']
                 .map((id, index) => ({
@@ -472,12 +476,14 @@ document.addEventListener('alpine:init', () => {
 
         validateAndScrollOrFocus(currentConceptualStep, nextSectionSelector) {
             this.clearAllErrors();
-            // Validate the current conceptual step and show errors
             const isCurrentStepValid = this.validateConceptualStep(currentConceptualStep, true); 
-            this.stepProgress[`step${currentConceptualStep}`] = isCurrentStepValid; // Update progress state
+            this.stepProgress[`step${currentConceptualStep}`] = isCurrentStepValid;
 
             if (isCurrentStepValid) {
-                this.currentConceptualStep = currentConceptualStep + 1 > 5 ? 5 : currentConceptualStep + 1; 
+                 // Only update currentConceptualStep if actually moving to a new *conceptual* step
+                if (this.stepSectionsMeta[currentConceptualStep] && this.stepSectionsMeta[currentConceptualStep].id === nextSectionSelector) {
+                    this.currentConceptualStep = currentConceptualStep + 1 > 5 ? 5 : currentConceptualStep + 1;
+                }
                 this.scrollToSection(nextSectionSelector);
                 const nextStepMeta = this.stepSectionsMeta.find(sm => sm.id === nextSectionSelector || sm.id === nextSectionSelector.substring(1));
                 this.focusOnRef(nextStepMeta?.titleRef || this.stepSectionsMeta[currentConceptualStep]?.titleRef || nextSectionSelector);
@@ -619,7 +625,7 @@ document.addEventListener('alpine:init', () => {
                      document.getElementById(animalKey)?.classList.remove('livestock-card-selected');
                 }
                 this.calculateTotalPrice();
-                if (this.$refs[weightSelectElement.id]) this.focusOnRef(weightSelectElement.id); // Focus on the problematic select
+                if (this.$refs[weightSelectElement.id]) this.focusOnRef(weightSelectElement.id); 
                 this.updateStepCompletionStatus(1);
                 return;
             }
@@ -726,10 +732,10 @@ document.addEventListener('alpine:init', () => {
                 if (!this.validateConceptualStep(i, true)) { 
                     allStepsValid = false;
                     const stepMeta = this.stepSectionsMeta[i-1];
-                    if(stepMeta) { // Ensure stepMeta is defined
+                    if(stepMeta) { 
                         const focusTarget = stepMeta.firstFocusableErrorRef || stepMeta.titleRef;
                         if (focusTarget) this.focusOnRef(focusTarget);
-                        this.scrollToSection(stepMeta.id || '#udheya-booking-start'); // Fallback scroll
+                        this.scrollToSection(stepMeta.id || '#udheya-booking-start'); 
                     }
                     break; 
                 }
@@ -858,8 +864,9 @@ document.addEventListener('alpine:init', () => {
                     setting_key: "global_config",
                     exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true } },
                     default_currency: "EGP",
-                    whatsapp_number_raw: "201001234567", // TODO: REPLACE with actual live number
-                    whatsapp_number_display: "+20 100 123 4567", // TODO: REPLACE with actual live number
+                    // --- TODO: REPLACE THESE WITH YOUR ACTUAL LIVE DETAILS FOR SEEDING ---
+                    whatsapp_number_raw: "201001234567", 
+                    whatsapp_number_display: "+20 100 123 4567", 
                     promo_end_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), 
                     promo_discount_percent: 15,
                     promo_is_active: true,
@@ -890,6 +897,7 @@ document.addEventListener('alpine:init', () => {
                         bank_iban: "YOUR_LIVE_IBAN_SEEDER", 
                         bank_swift: "YOUR_LIVE_SWIFT_SEEDER" 
                     }
+                    // --- END TODO ---
                 }
             },
             {
