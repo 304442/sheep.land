@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Easily book your Sharia-compliant Udheya online with Sheep Land. Choose from Baladi & Barki sheep, customize your preparation, and enjoy reliable delivery.">
-    <title>Sheep Land - Udheya Booking, Livestock & Meat</title>
+    <title>Sheep Land - Udheya, Livestock & Quality Meats</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
@@ -23,13 +23,13 @@
             </a>
             <nav class="main-nav desktop-nav" aria-label="Main navigation">
                 <ul class="nav-list">
-                    <li class="nav-item-dropdown" @mouseenter="isUdheyaDropdownOpen = true" @mouseleave="isUdheyaDropdownOpen = false"  @keydown.escape.window="isUdheyaDropdownOpen = false"  x-ref="udheyaDropdown">
-                        <a href="#" @click.prevent="isUdheyaDropdownOpen = !isUdheyaDropdownOpen" class="nav-link bil-parent-spread-intrinsic dropdown-toggle" aria-haspopup="true" :aria-expanded="isUdheyaDropdownOpen.toString()">
+                    <li class="nav-item-dropdown" @mouseenter="isUdheyaDropdownOpen = true" @mouseleave="isUdheyaDropdownOpen = false"  @keydown.escape.window="isUdheyaDropdownOpen = false" x-ref="udheyaDropdown">
+                        <a href="#" @click.prevent="isUdheyaDropdownOpen = !isUdheyaDropdownOpen" class="nav-link bil-parent-spread-intrinsic dropdown-toggle" :class="{'active-nav-link': activeNavLinkHref === 'Udheya'}" aria-haspopup="true" :aria-expanded="isUdheyaDropdownOpen.toString()">
                             <span class="en">Udheya</span><span class="ar">الأضحية</span>
                             <svg class="dropdown-arrow" :class="{ 'rotate-180': isUdheyaDropdownOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                         </a>
                         <ul class="dropdown-menu" x-show="isUdheyaDropdownOpen" x-transition @click.outside="if(isUdheyaDropdownOpen) isUdheyaDropdownOpen = false">
-                            <li><a href="#udheya-booking-start" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start' || activeNavLinkHref === '#how-it-works'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
+                            <li><a href="#udheya-booking-start" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
                             <li><a href="#how-it-works" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
                             <li><a href="#check-booking-status" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                         </ul>
@@ -65,7 +65,7 @@
             <nav aria-label="Mobile navigation">
                 <ul class="nav-list-mobile">
                     <li>
-                        <button type="button" @click="isUdheyaMobileSubmenuOpen = !isUdheyaMobileSubmenuOpen" class="nav-link-mobile bil-parent-spread-intrinsic dropdown-toggle-mobile" aria-haspopup="true" :aria-expanded="isUdheyaMobileSubmenuOpen.toString()">
+                        <button type="button" @click="isUdheyaMobileSubmenuOpen = !isUdheyaMobileSubmenuOpen" class="nav-link-mobile bil-parent-spread-intrinsic dropdown-toggle-mobile" :class="{'active-nav-link': activeNavLinkHref === 'Udheya'}" aria-haspopup="true" :aria-expanded="isUdheyaMobileSubmenuOpen.toString()">
                             <span class="en">Udheya</span><span class="ar">الأضحية</span>
                             <svg class="dropdown-arrow" :class="{ 'rotate-180': isUdheyaMobileSubmenuOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                         </button>
@@ -101,11 +101,17 @@
     <main>
         <section class="hero-section sec">
             <div class="c tc">
-                <h1 class="hero-title-row bil-parent-spread"><span class="en">Book Your Udhiya Online</span><span class="ar">احجز أضحيتك عبر الإنترنت</span></h1>
-                <h2 class="hero-subtitle-row bil-parent-spread"><span class="en">Farm to Your Table, Sharia Compliant</span><span class="ar">من المزرعة إلى مائدتك، وفق الشريعة</span></h2>
+                <h1 class="hero-title-row bil-parent-spread">
+                    <span class="en">Premium Livestock, Udheya & Quality Meats</span>
+                    <span class="ar">أجود المواشي، الأضاحي واللحوم الممتازة</span>
+                </h1>
+                <h2 class="hero-subtitle-row bil-parent-spread">
+                    <span class="en">Direct from Our Farm to You, Sharia Compliant Services</span>
+                    <span class="ar">من مزرعتنا إليك مباشرة، خدمات متوافقة مع الشريعة</span>
+                </h2>
                 <div class="hero-desc-row bil-row">
-                    <p class="en">Select your preferred livestock and customize your Qurbani with our straightforward options. We ensure a Sharia-compliant, and transparent service for your peace of mind.</p>
-                    <p class="ar" dir="rtl">اختر ماشيتك المفضلة وخصص أضحيتك بخياراتنا الواضحة. نضمن لك خدمة متوافقة مع الشريعة، وشفافة لراحة بالك.</p>
+                    <p class="en">Your trusted source for Sharia-compliant Udheya bookings, healthy livestock, and fresh, quality meat cuts. Experience convenience and excellence with Sheep Land.</p>
+                    <p class="ar" dir="rtl">مصدرك الموثوق لحجوزات الأضاحي المتوافقة مع الشريعة، والمواشي الصحية، وقطعيات اللحوم الطازجة عالية الجودة. اختبر الراحة والتميز مع أرض الأغنام.</p>
                 </div>
                 <div class="hero-promo-wrapper">
                     <a href="#udheya-booking-start" @click.prevent="scrollToSection('#udheya-booking-start')" class="hero-promo-cta-link">
@@ -145,7 +151,7 @@
                                     <div class="countdown-segment"><span class="countdown-value" x-text="countdown.seconds"></span><span class="countdown-label">Secs</span></div>
                                 </div>
                             </div>
-                            <span class="btn bac pban-cta-btn bil-parent-spread-intrinsic" @click.stop><span class="en">Start Udheya Booking</span><span class="ar">ابدأ حجز الأضحية</span></span>
+                            <span class="btn bac pban-cta-btn bil-parent-spread-intrinsic" @click.stop><span class="en">Book Your Udheya Now</span><span class="ar">احجز أضحيتك الآن</span></span>
                         </div>
                     </a>
                 </div>
@@ -170,21 +176,21 @@
                                 <img src="/images/icon-premium.svg" alt="Premium Quality Icon" class="icon-custom premium-quality-icon">
                             </div>
                             <h4 class="bil-parent-spread"><span class="en">Premium Quality</span><span class="ar">جودة عالية</span></h4>
-                            <div class="bil-row"><p class="card-p en">We offer only healthy, meticulously cared-for livestock, ensuring the finest quality meat for your Udheya.</p><p class="card-p ar" dir="rtl">نقدم فقط مواشي صحية مُعتنى بها بعناية فائقة، مما يضمن أجود أنواع اللحوم لأضحيتكم.</p></div>
+                            <div class="bil-row"><p class="card-p en">We offer only healthy, meticulously cared-for livestock, ensuring the finest quality meat for your Udheya and other needs.</p><p class="card-p ar" dir="rtl">نقدم فقط مواشي صحية مُعتنى بها بعناية فائقة، مما يضمن أجود أنواع اللحوم لأضحيتكم واحتياجاتكم الأخرى.</p></div>
                         </div>
                         <div class="feature-item">
                             <div class="icon-placeholder" aria-hidden="true">
                                  <img src="/images/icon-easybooking.svg" alt="Easy Booking Icon" class="icon-custom easy-booking-icon">
                             </div>
-                            <h4 class="bil-parent-spread"><span class="en">Easy Online Booking</span><span class="ar">حجز سهل عبر الإنترنت</span></h4>
-                            <div class="bil-row"><p class="card-p en">Secure your Udheya conveniently from anywhere, anytime through our simple online platform.</p><p class="card-p ar" dir="rtl">احجز أضحيتك بسهولة من أي مكان وفي أي وقت عبر منصتنا الإلكترونية المبسّطة.</p></div>
+                            <h4 class="bil-parent-spread"><span class="en">Easy Online Platform</span><span class="ar">منصة إلكترونية سهلة</span></h4>
+                            <div class="bil-row"><p class="card-p en">Secure your Udheya, livestock, or meat conveniently from anywhere, anytime through our simple online platform.</p><p class="card-p ar" dir="rtl">احجز أضحيتك أو اطلب ماشيتك أو لحومك بسهولة من أي مكان وفي أي وقت عبر منصتنا الإلكترونية المبسّطة.</p></div>
                         </div>
                          <div class="feature-item">
                             <div class="icon-placeholder" aria-hidden="true">
                                 <img src="/images/icon-delivery.svg" alt="Reliable Delivery Icon" class="icon-custom reliable-delivery-icon">
                             </div>
-                            <h4 class="bil-parent-spread"><span class="en">Reliable Delivery</span><span class="ar">توصيل موثوق</span></h4>
-                            <div class="bil-row"><p class="card-p en">Your Udheya is prepared and delivered with care, right to your doorstep or chosen charity, as per your selections.</p><p class="card-p ar" dir="rtl">تُجهز أضحيتكم وتُوصل بعناية، مباشرة إلى باب منزلكم أو الجهة الخيرية المختارة، وفقًا لاختياراتكم.</p></div>
+                            <h4 class="bil-parent-spread"><span class="en">Reliable Service</span><span class="ar">خدمة موثوقة</span></h4>
+                            <div class="bil-row"><p class="card-p en">Your order is prepared and delivered with care, right to your doorstep or chosen charity, as per your selections.</p><p class="card-p ar" dir="rtl">يُجهز طلبكم ويُوصل بعناية، مباشرة إلى باب منزلكم أو الجهة الخيرية المختارة، وفقًا لاختياراتكم.</p></div>
                         </div>
                     </div>
                 </div>
