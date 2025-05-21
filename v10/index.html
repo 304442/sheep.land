@@ -172,7 +172,7 @@
         <section class="udheya-booking-section main-page-section sec" id="udheya-booking-start">
             <div class="c">                
                 <div x-show="!bookingConfirmed">
-                    <div class="sec-head tc booking-section-head" style="margin-bottom: var(--s2);">
+                    <div class="sec-head tc booking-section-head" style="margin-bottom: var(--s3);">
                         <h2 class="bil-parent-spread" x-ref="bookingSectionTitle" tabindex="-1">
                             <span class="en">Book Your Udheya</span>
                             <span class="ar">احجز أضحيتك</span>
@@ -180,74 +180,42 @@
                     </div>
                 </div>
                 
-                <div class="integrated-process-wrapper" x-show="!bookingConfirmed">
-                    <div class="uprocess-wrap-integrated">
-                        <h3 class="form-subhead bil-parent-spread integrated-process-title">
-                            <span class="en">Our Simple Booking Steps</span>
-                            <span class="ar">خطوات الحجز المبسّطة</span>
-                        </h3>
-                        <div class="feature-grid how-it-works-grid-integrated">
-                            <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">1</div>
-                                <h4 class="bil-parent-spread"><span class="en">Select Animal</span><span class="ar" dir="rtl">اختر الحيوان</span></h4>
-                            </div>
-                            <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">2</div>
-                                <h4 class="bil-parent-spread"><span class="en">Customize</span><span class="ar" dir="rtl">خصص</span></h4>
-                            </div>
-                            <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">3</div>
-                                <h4 class="bil-parent-spread"><span class="en">Schedule</span><span class="ar" dir="rtl">حدد الموعد</span></h4>
-                            </div>
-                            <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">4</div>
-                                <h4 class="bil-parent-spread"><span class="en">Distribute</span><span class="ar" dir="rtl">اختر التوزيع</span></h4>
-                            </div>
-                             <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">5</div>
-                                <h4 class="bil-parent-spread"><span class="en">Review & Pay</span><span class="ar" dir="rtl">راجع وادفع</span></h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <form id="final-udheya-booking-form" @submit.prevent="validateAndSubmitBooking()" novalidate>
-                <div class="stepper-outer-wrapper" x-show="!bookingConfirmed">
-                    <div class="c">
-                        <div class="stepper-content-flex">
-                            <a href="#step1-content" class="stepper-item" :class="{ 'active': currentConceptualStep === 1, 'completed': stepProgress.step1 }" @click.prevent="handleStepperNavigation(1)">
-                                <span class="step-number" x-show="!stepProgress.step1 || currentConceptualStep === 1">1</span>
-                                <svg x-show="stepProgress.step1 && currentConceptualStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <!-- UPDATED LABEL FOR STEP 1 -->
-                                <span class="step-label en">Select Udheya</span><span class="step-label ar">اختر الأضحية</span> 
-                            </a>
-                            <div class="stepper-connector"></div>
-                            <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
-                                <span class="step-number" x-show="!stepProgress.step2 || currentConceptualStep === 2">2</span>
-                                <svg x-show="stepProgress.step2 && currentConceptualStep !== 2" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-label en">Customize</span><span class="step-label ar">تخصيص</span>
-                            </a>
-                            <div class="stepper-connector"></div>
-                            <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
-                                <span class="step-number" x-show="!stepProgress.step3 || currentConceptualStep === 3">3</span>
-                                <svg x-show="stepProgress.step3 && currentConceptualStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-label en">Schedule</span><span class="step-label ar">المواعيد</span>
-                            </a>
-                            <div class="stepper-connector"></div>
-                            <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
-                                <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
-                                <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-label en">Distribution</span><span class="step-label ar">التوزيع</span>
-                            </a>
-                            <div class="stepper-connector"></div>
-                            <a href="#step5-content" class="stepper-item" :class="{'active': currentConceptualStep === 5, 'completed': stepProgress.step5, 'disabled': !stepProgress.step4}" @click.prevent="handleStepperNavigation(5)">
-                                <span class="step-number" x-show="!stepProgress.step5 || currentConceptualStep === 5">5</span>
-                                <svg x-show="stepProgress.step5 && currentConceptualStep !== 5" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-label en">Review & Pay</span><span class="step-label ar">المراجعة والدفع</span>
-                            </a>
+                    <div class="stepper-outer-wrapper" x-show="!bookingConfirmed">
+                        <div class="c">
+                            <div class="stepper-content-flex">
+                                <a href="#step1-content" class="stepper-item" :class="{ 'active': currentConceptualStep === 1, 'completed': stepProgress.step1 }" @click.prevent="handleStepperNavigation(1)">
+                                    <span class="step-number" x-show="!stepProgress.step1 || currentConceptualStep === 1">1</span>
+                                    <svg x-show="stepProgress.step1 && currentConceptualStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                    <span class="step-label en">Select Udheya</span><span class="step-label ar">اختر الأضحية</span> 
+                                </a>
+                                <div class="stepper-connector"></div>
+                                <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
+                                    <span class="step-number" x-show="!stepProgress.step2 || currentConceptualStep === 2">2</span>
+                                    <svg x-show="stepProgress.step2 && currentConceptualStep !== 2" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                    <span class="step-label en">Customize</span><span class="step-label ar">تخصيص</span>
+                                </a>
+                                <div class="stepper-connector"></div>
+                                <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
+                                    <span class="step-number" x-show="!stepProgress.step3 || currentConceptualStep === 3">3</span>
+                                    <svg x-show="stepProgress.step3 && currentConceptualStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                    <span class="step-label en">Schedule</span><span class="step-label ar">المواعيد</span>
+                                </a>
+                                <div class="stepper-connector"></div>
+                                <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
+                                    <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
+                                    <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                    <span class="step-label en">Distribution</span><span class="step-label ar">التوزيع</span>
+                                </a>
+                                <div class="stepper-connector"></div>
+                                <a href="#step5-content" class="stepper-item" :class="{'active': currentConceptualStep === 5, 'completed': stepProgress.step5, 'disabled': !stepProgress.step4}" @click.prevent="handleStepperNavigation(5)">
+                                    <span class="step-number" x-show="!stepProgress.step5 || currentConceptualStep === 5">5</span>
+                                    <svg x-show="stepProgress.step5 && currentConceptualStep !== 5" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                    <span class="step-label en">Review & Pay</span><span class="step-label ar">المراجعة والدفع</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
 
                     <div x-show="!bookingConfirmed">
                         <input type="hidden" name="animal_type" :value="selectedAnimal.type"><input type="hidden" name="animal_weight" :value="selectedAnimal.weight">
@@ -262,7 +230,6 @@
                                     <p class="ar" dir="rtl">الحقول المشار إليها بـ * إلزامية.</p>
                                 </div>
 
-                                <!-- Step 1 Content: Animal Selection -->
                                 <div id="step1-content" class="form-step-content">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title" tabindex="-1"><span class="en">Step 1: Select Animal & Approximate Weight *</span><span class="ar">الخطوة الأولى: اختر الحيوان والوزن التقريبي *</span></h2></div>
                                     <div class="livestock-sharia-note bil-row">
@@ -299,7 +266,6 @@
                                     <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
 
-                                <!-- Step 2 Content: Customize -->
                                 <div id="step2-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Step 2: Customize Udheya</span><span class="ar">الخطوة الثانية: تخصيص الأضحية</span></h2></div>
                                     <div class="fg">
@@ -331,12 +297,8 @@
                                         <input id="niyyah_names_input_s2" type="text" name="niyyah_names" class="form-input-styled" x-model="niyyahNames" x-ref="niyyahNamesInput_s2">
                                         <div class="bil-row field-note-wrapper niyyah-note"><p class="field-note en">Niyyah is core. List names for whom sacrifice is made.</p><p class="field-note ar" dir="rtl">النية أساسية. اذكر أسماء من تضحى عنهم.</p></div>
                                     </div>
-                                    <div class="form-action tc page-step-action">
-                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndScrollOrFocus(2, '#step3-content')"><span class="en">Continue to Schedule</span><span class="ar">المتابعة للمواعيد</span></button>
-                                    </div>
                                 </div>
 
-                                <!-- Step 3 Content: Schedule -->
                                 <div id="step3-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Step 3: Schedule Sacrifice *</span><span class="ar">الخطوة الثالثة: جدولة الذبح *</span></h2></div>
                                     <div class="fg">
@@ -363,12 +325,8 @@
                                         </div>
                                         <div class="bil-row field-note-wrapper time-slot-note"><p class="field-note en">Sacrifice time. Delivery confirmed separately if chosen.</p><p class="field-note ar" dir="rtl">وقت الذبح. وقت التوصيل يؤكد منفصلاً إذا اخترت التوصيل.</p></div>
                                     </div>
-                                    <div class="form-action tc page-step-action">
-                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndScrollOrFocus(3, '#step4-content')"><span class="en">Continue to Distribution</span><span class="ar">المتابعة للتوزيع</span></button>
-                                    </div>
                                 </div>
 
-                                <!-- Step 4 Content: Distribution -->
                                 <div id="step4-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step4Title" tabindex="-1"><span class="en">Step 4: Arrange Distribution & Delivery</span><span class="ar">الخطوة الرابعة: ترتيب التوزيع والتوصيل</span></h2></div>
                                     <div class="fg">
@@ -414,12 +372,8 @@
                                         </div>
                                     </div>
                                     <template x-if="!_needsDeliveryDetails"><p class="bil-row field-note en ar no-delivery-note"><span class="en">Delivery details not required for current distribution choice.</span><span class="ar">تفاصيل التوصيل غير مطلوبة لاختيار التوزيع الحالي.</span></p></template>
-                                    <div class="form-action tc page-step-action logistics-form-action">
-                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndScrollOrFocus(4, '#step5-content')"><span class="en">Continue to Review & Payment</span><span class="ar">المتابعة للمراجعة والدفع</span></button>
-                                    </div>
                                 </div>
 
-                                <!-- Step 5 Content: Review & Payment -->
                                 <div id="step5-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step5Title" tabindex="-1"><span class="en">Step 5: Review, Options & Payment</span><span class="ar">الخطوة الخامسة: المراجعة، الخيارات والدفع</span></h2></div>
                                     <div class="review-summary-wrapper">
