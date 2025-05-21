@@ -14,7 +14,7 @@
 <body x-data="udheyaBooking" x-init="initApp()" x-cloak>
 
     <div x-show="isLoading.init && !apiError" class="global-loading-indicator" aria-live="polite">Loading application data... Please wait.</div>
-    <div x-show="apiError" class="global-error-indicator" x-text="typeof userFriendlyApiError === 'string' && userFriendlyApiError.trim() ? userFriendlyApiError : 'An unexpected error occurred. Please try again.'" role="alert" aria-live="assertive"></div>
+    <div x-show="apiError" class="global-error-indicator" x-text="userFriendlyApiError || 'An unexpected error occurred. Please try again.'" role="alert" aria-live="assertive"></div>
 
     <header class="site-header">
         <div class="c nav-container">
@@ -30,7 +30,6 @@
                         </a>
                         <ul class="dropdown-menu" x-show="isUdheyaDropdownOpen" x-transition @click.outside="if(isUdheyaDropdownOpen) isUdheyaDropdownOpen = false">
                             <li><a href="#udheya-booking-start" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
-                            <li><a href="#how-it-works" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
                             <li><a href="#check-booking-status" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                         </ul>
                     </li>
@@ -71,7 +70,6 @@
                         </button>
                         <ul class="mobile-submenu" x-show="isUdheyaMobileSubmenuOpen" x-collapse>
                             <li><a href="#udheya-booking-start" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click="isMobileMenuOpen = false; isUdheyaMobileSubmenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
-                            <li><a href="#how-it-works" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click="isMobileMenuOpen = false; isUdheyaMobileSubmenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li>
                             <li><a href="#check-booking-status" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click="isMobileMenuOpen = false; isUdheyaMobileSubmenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                         </ul>
                     </li>
@@ -212,12 +210,40 @@
         <section class="udheya-booking-section main-page-section sec" id="udheya-booking-start">
             <div class="c">
                 <div x-show="!bookingConfirmed">
-                    <div class="sec-head tc booking-section-head" style="margin-bottom: var(--s3);">
+                    <div class="sec-head tc booking-section-head" style="margin-bottom: var(--s2);">
                         <h2 class="bil-parent-spread" x-ref="bookingSectionTitle" tabindex="-1">
                             <span class="en">Book Your Udheya</span><span class="ar">احجز أضحيتك</span>
                         </h2>
                     </div>
+                    <div class="uprocess-wrap compact-how-it-works">
+                        <div class="uprocess">
+                            <div class="sec-head compact-how-it-works-head"><h3 class="bil-parent-spread" tabindex="-1"><span class="en">Our Udheya Service Process</span><span class="ar">خطوات خدمة الأضحية لدينا</span></h3></div>
+                            <div class="feature-grid how-it-works-grid">
+                                <div class="feature-item">
+                                    <div class="icon-placeholder number-icon" aria-hidden="true">1</div>
+                                    <h4 class="bil-parent-spread"><span class="en">Book & Customize</span><span class="ar" dir="rtl">احجز وخصص</span></h4>
+                                    <div class="bil-row"><p class="card-p en">Select Udheya, weight, prep & package via our form.</p><p class="card-p ar" dir="rtl">اختر أضحيتك، وزنها، تجهيزها وتغليفها عبر نموذجنا.</p></div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="icon-placeholder number-icon" aria-hidden="true">2</div>
+                                    <h4 class="bil-parent-spread"><span class="en">Confirm & Pay</span><span class="ar" dir="rtl">أكّد وادفع</span></h4>
+                                    <div class="bil-row"><p class="card-p en">Review choices and complete booking with secure payment.</p><p class="card-p ar" dir="rtl">راجع اختياراتك وأكمل الحجز بطرق دفع آمنة.</p></div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="icon-placeholder number-icon" aria-hidden="true">3</div>
+                                    <h4 class="bil-parent-spread"><span class="en">Sharia Sacrifice</span><span class="ar" dir="rtl">الذبح الشرعي</span></h4>
+                                    <div class="bil-row"><p class="card-p en">Your Udheya is sacrificed by experts per Islamic principles.</p><p class="card-p ar" dir="rtl">تُذبح أضحيتك بواسطة خبراء وفقًا للشريعة الإسلامية.</p></div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="icon-placeholder number-icon" aria-hidden="true">4</div>
+                                    <h4 class="bil-parent-spread"><span class="en">Prep & Delivery</span><span class="ar" dir="rtl">التجهيز والتوصيل</span></h4>
+                                    <div class="bil-row"><p class="card-p en">Meat butchered, packaged & delivered/distributed.</p><p class="card-p ar" dir="rtl">يُقطع اللحم، يُغلف، ويُوصل أو يُوزع حسب طلبك.</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <form id="final-udheya-booking-form" @submit.prevent="validateAndSubmitBooking()" novalidate>
                     <div class="stepper-outer-wrapper" x-show="!bookingConfirmed">
                         <div class="c">
@@ -225,7 +251,7 @@
                                 <a href="#step1-content" class="stepper-item" :class="{ 'active': currentConceptualStep === 1, 'completed': stepProgress.step1 }" @click.prevent="handleStepperNavigation(1)">
                                     <span class="step-number" x-show="!stepProgress.step1 || currentConceptualStep === 1">1</span>
                                     <svg x-show="stepProgress.step1 && currentConceptualStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                    <span class="step-label en">Select Udheya</span><span class="step-label ar">اختر الأضحية</span>
+                                    <span class="step-label en">Select</span><span class="step-label ar">الاختيار</span>
                                 </a>
                                 <div class="stepper-connector"></div>
                                 <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
@@ -243,7 +269,7 @@
                                 <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
                                     <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
                                     <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                    <span class="step-label en">Distribution</span><span class="step-label ar">التوزيع</span>
+                                    <span class="step-label en">Delivery</span><span class="step-label ar">التوصيل</span>
                                 </a>
                                 <div class="stepper-connector"></div>
                                 <a href="#step5-content" class="stepper-item" :class="{'active': currentConceptualStep === 5, 'completed': stepProgress.step5, 'disabled': !stepProgress.step4}" @click.prevent="handleStepperNavigation(5)">
@@ -269,7 +295,7 @@
                                 </div>
 
                                 <div id="step1-content" class="form-step-content">
-                                    <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title" tabindex="-1"><span class="en">Step 1: Select Animal & Approximate Weight *</span><span class="ar">الخطوة الأولى: اختر الحيوان والوزن التقريبي *</span></h2></div>
+                                    <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title" tabindex="-1"><span class="en">Step 1: Select Animal & Weight *</span><span class="ar">الخطوة الأولى: اختر الحيوان والوزن *</span></h2></div>
                                     <div class="livestock-sharia-note bil-row">
                                         <p class="en">All animals meet Sharia age/health requirements for Udheya.</p><p class="ar" dir="rtl">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية.</p>
                                     </div>
@@ -338,35 +364,19 @@
                                 </div>
 
                                 <div id="step3-content" class="form-step-content form-step-divider">
-                                    <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Step 3: Schedule Delivery *</span><span class="ar">الخطوة الثالثة: جدولة التوصيل *</span></h2></div>
+                                    <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Step 3: Schedule Sacrifice Day *</span><span class="ar">الخطوة الثالثة: جدولة يوم الذبح *</span></h2></div>
                                     <div class="fg">
-                                        <label for="sacrifice_day_select_s3" class="bil-row"><span class="en">Preferred Sacrifice & Delivery Day *</span><span class="ar">يوم الذبح والتوصيل المفضل *</span></label>
-                                        <select id="sacrifice_day_select_s3" class="form-input-styled" x-model="selectedSacrificeDay.value" x-ref="sacrificeDaySelect">
+                                        <label for="sacrifice_day_select_s3" class="bil-row"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
+                                        <select id="sacrifice_day_select_s3" class="form-input-styled" x-model="selectedSacrificeDay.value" @change="updateSacrificeDayTexts(); clearError('sacrificeDay')" x-ref="sacrificeDaySelect" :aria-invalid="errors.sacrificeDay ? 'true' : 'false'" aria-describedby="sacrificeDayError">
                                             <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)">Day 1 of Eid / اليوم الأول</option>
                                             <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)">Day 2 of Eid / اليوم الثاني</option>
                                             <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)">Day 3 of Eid / اليوم الثالث</option>
                                             <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)">Day 4 of Eid / اليوم الرابع</option>
                                         </select>
+                                        <div class="form-error-msg" id="sacrificeDayError" x-show="errors.sacrificeDay" x-text="errors.sacrificeDay ? (currentLang === 'ar' ? errors.sacrificeDay.ar : errors.sacrificeDay.en) : ''" role="alert" aria-live="assertive"></div>
                                         <div class="bil-row field-note-wrapper sacrifice-day-note">
-                                            <p class="field-note en">Sacrifice occurs per Sharia timings on the selected Eid day. Delivery will be scheduled based on your preferences below.</p>
-                                            <p class="field-note ar" dir="rtl">يتم الذبح وفقًا للتوقيتات الشرعية في يوم العيد المختار. سيتم جدولة التوصيل بناءً على تفضيلاتكم أدناه.</p>
-                                        </div>
-                                    </div>
-                                    <div class="fg">
-                                        <label class="bil-row"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
-                                        <div class="tslots" x-ref="timeSlotContainer">
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '7 AM-8 AM'}" @click="selectedTimeSlot = '7 AM-8 AM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '7 AM-8 AM'">7-8 AM</div>
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '8 AM-9 AM'}" @click="selectedTimeSlot = '8 AM-9 AM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '8 AM-9 AM'">8-9 AM</div>
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '9 AM-10 AM'}" @click="selectedTimeSlot = '9 AM-10 AM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '9 AM-10 AM'">9-10 AM</div>
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '10 AM-11 AM'}" @click="selectedTimeSlot = '10 AM-11 AM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '10 AM-11 AM'">10-11 AM</div>
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '11 AM-12 PM'}" @click="selectedTimeSlot = '11 AM-12 PM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '11 AM-12 PM'">11-12 PM</div>
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '12 PM-1 PM'}" @click="selectedTimeSlot = '12 PM-1 PM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '12 PM-1 PM'">12-1 PM</div>
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '1 PM-2 PM'}" @click="selectedTimeSlot = '1 PM-2 PM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '1 PM-2 PM'">1-2 PM</div>
-                                            <div class="ts" :class="{'sel': selectedTimeSlot === '2 PM-3 PM'}" @click="selectedTimeSlot = '2 PM-3 PM'" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '2 PM-3 PM'">2-3 PM</div>
-                                        </div>
-                                        <div class="bil-row field-note-wrapper time-slot-note">
-                                            <p class="field-note en">This is your preferred time for delivery. We will contact you to confirm the exact delivery window.</p>
-                                            <p class="field-note ar" dir="rtl">هذا هو وقتكم المفضل للتوصيل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p>
+                                            <p class="field-note en">Sacrifice occurs per Sharia timings on the selected Eid day. Delivery will be scheduled based on your preferences in the next step.</p>
+                                            <p class="field-note ar" dir="rtl">يتم الذبح وفقًا للتوقيتات الشرعية في يوم العيد المختار. سيتم جدولة التوصيل بناءً على تفضيلاتكم في الخطوة التالية.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -408,14 +418,32 @@
                                             <div class="fg"><label for="delivery_city_select_s4" class="bil-row"><span class="en">City *</span><span class="ar">المدينة *</span></label><select id="delivery_city_select_s4" class="form-input-styled" x-model="deliveryCity" :disabled="!selectedGovernorate || availableCities.length === 0" @change="clearError('deliveryCity')" x-ref="deliveryCitySelect" :aria-invalid="errors.deliveryCity ? 'true' : 'false'" aria-describedby="cityError"><option value="">-- Select --</option><template x-for="city in availableCities" :key="city.id"><option :value="city.id" x-text="city.name_en + ' / ' + city.name_ar"></option></template></select>
                                                 <div class="form-error-msg" id="cityError" x-show="errors.deliveryCity" x-text="errors.deliveryCity ? (currentLang === 'ar' ? errors.deliveryCity.ar : errors.deliveryCity.en) : ''" role="alert" aria-live="assertive"></div>
                                                 <div class="bil-row field-note-wrapper" x-show="selectedGovernorate && availableCities.length === 0 && appSettings.delivery_areas.find(g => g.id === selectedGovernorate)?.cities?.length > 0 && !errors.deliveryCity"><p class="field-note en">Please select city.</p><p class="field-note ar" dir="rtl">يرجى اختيار مدينة.</p></div>
-                                                <div class="bil-row field-note-wrapper" x-show="selectedGovernorate && appSettings.delivery_areas.find(g => g.id === selectedGovernorate)?.cities?.length === 0 && !errors.deliveryCity"><p class="field-note en">No cities listed for this governorate. Contact us if this seems incorrect.</p><p class="field-note ar" dir="rtl">لا توجد مدن مدرجة لهذه المحافظة. اتصل بنا إذا كان هذا يبدو غير صحيح.</p></div>
+                                                <div class="bil-row field-note-wrapper" x-show="selectedGovernorate && appSettings.delivery_areas.find(g => g.id === selectedGovernorate)?.cities?.length === 0 && !errors.deliveryCity"><p class="field-note en">No cities listed. Contact us if incorrect.</p><p class="field-note ar" dir="rtl">لا توجد مدن. اتصل بنا إن كان خطأ.</p></div>
                                             </div>
                                             <div class="fg"><label for="delivery_address_input_s4" class="bil-row"><span class="en">Full Address *</span><span class="ar">العنوان بالكامل *</span></label><textarea id="delivery_address_input_s4" class="form-input-styled" rows="2" x-model="deliveryAddress" @input="clearError('deliveryAddress')" x-ref="deliveryAddressInput" :aria-invalid="errors.deliveryAddress ? 'true' : 'false'" aria-describedby="deliveryAddressError"></textarea><div class="form-error-msg" id="deliveryAddressError" x-show="errors.deliveryAddress" x-text="errors.deliveryAddress ? (currentLang === 'ar' ? errors.deliveryAddress.ar : errors.deliveryAddress.en) : ''" role="alert" aria-live="assertive"></div></div>
                                             <div class="fg"><label for="delivery_instructions_input_s4" class="bil-row"><span class="en">Special Instructions (Optional)</span><span class="ar">تعليمات خاصة (اختياري)</span></label><textarea id="delivery_instructions_input_s4" class="form-input-styled" rows="2" x-model="deliveryInstructions" x-ref="deliveryInstructionsInput"></textarea></div>
+                                            <div class="fg">
+                                                <label class="bil-row"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
+                                                <div class="tslots" x-ref="timeSlotContainer">
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '7 AM-8 AM'}" @click="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')">7-8 AM</div>
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '8 AM-9 AM'}" @click="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')">8-9 AM</div>
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '9 AM-10 AM'}" @click="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')">9-10 AM</div>
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '10 AM-11 AM'}" @click="selectedTimeSlot = '10 AM-11 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '10 AM-11 AM'; clearError('timeSlot')">10-11 AM</div>
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '11 AM-12 PM'}" @click="selectedTimeSlot = '11 AM-12 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '11 AM-12 PM'; clearError('timeSlot')">11-12 PM</div>
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '12 PM-1 PM'}" @click="selectedTimeSlot = '12 PM-1 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '12 PM-1 PM'; clearError('timeSlot')">12-1 PM</div>
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '1 PM-2 PM'}" @click="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')">1-2 PM</div>
+                                                    <div class="ts" :class="{'sel': selectedTimeSlot === '2 PM-3 PM'}" @click="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')">2-3 PM</div>
+                                                </div>
+                                                <div class="form-error-msg" id="timeSlotError" x-show="errors.timeSlot" x-text="errors.timeSlot ? (currentLang === 'ar' ? errors.timeSlot.ar : errors.timeSlot.en) : ''" role="alert" aria-live="assertive"></div>
+                                                <div class="bil-row field-note-wrapper time-slot-note">
+                                                    <p class="field-note en">This is your preferred time. We will contact you to confirm the exact window.</p>
+                                                    <p class="field-note ar" dir="rtl">هذا وقتكم المفضل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p>
+                                                </div>
+                                            </div>
                                             <div class="bil-row field-note-wrapper"><p class="field-note en">Delivery details required if Udheya is delivered to you.</p><p class="field-note ar" dir="rtl">تفاصيل التوصيل مطلوبة إذا ستُوصل الأضحية إليك.</p></div>
                                         </div>
                                     </div>
-                                    <template x-if="!_needsDeliveryDetails"><p class="bil-row field-note en ar no-delivery-note"><span class="en">Delivery details not required for current distribution choice.</span><span class="ar">تفاصيل التوصيل غير مطلوبة لاختيار التوزيع الحالي.</span></p></template>
+                                    <template x-if="!_needsDeliveryDetails"><p class="bil-row field-note en ar no-delivery-note"><span class="en">Delivery details not required.</span><span class="ar">تفاصيل التوصيل غير مطلوبة.</span></p></template>
                                 </div>
 
                                 <div id="step5-content" class="form-step-content form-step-divider">
@@ -462,20 +490,20 @@
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
                                                     <div class="bil-row">
-                                                        <div class="en"><strong><span class="en">Sacrifice & Delivery Day:</span><span class="ar">يوم الذبح والتوصيل:</span></strong> <span x-text="selectedSacrificeDay.textEN"></span></div>
-                                                        <div class="ar" dir="rtl"><strong><span class="ar">يوم الذبح والتوصيل:</span><span class="en">Sacrifice & Delivery Day:</span></strong> <span x-text="selectedSacrificeDay.textAR"></span></div>
+                                                        <div class="en"><strong><span class="en">Sacrifice Day:</span><span class="ar">يوم الذبح:</span></strong> <span x-text="selectedSacrificeDay.textEN"></span></div>
+                                                        <div class="ar" dir="rtl"><strong><span class="ar">يوم الذبح:</span><span class="en">Sacrifice Day:</span></strong> <span x-text="selectedSacrificeDay.textAR"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Sacrifice & Delivery Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Sacrifice Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                  <div class="summary-item-content">
                                                     <div class="bil-row">
-                                                        <div class="en"><strong><span class="en">Delivery Time:</span><span class="ar">وقت التوصيل:</span></strong> <span x-text="selectedTimeSlot"></span></div>
-                                                        <div class="ar" dir="rtl"><strong><span class="ar">وقت التوصيل:</span><span class="en">Delivery Time:</span></strong> <span x-text="selectedTimeSlot"></span></div>
+                                                        <div class="en"><strong><span class="en">Delivery Time:</span><span class="ar">وقت التوصيل:</span></strong> <span x-text="distributionChoice === 'char' ? (currentLang === 'ar' ? 'لا ينطبق' : 'N/A') : selectedTimeSlot"></span></div>
+                                                        <div class="ar" dir="rtl"><strong><span class="ar">وقت التوصيل:</span><span class="en">Delivery Time:</span></strong> <span x-text="distributionChoice === 'char' ? (currentLang === 'ar' ? 'لا ينطبق' : 'N/A') : selectedTimeSlot"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
@@ -532,7 +560,7 @@
                         <div class="c tc">
                             <div class="sec-head booking-confirmed-head"><h2 class="bil-parent-spread" x-ref="bookingConfirmedTitle" tabindex="-1"><span class="en">Booking Confirmed! JazakAllah Khairan.</span><span class="ar">تم تأكيد الحجز! جزاكم الله خيرًا.</span></h2></div>
                             <div class="confirmation-message">
-                                <div class="bil-row confirmation-intro-text"><p class="en">Thank you for choosing Sheep Land for your Udheya. May Allah accept it.</p><p class="ar" dir="rtl">نشكركم على اختيار أرض الأغنام لأضحيتكم. تقبل الله منا ومنكم.</p></div>
+                                <div class="bil-row confirmation-intro-text"><p class="en">Thank you for choosing Sheep Land. May Allah accept it.</p><p class="ar" dir="rtl">نشكركم على اختيار أرض الأغنام. تقبل الله منا ومنكم.</p></div>
                                 <div class="card form-panel-card booking-id-card"><div class="card-b booking-id-card-body">
                                     <div class="bil-parent-spread">
                                         <p class="en booking-id-card-important"><strong>Important: Your Booking Details</strong></p>
@@ -550,7 +578,8 @@
                                     <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN + ', ' + selectedAnimal.weight"></span></div><div class="ar" dir="rtl"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR + '\u060C ' + selectedAnimal.weight"></span></div></div>
                                     <div class="summary-item bil-row"><div class="en"><strong>Prep:</strong> <span x-text="selectedPrepStyle.nameEN"></span></div><div class="ar" dir="rtl"><strong>التجهيز:</strong> <span x-text="selectedPrepStyle.nameAR"></span></div></div>
                                     <div class="summary-item bil-row"><div class="en"><strong>Package:</strong> <span x-text="selectedPackaging.nameEN"></span></div><div class="ar" dir="rtl"><strong>التعبئة:</strong> <span x-text="selectedPackaging.nameAR"></span></div></div>
-                                    <div class="summary-item bil-row"><div class="en"><strong>Sacrifice & Delivery:</strong> <span x-text="selectedSacrificeDay.textEN + ', Preferred Delivery: ' + selectedTimeSlot"></span></div><div class="ar" dir="rtl"><strong>الذبح والتوصيل:</strong> <span x-text="selectedSacrificeDay.textAR + '\u060C التوصيل المفضل: ' + selectedTimeSlot"></span></div></div>
+                                    <div class="summary-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="selectedSacrificeDay.textEN"></span></div><div class="ar" dir="rtl"><strong>يوم الذبح:</strong> <span x-text="selectedSacrificeDay.textAR"></span></div></div>
+                                    <div class="summary-item bil-row"><div class="en"><strong>Delivery Time:</strong> <span x-text="distributionChoice === 'char' ? 'N/A' : selectedTimeSlot"></span></div><div class="ar" dir="rtl"><strong>وقت التوصيل:</strong> <span x-text="distributionChoice === 'char' ? 'لا ينطبق' : selectedTimeSlot"></span></div></div>
                                 </div>
                                 <div class="payment-instructions-wrapper">
                                     <h4 class="form-subhead bil-parent-spread payment-instructions-title"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
@@ -574,34 +603,6 @@
                     </section>
                 </form>
             </div>
-        </section>
-
-        <section class="main-page-section how-it-works-section sec" id="how-it-works">
-            <div class="c"><div class="uprocess-wrap"><div class="uprocess">
-                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="howItWorksTitle" tabindex="-1"><span class="en">Our Udheya Service Process</span><span class="ar">خطوات خدمة الأضحية لدينا</span></h2></div>
-                <div class="feature-grid how-it-works-grid">
-                    <div class="feature-item">
-                        <div class="icon-placeholder number-icon" aria-hidden="true">1</div>
-                        <h4 class="bil-parent-spread"><span class="en">Book & Customize Online</span><span class="ar" dir="rtl">احجز وخصص عبر الإنترنت</span></h4>
-                        <div class="bil-row"><p class="card-p en">Easily select your Udheya, preferred weight, preparation, and packaging through our online form.</p><p class="card-p ar" dir="rtl">اختر أضحيتك ووزنها المفضل وطريقة التجهيز والتغليف بسهولة عبر نموذجنا الإلكتروني.</p></div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="icon-placeholder number-icon" aria-hidden="true">2</div>
-                        <h4 class="bil-parent-spread"><span class="en">Confirm & Secure Payment</span><span class="ar" dir="rtl">أكّد وادفع بأمان</span></h4>
-                        <div class="bil-row"><p class="card-p en">Review your choices and complete your booking using our secure payment methods.</p><p class="card-p ar" dir="rtl">راجع اختياراتك وأكمل حجزك باستخدام طرق الدفع الآمنة المتوفرة لدينا.</p></div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="icon-placeholder number-icon" aria-hidden="true">3</div>
-                        <h4 class="bil-parent-spread"><span class="en">Sharia-Compliant Sacrifice</span><span class="ar" dir="rtl">الذبح الشرعي</span></h4>
-                        <div class="bil-row"><p class="card-p en">On your chosen Eid day, your Udheya is sacrificed by experts, adhering to all Islamic principles.</p><p class="card-p ar" dir="rtl">في يوم العيد الذي اخترته، يتم ذبح أضحيتك على يد خبراء مع الالتزام بكافة الأحكام الشرعية.</p></div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="icon-placeholder number-icon" aria-hidden="true">4</div>
-                        <h4 class="bil-parent-spread"><span class="en">Preparation & Delivery</span><span class="ar" dir="rtl">التجهيز والتوصيل/التوزيع</span></h4>
-                        <div class="bil-row"><p class="card-p en">Your meat is professionally butchered, packaged, and delivered to you or distributed to charity as per your request.</p><p class="card-p ar" dir="rtl">يتم تقطيع لحم أضحيتك وتغليفه باحترافية، ثم توصيله إليك أو توزيعه على المستحقين حسب طلبك.</p></div>
-                    </div>
-                </div>
-            </div></div></div>
         </section>
 
         <section id="check-booking-status" class="sec udheya-page-step">
