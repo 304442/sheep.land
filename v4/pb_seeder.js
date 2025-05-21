@@ -1,4 +1,4 @@
-// pb_seeder.js (Minimal - Create Only Version)
+// pb_seeder.js (Minimal - Create Only Version - Runs Automatically)
 
 // --- CONFIGURATION ---
 // !IMPORTANT: Set this to your PocketBase API URL.
@@ -55,7 +55,6 @@ async function seedData() {
                  console.error(`Failed to create record in '${record.collection}': ${response.status} ${response.statusText} - ${responseText}. Record data identifier: ${recordIdentifier}`);
             }
             // This version continues to the next record on error.
-            // A stricter version might `return;` or `throw new Error;` here to halt all seeding.
         }
         // No explicit success message to keep it minimal.
     }
@@ -67,16 +66,12 @@ async function seedData() {
 // 3. Ensure PocketBase is running.
 // 4. **CRITICAL**: Ensure collections ('app_settings', 'livestock_types') EXIST (import pb_schema.json first).
 // 5. **CRITICAL**: Temporarily open API rules for 'Create Records' in these collections.
-//    (e.g., set Create Rule to `""` (public)).
-// 6. **WARNING**: This script ONLY CREATES records.
-//    - If you run it multiple times, it WILL CREATE DUPLICATES unless you:
-//      a) Manually delete the old records in PocketBase before re-running.
-//      b) OR, ensure you have UNIQUE constraints set up in your PocketBase schema
-//         (e.g., on 'setting_key' for 'app_settings' and 'value_key' for 'livestock_types').
-//         The provided `pb_schema.json` does NOT include these unique constraints by default.
-// 7. Execute the script (Node.js, Deno, or Browser Console as described previously).
+// 6. **WARNING**: This script ONLY CREATES records (potential for duplicates if run multiple times without cleanup/unique constraints).
+// 7. Execute the script (e.g., `node pb_seeder.js` or `deno run --allow-net pb_seeder.js`).
+//    It will run automatically. No need to type anything extra in the console after starting the script.
 // 8. **CRITICAL**: RE-SECURE YOUR API RULES in PocketBase.
 //    Check PocketBase admin UI or server logs to confirm seeding.
 // --- END HOW TO RUN ---
 
+// This line makes the script run automatically when executed.
 seedData();
