@@ -1,0 +1,214 @@
+[
+  {
+    "id": "app_settings_sl",
+    "name": "app_settings",
+    "type": "base",
+    "system": false,
+    "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+    "fields": [
+      {
+        "id": "as_f_setting_key", "name": "setting_key", "type": "text", "required": true, "unique": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "as_f_exchange_rates", "name": "exchange_rates", "type": "json", "required": false, "system": false,
+        "options": { "maxSize": 5242880 }
+      },
+      {
+        "id": "as_f_default_currency", "name": "default_currency", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "as_f_wa_raw", "name": "whatsapp_number_raw", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "as_f_wa_display", "name": "whatsapp_number_display", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "as_f_promo_end", "name": "promo_end_date", "type": "date", "required": false, "system": false,
+        "options": { "min": "", "max": "" }
+      },
+      {
+        "id": "as_f_promo_percent", "name": "promo_discount_percent", "type": "number", "required": false, "system": false,
+        "options": { "min": null, "max": null, "noDecimal": false }
+      },
+      { "id": "as_f_promo_active", "name": "promo_is_active", "type": "bool", "required": false, "system": false, "options": {} },
+      {
+        "id": "as_f_delivery_areas", "name": "delivery_areas", "type": "json", "required": false, "system": false,
+        "options": { "maxSize": 5242880 }
+      },
+      {
+        "id": "as_f_payment_details", "name": "payment_details", "type": "json", "required": false, "system": false,
+        "options": { "maxSize": 5242880 }
+      }
+    ],
+    "indexes": [],
+    "options": {}
+  },
+  {
+    "id": "bookings_sl",
+    "name": "bookings",
+    "type": "base",
+    "system": false,
+    "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+    "fields": [
+      {
+        "id": "b_f_booking_id_text", "name": "booking_id_text", "type": "text", "required": true, "unique": true, "presentable": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_animal_type_key", "name": "animal_type_key", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_animal_type_name_en", "name": "animal_type_name_en", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_animal_type_name_ar", "name": "animal_type_name_ar", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_animal_weight_selected", "name": "animal_weight_selected", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_animal_base_price_egp", "name": "animal_base_price_egp", "type": "number", "required": true, "system": false,
+        "options": { "min": null, "max": null, "noDecimal": false }
+      },
+      {
+        "id": "b_f_prep_style_value", "name": "preparation_style_value", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_prep_style_name_en", "name": "preparation_style_name_en", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_prep_style_name_ar", "name": "preparation_style_name_ar", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      { "id": "b_f_is_custom_prep", "name": "is_custom_prep", "type": "bool", "required": false, "system": false, "options": {} },
+      {
+        "id": "b_f_custom_prep_details", "name": "custom_prep_details", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": 500, "pattern": "" }
+      },
+      {
+        "id": "b_f_packaging_value", "name": "packaging_value", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_packaging_name_en", "name": "packaging_name_en", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_packaging_name_ar", "name": "packaging_name_ar", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_packaging_addon_price", "name": "packaging_addon_price_egp", "type": "number", "required": false, "system": false,
+        "options": { "min": null, "max": null, "noDecimal": false }
+      },
+      {
+        "id": "b_f_total_price_egp", "name": "total_price_egp", "type": "number", "required": true, "system": false,
+        "options": { "min": null, "max": null, "noDecimal": false }
+      },
+      {
+        "id": "b_f_sacrifice_day_value", "name": "sacrifice_day_value", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_time_slot", "name": "time_slot", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_dist_choice", "name": "distribution_choice", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_split_details_opt", "name": "split_details_option", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_custom_split_text", "name": "custom_split_details_text", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": 500, "pattern": "" }
+      },
+      {
+        "id": "b_f_niyyah_names", "name": "niyyah_names", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": 200, "pattern": "" }
+      },
+      {
+        "id": "b_f_customer_email", "name": "customer_email", "type": "email", "required": false, "system": false,
+        "options": { "exceptDomains": null, "onlyDomains": null }
+      },
+      { "id": "b_f_group_purchase", "name": "group_purchase_interest", "type": "bool", "required": false, "system": false, "options": {} },
+      {
+        "id": "b_f_delivery_name", "name": "delivery_name", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_delivery_phone", "name": "delivery_phone", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_delivery_gov_id", "name": "delivery_governorate_id", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_delivery_city_id", "name": "delivery_city_id", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_delivery_address", "name": "delivery_address", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": 500, "pattern": "" }
+      },
+      {
+        "id": "b_f_delivery_instructions", "name": "delivery_instructions", "type": "text", "required": false, "system": false,
+        "options": { "min": null, "max": 500, "pattern": "" }
+      },
+      {
+        "id": "b_f_payment_method", "name": "payment_method", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "b_f_payment_status", "name": "payment_status", "type": "select", "required": true, "system": false,
+        "maxSelect": 1, "values": ["pending", "paid", "cod_pending", "failed", "refunded"]
+      },
+      {
+        "id": "b_f_booking_status", "name": "booking_status", "type": "select", "required": true, "presentable": true, "system": false,
+        "maxSelect": 1, "values": ["confirmed_pending_payment", "confirmed_payment_received", "processing_sacrifice", "ready_for_delivery_pickup", "delivered_distributed", "completed", "cancelled"]
+      }
+    ],
+    "indexes": [],
+    "options": {}
+  },
+  {
+    "id": "livestock_types_sl",
+    "name": "livestock_types",
+    "type": "base",
+    "system": false,
+    "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+    "fields": [
+      {
+        "id": "lt_f_value_key", "name": "value_key", "type": "text", "required": true, "unique": true, "presentable": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "lt_f_name_en", "name": "name_en", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "lt_f_name_ar", "name": "name_ar", "type": "text", "required": true, "system": false,
+        "options": { "min": null, "max": null, "pattern": "" }
+      },
+      {
+        "id": "lt_f_weights_prices", "name": "weights_prices", "type": "json", "required": false, "system": false,
+        "options": { "maxSize": 5242880 }
+      }
+    ],
+    "indexes": [],
+    "options": {}
+  }
+]
