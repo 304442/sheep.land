@@ -180,7 +180,6 @@
                     </div>
                 </div>
                 
-                <!-- "Our Simple Process" Integrated Here -->
                 <div class="integrated-process-wrapper" x-show="!bookingConfirmed">
                     <div class="uprocess-wrap-integrated">
                         <h3 class="form-subhead bil-parent-spread integrated-process-title">
@@ -211,40 +210,38 @@
                         </div>
                     </div>
                 </div>
-                <!-- End of Integrated "Our Simple Process" -->
-
 
                 <form id="final-udheya-booking-form" @submit.prevent="validateAndSubmitBooking()" novalidate>
                     <div class="stepper-outer-wrapper" x-show="!bookingConfirmed">
                         <div class="c">
                             <div class="stepper-content-flex">
-                                <a href="#udheya-booking-form-panel" class="stepper-item" :class="{ 'active': currentActiveStep === 1, 'completed': currentStepCompleted(1, false) }" @click.prevent="navigateToStep(1)">
-                                    <span class="step-number" x-show="!currentStepCompleted(1, false) || currentActiveStep === 1">1</span>
-                                    <svg x-show="currentStepCompleted(1, false) && currentActiveStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <a href="#step1-content" class="stepper-item" :class="{ 'active': currentConceptualStep === 1, 'completed': stepProgress.step1 }" @click.prevent="handleStepperNavigation(1)">
+                                    <span class="step-number" x-show="!stepProgress.step1 || currentConceptualStep === 1">1</span>
+                                    <svg x-show="stepProgress.step1 && currentConceptualStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                                     <span class="step-label en">Animal</span><span class="step-label ar">الحيوان</span>
                                 </a>
                                 <div class="stepper-connector"></div>
-                                <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 2, 'completed': currentStepCompleted(2, false), 'disabled': !currentStepCompleted(1, false)}" @click.prevent="navigateToStep(2)">
-                                    <span class="step-number" x-show="!currentStepCompleted(2, false) || currentActiveStep === 2">2</span>
-                                    <svg x-show="currentStepCompleted(2, false) && currentActiveStep !== 2" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
+                                    <span class="step-number" x-show="!stepProgress.step2 || currentConceptualStep === 2">2</span>
+                                    <svg x-show="stepProgress.step2 && currentConceptualStep !== 2" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                                     <span class="step-label en">Customize</span><span class="step-label ar">تخصيص</span>
                                 </a>
                                 <div class="stepper-connector"></div>
-                                <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 3, 'completed': currentStepCompleted(3, false), 'disabled': !currentStepCompleted(2, false)}" @click.prevent="navigateToStep(3)">
-                                    <span class="step-number" x-show="!currentStepCompleted(3, false) || currentActiveStep === 3">3</span>
-                                    <svg x-show="currentStepCompleted(3, false) && currentActiveStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
+                                    <span class="step-number" x-show="!stepProgress.step3 || currentConceptualStep === 3">3</span>
+                                    <svg x-show="stepProgress.step3 && currentConceptualStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                                     <span class="step-label en">Schedule</span><span class="step-label ar">المواعيد</span>
                                 </a>
                                 <div class="stepper-connector"></div>
-                                <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 4, 'completed': currentStepCompleted(4, false), 'disabled': !currentStepCompleted(3, false)}" @click.prevent="navigateToStep(4)">
-                                    <span class="step-number" x-show="!currentStepCompleted(4, false) || currentActiveStep === 4">4</span>
-                                    <svg x-show="currentStepCompleted(4, false) && currentActiveStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
+                                    <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
+                                    <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                                     <span class="step-label en">Distribution</span><span class="step-label ar">التوزيع</span>
                                 </a>
                                 <div class="stepper-connector"></div>
-                                <a href="#udheya-booking-form-panel" class="stepper-item" :class="{'active': currentActiveStep === 5, 'completed': currentStepCompleted(5, false), 'disabled': !currentStepCompleted(4, false)}" @click.prevent="navigateToStep(5)">
-                                    <span class="step-number" x-show="!currentStepCompleted(5, false) || currentActiveStep === 5">5</span>
-                                    <svg x-show="currentStepCompleted(5, false) && currentActiveStep !== 5" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <a href="#step5-content" class="stepper-item" :class="{'active': currentConceptualStep === 5, 'completed': stepProgress.step5, 'disabled': !stepProgress.step4}" @click.prevent="handleStepperNavigation(5)">
+                                    <span class="step-number" x-show="!stepProgress.step5 || currentConceptualStep === 5">5</span>
+                                    <svg x-show="stepProgress.step5 && currentConceptualStep !== 5" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                                     <span class="step-label en">Review</span><span class="step-label ar">المراجعة</span>
                                 </a>
                             </div>
@@ -264,7 +261,8 @@
                                     <p class="ar" dir="rtl">الحقول المشار إليها بـ * إلزامية.</p>
                                 </div>
 
-                                <div id="step1-content" x-show="currentActiveStep === 1" class="form-step-content" x-transition>
+                                <!-- Step 1 Content: Animal Selection -->
+                                <div id="step1-content" class="form-step-content">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title" tabindex="-1"><span class="en">Step 1: Select Animal & Approximate Weight *</span><span class="ar">الخطوة الأولى: اختر الحيوان والوزن التقريبي *</span></h2></div>
                                     <div class="livestock-sharia-note bil-row">
                                         <p class="en">All animals meet Sharia age/health requirements for Udheya.</p><p class="ar" dir="rtl">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية.</p>
@@ -278,7 +276,7 @@
                                                     <div class="price bil-row"><span class="en">From <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'baladi')?.weights_prices[0]?.price_egp || 0)"></span></span><span class="ar">يبدأ من <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'baladi')?.weights_prices[0]?.price_egp || 0)"></span></span></div>
                                                     <div class="card-act">
                                                         <label for="baladi_weight_select_s1" class="sr-only">Select Baladi Weight</label>
-                                                        <select id="baladi_weight_select_s1" name="animal_weight_baladi" class="livestock-weight-select" x-ref="baladiWeightSelect" @change="selectAnimal('baladi', $el); clearError('animal')" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
+                                                        <select id="baladi_weight_select_s1" name="animal_weight_baladi" class="livestock-weight-select" x-ref="baladiWeightSelect" @change="selectAnimal('baladi', $el); validateAndScrollOrFocus(1, '#step2-content')" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -291,7 +289,7 @@
                                                     <div class="price bil-row"><span class="en">From <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'barki')?.weights_prices[0]?.price_egp || 0)"></span></span><span class="ar">يبدأ من <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'barki')?.weights_prices[0]?.price_egp || 0)"></span></span></div>
                                                     <div class="card-act">
                                                         <label for="barki_weight_select_s1" class="sr-only">Select Barki Weight</label>
-                                                        <select id="barki_weight_select_s1" name="animal_weight_barki" class="livestock-weight-select" x-ref="barkiWeightSelect" @change="selectAnimal('barki', $el); clearError('animal')" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
+                                                        <select id="barki_weight_select_s1" name="animal_weight_barki" class="livestock-weight-select" x-ref="barkiWeightSelect" @change="selectAnimal('barki', $el); validateAndScrollOrFocus(1, '#step2-content')" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -300,7 +298,8 @@
                                     <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
 
-                                <div id="step2-content" x-show="currentActiveStep === 2" class="form-step-content" x-transition>
+                                <!-- Step 2 Content: Customize -->
+                                <div id="step2-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Step 2: Customize Udheya</span><span class="ar">الخطوة الثانية: تخصيص الأضحية</span></h2></div>
                                     <div class="fg">
                                         <label for="preparation_style_select_s2" class="bil-row"><span class="en">Preparation Style *</span><span class="ar">طريقة التجهيز *</span></label>
@@ -332,11 +331,12 @@
                                         <div class="bil-row field-note-wrapper niyyah-note"><p class="field-note en">Niyyah is core. List names for whom sacrifice is made.</p><p class="field-note ar" dir="rtl">النية أساسية. اذكر أسماء من تضحى عنهم.</p></div>
                                     </div>
                                     <div class="form-action tc page-step-action">
-                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndProceedToStep(3)"><span class="en">Continue to Schedule</span><span class="ar">المتابعة للمواعيد</span></button>
+                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndScrollOrFocus(2, '#step3-content')"><span class="en">Continue to Schedule</span><span class="ar">المتابعة للمواعيد</span></button>
                                     </div>
                                 </div>
 
-                                <div id="step3-content" x-show="currentActiveStep === 3" class="form-step-content" x-transition>
+                                <!-- Step 3 Content: Schedule -->
+                                <div id="step3-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Step 3: Schedule Sacrifice *</span><span class="ar">الخطوة الثالثة: جدولة الذبح *</span></h2></div>
                                     <div class="fg">
                                         <label for="sacrifice_day_select_s3" class="bil-row"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
@@ -363,11 +363,12 @@
                                         <div class="bil-row field-note-wrapper time-slot-note"><p class="field-note en">Sacrifice time. Delivery confirmed separately if chosen.</p><p class="field-note ar" dir="rtl">وقت الذبح. وقت التوصيل يؤكد منفصلاً إذا اخترت التوصيل.</p></div>
                                     </div>
                                     <div class="form-action tc page-step-action">
-                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndProceedToStep(4)"><span class="en">Continue to Distribution</span><span class="ar">المتابعة للتوزيع</span></button>
+                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndScrollOrFocus(3, '#step4-content')"><span class="en">Continue to Distribution</span><span class="ar">المتابعة للتوزيع</span></button>
                                     </div>
                                 </div>
 
-                                <div id="step4-content" x-show="currentActiveStep === 4" class="form-step-content" x-transition>
+                                <!-- Step 4 Content: Distribution -->
+                                <div id="step4-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step4Title" tabindex="-1"><span class="en">Step 4: Arrange Distribution & Delivery</span><span class="ar">الخطوة الرابعة: ترتيب التوزيع والتوصيل</span></h2></div>
                                     <div class="fg">
                                         <fieldset>
@@ -413,11 +414,12 @@
                                     </div>
                                     <template x-if="!_needsDeliveryDetails"><p class="bil-row field-note en ar no-delivery-note"><span class="en">Delivery details not required for current distribution choice.</span><span class="ar">تفاصيل التوصيل غير مطلوبة لاختيار التوزيع الحالي.</span></p></template>
                                     <div class="form-action tc page-step-action logistics-form-action">
-                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndProceedToStep(5)"><span class="en">Continue to Review & Payment</span><span class="ar">المتابعة للمراجعة والدفع</span></button>
+                                        <button type="button" class="btn bac btn-lg btn-block bil-parent-spread-intrinsic" @click="validateAndScrollOrFocus(4, '#step5-content')"><span class="en">Continue to Review & Payment</span><span class="ar">المتابعة للمراجعة والدفع</span></button>
                                     </div>
                                 </div>
 
-                                <div id="step5-content" x-show="currentActiveStep === 5" class="form-step-content" x-transition>
+                                <!-- Step 5 Content: Review & Payment -->
+                                <div id="step5-content" class="form-step-content form-step-divider">
                                     <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step5Title" tabindex="-1"><span class="en">Step 5: Review, Options & Payment</span><span class="ar">الخطوة الخامسة: المراجعة، الخيارات والدفع</span></h2></div>
                                     <div class="review-summary-wrapper">
                                         <h3 class="form-subhead bil-parent-spread review-summary-title"><span class="en">Your Udheya Booking Summary</span><span class="ar">ملخص حجز أضحيتك</span></h3>
@@ -429,7 +431,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">الخروف:</span><span class="en">Sheep:</span></strong> <span x-text="selectedAnimal.nameAR || '(النوع)'"></span>، <span x-text="selectedAnimal.weight || '(الوزن)'"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="navigateToStep(1)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Animal Selection"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(1)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Animal Selection"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
@@ -438,7 +440,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">التجهيز:</span><span class="en">Prep:</span></strong> <span x-text="selectedPrepStyle.nameAR || '(الطريقة)'"></span> <span x-show="selectedPrepStyle.is_custom && customPrepDetails" x-text="'(' + customPrepDetails.substring(0,20) + (customPrepDetails.length > 20 ? '...' : '') + ')'"></span></div>
                                                     </div>
                                                 </div>
-                                                 <button type="button" @click.prevent="navigateToStep(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Preparation"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                 <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Preparation"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
@@ -447,7 +449,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">التعبئة:</span><span class="en">Package:</span></strong> <span x-text="selectedPackaging.nameAR || '(التغليف)'"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="navigateToStep(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Packaging"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Packaging"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
@@ -456,7 +458,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">النية لـ:</span><span class="en">Niyyah:</span></strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="navigateToStep(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
@@ -465,7 +467,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">يوم الذبح:</span><span class="en">Sacrifice Day:</span></strong> <span x-text="selectedSacrificeDay.textAR"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="navigateToStep(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Sacrifice Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Sacrifice Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                  <div class="summary-item-content">
@@ -474,7 +476,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">الوقت:</span><span class="en">Time Slot:</span></strong> <span x-text="selectedTimeSlot"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="navigateToStep(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                 <div class="summary-item-content">
@@ -483,7 +485,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">التوصيل إلى:</span><span class="en">Delivery To:</span></strong> <span x-text="summaryDeliveryToAR"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="navigateToStep(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                  <div class="summary-item-content">
@@ -492,7 +494,7 @@
                                                         <div class="ar" dir="rtl"><strong><span class="ar">التوزيع:</span><span class="en">Distribution:</span></strong> <span x-text="summaryDistributionAR"></span></div>
                                                     </div>
                                                 </div>
-                                                <button type="button" @click.prevent="navigateToStep(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
 
                                             <hr class="summary-hr"><div class="summary-total bil-row"><div class="en"><strong><span class="en">Total:</span><span class="ar">الإجمالي:</span></strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div><div class="ar" dir="rtl"><strong><span class="ar">الإجمالي:</span><span class="en">Total:</span></strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div></div>
