@@ -75,7 +75,7 @@
     </header>
 
     <main>
-        <section class="hero-section sec">
+        <section class="hero-section sec"> <!-- Removed padding:var(--s4) 0 var(--s5); from here, handled by flex -->
             <div class="c tc">
                 <div class="hero-title-row"><h1><span class="en">Book Your Udhiya Online</span><span class="ar" dir="rtl">احجز أضحيتك عبر الإنترنت</span></h1></div>
                 <div class="hero-subtitle-row"><h2><span class="en">Farm to Your Table, Sharia Compliant</span><span class="ar" dir="rtl">من المزرعة إلى مائدتك، وفق الشريعة</span></h2></div>
@@ -86,10 +86,32 @@
                 <div class="hero-promo-wrapper">
                     <a href="#udheya-booking-start" @click.prevent="scrollToSection('#udheya-booking-start')" class="hero-promo-cta-link">
                         <div class="pban">
-                            <div class="pban-text-content"><div class="bil-row">
-                                <div><h3 class="prm-h en">Eid Al-Adha Offer! <strong x-text="appSettings.promo_days_left || 'X'"></strong> days left. Book early & get <span x-text="(appSettings.promo_discount_percent || 'Y') + '% Discount!'"></span></h3></div>
-                                <div><h3 class="prm-h ar" dir="rtl">عرض عيد الأضحى! متبقي <strong x-text="appSettings.promo_days_left || 'X'"></strong> يومًا. احجز مبكرًا واحصل على <span x-text="'خصم ' + (appSettings.promo_discount_percent || 'Y') + '%!'"></span></h3></div>
-                            </div></div>
+                            <div class="pban-text-content">
+                                <div class="bil-row">
+                                    <div>
+                                        <h3 class="prm-h en">
+                                            Eid Al-Adha Offer!
+                                            <span x-show="calculatedPromoDaysLeft > 0">
+                                                <strong x-text="calculatedPromoDaysLeft"></strong> days left.
+                                            </span>
+                                            <span x-show="appSettings.promo_is_active && calculatedPromoDaysLeft > 0">
+                                                Book early & get <span x-text="(appSettings.promo_discount_percent || 'Y') + '% Discount!'"></span>
+                                            </span>
+                                        </h3>
+                                    </div>
+                                    <div>
+                                        <h3 class="prm-h ar" dir="rtl">
+                                            عرض عيد الأضحى!
+                                            <span x-show="calculatedPromoDaysLeft > 0" dir="rtl">
+                                                متبقي <strong x-text="calculatedPromoDaysLeft"></strong> يومًا.
+                                            </span>
+                                            <span x-show="appSettings.promo_is_active && calculatedPromoDaysLeft > 0" dir="rtl">
+                                                احجز مبكرًا واحصل على <span x-text="'خصم ' + (appSettings.promo_discount_percent || 'Y') + '%!'"></span>
+                                            </span>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
                             <span class="btn bac pban-cta-btn" @click.stop><span class="en">Start Udheya Booking</span><span class="ar">ابدأ حجز الأضحية</span></span>
                         </div>
                     </a>
@@ -251,9 +273,9 @@
                                                 <div class="card-img"><img src="/images/packaging-standard.jpg" alt="Standard Packaging"></div>
                                                 <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Standard Packaging</span><span class="ar" dir="rtl">تعبئة قياسية</span></h4></div><div class="bil-row"><p class="card-p en">Hygienic, freezer-ready.</p><p class="card-p ar" dir="rtl">صحية وجاهزة للتجميد.</p></div></div><div class="card-foot prep-card-foot"><button type="button" class="btn bac btn-block select-packaging-btn"><span class="en">Select</span><span class="ar">اختر</span></button></div></div>
                                             </div>
-                                            <div class="card packaging-card" :class="{'selected': selectedPackaging.value === 'vacuum_sealed'}" @click="selectPackaging({ value: 'vacuum_sealed', nameEN: 'Vacuum Sealed', nameAR: 'تعبئة مفرغة', addonPriceEGP: 100 })">
+                                            <div class="card packaging-card" data-packaging-value="vacuum_sealed" :class="{'selected': selectedPackaging.value === 'vacuum_sealed'}" @click="selectPackaging({ value: 'vacuum_sealed', nameEN: 'Vacuum Sealed', nameAR: 'تعبئة مفرغة', addonPriceEGP: 100 })">
                                                 <div class="card-img"><img src="/images/packaging-vacuum-sealed.jpg" alt="Vacuum Sealed"></div>
-                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Vacuum Sealed</span><span class="ar" dir="rtl">تعبئة مفرغة</span></h4></div><div class="bil-row"><p class="card-p en">Extends freshness, ideal for storage.</p><p class="card-p ar" dir="rtl">تحافظ على النضارة، مثالية للتخزين.</p></div></div><div class="card-foot prep-card-foot"><div><div class="price-addon en">(Add <span x-text="getFormattedPrice(100)"></span>)</div><div class="price-addon ar" dir="rtl">(إضافة <span x-text="getFormattedPrice(100)"></span>)</div></div><button type="button" class="btn bac btn-block select-packaging-btn"><span class="en">Select</span><span class="ar">اختر</span></button></div></div>
+                                                <div class="card-b"><div class="card-content"><div class="bil-row"><h4><span class="en">Vacuum Sealed</span><span class="ar" dir="rtl">تعبئة مفرغة</span></h4></div><div class="bil-row"><p class="card-p en">Extends freshness, ideal for storage.</p><p class="card-p ar" dir="rtl">تحافظ على النضارة، مثالية للتخزين.</p></div></div><div class="card-foot prep-card-foot"><div><div class="price-addon en">(Add <span></span>)</div><div class="price-addon ar" dir="rtl">(إضافة <span></span>)</div></div><button type="button" class="btn bac btn-block select-packaging-btn"><span class="en">Select</span><span class="ar">اختر</span></button></div></div>
                                             </div>
                                         </div>
                                     </div>
@@ -450,7 +472,7 @@
     <footer class="site-footer-main main-page-section"><div class="c">
         <div class="grid3 footer-grid">
                 <p class="footer-brand-desc"> 
-                    <span class="en">We are a dedicated team providing premium quality sheep and halal meat services. Our mission is to deliver excellence.</span>
+                    <span class="en">We are your full-service Egyptian team, committed to meeting your needs with exceptional speed and quality, sparing you the inconvenience of market visits.</span>
                     <span class="ar">نحن فريق متكامل لتلبية احتياجاتك بأسرع وقت وأفضل جودة، ونكفيك عناء الذهاب للسوق.</span>
                 </p>
             </div>
@@ -460,4 +482,4 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="script.js"></script>
 </body>
-</html>
+</html> 
