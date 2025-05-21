@@ -1,5 +1,5 @@
 document.addEventListener('alpine:init', () => {
-    
+
     const initialBookingFormState = {
         selectedAnimal: { type: '', value: '', weight: '', basePriceEGP: 0, nameEN: '', nameAR: '', stock: null, pbId: null, originalStock: null },
         selectedPrepStyle: { value: '', nameEN: '', nameAR: '', is_custom: false }, customPrepDetails: '',
@@ -7,17 +7,20 @@ document.addEventListener('alpine:init', () => {
         customerEmail: '', deliveryName: '', deliveryPhone: '', selectedGovernorate: '', deliveryCity: '', availableCities: [], deliveryAddress: '', deliveryInstructions: '',
         niyyahNames: '', splitDetailsOption: '', customSplitDetailsText: '', groupPurchase: false,
         selectedSacrificeDay: { value: 'day1_10_dhul_hijjah', textEN: 'Day 1 of Eid (10th Dhul Hijjah)', textAR: 'اليوم الأول (10 ذو الحجة)' },
-        selectedTimeSlot: '8 AM-9 AM', distributionChoice: 'me', paymentMethod: 'vi',
+        selectedTimeSlot: '8 AM-9 AM', distributionChoice: 'me', paymentMethod: 'cod', // Defaulted to COD as an example
     };
 
     async function pbFetch(collection, options = {}) {
         const { recordId = '', params = '' } = options;
         const url = `/api/collections/${collection}/records${recordId ? `/${recordId}` : ''}${params ? `?${params}` : ''}`;
-        const response = await fetch(url, options.fetchOptions);
+        // Add any auth headers if needed for PocketBase Admin API or protected collections
+        // const adminToken = 'YOUR_POCKETBASE_ADMIN_TOKEN_IF_NEEDED_FOR_SEEDING_ETC';
+        // const fetchOptionsWithAuth = adminToken ? { ...options.fetchOptions, headers: { ...options.fetchOptions?.headers, 'Authorization': `Admin ${adminToken}` } } : options.fetchOptions;
+        const response = await fetch(url, options.fetchOptions /* fetchOptionsWithAuth */); // Use fetchOptionsWithAuth if using admin token
         if (!response.ok) {
             let errorDataMessage = response.statusText;
-            try { 
-                const errorData = await response.json(); 
+            try {
+                const errorData = await response.json();
                 if (errorData && typeof errorData.data === 'object' && errorData.data !== null) {
                     errorDataMessage = JSON.stringify(errorData.data);
                 } else if (errorData && errorData.message) { errorDataMessage = errorData.message; }
@@ -28,18 +31,18 @@ document.addEventListener('alpine:init', () => {
     }
 
     async function seedPocketBaseData() {
-        console.log("Attempting to seed PocketBase data... Ensure API Create/Update rules for app_settings and livestock_types are temporarily public (\"\") if running this from an unauthenticated session.");
-        const API_URL_PREFIX = '/api'; 
+        console.log("Attempting to seed PocketBase data... Ensure API Create/Update rules for app_settings and livestock_types are temporarily public (\"\") or you've configured admin auth in pbFetch if running this from an unauthenticated session.");
+        const API_URL_PREFIX = '/api';
 
         const defaultAppSettingsData = {
-            setting_key: "global_config", 
+            setting_key: "global_config",
             exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.021, symbol: '$', is_active: true }, GBP: { rate_from_egp: 0.017, symbol: '£', is_active: true }},
             default_currency: "EGP",
             whatsapp_number_raw: "201234567890",
             whatsapp_number_display: "+20 123 456 7890",
-            promo_end_date: "2024-08-15T23:59:59Z", // EXAMPLE: Set your actual promo end date
+            promo_end_date: "2024-08-15T23:59:59Z",
             promo_discount_percent: 15,
-            promo_is_active: true, 
+            promo_is_active: true,
             site_name: "Sheep Land",
             delivery_areas: [
                 { id: 'cairo', name_en: 'Cairo', name_ar: 'القاهرة', cities: [ {id: 'nasr_city', name_en: 'Nasr City', name_ar: 'مدينة نصر'}, {id: 'maadi', name_en: 'Maadi', name_ar: 'المعادي'}, {id: 'heliopolis', name_en: 'Heliopolis', name_ar: 'مصر الجديدة'} ]},
@@ -47,16 +50,21 @@ document.addEventListener('alpine:init', () => {
                 { id: 'alexandria', name_en: 'Alexandria', name_ar: 'الإسكندرية', cities: [ {id: 'smouha', name_en: 'Smouha', name_ar: 'سموحة'}, {id: 'miami', name_en: 'Miami', name_ar: 'ميامي'} ]},
                 { id: 'other_gov', name_en: 'Other Governorate', name_ar: 'محافظة أخرى', cities: [] }
             ],
-            payment_details: { 
+            payment_details: {
                 vodafone_cash: "010 YOUR VODA NUMBER", instapay_ipn: "YOUR.IPN@instapay", revolut_details: "@YOUR_REVTAG or Phone: +XX XXXXXXXX",
                 bank_name: "YOUR BANK NAME", bank_account_name: "YOUR ACCOUNT HOLDER NAME", bank_account_number: "YOUR ACCOUNT NUMBER",
                 bank_iban: "YOUR IBAN (Optional)", bank_swift: "YOUR SWIFT/BIC (Optional)"
-            }
+            },
+            packaging_addons: { vacuum_sealed_price_egp: 100 }, // Added for dynamic pricing in dropdown
+            text_select_preparation_en: "-- Select Preparation --", text_select_preparation_ar: "-- اختر طريقة التجهيز --",
+            text_select_packaging_en: "-- Select Packaging --", text_select_packaging_ar: "-- اختر طريقة التغليف --",
+            alert_select_prep_packaging_en: "Please select both preparation style and packaging preference.",
+            alert_select_prep_packaging_ar: "يرجى اختيار طريقة التجهيز والتغليف.",
         };
 
         try {
             const checkSettingsUrl = `${API_URL_PREFIX}/collections/app_settings/records?filter=(setting_key='global_config')&perPage=1`;
-            const checkResponse = await fetch(checkSettingsUrl);
+            const checkResponse = await fetch(checkSettingsUrl); // Consider auth if needed
             if (!checkResponse.ok && checkResponse.status !== 404) throw new Error(`Checking settings failed: ${checkResponse.statusText} - ${await checkResponse.text()}`);
             const checkData = await checkResponse.json();
             let recordIdToAlert = '';
@@ -65,14 +73,14 @@ document.addEventListener('alpine:init', () => {
                 console.log("App settings 'global_config' already exists. Updating it.");
                 const existingSettingsId = checkData.items[0].id; recordIdToAlert = existingSettingsId;
                 const updateResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records/${existingSettingsId}`, {
-                    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData)
+                    method: 'PATCH', headers: { 'Content-Type': 'application/json' /*, 'Authorization': `Admin YOUR_TOKEN_HERE` */ }, body: JSON.stringify(defaultAppSettingsData)
                 });
                 if (!updateResponse.ok) { const errText = await updateResponse.text(); throw new Error(`Failed to update app_settings: ${errText}`);}
                 console.log("App settings updated:", await updateResponse.json());
             } else {
                 console.log("App settings 'global_config' not found. Creating it.");
                 const createResponse = await fetch(`${API_URL_PREFIX}/collections/app_settings/records`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultAppSettingsData)
+                    method: 'POST', headers: { 'Content-Type': 'application/json' /*, 'Authorization': `Admin YOUR_TOKEN_HERE` */ }, body: JSON.stringify(defaultAppSettingsData)
                 });
                 if (!createResponse.ok) { const errText = await createResponse.text(); throw new Error(`Failed to create app_settings: ${errText}`);}
                 const createdRecord = await createResponse.json(); recordIdToAlert = createdRecord.id;
@@ -89,60 +97,51 @@ document.addEventListener('alpine:init', () => {
         for (const livestock of defaultLivestockData) {
             try {
                 const checkLivestockUrl = `${API_URL_PREFIX}/collections/livestock_types/records?filter=(value_key='${livestock.value_key}')&perPage=1`;
-                const checkResponse = await fetch(checkLivestockUrl);
+                const checkResponse = await fetch(checkLivestockUrl); // Consider auth
                 if (!checkResponse.ok && checkResponse.status !== 404) throw new Error(`Checking livestock ${livestock.value_key} failed: ${checkResponse.statusText} - ${await checkResponse.text()}`);
                 const checkData = await checkResponse.json();
                 if (checkData.items && checkData.items.length > 0) {
                     console.log(`Livestock type '${livestock.value_key}' already exists. Updating.`);
                     const updateResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records/${checkData.items[0].id}`, {
-                        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock)
+                        method: 'PATCH', headers: { 'Content-Type': 'application/json' /*, 'Authorization': `Admin YOUR_TOKEN_HERE` */ }, body: JSON.stringify(livestock)
                     });
                     if (!updateResponse.ok) { const errText = await updateResponse.text(); throw new Error(`Update failed for ${livestock.value_key}: ${errText}`);}
                     console.log("Livestock updated:", await updateResponse.json());
                 } else {
                     console.log(`Livestock type '${livestock.value_key}' not found. Creating.`);
                     const createResponse = await fetch(`${API_URL_PREFIX}/collections/livestock_types/records`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(livestock)
+                        method: 'POST', headers: { 'Content-Type': 'application/json' /*, 'Authorization': `Admin YOUR_TOKEN_HERE` */ }, body: JSON.stringify(livestock)
                     });
                     if (!createResponse.ok) { const errText = await createResponse.text(); throw new Error(`Create failed for ${livestock.value_key}: ${errText}`);}
                     console.log("Livestock created:", await createResponse.json());
                 }
             } catch (error) { console.error(`Error seeding livestock ${livestock.value_key}:`, error); alert(`Error for ${livestock.value_key}: ` + error.message); }
         }
-        console.log("Data seeding process finished. IMPORTANT: Secure API rules for app_settings and livestock_types if you loosened them."); 
+        console.log("Data seeding process finished. IMPORTANT: Secure API rules for app_settings and livestock_types if you loosened them.");
         alert("Data seeding finished. Refresh page. Remember to secure API rules!");
     }
     window.seedPocketBaseData = seedPocketBaseData;
 
+
     Alpine.data('udheyaBooking', () => ({
         isLoading: { status: false, booking: false, init: true },
-        appSettings: {
-            exchange_rates: { 
-                EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true },
-                USD: { rate_from_egp: 0, symbol: '$', is_active: false }, 
-                GBP: { rate_from_egp: 0, symbol: '£', is_active: false }
-            },
-            default_currency: "EGP",
-            whatsapp_number_raw: "",
-            whatsapp_number_display: "",
-            promo_end_date: null, 
-            promo_discount_percent: 0,
-            promo_is_active: true, 
-            site_name: "Sheep Land",
-            delivery_areas: [],
-            payment_details: { 
-                vodafone_cash: "", instapay_ipn: "", revolut_details: "",
-                bank_name: "", bank_account_name: "", bank_account_number: "",
-                bank_iban: "", bank_swift: ""
-            }
+        appSettings: { // Default structure, will be overwritten by API
+            exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0, symbol: '$', is_active: false }, GBP: { rate_from_egp: 0, symbol: '£', is_active: false }},
+            default_currency: "EGP", whatsapp_number_raw: "", whatsapp_number_display: "", promo_end_date: null, promo_discount_percent: 0, promo_is_active: true, site_name: "Sheep Land", delivery_areas: [],
+            payment_details: { vodafone_cash: "", instapay_ipn: "", revolut_details: "", bank_name: "", bank_account_name: "", bank_account_number: "", bank_iban: "", bank_swift: "" },
+            packaging_addons: { vacuum_sealed_price_egp: 100 },
+            text_select_preparation_en: "-- Select Preparation --", text_select_preparation_ar: "-- اختر طريقة التجهيز --",
+            text_select_packaging_en: "-- Select Packaging --", text_select_packaging_ar: "-- اختر طريقة التغليف --",
+            alert_select_prep_packaging_en: "Please select both preparation style and packaging preference.",
+            alert_select_prep_packaging_ar: "يرجى اختيار طريقة التجهيز والتغليف.",
         },
         productOptions: { livestock: [] },
         apiError: null,
         ...JSON.parse(JSON.stringify(initialBookingFormState)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: '', currentCurrency: 'EGP',
         bookingID: '', currentActiveStep: 1, isMobileMenuOpen: false,
-        stepSectionsMeta: [],
-        calculatedPromoDaysLeft: 0, 
+        stepSectionsMeta: [], // Will map to content DIVs for scroll handling
+        calculatedPromoDaysLeft: 0,
 
         get _needsDeliveryDetails() {
             const customText = (this.customSplitDetailsText || '').toLowerCase();
@@ -150,7 +149,7 @@ document.addEventListener('alpine:init', () => {
                    ['1/3_me_2/3_charity_sl', '1/2_me_1/2_charity_sl', '2/3_me_1/3_charity_sl', 'all_me_custom_distro'].includes(this.splitDetailsOption) ||
                    (this.splitDetailsOption === 'custom' && (customText.includes('for me') || customText.includes('all delivered to me'))) ));
         },
-        get splitDetails() { 
+        get splitDetails() {
             if (this.distributionChoice !== 'split') return '';
             if (this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim();
             return {
@@ -160,7 +159,7 @@ document.addEventListener('alpine:init', () => {
                 'all_me_custom_distro': 'All for me (for my own distribution)'
             }[this.splitDetailsOption] || this.splitDetailsOption;
         },
-        _getDeliveryLocation(lang) { 
+        _getDeliveryLocation(lang) {
             const key = lang === 'en' ? 'name_en' : 'name_ar';
             const govObj = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
             const cityObj = govObj?.cities?.find(c => c.id === this.deliveryCity);
@@ -169,7 +168,7 @@ document.addEventListener('alpine:init', () => {
             if (govObj && !cityObj && this.selectedGovernorate) return `${govObj[key]} (${lang === 'en' ? 'City not selected' : 'المدينة غير مختارة'})`;
             return '';
         },
-        get summaryDeliveryToEN() { 
+        get summaryDeliveryToEN() {
             if (this.distributionChoice === 'char') return 'Charity Distribution by Sheep Land';
             if (this._needsDeliveryDetails) {
                 const name = (this.deliveryName || "").trim() || 'Recipient';
@@ -183,7 +182,7 @@ document.addEventListener('alpine:init', () => {
             }
             return 'Self Pickup / Distribution as per split';
         },
-        get summaryDeliveryToAR() { 
+        get summaryDeliveryToAR() {
             if (this.distributionChoice === 'char') return 'توزيع خيري بواسطة أرض الأغنام';
             if (this._needsDeliveryDetails) {
                 const name = (this.deliveryName || "").trim() || 'المستلم';
@@ -204,7 +203,7 @@ document.addEventListener('alpine:init', () => {
             if (this.appSettings.promo_end_date) {
                 const endDate = new Date(this.appSettings.promo_end_date);
                 const now = new Date();
-                const diffTime = endDate - now; 
+                const diffTime = endDate - now;
                 if (diffTime > 0) {
                     this.calculatedPromoDaysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 } else {
@@ -216,9 +215,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         async initApp() {
-            this.isLoading.init = true; 
+            this.isLoading.init = true;
             this.apiError = null;
-            const initialDefaultAppSettings = JSON.parse(JSON.stringify(this.appSettings));
+            const initialDefaultAppSettings = JSON.parse(JSON.stringify(this.appSettings)); // Keep a copy of compiled defaults
 
             try {
                 const settingsParams = `filter=(setting_key='global_config')&perPage=1`;
@@ -229,76 +228,77 @@ document.addEventListener('alpine:init', () => {
 
                 if (settingsCollectionData.items && settingsCollectionData.items.length > 0) {
                     const fetchedSettings = settingsCollectionData.items[0];
-                    const newAppSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings)); 
+                    // Deep merge fetched settings into the initial default structure to ensure all keys are present
+                    const newAppSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
                     for (const key in fetchedSettings) {
                         if (fetchedSettings.hasOwnProperty(key)) {
-                            if (typeof fetchedSettings[key] === 'object' && fetchedSettings[key] !== null && 
+                            if (typeof fetchedSettings[key] === 'object' && fetchedSettings[key] !== null &&
                                 newAppSettings[key] !== undefined && typeof newAppSettings[key] === 'object' && newAppSettings[key] !== null &&
-                                !Array.isArray(fetchedSettings[key])) { 
+                                !Array.isArray(fetchedSettings[key])) { // Merge objects
                                 newAppSettings[key] = { ...newAppSettings[key], ...fetchedSettings[key] };
-                            } else { 
+                            } else { // Assign primitives, arrays, or new keys
                                 newAppSettings[key] = fetchedSettings[key];
                             }
                         }
                     }
                     this.appSettings = newAppSettings;
                 } else {
-                    this.appSettings = initialDefaultAppSettings; 
-                    throw new Error("Critical: Global app settings ('global_config') not found. Run seedPocketBaseData() from console & refresh.");
+                     this.appSettings = initialDefaultAppSettings; // Fallback to compiled defaults if API fails or no record
+                    throw new Error("Critical: Global app settings ('global_config') not found. Run seedPocketBaseData() from console & refresh, or check API permissions.");
                 }
-                
+
                 this.productOptions.livestock = livestockData.items.map(item => ({
                     pbId: item.id, value_key: item.value_key, name_en: item.name_en, name_ar: item.name_ar,
                     weights_prices: Array.isArray(item.weights_prices) ? item.weights_prices.map(wp => ({...wp})) : []
                 }));
 
-            } catch (error) { 
-                console.error("Init App Error:", error); 
-                this.apiError = error.message; 
-                this.appSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings));
+            } catch (error) {
+                console.error("Init App Error:", error);
+                this.apiError = error.message;
+                this.appSettings = JSON.parse(JSON.stringify(initialDefaultAppSettings)); // Fallback to compiled defaults on any error
             }
-            finally { 
-                this.isLoading.init = false; 
+            finally {
+                this.isLoading.init = false;
             }
 
-            this.updateCalculatedPromoDaysLeft(); 
-            setInterval(() => {
-                this.updateCalculatedPromoDaysLeft();
-            }, 1000 * 60 * 60); 
+            this.updateCalculatedPromoDaysLeft();
+            setInterval(() => this.updateCalculatedPromoDaysLeft(), 1000 * 60 * 60);
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    this.updateCalculatedPromoDaysLeft();
-                }
+                if (document.visibilityState === 'visible') this.updateCalculatedPromoDaysLeft();
             });
 
-            this.currentCurrency = this.appSettings.default_currency || "EGP"; 
-            this.updateSacrificeDayTexts(); 
-            this.updateAllDisplayedPrices(); 
+            this.currentCurrency = this.appSettings.default_currency || "EGP";
+            this.updateSacrificeDayTexts();
+            this.updateAllDisplayedPrices(); // Includes populating livestock weight dropdowns
 
             this.$watch(['selectedAnimal.basePriceEGP', 'selectedPackaging.addonPriceEGP'], () => this.calculateTotalPrice());
             this.$watch('currentCurrency', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
             this.$watch('selectedSacrificeDay.value', () => this.updateSacrificeDayTexts());
             this.$watch('distributionChoice', val => {
                 if (val !== 'split') { this.splitDetailsOption = ''; this.customSplitDetailsText = ''; }
-                if (val === 'char') { 
-                    Object.assign(this, { deliveryName: '', deliveryPhone: '', selectedGovernorate: '', deliveryCity: '', deliveryAddress: '', deliveryInstructions: '', availableCities: [] });
-                }
+                if (val === 'char') { Object.assign(this, { deliveryName: '', deliveryPhone: '', selectedGovernorate: '', deliveryCity: '', deliveryAddress: '', deliveryInstructions: '', availableCities: [] });}
             });
-            this.$watch('selectedPrepStyle.is_custom', isCustom => { if (!isCustom) this.customPrepDetails = ''; });
+            // selectedPrepStyle.is_custom is handled by handlePrepStyleChangeFromDropdown
             this.$watch('splitDetailsOption', val => { if (val !== 'custom') this.customSplitDetailsText = ''; });
             this.$watch('selectedGovernorate', () => this.updateCities());
-            
-            this.stepSectionsMeta = ['#step1-content', '#step2-content', '#step3-content', '#step4-content', '#step5-content'] // Using content div IDs
-                .map((id, index) => ({ id, step: index + 1, element: document.querySelector(id) }));
-            
+
+            // Map visual steps to their content div IDs
+            this.stepSectionsMeta = [
+                { id: '#step1-content', step: 1 }, // Animal
+                { id: '#step2-content', step: 2 }, // Prep & Package
+                { id: '#step4-content', step: 3 }, // Logistics (uses original #step4-content div)
+                { id: '#step5-content', step: 4 }  // Review (uses original #step5-content div)
+            ].map(s => ({ ...s, element: document.querySelector(s.id) }));
+
             this.$nextTick(() => { this.handleScroll(); });
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
-            this.updateStepperState(1);
+            this.updateStepperState(1); // Start at step 1
         },
-        handleScroll() { 
+
+        handleScroll() {
             if (this.bookingConfirmed || !this.stepSectionsMeta.some(s => s.element)) return;
             const offset = (document.querySelector('.site-header')?.offsetHeight || 70) + (document.querySelector('.stepper-outer-wrapper')?.offsetHeight || 55) + 20;
-            let newActiveStep = this.currentActiveStep; // Default to current to avoid unnecessary changes
+            let newActiveStep = this.currentActiveStep;
             const scrollPosition = window.scrollY + offset;
 
             for (let i = 0; i < this.stepSectionsMeta.length; i++) {
@@ -306,48 +306,37 @@ document.addEventListener('alpine:init', () => {
                 if (section.element) {
                     const sectionTop = section.element.offsetTop;
                     const sectionBottom = sectionTop + section.element.offsetHeight;
-                    // Check if the current scroll position is within this section's view
                     if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-                         // Prioritize step if its top is visible or just passed
-                        if (section.element.getBoundingClientRect().top < offset) {
-                           newActiveStep = section.step;
-                           // If it's the last section and we've scrolled past its start, it should be active
-                           if (i === this.stepSectionsMeta.length - 1 && scrollPosition >= sectionTop) {
-                               newActiveStep = section.step;
-                           }
-                           // Break if we find the current section, but allow checking further down for last section case
-                           // break; // Potentially remove break to ensure last section check
-                        }
-                    } else if (scrollPosition < sectionTop && i === 0) { // Scrolled above the first section
-                        newActiveStep = 1;
+                        newActiveStep = section.step; // section.step is the visual step number (1, 2, 3, 4)
+                        break;
                     }
                 }
             }
-             // A fallback if scrolled past all sections, keep last step active
-            const lastStepElement = this.stepSectionsMeta[this.stepSectionsMeta.length - 1].element;
-            if (lastStepElement && scrollPosition >= lastStepElement.offsetTop + lastStepElement.offsetHeight) {
-                newActiveStep = this.stepSectionsMeta[this.stepSectionsMeta.length - 1].step;
+            // Fallback for scrolling past all sections
+            const lastStepMeta = this.stepSectionsMeta[this.stepSectionsMeta.length - 1];
+            if (lastStepMeta && lastStepMeta.element && scrollPosition >= lastStepMeta.element.offsetTop + lastStepMeta.element.offsetHeight) {
+                newActiveStep = lastStepMeta.step;
             }
 
 
             if (this.currentActiveStep !== newActiveStep) {
-                 // Basic validation before changing step via scroll
+                // Validate before changing step via scroll
                 if (newActiveStep === 2 && !this.selectedAnimal.type) { /* stay on 1 */ }
-                else if (newActiveStep === 3 && !(this.selectedAnimal.type && this.selectedPrepStyle.value)) { /* stay on prev valid */ }
-                else if (newActiveStep === 4 && !(this.selectedAnimal.type && this.selectedPrepStyle.value && this.selectedPackaging.value)) { /* stay on prev valid */ }
-                else if (newActiveStep === 5 && !this.canProceedFromLogistics()) { /* stay on prev valid */ }
+                else if (newActiveStep === 3 && !(this.selectedAnimal.type && this.selectedPrepStyle.value && this.selectedPackaging.value)) { /* stay on prev valid */ }
+                else if (newActiveStep === 4 && !this.canProceedFromLogistics()) { /* stay on prev valid */ }
                 else {
                     this.currentActiveStep = newActiveStep;
                 }
             }
         },
-        updateCities() { 
+
+        updateCities() {
             const gov = (this.appSettings.delivery_areas || []).find(g => g.id === this.selectedGovernorate);
             this.availableCities = gov?.cities || []; this.deliveryCity = '';
         },
-        getFormattedPrice(price, currency) { 
+        getFormattedPrice(price, currency) {
             const c = currency || this.currentCurrency;
-            const r = (this.appSettings.exchange_rates || {})[c]; 
+            const r = (this.appSettings.exchange_rates || {})[c];
             return (price == null || !r || typeof r.rate_from_egp !== 'number') ? `${r?.symbol || '?'} ---` : `${r.symbol} ${(price * r.rate_from_egp).toFixed(2)}`;
         },
         isValidEmail: email => (!email || !email.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
@@ -357,29 +346,33 @@ document.addEventListener('alpine:init', () => {
                 const headerOffset = (document.querySelector('.site-header')?.offsetHeight || 0) + (document.querySelector('.stepper-outer-wrapper')?.offsetHeight || 0);
                 const elementPosition = element.getBoundingClientRect().top;
                 const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                
-                window.scrollTo({
-                     top: offsetPosition,
-                     behavior: "smooth"
-                });
+                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
             }
         },
-        updateStepperState(step) { 
-            // Add validation before allowing step change via stepper click
-            if (step > 1 && !this.selectedAnimal.type) { this.currentActiveStep = 1; this.scrollToSection('#step1-content'); return; }
-            if (step > 2 && !this.selectedPrepStyle.value) { this.currentActiveStep = 2; this.scrollToSection('#step2-content'); return; }
-            if (step > 3 && !this.selectedPackaging.value) { this.currentActiveStep = 3; this.scrollToSection('#step3-content'); return; }
-            if (step > 4 && !this.canProceedFromLogistics()) { // This covers logistics for step 5
+        updateStepperState(step) { // step is the visual step number (1, 2, 3, 4)
+            let targetContentId = '';
+            if (step === 1) targetContentId = '#step1-content';
+            else if (step === 2) targetContentId = '#step2-content';
+            else if (step === 3) targetContentId = '#step4-content'; // Logistics content
+            else if (step === 4) targetContentId = '#step5-content'; // Review content
+
+            // Validation before allowing step change via stepper click
+            if (step > 1 && !this.selectedAnimal.type) { this.currentActiveStep = 1; if (targetContentId) this.scrollToSection('#step1-content'); return; }
+            if (step > 2 && (!this.selectedPrepStyle.value || !this.selectedPackaging.value)) { this.currentActiveStep = 2; if (targetContentId) this.scrollToSection('#step2-content'); return; }
+            if (step > 3 && !this.canProceedFromLogistics()) { // For step 4 (Review), logistics must be complete
                  if (!(this.selectedAnimal.type && this.selectedPrepStyle.value && this.selectedPackaging.value)) {
-                    this.currentActiveStep = 3; this.scrollToSection('#step3-content'); return;
+                    this.currentActiveStep = 2; if (targetContentId) this.scrollToSection('#step2-content'); return;
                  }
-                 this.currentActiveStep = 4; this.scrollToSection('#step4-content'); 
-                 if (step === 5) this.proceedToReview(); // Specifically if trying to go to step 5 and logistics incomplete
+                 this.currentActiveStep = 3; if (targetContentId) this.scrollToSection('#step4-content');
+                 if (step === 4) this.proceedToReview(); // Specifically if trying to go to Review and logistics incomplete
                  return;
             }
-            this.currentActiveStep = step; 
+            this.currentActiveStep = step;
+            if (targetContentId) this.scrollToSection(targetContentId); else this.scrollToSection('#udheya-booking-form-panel');
+
         },
-        selectAnimal(cardEl, key) { 
+
+        selectAnimal(cardEl, key) {
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
             const sel = cardEl.querySelector('.livestock-weight-select');
             if (!animal || !sel || !sel.value) { alert('Error selecting animal/weight.'); return; }
@@ -389,18 +382,45 @@ document.addEventListener('alpine:init', () => {
             }
             this.selectedAnimal = { type: animal.value_key, value: animal.value_key, weight: wp.weight_range, basePriceEGP: parseFloat(wp.price_egp), stock: wp.stock, originalStock: wp.stock, nameEN: animal.name_en, nameAR: animal.name_ar, pbId: animal.pbId };
             this.calculateTotalPrice();
-            this.$nextTick(() => { this.updateStepperState(2); this.scrollToSection('#step2-content'); }); 
+            // No automatic progression here, user clicks "Next" button on Step 1
         },
-        isLivestockWeightOutOfStock(selEl, key) { 
+        isLivestockWeightOutOfStock(selEl, key) {
             const animal = this.productOptions.livestock.find(a => a.value_key === key);
             if (!animal || !selEl || !selEl.value) return true;
             const wp = animal.weights_prices.find(w => w.weight_range === selEl.value);
             return !wp || !wp.is_active || (wp.stock != null && wp.stock <= 0);
         },
-        selectPrepStyle(prep) { this.selectedPrepStyle = { ...prep, is_custom: !!prep.is_custom }; this.calculateTotalPrice(); this.$nextTick(() => { this.updateStepperState(3); this.scrollToSection('#step3-content'); }); }, 
-        selectPackaging(pkg) { this.selectedPackaging = { ...pkg, addonPriceEGP: parseFloat(pkg.addonPriceEGP || 0) }; this.calculateTotalPrice(); this.$nextTick(() => { this.updateStepperState(4); this.scrollToSection('#step4-content'); }); }, 
-        canProceedFromLogistics() { 
-            if (!this.selectedAnimal.type || !this.selectedPrepStyle.value || !this.selectedPackaging.value) return false;
+
+        handlePrepStyleChangeFromDropdown(value) {
+            const optionElement = document.querySelector(`#prep_style_select_s2 option[value="${value}"]`);
+            if (optionElement) {
+                this.selectedPrepStyle = {
+                    value: value,
+                    nameEN: optionElement.dataset.nameEn || value,
+                    nameAR: optionElement.dataset.nameAr || value,
+                    is_custom: optionElement.dataset.isCustom === 'true'
+                };
+                if (!this.selectedPrepStyle.is_custom) {
+                    this.customPrepDetails = '';
+                }
+                this.calculateTotalPrice();
+            }
+        },
+        handlePackagingChangeFromDropdown(value) {
+            const optionElement = document.querySelector(`#packaging_select_s2 option[value="${value}"]`);
+            if (optionElement) {
+                this.selectedPackaging = {
+                    value: value,
+                    nameEN: optionElement.dataset.nameEn || value,
+                    nameAR: optionElement.dataset.nameAr || value,
+                    addonPriceEGP: parseFloat(optionElement.dataset.addonPriceEgp || 0)
+                };
+                this.calculateTotalPrice();
+            }
+        },
+
+        canProceedFromLogistics() { // Validates the Logistics step (now visual step 3, content in #step4-content)
+            if (!this.selectedAnimal.type || !this.selectedPrepStyle.value || !this.selectedPackaging.value) return false; // Prerequisites
             if (this.customerEmail && !this.isValidEmail(this.customerEmail)) return false;
             if (this.distributionChoice === 'split' && (!this.splitDetailsOption || (this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()))) return false;
             if (this._needsDeliveryDetails) {
@@ -410,9 +430,9 @@ document.addEventListener('alpine:init', () => {
             }
             return true;
         },
-        proceedToReview() { 
-            if (this.canProceedFromLogistics()) { this.$nextTick(() => { this.updateStepperState(5); this.scrollToSection('#step5-content'); }); return; } 
-            const errors = ['Complete required fields in Logistics (Step 4):'];
+        proceedToReview() { // Called from Logistics step (visual step 3, content in #step4-content)
+            if (this.canProceedFromLogistics()) { this.$nextTick(() => { this.updateStepperState(4); this.scrollToSection('#step5-content'); }); return; } // Go to Review (visual step 4, content in #step5-content)
+            const errors = [`Complete required fields in Logistics (Step 3):`]; // User sees it as Step 3
             if (this.customerEmail && !this.isValidEmail(this.customerEmail)) errors.push('- Invalid Email.');
             if (this.distributionChoice === 'split' && (!this.splitDetailsOption || (this.splitDetailsOption === 'custom' && !this.customSplitDetailsText?.trim()))) errors.push('- Invalid split details.');
             if (this._needsDeliveryDetails) {
@@ -422,12 +442,14 @@ document.addEventListener('alpine:init', () => {
                 if (gov && gov.cities?.length > 0 && !this.deliveryCity) errors.push('- City.');
                 if (!this.deliveryAddress?.trim()) errors.push('- Delivery Address.');
             }
-            alert(errors.join('\n')); this.updateStepperState(4);
-            this.scrollToSection('#step4-content'); 
+            alert(errors.join('\n'));
+            this.updateStepperState(3); // Stay on/go to Logistics
+            // scrollToSection('#step4-content') will be handled by updateStepperState
         },
         updateSacrificeDayTexts() { const opt = document.querySelector(`#sacrifice_day_select_s4 option[value="${this.selectedSacrificeDay.value}"]`); if (opt) Object.assign(this.selectedSacrificeDay, { textEN: opt.dataset.en, textAR: opt.dataset.ar }); },
         calculateTotalPrice() { this.totalPriceEGP = (this.selectedAnimal.basePriceEGP || 0) + (this.selectedPackaging.addonPriceEGP || 0); },
-        updateAllDisplayedPrices() { 
+
+        updateAllDisplayedPrices() {
             (this.productOptions.livestock || []).forEach(animal => {
                 const card = document.getElementById(animal.value_key);
                 const sel = card?.querySelector('.livestock-weight-select');
@@ -444,30 +466,27 @@ document.addEventListener('alpine:init', () => {
                 sel.value = curAvail ? curVal : (firstAvail || (sel.options.length ? sel.options[0].value : ''));
                 const fA = (animal.weights_prices || []).find(wp => wp.is_active && (wp.stock == null || wp.stock > 0));
                 const price = fA ? fA.price_egp : ((animal.weights_prices || [])[0]?.price_egp || 0);
-                
+
                 const priceEnSpan = card.querySelector('.price.bil-row .en span');
                 const priceArSpan = card.querySelector('.price.bil-row .ar span');
                 if(priceEnSpan) priceEnSpan.textContent = this.getFormattedPrice(price);
                 if(priceArSpan) priceArSpan.textContent = this.getFormattedPrice(price);
             });
-            document.querySelectorAll('.packaging-card[data-packaging-value="vacuum_sealed"] .price-addon span').forEach(s => { s.textContent = this.getFormattedPrice(100); }); 
+            // Packaging prices are now in dropdown option text, so no need to update separate cards
             this.calculateTotalPrice();
         },
-        async submitBooking() { 
-            const v = [!this.selectedAnimal.type, !this.selectedPrepStyle.value, !this.selectedPackaging.value, !this.canProceedFromLogistics()];
-            const sections = ['#step1-content', '#step2-content', '#step3-content', '#step4-content'];
-            for (let i = 0; i < v.length; i++) {
-                if (v[i]) {
-                    if (i === 3) this.proceedToReview(); else alert(`Please complete Step ${i + 1}.`);
-                    this.updateStepperState(i + 1); this.scrollToSection(sections[i]); return;
-                }
-            }
+
+        async submitBooking() {
+            if (!this.selectedAnimal.type) { alert(`Please complete Step 1 (Animal).`); this.updateStepperState(1); return; }
+            if (!this.selectedPrepStyle.value || !this.selectedPackaging.value) { alert(`Please complete Step 2 (Preparation & Packaging).`); this.updateStepperState(2); return; }
+            if (!this.canProceedFromLogistics()) { this.proceedToReview(); /* This will show specific errors for Logistics (Step 3) */ this.updateStepperState(3); return; }
+
             const animal = this.productOptions.livestock.find(a => a.value_key === this.selectedAnimal.value);
             const wpData = animal?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight);
             if (!animal || !wpData || !wpData.is_active || (wpData.stock != null && wpData.stock <= 0)) {
                 alert(`Sorry, ${this.selectedAnimal.nameEN || 'item'} is no longer available.`);
                 this.selectedAnimal = { ...initialBookingFormState.selectedAnimal }; this.updateAllDisplayedPrices();
-                this.updateStepperState(1); this.scrollToSection('#step1-content'); return;
+                this.updateStepperState(1); return;
             }
 
             this.isLoading.booking = true; this.apiError = null; this.calculateTotalPrice();
@@ -494,9 +513,11 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 const booking = await pbFetch('bookings', { fetchOptions: { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }});
-                this.bookingID = booking.booking_id_text || booking.id; 
+                this.bookingID = booking.booking_id_text || booking.id;
                 if (wpData.stock != null && wpData.stock > 0) {
-                    wpData.stock--; 
+                    wpData.stock--; // Decrement local cache
+                    // Consider making an API call here to update the livestock_types record in PocketBase if strict real-time stock is critical
+                    // For now, this only updates the client-side view until next full initApp or data refresh.
                     this.updateAllDisplayedPrices();
                 }
                 this.bookingConfirmed = true; this.$nextTick(() => this.scrollToSection('#step5-booking-confirmation'));
@@ -504,7 +525,7 @@ document.addEventListener('alpine:init', () => {
             } catch (error) { console.error("Booking Submission Error:", error); this.apiError = error.message; alert(`Booking Error: ${error.message}`); }
             finally { this.isLoading.booking = false; }
         },
-        async checkBookingStatus() { 
+        async checkBookingStatus() {
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null;
             const id = (this.lookupBookingID || "").trim();
             if (!id) { alert('Please enter Booking ID.'); this.isLoading.status = false; return; }
@@ -518,9 +539,17 @@ document.addEventListener('alpine:init', () => {
             finally { this.isLoading.status = false; }
         },
         getSacrificeDayText(val) { const opt = document.querySelector(`#sacrifice_day_select_s4 option[value="${val}"]`); return opt ? { en: opt.dataset.en, ar: opt.dataset.ar } : { en: val, ar: val }; },
-        resetAndStartOver() { 
-            Object.assign(this, JSON.parse(JSON.stringify(initialBookingFormState)), { bookingConfirmed: false, bookingID: '', lookupBookingID: '', statusResult: null, statusNotFound: false, currentActiveStep: 1, isMobileMenuOpen: false, apiError: null, calculatedPromoDaysLeft: 0 });
-            this.initApp(); 
+        resetAndStartOver() {
+            Object.assign(this, JSON.parse(JSON.stringify(initialBookingFormState)), { bookingConfirmed: false, bookingID: '', lookupBookingID: '', statusResult: null, statusNotFound: false, currentActiveStep: 1, isMobileMenuOpen: false, apiError: null, calculatedPromoDaysLeft: this.calculatedPromoDaysLeft /* Preserve this as it's from appSettings */ });
+            // Re-initialize parts of the app state that initApp would normally set up,
+            // or call a slimmed-down version of initApp if one exists.
+            // For simplicity here, we'll rely on initApp being called if absolutely needed,
+            // but essential UI elements should be reset directly or by watchers.
+            this.updateAllDisplayedPrices(); // Refresh animal prices and stock
+            this.updateSacrificeDayTexts(); // Reset sacrifice day text
+            this.currentCurrency = this.appSettings.default_currency || "EGP"; // Reset currency
+            this.updateStepperState(1);
+            this.$nextTick(() => this.scrollToSection('#udheya-booking-start'));
         }
     }));
 });
