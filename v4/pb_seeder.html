@@ -37,16 +37,16 @@
         <div class="warning">
             <strong>IMPORTANT INSTRUCTIONS:</strong>
             <ul>
-                <li>This script requires an **ADMIN TOKEN** to create collections and seed data securely.</li>
-                <li>Paste your temporary Admin token below. **DO NOT SAVE THIS FILE WITH THE TOKEN IN IT.** Clear the token after use.</li>
+                <li>This script requires an **ADMIN/SUPERUSER TOKEN** to create collections and seed data securely.</li>
+                <li>Paste your temporary Admin/Superuser token below. **DO NOT SAVE THIS FILE WITH THE TOKEN IN IT.** Clear the token after use.</li>
                 <li>Ensure your PocketBase instance is running at <code id="pb-instance-url-display">https://sheep.land</code> (or update <code>POCKETBASE_URL</code> in script).</li>
                 <li>This script is for initial setup or controlled development environments.</li>
-                <li>After seeding, **REVIEW AND SET APPROPRIATE API RULES** for `app_settings`, `livestock_types`, and `bookings` collections in your PocketBase Admin UI for production use.</li>
+                <li>After seeding, **REVIEW AND SET APPROPRIATE API RULES** for `app_settings`, `livestock_types`, and `bookings` collections in your PocketBase Admin UI for production use. The seeder configures them to be open for its operations.</li>
             </ul>
         </div>
 
         <div class="token-input-container">
-            <label for="admin-token">PocketBase Admin Token (Paste Here Temporarily):</label>
+            <label for="admin-token">PocketBase Admin/Superuser Token (Paste Here Temporarily):</label>
             <input type="password" id="admin-token" placeholder="PBA_eyJhbGciOiJIUz...">
         </div>
 
@@ -99,16 +99,16 @@
             try {
                 await pbAdmin.collections.getOne(collectionSchema.name);
                 customLog(`Collection '${collectionSchema.name}' already exists.`, 'info');
-                // Set API rules for record seeding if specified in schema
-                if (collectionSchema.listRule !== undefined || collectionSchema.viewRule !== undefined ||
-                    collectionSchema.createRule !== undefined || collectionSchema.updateRule !== undefined ||
-                    collectionSchema.deleteRule !== undefined) {
-                    customLog(`Attempting to update API rules for collection '${collectionSchema.name}' for seeding...`, 'info');
-                    await pbAdmin.collections.update(collectionSchema.name, {
-                        listRule: collectionSchema.listRule, viewRule: collectionSchema.viewRule,
-                        createRule: collectionSchema.createRule, updateRule: collectionSchema.updateRule,
-                        deleteRule: collectionSchema.deleteRule,
-                    });
+                const rulesToUpdate = {
+                    listRule: collectionSchema.listRule, viewRule: collectionSchema.viewRule,
+                    createRule: collectionSchema.createRule, updateRule: collectionSchema.updateRule,
+                    deleteRule: collectionSchema.deleteRule,
+                };
+                // Filter out null rules, as PocketBase update API might not like nulls for rules if they are already set
+                const definedRules = Object.fromEntries(Object.entries(rulesToUpdate).filter(([_, v]) => v !== null));
+                if (Object.keys(definedRules).length > 0) {
+                    customLog(`Attempting to update API rules for collection '${collectionSchema.name}' for record seeding...`, 'info');
+                    await pbAdmin.collections.update(collectionSchema.name, definedRules);
                     customLog(`API rules for '${collectionSchema.name}' set/updated for record seeding.`, 'success');
                 }
                 return true;
@@ -116,9 +116,20 @@
                 if (e.status === 404) {
                     customLog(`Collection '${collectionSchema.name}' not found. Attempting to create...`, 'warn');
                     try {
-                        const createPayload = { name: collectionSchema.name, type: collectionSchema.type, system: collectionSchema.system, schema: collectionSchema.schema, listRule: collectionSchema.listRule, viewRule: collectionSchema.viewRule, createRule: collectionSchema.createRule, updateRule: collectionSchema.updateRule, deleteRule: collectionSchema.deleteRule, indexes: collectionSchema.indexes };
+                        const createPayload = {
+                            name: collectionSchema.name, type: collectionSchema.type,
+                            system: collectionSchema.system, schema: collectionSchema.schema,
+                            listRule: collectionSchema.listRule, viewRule: collectionSchema.viewRule,
+                            createRule: collectionSchema.createRule, updateRule: collectionSchema.updateRule,
+                            deleteRule: collectionSchema.deleteRule, 
+                            // indexes: collectionSchema.indexes // Indexes are better managed via migrations or UI after creation
+                        };
                         await pbAdmin.collections.create(createPayload);
-                        customLog(`Collection '${collectionSchema.name}' created successfully. You may need to manually verify indexes or set them if the API call didn't fully apply them.`, 'success');
+                        customLog(`Collection '${collectionSchema.name}' created successfully.`, 'success');
+                        // If indexes were defined and critical, remind user:
+                        if (collectionSchema.indexes && collectionSchema.indexes.length > 0) {
+                            customLog(`Note: Collection '${collectionSchema.name}' created. Please verify/create specific indexes like: ${collectionSchema.indexes.join(", ")} via PocketBase Admin UI or migrations if not automatically handled.`, 'warn');
+                        }
                         return true;
                     } catch (creationError) {
                         customLog(`Error creating collection '${collectionSchema.name}': ${creationError.message} - Response: ${JSON.stringify(creationError.data)}`, 'error');
@@ -126,8 +137,8 @@
                         return false;
                     }
                 } else {
-                    customLog(`Error checking collection '${collectionSchema.name}': ${e.message} - Response: ${JSON.stringify(e.data)}`, 'error');
-                    alert(`Error checking collection '${collectionSchema.name}': ${e.message}. Ensure PocketBase is running and Admin token is valid.`);
+                    customLog(`Error checking/updating collection '${collectionSchema.name}': ${e.message} - Response: ${JSON.stringify(e.data)}`, 'error');
+                    alert(`Error checking/updating collection '${collectionSchema.name}': ${e.message}. Ensure PocketBase is running and Admin token is valid.`);
                     return false;
                 }
             }
@@ -143,12 +154,14 @@
 
             pb = new PocketBase(POCKETBASE_URL);
             try {
-                pb.authStore.save(token, null);
-                const adminModel = await pb.admins.getOne(pb.authStore.model.id);
-                customLog("Admin token validated successfully for admin: " + (adminModel.email || adminModel.id), "success");
+                pb.authStore.save(token, null); 
+                // Verify token by attempting an admin-level operation
+                await pb.collections.getFullList({ requestKey: "verifyAdminToken" }); 
+                customLog("Admin token accepted and seems to grant necessary privileges.", "success");
             } catch (authError) {
-                customLog("Admin token is invalid or could not be verified: " + authError.message, "error");
-                statusMessageDiv.className = 'status error'; statusMessageDiv.textContent = "Status: Invalid Admin Token!";
+                customLog("Admin token is invalid or lacks privileges: " + authError.message, "error");
+                if (authError.data) customLog("Error details: " + JSON.stringify(authError.data), "error");
+                statusMessageDiv.className = 'status error'; statusMessageDiv.textContent = "Status: Invalid or insufficient Admin Token!";
                 pb.authStore.clear(); pb = null; return;
             }
 
@@ -227,7 +240,7 @@
                 pb = null; 
             }
         }
-        customLog("Seeder ready. Ensure PocketBase is running and accessible. Paste Admin Token and click 'Run Full Seeder Manually'.", "info");
+        customLog("Seeder ready. Ensure PocketBase is running and accessible. Paste Admin/Superuser Token and click 'Run Full Seeder Manually'.", "info");
     </script>
 </body>
 </html>
