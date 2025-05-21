@@ -144,7 +144,7 @@ document.addEventListener('alpine:init', () => {
                 const settingsParams = `filter=(setting_key='global_config')&perPage=1`;
                 const [settingsCollectionData, livestockData] = await Promise.all([
                     pbFetch('app_settings', { params: settingsParams }),
-                    pbFetch('livestock_types', { params: 'sort=created' })
+                    pbFetch('livestock_types')
                 ]);
                 if (settingsCollectionData.items && settingsCollectionData.items.length > 0) {
                     const fetchedSettings = settingsCollectionData.items[0];
