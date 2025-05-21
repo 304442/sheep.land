@@ -24,6 +24,8 @@
             <nav class="main-nav desktop-nav" aria-label="Main navigation">
                 <ul class="nav-list">
                     <li><a href="#udheya-booking-start" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click.prevent="scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
+                    <!-- Optional: Add "Our Process" back to nav if desired -->
+                    <!-- <li><a href="#how-it-works" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click.prevent="scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li> -->
                     <li><a href="#check-booking-status" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                 </ul>
             </nav>
@@ -54,6 +56,8 @@
             <nav aria-label="Mobile navigation">
                 <ul class="nav-list-mobile">
                     <li><a href="#udheya-booking-start" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#udheya-booking-start'}" @click="isMobileMenuOpen = false; scrollToSection('#udheya-booking-start')"><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
+                    <!-- Optional: Add "Our Process" back to nav if desired -->
+                    <!-- <li><a href="#how-it-works" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#how-it-works'}" @click="isMobileMenuOpen = false; scrollToSection('#how-it-works')"><span class="en">Our Process</span><span class="ar">عمليتنا</span></a></li> -->
                     <li><a href="#check-booking-status" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click="isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                 </ul>
             </nav>
@@ -168,6 +172,37 @@
                 </div>
             </div>
         </section>
+        
+        <!-- "Our Simple Process" Section RE-ADDED HERE -->
+        <section class="main-page-section how-it-works-section sec" id="how-it-works">
+            <div class="c"><div class="uprocess-wrap"><div class="uprocess">
+                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="howItWorksTitle" tabindex="-1"><span class="en">Our Simple Process</span><span class="ar">عمليتنا المبسّطة</span></h2></div>
+                <div class="feature-grid how-it-works-grid">
+                    <div class="feature-item">
+                        <div class="icon-placeholder number-icon" aria-hidden="true">1</div>
+                        <h4 class="bil-parent-spread"><span class="en">Select & Customize Online</span><span class="ar" dir="rtl">اختر وخصص عبر الإنترنت</span></h4>
+                        <div class="bil-row"><p class="card-p en">Choose your animal, weight, preparation style, and packaging preferences through our easy-to-use online form.</p><p class="card-p ar" dir="rtl">اختر حيوانك، وزنه، طريقة التجهيز، وخيارات التغليف عبر نموذجنا الإلكتروني سهل الاستخدام.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder number-icon" aria-hidden="true">2</div>
+                        <h4 class="bil-parent-spread"><span class="en">Confirm & Pay Securely</span><span class="ar" dir="rtl">أكد وادفع بأمان</span></h4>
+                        <div class="bil-row"><p class="card-p en">Review your order details and complete your booking with our secure payment options.</p><p class="card-p ar" dir="rtl">راجع تفاصيل طلبك وأكمل حجزك باستخدام خيارات الدفع الآمنة لدينا.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder number-icon" aria-hidden="true">3</div>
+                        <h4 class="bil-parent-spread"><span class="en">Humane Sacrifice</span><span class="ar" dir="rtl">ذبح رحيم</span></h4>
+                        <div class="bil-row"><p class="card-p en">Your Udheya is sacrificed humanely by experienced professionals according to strict Islamic traditions on your chosen day.</p><p class="card-p ar" dir="rtl">تُذبح أضحيتكم بطريقة رحيمة على يد محترفين ذوي خبرة وفقًا للتقاليد الإسلامية الصارمة في اليوم الذي اخترتموه.</p></div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-placeholder number-icon" aria-hidden="true">4</div>
+                        <h4 class="bil-parent-spread"><span class="en">Receive Your Udheya</span><span class="ar" dir="rtl">استلم أضحيتك</span></h4>
+                        <div class="bil-row"><p class="card-p en">Your meat is expertly butchered, packaged, and then delivered to your doorstep or distributed to the needy based on your selection.</p><p class="card-p ar" dir="rtl">يتم تقطيع لحم أضحيتكم بخبرة، وتغليفه، ثم توصيله إلى باب منزلكم أو توزيعه على المحتاجين حسب اختياركم.</p></div>
+                    </div>
+                </div>
+                <!-- Removed the "Ready to Book" button from here -->
+            </div></div></div>
+        </section>
+
 
         <section class="udheya-booking-section main-page-section sec" id="udheya-booking-start">
             <div class="c">                
@@ -244,7 +279,7 @@
                                                     <div class="price bil-row"><span class="en">From <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'baladi')?.weights_prices[0]?.price_egp || 0)"></span></span><span class="ar">يبدأ من <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'baladi')?.weights_prices[0]?.price_egp || 0)"></span></span></div>
                                                     <div class="card-act">
                                                         <label for="baladi_weight_select_s1" class="sr-only">Select Baladi Weight</label>
-                                                        <select id="baladi_weight_select_s1" name="animal_weight_baladi" class="livestock-weight-select" x-ref="baladiWeightSelect" @change="selectAnimal('baladi', $el); validateAndScrollOrFocus(1, '#step2-content')" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
+                                                        <select id="baladi_weight_select_s1" name="animal_weight_baladi" class="livestock-weight-select" x-ref="baladiWeightSelect" @change="selectAnimal('baladi', $el)" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -257,7 +292,7 @@
                                                     <div class="price bil-row"><span class="en">From <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'barki')?.weights_prices[0]?.price_egp || 0)"></span></span><span class="ar">يبدأ من <span x-text="getFormattedPrice(productOptions.livestock.find(a => a.value_key === 'barki')?.weights_prices[0]?.price_egp || 0)"></span></span></div>
                                                     <div class="card-act">
                                                         <label for="barki_weight_select_s1" class="sr-only">Select Barki Weight</label>
-                                                        <select id="barki_weight_select_s1" name="animal_weight_barki" class="livestock-weight-select" x-ref="barkiWeightSelect" @change="selectAnimal('barki', $el); validateAndScrollOrFocus(1, '#step2-content')" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
+                                                        <select id="barki_weight_select_s1" name="animal_weight_barki" class="livestock-weight-select" x-ref="barkiWeightSelect" @change="selectAnimal('barki', $el)" :aria-invalid="errors.animal ? 'true' : 'false'"></select>
                                                     </div>
                                                 </div>
                                             </div>
