@@ -77,7 +77,7 @@ document.addEventListener('alpine:init', () => {
         },
         clearError(field) { if (this.errors[field]) this.$delete(this.errors, field); },
         clearAllErrors() { this.errors = {}; },
-        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:true}); this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center' }); } }); },
+        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({preventScroll:false}); setTimeout(() => this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }), 50); } }); },
 
         get _needsDeliveryDetails() {
             const customText = (this.customSplitDetailsText || '').toLowerCase();
@@ -193,7 +193,11 @@ document.addEventListener('alpine:init', () => {
 
             this.stepSectionsMeta = ['#step1-content', '#step2-content', '#step3-content', '#step4-content', '#step5-content']
                 .map((id, index) => ({ id, step: index + 1, element: document.querySelector(id), titleRef: `step${index+1}Title`, firstFocusableErrorRef: null }));
-            this.$nextTick(() => { this.handleScroll(); if(this.$refs.step1Title) this.focusOnRef('step1Title'); else this.focusOnRef('bookingSectionTitle'); });
+            this.$nextTick(() => {
+                this.handleScroll();
+                const initialFocusTarget = this.bookingConfirmed ? 'bookingConfirmedTitle' : (this.$refs.step1Title ? 'step1Title' : 'bookingSectionTitle');
+                this.focusOnRef(initialFocusTarget);
+            });
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
         },
 
@@ -271,9 +275,9 @@ document.addEventListener('alpine:init', () => {
         navigateToStep(targetStep) {
             this.clearAllErrors();
             for (let i = 1; i < targetStep; i++) {
-                if (!this.currentStepCompleted(i, true)) {
+                if (!this.currentStepCompleted(i, true)) { // Show errors for the first incomplete step before allowing jump
                     this.currentActiveStep = i;
-                    this.focusOnRef(this.stepSectionsMeta[i-1]?.firstFocusableErrorRef || this.stepSectionsMeta[i-1]?.titleRef);
+                    // Focus logic will be handled by validateStepX or validateAndProceedToStep
                     this.scrollToSection(this.stepSectionsMeta[i-1].id || '#udheya-booking-form-panel');
                     return;
                 }
@@ -283,19 +287,18 @@ document.addEventListener('alpine:init', () => {
             this.scrollToSection(this.stepSectionsMeta[targetStep-1].id || '#udheya-booking-form-panel');
         },
 
-        currentStepCompleted(stepNumber, showErrors = true) {
+        currentStepCompleted(stepNumber, showErrorsIfCurrent = true) {
             let isValid = false;
+            const isCurrentValidatingStep = showErrorsIfCurrent && this.currentActiveStep === stepNumber;
             switch (stepNumber) {
-                case 1: isValid = this.validateStep1(showErrors && this.currentActiveStep === 1); break;
-                case 2: isValid = this.validateStep2(showErrors && this.currentActiveStep === 2); break;
-                case 3: isValid = this.validateStep3(showErrors && this.currentActiveStep === 3); break;
-                case 4: isValid = this.validateStep4(showErrors && this.currentActiveStep === 4); break;
-                case 5: isValid = this.validateStep5(showErrors && this.currentActiveStep === 5); break;
+                case 1: isValid = this.validateStep1(isCurrentValidatingStep); break;
+                case 2: isValid = this.validateStep2(isCurrentValidatingStep); break;
+                case 3: isValid = this.validateStep3(isCurrentValidatingStep); break;
+                case 4: isValid = this.validateStep4(isCurrentValidatingStep); break;
+                case 5: isValid = this.validateStep5(isCurrentValidatingStep); break; // For final submit
                 default: isValid = false;
             }
-            // Ensure firstFocusableErrorRef is cleared if step is valid,
-            // only if we are validating the current step with intent to show errors.
-            if (isValid && showErrors && this.currentActiveStep === stepNumber && this.stepSectionsMeta[stepNumber-1]) {
+            if (isValid && isCurrentValidatingStep && this.stepSectionsMeta[stepNumber-1]) {
                 this.stepSectionsMeta[stepNumber-1].firstFocusableErrorRef = null;
             }
             return isValid;
@@ -312,6 +315,7 @@ document.addEventListener('alpine:init', () => {
                     this.scrollToSection(this.stepSectionsMeta[nextStep-1].id || '#udheya-booking-form-panel');
                 }
             } else {
+                // Focus already set by individual validation function if it found an error.
                 this.scrollToSection(this.stepSectionsMeta[this.currentActiveStep-1].id || '#udheya-booking-form-panel');
             }
         },
@@ -320,11 +324,11 @@ document.addEventListener('alpine:init', () => {
             if(showErrors) this.clearError('animal');
             let firstErrorRef = null;
             if (!this.selectedAnimal.type) {
-                if(showErrors) { this.setError('animal', 'select'); firstErrorRef = this.$refs.baladiWeightSelect?.closest('.livestock-card') ? 'baladiWeightSelect' : 'barkiWeightSelect'; this.focusOnRef(firstErrorRef); }
-                this.stepSectionsMeta[0].firstFocusableErrorRef = firstErrorRef;
+                if(showErrors) { this.setError('animal', 'select'); firstErrorRef = this.$refs.baladiWeightSelect?.closest('.livestock-card') ? 'baladiWeightSelect' : 'barkiWeightSelect'; this.focusOnRef(firstErrorRef);}
+                if(this.stepSectionsMeta[0]) this.stepSectionsMeta[0].firstFocusableErrorRef = firstErrorRef;
                 return false;
             }
-            this.stepSectionsMeta[0].firstFocusableErrorRef = null;
+            if(this.stepSectionsMeta[0]) this.stepSectionsMeta[0].firstFocusableErrorRef = null;
             return true;
         },
         validateStep2(showErrors = true) { // Customize: Prep, Pack, Niyyah
@@ -337,14 +341,14 @@ document.addEventListener('alpine:init', () => {
                 if(showErrors) {this.setError('packaging', 'select'); if(!firstErrorRef) firstErrorRef = 'packagingSelect';} isValid = false;
             }
             if(showErrors && firstErrorRef) this.focusOnRef(firstErrorRef);
-            this.stepSectionsMeta[1].firstFocusableErrorRef = firstErrorRef;
+            if(this.stepSectionsMeta[1]) this.stepSectionsMeta[1].firstFocusableErrorRef = firstErrorRef;
             return isValid;
         },
-        validateStep3(showErrors = true) { /* Schedule: Day, Time - No specific validation currently needed as they have defaults */
-            this.stepSectionsMeta[2].firstFocusableErrorRef = null; return true;
+        validateStep3(showErrors = true) { // Schedule: Day, Time
+            if(this.stepSectionsMeta[2]) this.stepSectionsMeta[2].firstFocusableErrorRef = null; return true;
         },
         validateStep4(showErrors = true) { // Distribution & Delivery
-            if(showErrors) { this.clearError('splitDetails'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('customerEmail'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress');}
+            if(showErrors) { /* Clear relevant errors */ this.clearError('splitDetails'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('customerEmail'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress');}
             let isValid = true; let firstErrorRef = null;
             const setValError = (f, t, r) => { if(showErrors) this.setError(f,t); isValid=false; if(showErrors && !firstErrorRef) firstErrorRef=r;};
 
@@ -363,7 +367,7 @@ document.addEventListener('alpine:init', () => {
                 if (!this.deliveryAddress?.trim()) setValError('deliveryAddress', 'required', 'deliveryAddressInput');
             }
             if(showErrors && firstErrorRef) this.focusOnRef(firstErrorRef);
-            this.stepSectionsMeta[3].firstFocusableErrorRef = firstErrorRef;
+            if(this.stepSectionsMeta[3]) this.stepSectionsMeta[3].firstFocusableErrorRef = firstErrorRef;
             return isValid;
         },
         validateStep5(showErrors = true) { // Review & Payment
@@ -371,10 +375,10 @@ document.addEventListener('alpine:init', () => {
             let firstErrorRef = null;
             if(!this.paymentMethod) {
                 if(showErrors) {this.setError('paymentMethod', 'select'); firstErrorRef = 'paymentMethodRadios'; this.focusOnRef(firstErrorRef);}
-                this.stepSectionsMeta[4].firstFocusableErrorRef = firstErrorRef;
+                if(this.stepSectionsMeta[4]) this.stepSectionsMeta[4].firstFocusableErrorRef = firstErrorRef;
                 return false;
             }
-            this.stepSectionsMeta[4].firstFocusableErrorRef = null;
+            if(this.stepSectionsMeta[4]) this.stepSectionsMeta[4].firstFocusableErrorRef = null;
             return true;
         },
 
@@ -500,6 +504,11 @@ document.addEventListener('alpine:init', () => {
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = '';
             const id = (this.lookupBookingID || "").trim();
             try {
+                // SECURITY NOTE: This public lookup relies heavily on strict PocketBase API rules for the 'bookings' collection.
+                // The listRule should ideally:
+                // 1. ONLY allow queries that filter *exactly* by `booking_id_text`.
+                // 2. Return a very limited set of fields (e.g., only status, animal type, schedule - no PII).
+                // A more secure method involves a server-side endpoint or a unique, unguessable status access token per booking.
                 const data = await pbFetch('bookings', { params: `filter=(booking_id_text='${encodeURIComponent(id)}')&perPage=1` });
                 if (data.items && data.items.length > 0) {
                     const b = data.items[0];
