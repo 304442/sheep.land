@@ -1,0 +1,80 @@
+Please generate a pb_schema.json file for PocketBase.
+The target PocketBase instance imports schemas most reliably when they adhere to the following structural guidelines:
+The top-level structure is a JSON array, where each element is a collection definition object.
+Each collection object must have an "id" attribute (use a unique, descriptive placeholder string, e.g., "mycollection_id_placeholder").
+It must have a "name" attribute (the actual collection name, e.g., "articles").
+It must have "type": "base".
+It must have "system": false.
+API rules (listRule, viewRule, createRule, updateRule, deleteRule) should all be set to "".
+It should contain an empty "options": {} object.
+It must contain an empty "indexes": [] array.
+Field definitions must be in an array named "fields": [...].
+Each field object within the "fields" array must have its own unique placeholder "id" attribute (e.g., "prefix_f_myfieldname").
+Each field object must have a "name" attribute.
+Each field object must have a "type" attribute.
+Each field object must have "system": false.
+Include "required": true if the field is mandatory.
+Include "unique": true if the field's value must be unique.
+Include "presentable": true if appropriate.
+An "options": {} object should be present for each field, containing type-specific options.
+For select type fields, maxSelect and values must be direct properties of the field object itself, not nested within its options object.
+Standard system fields for records (like the main id, created, updated) should NOT be explicitly defined within the fields array of collection definitions; PocketBase will add these automatically.
+The entire output must be pure, valid JSON.
+Define the following collections and their fields based on the structure detailed above:
+Collection Name: app_settings
+Collection ID placeholder: app_settings_sl
+Fields:
+(Field ID: as_f_setting_key) setting_key: type text, required: true, unique: true, system: false. Options: {"pattern": ""}.
+(Field ID: as_f_exchange_rates) exchange_rates: type json, required: false, system: false. Options: {"maxSize": 5242880}.
+(Field ID: as_f_default_currency) default_currency: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: as_f_wa_raw) whatsapp_number_raw: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: as_f_wa_display) whatsapp_number_display: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: as_f_promo_end) promo_end_date: type date, required: false, system: false. Options: {"min": "", "max": ""}.
+(Field ID: as_f_promo_percent) promo_discount_percent: type number, required: false, system: false. Options: {"noDecimal": false}.
+(Field ID: as_f_promo_active) promo_is_active: type bool, required: false, system: false. Options: {}.
+(Field ID: as_f_delivery_areas) delivery_areas: type json, required: false, system: false. Options: {"maxSize": 5242880}.
+(Field ID: as_f_payment_details) payment_details: type json, required: false, system: false. Options: {"maxSize": 5242880}.
+Collection Name: livestock_types
+Collection ID placeholder: livestock_types_sl
+Fields:
+(Field ID: lt_f_value_key) value_key: type text, required: true, unique: true, presentable: true, system: false. Options: {"pattern": ""}.
+(Field ID: lt_f_name_en) name_en: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: lt_f_name_ar) name_ar: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: lt_f_weights_prices) weights_prices: type json, required: false, system: false. Options: {"maxSize": 5242880}.
+Collection Name: bookings
+Collection ID placeholder: bookings_sl
+Fields:
+(Field ID: b_f_booking_id_text) booking_id_text: type text, required: true, unique: true, presentable: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_animal_type_key) animal_type_key: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_animal_type_name_en) animal_type_name_en: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_animal_type_name_ar) animal_type_name_ar: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_animal_weight_selected) animal_weight_selected: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_animal_base_price_egp) animal_base_price_egp: type number, required: true, system: false. Options: {"noDecimal": false}.
+(Field ID: b_f_prep_style_value) preparation_style_value: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_prep_style_name_en) preparation_style_name_en: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_prep_style_name_ar) preparation_style_name_ar: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_is_custom_prep) is_custom_prep: type bool, required: false, system: false. Options: {}.
+(Field ID: b_f_custom_prep_details) custom_prep_details: type text, required: false, system: false. Options: {"max": 500, "pattern": ""}.
+(Field ID: b_f_packaging_value) packaging_value: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_packaging_name_en) packaging_name_en: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_packaging_name_ar) packaging_name_ar: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_packaging_addon_price) packaging_addon_price_egp: type number, required: false, system: false. Options: {"noDecimal": false}.
+(Field ID: b_f_total_price_egp) total_price_egp: type number, required: true, system: false. Options: {"noDecimal": false}.
+(Field ID: b_f_sacrifice_day_value) sacrifice_day_value: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_time_slot) time_slot: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_dist_choice) distribution_choice: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_split_details_opt) split_details_option: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_custom_split_text) custom_split_details_text: type text, required: false, system: false. Options: {"max": 500, "pattern": ""}.
+(Field ID: b_f_niyyah_names) niyyah_names: type text, required: false, system: false. Options: {"max": 200, "pattern": ""}.
+(Field ID: b_f_customer_email) customer_email: type email, required: false, system: false. Options: {}.
+(Field ID: b_f_group_purchase) group_purchase_interest: type bool, required: false, system: false. Options: {}.
+(Field ID: b_f_delivery_name) delivery_name: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_delivery_phone) delivery_phone: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_delivery_gov_id) delivery_governorate_id: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_delivery_city_id) delivery_city_id: type text, required: false, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_delivery_address) delivery_address: type text, required: false, system: false. Options: {"max": 500, "pattern": ""}.
+(Field ID: b_f_delivery_instructions) delivery_instructions: type text, required: false, system: false. Options: {"max": 500, "pattern": ""}.
+(Field ID: b_f_payment_method) payment_method: type text, required: true, system: false. Options: {"pattern": ""}.
+(Field ID: b_f_payment_status) payment_status: type select, required: true, system: false, maxSelect: 1, values: ["pending", "paid", "cod_pending", "failed", "refunded"].
+(Field ID: b_f_booking_status) booking_status: type select, required: true, presentable: true, system: false, maxSelect: 1, values: ["confirmed_pending_payment", "confirmed_payment_received", "processing_sacrifice", "ready_for_delivery_pickup", "delivered_distributed", "completed", "cancelled"].
+Please generate the JSON.
