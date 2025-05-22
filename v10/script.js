@@ -1,389 +1,266 @@
-:root{--c1:#5D4037;--c1d:#3E2723;--c2:#386641;--c2l:#A3B18A;--c3:#F28C28;--t1:#212529;--tm:#6c757d;--td:#FAF8F5;--b1:var(--td);--b2:#F0EBE3;--bc:#fff;--bs:#DDE0E3;--rad:6px;--s0:.2rem;--s1:.4rem;--s2:.5rem;--s3:1.2rem;--s4:1.6rem;--fe:'Inter',sans-serif;--fa:'Noto Kufi Arabic',sans-serif;--lh:1.5;--header-height:70px}
-*,::after,::before{box-sizing:border-box;margin:0;padding:0}
-html{font-size:15px;scroll-behavior:smooth;overflow-x:clip}
-body{font-family:var(--fe);line-height:var(--lh);color:var(--t1);background:var(--b1);padding-top:var(--header-height);overflow-x:clip}
-img{max-width:100%;display:block}
-a{text-decoration:none;color:var(--c2);transition:color .2s,background-color .2s,border-color .2s}
-a:hover{color:var(--c1d)}
-:focus-visible{outline:2px solid var(--c3);outline-offset:2px;box-shadow:0 0 0 4px rgba(242,140,40,.2);border-radius:var(--rad)}
-h1,h2,h3,h4,h5{font-weight:700;line-height:1.25;color:var(--c1d);margin-bottom:var(--s1)}
-h1{font-size:1.9rem}
-h2{font-size:1.1rem}
-h3{font-size:1.1rem}
-h4{font-size:1rem}
-h5{font-size:.9rem}
-p{margin:0 0 var(--s1)}
-p:last-child{margin-bottom:0}
-ul,ol{list-style:none}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
-.global-loading-indicator,.global-error-indicator{position:fixed;top:45%;left:0;right:0;z-index:2000;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.2);border-radius:var(--rad);max-width:400px;margin:auto}
-.global-loading-indicator{background:rgba(255,255,255,.95);color:var(--c1d);font-weight:500}
-.global-error-indicator{background:rgba(220,53,69,.95);color:#fff;font-weight:500}
-.c{width:90%;max-width:960px;margin:0 auto;padding:0 var(--s2)}
-.sec,.main-page-section{padding:var(--s4) 0}
-.loading-text{padding:var(--s3) 0;text-align:center;color:var(--tm)}
-.disabled-btn{background-color:var(--tm)!important;border-color:var(--tm)!important;cursor:not-allowed!important;color:var(--td)!important}
-.disabled-btn:hover{filter:none!important;transform:none!important}
-.card-img img{background-color:#eee}
-.hero-promo-wrapper{margin-top:var(--s3)}
-.hero-promo-cta-link{display:block;text-decoration:none;max-width:100%;margin:0 auto;border-radius:var(--rad);transition:transform .2s,box-shadow .2s}
-.hero-promo-cta-link:hover{transform:translateY(-3px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
-.hero-desc-row{max-width:100%;margin:var(--s2) auto var(--s3)}
-.booking-section-head{margin-bottom:var(--s3)}
-.livestock-sharia-note{font-size:.9em;color:var(--tm);margin:var(--s0) 0 var(--s2)}
-.custom-prep-details-container{max-width:100%;margin:var(--s2) auto 0}
-.sacrifice-day-note,.time-slot-note,.distribution-note,.wakeel-note,.niyyah-note{margin-top:var(--s0)}
-.delivery-details-title,.wakeel-note{margin-top:var(--s2)}
-.split-options-rgrp{margin:var(--s1) 0 0 var(--s2)}
-.custom-split-textarea{margin-top:var(--s0);font-size:.85em}
-.niyyah-names-wrapper{margin-top:var(--s1)}
-.no-delivery-note{margin:var(--s2) 0 var(--s1)}
-.final-submit-action{margin-top:var(--s4)}
-.review-summary-wrapper{border:1px solid var(--bs);border-radius:var(--rad);padding:var(--s2);background-color:var(--b1);margin-bottom:var(--s2)}
-.review-summary-wrapper .form-subhead{font-size:1.1rem;border-bottom:1px solid var(--c1);padding-bottom:var(--s1)}
-.review-summary-wrapper .form-subhead.bil-parent-spread>.en,.review-summary-wrapper .form-subhead.bil-parent-spread>.ar{border-bottom:none;padding-bottom:0}
-.review-no-selection-text{padding:var(--s2) 0;color:var(--tm)}
-.review-care-note{margin-top:var(--s3)}
-.review-care-note-text{font-size:.9em;color:var(--tm)}
-.booking-confirmed-head{border-bottom:none;margin-bottom:var(--s2)}
-.confirmation-intro-text{justify-content:center;margin-bottom:var(--s1)}
-.confirmation-intro-text p{font-size:1.1rem}
-.booking-id-card{margin-top:var(--s2);margin-bottom:var(--s3);text-align:center;background-color:var(--b1);border:2px solid var(--c2)}
-.quick-recap-wrapper,.payment-instructions-wrapper{margin-top:0;margin-bottom:var(--s1);text-align:left}
-#booking-confirmation-section .form-action.page-step-action{width:100%;max-width:100%}
-.booking-id-card-body{padding:var(--s2) var(--s3)}
-.booking-id-card .bil-parent-spread{margin-bottom:var(--s0)}
-.booking-id-card-important{margin-bottom:0;font-size:1.05rem;color:var(--c1d)}
-.booking-id-card-label{font-size:.95rem;margin-bottom:0}
-.booking-id-display{font-size:1.4rem;font-weight:700;color:var(--c2);margin-bottom:var(--s2);background-color:var(--b2);padding:var(--s0) var(--s2);border-radius:var(--rad);display:inline-block}
-.booking-id-card-note{font-size:.9em;color:var(--tm);margin-bottom:0}
-.payment-instructions-wrapper{margin-bottom:var(--s3)}
-.quick-recap-title,.payment-instructions-title{border-top:1px solid var(--bs);padding-top:var(--s2)}
-.quick-recap-title.bil-parent-spread>.en,.quick-recap-title.bil-parent-spread>.ar,.payment-instructions-title.bil-parent-spread>.en,.payment-instructions-title.bil-parent-spread>.ar{border-top:none;padding-top:0}
-.payment-instructions-title{margin-bottom:var(--s1)}
-.payment-ref-highlight{color:var(--c2);font-weight:500}
-.bank-details-list{margin:var(--s0) 0 var(--s1) 0;font-size:.9em}
-.bank-details-list li.bil-row > .en{text-align:left}
-.bank-details-list li.bil-row > .ar{text-align:right}
-.bank-transfer-crucial-note{margin-top:var(--s1)}
-.check-status-form-card,.booking-status-results-card{margin-top:var(--s3)}
-.check-status-label{margin-bottom:var(--s1)}
-.check-status-input,.check-status-button{height:36px}
-#check-status-form-tag .card-act{display:flex;gap:var(--s1);align-items:center}
-#check-status-form-tag .check-status-input{flex-grow:1;min-width:150px}
-#check-status-form-tag .check-status-button{flex-shrink:0;padding:var(--s0) var(--s2)}
-.booking-status-results-card{background-color:var(--b2)}
-.status-highlight{color:var(--c2);font-weight:700}
-.status-no-results-text{text-align:center}
-.site-footer-main{background-color:var(--c1d);color:var(--b2);padding:var(--s3) 0}
-.footer-grid{text-align:left;gap:var(--s4)}
-.footer-brand-desc p.en{text-align:left;flex-basis:48%}
-.footer-brand-desc p.ar{font-family:var(--fa);direction:rtl;text-align:right;flex-basis:48%}
-.footer-payment-methods{margin-top:var(--s3);padding-bottom:var(--s2)}
-.footer-payment-methods h5{margin-bottom:var(--s1)}
-.payment-icons-grid{display:flex;justify-content:center;align-items:center;gap:var(--s1);flex-wrap:wrap}
-.footer-divider{border-color:rgba(255,255,255,.2);margin:var(--s2) 0 var(--s1)}
-.footer-copyright{font-size:.8em;text-align:center;color:var(--b2);opacity:.7;margin-bottom:0}
-.bil-copyright-suffix{display:inline-flex;justify-content:space-between;align-items:baseline;width:auto;margin-left:var(--s0)}
-.bil-copyright-suffix .en{text-align:left}
-.bil-copyright-suffix .ar{font-family:var(--fa);direction:rtl;text-align:right}
-#udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height) + 55px);margin-top:0}
-.all-steps-panel>.card-b{padding:0}
-.form-step-content{padding:var(--s3) var(--s2);background-color:var(--bc)}
-.form-step-content:not(:first-child){border-top:1px dashed var(--bs);margin-top:var(--s2);padding-top:var(--s3)}
-.form-step-content:last-of-type{border-bottom:none}
-.form-step-content .sec-head{margin-bottom:var(--s2)}
-.additional-options-payment-wrapper{margin-top:var(--s3);margin-bottom:var(--s2)}
-.additional-options-payment-wrapper .form-subhead{margin-bottom:var(--s2)}
-.grid2,.grid3,.grid4,.product-grid,.content-grid,.feature-grid{display:grid;gap:var(--s2)}
-.grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
-.feature-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);text-align:center}
-.why-choose-us-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s2);text-align:center;margin-top:var(--s3)}
-.bil-row{display:flex;justify-content:space-between;width:100%;gap:var(--s1);align-items:baseline}
-.bil-row > .en, .bil-row > p.en{flex:1 1 48%;text-align:left}
-.bil-row > .ar, .bil-row > p.ar{flex:1 1 48%;font-family:var(--fa);direction:rtl;text-align:right}
-.bil-row > .en, .bil-row > .ar, .bil-row > p.en, .bil-row > p.ar {min-width:0;word-wrap:break-word}
-.bil-parent-spread{display:flex;justify-content:space-between;align-items:baseline;width:100%}
-.bil-parent-spread>.en{text-align:left;margin-right:auto;padding-right:var(--s0)}
-.bil-parent-spread>.ar{text-align:right;font-family:var(--fa);direction:rtl;margin-left:auto;padding-left:var(--s0)}
-.bil-parent-spread>.en,.bil-parent-spread>.ar{margin-bottom:0}
-.bil-parent-spread-intrinsic{display:inline-flex;justify-content:center;align-items:baseline;gap:.5em}
-.bil-parent-spread-intrinsic>.en{margin-right:0;padding-right:0}
-.bil-parent-spread-intrinsic>.ar{margin-left:0;padding-left:0;font-family:var(--fa);direction:rtl}
-.brand-logo.bil-parent-spread-intrinsic,.nav-link.bil-parent-spread-intrinsic,.nav-link-mobile.bil-parent-spread-intrinsic,.badge.bil-parent-spread-intrinsic,.btn.bil-parent-spread-intrinsic{display:inline-flex;width:auto}
-.hero-section h1.bil-parent-spread>.en,.hero-section h2.bil-parent-spread>.en{margin-right:0}
-.hero-section h1.bil-parent-spread>.ar,.hero-section h2.bil-parent-spread>.ar{margin-left:0}
-.form-label-strict.bil-parent-spread > .en{font-weight:500;font-size:.85rem;color:var(--tm);text-align:left;flex-grow:1;margin-right:auto}
-.form-label-strict.bil-parent-spread > .ar{font-weight:500;font-size:.85rem;color:var(--tm);font-family:var(--fa);text-align:right;flex-grow:1;margin-left:auto}
-.form-label-checkbox.bil-parent-spread-intrinsic > .en{font-size:.85rem}
-.form-label-checkbox.bil-parent-spread-intrinsic > .ar{font-size:.85rem;font-family:var(--fa)}
-.form-label-checkbox input[type=checkbox]{margin-right:var(--s0)}
-html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-label-checkbox input[type=checkbox]{margin-left:var(--s0);margin-right:0}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--s1) var(--s2);font-weight:700;border-radius:var(--rad);border:2px solid transparent;cursor:pointer;transition:transform .2s,filter .2s,background-color .2s,border-color .2s,color .2s;white-space:nowrap;font-size:.85rem;line-height:1.4;text-align:center}
-.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
-.btn.bil-parent-spread-intrinsic>.en,.btn.bil-parent-spread-intrinsic>.ar{display:inline;vertical-align:middle;line-height:inherit}
-.btn.bp,.btn.bac{color:var(--td)}
-.btn.bp{background:var(--c1);border-color:var(--c1)}
-.btn.bp:hover{background:var(--c1d);border-color:var(--c1d)}
-.btn.bac{background:var(--c2);border-color:var(--c2)}
-.btn.bac:hover{background:var(--c1d);border-color:var(--c1d)}
-.btn-block{display:flex;width:100%}
-.btn-lg{padding:var(--s1) var(--s2);font-size:.9rem}
-.mt1{margin-top:var(--s1)}
-.tc{text-align:center}
-.sec-head{margin-bottom:var(--s2);position:relative}
-.sec-head h2,.sec-head h3{margin:0}
-.sec-head h2.bil-parent-spread .en::after,.sec-head h3.bil-parent-spread .en::after{content:'';display:block;width:50px;height:3px;background:var(--c2l);position:absolute;bottom:-8px;left:0;border-radius:2px}
-.sec-head h2.bil-parent-spread .ar::after,.sec-head h3.bil-parent-spread .ar::after{content:'';display:block;width:50px;height:3px;background:var(--c2l);position:absolute;bottom:-8px;right:0;border-radius:2px}
-.pban{padding:var(--s2);background:linear-gradient(135deg,var(--c3),#FFD1A3);color:var(--c1d);border-radius:var(--rad);box-shadow:0 2px 8px #00000017;display:flex;flex-direction:column;align-items:center;gap:var(--s1);text-align:center}
-.pban-text-content{width:100%}
-.pban-text-content .bil-row{gap:var(--s0);align-items:stretch;justify-content:space-between}
-.pban-text-content .bil-row>.en{text-align:center;flex:1 1 48%}
-.pban-text-content .bil-row>.ar{text-align:center;font-family:var(--fa);direction:rtl;flex:1 1 48%}
-.prm-h{color:var(--c1d);font-size:1rem;margin:0;line-height:1.3}
-.prm-h strong,.prm-h span{font-weight:700;color:var(--c1d)}
-.pban .pban-cta-btn{font-size:.85rem;padding:var(--s0) var(--s2);margin-top:var(--s0);width:auto;max-width:300px}
-.card{background:var(--bc);border-radius:var(--rad);box-shadow:0 1px 3px #0000000f;border:1px solid var(--bs);display:flex;flex-direction:column;height:100%;overflow:hidden}
-.card:is(:hover,.selected,.livestock-card-selected){box-shadow:0 3px 10px #0000001a,0 0 0 2px var(--c2l)}
-.livestock-card.livestock-card-selected{border-color:var(--c2)}
-.card-img{position:relative;padding-top:60%;overflow:hidden;background-color:var(--b2)}
-.card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease-out}
-.card:hover .card-img img{transform:scale(1.05)}
-.card-b{padding:var(--s1);flex-grow:1;display:flex;flex-direction:column}
-.card-content{margin-bottom:var(--s1);flex-grow:1}
-.card-h.bil-parent-spread>.en,.card-h.bil-parent-spread>.ar{font-size:1rem;margin:0 0 var(--s0)}
-.card-p{font-size:.85rem;color:var(--tm);margin:0;line-height:1.4}
-.card-foot{margin-top:auto;padding-top:var(--s1);border-top:1px solid var(--b2)}
-.card-foot .price{font-size:1rem;font-weight:700;color:var(--c1);margin-bottom:var(--s0);line-height:1}
-.card-act{display:flex;gap:var(--s0);align-items:center}
-.livestock-card .card-act{flex-direction:column;align-items:stretch;gap:var(--s0)}
-.livestock-card .card-act select{width:100%}
-.card-act select,.card-act .btn{border:1px solid var(--bs);border-radius:4px;font-size:.75rem;background-color:var(--b1);height:34px}
-.card-act select{padding:var(--s0) var(--s1);flex-grow:1}
-.card-act .btn{flex-shrink:0;padding:var(--s0) .6rem}
-.badge{position:absolute;top:var(--s0);left:var(--s0);font-size:.65rem;font-weight:600;padding:2px var(--s0);border-radius:var(--rad);color:var(--td);z-index:1;text-transform:uppercase;line-height:1}
-.badge .en{margin-right:.2em}
-.badge .ar{margin-left:.2em;font-size:.9em}
-.form-panel-card{margin-bottom:0}
-.form-panel-card .card-b{padding:var(--s1) var(--s2)}
-.fg{margin-bottom:var(--s1);position:relative}
-.fg label:not(.form-label-checkbox){margin-bottom:var(--s0)}
-.form-input-styled,.fg input[type=text],.fg input[type=tel],.fg input[type=date],.fg input[type=email],.fg select,.fg textarea{width:100%;border:1px solid var(--bs);border-radius:var(--rad);font-size:.8rem;background:var(--bc);min-height:36px}
-.form-input-styled,.fg input[type=text]:not(textarea),.fg input[type=tel],.fg input[type=email],.fg input[type=date],.fg select{padding:var(--s0) var(--s1);line-height:1.4;height:34px}
-.fg textarea,textarea.form-input-styled{padding:var(--s1);line-height:1.3;min-height:50px}
-.fg select[disabled],.form-input-styled[disabled]{background-color:var(--b2);color:var(--tm);cursor:not-allowed}
-.form-input-styled[aria-invalid=true],.fg input[aria-invalid=true],.fg select[aria-invalid=true],.fg textarea[aria-invalid=true]{border-color:#dc3545!important;box-shadow:0 0 0 .2rem rgba(220,53,69,.25)!important}
-.form-error-msg{color:#dc3545;font-size:.75rem;margin-top:var(--s0);display:block;text-align:left}
-html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-msg.ar{text-align:right;font-family:var(--fa)}
-.tslots{display:flex;flex-wrap:wrap;gap:var(--s0);margin-top:var(--s0);justify-content:center}
-.ts{padding:var(--s1);border:1px solid var(--bs);border-radius:var(--rad);font-size:.8rem;cursor:pointer;background:var(--bc);line-height:1.3;white-space:nowrap;min-width:80px;min-height:38px;display:inline-flex;align-items:center;justify-content:center}
-.ts:hover{border-color:var(--c2l);background:var(--c2l)}
-.ts.sel{background:var(--c2);color:var(--td);border-color:var(--c2)}
-.rgrp{margin-top:var(--s0)}
-.rgrp fieldset{border:none;padding:0;margin:0}
-.rgrp legend.bil-parent-spread{margin-bottom:var(--s0)}
-.rgrp label{display:flex;align-items:center;margin-bottom:2px;font-size:.85rem;cursor:pointer;padding:5px 0}
-.rgrp label span.ar{direction:rtl;text-align:right;font-family:var(--fa)}
-.rgrp input[type=radio]{margin-right:calc(var(--s0) + 2px);transform:scale(1.1)}
-.split-options-rgrp label{font-size:.8rem}
-.split-options-rgrp label span.ar{font-size:.95em}
-.split-options-rgrp textarea.form-input-styled{margin-left:calc(var(--s0) + 16px);width:calc(100% - (var(--s0) + 16px))}
-.pmeths{display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:var(--s1);margin-top:var(--s0)}
-.pm input[type=radio]{display:none}
-.pm label{display:flex;align-items:center;justify-content:center;padding:var(--s1);border:1px solid var(--bs);border-radius:var(--rad);cursor:pointer;text-align:center;min-height:56px;line-height:1;overflow:hidden;background-color:var(--bc)}
-.payment-icon{max-height:30px;max-width:50px;object-fit:contain;display:block}
-.pm input[type=radio]:checked+label,.pm.sel label{border-color:var(--c1d);background:var(--c2);color:var(--td)}
-.pm input[type=radio]:checked+label img,.pm.sel label img{filter:brightness(0) invert(1)}
-.form-step-content>.bil-parent-spread:first-child .form-subhead{margin-top:0}
-.form-divider{border:0;border-top:1px dashed var(--bs);margin:var(--s2) 0}
-.field-note{font-size:.75em;color:var(--tm);margin-top:2px;line-height:1.25}
-.field-note.ar{text-align:right}
-.feature-item .icon-placeholder{width:60px;height:60px;margin:0 auto var(--s1);background-color:var(--c2l);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--c2)}
-.feature-item .icon-placeholder.number-icon{font-size:1.3rem;font-weight:700}
-.summary-item{padding:var(--s0) 0;border-bottom:1px dashed var(--bs);display:flex;justify-content:space-between;align-items:center;gap:var(--s1)}
-.summary-item:last-of-type{border-bottom:none}
-.summary-item-content{flex-grow:1}
-.summary-item .summary-item-content > .bil-row > div{font-size:.9rem;color:var(--tm)}
-.summary-item .summary-item-content > .bil-row strong{color:var(--c1d)}
-.btn-edit-summary{padding:2px var(--s0);font-size:.7rem;font-weight:400;line-height:1;background-color:transparent;border:1px solid var(--bs);color:var(--tm);border-radius:var(--rad);text-transform:uppercase;margin-left:var(--s1);flex-shrink:0}
-.btn-edit-summary:hover{background-color:var(--b2);border-color:var(--c2l);color:var(--c1d);transform:none;filter:none}
-.btn-edit-summary .ar{font-size:.9em}
-.summary-hr{border:0;border-top:1px solid var(--c1);margin:var(--s1) 0}
-.summary-total div{font-size:1.1rem;font-weight:700;color:var(--c1)}
-.confirmation-message p{font-size:1rem;line-height:1.5;margin-bottom:var(--s1)}
-.confirmation-message strong{color:var(--c2);font-weight:700}
-#check-booking-status .form-panel-card{margin-top:var(--s2)}
-#booking-status-results{background-color:var(--b2);border-top:3px solid var(--c1);margin-top:var(--s2)}
-#booking-status-results .summary-item strong{min-width:100px;display:inline-block}
-#status-no-results p{color:var(--c3);font-weight:700;padding:var(--s1)}
-.stepper-outer-wrapper{position:sticky;top:var(--header-height);background-color:var(--b1);z-index:999;border-bottom:1px solid var(--bs);box-shadow:0 2px 4px rgba(0,0,0,.03);padding:0;margin-bottom:var(--s3)}
-.stepper-outer-wrapper .c{padding:var(--s1) 0}
-.stepper-content-flex{display:flex;justify-content:space-between;align-items:center}
-.stepper-item{display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--tm);font-size:.8rem;position:relative;text-decoration:none;cursor:pointer;padding:0 var(--s0)}
-.stepper-item:hover{color:var(--c1d)}
-.stepper-item .step-number,.stepper-item .step-checkmark{width:24px;height:24px;line-height:22px;border-radius:50%;border:1px solid var(--tm);margin-bottom:2px;font-weight:700;transition:background-color .3s,border-color .3s,color .3s;box-sizing:border-box}
-.stepper-item .step-label.ar{font-family:var(--fa)}
-.stepper-connector{flex-grow:1;height:2px;background-color:var(--bs);margin:0 var(--s1);position:relative;top:-10px}
-.stepper-item.active .step-number{background-color:var(--c2);border-color:var(--c2);color:var(--td)}
-.stepper-item.active{color:var(--c1d);font-weight:700}
-.stepper-item.completed .step-checkmark{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px}
-.stepper-item.completed{color:var(--tm)}
-.stepper-item.disabled{opacity:.6;pointer-events:none;cursor:not-allowed}
-.stepper-item.disabled .step-number{border-color:var(--bs);background-color:var(--b2);color:var(--tm)}
-.site-header{background-color:var(--b2);padding:var(--s1) 0;box-shadow:0 2px 4px rgba(0,0,0,.05);position:fixed;top:0;left:0;width:100%;z-index:1000;height:var(--header-height)}
-.nav-container{display:flex;justify-content:space-between;align-items:center;height:100%}
-.brand-logo{font-size:1rem;font-weight:700;color:var(--c1d);display:inline-flex;align-items:baseline;margin-right:var(--s2);gap:.5em}
-.brand-logo:hover .en,.brand-logo:hover .ar{color:var(--c2)}
-.main-nav.desktop-nav{margin:0 auto}
-.main-nav.desktop-nav .nav-list{display:flex;gap:0}
-.nav-item-dropdown{position:relative}
-.main-nav.desktop-nav .nav-link{font-size:.9rem;color:var(--tm);font-weight:500;padding:var(--s0) var(--s1);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em}
-.main-nav.desktop-nav .nav-link:hover,.main-nav.desktop-nav .nav-link.active-nav-link,.main-nav.desktop-nav .dropdown-toggle.active-nav-link{color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700}
-.main-nav.desktop-nav .nav-link.active-nav-link .en,.main-nav.desktop-nav .nav-link.active-nav-link .ar,.main-nav.desktop-nav .dropdown-toggle.active-nav-link .en,.main-nav.desktop-nav .dropdown-toggle.active-nav-link .ar{color:var(--c1d)}
-.dropdown-toggle svg.dropdown-arrow{width:1em;height:1em;margin-left:.25em;transition:transform .2s}
-.dropdown-toggle svg.dropdown-arrow.rotate-180{transform:rotate(180deg)}
-.dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background-color:var(--bc);border:1px solid var(--bs);border-radius:0 0 var(--rad) var(--rad);box-shadow:0 4px 12px rgba(0,0,0,.1);padding:var(--s0) 0;margin-top:0;min-width:200px;z-index:1001;list-style:none}
-.dropdown-menu li{list-style:none}
-.dropdown-menu .dropdown-link{display:block;padding:var(--s1) var(--s2);font-size:.85rem;color:var(--tm);white-space:nowrap}
-.dropdown-menu .dropdown-link:hover,.dropdown-menu .dropdown-link.active-nav-link{background-color:var(--b2);color:var(--c1d)}
-.header-extras.desktop-extras{display:flex;align-items:center;gap:var(--s0);margin-left:var(--s2)}
-.currency-switcher select{padding:var(--s0) calc(var(--s1)/2);font-size:.8rem;border:1px solid var(--bs);border-radius:var(--rad);background-color:var(--bc);height:30px;color:var(--tm)}
-.whatsapp-contact a{display:flex;align-items:center;gap:.5em;color:var(--c1);text-decoration:none;padding:var(--s0) var(--s1);border-radius:var(--rad);font-size:.9rem}
-.whatsapp-contact a:hover{color:var(--c1d);background-color:rgba(0,0,0,.03)}
-.whatsapp-icon{width:20px;height:20px}
-.whatsapp-number{font-weight:500;white-space:nowrap}
-.hero-section{background-color:var(--b2);padding:var(--s4) 0 var(--s3);background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),url(/images/hero-sheep-farm.jpg);background-size:cover;background-position:center;background-repeat:no-repeat;color:var(--td);min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box}
-.hero-section>.c{display:flex;flex-direction:column;align-items:center;justify-content:center}
-.hero-section :is(h1,h2,p){color:var(--td)}
-.hero-section .hero-why-choose{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid rgba(255,255,255,.2);width:100%}
-.hero-section .hero-why-choose .bil-parent-spread>.en,.hero-section .hero-why-choose .bil-parent-spread>.ar{color:var(--td)}
-.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after{background:var(--c3)}
-.hero-section .hero-why-choose .feature-item p.card-p{color:#e0e0e0}
-.hero-section .hero-why-choose .feature-item .icon-placeholder{background-color:rgba(255,255,255,.15);color:var(--td);border:1px solid rgba(255,255,255,.2)}
-.hero-section .hero-why-choose .feature-item .icon-placeholder .icon-custom{filter:brightness(0) invert(1)}
-.pban .prm-h,.pban .prm-h strong,.pban .prm-h span{color:var(--c1d)}
-.countdown-timer-wrapper{display:flex;justify-content:center;width:100%;margin-top:var(--s0);margin-bottom:var(--s1)}
-.countdown-timer{display:flex;justify-content:center;align-items:center;gap:var(--s0);font-size:.9em}
-.countdown-segment{display:flex;flex-direction:column;align-items:center;background-color:rgba(255,255,255,.15);padding:2px var(--s0);border-radius:var(--rad);min-width:35px;text-align:center}
-.countdown-value{font-size:1.2em;font-weight:700;line-height:1.1;color:var(--td)}
-.countdown-label{font-size:.7em;text-transform:uppercase;line-height:1;color:var(--td);opacity:.8}
-.countdown-separator{font-size:1em;font-weight:700;color:var(--td);padding:0 2px}
-.hamburger-btn{display:none;background:0 0;border:none;cursor:pointer;padding:var(--s0);color:var(--c1d);z-index:1010}
-.hamburger-btn:hover{color:var(--c2)}
-.mobile-nav-menu{position:absolute;top:var(--header-height);left:0;right:0;background-color:var(--b2);padding:var(--s2) var(--s2) var(--s3);box-shadow:0 4px 6px rgba(0,0,0,.1);z-index:1005;border-top:1px solid var(--bs)}
-.nav-list-mobile{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:0}
-.nav-list-mobile > li{width:100%}
-.nav-link-mobile{font-size:1rem;color:var(--tm);font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--rad);display:flex;align-items:center;gap:.5em;text-decoration:none;width:100%;box-sizing:border-box;justify-content:center}
-.dropdown-toggle-mobile{background:none;border:none;width:100%;text-align:inherit;cursor:pointer;display:flex;justify-content:center;align-items:center;position:relative}
-.dropdown-toggle-mobile .dropdown-arrow{margin-left:auto}
-.nav-link-mobile:hover,.nav-link-mobile.active-nav-link,.dropdown-toggle-mobile.active-nav-link{color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700}
-.nav-link-mobile.active-nav-link .en,.nav-link-mobile.active-nav-link .ar,.dropdown-toggle-mobile.active-nav-link .en,.dropdown-toggle-mobile.active-nav-link .ar{color:var(--c1d)}
-.mobile-submenu{list-style:none;padding-left:var(--s2);background-color:rgba(0,0,0,.02);width:100%;max-height:0;overflow:hidden;transition:max-height .3s ease-in-out}
-.mobile-submenu[style*="max-height"]{padding-top:var(--s0);padding-bottom:var(--s0)}
-.mobile-submenu li a{font-size:.9rem;padding:var(--s0) var(--s2)}
-.mobile-header-extras{margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--bs);display:flex;flex-direction:column;align-items:center;gap:var(--s2)}
-.mobile-header-extras .currency-switcher select{font-size:.9rem;padding:var(--s0) var(--s1)}
-.mobile-header-extras .whatsapp-contact a{font-size:1rem}
-.required-fields-note{font-size:.75em;color:var(--tm);margin-bottom:var(--s2);padding:var(--s0) var(--s1);background-color:var(--b2);border-radius:var(--rad)}
-.required-fields-note p{margin:0}
-.icon-placeholder .icon-custom{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:1.2em}
-.icon-custom img,.icon-custom svg{width:100%;height:100%;object-fit:contain}
-.udheya-booking-section{background-color:var(--b2)}
-#udheya-booking-form-panel.card{background-color:var(--bc)}
-#check-booking-status.sec{background-color:var(--b1)}
-.footer-payment-icon{height:30px;max-width:60px;object-fit:contain;border:1px solid var(--bs);border-radius:var(--rad);padding:3px;background-color:#fff;margin:2px}
-.uprocess-wrap.compact-how-it-works{padding:var(--s2) 0 var(--s3);margin-bottom:var(--s3);border-bottom:1px dashed var(--bs)}
-.compact-how-it-works .sec-head{margin-bottom:var(--s2)}
-.compact-how-it-works .sec-head h3{font-size:1.1rem}
-.compact-how-it-works .how-it-works-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2);margin-top:var(--s1)}
-.compact-how-it-works .feature-item .icon-placeholder{width:40px;height:40px;font-size:1.1rem;margin-bottom:var(--s0)}
-.compact-how-it-works .feature-item h4{font-size:.9rem;margin-bottom:var(--s0)}
-.compact-how-it-works .feature-item .card-p{font-size:.8rem;line-height:1.3}
-@media(max-width:991px){
-.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row){flex-wrap:wrap}
-.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>.en,.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>p.en{flex-basis:100%!important;text-align:left!important;margin-bottom:var(--s0)}
-.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>.ar,.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>p.ar{flex-basis:100%!important;text-align:right!important;margin-bottom:var(--s0)}
-.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>:last-child{margin-bottom:0}
-.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread){flex-direction:column;align-items:center;text-align:center}
-.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.en,.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.ar{margin:0 auto var(--s0)!important;text-align:center!important;padding:0!important}
-.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.ar{direction:rtl}
-.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>:last-child{margin-bottom:0!important}
-.sec-head h2.bil-parent-spread .en::after,.sec-head h2.bil-parent-spread .ar::after,.sec-head h3.bil-parent-spread .en::after,.sec-head h3.bil-parent-spread .ar::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after{left:50%;transform:translateX(-50%);right:auto}
-.bil-parent-spread-intrinsic>.en,.bil-parent-spread-intrinsic>.ar{margin:0!important;padding:0!important}
-.pban-text-content .bil-row{flex-direction:column;align-items:center}
-.pban-text-content .bil-row>.en,.pban-text-content .bil-row>.ar{text-align:center!important}
-.pban-text-content .bil-row>.en{margin-bottom:var(--s1)}
-.compact-how-it-works .how-it-works-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}}
-@media(max-width:768px){html{font-size:14px}
-body{padding-top:var(--header-height)}
-.c{padding:0 var(--s1)}
-.sec{padding:var(--s3) 0}
-#udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height) + 45px)}
-.form-step-content{padding:var(--s2) var(--s1)}
-.grid2:not(.product-grid):not(.feature-grid):not(.why-choose-us-hero-grid):not(.compact-how-it-works .how-it-works-grid){grid-template-columns:1fr}
-.product-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-:is(.why-choose-us-hero-grid,.compact-how-it-works .how-it-works-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
-.summary-item .summary-item-content .bil-row,.summary-total.bil-row,.bank-details-list li.bil-row{flex-direction:row;align-items:baseline;flex-wrap:nowrap}
-.summary-item .summary-item-content .bil-row > div,.summary-total.bil-row > div, .bank-details-list li.bil-row > span{flex-basis:auto}
-#check-status-form-tag .card-act{display:flex;flex-wrap:wrap;gap:var(--s1)}
-#check-status-form-tag .card-act input.form-input-styled.check-status-input{flex:1 1 200px;margin-bottom:0}
-#check-status-form-tag .card-act button.check-status-button{flex:0 1 auto}
-.card-content .bil-row{flex-direction:column;align-items:flex-start;gap:2px}
-.card-content .bil-parent-spread{text-align:left}
-.card-content .bil-parent-spread>.en,.card-content .bil-parent-spread>.ar{text-align:left!important;margin:0 0 var(--s0) 0}
-.card-content .bil-parent-spread>.ar{text-align:right!important}
-.confirmation-message .bil-row:not(.quick-recap-title):not(.payment-instructions-title):not(.booking-id-card .bil-parent-spread)>.en,.confirmation-message .bil-row:not(.quick-recap-title):not(.payment-instructions-title):not(.booking-id-card .bil-parent-spread)>.ar{text-align:center}
-.booking-id-card .bil-parent-spread>p.en{text-align:left!important}
-.booking-id-card .bil-parent-spread>p.ar{text-align:right!important}
-.tslots{justify-content:center}
-.ts{font-size:.8rem;padding:var(--s0) var(--s1);min-width:90px}
-.pban .btn{width:auto;padding:var(--s0) var(--s2)}
-.card-b{padding:var(--s1)}
-.card-content{margin-bottom:var(--s0)}
-.card-foot{padding-top:var(--s0)}
-.card-act select,.card-act .btn{height:30px;font-size:.7rem}
-.btn{font-size:.8rem}
-.btn-lg{font-size:.85rem}
-#check-booking-status .form-panel-card{margin-top:var(--s1)}
-.stepper-outer-wrapper{top:var(--header-height)}
-.stepper-item .step-label.en,.stepper-item .step-label.ar{font-size:.7rem}
-.stepper-item .step-label.ar{margin-top:1px}
-.stepper-connector{top:-9px;margin:0 var(--s0)}
-.stepper-item .step-number,.stepper-item .step-checkmark{width:20px;height:20px;line-height:18px}
-.nav-container{flex-direction:row;align-items:center;justify-content:space-between}
-.brand-logo{margin-right:0;margin-bottom:0;text-align:left;justify-content:flex-start}
-.main-nav.desktop-nav,.header-extras.desktop-extras{display:none}
-.hamburger-btn{display:inline-flex;align-items:center;justify-content:center}
-.hero-section h1{font-size:1.6rem}
-.hero-section h2{font-size:1.1rem}
-.hero-section p{font-size:.9rem}
-.pm label{min-height:50px}
-.payment-icon{max-height:32px;max-width:55px}
-.footer-brand-desc{flex-direction:column;align-items:center}
-.footer-brand-desc p.en,.footer-brand-desc p.ar{width:100%;text-align:center!important;flex-basis:auto}
-.footer-copyright{text-align:center}
-.bil-copyright-suffix{display:block;width:100%;text-align:center;margin-left:0;margin-top:var(--s0)}
-.bil-copyright-suffix .en,.bil-copyright-suffix .ar{display:block;width:100%;text-align:center!important}
-.uprocess-wrap.compact-how-it-works{padding:var(--s1) 0 var(--s2);margin-bottom:var(--s2)}
-.compact-how-it-works .feature-item .icon-placeholder{width:35px;height:35px;font-size:1rem}
-.compact-how-it-works .feature-item h4{font-size:.85rem}
-.compact-how-it-works .feature-item .card-p{font-size:.75rem}}
-@media(max-width:480px){:root{--header-height-mobile-sm:60px}
-body{padding-top:var(--header-height-mobile-sm)}
-.site-header{height:var(--header-height-mobile-sm)}
-.mobile-nav-menu{top:var(--header-height-mobile-sm)}
-.stepper-outer-wrapper{top:var(--header-height-mobile-sm)}
-#udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height-mobile-sm) + 40px)}
-.stepper-item .step-label.en{display:none}
-.stepper-item .step-label.ar{font-size:.65rem}
-.brand-logo{font-size:1rem}
-.hamburger-btn svg{width:24px;height:24px}
-.payment-icon{max-height:28px;max-width:50px}
-.ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
-.countdown-timer{font-size:.8em;gap:2px;flex-wrap:wrap}
-.countdown-segment{min-width:30px;padding:2px}
-.countdown-value{font-size:1.1em}
-.countdown-separator{padding:0 1px}
-.hero-section h1{font-size:1.4rem}
-.hero-section h2{font-size:1rem}
-.compact-how-it-works .how-it-works-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--s1)}}
+document.addEventListener('alpine:init', () => {
+    const initialBookingState = {
+        selectedAnimal: { type: "", value: "", weight: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, pbId: null, originalStock: null },
+        selectedPrepStyle: { value: "", nameEN: "", nameAR: "", is_custom: false },
+        customPrepDetails: "",
+        selectedPackaging: { value: "", addonPriceEGP: 0, nameEN: "", nameAR: "" },
+        totalPriceEGP: 0, customerEmail: "", deliveryName: "", deliveryPhone: "", selectedGovernorate: "",
+        deliveryCity: "", availableCities: [], deliveryAddress: "", deliveryInstructions: "", niyyahNames: "",
+        splitDetailsOption: "", customSplitDetailsText: "", groupPurchase: false,
+        selectedSacrificeDay: { value: "day1_10_dhul_hijjah", textEN: "Day 1 of Eid (10th Dhul Hijjah)", textAR: "اليوم الأول (10 ذو الحجة)"},
+        selectedTimeSlot: "8 AM-9 AM", distributionChoice: "me", paymentMethod: "fa", errors: {}
+    };
+
+    async function pbFetch(collectionName, { recordId = "", queryParams = "", method = "GET", body = null } = {}) {
+        const apiUrl = `/api/collections/${collectionName}/records${recordId ? `/${recordId}` : ""}${queryParams ? `?${queryParams}` : ""}`;
+        const options = { method, headers: {} };
+        if (body) {
+            options.headers["Content-Type"] = "application/json";
+            options.body = JSON.stringify(body);
+        }
+        try {
+            const response = await fetch(apiUrl, options);
+            if (!response.ok) {
+                let errorMessage = `API Error (${method} ${collectionName} ${recordId || queryParams}): ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData?.data && typeof errorData.data === 'object') {
+                        errorMessage += ` - ${Object.values(errorData.data).map(err => String(err?.message || JSON.stringify(err))).join("; ")}`;
+                    } else {
+                        errorMessage += ` - ${errorData?.message || response.statusText}`;
+                    }
+                } catch { errorMessage += ` - ${await response.text() || response.statusText}`; }
+                throw new Error(errorMessage);
+            }
+            const responseText = await response.text();
+            if (!responseText && (method === "GET" || method === "POST" || method === "PATCH")) return (method === "GET" ? { items: [] } : {});
+            if (method === "DELETE" && response.status === 204) return {};
+            try { return JSON.parse(responseText); }
+            catch (parseError) { throw new Error(`API Parse Error (${method} ${collectionName} ${recordId || queryParams}): ${parseError.message}`); }
+        } catch (error) {
+            if (error.message.startsWith('API') || error.message.startsWith('Network')) throw error;
+            throw new Error(`Network Error (${method} ${collectionName} ${recordId || queryParams}): ${error.message}`);
+        }
+    }
+
+    Alpine.data('udheyaBooking', () => ({
+        isLoading: { status: false, booking: false, init: true },
+        appSettings: {
+            exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.021, symbol: "$", is_active: false }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: false }},
+            default_currency: "EGP", whatsapp_number_raw: "201000000000", whatsapp_number_display: "+20 100 000 0000",
+            promo_end_date: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)).toISOString(), promo_discount_percent: 10, promo_is_active: true,
+            delivery_areas: [{id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"},{id:"maadi",name_en:"Maadi",name_ar:"المعادي"}]}],
+            payment_details: { vodafone_cash: "010XXXXXXXX", instapay_ipn: "your_ipn@instapay", revolut_details: "@yourRevolutTag", bank_name: "Default Bank", bank_account_name: "Default Account Name", bank_account_number: "000000000000", bank_iban: "", bank_swift: "" }
+        },
+        productOptions: {
+            livestock: [],
+            preparationStyles: [ { value: "Standard Mixed Cuts", nameEN: "Standard Mix", nameAR: "مزيج قياسي", is_custom: false }, { value: "Charity Portions", nameEN: "Charity Portions", nameAR: "حصص صدقة", is_custom: false }, { value: "Feast Preparation", nameEN: "Feast Preparation", nameAR: "تجهيز ولائم", is_custom: false }, { value: "Custom & Ground Mix", nameEN: "Custom & Ground", nameAR: "مخصص ومفروم", is_custom: true }],
+            packagingOptions: [ { value: "standard", nameEN: "Standard Packaging", nameAR: "تعبئة قياسية", addonPriceEGP: 0 }, { value: "vacuum_sealed", nameEN: "Vacuum Sealed", nameAR: "تعبئة مفرغة", addonPriceEGP: 150 }]
+        },
+        apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingState)),
+        bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", currentCurrency: "EGP", bookingID: "",
+        currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false },
+        isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false,
+        countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
+        countdownTimerInterval: null, currentLang: "en",
+        errorMessages: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }},
+        navLinksData: [ { href: "#udheya-booking-start", sectionId: "udheya-booking-start", parentMenu: "Udheya" }, { href: "#check-booking-status", sectionId: "check-booking-status", parentMenu: "Udheya" }, { href: "#livestock-section", sectionId: "livestock-section" }, { href: "#meat-section", sectionId: "meat-section" }],
+        activeNavLinkHref: "",
+        stepSectionsMeta: [],
+
+        async initApp() {
+            this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = "";
+            const defaultLocalSettings = JSON.parse(JSON.stringify(this.appSettings));
+            try {
+                const [appSettingsResponse, livestockResponse] = await Promise.all([
+                    pbFetch("app_settings", { queryParams: "filter=(setting_key='global_config')&perPage=1" }),
+                    pbFetch("livestock_types")
+                ]);
+                if (appSettingsResponse?.items?.length) {
+                    const remoteSettings = appSettingsResponse.items[0];
+                    this.appSettings = { ...defaultLocalSettings, ...remoteSettings, payment_details: { ...defaultLocalSettings.payment_details, ...remoteSettings.payment_details}, exchange_rates: { ...defaultLocalSettings.exchange_rates, ...remoteSettings.exchange_rates }};
+                    if (!this.appSettings.whatsapp_number_raw) this.appSettings.whatsapp_number_raw = defaultLocalSettings.whatsapp_number_raw;
+                    if (!this.appSettings.whatsapp_number_display) this.appSettings.whatsapp_number_display = defaultLocalSettings.whatsapp_number_display;
+                } else { this.appSettings = defaultLocalSettings; }
+                this.productOptions.livestock = livestockResponse?.items?.map(item => ({ pbId: item.id, value_key: item.value_key, name_en: item.name_en, name_ar: item.name_ar, weights_prices: Array.isArray(item.weights_prices) ? item.weights_prices.map(wp => ({ ...wp })) : [] })) || [];
+            } catch (error) {
+                this.apiError = String(error.message || "Unknown error during data fetch.");
+                this.userFriendlyApiError = "Failed to load settings. Please refresh or try again later.";
+                this.appSettings = defaultLocalSettings; this.productOptions.livestock = [];
+            } finally {
+                this.currentCurrency = this.appSettings.default_currency && this.appSettings.exchange_rates[this.appSettings.default_currency] ? this.appSettings.default_currency : "EGP";
+                this.startOfferDHDMSCountdown(); this.updateSacrificeDayTexts(); this.clearAllErrors();
+                this.$nextTick(() => {
+                    if (this.productOptions.livestock?.length > 0) this.updateAllDisplayedPrices();
+                    else if (!this.apiError) this.userFriendlyApiError = this.userFriendlyApiError || "Livestock options could not be loaded.";
+                    this.updateAllStepCompletionStates(); this.handleScroll();
+                    this.focusOnRef(this.bookingConfirmed ? "bookingConfirmedTitle" : (this.$refs.step1Title ? "step1Title" : "bookingSectionTitle"));
+                    this.isLoading.init = false;
+                });
+            }
+            this.stepSectionsMeta = [
+                { id: "#step1-content", conceptualStep: 1, element: document.querySelector("#step1-content"), titleRef: "step1Title", firstFocusableErrorRef: null, validator: this.validateStep1.bind(this) },
+                { id: "#step2-content", conceptualStep: 2, element: document.querySelector("#step2-content"), titleRef: "step2Title", firstFocusableErrorRef: null, validator: this.validateStep2.bind(this) },
+                { id: "#step3-content", conceptualStep: 3, element: document.querySelector("#step3-content"), titleRef: "step3Title", firstFocusableErrorRef: null, validator: this.validateStep3.bind(this) },
+                { id: "#step4-content", conceptualStep: 4, element: document.querySelector("#step4-content"), titleRef: "step4Title", firstFocusableErrorRef: null, validator: this.validateStep4.bind(this) }
+            ];
+            this.$watch('selectedAnimal.basePriceEGP', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
+            this.$watch('selectedPackaging.addonPriceEGP', () => { this.calculateTotalPrice(); });
+            this.$watch('currentCurrency', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
+            ['selectedSacrificeDay.value', 'distributionChoice', 'selectedPrepStyle.value', 'selectedPackaging.value', 'splitDetailsOption', 'customSplitDetailsText', 'selectedGovernorate', 'deliveryCity', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod'].forEach(prop => this.$watch(prop, () => this.updateAllStepCompletionStates()));
+            window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
+            document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
+        },
+        handleScroll() {
+            if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => step.element && typeof step.element.offsetTop === 'number')) {
+                const scrollMidPoint = window.scrollY + (window.innerHeight / 2); let closestStep = 1; let minDistance = Infinity;
+                this.stepSectionsMeta.forEach(stepMeta => { if (stepMeta.element) { const distance = Math.abs(scrollMidPoint - (stepMeta.element.offsetTop + (stepMeta.element.offsetHeight / 2))); if (distance < minDistance) { minDistance = distance; closestStep = stepMeta.conceptualStep; } } });
+                if (this.currentConceptualStep !== closestStep) this.currentConceptualStep = closestStep;
+            }
+            const headerHeight = document.querySelector('.site-header')?.offsetHeight || 70; const scrollCheckOffset = headerHeight + (window.innerHeight * 0.10); const currentScrollYWithOffset = window.scrollY + scrollCheckOffset; let newActiveNavLinkHref = ""; let newActiveParentMenu = null;
+            for (const navLink of this.navLinksData) { const sectionElement = document.getElementById(navLink.sectionId); if (sectionElement) { const sectionTop = sectionElement.offsetTop; const sectionBottom = sectionTop + sectionElement.offsetHeight; if (sectionTop <= currentScrollYWithOffset && sectionBottom > currentScrollYWithOffset) { newActiveNavLinkHref = navLink.href; newActiveParentMenu = navLink.parentMenu; break; } } }
+            const firstNavLinkSection = document.getElementById(this.navLinksData[0]?.sectionId);
+            if (window.scrollY < (firstNavLinkSection?.offsetTop || headerHeight) - headerHeight) { newActiveNavLinkHref = ""; newActiveParentMenu = null; }
+            else if ((window.innerHeight + Math.ceil(window.scrollY)) >= (document.body.offsetHeight - 2)) { const lastVisibleNavLink = this.navLinksData.slice().reverse().find(nl => document.getElementById(nl.sectionId)); if (lastVisibleNavLink) { newActiveNavLinkHref = lastVisibleNavLink.href; newActiveParentMenu = lastVisibleNavLink.parentMenu; } }
+            this.activeNavLinkHref = newActiveParentMenu || newActiveNavLinkHref;
+        },
+        setError(field, messageKeyOrObject) { this.errors[field] = (typeof messageKeyOrObject === 'string' ? this.errorMessages[messageKeyOrObject] : messageKeyOrObject) || this.errorMessages.required; },
+        clearError(field) { if (this.errors[field]) delete this.errors[field]; },
+        clearAllErrors() { this.errors = {}; },
+        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({ preventScroll: false }); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e) {} }, 50); } }); },
+        get _needsDeliveryDetails() { const customDetailsLower = (this.customSplitDetailsText || "").toLowerCase(); return this.distributionChoice === 'me' || (this.distributionChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitDetailsOption) || (this.splitDetailsOption === 'custom' && (customDetailsLower.includes("for me") || customDetailsLower.includes("all delivered to me"))))); },
+        get splitDetails() { if (this.distributionChoice !== 'split') return ""; if (this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim(); const optionsMap = { "1/3_me_2/3_charity_sl": { en: "1/3 me (delivered), 2/3 charity (SL)", ar: "ثلث لي (يوصل)، ثلثان صدقة (أرض الأغنام)" }, "1/2_me_1/2_charity_sl": { en: "1/2 me (delivered), 1/2 charity (SL)", ar: "نصف لي (يوصل)، نصف صدقة (أرض الأغنام)" }, "2/3_me_1/3_charity_sl": { en: "2/3 me (delivered), 1/3 charity (SL)", ar: "ثلثان لي (يوصل)، ثلث صدقة (أرض الأغنام)" }, "all_me_custom_distro": { en: "All for me (I distribute)", ar: "الكل لي (أنا أوزع)" }}; const selected = optionsMap[this.splitDetailsOption]; return selected ? (this.currentLang === 'ar' ? selected.ar : selected.en) : this.splitDetailsOption; },
+        _getDeliveryLocation(lang) { const nameKey = lang === 'en' ? 'name_en' : 'name_ar'; const govObj = (this.appSettings.delivery_areas || []).find(area => area.id === this.selectedGovernorate); const cityObj = govObj?.cities?.find(city => city.id === this.deliveryCity); if (cityObj?.[nameKey]) return cityObj[nameKey]; if (govObj && govObj.cities?.length === 0 && this.selectedGovernorate && govObj[nameKey]) return govObj[nameKey]; if (govObj && !cityObj && this.selectedGovernorate && govObj[nameKey]) return `${govObj[nameKey]} (${lang === 'en' ? "City not selected" : "المدينة غير مختارة"})`; return ""; },
+        get summaryDeliveryToEN() { if (this.distributionChoice === 'char') return "Charity Distribution by Sheep Land"; if (this._needsDeliveryDetails) { const name = (this.deliveryName || "").trim(); const locEN = this._getDeliveryLocation('en'); const shortAddr = (this.deliveryAddress || "").substring(0, 20) + ((this.deliveryAddress || "").length > 20 ? "..." : ""); return [name, locEN, shortAddr].filter(p => p?.trim()).join(", ") || "Delivery Details Incomplete"; } return "Self Pickup / Distribution as per split"; },
+        get summaryDeliveryToAR() { if (this.distributionChoice === 'char') return "توزيع خيري بواسطة أرض الأغنام"; if (this._needsDeliveryDetails) { const name = (this.deliveryName || "").trim(); const locAR = this._getDeliveryLocation('ar'); const shortAddr = (this.deliveryAddress || "").substring(0, 20) + ((this.deliveryAddress || "").length > 20 ? "..." : ""); return [name, locAR, shortAddr].filter(p => p?.trim()).join("، ") || "تفاصيل التوصيل غير مكتملة"; } return "استلام ذاتي / توزيع حسب التقسيم"; },
+        get summaryDistributionEN() { if (this.distributionChoice === 'me') return "All to me"; if (this.distributionChoice === 'char') return "All to charity (by Sheep Land)"; return `Split: ${(this.splitDetails || "").trim() || "(Not specified)"}`; },
+        get summaryDistributionAR() { if (this.distributionChoice === 'me') return "الكل لي"; if (this.distributionChoice === 'char') return "تبرع بالكل للصدقة (أرض الأغنام توزع)"; return `تقسيم الحصص: ${(this.splitDetails || "").trim() || "(لم يحدد)"}`; },
+        startOfferDHDMSCountdown() { if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); if (!this.appSettings.promo_is_active || !this.appSettings.promo_end_date || typeof this.appSettings.promo_end_date !== 'string') { this.countdown.ended = true; return; } const targetTime = new Date(this.appSettings.promo_end_date).getTime(); if (isNaN(targetTime)) { this.countdown.ended = true; return; } this.updateDHDMSCountdownDisplay(targetTime); this.countdownTimerInterval = setInterval(() => this.updateDHDMSCountdownDisplay(targetTime), 1000); },
+        updateDHDMSCountdownDisplay(targetTime) { const distance = targetTime - Date.now(); if (distance < 0) { if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); Object.assign(this.countdown, { days: "00", hours: "00", minutes: "00", seconds: "00", ended: true }); return; } this.countdown.ended = false; this.countdown = {days:String(Math.floor(distance/864e5)).padStart(2,'0'), hours:String(Math.floor(distance%864e5/36e5)).padStart(2,'0'), minutes:String(Math.floor(distance%36e5/6e4)).padStart(2,'0'), seconds:String(Math.floor(distance%6e4/1e3)).padStart(2,'0')}; },
+        updateCities() { const selectedGovData = (this.appSettings.delivery_areas || []).find(area => area.id === this.selectedGovernorate); this.availableCities = selectedGovData?.cities || []; this.deliveryCity = ""; },
+        getFormattedPrice(priceEGP, currencyCode) { const finalCC = currencyCode || this.currentCurrency; const currencyInfo = this.appSettings?.exchange_rates?.[finalCC]; if (priceEGP == null || !currencyInfo || typeof currencyInfo.rate_from_egp !== 'number') return `${currencyInfo?.symbol || '?'} ---`; const convertedPrice = priceEGP * currencyInfo.rate_from_egp; return `${currencyInfo.symbol} ${convertedPrice.toFixed((currencyInfo.symbol === "LE" || currencyInfo.symbol === "ل.م") ? 0 : 2)}`; },
+        isValidEmail: (email) => (!email?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+        isValidPhone: (phone) => phone?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(phone.trim()),
+        scrollToSection(selector) { try { const element = document.querySelector(selector); if (element) { let offset = document.querySelector('.site-header')?.offsetHeight || 0; if (selector.startsWith('#udheya-booking-start') || selector.startsWith('#step') || selector.startsWith('#udheya-booking-form-panel')) { const stepperHeader = document.querySelector('.stepper-outer-wrapper'); if (stepperHeader && getComputedStyle(stepperHeader).position === 'sticky') offset += stepperHeader.offsetHeight; } window.scrollTo({ top: element.getBoundingClientRect().top + window.pageYOffset - offset - 10, behavior: 'smooth' }); } } catch (error) {} },
+        validateConceptualStep(conceptualStep, setErrors = true) { const stepMeta = this.stepSectionsMeta[conceptualStep - 1]; if (!stepMeta || !stepMeta.validator) return true; const isValid = stepMeta.validator(setErrors); this.stepProgress[`step${conceptualStep}`] = isValid; return isValid; },
+        updateStepCompletionStatus(conceptualStep) { this.stepProgress[`step${conceptualStep}`] = this.validateConceptualStep(conceptualStep, false); },
+        updateAllStepCompletionStates() { for (let i = 1; i <= this.stepSectionsMeta.length; i++) this.updateStepCompletionStatus(i); this.updateStepCompletionStatus(this.stepSectionsMeta.length + 1); },
+        handleStepperNavigation(targetConceptualStep) { this.clearAllErrors(); let canProceed = true; for (let step = 1; step < targetConceptualStep; step++) { if (!this.validateConceptualStep(step, true)) { this.currentConceptualStep = step; const stepMeta = this.stepSectionsMeta[step-1]; this.focusOnRef(stepMeta?.firstFocusableErrorRef || stepMeta?.titleRef); this.scrollToSection(stepMeta?.id || '#udheya-booking-start'); canProceed = false; break; }} if (canProceed) { this.currentConceptualStep = targetConceptualStep; this.scrollToSection(this.stepSectionsMeta[targetConceptualStep-1]?.id || '#udheya-booking-start'); this.focusOnRef(this.stepSectionsMeta[targetConceptualStep-1]?.titleRef); }},
+        validateStep1(setErrors = true) { if (setErrors) this.clearError('animal'); const currentStepMeta = this.stepSectionsMeta[0]; currentStepMeta.firstFocusableErrorRef = null; if (!this.selectedAnimal.type || !this.selectedAnimal.weight) { if (setErrors) { this.setError('animal', { en: "Please select an animal and weight.", ar: "يرجى اختيار الحيوان ووزنه." }); currentStepMeta.firstFocusableErrorRef = !this.selectedAnimal.type ? (this.$refs.baladiWeightSelect ? 'baladiWeightSelect' : 'barkiWeightSelect') : (this.selectedAnimal.type === 'baladi' ? 'baladiWeightSelect' : 'barkiWeightSelect'); } return false; } const animalTypeConfig = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.type); const weightPriceInfo = animalTypeConfig?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight); if (!weightPriceInfo || !weightPriceInfo.is_active || (weightPriceInfo.stock != null && weightPriceInfo.stock <= 0)) { if (setErrors) { this.setError('animal', { en: `${this.selectedAnimal.nameEN || "Selected animal"} (${this.selectedAnimal.weight}) is out of stock. Please re-select.`, ar: `${this.selectedAnimal.nameAR || "الحيوان المختار"} (${this.selectedAnimal.weight}) نفذت كميته. يرجى إعادة الاختيار.` }); currentStepMeta.firstFocusableErrorRef = this.selectedAnimal.type === 'baladi' ? 'baladiWeightSelect' : 'barkiWeightSelect'; this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.calculateTotalPrice(); this.updateAllDisplayedPrices(); document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected')); } return false; } return true; },
+        validateStep2(setErrors = true) { if (setErrors) { this.clearError('prepStyle'); this.clearError('packaging'); } let isValid = true; const currentStepMeta = this.stepSectionsMeta[1]; currentStepMeta.firstFocusableErrorRef = null; if (!this.selectedPrepStyle.value) { if (setErrors) { this.setError('prepStyle', 'select'); if (!currentStepMeta.firstFocusableErrorRef) currentStepMeta.firstFocusableErrorRef = 'prepStyleSelect'; } isValid = false; } if (!this.selectedPackaging.value) { if (setErrors) { this.setError('packaging', 'select'); if (!currentStepMeta.firstFocusableErrorRef) currentStepMeta.firstFocusableErrorRef = 'packagingSelect'; } isValid = false; } return isValid; },
+        validateStep3(setErrors = true) { if (setErrors) this.clearError('sacrificeDay'); const currentStepMeta = this.stepSectionsMeta[2]; currentStepMeta.firstFocusableErrorRef = null; if (!this.selectedSacrificeDay.value) { if (setErrors) { this.setError('sacrificeDay', 'select'); currentStepMeta.firstFocusableErrorRef = 'sacrificeDaySelect'; } return false; } return true; },
+        validateStep4(setErrors = true) { if (setErrors) { ['splitDetails', 'deliveryName', 'deliveryPhone', 'customerEmail', 'selectedGovernorate', 'deliveryCity', 'deliveryAddress', 'timeSlot', 'paymentMethod'].forEach(f => this.clearError(f)); } let isValid = true; const currentStepMeta = this.stepSectionsMeta[3]; currentStepMeta.firstFocusableErrorRef = null; const setFieldError = (field, msgKey, ref) => { if (setErrors) this.setError(field, msgKey); isValid = false; if (setErrors && !currentStepMeta.firstFocusableErrorRef) currentStepMeta.firstFocusableErrorRef = ref; }; if (this.distributionChoice === 'split') { if (!this.splitDetailsOption) setFieldError('splitDetails', 'select', 'distributionChoiceRadios'); else if (this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) setFieldError('splitDetails', 'required', 'customSplitTextarea'); } if (this._needsDeliveryDetails) { if (!(this.deliveryName || "").trim()) setFieldError('deliveryName', 'required', 'deliveryNameInput'); if (!(this.deliveryPhone || "").trim()) setFieldError('deliveryPhone', 'required', 'deliveryPhoneInput'); else if (!this.isValidPhone((this.deliveryPhone || "").trim())) setFieldError('deliveryPhone', 'phone', 'deliveryPhoneInput'); if ((this.customerEmail || "").trim() && !this.isValidEmail((this.customerEmail || "").trim())) setFieldError('customerEmail', 'email', 'customerEmailInput'); if (!this.selectedGovernorate) setFieldError('selectedGovernorate', 'select', 'deliveryGovernorateSelect'); const selectedGovConfig = (this.appSettings.delivery_areas || []).find(area => area.id === this.selectedGovernorate); if (selectedGovConfig?.cities?.length > 0 && !this.deliveryCity) setFieldError('deliveryCity', 'select', 'deliveryCitySelect'); if (!(this.deliveryAddress || "").trim()) setFieldError('deliveryAddress', 'required', 'deliveryAddressInput'); if (!this.selectedTimeSlot) setFieldError('timeSlot', 'timeSlot', 'timeSlotContainer');} if (!this.paymentMethod) setFieldError('paymentMethod', 'select', 'paymentMethodRadios'); return isValid; },
+        selectAnimal(animalTypeValueKey, weightSelectElement) { this.clearError('animal'); const animalConfig = this.productOptions.livestock.find(lt => lt.value_key === animalTypeValueKey); if (!animalConfig) { this.setError('animal', { en: "Invalid animal type.", ar: "نوع حيوان غير صالح." }); this.updateStepCompletionStatus(1); return; } const selectedWeightValue = weightSelectElement.value; if (!selectedWeightValue) { if (this.selectedAnimal.type === animalTypeValueKey) { this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.calculateTotalPrice(); document.getElementById(animalTypeValueKey)?.classList.remove('livestock-card-selected'); } this.updateStepCompletionStatus(1); return; } const weightPriceConfig = animalConfig.weights_prices.find(wp => wp.weight_range === selectedWeightValue); if (!weightPriceConfig || !weightPriceConfig.is_active || (weightPriceConfig.stock != null && weightPriceConfig.stock <= 0)) { this.setError('animal', { en: `${animalConfig.name_en || "Selected animal"} (${selectedWeightValue}) is out of stock.`, ar: `${animalConfig.name_ar || "الحيوان المختار"} (${selectedWeightValue}) نفذت كميته.` }); if (this.selectedAnimal.type === animalTypeValueKey && this.selectedAnimal.weight === selectedWeightValue) { this.selectedAnimal = { ...initialBookingState.selectedAnimal }; document.getElementById(animalTypeValueKey)?.classList.remove('livestock-card-selected');} this.calculateTotalPrice(); if (this.$refs[weightSelectElement.id]) this.focusOnRef(weightSelectElement.id); this.updateStepCompletionStatus(1); return; } const otherAnimalTypeKey = animalTypeValueKey === 'baladi' ? 'barki' : 'baladi'; if (this.selectedAnimal.type && this.selectedAnimal.type !== animalTypeValueKey) { const otherWeightSelect = this.$refs[`${otherAnimalTypeKey}WeightSelect`]; if (otherWeightSelect) otherWeightSelect.value = ""; document.getElementById(otherAnimalTypeKey)?.classList.remove('livestock-card-selected'); } this.selectedAnimal = { type: animalConfig.value_key, value: animalConfig.value_key, weight: weightPriceConfig.weight_range, basePriceEGP: parseFloat(weightPriceConfig.price_egp), stock: weightPriceConfig.stock, originalStock: weightPriceConfig.stock, nameEN: animalConfig.name_en, nameAR: animalConfig.name_ar, pbId: animalConfig.pbId }; this.calculateTotalPrice(); document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected')); weightSelectElement.closest('.livestock-card').classList.add('livestock-card-selected'); this.updateStepCompletionStatus(1); if (this.stepProgress.step1) this.handleStepperNavigation(2); },
+        updateSelectedPrepStyle(value) { const selectedOption = this.productOptions.preparationStyles.find(style => style.value === value); this.selectedPrepStyle = selectedOption ? { ...selectedOption } : { value: "", nameEN: "", nameAR: "", is_custom: false }; if (!this.selectedPrepStyle.is_custom) this.customPrepDetails = ""; this.calculateTotalPrice(); this.updateStepCompletionStatus(2); },
+        updateSelectedPackaging(value) { const selectedOption = this.productOptions.packagingOptions.find(pkg => pkg.value === value); this.selectedPackaging = selectedOption ? { ...selectedOption, addonPriceEGP: parseFloat(selectedOption.addonPriceEGP || 0) } : { value: "", addonPriceEGP: 0, nameEN: "", nameAR: "" }; this.calculateTotalPrice(); this.updateStepCompletionStatus(2); },
+        updateSacrificeDayTexts() { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${this.selectedSacrificeDay.value}"]`); if (optionElement) Object.assign(this.selectedSacrificeDay, { textEN: optionElement.dataset.en, textAR: optionElement.dataset.ar }); },
+        calculateTotalPrice() { this.totalPriceEGP = (this.selectedAnimal.basePriceEGP || 0) + (this.selectedPackaging.addonPriceEGP || 0); },
+        updateAllDisplayedPrices() {
+            try {
+                (this.productOptions.livestock || []).forEach(livestockType => {
+                    const weightSelectElement = this.$refs[`${livestockType.value_key}WeightSelect`];
+                    const cardElement = document.getElementById(livestockType.value_key);
+                    if (!weightSelectElement || !cardElement) return;
+                    const currentSelectedWeightInDropdown = weightSelectElement.value;
+                    weightSelectElement.innerHTML = `<option value="">${this.currentLang === 'ar' ? "-- اختر الوزن --" : "-- Select Weight --"}</option>`;
+                    let currentSelectionStillValid = false;
+                    (livestockType.weights_prices || []).forEach(wp => {
+                        const optionEl = document.createElement('option'); optionEl.value = wp.weight_range;
+                        const isOutOfStock = !wp.is_active || (wp.stock != null && wp.stock <= 0);
+                        const stockText = isOutOfStock ? (this.currentLang === 'ar' ? " - نفذت الكمية" : " - Out of Stock") : (wp.stock != null ? ` - ${(this.currentLang === 'ar' ? "الكمية: " : "Stock: ")}${wp.stock}` : "");
+                        optionEl.textContent = `${wp.weight_range || ""} (${this.getFormattedPrice(wp.price_egp)})${stockText}`;
+                        optionEl.disabled = isOutOfStock; weightSelectElement.appendChild(optionEl);
+                        if (wp.weight_range === currentSelectedWeightInDropdown && !isOutOfStock) currentSelectionStillValid = true;
+                    });
+                    if (currentSelectedWeightInDropdown && currentSelectionStillValid) weightSelectElement.value = currentSelectedWeightInDropdown;
+                    else if (this.selectedAnimal.type === livestockType.value_key && this.selectedAnimal.weight && livestockType.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight && wp.is_active && (wp.stock == null || wp.stock > 0))) weightSelectElement.value = this.selectedAnimal.weight;
+                    else weightSelectElement.value = "";
+                    const firstActiveWeightPrice = (livestockType.weights_prices || []).find(wp => wp.is_active && (wp.stock == null || wp.stock > 0));
+                    const fromPriceEgp = firstActiveWeightPrice ? firstActiveWeightPrice.price_egp : ((livestockType.weights_prices || [])[0]?.price_egp || 0);
+                    const priceSpanEN = cardElement.querySelector('.price.bil-row .en span'); const priceSpanAR = cardElement.querySelector('.price.bil-row .ar span');
+                    if (priceSpanEN) priceSpanEN.textContent = this.getFormattedPrice(fromPriceEgp); if (priceSpanAR) priceSpanAR.textContent = this.getFormattedPrice(fromPriceEgp);
+                });
+                this.calculateTotalPrice();
+            } catch (error) { this.userFriendlyApiError = "Error updating price displays."; }
+        },
+        async validateAndSubmitBooking() { this.clearAllErrors(); let isFormValid = true; for (let step = 1; step <= this.stepSectionsMeta.length; step++) { if (!this.validateConceptualStep(step, true)) { isFormValid = false; const stepMeta = this.stepSectionsMeta[step - 1]; if (stepMeta) { this.focusOnRef(stepMeta.firstFocusableErrorRef || stepMeta.titleRef); this.scrollToSection(stepMeta.id || '#udheya-booking-start'); } break; }} if (!isFormValid) return; const selectedAnimalConfig = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.value); const selectedWeightPriceInfo = selectedAnimalConfig?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight); if (!selectedAnimalConfig || !selectedWeightPriceInfo || !selectedWeightPriceInfo.is_active || (selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock <= 0)) { this.setError('animal', { en: `Sorry, ${this.selectedAnimal.nameEN || "selected item"} (${this.selectedAnimal.weight}) is unavailable. Please reselect.`, ar: `عذراً، ${this.selectedAnimal.nameAR || "المنتج المختار"} (${this.selectedAnimal.weight}) غير متوفر. يرجى إعادة الاختيار.` }); this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.updateAllDisplayedPrices(); this.updateStepCompletionStatus(1); this.scrollToSection('#step1-content'); this.focusOnRef(this.stepSectionsMeta[0].titleRef); return; } this.isLoading.booking = true; this.apiError = null; this.userFriendlyApiError = ""; this.calculateTotalPrice(); const bookingPayload = { booking_id_text: `SL-UDHY-${(new Date()).getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000).padStart(5, '0')}`, animal_type_key: this.selectedAnimal.value, animal_type_name_en: this.selectedAnimal.nameEN, animal_type_name_ar: this.selectedAnimal.nameAR, animal_weight_selected: this.selectedAnimal.weight, animal_base_price_egp: this.selectedAnimal.basePriceEGP, preparation_style_value: this.selectedPrepStyle.value, preparation_style_name_en: this.selectedPrepStyle.nameEN, preparation_style_name_ar: this.selectedPrepStyle.nameAR, is_custom_prep: this.selectedPrepStyle.is_custom, custom_prep_details: this.selectedPrepStyle.is_custom ? (this.customPrepDetails || "").trim() : "", packaging_value: this.selectedPackaging.value, packaging_name_en: this.selectedPackaging.nameEN, packaging_name_ar: this.selectedPackaging.nameAR, packaging_addon_price_egp: this.selectedPackaging.addonPriceEGP, total_price_egp: this.totalPriceEGP, sacrifice_day_value: this.selectedSacrificeDay.value, time_slot: this.distributionChoice === 'char' ? 'N/A' : this.selectedTimeSlot, distribution_choice: this.distributionChoice, split_details_option: this.distributionChoice === 'split' ? this.splitDetailsOption : "", custom_split_details_text: (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom') ? (this.customSplitDetailsText || "").trim() : "", niyyah_names: (this.niyyahNames || "").trim(), customer_email: (this.customerEmail || "").trim(), group_purchase_interest: this.groupPurchase, delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "", delivery_governorate_id: this._needsDeliveryDetails ? this.selectedGovernorate : "", delivery_city_id: this._needsDeliveryDetails ? this.deliveryCity : "", delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "", payment_method: this.paymentMethod, payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) ? 'cod_pending' : 'pending', booking_status: 'confirmed_pending_payment', }; try { const createdRecord = await pbFetch("bookings", { method: "POST", body: bookingPayload }); this.bookingID = createdRecord.booking_id_text || createdRecord.id; if (selectedWeightPriceInfo && selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock > 0) selectedWeightPriceInfo.stock--; this.bookingConfirmed = true; this.$nextTick(() => { this.scrollToSection('#booking-confirmation-section'); this.focusOnRef('bookingConfirmedTitle'); }); } catch (error) { this.apiError = String(error.message); this.userFriendlyApiError = "Issue submitting booking. Review details, try again, or contact support."; this.scrollToSection('.global-error-indicator'); } finally { this.isLoading.booking = false; } },
+        async validateAndCheckBookingStatus() { this.clearError('lookupBookingID'); if ((this.lookupBookingID || "").trim()) await this.checkBookingStatus(); else { this.setError('lookupBookingID', 'required'); this.focusOnRef('lookupBookingIdInput'); } },
+        async checkBookingStatus() { this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const trimmedLookupID = (this.lookupBookingID || "").trim(); try { const response = await pbFetch("bookings", { queryParams: `filter=(booking_id_text='${encodeURIComponent(trimmedLookupID)}')&perPage=1` }); if (response.items?.length > 0) { const booking = response.items[0]; this.statusResult = { booking_id_text: booking.booking_id_text || booking.id, status: booking.booking_status || "Unknown", animal_type: booking.animal_type_name_en || booking.animal_type_key, animal_weight_selected: booking.animal_weight_selected, sacrifice_day: booking.sacrifice_day_value, time_slot: booking.time_slot }; } else this.statusNotFound = true; } catch (error) { this.apiError = String(error.message); this.userFriendlyApiError = "Could not retrieve booking status. Check ID or try again."; this.statusNotFound = true; } finally { this.isLoading.status = false; } },
+        getSacrificeDayText(dayValue) { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${dayValue}"]`); return optionElement ? { en: optionElement.dataset.en, ar: optionElement.dataset.ar } : { en: dayValue, ar: dayValue }; },
+        resetAndStartOver() { Object.assign(this, JSON.parse(JSON.stringify(initialBookingState)), { bookingConfirmed: false, bookingID: "", lookupBookingID: "", statusResult: null, statusNotFound: false, currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false }, apiError: null, userFriendlyApiError: ""}); if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); this.initApp(); this.$nextTick(() => { this.scrollToSection('#udheya-booking-start'); this.focusOnRef('bookingSectionTitle'); }); }
+    }));
+});
+
+(function() {
+    const SEED_PARAM_NAME = "run_db_seed";
+    if (new URLSearchParams(window.location.search).get(SEED_PARAM_NAME) !== "true") return;
+
+    async function pbFetch(collectionName, { recordId = "", queryParams = "", method = "GET", body = null } = {}) {
+        const apiUrl = `/api/collections/${collectionName}/records${recordId ? `/${recordId}` : ""}${queryParams ? `?${queryParams}` : ""}`;
+        const options = { method, headers: {} };
+        if (body) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
+        const response = await fetch(apiUrl, options);
+        if (!response.ok && response.status !== 204) {
+            const errorText = await response.text();
+            throw new Error(`Seeder API Error (${method} ${collectionName}): ${response.status} ${errorText}`);
+        }
+        if (response.status === 204) return {};
+        return response.json();
+    }
+
+    const seedDataConfig = [
+        {
+            collection: "app_settings",
+            keyField: "setting_key",
+            data: [{
+                setting_key: "global_config",
+                exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: true }},
+                default_currency: "EGP",
+                whatsapp_number_raw: "201012345678", whatsapp_number_display: "+20 101 234 5678",
+                promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), promo_discount_percent: 12, promo_is_active: true,
+                delivery_areas: [
+                    {id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"},{id:"maadi",name_en:"Maadi",name_ar:"المعادي"},{id:"heliopolis",name_en:"Heliopolis",name_ar:"مصر الجديدة"}]},
+                    {id:"giza",name_en:"Giza",name_ar:"الجيزة",cities:[{id:"dokki",name_en:"Dokki",name_ar:"الدقي"},{id:"mohandessin",name_en:"Mohandessin",name_ar:"المهندسين"}]},
+                    {id:"alexandria",name_en:"Alexandria",name_ar:"الإسكندرية",cities:[{id:"smouha",name_en:"Smouha",name_ar:"سموحة"}]},
+                    {id:"other_gov",name_en:"Other Governorate",name_ar:"محافظة أخرى",cities:[]}
+                ],
+                payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
+            }]
+        },
+        {
+            collection: "livestock_types",
+            keyField: "value_key",
+            data: [
+                { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", weights_prices: [{ weight_range: "35-45 kg", price_egp: 4800, stock: 20, is_active: true }, { weight_range: "45-55 kg", price_egp: 5500, stock: 12, is_active: true }, { weight_range: "55+ kg", price_egp: 6200, stock: 5, is_active: false }] },
+                { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", weights_prices: [{ weight_range: "40-50 kg", price_egp: 5300, stock: 18, is_active: true }, { weight_range: "50-60 kg", price_egp: 6100, stock: 0, is_active: true }, { weight_range: "25-35 kg", price_egp: 4000, stock: 10, is_active: true }] }
+            ]
+        }
+    ];
+
+    (async function seedDatabase() {
+        console.log("SEEDER_INFO: Starting database seed process...");
+        for (const config of seedDataConfig) {
+            for (const recordData of config.data) {
+                try {
+                    const existingRecords = await pbFetch(config.collection, { queryParams: `filter=(${config.keyField}='${recordData[config.keyField]}')&perPage=1` });
+                    if (existingRecords.items && existingRecords.items.length > 0) {
+                        const existingRecordId = existingRecords.items[0].id;
+                        await pbFetch(config.collection, { recordId: existingRecordId, method: "PATCH", body: recordData });
+                        console.log(`SEEDER_SUCCESS: Record updated in '${config.collection}'. ID: ${existingRecordId}, Key: ${recordData[config.keyField]}`);
+                    } else {
+                        const created = await pbFetch(config.collection, { method: "POST", body: recordData });
+                        console.log(`SEEDER_SUCCESS: Record created in '${config.collection}'. ID: ${created.id}, Key: ${recordData[config.keyField]}`);
+                    }
+                } catch (error) {
+                    console.error(`SEEDER_EXCEPTION: Error for record in '${config.collection}' (Key: ${recordData[config.keyField]}):`, error.message);
+                }
+            }
+        }
+        console.log("SEEDER_INFO: Database seed process finished.");
+        if (window.history.replaceState) {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+            console.log("SEEDER_INFO: Cleaned 'run_db_seed' from URL.");
+        }
+    })();
+})();
