@@ -14,21 +14,14 @@ document.addEventListener('alpine:init', () => {
     async function pbFetch(collectionName, { recordId = "", queryParams = "", method = "GET", body = null } = {}) {
         const apiUrl = `/api/collections/${collectionName}/records${recordId ? `/${recordId}` : ""}${queryParams ? `?${queryParams}` : ""}`;
         const options = { method, headers: {} };
-        if (body) {
-            options.headers["Content-Type"] = "application/json";
-            options.body = JSON.stringify(body);
-        }
+        if (body) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
         try {
             const response = await fetch(apiUrl, options);
             if (!response.ok) {
-                let errorMessage = `API Error (${method} ${collectionName} ${recordId || queryParams}): ${response.status}`;
+                let errorMessage = `API Error (${method} ${collectionName} ${recordId||queryParams}): ${response.status}`;
                 try {
                     const errorData = await response.json();
-                    if (errorData?.data && typeof errorData.data === 'object') {
-                        errorMessage += ` - ${Object.values(errorData.data).map(err => String(err?.message || JSON.stringify(err))).join("; ")}`;
-                    } else {
-                        errorMessage += ` - ${errorData?.message || response.statusText}`;
-                    }
+                    errorMessage += ` - ${errorData?.message || (errorData?.data && typeof errorData.data === 'object' ? Object.values(errorData.data).map(err => String(err?.message || JSON.stringify(err))).join("; ") : response.statusText)}`;
                 } catch { errorMessage += ` - ${await response.text() || response.statusText}`; }
                 throw new Error(errorMessage);
             }
@@ -36,11 +29,8 @@ document.addEventListener('alpine:init', () => {
             if (!responseText && (method === "GET" || method === "POST" || method === "PATCH")) return (method === "GET" ? { items: [] } : {});
             if (method === "DELETE" && response.status === 204) return {};
             try { return JSON.parse(responseText); }
-            catch (parseError) { throw new Error(`API Parse Error (${method} ${collectionName} ${recordId || queryParams}): ${parseError.message}`); }
-        } catch (error) {
-            if (error.message.startsWith('API') || error.message.startsWith('Network')) throw error;
-            throw new Error(`Network Error (${method} ${collectionName} ${recordId || queryParams}): ${error.message}`);
-        }
+            catch (parseError) { throw new Error(`API Parse Error (${method} ${collectionName} ${recordId||queryParams}): ${parseError.message}`); }
+        } catch (error) { throw new Error((error.message.startsWith('API')||error.message.startsWith('Network') ? error.message : `Network Error (${method} ${collectionName} ${recordId||queryParams}): ${error.message}`)); }
     }
 
     Alpine.data('udheyaBooking', () => ({
@@ -48,7 +38,7 @@ document.addEventListener('alpine:init', () => {
         appSettings: {
             exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.021, symbol: "$", is_active: false }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: false }},
             default_currency: "EGP", whatsapp_number_raw: "201000000000", whatsapp_number_display: "+20 100 000 0000",
-            promo_end_date: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)).toISOString(), promo_discount_percent: 10, promo_is_active: true,
+            promo_end_date: new Date(Date.now() + (7*24*60*60*1000)).toISOString(), promo_discount_percent: 10, promo_is_active: true,
             delivery_areas: [{id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"},{id:"maadi",name_en:"Maadi",name_ar:"المعادي"}]}],
             payment_details: { vodafone_cash: "010XXXXXXXX", instapay_ipn: "your_ipn@instapay", revolut_details: "@yourRevolutTag", monzo_details: "monzo.me/yourtag", bank_name: "Default Bank", bank_account_name: "Default Account Name", bank_account_number: "000000000000", bank_iban: "", bank_swift: "" }
         },
@@ -79,8 +69,8 @@ document.addEventListener('alpine:init', () => {
                 if (appSettingsResponse?.items?.length) {
                     const remoteSettings = appSettingsResponse.items[0];
                     this.appSettings = { ...defaultLocalSettings, ...remoteSettings, payment_details: { ...defaultLocalSettings.payment_details, ...remoteSettings.payment_details}, exchange_rates: { ...defaultLocalSettings.exchange_rates, ...remoteSettings.exchange_rates }};
-                    if (!this.appSettings.whatsapp_number_raw) this.appSettings.whatsapp_number_raw = defaultLocalSettings.whatsapp_number_raw;
-                    if (!this.appSettings.whatsapp_number_display) this.appSettings.whatsapp_number_display = defaultLocalSettings.whatsapp_number_display;
+                    this.appSettings.whatsapp_number_raw = this.appSettings.whatsapp_number_raw || defaultLocalSettings.whatsapp_number_raw;
+                    this.appSettings.whatsapp_number_display = this.appSettings.whatsapp_number_display || defaultLocalSettings.whatsapp_number_display;
                 } else { this.appSettings = defaultLocalSettings; }
                 this.productOptions.livestock = livestockResponse?.items?.map(item => ({ pbId: item.id, value_key: item.value_key, name_en: item.name_en, name_ar: item.name_ar, weights_prices: Array.isArray(item.weights_prices) ? item.weights_prices.map(wp => ({ ...wp })) : [] })) || [];
             } catch (error) {
@@ -99,22 +89,20 @@ document.addEventListener('alpine:init', () => {
                 });
             }
             this.stepSectionsMeta = [
-                { id: "#step1-content", conceptualStep: 1, element: document.querySelector("#step1-content"), titleRef: "step1Title", firstFocusableErrorRef: null, validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, element: document.querySelector("#step2-content"), titleRef: "step2Title", firstFocusableErrorRef: null, validator: this.validateStep2.bind(this) },
-                { id: "#step3-content", conceptualStep: 3, element: document.querySelector("#step3-content"), titleRef: "step3Title", firstFocusableErrorRef: null, validator: this.validateStep3.bind(this) },
-                { id: "#step4-content", conceptualStep: 4, element: document.querySelector("#step4-content"), titleRef: "step4Title", firstFocusableErrorRef: null, validator: this.validateStep4.bind(this) }
+                { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: null, validator: this.validateStep1.bind(this) },
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: null, validator: this.validateStep2.bind(this) },
+                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: null, validator: this.validateStep3.bind(this) },
+                { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: null, validator: this.validateStep4.bind(this) }
             ];
-            this.$watch('selectedAnimal.basePriceEGP', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
-            this.$watch('selectedPackaging.addonPriceEGP', () => { this.calculateTotalPrice(); });
-            this.$watch('currentCurrency', () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); });
+            ['selectedAnimal.basePriceEGP', 'selectedPackaging.addonPriceEGP', 'currentCurrency'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'selectedPackaging.addonPriceEGP') this.updateAllDisplayedPrices(); }));
             ['selectedSacrificeDay.value', 'distributionChoice', 'selectedPrepStyle.value', 'selectedPackaging.value', 'splitDetailsOption', 'customSplitDetailsText', 'selectedGovernorate', 'deliveryCity', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod'].forEach(prop => this.$watch(prop, () => this.updateAllStepCompletionStates()));
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
         handleScroll() {
-            if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => step.element && typeof step.element.offsetTop === 'number')) {
+            if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => document.querySelector(step.id) && typeof document.querySelector(step.id).offsetTop === 'number')) {
                 const scrollMidPoint = window.scrollY + (window.innerHeight / 2); let closestStep = 1; let minDistance = Infinity;
-                this.stepSectionsMeta.forEach(stepMeta => { if (stepMeta.element) { const distance = Math.abs(scrollMidPoint - (stepMeta.element.offsetTop + (stepMeta.element.offsetHeight / 2))); if (distance < minDistance) { minDistance = distance; closestStep = stepMeta.conceptualStep; } } });
+                this.stepSectionsMeta.forEach(stepMeta => { const element = document.querySelector(stepMeta.id); if (element) { const distance = Math.abs(scrollMidPoint - (element.offsetTop + (element.offsetHeight / 2))); if (distance < minDistance) { minDistance = distance; closestStep = stepMeta.conceptualStep; } } });
                 if (this.currentConceptualStep !== closestStep) this.currentConceptualStep = closestStep;
             }
             const headerHeight = document.querySelector('.site-header')?.offsetHeight || 70; const scrollCheckOffset = headerHeight + (window.innerHeight * 0.10); const currentScrollYWithOffset = window.scrollY + scrollCheckOffset; let newActiveNavLinkHref = ""; let newActiveParentMenu = null;
@@ -143,16 +131,15 @@ document.addEventListener('alpine:init', () => {
         isValidPhone: (phone) => phone?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(phone.trim()),
         scrollToSection(selector) { try { const element = document.querySelector(selector); if (element) { let offset = document.querySelector('.site-header')?.offsetHeight || 0; if (selector.startsWith('#udheya-booking-start') || selector.startsWith('#step') || selector.startsWith('#udheya-booking-form-panel')) { const stepperHeader = document.querySelector('.stepper-outer-wrapper'); if (stepperHeader && getComputedStyle(stepperHeader).position === 'sticky') offset += stepperHeader.offsetHeight; } window.scrollTo({ top: element.getBoundingClientRect().top + window.pageYOffset - offset - 10, behavior: 'smooth' }); } } catch (error) {} },
         validateConceptualStep(conceptualStep, setErrors = true) { const stepMeta = this.stepSectionsMeta[conceptualStep - 1]; if (!stepMeta || !stepMeta.validator) return true; const isValid = stepMeta.validator(setErrors); this.stepProgress[`step${conceptualStep}`] = isValid; return isValid; },
-        updateStepCompletionStatus(conceptualStep) { this.stepProgress[`step${conceptualStep}`] = this.validateConceptualStep(conceptualStep, false); },
-        updateAllStepCompletionStates() { for (let i = 1; i <= this.stepSectionsMeta.length; i++) this.updateStepCompletionStatus(i); },
+        updateAllStepCompletionStates() { for (let i = 1; i <= this.stepSectionsMeta.length; i++) this.stepProgress[`step${i}`] = this.validateConceptualStep(i, false); },
         handleStepperNavigation(targetConceptualStep) { this.clearAllErrors(); let canProceed = true; for (let step = 1; step < targetConceptualStep; step++) { if (!this.validateConceptualStep(step, true)) { this.currentConceptualStep = step; const stepMeta = this.stepSectionsMeta[step-1]; this.focusOnRef(stepMeta?.firstFocusableErrorRef || stepMeta?.titleRef); this.scrollToSection(stepMeta?.id || '#udheya-booking-start'); canProceed = false; break; }} if (canProceed) { this.currentConceptualStep = targetConceptualStep; this.scrollToSection(this.stepSectionsMeta[targetConceptualStep-1]?.id || '#udheya-booking-start'); this.focusOnRef(this.stepSectionsMeta[targetConceptualStep-1]?.titleRef); }},
-        validateStep1(setErrors = true) { if (setErrors) this.clearError('animal'); const currentStepMeta = this.stepSectionsMeta[0]; currentStepMeta.firstFocusableErrorRef = null; if (!this.selectedAnimal.type || !this.selectedAnimal.weight) { if (setErrors) { this.setError('animal', { en: "Please select an animal and weight.", ar: "يرجى اختيار الحيوان ووزنه." }); currentStepMeta.firstFocusableErrorRef = !this.selectedAnimal.type ? (this.$refs.baladiWeightSelect ? 'baladiWeightSelect' : 'barkiWeightSelect') : (this.selectedAnimal.type === 'baladi' ? 'baladiWeightSelect' : 'barkiWeightSelect'); } return false; } const animalTypeConfig = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.type); const weightPriceInfo = animalTypeConfig?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight); if (!weightPriceInfo || !weightPriceInfo.is_active || (weightPriceInfo.stock != null && weightPriceInfo.stock <= 0)) { if (setErrors) { this.setError('animal', { en: `${this.selectedAnimal.nameEN || "Selected animal"} (${this.selectedAnimal.weight}) is out of stock. Please re-select.`, ar: `${this.selectedAnimal.nameAR || "الحيوان المختار"} (${this.selectedAnimal.weight}) نفذت كميته. يرجى إعادة الاختيار.` }); currentStepMeta.firstFocusableErrorRef = this.selectedAnimal.type === 'baladi' ? 'baladiWeightSelect' : 'barkiWeightSelect'; this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.calculateTotalPrice(); this.updateAllDisplayedPrices(); document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected')); } return false; } return true; },
-        validateStep2(setErrors = true) { if (setErrors) { this.clearError('prepStyle'); this.clearError('packaging'); } let isValid = true; const currentStepMeta = this.stepSectionsMeta[1]; currentStepMeta.firstFocusableErrorRef = null; if (!this.selectedPrepStyle.value) { if (setErrors) { this.setError('prepStyle', 'select'); if (!currentStepMeta.firstFocusableErrorRef) currentStepMeta.firstFocusableErrorRef = 'prepStyleSelect'; } isValid = false; } if (!this.selectedPackaging.value) { if (setErrors) { this.setError('packaging', 'select'); if (!currentStepMeta.firstFocusableErrorRef) currentStepMeta.firstFocusableErrorRef = 'packagingSelect'; } isValid = false; } return isValid; },
-        validateStep3(setErrors = true) { if (setErrors) this.clearError('sacrificeDay'); const currentStepMeta = this.stepSectionsMeta[2]; currentStepMeta.firstFocusableErrorRef = null; if (!this.selectedSacrificeDay.value) { if (setErrors) { this.setError('sacrificeDay', 'select'); currentStepMeta.firstFocusableErrorRef = 'sacrificeDaySelect'; } return false; } return true; },
-        validateStep4(setErrors = true) { if (setErrors) { ['splitDetails', 'deliveryName', 'deliveryPhone', 'customerEmail', 'selectedGovernorate', 'deliveryCity', 'deliveryAddress', 'timeSlot', 'paymentMethod'].forEach(f => this.clearError(f)); } let isValid = true; const currentStepMeta = this.stepSectionsMeta[3]; currentStepMeta.firstFocusableErrorRef = null; const setFieldError = (field, msgKey, ref) => { if (setErrors) this.setError(field, msgKey); isValid = false; if (setErrors && !currentStepMeta.firstFocusableErrorRef) currentStepMeta.firstFocusableErrorRef = ref; }; if (this.distributionChoice === 'split') { if (!this.splitDetailsOption) setFieldError('splitDetails', 'select', 'distributionChoiceRadios'); else if (this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) setFieldError('splitDetails', 'required', 'customSplitTextarea'); } if (this._needsDeliveryDetails) { if (!(this.deliveryName || "").trim()) setFieldError('deliveryName', 'required', 'deliveryNameInput'); if (!(this.deliveryPhone || "").trim()) setFieldError('deliveryPhone', 'required', 'deliveryPhoneInput'); else if (!this.isValidPhone((this.deliveryPhone || "").trim())) setFieldError('deliveryPhone', 'phone', 'deliveryPhoneInput'); if ((this.customerEmail || "").trim() && !this.isValidEmail((this.customerEmail || "").trim())) setFieldError('customerEmail', 'email', 'customerEmailInput'); if (!this.selectedGovernorate) setFieldError('selectedGovernorate', 'select', 'deliveryGovernorateSelect'); const selectedGovConfig = (this.appSettings.delivery_areas || []).find(area => area.id === this.selectedGovernorate); if (selectedGovConfig?.cities?.length > 0 && !this.deliveryCity) setFieldError('deliveryCity', 'select', 'deliveryCitySelect'); if (!(this.deliveryAddress || "").trim()) setFieldError('deliveryAddress', 'required', 'deliveryAddressInput'); if (!this.selectedTimeSlot) setFieldError('timeSlot', 'timeSlot', 'timeSlotContainer');} if (!this.paymentMethod) setFieldError('paymentMethod', 'select', 'paymentMethodRadios'); return isValid; },
-        selectAnimal(animalTypeValueKey, weightSelectElement) { this.clearError('animal'); const animalConfig = this.productOptions.livestock.find(lt => lt.value_key === animalTypeValueKey); if (!animalConfig) { this.setError('animal', { en: "Invalid animal type.", ar: "نوع حيوان غير صالح." }); this.updateStepCompletionStatus(1); return; } const selectedWeightValue = weightSelectElement.value; if (!selectedWeightValue) { if (this.selectedAnimal.type === animalTypeValueKey) { this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.calculateTotalPrice(); document.getElementById(animalTypeValueKey)?.classList.remove('livestock-card-selected'); } this.updateStepCompletionStatus(1); return; } const weightPriceConfig = animalConfig.weights_prices.find(wp => wp.weight_range === selectedWeightValue); if (!weightPriceConfig || !weightPriceConfig.is_active || (weightPriceConfig.stock != null && weightPriceConfig.stock <= 0)) { this.setError('animal', { en: `${animalConfig.name_en || "Selected animal"} (${selectedWeightValue}) is out of stock.`, ar: `${animalConfig.name_ar || "الحيوان المختار"} (${selectedWeightValue}) نفذت كميته.` }); if (this.selectedAnimal.type === animalTypeValueKey && this.selectedAnimal.weight === selectedWeightValue) { this.selectedAnimal = { ...initialBookingState.selectedAnimal }; document.getElementById(animalTypeValueKey)?.classList.remove('livestock-card-selected');} this.calculateTotalPrice(); if (this.$refs[weightSelectElement.id]) this.focusOnRef(weightSelectElement.id); this.updateStepCompletionStatus(1); return; } const otherAnimalTypeKey = animalTypeValueKey === 'baladi' ? 'barki' : 'baladi'; if (this.selectedAnimal.type && this.selectedAnimal.type !== animalTypeValueKey) { const otherWeightSelect = this.$refs[`${otherAnimalTypeKey}WeightSelect`]; if (otherWeightSelect) otherWeightSelect.value = ""; document.getElementById(otherAnimalTypeKey)?.classList.remove('livestock-card-selected'); } this.selectedAnimal = { type: animalConfig.value_key, value: animalConfig.value_key, weight: weightPriceConfig.weight_range, basePriceEGP: parseFloat(weightPriceConfig.price_egp), stock: weightPriceConfig.stock, originalStock: weightPriceConfig.stock, nameEN: animalConfig.name_en, nameAR: animalConfig.name_ar, pbId: animalConfig.pbId }; this.calculateTotalPrice(); document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected')); weightSelectElement.closest('.livestock-card').classList.add('livestock-card-selected'); this.updateStepCompletionStatus(1); if (this.stepProgress.step1) this.handleStepperNavigation(2); },
-        updateSelectedPrepStyle(value) { const selectedOption = this.productOptions.preparationStyles.find(style => style.value === value); this.selectedPrepStyle = selectedOption ? { ...selectedOption } : { value: "", nameEN: "", nameAR: "", is_custom: false }; if (!this.selectedPrepStyle.is_custom) this.customPrepDetails = ""; this.calculateTotalPrice(); this.updateStepCompletionStatus(2); },
-        updateSelectedPackaging(value) { const selectedOption = this.productOptions.packagingOptions.find(pkg => pkg.value === value); this.selectedPackaging = selectedOption ? { ...selectedOption, addonPriceEGP: parseFloat(selectedOption.addonPriceEGP || 0) } : { value: "", addonPriceEGP: 0, nameEN: "", nameAR: "" }; this.calculateTotalPrice(); this.updateStepCompletionStatus(2); },
+        validateStep1(setErrors = true) { if (setErrors) this.clearError('animal'); const stepMeta = this.stepSectionsMeta[0]; stepMeta.firstFocusableErrorRef = null; if (!this.selectedAnimal.type || !this.selectedAnimal.weight) { if (setErrors) { this.setError('animal', { en: "Please select an animal and weight.", ar: "يرجى اختيار الحيوان ووزنه." }); stepMeta.firstFocusableErrorRef = !this.selectedAnimal.type ? (this.$refs.baladiWeightSelect ? 'baladiWeightSelect' : 'barkiWeightSelect') : (this.selectedAnimal.type === 'baladi' ? 'baladiWeightSelect' : 'barkiWeightSelect'); } return false; } const animalTypeConfig = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.type); const weightPriceInfo = animalTypeConfig?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight); if (!weightPriceInfo || !weightPriceInfo.is_active || (weightPriceInfo.stock != null && weightPriceInfo.stock <= 0)) { if (setErrors) { this.setError('animal', { en: `${this.selectedAnimal.nameEN || "Selected animal"} (${this.selectedAnimal.weight}) is out of stock. Please re-select.`, ar: `${this.selectedAnimal.nameAR || "الحيوان المختار"} (${this.selectedAnimal.weight}) نفذت كميته. يرجى إعادة الاختيار.` }); stepMeta.firstFocusableErrorRef = this.selectedAnimal.type === 'baladi' ? 'baladiWeightSelect' : 'barkiWeightSelect'; this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.calculateTotalPrice(); this.updateAllDisplayedPrices(); document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected')); } return false; } return true; },
+        validateStep2(setErrors = true) { if (setErrors) { this.clearError('prepStyle'); this.clearError('packaging'); } let isValid = true; const stepMeta = this.stepSectionsMeta[1]; stepMeta.firstFocusableErrorRef = null; if (!this.selectedPrepStyle.value) { if (setErrors) { this.setError('prepStyle', 'select'); if (!stepMeta.firstFocusableErrorRef) stepMeta.firstFocusableErrorRef = 'prepStyleSelect'; } isValid = false; } if (!this.selectedPackaging.value) { if (setErrors) { this.setError('packaging', 'select'); if (!stepMeta.firstFocusableErrorRef) stepMeta.firstFocusableErrorRef = 'packagingSelect'; } isValid = false; } return isValid; },
+        validateStep3(setErrors = true) { if (setErrors) this.clearError('sacrificeDay'); const stepMeta = this.stepSectionsMeta[2]; stepMeta.firstFocusableErrorRef = null; if (!this.selectedSacrificeDay.value) { if (setErrors) { this.setError('sacrificeDay', 'select'); stepMeta.firstFocusableErrorRef = 'sacrificeDaySelect'; } return false; } return true; },
+        validateStep4(setErrors = true) { if (setErrors) { ['splitDetails', 'deliveryName', 'deliveryPhone', 'customerEmail', 'selectedGovernorate', 'deliveryCity', 'deliveryAddress', 'timeSlot', 'paymentMethod'].forEach(f => this.clearError(f)); } let isValid = true; const stepMeta = this.stepSectionsMeta[3]; stepMeta.firstFocusableErrorRef = null; const setFieldError = (field, msgKey, ref) => { if (setErrors) this.setError(field, msgKey); isValid = false; if (setErrors && !stepMeta.firstFocusableErrorRef) stepMeta.firstFocusableErrorRef = ref; }; if (this.distributionChoice === 'split') { if (!this.splitDetailsOption) setFieldError('splitDetails', 'select', 'distributionChoiceRadios'); else if (this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) setFieldError('splitDetails', 'required', 'customSplitTextarea'); } if (this._needsDeliveryDetails) { if (!(this.deliveryName || "").trim()) setFieldError('deliveryName', 'required', 'deliveryNameInput'); if (!(this.deliveryPhone || "").trim()) setFieldError('deliveryPhone', 'required', 'deliveryPhoneInput'); else if (!this.isValidPhone((this.deliveryPhone || "").trim())) setFieldError('deliveryPhone', 'phone', 'deliveryPhoneInput'); if ((this.customerEmail || "").trim() && !this.isValidEmail((this.customerEmail || "").trim())) setFieldError('customerEmail', 'email', 'customerEmailInput'); if (!this.selectedGovernorate) setFieldError('selectedGovernorate', 'select', 'deliveryGovernorateSelect'); const selectedGovConfig = (this.appSettings.delivery_areas || []).find(area => area.id === this.selectedGovernorate); if (selectedGovConfig?.cities?.length > 0 && !this.deliveryCity) setFieldError('deliveryCity', 'select', 'deliveryCitySelect'); if (!(this.deliveryAddress || "").trim()) setFieldError('deliveryAddress', 'required', 'deliveryAddressInput'); if (!this.selectedTimeSlot) setFieldError('timeSlot', 'timeSlot', 'timeSlotContainer');} if (!this.paymentMethod) setFieldError('paymentMethod', 'select', 'paymentMethodRadios'); return isValid; },
+        selectAnimal(animalTypeValueKey, weightSelectElement) { this.clearError('animal'); const animalConfig = this.productOptions.livestock.find(lt => lt.value_key === animalTypeValueKey); if (!animalConfig) { this.setError('animal', { en: "Invalid animal type.", ar: "نوع حيوان غير صالح." }); this.updateAllStepCompletionStates(); return; } const selectedWeightValue = weightSelectElement.value; if (!selectedWeightValue) { if (this.selectedAnimal.type === animalTypeValueKey) { this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.calculateTotalPrice(); document.getElementById(animalTypeValueKey)?.classList.remove('livestock-card-selected'); } this.updateAllStepCompletionStates(); return; } const weightPriceConfig = animalConfig.weights_prices.find(wp => wp.weight_range === selectedWeightValue); if (!weightPriceConfig || !weightPriceConfig.is_active || (weightPriceConfig.stock != null && weightPriceConfig.stock <= 0)) { this.setError('animal', { en: `${animalConfig.name_en || "Selected animal"} (${selectedWeightValue}) is out of stock.`, ar: `${animalConfig.name_ar || "الحيوان المختار"} (${selectedWeightValue}) نفذت كميته.` }); if (this.selectedAnimal.type === animalTypeValueKey && this.selectedAnimal.weight === selectedWeightValue) { this.selectedAnimal = { ...initialBookingState.selectedAnimal }; document.getElementById(animalTypeValueKey)?.classList.remove('livestock-card-selected');} this.calculateTotalPrice(); if (this.$refs[weightSelectElement.id]) this.focusOnRef(weightSelectElement.id); this.updateAllStepCompletionStates(); return; } const otherAnimalTypeKey = animalTypeValueKey === 'baladi' ? 'barki' : 'baladi'; if (this.selectedAnimal.type && this.selectedAnimal.type !== animalTypeValueKey) { const otherWeightSelect = this.$refs[`${otherAnimalTypeKey}WeightSelect`]; if (otherWeightSelect) otherWeightSelect.value = ""; document.getElementById(otherAnimalTypeKey)?.classList.remove('livestock-card-selected'); } this.selectedAnimal = { type: animalConfig.value_key, value: animalConfig.value_key, weight: weightPriceConfig.weight_range, basePriceEGP: parseFloat(weightPriceConfig.price_egp), stock: weightPriceConfig.stock, originalStock: weightPriceConfig.stock, nameEN: animalConfig.name_en, nameAR: animalConfig.name_ar, pbId: animalConfig.pbId }; this.calculateTotalPrice(); document.querySelectorAll('.livestock-card').forEach(card => card.classList.remove('livestock-card-selected')); weightSelectElement.closest('.livestock-card').classList.add('livestock-card-selected'); this.updateAllStepCompletionStates(); if (this.stepProgress.step1) this.handleStepperNavigation(2); },
+        updateSelectedPrepStyle(value) { const selectedOption = this.productOptions.preparationStyles.find(style => style.value === value); this.selectedPrepStyle = selectedOption ? { ...selectedOption } : { value: "", nameEN: "", nameAR: "", is_custom: false }; if (!this.selectedPrepStyle.is_custom) this.customPrepDetails = ""; this.calculateTotalPrice(); this.updateAllStepCompletionStates(); },
+        updateSelectedPackaging(value) { const selectedOption = this.productOptions.packagingOptions.find(pkg => pkg.value === value); this.selectedPackaging = selectedOption ? { ...selectedOption, addonPriceEGP: parseFloat(selectedOption.addonPriceEGP || 0) } : { value: "", addonPriceEGP: 0, nameEN: "", nameAR: "" }; this.calculateTotalPrice(); this.updateAllStepCompletionStates(); },
         updateSacrificeDayTexts() { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${this.selectedSacrificeDay.value}"]`); if (optionElement) Object.assign(this.selectedSacrificeDay, { textEN: optionElement.dataset.en, textAR: optionElement.dataset.ar }); },
         calculateTotalPrice() { this.totalPriceEGP = (this.selectedAnimal.basePriceEGP || 0) + (this.selectedPackaging.addonPriceEGP || 0); },
         updateAllDisplayedPrices() {
@@ -183,84 +170,77 @@ document.addEventListener('alpine:init', () => {
                 this.calculateTotalPrice();
             } catch (error) { this.userFriendlyApiError = "Error updating price displays."; }
         },
-        async validateAndSubmitBooking() { this.clearAllErrors(); let isFormValid = true; for (let step = 1; step <= this.stepSectionsMeta.length; step++) { if (!this.validateConceptualStep(step, true)) { isFormValid = false; const stepMeta = this.stepSectionsMeta[step - 1]; if (stepMeta) { this.focusOnRef(stepMeta.firstFocusableErrorRef || stepMeta.titleRef); this.scrollToSection(stepMeta.id || '#udheya-booking-start'); } break; }} if (!isFormValid) return; const selectedAnimalConfig = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.value); const selectedWeightPriceInfo = selectedAnimalConfig?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight); if (!selectedAnimalConfig || !selectedWeightPriceInfo || !selectedWeightPriceInfo.is_active || (selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock <= 0)) { this.setError('animal', { en: `Sorry, ${this.selectedAnimal.nameEN || "selected item"} (${this.selectedAnimal.weight}) is unavailable. Please reselect.`, ar: `عذراً، ${this.selectedAnimal.nameAR || "المنتج المختار"} (${this.selectedAnimal.weight}) غير متوفر. يرجى إعادة الاختيار.` }); this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.updateAllDisplayedPrices(); this.updateStepCompletionStatus(1); this.scrollToSection('#step1-content'); this.focusOnRef(this.stepSectionsMeta[0].titleRef); return; } this.isLoading.booking = true; this.apiError = null; this.userFriendlyApiError = ""; this.calculateTotalPrice(); const bookingPayload = { booking_id_text: `SL-UDHY-${(new Date()).getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000).padStart(5, '0')}`, animal_type_key: this.selectedAnimal.value, animal_type_name_en: this.selectedAnimal.nameEN, animal_type_name_ar: this.selectedAnimal.nameAR, animal_weight_selected: this.selectedAnimal.weight, animal_base_price_egp: this.selectedAnimal.basePriceEGP, preparation_style_value: this.selectedPrepStyle.value, preparation_style_name_en: this.selectedPrepStyle.nameEN, preparation_style_name_ar: this.selectedPrepStyle.nameAR, is_custom_prep: this.selectedPrepStyle.is_custom, custom_prep_details: this.selectedPrepStyle.is_custom ? (this.customPrepDetails || "").trim() : "", packaging_value: this.selectedPackaging.value, packaging_name_en: this.selectedPackaging.nameEN, packaging_name_ar: this.selectedPackaging.nameAR, packaging_addon_price_egp: this.selectedPackaging.addonPriceEGP, total_price_egp: this.totalPriceEGP, sacrifice_day_value: this.selectedSacrificeDay.value, time_slot: this.distributionChoice === 'char' ? 'N/A' : this.selectedTimeSlot, distribution_choice: this.distributionChoice, split_details_option: this.distributionChoice === 'split' ? this.splitDetailsOption : "", custom_split_details_text: (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom') ? (this.customSplitDetailsText || "").trim() : "", niyyah_names: (this.niyyahNames || "").trim(), customer_email: (this.customerEmail || "").trim(), group_purchase_interest: this.groupPurchase, delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "", delivery_governorate_id: this._needsDeliveryDetails ? this.selectedGovernorate : "", delivery_city_id: this._needsDeliveryDetails ? this.deliveryCity : "", delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "", payment_method: this.paymentMethod, payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) || ['visa','mastercard'].includes(this.paymentMethod) ? 'pending_confirmation' : 'pending_payment', booking_status: 'confirmed_pending_payment', }; try { const createdRecord = await pbFetch("bookings", { method: "POST", body: bookingPayload }); this.bookingID = createdRecord.booking_id_text || createdRecord.id; if (selectedWeightPriceInfo && selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock > 0) selectedWeightPriceInfo.stock--; this.bookingConfirmed = true; this.$nextTick(() => { this.scrollToSection('#booking-confirmation-section'); this.focusOnRef('bookingConfirmedTitle'); }); } catch (error) { this.apiError = String(error.message); this.userFriendlyApiError = "Issue submitting booking. Review details, try again, or contact support."; this.scrollToSection('.global-error-indicator'); } finally { this.isLoading.booking = false; } },
+        async validateAndSubmitBooking() { this.clearAllErrors(); let isFormValid = true; for (let step = 1; step <= this.stepSectionsMeta.length; step++) { if (!this.validateConceptualStep(step, true)) { isFormValid = false; const stepMeta = this.stepSectionsMeta[step - 1]; if (stepMeta) { this.focusOnRef(stepMeta.firstFocusableErrorRef || stepMeta.titleRef); this.scrollToSection(stepMeta.id || '#udheya-booking-start'); } break; }} if (!isFormValid) return; const selectedAnimalConfig = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.value); const selectedWeightPriceInfo = selectedAnimalConfig?.weights_prices.find(wp => wp.weight_range === this.selectedAnimal.weight); if (!selectedAnimalConfig || !selectedWeightPriceInfo || !selectedWeightPriceInfo.is_active || (selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock <= 0)) { this.setError('animal', { en: `Sorry, ${this.selectedAnimal.nameEN || "selected item"} (${this.selectedAnimal.weight}) is unavailable. Please reselect.`, ar: `عذراً، ${this.selectedAnimal.nameAR || "المنتج المختار"} (${this.selectedAnimal.weight}) غير متوفر. يرجى إعادة الاختيار.` }); this.selectedAnimal = { ...initialBookingState.selectedAnimal }; this.updateAllDisplayedPrices(); this.updateAllStepCompletionStates(); this.scrollToSection('#step1-content'); this.focusOnRef(this.stepSectionsMeta[0].titleRef); return; } this.isLoading.booking = true; this.apiError = null; this.userFriendlyApiError = ""; this.calculateTotalPrice(); const bookingPayload = { booking_id_text: `SL-UDHY-${(new Date()).getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000).padStart(5, '0')}`, animal_type_key: this.selectedAnimal.value, animal_type_name_en: this.selectedAnimal.nameEN, animal_type_name_ar: this.selectedAnimal.nameAR, animal_weight_selected: this.selectedAnimal.weight, animal_base_price_egp: this.selectedAnimal.basePriceEGP, preparation_style_value: this.selectedPrepStyle.value, preparation_style_name_en: this.selectedPrepStyle.nameEN, preparation_style_name_ar: this.selectedPrepStyle.nameAR, is_custom_prep: this.selectedPrepStyle.is_custom, custom_prep_details: this.selectedPrepStyle.is_custom ? (this.customPrepDetails || "").trim() : "", packaging_value: this.selectedPackaging.value, packaging_name_en: this.selectedPackaging.nameEN, packaging_name_ar: this.selectedPackaging.nameAR, packaging_addon_price_egp: this.selectedPackaging.addonPriceEGP, total_price_egp: this.totalPriceEGP, sacrifice_day_value: this.selectedSacrificeDay.value, time_slot: this.distributionChoice === 'char' ? 'N/A' : this.selectedTimeSlot, distribution_choice: this.distributionChoice, split_details_option: this.distributionChoice === 'split' ? this.splitDetailsOption : "", custom_split_details_text: (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom') ? (this.customSplitDetailsText || "").trim() : "", niyyah_names: (this.niyyahNames || "").trim(), customer_email: (this.customerEmail || "").trim(), group_purchase_interest: this.groupPurchase, delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "", delivery_governorate_id: this._needsDeliveryDetails ? this.selectedGovernorate : "", delivery_city_id: this._needsDeliveryDetails ? this.deliveryCity : "", delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "", payment_method: this.paymentMethod, payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) || ['visa','mastercard'].includes(this.paymentMethod) ? 'pending_confirmation' : 'pending_payment', booking_status: 'confirmed_pending_payment', }; try { const createdRecord = await pbFetch("bookings", { method: "POST", body: bookingPayload }); this.bookingID = createdRecord.booking_id_text || createdRecord.id; if (selectedWeightPriceInfo && selectedWeightPriceInfo.stock != null && selectedWeightPriceInfo.stock > 0) selectedWeightPriceInfo.stock--; this.bookingConfirmed = true; this.$nextTick(() => { this.scrollToSection('#booking-confirmation-section'); this.focusOnRef('bookingConfirmedTitle'); }); } catch (error) { this.apiError = String(error.message); this.userFriendlyApiError = "Issue submitting booking. Review details, try again, or contact support."; this.scrollToSection('.global-error-indicator'); } finally { this.isLoading.booking = false; } },
         async validateAndCheckBookingStatus() { this.clearError('lookupBookingID'); if ((this.lookupBookingID || "").trim()) await this.checkBookingStatus(); else { this.setError('lookupBookingID', 'required'); this.focusOnRef('lookupBookingIdInput'); } },
         async checkBookingStatus() { this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const trimmedLookupID = (this.lookupBookingID || "").trim(); try { const response = await pbFetch("bookings", { queryParams: `filter=(booking_id_text='${encodeURIComponent(trimmedLookupID)}')&perPage=1` }); if (response.items?.length > 0) { const booking = response.items[0]; this.statusResult = { booking_id_text: booking.booking_id_text || booking.id, status: booking.booking_status || "Unknown", animal_type: booking.animal_type_name_en || booking.animal_type_key, animal_weight_selected: booking.animal_weight_selected, sacrifice_day: booking.sacrifice_day_value, time_slot: booking.time_slot }; } else this.statusNotFound = true; } catch (error) { this.apiError = String(error.message); this.userFriendlyApiError = "Could not retrieve booking status. Check ID or try again."; this.statusNotFound = true; } finally { this.isLoading.status = false; } },
         getSacrificeDayText(dayValue) { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${dayValue}"]`); return optionElement ? { en: optionElement.dataset.en, ar: optionElement.dataset.ar } : { en: dayValue, ar: dayValue }; },
         resetAndStartOver() { Object.assign(this, JSON.parse(JSON.stringify(initialBookingState)), { bookingConfirmed: false, bookingID: "", lookupBookingID: "", statusResult: null, statusNotFound: false, currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false }, apiError: null, userFriendlyApiError: ""}); if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); this.initApp(); this.$nextTick(() => { this.scrollToSection('#udheya-booking-start'); this.focusOnRef('bookingSectionTitle'); }); }
     }));
-});
 
-(function() {
-    const SEED_PARAM_NAME = "run_db_seed";
-    if (new URLSearchParams(window.location.search).get(SEED_PARAM_NAME) !== "true") return;
+    (function() {
+        const SEED_PARAM_NAME = "run_db_seed";
+        if (new URLSearchParams(window.location.search).get(SEED_PARAM_NAME) !== "true") return;
 
-    async function pbFetch(collectionName, { recordId = "", queryParams = "", method = "GET", body = null } = {}) {
-        const apiUrl = `/api/collections/${collectionName}/records${recordId ? `/${recordId}` : ""}${queryParams ? `?${queryParams}` : ""}`;
-        const options = { method, headers: {} };
-        if (body) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
-        const response = await fetch(apiUrl, options);
-        if (!response.ok && response.status !== 204) {
-            const errorText = await response.text();
-            throw new Error(`Seeder API Error (${method} ${collectionName}): ${response.status} ${errorText}`);
+        async function pbSeedFetch(collectionName, { recordId = "", queryParams = "", method = "GET", body = null } = {}) {
+            const apiUrl = `/api/collections/${collectionName}/records${recordId ? `/${recordId}` : ""}${queryParams ? `?${queryParams}` : ""}`;
+            const options = { method, headers: {} };
+            if (body) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
+            const response = await fetch(apiUrl, options);
+            if (!response.ok && response.status !== 204) {
+                const errorText = await response.text();
+                throw new Error(`Seeder API Error (${method} ${collectionName}): ${response.status} ${errorText}`);
+            }
+            if (response.status === 204) return {};
+            return response.json();
         }
-        if (response.status === 204) return {};
-        return response.json();
-    }
 
-    const seedDataConfig = [
-        {
-            collection: "app_settings",
-            keyField: "setting_key",
-            data: [{
-                setting_key: "global_config",
-                exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: true }},
-                default_currency: "EGP",
-                whatsapp_number_raw: "201012345678", whatsapp_number_display: "+20 101 234 5678",
-                promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), promo_discount_percent: 12, promo_is_active: true,
-                delivery_areas: [
-                    {id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"},{id:"maadi",name_en:"Maadi",name_ar:"المعادي"},{id:"heliopolis",name_en:"Heliopolis",name_ar:"مصر الجديدة"}]},
-                    {id:"giza",name_en:"Giza",name_ar:"الجيزة",cities:[{id:"dokki",name_en:"Dokki",name_ar:"الدقي"},{id:"mohandessin",name_en:"Mohandessin",name_ar:"المهندسين"}]},
-                    {id:"alexandria",name_en:"Alexandria",name_ar:"الإسكندرية",cities:[{id:"smouha",name_en:"Smouha",name_ar:"سموحة"}]},
-                    {id:"other_gov",name_en:"Other Governorate",name_ar:"محافظة أخرى",cities:[]}
-                ],
-                payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
-            }]
-        },
-        {
-            collection: "livestock_types",
-            keyField: "value_key",
-            data: [
-                { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", weights_prices: [{ weight_range: "35-45 kg", price_egp: 4800, stock: 20, is_active: true }, { weight_range: "45-55 kg", price_egp: 5500, stock: 12, is_active: true }, { weight_range: "55+ kg", price_egp: 6200, stock: 5, is_active: false }] },
-                { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", weights_prices: [{ weight_range: "40-50 kg", price_egp: 5300, stock: 18, is_active: true }, { weight_range: "50-60 kg", price_egp: 6100, stock: 0, is_active: true }, { weight_range: "25-35 kg", price_egp: 4000, stock: 10, is_active: true }] }
-            ]
-        }
-    ];
+        const seedDataConfig = [
+            {
+                collection: "app_settings", keyField: "setting_key",
+                data: [{
+                    setting_key: "global_config",
+                    exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: true }},
+                    default_currency: "EGP", whatsapp_number_raw: "201012345678", whatsapp_number_display: "+20 101 234 5678",
+                    promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), promo_discount_percent: 12, promo_is_active: true,
+                    delivery_areas: [
+                        {id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"},{id:"maadi",name_en:"Maadi",name_ar:"المعادي"},{id:"heliopolis",name_en:"Heliopolis",name_ar:"مصر الجديدة"}]},
+                        {id:"giza",name_en:"Giza",name_ar:"الجيزة",cities:[{id:"dokki",name_en:"Dokki",name_ar:"الدقي"},{id:"mohandessin",name_en:"Mohandessin",name_ar:"المهندسين"}]},
+                        {id:"alexandria",name_en:"Alexandria",name_ar:"الإسكندرية",cities:[{id:"smouha",name_en:"Smouha",name_ar:"سموحة"}]},
+                        {id:"other_gov",name_en:"Other Governorate",name_ar:"محافظة أخرى",cities:[]}
+                    ],
+                    payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
+                }]
+            },
+            {
+                collection: "livestock_types", keyField: "value_key",
+                data: [
+                    { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", weights_prices: [{ weight_range: "35-45 kg", price_egp: 4800, stock: 20, is_active: true }, { weight_range: "45-55 kg", price_egp: 5500, stock: 12, is_active: true }, { weight_range: "55+ kg", price_egp: 6200, stock: 5, is_active: false }] },
+                    { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", weights_prices: [{ weight_range: "40-50 kg", price_egp: 5300, stock: 18, is_active: true }, { weight_range: "50-60 kg", price_egp: 6100, stock: 0, is_active: true }, { weight_range: "25-35 kg", price_egp: 4000, stock: 10, is_active: true }] }
+                ]
+            }
+        ];
 
-    (async function seedDatabase() {
-        console.log("SEEDER_INFO: Starting database seed process...");
-        for (const config of seedDataConfig) {
-            for (const recordData of config.data) {
-                try {
-                    const existingRecords = await pbFetch(config.collection, { queryParams: `filter=(${config.keyField}='${recordData[config.keyField]}')&perPage=1` });
-                    if (existingRecords.items && existingRecords.items.length > 0) {
-                        const existingRecordId = existingRecords.items[0].id;
-                        await pbFetch(config.collection, { recordId: existingRecordId, method: "PATCH", body: recordData });
-                        console.log(`SEEDER_SUCCESS: Record updated in '${config.collection}'. ID: ${existingRecordId}, Key: ${recordData[config.keyField]}`);
-                    } else {
-                        const created = await pbFetch(config.collection, { method: "POST", body: recordData });
-                        console.log(`SEEDER_SUCCESS: Record created in '${config.collection}'. ID: ${created.id}, Key: ${recordData[config.keyField]}`);
-                    }
-                } catch (error) {
-                    console.error(`SEEDER_EXCEPTION: Error for record in '${config.collection}' (Key: ${recordData[config.keyField]}):`, error.message);
+        (async function seedDatabase() {
+            console.log("SEEDER_INFO: Starting database seed process...");
+            for (const config of seedDataConfig) {
+                for (const recordData of config.data) {
+                    try {
+                        const existingRecords = await pbSeedFetch(config.collection, { queryParams: `filter=(${config.keyField}='${recordData[config.keyField]}')&perPage=1` });
+                        if (existingRecords.items && existingRecords.items.length > 0) {
+                            await pbSeedFetch(config.collection, { recordId: existingRecords.items[0].id, method: "PATCH", body: recordData });
+                            console.log(`SEEDER_SUCCESS: Record updated in '${config.collection}'. Key: ${recordData[config.keyField]}`);
+                        } else {
+                            const created = await pbSeedFetch(config.collection, { method: "POST", body: recordData });
+                            console.log(`SEEDER_SUCCESS: Record created in '${config.collection}'. Key: ${recordData[config.keyField]}`);
+                        }
+                    } catch (error) { console.error(`SEEDER_EXCEPTION: Error for record in '${config.collection}' (Key: ${recordData[config.keyField]}):`, error.message); }
                 }
             }
-        }
-        console.log("SEEDER_INFO: Database seed process finished.");
-        if (window.history.replaceState) {
-            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
-            console.log("SEEDER_INFO: Cleaned 'run_db_seed' from URL.");
-        }
+            console.log("SEEDER_INFO: Database seed process finished.");
+            if (window.history.replaceState) {
+                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+            }
+        })();
     })();
-})();
+});
