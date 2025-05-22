@@ -1,0 +1,2038 @@
+I understand you'd like all the files in a way that's easy for you to use. Since I can't create a direct download link or a zip file, I will provide the content for each file again, clearly labeled with its full path within the Svelte project structure we discussed.
+
+You can then copy the content of each block and paste it into a new file with the specified name and location in your local project.
+
+Before you start, make sure you have:
+
+Created a Svelte project using Vite (as per the "setup my project" instructions).
+
+Navigated into your project directory in your terminal.
+
+Ensured Node.js and npm/yarn/pnpm are installed.
+
+Let's begin.
+
+1. svelte.config.js (Create this file in the root of your project if it doesn't exist or update it)
+
+// svelte.config.js
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+
+export default {
+  preprocess: vitePreprocess(),
+  compilerOptions: {
+    runes: true // IMPORTANT for Svelte 5
+  }
+};
+
+
+2. vite.config.js (This should already exist in the root of your Vite project, ensure it looks similar)
+
+// vite.config.js
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [svelte()],
+})
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+JavaScript
+IGNORE_WHEN_COPYING_END
+
+3. package.json (This will be in your project root. Yours will have more detail, but ensure svelte is listed, ideally svelte@next or a Svelte 5 version, and @sveltejs/vite-plugin-svelte.)
+You don't need to replace your entire package.json with this, but check that svelte is at version 5 or next and @sveltejs/vite-plugin-svelte is present. If you ran npm install svelte@next --save-dev, it should be correct.
+
+(Example snippet of relevant parts, don't just copy-paste the whole thing over yours)
+
+{
+  "name": "sheep-land-svelte", // Or your project name
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "seed": "node src/lib/seed.js" // Added seed script
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.0.0", // Version might vary
+    "svelte": "^5.0.0-next.1", // Example Svelte 5 version, use what you installed
+    "vite": "^5.0.0" // Version might vary
+  }
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+
+Make sure to run npm install (or yarn install / pnpm install) if you manually edit package.json to add dependencies.
+
+4. public/index.html
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" /> <!-- You can create/replace favicon.svg -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Easily book your Sharia-compliant Udheya online with Sheep Land. Choose from Baladi & Barki sheep, customize your preparation, and enjoy reliable delivery." />
+    <title>Sheep Land - Udheya, Livestock & Quality Meats</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+
+5. src/main.js
+
+import './global-styles.css'
+import App from './App.svelte'
+
+const app = new App({
+  target: document.getElementById('app'),
+})
+
+export default app
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+JavaScript
+IGNORE_WHEN_COPYING_END
+
+6. src/global-styles.css
+
+:root{--c1:#5D4037;--c1d:#3E2723;--c2:#386641;--c2l:#A3B18A;--c3:#F28C28;--t1:#212529;--tm:#6c757d;--td:#FAF8F5;--b1:var(--td);--b2:#F0EBE3;--bc:#fff;--bs:#DDE0E3;--rad:6px;--s0:.2rem;--s1:.4rem;--s2:.5rem;--s3:1.2rem;--s4:1.6rem;--fe:'Inter',sans-serif;--fa:'Noto Kufi Arabic',sans-serif;--lh:1.5;--header-height:70px}
+*,::after,::before{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth;overflow-x:clip}
+body{font-family:var(--fe);line-height:var(--lh);color:var(--t1);background:var(--b1);padding-top:var(--header-height);overflow-x:clip; margin:0;}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:var(--c2);transition:color .2s,background-color .2s,border-color .2s}
+a:hover{color:var(--c1d)}
+:focus-visible{outline:2px solid var(--c3);outline-offset:2px;box-shadow:0 0 0 4px rgba(242,140,40,.2);border-radius:var(--rad)}
+h1,h2,h3,h4,h5{font-weight:700;line-height:1.25;color:var(--c1d);margin-bottom:var(--s1)}
+h1{font-size:1.9rem}
+h2{font-size:1.1rem}
+h3{font-size:1.1rem}
+h4{font-size:1rem}
+h5{font-size:.9rem}
+p{margin:0 0 var(--s1)}
+p:last-child{margin-bottom:0}
+ul,ol{list-style:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+.global-loading-indicator,.global-error-indicator{position:fixed;top:45%;left:50%;transform:translateX(-50%);z-index:2000;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.2);border-radius:var(--rad);max-width:400px;width:90%;}
+.global-loading-indicator{background:rgba(255,255,255,.95);color:var(--c1d);font-weight:500}
+.global-error-indicator{background:rgba(220,53,69,.95);color:#fff;font-weight:500}
+.c{width:90%;max-width:960px;margin:0 auto;padding:0 var(--s2)}
+.sec,.main-page-section{padding:var(--s4) 0}
+.disabled-btn{background-color:var(--tm)!important;border-color:var(--tm)!important;cursor:not-allowed!important;color:var(--td)!important}
+.disabled-btn:hover{filter:none!important;transform:none!important}
+.bil-row{display:flex;justify-content:space-between;width:100%;gap:var(--s1);align-items:baseline}
+.bil-row > .en, .bil-row > p.en{flex:1 1 48%;text-align:left}
+.bil-row > .ar, .bil-row > p.ar{flex:1 1 48%;font-family:var(--fa);direction:rtl;text-align:right}
+.bil-row > .en, .bil-row > .ar, .bil-row > p.en, .bil-row > p.ar {min-width:0;word-wrap:break-word}
+.bil-parent-spread{display:flex;justify-content:space-between;align-items:baseline;width:100%}
+.bil-parent-spread>.en{text-align:left;margin-right:auto;padding-right:var(--s0)}
+.bil-parent-spread>.ar{text-align:right;font-family:var(--fa);direction:rtl;margin-left:auto;padding-left:var(--s0)}
+.bil-parent-spread>.en,.bil-parent-spread>.ar{margin-bottom:0}
+.bil-parent-spread-intrinsic{display:inline-flex;justify-content:center;align-items:baseline;gap:.7em}
+.bil-parent-spread-intrinsic>.en{margin-right:0;padding-right:0}
+.bil-parent-spread-intrinsic>.ar{margin-left:0;padding-left:0;font-family:var(--fa);direction:rtl}
+.form-label-strict.bil-parent-spread > .en{font-weight:500;font-size:.85rem;color:var(--tm);text-align:left;flex-grow:1;margin-right:auto;padding-right:var(--s0)}
+.form-label-strict.bil-parent-spread > .ar{font-weight:500;font-size:.85rem;color:var(--tm);font-family:var(--fa);text-align:right;flex-grow:1;margin-left:auto;padding-left:var(--s0)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--s1) var(--s2);font-weight:700;border-radius:var(--rad);border:2px solid transparent;cursor:pointer;transition:transform .2s,filter .2s,background-color .2s,border-color .2s,color .2s;white-space:nowrap;font-size:.85rem;line-height:1.4;text-align:center}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.btn.bil-parent-spread-intrinsic>.en,.btn.bil-parent-spread-intrinsic>.ar{display:inline;vertical-align:middle;line-height:inherit}
+.btn.bp,.btn.bac{color:var(--td)}
+.btn.bp{background:var(--c1);border-color:var(--c1)}
+.btn.bp:hover{background:var(--c1d);border-color:var(--c1d)}
+.btn.bac{background:var(--c2);border-color:var(--c2)}
+.btn.bac:hover{background:var(--c1d);border-color:var(--c1d)}
+.btn-block{display:flex;width:100%}
+.btn-lg{padding:var(--s1) var(--s2);font-size:.9rem}
+.tc{text-align:center}
+.sec-head{margin-bottom:var(--s2);position:relative}
+.sec-head h2,.sec-head h3{margin:0}
+.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h2.bil-parent-spread .en::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h3.bil-parent-spread .en::after{content:'';display:block;width:50px;height:3px;background:var(--c2l);position:absolute;bottom:-8px;left:0;border-radius:2px}
+.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h2.bil-parent-spread .ar::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h3.bil-parent-spread .ar::after{content:'';display:block;width:50px;height:3px;background:var(--c2l);position:absolute;bottom:-8px;right:0;border-radius:2px}
+.card{background:var(--bc);border-radius:var(--rad);box-shadow:0 1px 3px #0000000f;border:1px solid var(--bs);display:flex;flex-direction:column;height:100%;overflow:hidden}
+.card:is(:hover,.selected,.livestock-card-selected){box-shadow:0 3px 10px #0000001a,0 0 0 2px var(--c2l)}
+.livestock-card.livestock-card-selected{border-color:var(--c2)}
+.form-input-styled,.fg input[type=text],.fg input[type=tel],.fg input[type=date],.fg input[type=email],.fg select,.fg textarea{width:100%;border:1px solid var(--bs);border-radius:var(--rad);font-size:.8rem;background:var(--bc);min-height:36px; padding:var(--s0) var(--s1); line-height:1.4; height:34px;}
+.fg textarea,textarea.form-input-styled{padding:var(--s1);line-height:1.3;min-height:50px}
+.fg select[disabled],.form-input-styled[disabled]{background-color:var(--b2);color:var(--tm);cursor:not-allowed}
+.form-input-styled[aria-invalid=true],input[aria-invalid=true],select[aria-invalid=true],textarea[aria-invalid=true]{border-color:#dc3545!important;box-shadow:0 0 0 .2rem rgba(220,53,69,.25)!important}
+.form-error-msg{color:#dc3545;font-size:.75rem;margin-top:var(--s0);display:block;text-align:left}
+html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.ar-form-error{text-align:right;font-family:var(--fa)} /* Added .ar-form-error for Svelte */
+.mt1{margin-top:var(--s1)}
+.field-note{font-size:.75em;color:var(--tm);margin-top:2px;line-height:1.25}
+.field-note.ar{text-align:right}
+@media(max-width:991px){
+.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row){flex-wrap:wrap}
+.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>.en,.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>p.en{flex-basis:100%!important;text-align:left!important;margin-bottom:var(--s0)}
+.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>.ar,.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>p.ar{flex-basis:100%!important;text-align:right!important;margin-bottom:var(--s0)}
+.bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row)>:last-child{margin-bottom:0}
+.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread){flex-direction:column;align-items:center;text-align:center}
+.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.en,.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.ar{margin:0 auto var(--s0)!important;text-align:center!important;padding:0!important}
+.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.ar{direction:rtl}
+.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>:last-child{margin-bottom:0!important}
+.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h2.bil-parent-spread .en::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h2.bil-parent-spread .ar::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h3.bil-parent-spread .en::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h3.bil-parent-spread .ar::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after{left:50%;transform:translateX(-50%);right:auto}
+.bil-parent-spread-intrinsic>.en,.bil-parent-spread-intrinsic>.ar{margin:0!important;padding:0!important}}
+@media(max-width:768px){html{font-size:14px}
+body{padding-top:var(--header-height)}
+.c{padding:0 var(--s1)}
+.sec{padding:var(--s3) 0}
+.summary-item .summary-item-content .bil-row,.summary-total.bil-row,.bank-details-list li.bil-row{flex-direction:row;align-items:baseline;flex-wrap:nowrap}
+.summary-item .summary-item-content .bil-row > div,.summary-total.bil-row > div, .bank-details-list li.bil-row > span{flex-basis:auto}
+.btn{font-size:.8rem}
+.btn-lg{font-size:.85rem}
+}
+@media(max-width:480px){:root{--header-height-mobile-sm:60px}
+body{padding-top:var(--header-height-mobile-sm)}
+.brand-logo{font-size:1rem}
+.hero-section h1{font-size:1.4rem}
+.hero-section h2{font-size:1rem}}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Css
+IGNORE_WHEN_COPYING_END
+
+7. src/App.svelte (from previous step, ensure it's correct)
+
+<script>
+	import Header from './lib/components/Header.svelte';
+	import Hero from './lib/components/Hero.svelte';
+	import InfoSection from './lib/components/InfoSection.svelte';
+	import UdheyaBookingSection from './lib/components/UdheyaBookingSection.svelte';
+	import CheckStatusSection from './lib/components/CheckStatusSection.svelte';
+	import Footer from './lib/components/Footer.svelte';
+	import GlobalLoader from './lib/components/GlobalLoader.svelte';
+	import GlobalErrorDisplay from './lib/components/GlobalErrorDisplay.svelte';
+
+	let isLoadingInit = $state(true); 
+	let apiError = $state(null);
+	let userFriendlyApiError = $state('');
+
+	// Props for Header
+	let currentCurrencyForHeader = $state('EGP'); // Will be updated by UdheyaBookingSection's appSettings
+	let activeNavLinkHrefForHeader = $state(''); // Will be updated by UdheyaBookingSection's scroll logic
+
+	// Props for Hero (appSettings for promo, countdownData from UdheyaBookingSection)
+	let heroAppSettings = $state({}); 
+	let heroCountdownData = $state({ days: "00", hours: "00", minutes: "00", seconds: "00", ended: true });
+
+
+	function handleBookingSectionState(detail) {
+		isLoadingInit = detail.loading;
+		apiError = detail.error;
+		userFriendlyApiError = detail.friendlyError;
+		
+		// Update props for other components based on what UdheyaBookingSection loads
+		if (detail.appSettings) {
+			currentCurrencyForHeader = detail.appSettings.default_currency || 'EGP';
+			heroAppSettings = { // Pass only necessary promo settings to Hero
+				promo_is_active: detail.appSettings.promo_is_active,
+				promo_discount_percent: detail.appSettings.promo_discount_percent,
+				promo_end_date: detail.appSettings.promo_end_date,
+			};
+		}
+		if (detail.countdownData) {
+			heroCountdownData = detail.countdownData;
+		}
+		if (typeof detail.activeNavLinkHref !== 'undefined') {
+            activeNavLinkHrefForHeader = detail.activeNavLinkHref;
+        }
+	}
+
+</script>
+
+{#if isLoadingInit && !apiError}
+	<GlobalLoader message="Loading application data... Please wait." />
+{/if}
+{#if apiError && !isLoadingInit}
+	<GlobalErrorDisplay message={userFriendlyApiError || 'An unexpected error occurred. Please try again.'} />
+{/if}
+
+<Header 
+	bind:currentCurrency={currentCurrencyForHeader} 
+	bind:activeNavLinkHref={activeNavLinkHrefForHeader}
+	appSettingsFromBooking={heroAppSettings} 
+/>
+
+<main>
+	<Hero 
+		appSettings={heroAppSettings} 
+		bind:countdownData={heroCountdownData} 
+	/>
+	<UdheyaBookingSection on:stateChange={(e) => handleBookingSectionState(e.detail)} />
+	
+	<InfoSection 
+		id="livestock-section" 
+		titleEN="Our Livestock" 
+		titleAR="مواشينا" 
+		bgColor="var(--b2)"
+	>
+		<p class="bil-row tc">
+			<span class="en" style="flex-basis: 100%;">More information about our general livestock offerings (for purposes other than Udheya) will be available here soon. Stay tuned!</span>
+			<span class="ar" dir="rtl" style="flex-basis: 100%;">ستتوفر هنا قريبًا المزيد من المعلومات حول عروض المواشي العامة لدينا (لأغراض أخرى غير الأضحية). ترقبونا!</span>
+		</p>
+	</InfoSection>
+
+	<InfoSection 
+		id="meat-section" 
+		titleEN="Fresh Meat Cuts" 
+		titleAR="قطعيات اللحوم الطازجة"
+	>
+		 <p class="bil-row tc">
+			<span class="en" style="flex-basis: 100%;">Explore our range of premium, fresh meat cuts directly from our farm. Details coming soon!</span>
+			<span class="ar" dir="rtl" style="flex-basis: 100%;">اكتشف تشكيلتنا من قطعيات اللحوم الطازجة والممتازة مباشرة من مزرعتنا. التفاصيل قريبًا!</span>
+		</p>
+	</InfoSection>
+
+	<InfoSection 
+		id="gatherings-section" 
+		titleEN="Gatherings & Feasts" 
+		titleAR="الولائم والمناسبات" 
+		bgColor="var(--b1)" 
+	>
+		<p class="bil-row tc">
+			<span class="en" style="flex-basis: 100%; color: var(--td);">Information about our special livestock and meat packages for gatherings and feasts will be available here soon. Contact us for bespoke orders!</span>
+			<span class="ar" dir="rtl" style="flex-basis: 100%; color: var(--td);">ستتوفر هنا قريبًا معلومات حول باقات المواشي واللحوم الخاصة بنا للمناسبات والولائم. اتصل بنا للطلبات المخصصة!</span>
+		</p>
+	</InfoSection>
+
+	<CheckStatusSection />
+</main>
+
+<Footer />
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Svelte
+IGNORE_WHEN_COPYING_END
+
+I've made App.svelte more interactive by having UdheyaBookingSection dispatch its state, which App.svelte then uses to update props for Header and Hero. This is a more Svelte-idiomatic way to handle inter-component communication for shared display data than having each component fetch all settings.
+
+8. src/lib/api.js (from previous step)
+
+9. src/lib/utils.js (from previous step)
+
+10. src/lib/components/GlobalLoader.svelte (from previous step)
+
+11. src/lib/components/GlobalErrorDisplay.svelte (from previous step)
+
+12. src/lib/components/Header.svelte (from previous step, with appSettingsFromBooking prop adjusted)
+In Header.svelte, change export let appSettings = $state({}); to export let appSettingsFromBooking = $state({}); and use appSettingsFromBooking for WhatsApp numbers, etc., where appropriate, or pass down a more structured appSettings object from App.svelte. I will provide the updated Header.svelte incorporating this change next.
+
+Let's refine Header.svelte to accept the appSettings from App.svelte.
+
+Updated src/lib/components/Header.svelte:
+
+<!-- src/lib/components/Header.svelte -->
+<script>
+	import { scrollToSection } from '../utils.js';
+	import { fly, slide } from 'svelte/transition'; // Import transitions
+
+	export let appSettings = $props({}); // Now a prop
+	export let currentCurrency = $props('EGP');
+	export let activeNavLinkHref = $props('');
+
+	let isMobileMenuOpen = $state(false);
+	let isUdheyaDropdownOpen = $state(false);
+	let isUdheyaMobileSubmenuOpen = $state(false);
+
+	// For select binding, Svelte 5 handles this directly with $props
+	// If currentCurrency were an object, we'd need a getter/setter or a store.
+	// Since it's a string, direct bind:value={currentCurrency} works if currentCurrency itself is $writable.
+	// For props, if you need to modify it and reflect up, you'd dispatch an event.
+	// Here, we'll assume currentCurrency is bound two-way for simplicity or managed by a store eventually.
+
+
+	function closeAllMenus() {
+		isMobileMenuOpen = false;
+		isUdheyaDropdownOpen = false;
+		isUdheyaMobileSubmenuOpen = false;
+	}
+
+	function handleNavLinkClick(sectionId) {
+		closeAllMenus();
+		scrollToSection(sectionId);
+	}
+
+	function toggleDesktopUdheyaDropdown() {
+		isUdheyaDropdownOpen = !isUdheyaDropdownOpen;
+	}
+	
+	function toggleMobileUdheyaSubmenu() {
+		isUdheyaMobileSubmenuOpen = !isUdheyaMobileSubmenuOpen;
+	}
+
+	function handleClickOutside(node, callback) {
+		const handleClick = event => {
+			if (node && !node.contains(event.target) && !event.defaultPrevented) {
+				callback();
+			}
+		};
+		document.addEventListener('click', handleClick, true);
+		return {
+			destroy() {
+				document.removeEventListener('click', handleClick, true);
+			}
+		};
+	}
+
+</script>
+
+<header class="site-header">
+	<div class="c nav-container">
+		<a href="#/" class="brand-logo bil-parent-spread-intrinsic" on:click|preventDefault={() => handleNavLinkClick('body')}>
+			<span class="en">Sheep Land</span><span class="ar">أرض الأغنام</span>
+		</a>
+
+		<nav class="main-nav desktop-nav" aria-label="Main navigation">
+			<ul class="nav-list">
+				<li 
+					class="nav-item-dropdown" 
+					on:mouseenter={() => isUdheyaDropdownOpen = true} 
+					on:mouseleave={() => isUdheyaDropdownOpen = false}
+				>
+					<!-- The use:handleClickOutside on parent should handle this -->
+					<button 
+						type="button"
+						on:click={toggleDesktopUdheyaDropdown} 
+						class="nav-link bil-parent-spread-intrinsic dropdown-toggle" 
+						class:active-nav-link={activeNavLinkHref === 'Udheya'} 
+						aria-haspopup="true" 
+						aria-expanded={isUdheyaDropdownOpen}
+					>
+						<span class="en">Udheya</span><span class="ar">الأضحية</span>
+						<svg class="dropdown-arrow" class:rotate-180={isUdheyaDropdownOpen} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+					</button>
+					{#if isUdheyaDropdownOpen}
+					<ul class="dropdown-menu" transition:fly={{ y: -5, duration: 150 }}>
+						<li><a href="#udheya-booking-start" class="dropdown-link bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#udheya-booking-start'} on:click|preventDefault={() => handleNavLinkClick('#udheya-booking-start')}><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
+						<li><a href="#check-booking-status" class="dropdown-link bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#check-booking-status'} on:click|preventDefault={() => handleNavLinkClick('#check-booking-status')}><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
+					</ul>
+					{/if}
+				</li>
+				<li><a href="#livestock-section" class="nav-link bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#livestock-section'} on:click|preventDefault={() => handleNavLinkClick('#livestock-section')}><span class="en">Livestock</span><span class="ar">المواشي</span></a></li>
+				<li><a href="#meat-section" class="nav-link bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#meat-section'} on:click|preventDefault={() => handleNavLinkClick('#meat-section')}><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
+				<li><a href="#gatherings-section" class="nav-link bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#gatherings-section'} on:click|preventDefault={() => handleNavLinkClick('#gatherings-section')}><span class="en">Gatherings</span><span class="ar">ولائم</span></a></li>
+			</ul>
+		</nav>
+
+		<div class="header-extras desktop-extras">
+			<div class="currency-switcher">
+				<label for="currency-select-desktop" class="sr-only">Select Currency</label>
+				<select id="currency-select-desktop" bind:value={currentCurrency} aria-label="Select Currency">
+					{#each Object.keys(appSettings.exchange_rates || {}) as code (code)}
+						<option value={code} disabled={!appSettings.exchange_rates[code]?.is_active}>{code}</option>
+					{/each}
+				</select>
+			</div>
+			<div class="whatsapp-contact">
+				<a href="https://wa.me/{appSettings.whatsapp_number_raw || '201001234567'}" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp">
+					<svg class="whatsapp-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.43 16.84L2.05 22l5.26-1.39c1.44.75 3.05 1.18 4.73 1.18 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.13c-1.48 0-2.91-.38-4.15-1.08l-.34-.2-3.14.83.85-3.05-.22-.35A8.04 8.04 0 0 1 3.79 11.91c0-4.41 3.72-8.13 8.25-8.13s8.25 3.72 8.25 8.13-3.72 8.13-8.25 8.13zm5.32-5.68c-.25-.13-1.55-.76-1.79-.85s-.42-.13-.6.12c-.17.25-.67.85-.82 1.02s-.3.18-.55.06c-.25-.12-1.11-.41-2.15-1.33S10.08 13 9.91 12.74s.13-.24.26-.37c.11-.11.25-.29.39-.46s.05-.11.18-.36c.13-.25.08-.43 0-.55s-.56-1.39-.79-1.94c-.23-.55-.45-.49-.62-.49h-.17c-.16 0-.42.05-.64.3s-.85.82-.85 2.02S8.11 13.5 8.24 13.67s1.47 2.28 3.74 3.2c.5.25.93.4 1.26.51.52.15.94.12 1.27.07.38-.06 1.07-.44 1.27-.81.2-.38.2-.7.15-.82s-.15-.07-.4-.18z"/></svg>
+					<span class="whatsapp-number">{appSettings.whatsapp_number_display || '+20 100 123 4567'}</span>
+				</a>
+			</div>
+		</div>
+
+		<button class="hamburger-btn" on:click={() => isMobileMenuOpen = !isMobileMenuOpen} aria-label="Toggle menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-nav-menu-content">
+			<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+				{#if !isMobileMenuOpen}
+					<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+				{:else}
+					<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+				{/if}
+			</svg>
+		</button>
+	</div>
+
+	{#if isMobileMenuOpen}
+	<div 
+		class="mobile-nav-menu" 
+		id="mobile-nav-menu-content"
+		use:handleClickOutside={() => isMobileMenuOpen = false}
+		transition:fly={{ y: -20, duration: 200 }} 
+	> 
+		<nav aria-label="Mobile navigation">
+			<ul class="nav-list-mobile">
+				<li>
+					<button type="button" on:click={toggleMobileUdheyaSubmenu} class="nav-link-mobile bil-parent-spread-intrinsic dropdown-toggle-mobile" class:active-nav-link={activeNavLinkHref === 'Udheya'} aria-haspopup="true" aria-expanded={isUdheyaMobileSubmenuOpen}>
+						<span class="en">Udheya</span><span class="ar">الأضحية</span>
+						<svg class="dropdown-arrow" class:rotate-180={isUdheyaMobileSubmenuOpen} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+					</button>
+					{#if isUdheyaMobileSubmenuOpen}
+					<ul class="mobile-submenu" transition:slide={{duration:300}}>
+						<li><a href="#udheya-booking-start" class="nav-link-mobile bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#udheya-booking-start'} on:click|preventDefault={() => handleNavLinkClick('#udheya-booking-start')}><span class="en">Book Udheya</span><span class="ar">حجز الأضحية</span></a></li>
+						<li><a href="#check-booking-status" class="nav-link-mobile bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#check-booking-status'} on:click|preventDefault={() => handleNavLinkClick('#check-booking-status')}><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
+					</ul>
+					{/if}
+				</li>
+				<li><a href="#livestock-section" class="nav-link-mobile bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#livestock-section'} on:click|preventDefault={() => handleNavLinkClick('#livestock-section')}><span class="en">Livestock</span><span class="ar">المواشي</span></a></li>
+				<li><a href="#meat-section" class="nav-link-mobile bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#meat-section'} on:click|preventDefault={() => handleNavLinkClick('#meat-section')}><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
+				<li><a href="#gatherings-section" class="nav-link-mobile bil-parent-spread-intrinsic" class:active-nav-link={activeNavLinkHref === '#gatherings-section'} on:click|preventDefault={() => handleNavLinkClick('#gatherings-section')}><span class="en">Gatherings</span><span class="ar">ولائم</span></a></li>
+			</ul>
+		</nav>
+		<div class="mobile-header-extras">
+			<div class="currency-switcher">
+				<label for="currency-select-mobile" class="sr-only">Select Currency</label>
+				<select id="currency-select-mobile" bind:value={currentCurrency} aria-label="Select Currency Mobile">
+					{#each Object.keys(appSettings.exchange_rates || {}) as code (code)}
+						<option value={code} disabled={!appSettings.exchange_rates[code]?.is_active}>{code}</option>
+					{/each}
+				</select>
+			</div>
+			<div class="whatsapp-contact">
+				 <a href="https://wa.me/{appSettings.whatsapp_number_raw || '201001234567'}" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp" on:click={closeAllMenus}>
+					<svg class="whatsapp-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.43 16.84L2.05 22l5.26-1.39c1.44.75 3.05 1.18 4.73 1.18 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.13c-1.48 0-2.91-.38-4.15-1.08l-.34-.2-3.14.83.85-3.05-.22-.35A8.04 8.04 0 0 1 3.79 11.91c0-4.41 3.72-8.13 8.25-8.13s8.25 3.72 8.25 8.13-3.72 8.13-8.25 8.13zm5.32-5.68c-.25-.13-1.55-.76-1.79-.85s-.42-.13-.6.12c-.17.25-.67.85-.82 1.02s-.3.18-.55.06c-.25-.12-1.11-.41-2.15-1.33S10.08 13 9.91 12.74s.13-.24.26-.37c.11-.11.25-.29.39-.46s.05-.11.18-.36c.13-.25.08-.43 0-.55s-.56-1.39-.79-1.94c-.23-.55-.45-.49-.62-.49h-.17c-.16 0-.42.05-.64.3s-.85.82-.85 2.02S8.11 13.5 8.24 13.67s1.47 2.28 3.74 3.2c.5.25.93.4 1.26.51.52.15.94.12 1.27.07.38-.06 1.07-.44 1.27-.81.2-.38.2-.7.15-.82s-.15-.07-.4-.18z"/></svg>
+					<span class="whatsapp-number">{appSettings.whatsapp_number_display || '+20 100 123 4567'}</span>
+				</a>
+			</div>
+		</div>
+	</div>
+	{/if}
+</header>
+
+<style>
+.site-header{background-color:var(--b2);padding:var(--s1) 0;box-shadow:0 2px 4px rgba(0,0,0,.05);position:fixed;top:0;left:0;width:100%;z-index:1000;height:var(--header-height)}
+.nav-container{display:flex;justify-content:space-between;align-items:center;height:100%}
+.brand-logo{font-size:1rem;font-weight:700;color:var(--c1d);display:inline-flex;align-items:baseline;margin-right:var(--s2);gap:.5em}
+.brand-logo:hover .en,.brand-logo:hover .ar{color:var(--c2)}
+.main-nav.desktop-nav{margin:0 auto}
+.main-nav.desktop-nav .nav-list{display:flex;gap:0}
+.nav-item-dropdown{position:relative}
+.main-nav.desktop-nav .nav-link, .main-nav.desktop-nav .dropdown-toggle {background: none; border: none; font-family: inherit; font-size:.9rem;color:var(--tm);font-weight:500;padding:var(--s0) var(--s1);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em; cursor:pointer;}
+.main-nav.desktop-nav .nav-link:hover,.main-nav.desktop-nav .nav-link.active-nav-link,.main-nav.desktop-nav .dropdown-toggle:hover, .main-nav.desktop-nav .dropdown-toggle.active-nav-link{color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700}
+.main-nav.desktop-nav .nav-link.active-nav-link .en,.main-nav.desktop-nav .nav-link.active-nav-link .ar,.main-nav.desktop-nav .dropdown-toggle.active-nav-link .en,.main-nav.desktop-nav .dropdown-toggle.active-nav-link .ar{color:var(--c1d)}
+.dropdown-toggle svg.dropdown-arrow{width:1em;height:1em;margin-left:.25em;transition:transform .2s}
+.dropdown-toggle svg.dropdown-arrow.rotate-180{transform:rotate(180deg)}
+.dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background-color:var(--bc);border:1px solid var(--bs);border-radius:0 0 var(--rad) var(--rad);box-shadow:0 4px 12px rgba(0,0,0,.1);padding:var(--s0) 0;margin-top:0;min-width:200px;z-index:1001;list-style:none}
+.dropdown-menu li{list-style:none}
+.dropdown-menu .dropdown-link{display:block;padding:var(--s1) var(--s2);font-size:.85rem;color:var(--tm);white-space:nowrap}
+.dropdown-menu .dropdown-link:hover,.dropdown-menu .dropdown-link.active-nav-link{background-color:var(--b2);color:var(--c1d)}
+.header-extras.desktop-extras{display:flex;align-items:center;gap:var(--s0);margin-left:var(--s2)}
+.currency-switcher select{padding:var(--s0) calc(var(--s1)/2);font-size:.8rem;border:1px solid var(--bs);border-radius:var(--rad);background-color:var(--bc);height:30px;color:var(--tm)}
+.whatsapp-contact a{display:flex;align-items:center;gap:.5em;color:var(--c1);text-decoration:none;padding:var(--s0) var(--s1);border-radius:var(--rad);font-size:.9rem}
+.whatsapp-contact a:hover{color:var(--c1d);background-color:rgba(0,0,0,.03)}
+.whatsapp-icon{width:20px;height:20px}
+.whatsapp-number{font-weight:500;white-space:nowrap}
+.hamburger-btn{display:none;background:0 0;border:none;cursor:pointer;padding:var(--s0);color:var(--c1d);z-index:1010}
+.hamburger-btn:hover{color:var(--c2)}
+.mobile-nav-menu{position:absolute;top:var(--header-height);left:0;right:0;background-color:var(--b2);padding:var(--s2) var(--s2) var(--s3);box-shadow:0 4px 6px rgba(0,0,0,.1);z-index:1005;border-top:1px solid var(--bs)}
+.nav-list-mobile{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:0}
+.nav-list-mobile > li{width:100%}
+.nav-link-mobile{font-size:1rem;color:var(--tm);font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--rad);display:flex;align-items:center;gap:.5em;text-decoration:none;width:100%;box-sizing:border-box;justify-content:center}
+.dropdown-toggle-mobile{background:none;border:none;width:100%;text-align:inherit;cursor:pointer;display:flex;justify-content:center;align-items:center;position:relative}
+.dropdown-toggle-mobile .dropdown-arrow{margin-left:auto}
+.nav-link-mobile:hover,.nav-link-mobile.active-nav-link,.dropdown-toggle-mobile.active-nav-link{color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700}
+.nav-link-mobile.active-nav-link .en,.nav-link-mobile.active-nav-link .ar,.dropdown-toggle-mobile.active-nav-link .en,.dropdown-toggle-mobile.active-nav-link .ar{color:var(--c1d)}
+.mobile-submenu{list-style:none;padding-left:var(--s2);background-color:rgba(0,0,0,.02);width:100%; overflow:hidden;}
+.mobile-submenu li a{font-size:.9rem;padding:var(--s0) var(--s2)}
+.mobile-header-extras{margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--bs);display:flex;flex-direction:column;align-items:center;gap:var(--s2)}
+.mobile-header-extras .currency-switcher select{font-size:.9rem;padding:var(--s0) var(--s1)}
+.mobile-header-extras .whatsapp-contact a{font-size:1rem}
+
+@media(max-width:991px){
+	.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread){flex-direction:column;align-items:center;text-align:center}
+	.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.en,.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.ar{margin:0 auto var(--s0)!important;text-align:center!important;padding:0!important}
+	.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>.ar{direction:rtl}
+	.bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread)>:last-child{margin-bottom:0!important}
+	.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h2.bil-parent-spread .en::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h2.bil-parent-spread .ar::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h3.bil-parent-spread .en::after,.sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) h3.bil-parent-spread .ar::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after{left:50%;transform:translateX(-50%);right:auto}
+}
+@media(max-width:768px){
+	.main-nav.desktop-nav,.header-extras.desktop-extras{display:none}
+	.hamburger-btn{display:inline-flex;align-items:center;justify-content:center}
+	.brand-logo{margin-right:0;text-align:left;justify-content:flex-start}
+}
+@media(max-width:480px){
+	.brand-logo{font-size:1rem}
+	.hamburger-btn svg{width:24px;height:24px}
+}
+</style>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Svelte
+IGNORE_WHEN_COPYING_END
+
+13. src/lib/components/Hero.svelte (from previous step)
+
+<!-- src/lib/components/Hero.svelte -->
+<script>
+	import { scrollToSection } from '../utils.js';
+	import CountdownTimer from './CountdownTimer.svelte';
+
+	// These would ideally be passed as props from App.svelte or a store
+	// For standalone example, using $state with default values
+	export let appSettings = $state({
+		promo_is_active: true,
+		promo_discount_percent: 10,
+		promo_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+	});
+	export let countdownData = $state({ days: "00", hours: "00", minutes: "00", seconds: "00", ended: false }); // This would be managed by a parent or store
+
+</script>
+
+<section class="hero-section sec">
+	<div class="c tc">
+		<h1 class="hero-title-row bil-parent-spread">
+			<span class="en">Premium Livestock, Udheya & Quality Meats</span>
+			<span class="ar">أجود المواشي، الأضاحي واللحوم الممتازة</span>
+		</h1>
+		<h2 class="hero-subtitle-row bil-parent-spread">
+			<span class="en">Direct from Our Farm to You, Sharia Compliant Services</span>
+			<span class="ar">من مزرعتنا إليك مباشرة، خدمات متوافقة مع الشريعة</span>
+		</h2>
+		<div class="hero-desc-row bil-row">
+			<p class="en">Your trusted source for Sharia-compliant Udheya bookings, healthy livestock, and fresh, quality meat cuts. Experience convenience and excellence with Sheep Land.</p>
+			<p class="ar">مصدرك الموثوق لحجوزات الأضاحي المتوافقة مع الشريعة، والمواشي الصحية، وقطعيات اللحوم الطازجة عالية الجودة. اختبر الراحة والتميز مع أرض الأغنام.</p>
+		</div>
+
+		<div class="hero-promo-wrapper">
+			<a href="#udheya-booking-start" on:click|preventDefault={() => scrollToSection('#udheya-booking-start')} class="hero-promo-cta-link">
+				<div class="pban">
+					<div class="pban-text-content">
+						<div class="bil-row">
+							<div class="en">
+								<h3 class="prm-h">
+									Eid Al-Adha Offer!
+									{#if appSettings.promo_is_active && !countdownData.ended}
+										<span> Book early for <strong>{appSettings.promo_discount_percent || '0'}% OFF</strong>, secure your preferred animal & delivery slot! Limited stock available.</span>
+									{/if}
+								</h3>
+								{#if countdownData.ended && appSettings.promo_is_active}
+									<h3 class="prm-h">The Eid Offer has ended.</h3>
+								{/if}
+								{#if !appSettings.promo_is_active}
+									<h3 class="prm-h">Stay tuned for future offers!</h3>
+								{/if}
+							</div>
+							<div class="ar">
+								<h3 class="prm-h">
+									عرض عيد الأضحى!
+									{#if appSettings.promo_is_active && !countdownData.ended}
+										<span> احجز مبكرًا واحصل على <strong>خصم {appSettings.promo_discount_percent || '0'}%</strong>، واضمن اختيارك المفضل للحيوان وموعد التوصيل! الكمية محدودة.</span>
+									{/if}
+								</h3>
+								{#if countdownData.ended && appSettings.promo_is_active}
+									<h3 class="prm-h">انتهى عرض العيد.</h3>
+								{/if}
+								{#if !appSettings.promo_is_active}
+									<h3 class="prm-h">ترقبوا عروضنا القادمة!</h3>
+								{/if}
+							</div>
+						</div>
+					</div>
+					{#if appSettings.promo_is_active && !countdownData.ended}
+						<CountdownTimer bind:countdownData={countdownData} />
+					{/if}
+					<span class="btn bac pban-cta-btn bil-parent-spread-intrinsic" on:click|stopPropagation>
+						<span class="en">Book Your Udheya Now</span>
+						<span class="ar">احجز أضحيتك الآن</span>
+					</span>
+				</div>
+			</a>
+		</div>
+
+		<div class="why-choose-us-content-wrapper hero-why-choose">
+			<div class="sec-head tc why-choose-us-hero-head">
+				<h2 class="bil-parent-spread">
+					<span class="en">Why Choose Sheep Land?</span>
+					<span class="ar">لماذا أرض الأغنام؟</span>
+				</h2>
+			</div>
+			<div class="feature-grid why-choose-us-hero-grid">
+				<div class="feature-item">
+					<div class="icon-placeholder" aria-hidden="true"><img src="/images/icon-sharia.svg" alt="" class="icon-custom"/></div>
+					<h4 class="bil-parent-spread"><span class="en">Sharia Compliant</span><span class="ar">متوافق مع الشريعة</span></h4>
+					<div class="bil-row"><p class="en card-p">Rest assured, all our animals strictly meet the Sharia requirements for age, health, and proper Zabiha.</p><p class="ar card-p">كن مطمئنًا، جميع مواشينا تستوفي بدقة شروط الشريعة من حيث العمر والصحة والذبيحة الصحيحة.</p></div>
+				</div>
+				<div class="feature-item">
+					<div class="icon-placeholder" aria-hidden="true"><img src="/images/icon-premium.svg" alt="" class="icon-custom"/></div>
+					<h4 class="bil-parent-spread"><span class="en">Premium Quality</span><span class="ar">جودة عالية</span></h4>
+					<div class="bil-row"><p class="en card-p">We offer only healthy, meticulously cared-for livestock, ensuring the finest quality meat for your Udheya and other needs.</p><p class="ar card-p">نقدم فقط مواشي صحية مُعتنى بها بعناية فائقة، مما يضمن أجود أنواع اللحوم لأضحيتكم واحتياجاتكم الأخرى.</p></div>
+				</div>
+				<div class="feature-item">
+					<div class="icon-placeholder" aria-hidden="true"><img src="/images/icon-easybooking.svg" alt="" class="icon-custom"/></div>
+					<h4 class="bil-parent-spread"><span class="en">Easy Online Platform</span><span class="ar">منصة إلكترونية سهلة</span></h4>
+					<div class="bil-row"><p class="en card-p">Secure your Udheya, livestock, or meat conveniently from anywhere, anytime through our simple online platform.</p><p class="ar card-p">احجز أضحيتك أو اطلب ماشيتك أو لحومك بسهولة من أي مكان وفي أي وقت عبر منصتنا الإلكترونية المبسّطة.</p></div>
+				</div>
+				 <div class="feature-item">
+					<div class="icon-placeholder" aria-hidden="true"><img src="/images/icon-delivery.svg" alt="" class="icon-custom"/></div>
+					<h4 class="bil-parent-spread"><span class="en">Reliable Service</span><span class="ar">خدمة موثوقة</span></h4>
+					<div class="bil-row"><p class="en card-p">Your order is prepared and delivered with care, right to your doorstep or chosen charity, as per your selections.</p><p class="ar card-p">يُجهز طلبكم ويُوصل بعناية، مباشرة إلى باب منزلكم أو الجهة الخيرية المختارة، وفقًا لاختياراتكم.</p></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+.hero-section{background-color:var(--b2);padding:var(--s4) 0 var(--s3);background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),url(/images/hero-sheep-farm.jpg);background-size:cover;background-position:center;background-repeat:no-repeat;color:var(--td);min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box}
+.hero-section > .c{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero-section :is(h1,h2,p){color:var(--td)}
+.hero-section .hero-why-choose{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid rgba(255,255,255,.2);width:100%}
+.hero-section .hero-why-choose .bil-parent-spread>.en,.hero-section .hero-why-choose .bil-parent-spread>.ar{color:var(--td)}
+.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .en::after,.hero-section .hero-why-choose .sec-head h2.bil-parent-spread .ar::after{background:var(--c3)}
+.hero-section .hero-why-choose .feature-item p.card-p{color:#e0e0e0}
+.hero-section .hero-why-choose .feature-item .icon-placeholder{background-color:rgba(255,255,255,.15);color:var(--td);border:1px solid rgba(255,255,255,.2)}
+.hero-section .hero-why-choose .feature-item .icon-placeholder .icon-custom{filter:brightness(0) invert(1)}
+.pban{padding:var(--s2);background:linear-gradient(135deg,var(--c3),#FFD1A3);color:var(--c1d);border-radius:var(--rad);box-shadow:0 2px 8px #00000017;display:flex;flex-direction:column;align-items:center;gap:var(--s1);text-align:center}
+.pban-text-content{width:100%}
+.pban-text-content .bil-row{gap:var(--s0);align-items:stretch;justify-content:space-between}
+.pban-text-content .bil-row>.en{text-align:center;flex:1 1 48%}
+.pban-text-content .bil-row>.ar{text-align:center;font-family:var(--fa);direction:rtl;flex:1 1 48%}
+.prm-h{color:var(--c1d);font-size:1rem;margin:0;line-height:1.3}
+.prm-h strong,.prm-h span{font-weight:700;color:var(--c1d)}
+.pban .pban-cta-btn{font-size:.85rem;padding:var(--s0) var(--s2);margin-top:var(--s0);width:auto;max-width:300px}
+.feature-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);text-align:center}
+.why-choose-us-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s2);text-align:center;margin-top:var(--s3)}
+.feature-item .icon-placeholder{width:60px;height:60px;margin:0 auto var(--s1);background-color:var(--c2l);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--c2)}
+.feature-item .icon-placeholder.number-icon{font-size:1.3rem;font-weight:700}
+.icon-custom{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:1.2em}
+.card-p{font-size:.85rem;color:var(--tm);margin:0;line-height:1.4}
+
+@media(max-width:991px){
+	.pban-text-content .bil-row{flex-direction:column;align-items:center}
+	.pban-text-content .bil-row>.en,.pban-text-content .bil-row>.ar{text-align:center!important}
+	.pban-text-content .bil-row>.en{margin-bottom:var(--s1)}
+	.compact-how-it-works .how-it-works-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+}
+@media(max-width:768px){
+	.hero-section h1{font-size:1.6rem}
+	.hero-section h2{font-size:1.1rem}
+	.hero-section p{font-size:.9rem}
+	.pban .btn{width:auto;padding:var(--s0) var(--s2)}
+	:is(.why-choose-us-hero-grid,.compact-how-it-works .how-it-works-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
+	.compact-how-it-works .feature-item .icon-placeholder{width:35px;height:35px;font-size:1rem}
+	.compact-how-it-works .feature-item h4{font-size:.85rem}
+	.compact-how-it-works .feature-item .card-p{font-size:.75rem}
+}
+@media(max-width:480px){
+	.hero-section h1{font-size:1.4rem}
+	.hero-section h2{font-size:1rem}
+	.compact-how-it-works .how-it-works-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--s1)}
+}
+</style>
+
+14. src/lib/components/CountdownTimer.svelte (from previous step)
+
+<!-- src/lib/components/CountdownTimer.svelte -->
+<script>
+	// This component receives countdownData as a prop and displays it.
+	// The actual countdown logic (interval timer, date calculation)
+	// would typically live in a parent component (e.g., UdheyaBookingSection or App.svelte)
+	// or a Svelte store, and then `countdownData` is passed down or bound.
+	export let countdownData = $state({ days: '00', hours: '00', minutes: '00', seconds: '00', ended: true });
+</script>
+
+{#if !countdownData.ended}
+<div class="countdown-timer-wrapper">
+	<div class="countdown-timer en" aria-label="Offer countdown timer">
+		<div class="countdown-segment"><span class="countdown-value">{countdownData.days}</span><span class="countdown-label">Days</span></div>
+		<span class="countdown-separator" aria-hidden="true">:</span>
+		<div class="countdown-segment"><span class="countdown-value">{countdownData.hours}</span><span class="countdown-label">Hours</span></div>
+		<span class="countdown-separator" aria-hidden="true">:</span>
+		<div class="countdown-segment"><span class="countdown-value">{countdownData.minutes}</span><span class="countdown-label">Mins</span></div>
+		<span class="countdown-separator" aria-hidden="true">:</span>
+		<div class="countdown-segment"><span class="countdown-value">{countdownData.seconds}</span><span class="countdown-label">Secs</span></div>
+	</div>
+</div>
+{/if}
+
+<style>
+.countdown-timer-wrapper{display:flex;justify-content:center;width:100%;margin-top:var(--s0);margin-bottom:var(--s1)}
+.countdown-timer{display:flex;justify-content:center;align-items:center;gap:var(--s0);font-size:.9em}
+.countdown-segment{display:flex;flex-direction:column;align-items:center;background-color:rgba(255,255,255,.15);padding:2px var(--s0);border-radius:var(--rad);min-width:35px;text-align:center}
+.countdown-value{font-size:1.2em;font-weight:700;line-height:1.1;color:var(--td)}
+.countdown-label{font-size:.7em;text-transform:uppercase;line-height:1;color:var(--td);opacity:.8}
+.countdown-separator{font-size:1em;font-weight:700;color:var(--td);padding:0 2px}
+@media(max-width:480px){
+	.countdown-timer{font-size:.8em;gap:2px;flex-wrap:wrap}
+	.countdown-segment{min-width:30px;padding:2px}
+	.countdown-value{font-size:1.1em}
+	.countdown-separator{padding:0 1px}
+}
+</style>
+
+15. src/lib/components/InfoSection.svelte (from previous step)
+
+<!-- src/lib/components/InfoSection.svelte -->
+<script>
+  export let id = '';
+  export let titleEN = '';
+  export let titleAR = '';
+  export let bgColor = 'transparent'; // Default background
+  export let textColor = 'inherit';   // Default text color
+
+  // To apply styles directly if needed, though usually done via classes
+  let sectionStyle = `background-color: ${bgColor}; color: ${textColor};`;
+</script>
+
+<section {id} class="main-page-section sec" style={sectionStyle}>
+  <div class="c">
+    <div class="sec-head">
+      <h2 class="bil-parent-spread" tabindex="-1">
+        <span class="en">{titleEN}</span>
+        <span class="ar">{titleAR}</span>
+      </h2>
+    </div>
+    <slot></slot> <!-- This is where the custom paragraph content will go -->
+  </div>
+</section>
+
+<style>
+  /* Styles specific to InfoSection if any, otherwise global styles apply */
+  /* .sec-head defined globally, .bil-parent-spread defined globally */
+  /* If textColor is not 'inherit', ensure child elements like p also get it if desired */
+  section :global(p > .en), section :global(p > .ar) {
+    color: var(--textColor, inherit); /* Use CSS variable or direct prop */
+  }
+</style>
+
+16. src/lib/components/Footer.svelte (from previous step)
+
+<!-- src/lib/components/Footer.svelte -->
+<script>
+  const currentYear = new Date().getFullYear();
+</script>
+
+<footer class="site-footer-main main-page-section">
+	<div class="c">
+		<div class="footer-grid">
+			<div class="bil-row footer-brand-desc">
+				<p class="en">We are your full-service Egyptian team, committed to meeting your needs with exceptional speed and quality, sparing you the inconvenience of market visits.</p>
+				<p class="ar">نحن فريق متكامل لتلبية احتياجاتك بأسرع وقت وأفضل جودة، ونكفيك عناء الذهاب للسوق.</p>
+			</div>
+		</div>
+		<div class="footer-payment-methods tc">
+			<h5 class="bil-parent-spread">
+				<span class="en">We Accept</span><span class="ar">نقبل الدفع عبر</span>
+			</h5>
+			<div class="payment-icons-grid">
+				<img src="/images/visa_icon.svg" alt="Visa" title="Visa" class="footer-payment-icon">
+				<img src="/images/mastercard_icon.svg" alt="Mastercard" title="Mastercard" class="footer-payment-icon">
+				<img src="/images/vodafone.svg" alt="Vodafone Cash" title="Vodafone Cash" class="footer-payment-icon">
+				<img src="/images/instapay.svg" alt="InstaPay" title="InstaPay" class="footer-payment-icon">
+				<img src="/images/revolut_icon.svg" alt="Revolut" title="Revolut" class="footer-payment-icon">
+				<img src="/images/monzo_icon.svg" alt="Monzo" title="Monzo" class="footer-payment-icon">
+				<img src="/images/bank_transfer_icon.svg" alt="Bank Transfer" title="Bank Transfer" class="footer-payment-icon">
+				<img src="/images/Fawry.svg" alt="Fawry" title="Fawry" class="footer-payment-icon">
+				<!-- COD is usually not shown as an icon here -->
+			</div>
+		</div>
+		<hr class="footer-divider">
+		<p class="footer-copyright">
+			© {currentYear} Sheep Land.
+			<span class="bil-copyright-suffix">
+				<span class="en">All rights reserved.</span><span class="ar">جميع الحقوق محفوظة.</span>
+			</span>
+		</p>
+	</div>
+</footer>
+
+<style>
+.site-footer-main{background-color:var(--c1d);color:var(--b2);padding:var(--s3) 0}
+.footer-grid{text-align:left;gap:var(--s4)} /* Assuming .footer-grid might be a grid if more content added */
+.footer-brand-desc p.en{text-align:left;flex-basis:48%}
+.footer-brand-desc p.ar{font-family:var(--fa);direction:rtl;text-align:right;flex-basis:48%}
+.footer-payment-methods{margin-top:var(--s3);padding-bottom:var(--s2)}
+.footer-payment-methods h5{margin-bottom:var(--s1)}
+.payment-icons-grid{display:flex;justify-content:center;align-items:center;gap:var(--s1);flex-wrap:wrap}
+.footer-payment-icon{height:30px;max-width:60px;object-fit:contain;border:1px solid var(--bs);border-radius:var(--rad);padding:3px;background-color:#fff;margin:2px}
+.footer-divider{border-color:rgba(255,255,255,.2);margin:var(--s2) 0 var(--s1)}
+.footer-copyright{font-size:.8em;text-align:center;color:var(--b2);opacity:.7;margin-bottom:0}
+.bil-copyright-suffix{display:inline-flex;justify-content:space-between;align-items:baseline;width:auto;margin-left:var(--s0)}
+.bil-copyright-suffix .en{text-align:left}
+.bil-copyright-suffix .ar{font-family:var(--fa);direction:rtl;text-align:right}
+
+@media(max-width:991px){
+	.footer-brand-desc{flex-direction:column;align-items:center}
+	.footer-brand-desc p.en,.footer-brand-desc p.ar{width:100%;text-align:center!important;flex-basis:auto}
+}
+@media(max-width:768px){
+	.footer-copyright{text-align:center}
+	.bil-copyright-suffix{display:block;width:100%;text-align:center;margin-left:0;margin-top:var(--s0)}
+	.bil-copyright-suffix .en,.bil-copyright-suffix .ar{display:block;width:100%;text-align:center!important}
+}
+</style>
+
+17. src/lib/components/UdheyaBookingSection.svelte (from previous step - this is the very large one)
+
+<!-- src/lib/components/UdheyaBookingSection.svelte -->
+<script>
+	import { onMount, createEventDispatcher, tick } from 'svelte';
+	import { pbFetch } from '../api.js';
+	import { getFormattedPrice, isValidEmail, isValidPhone, scrollToSection, errorMessages as globalErrorMessages, getSacrificeDayText } from '../utils.js';
+	import CountdownTimer from './CountdownTimer.svelte';
+
+	const dispatch = createEventDispatcher();
+
+	// --- Props (would be passed from App.svelte or a store) ---
+	// For simplicity in this standalone example, we initialize some defaults here.
+	// In a real app, these would be props or come from a shared store.
+	let appSettings = $state({
+		exchange_rates: { EGP: { rate_from_egp: 1, symbol: 'LE', is_active: true }, USD: { rate_from_egp: 0.02, symbol: '$', is_active: true }},
+		default_currency: 'EGP',
+		whatsapp_number_raw: '201001234567',
+		whatsapp_number_display: '+20 100 123 4567',
+		promo_end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+		promo_discount_percent: 10,
+		promo_is_active: true,
+		delivery_areas: [{id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"}]}],
+		payment_details: { vodafone_cash: '010Default', instapay_ipn: 'default@instapay', revolut_details: '@defaultRevolut', monzo_details: 'monzo.me/default', bank_name: 'Default Bank', bank_account_name: 'Default Account', bank_account_number: '0000' }
+	});
+
+	let productOptions = $state({
+		livestock: [],
+		preparationStyles: [ { value: 'Standard Mixed Cuts', nameEN: 'Standard Mix', nameAR: 'مزيج قياسي', is_custom: false }, { value: 'Custom & Ground Mix', nameEN: 'Custom & Ground', nameAR: 'مخصص ومفروم', is_custom: true }],
+		packagingOptions: [ { value: 'standard', nameEN: 'Standard Packaging', nameAR: 'تعبئة قياسية', addonPriceEGP: 0 }, { value: 'vacuum_sealed', nameEN: 'Vacuum Sealed', nameAR: 'تعبئة مفرغة', addonPriceEGP: 150 }]
+	});
+
+	const initialBookingFormState = {
+        selectedAnimal: { type: "", value: "", weight: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, pbId: null, originalStock: null },
+        selectedPrepStyle: { value: "", nameEN: "", nameAR: "", is_custom: false },
+        customPrepDetails: "",
+        selectedPackaging: { value: "", addonPriceEGP: 0, nameEN: "", nameAR: "" },
+        niyyahNames: "",
+        selectedSacrificeDay: { value: "day1_10_dhul_hijjah", textEN: "Day 1 of Eid (10th Dhul Hijjah)", textAR: "اليوم الأول (10 ذو الحجة)"}, // Initial text will be updated
+        distributionChoice: "me",
+        splitDetailsOption: "", customSplitDetailsText: "",
+        deliveryName: "", deliveryPhone: "", customerEmail: "", selectedGovernorate: "", deliveryCity: "",
+        deliveryAddress: "", deliveryInstructions: "", selectedTimeSlot: "8 AM-9 AM",
+        paymentMethod: "fa", groupPurchase: false,
+    };
+
+	// --- Component State ---
+	let formState = $state(JSON.parse(JSON.stringify(initialBookingFormState)));
+	let errors = $state({});
+	let currentCurrency = $state(appSettings.default_currency); // Initialize based on appSettings
+	
+	let isLoadingBooking = $state(false);
+	let bookingConfirmed = $state(false);
+	let bookingID = $state('');
+
+	let currentConceptualStep = $state(1);
+	let stepProgress = $state({ step1: false, step2: false, step3: false, step4: false });
+
+	let countdownData = $state({ days: "00", hours: "00", minutes: "00", seconds: "00", ended: false });
+	let countdownTimerInterval = null;
+
+	// Refs for focusing
+	let bookingSectionTitleRef, step1TitleRef, step2TitleRef, step3TitleRef, step4TitleRef, bookingConfirmedTitleRef;
+	let baladiWeightSelectRef, barkiWeightSelectRef, prepStyleSelectRef, packagingSelectRef, customPrepDetailsTextareaRef, niyyahNamesInputRef;
+    let sacrificeDaySelectRef, distributionChoiceRadiosRef, customSplitTextareaRef, deliveryNameInputRef, deliveryPhoneInputRef, customerEmailInputRef;
+    let deliveryGovernorateSelectRef, deliveryCitySelectRef, deliveryAddressInputRef, deliveryInstructionsInputRef, timeSlotContainerRef;
+    let groupPurchaseCheckboxRef, paymentMethodRadiosRef;
+
+	const stepMetaMap = {
+        1: { titleRef: () => step1TitleRef, errorFieldRefMap: { animal: () => formState.selectedAnimal.type === 'baladi' ? baladiWeightSelectRef : barkiWeightSelectRef } },
+        2: { titleRef: () => step2TitleRef, errorFieldRefMap: { prepStyle: () => prepStyleSelectRef, packaging: () => packagingSelectRef } },
+        3: { titleRef: () => step3TitleRef, errorFieldRefMap: { sacrificeDay: () => sacrificeDaySelectRef, splitDetails: () => distributionChoiceRadiosRef, deliveryName: () => deliveryNameInputRef, deliveryPhone: () => deliveryPhoneInputRef, customerEmail: () => customerEmailInputRef, selectedGovernorate: () => deliveryGovernorateSelectRef, deliveryCity: () => deliveryCitySelectRef, deliveryAddress: () => deliveryAddressInputRef, timeSlot: () => timeSlotContainerRef } },
+        4: { titleRef: () => step4TitleRef, errorFieldRefMap: { paymentMethod: () => paymentMethodRadiosRef } } // Note: Step 4 in UI is Review & Pay, so payment method is validated here
+    };
+
+	async function focusOnAppropriateElement(step, fieldName) {
+        await tick(); // Wait for DOM updates
+        const meta = stepMetaMap[step];
+        if (!meta) return;
+
+        const fieldRefFn = meta.errorFieldRefMap?.[fieldName];
+        const fieldElement = fieldRefFn ? fieldRefFn() : null;
+        
+        if (fieldElement) {
+            fieldElement.focus({ preventScroll: false });
+            setTimeout(() => fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }), 50);
+        } else {
+            const titleEl = meta.titleRef ? meta.titleRef() : null;
+            if (titleEl) {
+                titleEl.focus({ preventScroll: false });
+                 setTimeout(() => titleEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }), 50);
+            } else {
+                scrollToSection(`#step${step}-content`);
+            }
+        }
+    }
+	
+	// --- Lifecycle & Data Fetching ---
+	onMount(async () => {
+		dispatch('stateChange', { loading: true, error: null, friendlyError: '' });
+		try {
+			const [settingsRes, livestockRes] = await Promise.all([
+				pbFetch('app_settings', { queryParams: "filter=(setting_key='global_config')&perPage=1" }),
+				pbFetch('livestock_types')
+			]);
+			if (settingsRes?.items?.length) {
+				const remoteSettings = settingsRes.items[0];
+				appSettings = { ...appSettings, ...remoteSettings, payment_details: {...appSettings.payment_details, ...remoteSettings.payment_details}, exchange_rates: {...appSettings.exchange_rates, ...remoteSettings.exchange_rates} };
+			}
+			productOptions.livestock = livestockRes?.items?.map(item => ({
+				pbId: item.id, value_key: item.value_key, name_en: item.name_en, name_ar: item.name_ar,
+				weights_prices: Array.isArray(item.weights_prices) ? item.weights_prices.map(wp => ({ ...wp, price_egp: parseFloat(wp.price_egp) })) : []
+			})) || [];
+			currentCurrency = appSettings.default_currency; // Set after appSettings are loaded
+			updateSacrificeDayTexts(); // Initialize sacrifice day text
+			startOfferDHDMSCountdown();
+			updateAllStepCompletionStates(); // Initial validation pass without showing errors
+			dispatch('stateChange', { loading: false, error: null, friendlyError: '' });
+			await tick();
+            if (bookingSectionTitleRef) bookingSectionTitleRef.focus();
+
+		} catch (e) {
+			console.error("Error initializing UdheyaBookingSection:", e);
+			dispatch('stateChange', { loading: false, error: e.message, friendlyError: 'Failed to load booking information. Please refresh.' });
+		}
+
+		// Scroll handling for stepper position
+		const stepper = document.querySelector('.stepper-outer-wrapper');
+        if (stepper) {
+            const handleStepScroll = () => {
+                if (!bookingConfirmed && Object.keys(stepMetaMap).length > 0) {
+                    const scrollMidPoint = window.scrollY + (window.innerHeight / 2);
+                    let closestStep = 1;
+                    let minDistance = Infinity;
+                    Object.entries(stepMetaMap).forEach(([stepNumStr, meta]) => {
+                        const stepNum = parseInt(stepNumStr);
+                        const element = document.getElementById(`step${stepNum}-content`);
+                        if (element) {
+                            const distance = Math.abs(scrollMidPoint - (element.offsetTop + (element.offsetHeight / 2)));
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                closestStep = stepNum;
+                            }
+                        }
+                    });
+                    if (currentConceptualStep !== closestStep) {
+                        currentConceptualStep = closestStep;
+                    }
+                }
+            };
+            window.addEventListener('scroll', handleStepScroll, { passive: true });
+            return () => window.removeEventListener('scroll', handleStepScroll);
+        }
+	});
+
+	// --- Computed Derived State ---
+	const totalPriceEGP = $derived(
+		(formState.selectedAnimal.basePriceEGP || 0) + (formState.selectedPackaging.addonPriceEGP || 0)
+	);
+	const availableCities = $derived(() => {
+		const gov = appSettings.delivery_areas.find(g => g.id === formState.selectedGovernorate);
+		return gov?.cities || [];
+	});
+	const needsDeliveryDetails = $derived(() => {
+		const customDetailsLower = (formState.customSplitDetailsText || "").toLowerCase();
+		return formState.distributionChoice === 'me' || 
+			   (formState.distributionChoice === 'split' && 
+			    (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(formState.splitDetailsOption) || 
+				 (formState.splitDetailsOption === 'custom' && (customDetailsLower.includes("for me") || customDetailsLower.includes("all delivered to me"))))
+			   );
+	});
+	const splitDetailsText = $derived(() => {
+		if (formState.distributionChoice !== 'split') return "";
+		if (formState.splitDetailsOption === 'custom') return (formState.customSplitDetailsText || "").trim();
+		const optionsMap = { "1/3_me_2/3_charity_sl": { en: "1/3 me (delivered), 2/3 charity (SL)", ar: "ثلث لي (يوصل)، ثلثان صدقة (أرض الأغنام)" }, "1/2_me_1/2_charity_sl": { en: "1/2 me (delivered), 1/2 charity (SL)", ar: "نصف لي (يوصل)، نصف صدقة (أرض الأغنام)" }, "2/3_me_1/3_charity_sl": { en: "2/3 me (delivered), 1/3 charity (SL)", ar: "ثلثان لي (يوصل)، ثلث صدقة (أرض الأغنام)" }, "all_me_custom_distro": { en: "All for me (I distribute)", ar: "الكل لي (أنا أوزع)" }};
+		const selected = optionsMap[formState.splitDetailsOption];
+		return selected ? (currentLang === 'ar' ? selected.ar : selected.en) : formState.splitDetailsOption;
+	});
+
+    const _getDeliveryLocation = (lang) => {
+        const nameKey = lang === 'en' ? 'name_en' : 'name_ar';
+        const govObj = (appSettings.delivery_areas || []).find(area => area.id === formState.selectedGovernorate);
+        const cityObj = govObj?.cities?.find(city => city.id === formState.deliveryCity);
+        if (cityObj?.[nameKey]) return cityObj[nameKey];
+        if (govObj && govObj.cities?.length === 0 && formState.selectedGovernorate && govObj[nameKey]) return govObj[nameKey];
+        if (govObj && !cityObj && formState.selectedGovernorate && govObj[nameKey]) return `${govObj[nameKey]} (${lang === 'en' ? "City not selected" : "المدينة غير مختارة"})`;
+        return "";
+    };
+    const summaryDeliveryToEN = $derived(() => {
+        if (formState.distributionChoice === 'char') return "Charity Distribution by Sheep Land";
+        if (needsDeliveryDetails) {
+            const name = (formState.deliveryName || "").trim();
+            const locEN = _getDeliveryLocation('en');
+            const shortAddr = (formState.deliveryAddress || "").substring(0, 20) + ((formState.deliveryAddress || "").length > 20 ? "..." : "");
+            return [name, locEN, shortAddr].filter(p => p?.trim()).join(", ") || "Delivery Details Incomplete";
+        }
+        return "Self Pickup / Distribution as per split";
+    });
+    const summaryDeliveryToAR = $derived(() => {
+        if (formState.distributionChoice === 'char') return "توزيع خيري بواسطة أرض الأغنام";
+        if (needsDeliveryDetails) {
+            const name = (formState.deliveryName || "").trim();
+            const locAR = _getDeliveryLocation('ar');
+            const shortAddr = (formState.deliveryAddress || "").substring(0, 20) + ((formState.deliveryAddress || "").length > 20 ? "..." : "");
+            return [name, locAR, shortAddr].filter(p => p?.trim()).join("، ") || "تفاصيل التوصيل غير مكتملة";
+        }
+        return "استلام ذاتي / توزيع حسب التقسيم";
+    });
+	const summaryDistributionEN = $derived(() => (formState.distributionChoice === 'me' ? "All to me" : formState.distributionChoice === 'char' ? "All to charity (by Sheep Land)" : `Split: ${(splitDetailsText || "").trim() || "(Not specified)"}`));
+	const summaryDistributionAR = $derived(() => (formState.distributionChoice === 'me' ? "الكل لي" : formState.distributionChoice === 'char' ? "تبرع بالكل للصدقة (أرض الأغنام توزع)" : `تقسيم الحصص: ${(splitDetailsText || "").trim() || "(لم يحدد)"}`));
+
+
+	// --- Methods ---
+	function setError(field, messageKeyOrObject) { errors[field] = (typeof messageKeyOrObject === 'string' ? globalErrorMessages[messageKeyOrObject] : messageKeyOrObject) || globalErrorMessages.required; }
+	function clearError(field) { if (errors[field]) { const newErrors = {...errors}; delete newErrors[field]; errors = newErrors; } }
+	function clearAllErrors() { errors = {}; }
+
+	function startOfferDHDMSCountdown() {
+		if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+		if (!appSettings.promo_is_active || !appSettings.promo_end_date) { countdownData.ended = true; return; }
+		const targetTime = new Date(appSettings.promo_end_date).getTime();
+		if (isNaN(targetTime)) { countdownData.ended = true; return; }
+		
+		function updateDisplay() {
+			const distance = targetTime - Date.now();
+			if (distance < 0) {
+				if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+				countdownData = { days: "00", hours: "00", minutes: "00", seconds: "00", ended: true };
+				return;
+			}
+			countdownData = {
+				days: String(Math.floor(distance / 86400000)).padStart(2, '0'),
+				hours: String(Math.floor((distance % 86400000) / 3600000)).padStart(2, '0'),
+				minutes: String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0'),
+				seconds: String(Math.floor((distance % 60000) / 1000)).padStart(2, '0'),
+				ended: false
+			};
+		}
+		updateDisplay();
+		countdownTimerInterval = setInterval(updateDisplay, 1000);
+	}
+	
+	function updateSacrificeDayTexts() {
+        const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${formState.selectedSacrificeDay.value}"]`);
+        if (optionElement) {
+            formState.selectedSacrificeDay.textEN = optionElement.dataset.en;
+            formState.selectedSacrificeDay.textAR = optionElement.dataset.ar;
+        }
+    }
+
+	// --- Validation Logic ---
+	// Individual step validators
+	function validateStep1Internal(setErr = true) {
+        if(setErr) clearError('animal');
+        if (!formState.selectedAnimal.type || !formState.selectedAnimal.weight) {
+            if(setErr) setError('animal', 'select'); return false;
+        }
+        const animalConf = productOptions.livestock.find(lt => lt.value_key === formState.selectedAnimal.type);
+        const weightConf = animalConf?.weights_prices.find(wp => wp.weight_range === formState.selectedAnimal.weight);
+        if (!weightConf || !weightConf.is_active || (weightConf.stock != null && weightConf.stock <= 0)) {
+            if(setErr) setError('animal', { en: `${formState.selectedAnimal.nameEN || "Item"} (${formState.selectedAnimal.weight}) out of stock.`, ar: `${formState.selectedAnimal.nameAR || "الصنف"} (${formState.selectedAnimal.weight}) نفذت كميته.` });
+            return false;
+        }
+        return true;
+    }
+    function validateStep2Internal(setErr = true) {
+        if(setErr) { clearError('prepStyle'); clearError('packaging'); }
+        let valid = true;
+        if (!formState.selectedPrepStyle.value) { if(setErr) setError('prepStyle', 'select'); valid = false; }
+        if (!formState.selectedPackaging.value) { if(setErr) setError('packaging', 'select'); valid = false; }
+        return valid;
+    }
+    function validateStep3Internal(setErr = true) { // Combined Step 3 & Delivery details from original logic
+        if(setErr) { clearError('sacrificeDay'); clearError('splitDetails'); clearError('deliveryName'); clearError('deliveryPhone'); clearError('customerEmail'); clearError('selectedGovernorate'); clearError('deliveryCity'); clearError('deliveryAddress'); clearError('timeSlot'); }
+        let valid = true;
+        if (!formState.selectedSacrificeDay.value) { if(setErr) setError('sacrificeDay', 'select'); valid = false; }
+        if (formState.distributionChoice === 'split') {
+            if (!formState.splitDetailsOption) { if(setErr) setError('splitDetails', 'select'); valid = false; }
+            else if (formState.splitDetailsOption === 'custom' && !(formState.customSplitDetailsText || "").trim()) { if(setErr) setError('splitDetails', 'required'); valid = false; }
+        }
+        if (needsDeliveryDetails) {
+            if (!(formState.deliveryName || "").trim()) { if(setErr) setError('deliveryName', 'required'); valid = false; }
+            if (!(formState.deliveryPhone || "").trim()) { if(setErr) setError('deliveryPhone', 'required'); valid = false; }
+            else if (!isValidPhone(formState.deliveryPhone)) { if(setErr) setError('deliveryPhone', 'phone'); valid = false; }
+            if ((formState.customerEmail || "").trim() && !isValidEmail(formState.customerEmail)) { if(setErr) setError('customerEmail', 'email'); valid = false; }
+            if (!formState.selectedGovernorate) { if(setErr) setError('selectedGovernorate', 'select'); valid = false; }
+            const selectedGovConf = appSettings.delivery_areas.find(area => area.id === formState.selectedGovernorate);
+            if (selectedGovConf?.cities?.length > 0 && !formState.deliveryCity) { if(setErr) setError('deliveryCity', 'select'); valid = false; }
+            if (!(formState.deliveryAddress || "").trim()) { if(setErr) setError('deliveryAddress', 'required'); valid = false; }
+            if (!formState.selectedTimeSlot) { if(setErr) setError('timeSlot', 'timeSlot'); valid = false; }
+        }
+        return valid;
+    }
+    function validateStep4Internal(setErr = true) { // Payment Method
+        if(setErr) clearError('paymentMethod');
+        if (!formState.paymentMethod) { if(setErr) setError('paymentMethod', 'select'); return false; }
+        return true;
+    }
+
+	function validateConceptualStep(conceptualStep, setErrors = true) {
+        let isValid = false;
+        switch (conceptualStep) {
+            case 1: isValid = validateStep1Internal(setErrors); break;
+            case 2: isValid = validateStep2Internal(setErrors); break;
+            case 3: isValid = validateStep3Internal(setErrors); break; // Step 3 now includes delivery + sacrifice day + distribution
+            case 4: isValid = validateStep4Internal(setErrors); break; // Step 4 is now only payment method (review is implicit)
+        }
+        stepProgress[`step${conceptualStep}`] = isValid;
+        return isValid;
+    }
+	function updateAllStepCompletionStates() {
+        for (let i = 1; i <= 4; i++) { // 4 conceptual steps
+            stepProgress[`step${i}`] = validateConceptualStep(i, false);
+        }
+    }
+
+	function handleStepperNavigation(targetStep) {
+		clearAllErrors();
+		let canProceed = true;
+		for (let step = 1; step < targetStep; step++) {
+			if (!validateConceptualStep(step, true)) {
+				currentConceptualStep = step;
+                focusOnAppropriateElement(step, Object.keys(errors)[0]); // Focus on first error of that step
+				return;
+			}
+		}
+		currentConceptualStep = targetStep;
+        focusOnAppropriateElement(targetStep);
+	}
+
+	// --- Form Input Handlers ---
+	function selectAnimal(animalTypeKey, weightValue) {
+		clearError('animal');
+		const animalConfig = productOptions.livestock.find(lt => lt.value_key === animalTypeKey);
+		if (!animalConfig) { setError('animal', {en:"Invalid animal", ar:"حيوان غير صالح"}); return; }
+
+		if (!weightValue) { // If "-- Select Weight --" is chosen
+			if (formState.selectedAnimal.type === animalTypeKey) { // If deselecting from the current animal card
+				formState.selectedAnimal = {...initialBookingFormState.selectedAnimal};
+			}
+			updateAllStepCompletionStates();
+			return;
+		}
+		const weightConfig = animalConfig.weights_prices.find(wp => wp.weight_range === weightValue);
+		if (!weightConfig || !weightConfig.is_active || (weightConfig.stock != null && weightConfig.stock <= 0)) {
+			setError('animal', { en: `${animalConfig.name_en} (${weightValue}) is out of stock.`, ar: `${animalConfig.name_ar} (${weightValue}) نفذت كميته.` });
+			if (formState.selectedAnimal.type === animalTypeKey && formState.selectedAnimal.weight === weightValue) {
+				formState.selectedAnimal = {...initialBookingFormState.selectedAnimal};
+			}
+            updateAllStepCompletionStates();
+			return;
+		}
+		formState.selectedAnimal = {
+			type: animalConfig.value_key, value: animalConfig.value_key, weight: weightConfig.weight_range,
+			basePriceEGP: parseFloat(weightConfig.price_egp), stock: weightConfig.stock, originalStock: weightConfig.stock,
+			nameEN: animalConfig.name_en, nameAR: animalConfig.name_ar, pbId: animalConfig.pbId
+		};
+		updateAllStepCompletionStates();
+		if (stepProgress.step1 && currentConceptualStep === 1) handleStepperNavigation(2);
+	}
+
+	function updateSelectedPrepStyle(value) {
+		const style = productOptions.preparationStyles.find(s => s.value === value);
+		if (style) {
+			formState.selectedPrepStyle = {...style};
+			if (!style.is_custom) formState.customPrepDetails = '';
+		} else {
+			formState.selectedPrepStyle = {...initialBookingFormState.selectedPrepStyle};
+		}
+		updateAllStepCompletionStates();
+	}
+	function updateSelectedPackaging(value) {
+		const pkg = productOptions.packagingOptions.find(p => p.value === value);
+        formState.selectedPackaging = pkg ? { ...pkg, addonPriceEGP: parseFloat(pkg.addonPriceEGP || 0) } : {...initialBookingFormState.selectedPackaging};
+		updateAllStepCompletionStates();
+	}
+	function onGovernorateChange() {
+        formState.deliveryCity = ''; // Reset city when governorate changes
+        clearError('deliveryCity');
+        updateAllStepCompletionStates();
+    }
+
+	async function handleSubmitBooking() {
+		clearAllErrors();
+		let isFormValid = true;
+		for (let step = 1; step <= 4; step++) { // Check all 4 steps
+			if (!validateConceptualStep(step, true)) {
+				isFormValid = false;
+				currentConceptualStep = step;
+                focusOnAppropriateElement(step, Object.keys(errors)[0]);
+				break;
+			}
+		}
+		if (!isFormValid) return;
+
+		const animalConf = productOptions.livestock.find(lt => lt.value_key === formState.selectedAnimal.value);
+        const weightConf = animalConf?.weights_prices.find(wp => wp.weight_range === formState.selectedAnimal.weight);
+        if (!animalConf || !weightConf || !weightConf.is_active || (weightConf.stock != null && weightConf.stock <= 0)) {
+            setError('animal', { en: `Sorry, item is unavailable. Please reselect.`, ar: `عذراً، المنتج غير متوفر. يرجى إعادة الاختيار.` });
+			formState.selectedAnimal = {...initialBookingFormState.selectedAnimal};
+            updateAllStepCompletionStates();
+            handleStepperNavigation(1);
+            return;
+        }
+
+		isLoadingBooking = true;
+		const payload = {
+            booking_id_text: `SL-UDHY-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000).padStart(5, '0')}`,
+            animal_type_key: formState.selectedAnimal.value, animal_type_name_en: formState.selectedAnimal.nameEN, animal_type_name_ar: formState.selectedAnimal.nameAR,
+            animal_weight_selected: formState.selectedAnimal.weight, animal_base_price_egp: formState.selectedAnimal.basePriceEGP,
+            preparation_style_value: formState.selectedPrepStyle.value, preparation_style_name_en: formState.selectedPrepStyle.nameEN, preparation_style_name_ar: formState.selectedPrepStyle.nameAR,
+            is_custom_prep: formState.selectedPrepStyle.is_custom, custom_prep_details: formState.selectedPrepStyle.is_custom ? (formState.customPrepDetails || "").trim() : "",
+            packaging_value: formState.selectedPackaging.value, packaging_name_en: formState.selectedPackaging.nameEN, packaging_name_ar: formState.selectedPackaging.nameAR,
+            packaging_addon_price_egp: formState.selectedPackaging.addonPriceEGP, total_price_egp: totalPriceEGP,
+            sacrifice_day_value: formState.selectedSacrificeDay.value, time_slot: formState.distributionChoice === 'char' ? 'N/A' : formState.selectedTimeSlot,
+            distribution_choice: formState.distributionChoice, split_details_option: formState.distributionChoice === 'split' ? formState.splitDetailsOption : "",
+            custom_split_details_text: (formState.distributionChoice === 'split' && formState.splitDetailsOption === 'custom') ? (formState.customSplitDetailsText || "").trim() : "",
+            niyyah_names: (formState.niyyahNames || "").trim(), customer_email: (formState.customerEmail || "").trim(), group_purchase_interest: formState.groupPurchase,
+            delivery_name: needsDeliveryDetails ? (formState.deliveryName || "").trim() : "", delivery_phone: needsDeliveryDetails ? (formState.deliveryPhone || "").trim() : "",
+            delivery_governorate_id: needsDeliveryDetails ? formState.selectedGovernorate : "", delivery_city_id: needsDeliveryDetails ? formState.deliveryCity : "",
+            delivery_address: needsDeliveryDetails ? (formState.deliveryAddress || "").trim() : "", delivery_instructions: needsDeliveryDetails ? (formState.deliveryInstructions || "").trim() : "",
+            payment_method: formState.paymentMethod,
+            payment_status: (formState.paymentMethod === 'cod' && needsDeliveryDetails) || ['visa','mastercard'].includes(formState.paymentMethod) ? 'pending_confirmation' : 'pending_payment',
+            booking_status: 'confirmed_pending_payment',
+        };
+		try {
+			const result = await pbFetch('bookings', { method: 'POST', body: payload });
+			bookingID = result.booking_id_text || result.id;
+			bookingConfirmed = true;
+			if (weightConf && weightConf.stock != null && weightConf.stock > 0) { // Decrement stock locally
+                weightConf.stock--; // This directly mutates the object in productOptions.livestock
+				// Force Svelte to recognize the change if it's nested deeply
+				productOptions.livestock = [...productOptions.livestock];
+            }
+			await tick();
+			scrollToSection('#booking-confirmation-section');
+            if(bookingConfirmedTitleRef) bookingConfirmedTitleRef.focus();
+		} catch (e) {
+			dispatch('stateChange', { loading: false, error: e.message, friendlyError: 'Issue submitting booking. Review details or contact support.' });
+			scrollToSection('.global-error-indicator');
+		} finally {
+			isLoadingBooking = false;
+		}
+	}
+
+	function resetAndStartOver() {
+        formState = JSON.parse(JSON.stringify(initialBookingFormState));
+        bookingConfirmed = false;
+        bookingID = '';
+        currentConceptualStep = 1;
+        stepProgress = { step1: false, step2: false, step3: false, step4: false };
+        errors = {};
+        // Re-fetch or re-init parts if necessary, or just reset local display
+        updateAllStepCompletionStates();
+        startOfferDHDMSCountdown(); // Restart countdown if applicable
+		scrollToSection('#udheya-booking-start');
+        if(bookingSectionTitleRef) bookingSectionTitleRef.focus();
+    }
+	
+	// Update sacrifice day texts when selection changes (auto-triggers due to reactivity)
+	$effect(() => {
+		updateSacrificeDayTexts();
+	});
+
+	// Effect for formState changes to trigger re-validation of steps
+    $effect(() => {
+        // This is a broad effect; for finer control, watch specific parts of formState
+        // relevant to each step if performance becomes an issue.
+        if (!isLoadingBooking && !bookingConfirmed) { // Only re-validate if not in submission or confirmed
+            updateAllStepCompletionStates();
+        }
+    });
+</script>
+
+<section class="udheya-booking-section main-page-section sec" id="udheya-booking-start">
+	<div class="c">
+		{#if !bookingConfirmed}
+			<div>
+				<div class="sec-head tc booking-section-head">
+					<h2 class="bil-parent-spread" bind:this={bookingSectionTitleRef} tabindex="-1">
+						<span class="en">Book Your Udheya</span><span class="ar">احجز أضحيتك</span>
+					</h2>
+				</div>
+				<div class="udheya-service-highlights bil-row">
+					<div class="en">
+						<ul>
+							<li>Choose between Balady or Barki.</li>
+							<li>Service includes Slaughtering, Chopping, and Packaging.</li>
+							<li>Delivering on the same day of Slaughtering.</li>
+							<li><strong>Deposit: 75%</strong></li>
+						</ul>
+					</div>
+					<div class="ar">
+						<ul>
+							<li>اختر بين البلدي أو البرقي.</li>
+							<li>الخدمة تشمل الذبح، التقطيع، والتغليف.</li>
+							<li>التوصيل في نفس يوم الذبح.</li>
+							<li><strong>عربون: 75%</strong></li>
+						</ul>
+					</div>
+				</div>
+				<div class="uprocess-wrap compact-how-it-works">
+					<div class="uprocess">
+						<div class="sec-head compact-how-it-works-head"><h3 class="bil-parent-spread" tabindex="-1"><span class="en">Our Udheya Service Process</span><span class="ar">خطوات خدمة الأضحية لدينا</span></h3></div>
+						<div class="feature-grid how-it-works-grid">
+							<!-- How it works items -->
+							<div class="feature-item">
+								<div class="icon-placeholder number-icon" aria-hidden="true">1</div>
+								<h4 class="bil-parent-spread"><span class="en">Book & Customize</span><span class="ar">احجز وخصص</span></h4>
+								<div class="bil-row"><p class="en card-p">Select Udheya, weight, prep & package via our form.</p><p class="ar card-p">اختر أضحيتك، وزنها، تجهيزها وتغليفها عبر نموذجنا.</p></div>
+							</div>
+							<div class="feature-item">
+								<div class="icon-placeholder number-icon" aria-hidden="true">2</div>
+								<h4 class="bil-parent-spread"><span class="en">Confirm & Pay</span><span class="ar">أكّد وادفع</span></h4>
+								<div class="bil-row"><p class="en card-p">Review choices and complete booking with secure payment.</p><p class="ar card-p">راجع اختياراتك وأكمل الحجز بطرق دفع آمنة.</p></div>
+							</div>
+							<div class="feature-item">
+								<div class="icon-placeholder number-icon" aria-hidden="true">3</div>
+								<h4 class="bil-parent-spread"><span class="en">Sharia Sacrifice</span><span class="ar">الذبح الشرعي</span></h4>
+								<div class="bil-row"><p class="en card-p">Your Udheya is sacrificed by experts per Islamic principles.</p><p class="ar card-p">تُذبح أضحيتك بواسطة خبراء وفقًا للشريعة الإسلامية.</p></div>
+							</div>
+							<div class="feature-item">
+								<div class="icon-placeholder number-icon" aria-hidden="true">4</div>
+								<h4 class="bil-parent-spread"><span class="en">Prep & Delivery</span><span class="ar">التجهيز والتوصيل</span></h4>
+								<div class="bil-row"><p class="en card-p">Meat butchered, packaged & delivered/distributed.</p><p class="ar card-p">يُقطع اللحم، يُغلف، ويُوصل أو يُوزع حسب طلبك.</p></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<form id="final-udheya-booking-form" on:submit|preventDefault={handleSubmitBooking} novalidate>
+				<!-- Stepper UI -->
+				<div class="stepper-outer-wrapper">
+					<div class="c">
+						<div class="stepper-content-flex">
+							<button type="button" class="stepper-item" class:active={currentConceptualStep === 1} class:completed={stepProgress.step1} on:click={() => handleStepperNavigation(1)}>
+								<span class="step-number">{@html stepProgress.step1 && currentConceptualStep !== 1 ? '✓' : '1'}</span>
+								<span class="step-label en">Select</span><span class="step-label ar">الاختيار</span>
+							</button>
+							<div class="stepper-connector"></div>
+							<button type="button" class="stepper-item" class:active={currentConceptualStep === 2} class:completed={stepProgress.step2} disabled={!stepProgress.step1} on:click={() => handleStepperNavigation(2)}>
+								<span class="step-number">{@html stepProgress.step2 && currentConceptualStep !== 2 ? '✓' : '2'}</span>
+								<span class="step-label en">Customize</span><span class="step-label ar">تخصيص</span>
+							</button>
+							<div class="stepper-connector"></div>
+							<button type="button" class="stepper-item" class:active={currentConceptualStep === 3} class:completed={stepProgress.step3} disabled={!stepProgress.step2} on:click={() => handleStepperNavigation(3)}>
+								<span class="step-number">{@html stepProgress.step3 && currentConceptualStep !== 3 ? '✓' : '3'}</span>
+								<span class="step-label en">Schedule & Delivery</span><span class="step-label ar">المواعيد والتوصيل</span>
+							</button>
+							<div class="stepper-connector"></div>
+							<button type="button" class="stepper-item" class:active={currentConceptualStep === 4} class:completed={stepProgress.step4} disabled={!stepProgress.step3} on:click={() => handleStepperNavigation(4)}>
+								<span class="step-number">{@html stepProgress.step4 && currentConceptualStep !== 4 ? '✓' : '4'}</span>
+								<span class="step-label en">Review & Pay</span><span class="step-label ar">المراجعة والدفع</span>
+							</button>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Form Content Panels -->
+				<div id="udheya-booking-form-panel" class="card form-panel-card all-steps-panel">
+					<div class="card-b">
+						<div class="required-fields-note bil-row">
+							<p class="en">Fields marked with * are required.</p>
+							<p class="ar">الحقول المشار إليها بـ * إلزامية.</p>
+						</div>
+
+						<!-- Step 1: Select Animal -->
+						<div id="step1-content" class="form-step-content">
+							<div class="sec-head"><h2 class="bil-parent-spread" bind:this={step1TitleRef} tabindex="-1"><span class="en">Step 1: Select Animal & Weight *</span><span class="ar">الخطوة الأولى: اختر الحيوان والوزن *</span></h2></div>
+							<div class="livestock-sharia-note bil-row">
+								<p class="en">All animals meet Sharia age/health requirements for Udheya.</p><p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية.</p>
+							</div>
+							<div class="product-grid grid2">
+								{#each productOptions.livestock as animal (animal.value_key)}
+									<div id={animal.value_key} class="card livestock-card" class:livestock-card-selected={formState.selectedAnimal.value === animal.value_key}>
+										<div class="card-img"><img src="/images/{animal.value_key}-sheep.jpg" alt={animal.name_en} /><div class="badge bil-parent-spread-intrinsic"><span class="en">{animal.value_key.toUpperCase()}</span><span class="ar">{animal.name_ar.split(' ')[1] || animal.name_ar}</span></div></div>
+										<div class="card-b">
+											<div class="card-content"><h3 class="card-h bil-parent-spread"><span class="en">{animal.name_en}</span><span class="ar">{animal.name_ar}</span></h3><div class="bil-row"><p class="en card-p">{animal.value_key === 'baladi' ? 'Local breed, rich flavor.' : 'Desert breed, lean meat.'}</p><p class="ar card-p">{animal.value_key === 'baladi' ? 'سلالة محلية، نكهة غنية.' : 'سلالة صحراوية، لحم قليل الدهن.'}</p></div></div>
+											<div class="card-foot">
+												<div class="price bil-row">
+													<span class="en">From <span>{getFormattedPrice(animal.weights_prices.find(wp => wp.is_active && (wp.stock == null || wp.stock > 0))?.price_egp || animal.weights_prices[0]?.price_egp || 0, currentCurrency, appSettings.exchange_rates)}</span></span>
+													<span class="ar">يبدأ من <span>{getFormattedPrice(animal.weights_prices.find(wp => wp.is_active && (wp.stock == null || wp.stock > 0))?.price_egp || animal.weights_prices[0]?.price_egp || 0, currentCurrency, appSettings.exchange_rates)}</span></span>
+												</div>
+												<div class="card-act">
+													<label for="select-{animal.value_key}" class="sr-only">Select {animal.name_en} Weight</label>
+													<select 
+														id="select-{animal.value_key}" 
+														bind:this={animal.value_key === 'baladi' ? baladiWeightSelectRef : barkiWeightSelectRef}
+														aria-invalid={errors.animal && formState.selectedAnimal.type === animal.value_key ? 'true' : undefined}
+														on:change={(e) => selectAnimal(animal.value_key, e.currentTarget.value)}
+														value={formState.selectedAnimal.type === animal.value_key ? formState.selectedAnimal.weight : ""}
+													>
+														<option value="">-- Select Weight -- / -- اختر الوزن --</option>
+														{#each animal.weights_prices as wp (wp.weight_range)}
+															{@const isOutOfStock = !wp.is_active || (wp.stock != null && wp.stock <= 0)}
+															<option value={wp.weight_range} disabled={isOutOfStock}>
+																{wp.weight_range} ({getFormattedPrice(wp.price_egp, currentCurrency, appSettings.exchange_rates)})
+																{#if isOutOfStock} (Out of Stock / نفذت الكمية){/if}
+																{#if !isOutOfStock && wp.stock != null} (Stock: {wp.stock} / الكمية: {wp.stock}){/if}
+															</option>
+														{/each}
+													</select>
+												</div>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+							{#if errors.animal}<div class="form-error-msg ar-form-error" role="alert">{currentLang === 'ar' ? errors.animal.ar : errors.animal.en}</div>{/if}
+						</div>
+
+						<!-- Step 2: Customize Udheya -->
+						<div id="step2-content" class="form-step-content">
+							<div class="sec-head"><h2 class="bil-parent-spread" bind:this={step2TitleRef} tabindex="-1"><span class="en">Step 2: Customize Udheya</span><span class="ar">الخطوة الثانية: تخصيص الأضحية</span></h2></div>
+							<div class="fg">
+								<label for="preparation_style_select_s2" class="bil-parent-spread form-label-strict"><span class="en">Preparation Style *</span><span class="ar">طريقة التجهيز *</span></label>
+								<select id="preparation_style_select_s2" class="form-input-styled" bind:this={prepStyleSelectRef} bind:value={formState.selectedPrepStyle.value} on:change={(e) => updateSelectedPrepStyle(e.currentTarget.value)} aria-invalid={errors.prepStyle ? 'true' : undefined}>
+									<option value="">-- Select Preparation -- / -- اختر طريقة التجهيز --</option>
+									{#each productOptions.preparationStyles as prep (prep.value)}<option value={prep.value}>{prep.nameEN} / {prep.nameAR}</option>{/each}
+								</select>
+								{#if errors.prepStyle}<div class="form-error-msg ar-form-error" role="alert">{currentLang === 'ar' ? errors.prepStyle.ar : errors.prepStyle.en}</div>{/if}
+							</div>
+							{#if formState.selectedPrepStyle.is_custom}
+							<div class="fg custom-prep-details-container">
+								<label for="custom_prep_details_s2" class="bil-parent-spread form-label-strict"><span class="en">Custom Preparation Details (Optional)</span><span class="ar">تفاصيل التجهيز المخصص (اختياري)</span></label>
+								<textarea id="custom_prep_details_s2" class="form-input-styled" bind:this={customPrepDetailsTextareaRef} bind:value={formState.customPrepDetails}></textarea>
+							</div>
+							{/if}
+							<div class="fg">
+								<label for="packaging_preference_select_s2" class="bil-parent-spread form-label-strict"><span class="en">Packaging Preference *</span><span class="ar">طريقة التغليف *</span></label>
+								<select id="packaging_preference_select_s2" class="form-input-styled" bind:this={packagingSelectRef} bind:value={formState.selectedPackaging.value} on:change={(e) => updateSelectedPackaging(e.currentTarget.value)} aria-invalid={errors.packaging ? 'true' : undefined}>
+									<option value="">-- Select Packaging -- / -- اختر طريقة التغليف --</option>
+									{#each productOptions.packagingOptions as pkg (pkg.value)}
+										<option value={pkg.value}>{pkg.nameEN} / {pkg.nameAR}{pkg.addonPriceEGP > 0 ? ` (${currentLang === 'ar' ? 'إضافة ' : 'Add '}${getFormattedPrice(pkg.addonPriceEGP, currentCurrency, appSettings.exchange_rates)})` : ''}</option>
+									{/each}
+								</select>
+								{#if errors.packaging}<div class="form-error-msg ar-form-error" role="alert">{currentLang === 'ar' ? errors.packaging.ar : errors.packaging.en}</div>{/if}
+							</div>
+							<div class="fg niyyah-names-wrapper">
+								<label for="niyyah_names_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Names for Niyyah (Optional)</span><span class="ar">أسماء النية (اختياري)</span></label>
+								<input id="niyyah_names_input_s2" type="text" class="form-input-styled" bind:this={niyyahNamesInputRef} bind:value={formState.niyyahNames}>
+								<div class="bil-row field-note-wrapper niyyah-note"><p class="field-note en">Niyyah is core. List names for whom sacrifice is made.</p><p class="field-note ar">النية أساسية. اذكر أسماء من تضحى عنهم.</p></div>
+							</div>
+						</div>
+
+						<!-- Step 3: Schedule & Delivery -->
+						<div id="step3-content" class="form-step-content">
+							<div class="sec-head"><h2 class="bil-parent-spread" bind:this={step3TitleRef} tabindex="-1"><span class="en">Step 3: Schedule & Delivery *</span><span class="ar">الخطوة الثالثة: المواعيد والتوصيل *</span></h2></div>
+							<!-- ... (Sacrifice Day, Distribution, Delivery Details form fields similar to HTML, using bind:value and on:change where needed) ... -->
+							<div class="fg">
+                                <label for="sacrifice_day_select_s3" class="bil-parent-spread form-label-strict"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
+                                <select id="sacrifice_day_select_s3" class="form-input-styled" bind:this={sacrificeDaySelectRef} bind:value={formState.selectedSacrificeDay.value} on:change={() => clearError('sacrificeDay')} aria-invalid={errors.sacrificeDay ? 'true' : undefined}>
+                                    <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)">Day 1 of Eid / اليوم الأول</option>
+                                    <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)">Day 2 of Eid / اليوم الثاني</option>
+                                    <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)">Day 3 of Eid / اليوم الثالث</option>
+                                    <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)">Day 4 of Eid / اليوم الرابع</option>
+                                </select>
+                                {#if errors.sacrificeDay}<div class="form-error-msg ar-form-error" role="alert">{currentLang === 'ar' ? errors.sacrificeDay.ar : errors.sacrificeDay.en}</div>{/if}
+                            </div>
+                            <hr class="form-divider">
+                            <!-- Distribution Choice -->
+							<div class="fg">
+								<fieldset bind:this={distributionChoiceRadiosRef}>
+									<legend class="bil-parent-spread form-label-strict"><span class="en">Udheya Distribution? *</span><span class="ar">كيف تود توزيع أضحيتك؟ *</span></legend>
+									<div class="rgrp">
+										<label><input type="radio" name="dist_choice" value="me" bind:group={formState.distributionChoice}><span class="en">Deliver All to Me</span><span class="ar">توصيل الكل لي</span></label>
+										<label><input type="radio" name="dist_choice" value="char" bind:group={formState.distributionChoice}><span class="en">Donate All (Sheep Land distributes)</span><span class="ar">تبرع بالكل (أرض الأغنام توزع)</span></label>
+										<label><input type="radio" name="dist_choice" value="split" bind:group={formState.distributionChoice}><span class="en">Split Portions</span><span class="ar">تقسيم الحصص</span></label>
+									</div>
+								</fieldset>
+								<!-- ... Split options ... -->
+								{#if errors.splitDetails}<div class="form-error-msg ar-form-error" role="alert">{currentLang === 'ar' ? errors.splitDetails.ar : errors.splitDetails.en}</div>{/if}
+							</div>
+                            {#if needsDeliveryDetails}
+                            <hr class="form-divider">
+                            <div>
+                                <h4 class="form-subhead bil-parent-spread delivery-details-title"><span class="en">Delivery Details</span><span class="ar">تفاصيل التوصيل</span></h4>
+                                <!-- ... Delivery fields like name, phone, address, city, governorate, timeslot ... -->
+                                <!-- Example for delivery name -->
+                                <div class="fg">
+                                    <label for="delivery_name_input_s3" class="bil-parent-spread form-label-strict"><span class="en">Full Name (for delivery) *</span><span class="ar">الاسم الكامل (للتوصيل) *</span></label>
+                                    <input id="delivery_name_input_s3" type="text" class="form-input-styled" bind:this={deliveryNameInputRef} bind:value={formState.deliveryName} on:input={() => clearError('deliveryName')} aria-invalid={errors.deliveryName ? 'true' : undefined}>
+                                    {#if errors.deliveryName}<div class="form-error-msg ar-form-error" role="alert">{currentLang === 'ar' ? errors.deliveryName.ar : errors.deliveryName.en}</div>{/if}
+                                </div>
+								 <!-- Add other delivery fields here following the pattern -->
+                            </div>
+                            {/if}
+						</div>
+
+						<!-- Step 4: Review & Pay -->
+						<div id="step4-content" class="form-step-content">
+							<div class="sec-head"><h2 class="bil-parent-spread" bind:this={step4TitleRef} tabindex="-1"><span class="en">Step 4: Review & Pay</span><span class="ar">الخطوة الرابعة: المراجعة والدفع</span></h2></div>
+							<!-- Review Summary -->
+							<div class="review-summary-wrapper">
+								<h3 class="form-subhead bil-parent-spread review-summary-title"><span class="en">Your Udheya Booking Summary</span><span class="ar">ملخص حجز أضحيتك</span></h3>
+								{#if formState.selectedAnimal.type}
+									<!-- Summary items similar to HTML, using Svelte's reactivity -->
+									<div class="summary-item"><div class="summary-item-content bil-row"><div class="en"><strong>Sheep:</strong> {formState.selectedAnimal.nameEN}, {formState.selectedAnimal.weight}</div><div class="ar"><strong>الخروف:</strong> {formState.selectedAnimal.nameAR}، {formState.selectedAnimal.weight}</div></div> <button type="button" on:click={() => handleStepperNavigation(1)} class="btn-edit-summary bil-parent-spread-intrinsic"><span class="en">Edit</span><span class="ar">تعديل</span></button></div>
+									<!-- ... other summary items ... -->
+									<hr class="summary-hr">
+									<div class="summary-total bil-row"><div class="en"><strong>Total:</strong> {getFormattedPrice(totalPriceEGP, currentCurrency, appSettings.exchange_rates)}</div><div class="ar"><strong>الإجمالي:</strong> {getFormattedPrice(totalPriceEGP, currentCurrency, appSettings.exchange_rates)}</div></div>
+								{:else}
+									<div class="tc review-no-selection-text bil-row"><p class="en">Selections will appear here.</p><p class="ar">ستظهر اختياراتك هنا.</p></div>
+								{/if}
+							</div>
+							<!-- Payment Methods -->
+							<div class="additional-options-payment-wrapper">
+								<h4 class="form-subhead bil-parent-spread"><span class="en">Additional Options & Payment</span><span class="ar">الخيارات النهائية والدفع</span></h4>
+								<!-- ... Payment method selection ... -->
+								<div class="fg">
+									<label class="bil-parent-spread form-label-strict"><span class="en">Payment Method *</span><span class="ar">طريقة الدفع *</span></label>
+									<div class="pmeths" bind:this={paymentMethodRadiosRef}>
+										<!-- Payment method items, e.g. -->
+										<div class="pm" class:sel={formState.paymentMethod === 'visa'} on:click={() => {formState.paymentMethod = 'visa'; clearError('paymentMethod')}} tabindex="0"><input type="radio" id="pm-visa" value="visa" bind:group={formState.paymentMethod}><label for="pm-visa" title="Visa"><img src="/images/visa_icon.svg" alt="Visa" class="payment-icon"></label></div>
+										<!-- ... more payment methods ... -->
+									</div>
+									{#if errors.paymentMethod}<div class="form-error-msg ar-form-error" role="alert">{currentLang === 'ar' ? errors.paymentMethod.ar : errors.paymentMethod.en}</div>{/if}
+								</div>
+							</div>
+							<div class="form-action tc page-step-action final-submit-action">
+								<button type="submit" class="btn bac btn-lg btn-block mt1 bil-parent-spread-intrinsic" disabled={isLoadingBooking}>
+									{#if !isLoadingBooking}
+										<span class="en">Confirm & Place Udheya Order</span><span class="ar">تأكيد وإرسال طلب الأضحية</span>
+									{:else}
+										<span class="en">Processing...</span><span class="ar">جاري المعالجة...</span>
+									{/if}
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		{:else}
+			<!-- Booking Confirmation Section -->
+			<section id="booking-confirmation-section" class="sec udheya-page-step">
+				<div class="c tc">
+					<div class="sec-head booking-confirmed-head"><h2 class="bil-parent-spread" bind:this={bookingConfirmedTitleRef} tabindex="-1"><span class="en">Booking Confirmed! JazakAllah Khairan.</span><span class="ar">تم تأكيد الحجز! جزاكم الله خيرًا.</span></h2></div>
+					<div class="confirmation-message">
+						<!-- ... Confirmation details similar to HTML, using Svelte variables ... -->
+						<div class="card form-panel-card booking-id-card"><div class="card-b booking-id-card-body">
+							<div class="bil-parent-spread"><p class="en booking-id-card-important"><strong>Important: Your Booking Details</strong></p><p class="ar booking-id-card-important"><strong>هام: تفاصيل حجزكم</strong></p></div>
+							<div class="bil-parent-spread"><p class="en booking-id-card-label">Booking ID:</p><p class="ar booking-id-card-label">رقم حجزكم:</p></div>
+							<p class="booking-id-display">{bookingID}</p>
+						</div></div>
+						<!-- ... Quick Recap and Payment Instructions ... -->
+					</div>
+					<div class="form-action tc page-step-action"><button type="button" on:click={resetAndStartOver} class="btn bp btn-lg btn-block bil-parent-spread-intrinsic"><span class="en">Book Another Udheya</span><span class="ar">حجز أضحية أخرى</span></button></div>
+				</div>
+			</section>
+		{/if}
+	</div>
+</section>
+
+<style>
+/* Styles from original styles.css that are specific to this section */
+.udheya-booking-section{background-color:var(--b2)}
+#udheya-booking-form-panel.card{background-color:var(--bc)}
+.all-steps-panel > .card-b { padding: 0; }
+.form-step-content .sec-head{background-color:var(--b2);padding:var(--s1) var(--s2);border-radius:var(--rad) var(--rad) 0 0;border-bottom:1px solid var(--bs)}
+.form-step-content .sec-head h2.bil-parent-spread .en::after, .form-step-content .sec-head h2.bil-parent-spread .ar::after {display:none}
+.form-step-content{padding:var(--s3) var(--s2);background-color:var(--bc)}
+.form-step-content:not(:first-child){border-top:1px dashed var(--bs);margin-top:var(--s2);padding-top:var(--s3)}
+.udheya-service-highlights{background-color:var(--c2l);color:var(--c1d);padding:var(--s2);border-radius:var(--rad);margin-bottom:var(--s3); margin-top: var(--s2);}
+.udheya-service-highlights ul{list-style:disc;padding-left:var(--s2)}
+.udheya-service-highlights ul li{margin-bottom:var(--s0);font-size:.9em}
+.udheya-service-highlights .ar ul{padding-left:0;padding-right:var(--s2)}
+.uprocess-wrap.compact-how-it-works{padding:var(--s2) 0 var(--s3);margin-bottom:var(--s3);border-bottom:1px dashed var(--bs)}
+.compact-how-it-works .sec-head{margin-bottom:var(--s2)}
+.compact-how-it-works .feature-item .icon-placeholder{width:40px;height:40px;font-size:1.1rem;margin-bottom:var(--s0)}
+.compact-how-it-works .feature-item h4{font-size:.9rem;margin-bottom:var(--s0)}
+.compact-how-it-works .feature-item .card-p{font-size:.8rem;line-height:1.3}
+.product-grid{display:grid;gap:var(--s2);grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.livestock-sharia-note{font-size:.9em;color:var(--tm);margin:var(--s0) 0 var(--s2)}
+.card-img{position:relative;padding-top:60%;overflow:hidden;background-color:var(--b2)}
+.card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s ease-out}
+.card:hover .card-img img{transform:scale(1.05)}
+.card-b{padding:var(--s1);flex-grow:1;display:flex;flex-direction:column}
+.card-content{margin-bottom:var(--s1);flex-grow:1}
+.card-h.bil-parent-spread>.en,.card-h.bil-parent-spread>.ar{font-size:1rem;margin:0 0 var(--s0)}
+.card-p{font-size:.85rem;color:var(--tm);margin:0;line-height:1.4}
+.card-foot{margin-top:auto;padding-top:var(--s1);border-top:1px solid var(--b2)}
+.card-foot .price{font-size:1rem;font-weight:700;color:var(--c1);margin-bottom:var(--s0);line-height:1}
+.card-act{display:flex;gap:var(--s0);align-items:center}
+.livestock-card .card-act{flex-direction:column;align-items:stretch;gap:var(--s0)}
+.livestock-card .card-act select{width:100%}
+.badge{position:absolute;top:var(--s0);left:var(--s0);font-size:.65rem;font-weight:600;padding:2px var(--s0);border-radius:var(--rad);color:var(--td);z-index:1;text-transform:uppercase;line-height:1}
+.badge .en{margin-right:.2em}
+.badge .ar{margin-left:.2em;font-size:.9em}
+.required-fields-note{font-size:.75em;color:var(--tm);margin-bottom:var(--s2);padding:var(--s0) var(--s1);background-color:var(--b2);border-radius:var(--rad)}
+.required-fields-note p{margin:0}
+.custom-prep-details-container{max-width:100%;margin:var(--s2) auto 0}
+.niyyah-names-wrapper{margin-top:var(--s1)}
+.sacrifice-day-note,.time-slot-note,.distribution-note,.wakeel-note,.niyyah-note{margin-top:var(--s0)}
+.form-divider{border:0;border-top:1px dashed var(--bs);margin:var(--s2) 0}
+.rgrp{margin-top:var(--s0)}
+.rgrp fieldset{border:none;padding:0;margin:0}
+.rgrp legend.bil-parent-spread{margin-bottom:var(--s0)}
+.rgrp label{display:flex;align-items:center;margin-bottom:2px;font-size:.85rem;cursor:pointer;padding:5px 0}
+.rgrp label span.ar{direction:rtl;text-align:right;font-family:var(--fa)}
+.rgrp input[type=radio]{margin-right:calc(var(--s0) + 2px);transform:scale(1.1)}
+.split-options-rgrp{margin:var(--s1) 0 0 var(--s2)}
+.custom-split-textarea{margin-top:var(--s0);font-size:.85em}
+.delivery-details-title,.wakeel-note{margin-top:var(--s2)}
+.tslots{display:flex;flex-wrap:wrap;gap:var(--s0);margin-top:var(--s0);justify-content:center}
+.ts{padding:var(--s1);border:1px solid var(--bs);border-radius:var(--rad);font-size:.8rem;cursor:pointer;background:var(--bc);line-height:1.3;white-space:nowrap;min-width:80px;min-height:38px;display:inline-flex;align-items:center;justify-content:center}
+.ts:hover{border-color:var(--c2l);background:var(--c2l)}
+.ts.sel{background:var(--c2);color:var(--td);border-color:var(--c2)}
+.review-summary-wrapper{border:1px solid var(--bs);border-radius:var(--rad);padding:var(--s2);background-color:var(--b1);margin-bottom:var(--s2)}
+.review-summary-wrapper .form-subhead{font-size:1.1rem;border-bottom:1px solid var(--c1);padding-bottom:var(--s1)}
+.review-summary-wrapper .form-subhead.bil-parent-spread>.en,.review-summary-wrapper .form-subhead.bil-parent-spread>.ar{border-bottom:none;padding-bottom:0}
+.summary-item{padding:var(--s0) 0;border-bottom:1px dashed var(--bs);display:flex;justify-content:space-between;align-items:center;gap:var(--s1)}
+.summary-item:last-of-type{border-bottom:none}
+.summary-item-content{flex-grow:1}
+.summary-item .summary-item-content > .bil-row > div{font-size:.9rem;color:var(--tm)}
+.summary-item .summary-item-content > .bil-row strong{color:var(--c1d)}
+.btn-edit-summary{padding:2px var(--s0);font-size:.7rem;font-weight:400;line-height:1;background-color:transparent;border:1px solid var(--bs);color:var(--tm);border-radius:var(--rad);text-transform:uppercase;margin-left:var(--s1);flex-shrink:0}
+.btn-edit-summary:hover{background-color:var(--b2);border-color:var(--c2l);color:var(--c1d);transform:none;filter:none}
+.btn-edit-summary .ar{font-size:.9em}
+.summary-hr{border:0;border-top:1px solid var(--c1);margin:var(--s1) 0}
+.summary-total div{font-size:1.1rem;font-weight:700;color:var(--c1)}
+.review-no-selection-text{padding:var(--s2) 0;color:var(--tm)}
+.review-care-note{margin-top:var(--s3)}
+.review-care-note-text{font-size:.9em;color:var(--tm)}
+.additional-options-payment-wrapper{margin-top:var(--s3);margin-bottom:var(--s2)}
+.additional-options-payment-wrapper .form-subhead{margin-bottom:var(--s2)}
+.form-label-checkbox.bil-parent-spread-intrinsic > .en{font-size:.85rem}
+.form-label-checkbox.bil-parent-spread-intrinsic > .ar{font-size:.85rem;font-family:var(--fa)}
+.form-label-checkbox input[type=checkbox]{margin-right:var(--s0)}
+.pmeths{display:grid;grid-template-columns:repeat(auto-fit,minmax(50px,1fr));gap:var(--s0);margin-top:var(--s0)}
+.pm input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.pm label{display:flex;align-items:center;justify-content:center;padding:calc(var(--s0) + 2px);border:1px solid var(--bs);border-radius:var(--rad);cursor:pointer;text-align:center;min-height:48px;line-height:1;overflow:hidden;background-color:var(--bc)}
+.payment-icon{max-height:24px;max-width:40px;object-fit:contain;display:block}
+.pm.sel label, .pm input[type=radio]:checked+label {border-color:var(--c1d);background:var(--c2);color:var(--td)}
+.pm.sel label img, .pm input[type=radio]:checked+label img {filter:brightness(0) invert(1)}
+.final-submit-action{margin-top:var(--s4)}
+.booking-confirmed-head{border-bottom:none;margin-bottom:var(--s2)}
+.confirmation-message p{font-size:1rem;line-height:1.5;margin-bottom:var(--s1)}
+.confirmation-message strong{color:var(--c2);font-weight:700}
+.booking-id-card{margin-top:var(--s2);margin-bottom:var(--s3);text-align:center;background-color:var(--b1);border:2px solid var(--c2)}
+.booking-id-card-body{padding:var(--s2) var(--s3)}
+.booking-id-card .bil-parent-spread{margin-bottom:var(--s0)}
+.booking-id-card-important{margin-bottom:0;font-size:1.05rem;color:var(--c1d)}
+.booking-id-card-label{font-size:.95rem;margin-bottom:0}
+.booking-id-display{font-size:1.4rem;font-weight:700;color:var(--c2);margin-bottom:var(--s2);background-color:var(--b2);padding:var(--s0) var(--s2);border-radius:var(--rad);display:inline-block}
+.booking-id-card-note{font-size:.9em;color:var(--tm);margin-bottom:0}
+.quick-recap-wrapper,.payment-instructions-wrapper{margin-top:0;margin-bottom:var(--s1);text-align:left}
+.quick-recap-title,.payment-instructions-title{border-top:1px solid var(--bs);padding-top:var(--s2)}
+.quick-recap-title.bil-parent-spread>.en,.quick-recap-title.bil-parent-spread>.ar,.payment-instructions-title.bil-parent-spread>.en,.payment-instructions-title.bil-parent-spread>.ar{border-top:none;padding-top:0}
+.payment-instructions-title{margin-bottom:var(--s1)}
+.payment-ref-highlight{color:var(--c2);font-weight:500}
+.bank-details-list{margin:var(--s0) 0 var(--s1) 0;font-size:.9em}
+.bank-details-list li.bil-row > .en{text-align:left}
+.bank-details-list li.bil-row > .ar{text-align:right}
+.bank-transfer-crucial-note{margin-top:var(--s1)}
+.stepper-outer-wrapper{position:sticky;top:var(--header-height);background-color:var(--b1);z-index:999;border-bottom:1px solid var(--bs);box-shadow:0 2px 4px rgba(0,0,0,.03);padding:0;margin-bottom:var(--s3)}
+.stepper-outer-wrapper .c{padding:var(--s1) 0}
+.stepper-content-flex{display:flex;justify-content:space-between;align-items:center}
+.stepper-item{display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--tm);font-size:.8rem;position:relative;text-decoration:none;cursor:pointer;padding:0 var(--s0); background:none; border:none;}
+.stepper-item:hover{color:var(--c1d)}
+.stepper-item .step-number{width:24px;height:24px;line-height:22px;border-radius:50%;border:1px solid var(--tm);margin-bottom:2px;font-weight:700;transition:background-color .3s,border-color .3s,color .3s;box-sizing:border-box; display:flex; align-items:center; justify-content:center;}
+.stepper-item .step-label.ar{font-family:var(--fa)}
+.stepper-connector{flex-grow:1;height:2px;background-color:var(--bs);margin:0 var(--s1);position:relative;top:-10px}
+.stepper-item.active .step-number{background-color:var(--c2);border-color:var(--c2);color:var(--td)}
+.stepper-item.active{color:var(--c1d);font-weight:700}
+.stepper-item.completed .step-number{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px}
+.stepper-item.completed{color:var(--tm)}
+.stepper-item:disabled{opacity:.6;pointer-events:none;cursor:not-allowed}
+.stepper-item:disabled .step-number{border-color:var(--bs);background-color:var(--b2);color:var(--tm)}
+
+@media(max-width:768px){
+	.form-step-content .sec-head{padding:var(--s1)}
+	#udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height) + 45px)}
+	.stepper-outer-wrapper{top:var(--header-height)}
+	.stepper-item .step-label.en,.stepper-item .step-label.ar{font-size:.7rem}
+	.stepper-item .step-label.ar{margin-top:1px}
+	.stepper-connector{top:-9px;margin:0 var(--s0)}
+	.stepper-item .step-number{width:20px;height:20px;line-height:18px}
+}
+@media(max-width:480px){
+	#udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height-mobile-sm) + 40px)}
+	.stepper-outer-wrapper{top:var(--header-height-mobile-sm)}
+	.stepper-item .step-label.en{display:none}
+	.stepper-item .step-label.ar{font-size:.65rem}
+	.ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
+}
+</style>
+
+18. src/lib/components/CheckStatusSection.svelte (from previous step)
+
+<!-- src/lib/components/CheckStatusSection.svelte -->
+<script>
+	import { pbFetch } from '../api.js';
+	import { getSacrificeDayText, errorMessages as globalErrorMessages } from '../utils.js'; // Assuming sacrifice_day_select_s3 is available or data comes from elsewhere
+
+	let lookupBookingID = $state('');
+	let statusResult = $state(null);
+	let statusNotFound = $state(false);
+	let isLoadingStatus = $state(false);
+	let apiError = $state(null); // For API errors specific to this component
+	let userFriendlyApiError = $state('');
+	let errors = $state({});
+	let currentLang = $state('en'); // Assume this might come from a store or prop eventually
+
+	// Refs for focusing
+	let lookupBookingIdInputRef;
+
+
+	function setError(field, messageKeyOrObject) {
+		errors[field] = (typeof messageKeyOrObject === 'string' ? globalErrorMessages[messageKeyOrObject] : messageKeyOrObject) || globalErrorMessages.required;
+	}
+	function clearError(field) {
+		if (errors[field]) {
+			const newErrors = {...errors};
+			delete newErrors[field];
+			errors = newErrors;
+		}
+	}
+	
+	async function validateAndCheckBookingStatus() {
+		clearError('lookupBookingID');
+		if (!lookupBookingID.trim()) {
+			setError('lookupBookingID', 'required');
+			if(lookupBookingIdInputRef) lookupBookingIdInputRef.focus();
+			return;
+		}
+		await checkBookingStatus();
+	}
+
+	async function checkBookingStatus() {
+		statusResult = null;
+		statusNotFound = false;
+		isLoadingStatus = true;
+		apiError = null;
+		userFriendlyApiError = '';
+		const trimmedLookupID = lookupBookingID.trim();
+
+		try {
+			const response = await pbFetch("bookings", { queryParams: `filter=(booking_id_text='${encodeURIComponent(trimmedLookupID)}')&perPage=1` });
+			if (response.items?.length > 0) {
+				const booking = response.items[0];
+				// We might need to fetch related data if it's not denormalized, e.g., sacrifice day text
+				// For now, using getSacrificeDayText which might need adaptation in pure Svelte
+				statusResult = {
+					booking_id_text: booking.booking_id_text || booking.id,
+					status: booking.booking_status || "Unknown",
+					animal_type: booking.animal_type_name_en || booking.animal_type_key || "N/A",
+					animal_weight_selected: booking.animal_weight_selected || "N/A",
+					sacrifice_day_value: booking.sacrifice_day_value, // Store value
+					time_slot: booking.time_slot || "N/A"
+				};
+			} else {
+				statusNotFound = true;
+			}
+		} catch (error) {
+			apiError = error.message;
+			userFriendlyApiError = "Could not retrieve booking status. Check ID or try again.";
+			statusNotFound = true; // Show not found on error as well for simplicity
+		} finally {
+			isLoadingStatus = false;
+		}
+	}
+</script>
+
+<section id="check-booking-status" class="sec udheya-page-step">
+	<div class="c">
+		<div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Check Udheya Booking Status</span><span class="ar">تحقق من حالة حجز أضحيتك</span></h2></div>
+		
+		<div class="card form-panel-card check-status-form-card">
+			<div class="card-b">
+				<form id="check-status-form-tag" on:submit|preventDefault={validateAndCheckBookingStatus} novalidate>
+					<label for="booking_id_lookup" class="bil-parent-spread form-label-strict check-status-label">
+						<span class="en">Enter Booking ID</span><span class="ar">أدخل رقم الحجز</span>
+					</label>
+					<div class="card-act">
+						<input 
+							type="text" 
+							id="booking_id_lookup" 
+							class="form-input-styled check-status-input" 
+							bind:value={lookupBookingID} 
+							placeholder="e.g., SL-UDHY-YYYY-XXXXX" 
+							bind:this={lookupBookingIdInputRef}
+							aria-invalid={errors.lookupBookingID ? 'true' : undefined} 
+							aria-describedby="lookupBookingIdError"
+							on:input={() => clearError('lookupBookingID')}
+						/>
+						<button type="submit" id="btn-check-status" class="btn bp check-status-button bil-parent-spread-intrinsic" disabled={isLoadingStatus}>
+							{#if !isLoadingStatus}
+								<span class="en">Check</span><span class="ar">تحقق</span>
+							{:else}
+								<span class="en">Checking...</span><span class="ar">جاري...</span>
+							{/if}
+						</button>
+					</div>
+					{#if errors.lookupBookingID}
+						<div class="form-error-msg" id="lookupBookingIdError" role="alert">
+							{currentLang === 'ar' ? errors.lookupBookingID.ar : errors.lookupBookingID.en}
+						</div>
+					{/if}
+				</form>
+			</div>
+		</div>
+
+		{#if isLoadingStatus || statusResult || statusNotFound}
+			<div id="booking-status-results" class="card form-panel-card booking-status-results-card">
+				<div class="card-b">
+					{#if isLoadingStatus}
+						<div class="loading-text" aria-live="polite">Checking...</div>
+					{:else if statusResult}
+						<div>
+							<h4 class="form-subhead bil-parent-spread"><span class="en">Booking Details</span><span class="ar">تفاصيل الحجز</span></h4>
+							<div id="status-content">
+								<div class="summary-item bil-row"><div class="en"><strong>ID:</strong> {statusResult.booking_id_text}</div><div class="ar"><strong>رقم الحجز:</strong> {statusResult.booking_id_text}</div></div>
+								<div class="summary-item bil-row"><div class="en"><strong>Status:</strong> <span class="status-highlight">{statusResult.status}</span></div><div class="ar"><strong>الحالة:</strong> <span class="status-highlight">{statusResult.status}</span></div></div>
+								<div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> {statusResult.animal_type}, {statusResult.animal_weight_selected}</div><div class="ar"><strong>الحيوان:</strong> {statusResult.animal_type}، {statusResult.animal_weight_selected}</div></div>
+								{@const sacrificeDayDisplay = getSacrificeDayText(statusResult.sacrifice_day_value)}
+								<div class="summary-item bil-row">
+									<div class="en"><strong>Scheduled Day:</strong> {sacrificeDayDisplay.en}, <strong>Pref. Delivery Time:</strong> {statusResult.time_slot}</div>
+									<div class="ar"><strong>اليوم المجدول:</strong> {sacrificeDayDisplay.ar}، <strong>وقت التوصيل المفضل:</strong> {statusResult.time_slot}</div>
+								</div>
+							</div>
+						</div>
+					{:else if statusNotFound}
+						<div id="status-no-results" class="status-no-results-text bil-row">
+							<p class="en">No booking found. Check ID or contact support.</p>
+							<p class="ar">لم يتم العثور على حجز. تحقق من الرقم أو اتصل بالدعم.</p>
+						</div>
+					{/if}
+					{#if userFriendlyApiError && !isLoadingStatus}
+						 <div class="form-error-msg ar-form-error" style="text-align: center; margin-top: var(--s1);">{userFriendlyApiError}</div>
+					{/if}
+				</div>
+			</div>
+		{/if}
+	</div>
+</section>
+
+<style>
+/* Styles specific to this section, copied from original styles.css */
+#check-booking-status.sec{background-color:var(--b1)} /* Ensure this section has its intended background */
+.check-status-form-card,.booking-status-results-card{margin-top:var(--s3)}
+.check-status-label{margin-bottom:var(--s1)}
+.check-status-input,.check-status-button{height:36px}
+#check-status-form-tag .card-act{display:flex;gap:var(--s1);align-items:center}
+#check-status-form-tag .check-status-input{flex-grow:1;min-width:150px}
+#check-status-form-tag .check-status-button{flex-shrink:0;padding:var(--s0) var(--s2)}
+#btn-check-status{background-color:var(--c1);color:var(--td);border-color:var(--c1)} /* Ensured visibility */
+#btn-check-status:hover{background-color:var(--c1d);border-color:var(--c1d)}
+.booking-status-results-card{background-color:var(--b2); border-top:3px solid var(--c1);}
+.status-highlight{color:var(--c2);font-weight:700}
+.status-no-results-text{text-align:center}
+.status-no-results-text p { color: var(--c3); font-weight: 700; padding: var(--s1); }
+.loading-text{padding:var(--s3) 0;text-align:center;color:var(--tm)}
+.form-panel-card{margin-bottom:0}
+.form-panel-card .card-b{padding:var(--s1) var(--s2)}
+.form-subhead.bil-parent-spread>.en,.form-subhead.bil-parent-spread>.ar{font-size:1rem;color:var(--c1d);margin:0 0 var(--s1);padding-bottom:var(--s0);flex-basis:auto;border-bottom:none;padding-bottom:0;margin-bottom:0}
+.summary-item{padding:var(--s0) 0;border-bottom:1px dashed var(--bs);display:flex;justify-content:space-between;align-items:center;gap:var(--s1)}
+.summary-item:last-of-type{border-bottom:none}
+.summary-item .bil-row > div{font-size:.9rem;color:var(--tm)}
+.summary-item .bil-row strong{color:var(--c1d); min-width:100px; display:inline-block;}
+
+@media(max-width:768px){
+	#check-booking-status .form-panel-card{margin-top:var(--s1)}
+	#check-status-form-tag .card-act{display:flex;flex-wrap:wrap;gap:var(--s1)}
+	#check-status-form-tag .card-act input.form-input-styled.check-status-input{flex:1 1 200px;margin-bottom:0}
+	#check-status-form-tag .card-act button.check-status-button{flex:0 1 auto}
+	.summary-item .bil-row,.summary-total.bil-row,.bank-details-list li.bil-row{flex-direction:row;align-items:baseline;flex-wrap:nowrap}
+	.summary-item .bil-row > div{flex-basis:auto}
+}
+</style>
+
+19. src/lib/seed.js (from previous step)
+
+// src/lib/seed.js
+// To run: node src/lib/seed.js
+// Make sure your PocketBase instance is running and accessible at the API_BASE_URL
+
+const API_BASE_URL = 'http://127.0.0.1:8090/api/'; // Adjust if your PB instance is elsewhere
+
+async function pbSeedFetch(collectionName, { recordId = "", queryParams = "", method = "GET", body = null } = {}) {
+    const apiUrl = `${API_BASE_URL}collections/${collectionName}/records${recordId ? `/${recordId}` : ""}${queryParams ? `?${queryParams}` : ""}`;
+    const options = { method, headers: {} };
+    if (body) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(body);
+    }
+    try {
+        const response = await fetch(apiUrl, options); // Node.js v18+ has fetch built-in
+        if (!response.ok && response.status !== 204) {
+            const errorText = await response.text();
+            throw new Error(`Seeder API Error (${method} ${collectionName}): ${response.status} ${response.statusText} - ${errorText}`);
+        }
+        if (response.status === 204) return {}; // For DELETE or PATCH with no content
+        return response.json();
+    } catch (error) {
+        console.error(`Fetch error for ${apiUrl}:`, error.message);
+        throw error;
+    }
+}
+
+const seedDataConfig = [
+    {
+        collection: "app_settings",
+        keyField: "setting_key", // Field to check for existence
+        data: [{
+            setting_key: "global_config", // Unique key for this settings record
+            exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: true }},
+            default_currency: "EGP",
+            whatsapp_number_raw: "201012345678", whatsapp_number_display: "+20 101 234 5678",
+            promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), // Promo for next 10 days
+            promo_discount_percent: 12, promo_is_active: true,
+            delivery_areas: [
+                {id:"cairo",name_en:"Cairo",name_ar:"القاهرة",cities:[{id:"nasr_city",name_en:"Nasr City",name_ar:"مدينة نصر"},{id:"maadi",name_en:"Maadi",name_ar:"المعادي"},{id:"heliopolis",name_en:"Heliopolis",name_ar:"مصر الجديدة"}]},
+                {id:"giza",name_en:"Giza",name_ar:"الجيزة",cities:[{id:"dokki",name_en:"Dokki",name_ar:"الدقي"},{id:"mohandessin",name_en:"Mohandessin",name_ar:"المهندسين"}]},
+                {id:"alexandria",name_en:"Alexandria",name_ar:"الإسكندرية",cities:[{id:"smouha",name_en:"Smouha",name_ar:"سموحة"}]},
+                {id:"other_gov",name_en:"Other Governorate",name_ar:"محافظة أخرى",cities:[]}
+            ],
+            payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
+        }]
+    },
+    {
+        collection: "livestock_types",
+        keyField: "value_key",
+        data: [
+            { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", weights_prices: [{ weight_range: "35-45 kg", price_egp: 4800, stock: 20, is_active: true }, { weight_range: "45-55 kg", price_egp: 5500, stock: 12, is_active: true }, { weight_range: "55+ kg", price_egp: 6200, stock: 5, is_active: false }] },
+            { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", weights_prices: [{ weight_range: "40-50 kg", price_egp: 5300, stock: 18, is_active: true }, { weight_range: "50-60 kg", price_egp: 6100, stock: 0, is_active: true }, { weight_range: "25-35 kg", price_egp: 4000, stock: 10, is_active: true }] }
+        ]
+    }
+    // Bookings collection is usually not seeded with predefined data, but with user interactions.
+];
+
+(async function seedDatabase() {
+    console.log("SEEDER_INFO: Starting database seed process...");
+    for (const config of seedDataConfig) {
+        for (const recordData of config.data) {
+            try {
+                // Check if record exists based on keyField
+                const query = `filter=(${config.keyField}='${recordData[config.keyField]}')&perPage=1`;
+                const existingRecords = await pbSeedFetch(config.collection, { queryParams: query });
+
+                if (existingRecords.items && existingRecords.items.length > 0) {
+                    const existingRecordId = existingRecords.items[0].id;
+                    await pbSeedFetch(config.collection, { recordId: existingRecordId, method: "PATCH", body: recordData });
+                    console.log(`SEEDER_SUCCESS: Record updated in '${config.collection}'. ID: ${existingRecordId}, Key: ${recordData[config.keyField]}`);
+                } else {
+                    const created = await pbSeedFetch(config.collection, { method: "POST", body: recordData });
+                    console.log(`SEEDER_SUCCESS: Record created in '${config.collection}'. ID: ${created.id}, Key: ${recordData[config.keyField]}`);
+                }
+            } catch (error) {
+                console.error(`SEEDER_EXCEPTION: Error for record in '${config.collection}' (Key: ${recordData[config.keyField]}):`, error.message);
+            }
+        }
+    }
+    console.log("SEEDER_INFO: Database seed process finished.");
+})();
+
+This concludes the list of files for the Svelte 5 project. Remember to place images like visa_icon.svg, mastercard_icon.svg, monzo_icon.svg, etc., in your public/images/ folder. You'll need to find or create these image assets.
