@@ -44,8 +44,8 @@ document.addEventListener('alpine:init', () => {
         },
         productOptions: {
             livestock: [],
-            preparationStyles: [ { value: "Standard Mixed Cuts", nameEN: "Standard Mix", nameAR: "مزيج قياسي", is_custom: false }, { value: "Charity Portions", nameEN: "Charity Portions", nameAR: "حصص صدقة", is_custom: false }, { value: "Feast Preparation", nameEN: "Feast Preparation", nameAR: "تجهيز ولائم", is_custom: false }, { value: "Custom & Ground Mix", nameEN: "Custom & Ground", nameAR: "مخصص ومفروم", is_custom: true }],
-            packagingOptions: [ { value: "standard", nameEN: "Standard Packaging", nameAR: "تعبئة قياسية", addonPriceEGP: 0 }, { value: "vacuum_sealed", nameEN: "Vacuum Sealed", nameAR: "تعبئة مفرغة", addonPriceEGP: 150 }]
+            preparationStyles: [ { value: "Standard Mixed Cuts", nameEN: "Standard Mix", nameAR: "قطع عادية", is_custom: false }, { value: "Charity Portions", nameEN: "Charity Portions", nameAR: "حصص صدقة", is_custom: false }, { value: "Feast Preparation", nameEN: "Feast Preparation", nameAR: "تجهيز ولائم", is_custom: false }, { value: "Custom & Ground Mix", nameEN: "Custom & Ground", nameAR: "مخصص ومفروم", is_custom: true }],
+            packagingOptions: [ { value: "standard", nameEN: "Standard Packaging", nameAR: "تعبئة عادية", addonPriceEGP: 0 }, { value: "vacuum_sealed", nameEN: "Vacuum Sealed", nameAR: "تعبئة مفرغة", addonPriceEGP: 150 }]
         },
         apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingState)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", currentCurrency: "EGP", bookingID: "",
