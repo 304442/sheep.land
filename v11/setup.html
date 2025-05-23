@@ -194,7 +194,7 @@
                 log('Superuser authentication successful.', 'success');
 
                 log('Processing collections...', 'info');
-                for (const collectionDef of collectionsDefinition) { // Use updated variable name
+                for (const collectionDef of collectionsDefinition) {
                     const pbPayload = {
                         name: collectionDef.name,
                         type: collectionDef.type,
@@ -214,8 +214,6 @@
 
                         if (existingCollection) {
                             log(`Collection '${collectionDef.name}' already exists. Attempting to update...`, 'info');
-                            // For update, we must provide all modifiable fields as per PB docs.
-                            // The pbPayload already contains all necessary fields from collectionDef.
                             await pb.collections.update(existingCollection.id, pbPayload);
                             log(`Collection '${collectionDef.name}' updated.`, 'success');
                         } else {
