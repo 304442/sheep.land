@@ -84,7 +84,11 @@ document.addEventListener('alpine:init', () => {
                     if (this.productOptions.livestock?.length > 0) this.updateAllDisplayedPrices();
                     else if (!this.apiError) this.userFriendlyApiError = this.userFriendlyApiError || "Livestock options could not be loaded.";
                     this.updateAllStepCompletionStates(); this.handleScroll();
-                    this.focusOnRef(this.bookingConfirmed ? "bookingConfirmedTitle" : (this.$refs.step1Title ? "step1Title" : "bookingSectionTitle"));
+                    this.focusOnRef(this.bookingConfirmed ? "bookingConfirmedTitle" : (this.$refs.step1Title ? "step1Title" : "bookingSectionTitle"), false);
+                    // Scroll to top if no hash, to ensure consistent initial view after focus.
+                    if (!window.location.hash || window.location.hash === "#") {
+                        window.scrollTo({ top: 0, behavior: 'instant' });
+                    }
                     this.isLoading.init = false;
                 });
             }
