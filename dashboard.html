@@ -3,157 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farm Dashboard Overview</title>
-    <script src="https://cdn.jsdelivr.net/npm/pocketbase@latest/dist/pocketbase.umd.js"></script>
+    <title>AgriHub Pro - Dashboard Mockup</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; }
-        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #333; }
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-        .kpi-card { background-color: #e9ecef; padding: 15px; border-radius: 5px; text-align: center; }
-        .kpi-card h3 { margin-top: 0; color: #007bff; }
-        .kpi-value { font-size: 2em; font-weight: bold; color: #28a745; }
-        .kpi-value.attention { color: #dc3545; }
-        #login-section, #dashboard-section { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; }
-        input[type="email"], input[type="password"], input[type="text"] {
-            width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 250px; background-color: #2c3e50; color: #ecf0f1; padding: 20px; overflow-y: auto; transition: width 0.3s; }
+        .sidebar.collapsed { width: 60px; }
+        .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile span { display: none; }
+        .sidebar.collapsed .nav-item .icon { margin-right: 0; font-size: 1.2em; }
+        .sidebar-header { text-align: center; margin-bottom: 30px; }
+        .sidebar-header h1 { font-size: 1.5em; margin: 0; }
+        .sidebar-toggle { background: none; border: none; color: #ecf0f1; font-size: 1.5em; cursor: pointer; display: block; margin-bottom:10px; text-align: left; width:100%;}
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-item { display: flex; align-items: center; padding: 12px 15px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+        .nav-item:hover, .nav-item.active { background-color: #34495e; }
+        .nav-item .icon { margin-right: 10px; width: 20px; text-align: center; }
+        .nav-item span { font-size: 0.95em; }
+        .sub-nav-list { list-style: none; padding-left: 30px; margin-top: 5px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .nav-item.has-submenu.open .sub-nav-list { max-height: 500px; /* Adjust as needed */ }
+        .sub-nav-item { padding: 8px 0; cursor: pointer; color: #bdc3c7; }
+        .sub-nav-item:hover { color: #ecf0f1; }
+        .user-profile { margin-top: auto; padding-top: 20px; border-top: 1px solid #34495e; text-align: center; }
+        .user-profile .icon { font-size: 1.5em; }
+        .user-profile span { display: block; font-size: 0.9em; margin-top: 5px; }
+
+        .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; background-color: #ffffff; }
+        .page { display: none; } /* Pages are hidden by default */
+        .page.active { display: block; } /* Active page is shown */
+        .page-header { border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; margin-bottom: 25px; }
+        .page-header h2 { margin: 0; font-size: 1.8em; color: #333; }
+        .page-header p { color: #666; margin-top: 5px; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .kpi-card { background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .kpi-card h3 { margin-top: 0; font-size: 1em; color: #007bff; margin-bottom: 10px; }
+        .kpi-value { font-size: 2.2em; font-weight: bold; color: #28a745; }
+        .kpi-value.alert { color: #dc3545; }
+
+        .action-buttons { margin-bottom: 25px; }
+        .action-buttons button { padding: 10px 15px; margin-right: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+        .action-buttons button:hover { background-color: #0056b3; }
+        .table-placeholder { background-color: #e9ecef; padding: 20px; border-radius: 5px; text-align: center; color: #6c757d; margin-bottom: 20px; }
+        .form-placeholder div { margin-bottom: 15px; }
+        .form-placeholder label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-placeholder input, .form-placeholder textarea, .form-placeholder select {
+            width: calc(100% - 22px); padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.95em;
         }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .error { color: red; margin-top: 10px; }
+        .form-placeholder textarea { min-height: 80px; }
+        /* Basic responsive adjustments */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; max-height: 50vh; /* Or fixed height for mobile nav */ }
+            .sidebar.collapsed { width:100%;}
+            .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile span { display: inline; } /* Show text on mobile when collapsed */
+            .main-content { height: auto;}
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Farm Dashboard</h1>
-
-        <div id="login-section">
-            <h2>Login</h2>
-            <div><label for="pb-url">PocketBase URL:</label><input type="text" id="pb-url" value="/"></div>
-            <div><label for="email">Email:</label><input type="email" id="email" placeholder="admin@example.com"></div>
-            <div><label for="password">Password:</label><input type="password" id="password"></div>
-            <button onclick="login()">Login</button>
-            <p id="login-error" class="error"></p>
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="sidebar-header">
+            <h1>AgriHub</h1>
         </div>
-
-        <div id="dashboard-section" style="display:none;">
-            <h2>Overview KPIs</h2>
-            <button onclick="fetchDashboardData()">Refresh Data</button>
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <h3>Total Animals</h3>
-                    <p id="total-animals" class="kpi-value">0</p>
-                </div>
-                <div class="kpi-card">
-                    <h3>Needs Attention</h3>
-                    <p id="needs-attention" class="kpi-value attention">0</p>
-                </div>
-                <div class="kpi-card">
-                    <h3>Open Opportunities</h3>
-                    <p id="open-opportunities" class="kpi-value">0</p>
-                </div>
-                <div class="kpi-card">
-                    <h3>Pending Orders</h3>
-                    <p id="pending-orders" class="kpi-value">0</p>
-                </div>
-                <div class="kpi-card">
-                    <h3>Revenue Today (Orders)</h3>
-                    <p id="revenue-today" class="kpi-value">£0.00</p>
-                </div>
-                <div class="kpi-card">
-                    <h3>Expenses Today</h3>
-                    <p id="expenses-today" class="kpi-value attention">£0.00</p>
-                </div>
-                <div class="kpi-card">
-                    <h3>Est. Profit Today</h3>
-                    <p id="profit-today" class="kpi-value">£0.00</p>
-                </div>
-            </div>
-            <p id="data-error" class="error"></p>
+        <ul class="nav-list">
+            <li class="nav-item active" data-page="overview">
+                <span class="icon">🏠</span><span>Overview</span>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="fms">
+                <span class="icon">🐑</span><span>Farm Management</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="fms-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="fms-animals">Animals</li>
+                    <li class="sub-nav-item" data-page="fms-tasks">Tasks</li>
+                    <li class="sub-nav-item" data-page="fms-pastures">Pastures</li>
+                    <li class="sub-nav-item" data-page="fms-feed">Feed Log</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="crm">
+                <span class="icon">👥</span><span>CRM</span>
+                 <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="crm-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="crm-contacts">Contacts</li>
+                    <li class="sub-nav-item" data-page="crm-opportunities">Opportunities</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="oms">
+                <span class="icon">🛒</span><span>Order Management</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="oms-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="oms-orders">Orders</li>
+                    <li class="sub-nav-item" data-page="oms-products">Products</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="pnl">
+                <span class="icon">💰</span><span>Financials (P&L)</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="pnl-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="pnl-statement">P&L Statement</li>
+                    <li class="sub-nav-item" data-page="pnl-expenses">Expenses</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="cms">
+                <span class="icon">📄</span><span>Content (CMS)</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="cms-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="cms-posts">Posts</li>
+                    <li class="sub-nav-item" data-page="cms-pages">Pages</li>
+                    <li class="sub-nav-item" data-page="cms-media">Media Library</li>
+                </ul>
+            </li>
+            <li class="nav-item" data-page="reports">
+                <span class="icon">📊</span><span>Reporting</span>
+            </li>
+            <li class="nav-item" data-page="settings">
+                <span class="icon">⚙️</span><span>Settings</span>
+            </li>
+        </ul>
+        <div class="user-profile">
+            <span class="icon">👤</span>
+            <span>Admin User</span>
+            <a href="#" style="color: #bdc3c7; font-size: 0.8em; text-decoration: none;">Logout</a>
         </div>
     </div>
 
-    <script>
-        let pb = null;
+    <div class="main-content">
+        <!-- Overview Page -->
+        <div id="page-overview" class="page active">
+            <div class="page-header">
+                <h2>System Overview</h2>
+                <p>A quick glance at your farm's key metrics.</p>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi-card"><h3>Total Animals</h3><p class="kpi-value">152</p></div>
+                <div class="kpi-card"><h3>Needs Attention</h3><p class="kpi-value alert">3</p></div>
+                <div class="kpi-card"><h3>New Leads (Week)</h3><p class="kpi-value">5</p></div>
+                <div class="kpi-card"><h3>Open Orders</h3><p class="kpi-value">8</p></div>
+                <div class="kpi-card"><h3>Revenue MTD</h3><p class="kpi-value">£1,250</p></div>
+                <div class="kpi-card"><h3>Recent Posts</h3><p class="kpi-value">2</p></div>
+            </div>
+            <div class="action-buttons">
+                <button>+ Add Animal</button>
+                <button>+ Log Interaction</button>
+                <button>+ Create Order</button>
+                <button>+ New Post</button>
+            </div>
+            <div class="table-placeholder">Recent Activity Feed will go here...</div>
+        </div>
 
-        async function login() {
-            const pbUrl = document.getElementById('pb-url').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const loginErrorEl = document.getElementById('login-error');
-            loginErrorEl.textContent = '';
+        <!-- FMS Pages -->
+        <div id="page-fms-dashboard" class="page">
+            <div class="page-header"><h2>Farm Management Dashboard</h2><p>FMS specific KPIs and summaries.</p></div>
+            <div class="kpi-grid">
+                 <div class="kpi-card"><h3>Animals by Breed</h3><p class="kpi-value">Chart Here</p></div>
+                 <div class="kpi-card"><h3>Upcoming Tasks</h3><p class="kpi-value">7</p></div>
+            </div>
+            <div class="table-placeholder">FMS Dashboard content...</div>
+        </div>
+        <div id="page-fms-animals" class="page">
+            <div class="page-header"><h2>Animals List</h2><p>Manage all your farm animals.</p></div>
+            <div class="action-buttons"><button>+ Add New Animal</button></div>
+            <input type="text" placeholder="Search Animals..." style="margin-bottom:15px; padding:10px; width: 300px;">
+            <div class="table-placeholder">A filterable, sortable table of animals will be displayed here (Tag ID, Name, Breed, Age, Status...). Each row would have View/Edit/Log actions.</div>
+        </div>
+         <div id="page-fms-tasks" class="page">
+            <div class="page-header"><h2>Farm Tasks</h2><p>Manage scheduled and ad-hoc tasks.</p></div>
+            <div class="action-buttons"><button>+ Add New Task</button></div>
+            <div class="table-placeholder">Kanban board or list of tasks (To Do, In Progress, Done) with details like description, due date, assignee.</div>
+        </div>
+        <div id="page-fms-pastures" class="page">
+            <div class="page-header"><h2>Pastures</h2><p>Manage your farm pastures.</p></div>
+            <div class="table-placeholder">List of pastures, capacity, current animals.</div>
+        </div>
+        <div id="page-fms-feed" class="page">
+            <div class="page-header"><h2>Feed Log & Inventory</h2><p>Track feed usage and stock.</p></div>
+            <div class="table-placeholder">Feed log entries, inventory levels.</div>
+        </div>
 
-            if (!pbUrl || !email || !password) {
-                loginErrorEl.textContent = 'URL, Email and password are required.';
-                return;
-            }
 
-            try {
-                pb = new PocketBase(pbUrl);
-                await pb.admins.authWithPassword(email, password); // Or pb.collection('users').authWithPassword for non-admin
+        <!-- CRM Pages -->
+        <div id="page-crm-dashboard" class="page">
+            <div class="page-header"><h2>CRM Dashboard</h2><p>Customer relationship insights.</p></div>
+             <div class="kpi-grid">
+                 <div class="kpi-card"><h3>Sales Pipeline</h3><p class="kpi-value">Funnel Chart</p></div>
+                 <div class="kpi-card"><h3>Interactions Logged</h3><p class="kpi-value">25</p></div>
+            </div>
+            <div class="table-placeholder">CRM specific KPIs, charts, recent activity...</div>
+        </div>
+        <div id="page-crm-contacts" class="page">
+            <div class="page-header"><h2>Contacts</h2><p>Manage customers, leads, and suppliers.</p></div>
+            <div class="action-buttons"><button>+ Add New Contact</button></div>
+            <div class="table-placeholder">Table of contacts with search, filters. Actions: View Details, Edit, Log Interaction.</div>
+        </div>
+        <div id="page-crm-opportunities" class="page">
+            <div class="page-header"><h2>Sales Opportunities</h2><p>Track your sales pipeline.</p></div>
+            <div class="action-buttons"><button>+ Add New Opportunity</button></div>
+            <div class="table-placeholder">Kanban board (Lead, Qualified, Proposal, Won, Lost) for sales opportunities.</div>
+        </div>
+
+        <!-- OMS Pages -->
+        <div id="page-oms-dashboard" class="page">
+            <div class="page-header"><h2>Order Management Dashboard</h2><p>Order processing overview.</p></div>
+            <div class="kpi-grid">
+                 <div class="kpi-card"><h3>Pending Fulfillment</h3><p class="kpi-value alert">4</p></div>
+                 <div class="kpi-card"><h3>Sales Today</h3><p class="kpi-value">£350</p></div>
+            </div>
+            <div class="table-placeholder">OMS specific KPIs, order status summaries...</div>
+        </div>
+        <div id="page-oms-orders" class="page">
+            <div class="page-header"><h2>Orders</h2><p>Manage all customer orders.</p></div>
+            <div class="action-buttons"><button>+ Create New Order</button></div>
+            <div class="table-placeholder">Table of orders (ID, Customer, Date, Amount, Status). Actions: View Details, Update Status.</div>
+        </div>
+        <div id="page-oms-products" class="page">
+            <div class="page-header"><h2>Products</h2><p>Manage your product catalog.</p></div>
+            <div class="action-buttons"><button>+ Add New Product</button></div>
+            <div class="table-placeholder">List/grid of products (Live Animals, Wool, Meat) with price, stock (linked from FMS).</div>
+        </div>
+
+        <!-- P&L Pages -->
+        <div id="page-pnl-dashboard" class="page">
+            <div class="page-header"><h2>Financials Dashboard</h2><p>Key financial performance indicators.</p></div>
+            <div class="kpi-grid">
+                 <div class="kpi-card"><h3>Net Profit MTD</h3><p class="kpi-value">£550</p></div>
+                 <div class="kpi-card"><h3>Top Expense Category</h3><p class="kpi-value" style="font-size:1.5em;">Feed</p></div>
+            </div>
+            <div class="table-placeholder">Charts (Revenue vs. Expense), key profit/loss figures...</div>
+        </div>
+        <div id="page-pnl-statement" class="page">
+            <div class="page-header"><h2>P&L Statement</h2><p>Detailed profit and loss report.</p></div>
+            <div class="form-placeholder">
+                <label for="period">Select Period:</label>
+                <select id="period"><option>This Month</option><option>Last Month</option><option>This Quarter</option></select>
+            </div>
+            <div class="table-placeholder">Traditional P&L statement (Revenue, COGS, Gross Profit, Operating Expenses, Net Profit).</div>
+        </div>
+        <div id="page-pnl-expenses" class="page">
+            <div class="page-header"><h2>Expenses Log</h2><p>Track all farm and business expenses.</p></div>
+            <div class="action-buttons"><button>+ Add New Expense</button></div>
+            <div class="table-placeholder">Table of expenses (Date, Category, Description, Amount). Form to add new expense.</div>
+        </div>
+
+        <!-- CMS Pages -->
+        <div id="page-cms-dashboard" class="page">
+            <div class="page-header"><h2>Content Management Dashboard</h2><p>Overview of your website content.</p></div>
+            <div class="kpi-grid">
+                 <div class="kpi-card"><h3>Published Posts</h3><p class="kpi-value">12</p></div>
+                 <div class="kpi-card"><h3>Draft Pages</h3><p class="kpi-value">3</p></div>
+            </div>
+            <div class="table-placeholder">Recent drafts, quick links to create content...</div>
+        </div>
+        <div id="page-cms-posts" class="page">
+            <div class="page-header"><h2>Blog Posts</h2><p>Manage articles and news updates.</p></div>
+            <div class="action-buttons"><button>+ Write New Post</button></div>
+            <div class="table-placeholder">Table of blog posts (Title, Author, Status, Date). Actions: Edit, View, Delete.</div>
+        </div>
+        <div id="page-cms-pages" class="page">
+            <div class="page-header"><h2>Static Pages</h2><p>Manage informational pages (About Us, Contact).</p></div>
+            <div class="action-buttons"><button>+ Create New Page</button></div>
+            <div class="table-placeholder">Table of static pages. Actions: Edit, View, Delete.</div>
+        </div>
+        <div id="page-cms-media" class="page">
+            <div class="page-header"><h2>Media Library</h2><p>Manage images and other media files.</p></div>
+            <div class="action-buttons"><button>Upload Media</button></div>
+            <div class="table-placeholder">Grid of media thumbnails. Upload functionality.</div>
+        </div>
+
+        <!-- Reports Page -->
+        <div id="page-reports" class="page">
+            <div class="page-header"><h2>Reporting</h2><p>Generate and view custom reports.</p></div>
+            <div class="table-placeholder">List of available reports (e.g., Animal Health Summary, Sales by Product). Options to set filters and generate.</div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="page-settings" class="page">
+            <div class="page-header"><h2>System Settings</h2><p>Configure application and module settings.</p></div>
+            <div class="form-placeholder">
+                <h3>User Management</h3>
+                <div><label>New User Email:</label><input type="email"></div>
+                <button>Add User</button>
+                <div class="table-placeholder" style="margin-top:10px;">List of users with roles...</div>
+
+                <h3>Farm Settings</h3>
+                <div><label>Default Breed:</label><input type="text" value="Merino"></div>
                 
-                document.getElementById('login-section').style.display = 'none';
-                document.getElementById('dashboard-section').style.display = 'block';
-                fetchDashboardData();
-            } catch (err) {
-                console.error('Login failed:', err);
-                loginErrorEl.textContent = `Login failed: ${err.message || 'Check console.'}`;
-                if (err.data) console.error('Error data:', err.data);
+                <h3>CMS Settings</h3>
+                <div><label>Site Title:</label><input type="text" value="My Awesome Farm"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const navItems = document.querySelectorAll('.nav-item[data-page], .sub-nav-item[data-page]');
+        const pages = document.querySelectorAll('.main-content .page');
+        const subMenuToggles = document.querySelectorAll('.nav-item.has-submenu');
+
+        function showPage(pageId) {
+            pages.forEach(page => {
+                page.classList.remove('active');
+                if (page.id === `page-${pageId}`) {
+                    page.classList.add('active');
+                }
+            });
+        }
+
+        function setActiveNavItem(selectedItem) {
+             document.querySelectorAll('.nav-item, .sub-nav-item').forEach(item => item.classList.remove('active'));
+            selectedItem.classList.add('active');
+
+            // If it's a sub-item, also mark its parent nav-item as active (visually)
+            let parent = selectedItem.closest('.nav-item.has-submenu');
+            if(parent){
+                parent.classList.add('active'); // Keep parent visually active too
             }
         }
 
-        async function fetchDashboardData() {
-            if (!pb || !pb.authStore.isValid) {
-                document.getElementById('data-error').textContent = "Not authenticated. Please login.";
-                return;
-            }
-            document.getElementById('data-error').textContent = ""; // Clear previous errors
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const pageId = this.dataset.page;
+                if (pageId) {
+                    showPage(pageId);
+                    setActiveNavItem(this);
 
-            try {
-                // --- FMS Data ---
-                const animals = await pb.collection('fms_animals').getFullList({ sort: '-created' });
-                document.getElementById('total-animals').textContent = animals.length;
+                    // Close other submenus if a top-level item without submenu is clicked
+                    if(!this.classList.contains('sub-nav-item') && !this.classList.contains('has-submenu')){
+                        subMenuToggles.forEach(smt => {
+                            if (smt !== this.closest('.nav-item.has-submenu')) { // don't close if it's the parent of current
+                                smt.classList.remove('open');
+                            }
+                        });
+                    }
+                     // If sidebar is collapsed and we click an item, un-collapse it for better view (optional)
+                    if (sidebar.classList.contains('collapsed') && window.innerWidth > 768) { // Only on desktop
+                       // sidebar.classList.remove('collapsed');
+                    }
+                }
+            });
+        });
 
-                const attentionAnimals = animals.filter(animal => animal.status === 'needs_attention').length;
-                document.getElementById('needs-attention').textContent = attentionAnimals;
-
-                // --- CRM Data ---
-                const opportunities = await pb.collection('crm_opportunities').getFullList({
-                    filter: "status = 'open'" // Adjust field and value as per your schema
-                });
-                document.getElementById('open-opportunities').textContent = opportunities.length;
-
-                // --- OMS Data ---
-                const orders = await pb.collection('oms_orders').getFullList();
-                const pendingOrders = orders.filter(order => order.status === 'pending').length;
-                document.getElementById('pending-orders').textContent = pendingOrders;
-
-                const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-                const revenueToday = orders
-                    .filter(order => order.order_date && order.order_date.startsWith(today) && (order.status === 'completed' || order.status === 'shipped')) // Assuming order_date is a datetime string
-                    .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0);
-                document.getElementById('revenue-today').textContent = `£${revenueToday.toFixed(2)}`;
-
-                // --- P&L (Simplified) ---
-                const expenses = await pb.collection('pnl_expenses').getFullList();
-                const expensesToday = expenses
-                    .filter(expense => expense.expense_date && expense.expense_date.startsWith(today)) // Assuming expense_date
-                    .reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
-                document.getElementById('expenses-today').textContent = `£${expensesToday.toFixed(2)}`;
-
-                const profitToday = revenueToday - expensesToday;
-                const profitEl = document.getElementById('profit-today');
-                profitEl.textContent = `£${profitToday.toFixed(2)}`;
-                profitEl.className = profitToday >= 0 ? 'kpi-value' : 'kpi-value attention';
-
-
-            } catch (err) {
-                console.error('Failed to fetch dashboard data:', err);
-                document.getElementById('data-error').textContent = `Error fetching data: ${err.message}. Check console.`;
-                 if (err.data) console.error('Error data:', err.data);
-            }
+        subMenuToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(event) {
+                // Prevent page navigation if only toggling submenu, unless a sub-item is clicked directly
+                if (event.target === this || event.target.parentElement === this && !event.target.classList.contains('sub-nav-item')) {
+                     // Don't close others if this is already open and we are clicking a sub-item
+                    if (!this.classList.contains('open') || !event.target.classList.contains('sub-nav-item')) {
+                        // Close other submenus
+                        subMenuToggles.forEach(smt => {
+                            if (smt !== this) {
+                                smt.classList.remove('open');
+                            }
+                        });
+                    }
+                    this.classList.toggle('open');
+                }
+            });
+        });
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
         }
+
+        // Show the initial page (overview)
+        showPage('overview');
     </script>
 </body>
 </html>
