@@ -293,7 +293,37 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .pban-text-content .bil-row{flex-direction:column;align-items:center}
 .pban-text-content .bil-row>:is(.en,.ar){text-align:center!important}
 .pban-text-content .bil-row>.en{margin-bottom:var(--s1)}
-.compact-how-it-works .how-it-works-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}}
+.compact-how-it-works .how-it-works-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+
+.bil-keep-side-by-side-mobile {
+    flex-direction: row !important; /* Override column direction for bil-parent-spread */
+    flex-wrap: nowrap !important; /* Prevent wrapping for bil-row */
+}
+
+.bil-keep-side-by-side-mobile > .en,
+.bil-keep-side-by-side-mobile > p.en {
+    flex-basis: 48% !important; /* Restore side-by-side behavior */
+    text-align: left !important;
+    margin-bottom: 0 !important; /* Remove bottom margin if it was added for stacking */
+}
+
+.bil-keep-side-by-side-mobile > .ar,
+.bil-keep-side-by-side-mobile > p.ar {
+    flex-basis: 48% !important; /* Restore side-by-side behavior */
+    text-align: right !important;
+    margin-bottom: 0 !important; /* Remove bottom margin if it was added for stacking */
+}
+
+/* Specifically for .bil-parent-spread elements that get .bil-keep-side-by-side-mobile */
+.bil-parent-spread.bil-keep-side-by-side-mobile > .en {
+    margin-right: auto !important; /* Restore original margin */
+    text-align: left !important;
+}
+.bil-parent-spread.bil-keep-side-by-side-mobile > .ar {
+    margin-left: auto !important; /* Restore original margin */
+    text-align: right !important;
+}
+}
 @media(max-width:768px){html{font-size:14px}
 body{padding-top:var(--header-height)}
 .c{padding:0 var(--s1)}
