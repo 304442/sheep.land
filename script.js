@@ -115,7 +115,7 @@ document.addEventListener('alpine:init', () => {
         setError(field, messageKeyOrObject) { this.errors[field] = (typeof messageKeyOrObject === 'string' ? this.errorMessages[messageKeyOrObject] : messageKeyOrObject) || this.errorMessages.required; },
         clearError(field) { if (this.errors[field]) delete this.errors[field]; },
         clearAllErrors() { this.errors = {}; },
-        focusOnRef(refName) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({ preventScroll: false }); setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e) {} }, 50); } }); },
+        focusOnRef(refName, shouldScroll = true) { this.$nextTick(() => { if (this.$refs[refName]) { this.$refs[refName].focus({ preventScroll: false }); if (shouldScroll) { setTimeout(() => { try { this.$refs[refName].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' }); } catch(e) {} }, 50); } } }); },
         get _needsDeliveryDetails() { const customDetailsLower = (this.customSplitDetailsText || "").toLowerCase(); return this.distributionChoice === 'me' || (this.distributionChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitDetailsOption) || (this.splitDetailsOption === 'custom' && (customDetailsLower.includes("for me") || customDetailsLower.includes("all delivered to me"))))); },
         get splitDetails() { if (this.distributionChoice !== 'split') return ""; if (this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim(); const optionsMap = { "1/3_me_2/3_charity_sl": { en: "1/3 me (delivered), 2/3 charity (SL)", ar: "ثلث لي (يوصل)، ثلثان صدقة (أرض الأغنام)" }, "1/2_me_1/2_charity_sl": { en: "1/2 me (delivered), 1/2 charity (SL)", ar: "نصف لي (يوصل)، نصف صدقة (أرض الأغنام)" }, "2/3_me_1/3_charity_sl": { en: "2/3 me (delivered), 1/3 charity (SL)", ar: "ثلثان لي (يوصل)، ثلث صدقة (أرض الأغنام)" }, "all_me_custom_distro": { en: "All for me (I distribute)", ar: "الكل لي (أنا أوزع)" }}; const selected = optionsMap[this.splitDetailsOption]; return selected ? (this.currentLang === 'ar' ? selected.ar : selected.en) : this.splitDetailsOption; },
         _getDeliveryLocation(lang) { const nameKey = lang === 'en' ? 'name_en' : 'name_ar'; const govObj = (this.appSettings.delivery_areas || []).find(area => area.id === this.selectedGovernorate); const cityObj = govObj?.cities?.find(city => city.id === this.deliveryCity); if (cityObj?.[nameKey]) return cityObj[nameKey]; if (govObj && govObj.cities?.length === 0 && this.selectedGovernorate && govObj[nameKey]) return govObj[nameKey]; if (govObj && !cityObj && this.selectedGovernorate && govObj[nameKey]) return `${govObj[nameKey]} (${lang === 'en' ? "City not selected" : "المدينة غير مختارة"})`; return ""; },
@@ -177,6 +177,11 @@ document.addEventListener('alpine:init', () => {
         resetAndStartOver() { Object.assign(this, JSON.parse(JSON.stringify(initialBookingState)), { bookingConfirmed: false, bookingID: "", lookupBookingID: "", statusResult: null, statusNotFound: false, currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false }, apiError: null, userFriendlyApiError: ""}); if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); this.initApp(); this.$nextTick(() => { this.scrollToSection('#udheya-booking-start'); this.focusOnRef('bookingSectionTitle'); }); }
     }));
 
+    /*
+    // DEVELOPMENT ONLY: Database Seeder Logic
+    // The following IIFE is for development purposes to seed the database.
+    // It should be disabled or removed in production environments to prevent accidental data manipulation
+    // and to avoid exposing API endpoints. It runs if the URL query parameter "run_db_seed=true" is present.
     (function() {
         const SEED_PARAM_NAME = "run_db_seed";
         if (new URLSearchParams(window.location.search).get(SEED_PARAM_NAME) !== "true") return;
@@ -243,4 +248,5 @@ document.addEventListener('alpine:init', () => {
             }
         })();
     })();
+    */
 });
