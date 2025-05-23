@@ -3,58 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriHub Pro - Dashboard Mockup</title>
+    <title>AgriHub Pro - Comprehensive Dashboard Mockup</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 250px; background-color: #2c3e50; color: #ecf0f1; padding: 20px; overflow-y: auto; transition: width 0.3s; }
+        .sidebar { width: 280px; /* Increased width for more items */ background-color: #2c3e50; color: #ecf0f1; padding: 20px; overflow-y: auto; transition: width 0.3s; }
         .sidebar.collapsed { width: 60px; }
-        .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile span { display: none; }
+        .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile span, .sidebar.collapsed .nav-item .arrow { display: none; }
         .sidebar.collapsed .nav-item .icon { margin-right: 0; font-size: 1.2em; }
-        .sidebar-header { text-align: center; margin-bottom: 30px; }
+        .sidebar-header { text-align: center; margin-bottom: 20px; }
         .sidebar-header h1 { font-size: 1.5em; margin: 0; }
         .sidebar-toggle { background: none; border: none; color: #ecf0f1; font-size: 1.5em; cursor: pointer; display: block; margin-bottom:10px; text-align: left; width:100%;}
         .nav-list { list-style: none; padding: 0; margin: 0; }
-        .nav-item { display: flex; align-items: center; padding: 12px 15px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+        .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; /* Adjusted padding */ margin-bottom: 5px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
         .nav-item:hover, .nav-item.active { background-color: #34495e; }
+        .nav-item-main-content { display: flex; align-items: center; }
         .nav-item .icon { margin-right: 10px; width: 20px; text-align: center; }
-        .nav-item span { font-size: 0.95em; }
-        .sub-nav-list { list-style: none; padding-left: 30px; margin-top: 5px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .nav-item.has-submenu.open .sub-nav-list { max-height: 500px; /* Adjust as needed */ }
-        .sub-nav-item { padding: 8px 0; cursor: pointer; color: #bdc3c7; }
-        .sub-nav-item:hover { color: #ecf0f1; }
+        .nav-item span { font-size: 0.9em; /* Adjusted font size */ }
+        .nav-item .arrow { font-size: 0.7em; transition: transform 0.3s; }
+        .nav-item.has-submenu.open .arrow { transform: rotate(90deg); }
+        .sub-nav-list { list-style: none; padding-left: 25px; /* Adjusted padding */ margin-top: 5px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background-color: rgba(0,0,0,0.1); border-radius: 4px;}
+        .nav-item.has-submenu.open .sub-nav-list { max-height: 1000px; /* Increased max-height */ padding-top: 5px; padding-bottom: 5px;}
+        .sub-nav-item { padding: 7px 10px; /* Adjusted padding */ cursor: pointer; color: #bdc3c7; font-size: 0.85em; border-radius: 3px; }
+        .sub-nav-item:hover, .sub-nav-item.active { color: #ecf0f1; background-color: #4a6278; }
         .user-profile { margin-top: auto; padding-top: 20px; border-top: 1px solid #34495e; text-align: center; }
         .user-profile .icon { font-size: 1.5em; }
         .user-profile span { display: block; font-size: 0.9em; margin-top: 5px; }
 
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; background-color: #ffffff; }
-        .page { display: none; } /* Pages are hidden by default */
-        .page.active { display: block; } /* Active page is shown */
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .page-header { border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; margin-bottom: 25px; }
         .page-header h2 { margin: 0; font-size: 1.8em; color: #333; }
         .page-header p { color: #666; margin-top: 5px; }
+        .placeholder-content { background-color: #f8f9fa; border: 1px dashed #ced4da; padding: 40px; border-radius: 8px; text-align: center; color: #6c757d; font-size: 1.1em; min-height: 200px; display:flex; align-items:center; justify-content:center;}
 
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .kpi-card { background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .kpi-card h3 { margin-top: 0; font-size: 1em; color: #007bff; margin-bottom: 10px; }
-        .kpi-value { font-size: 2.2em; font-weight: bold; color: #28a745; }
-        .kpi-value.alert { color: #dc3545; }
-
-        .action-buttons { margin-bottom: 25px; }
-        .action-buttons button { padding: 10px 15px; margin-right: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
-        .action-buttons button:hover { background-color: #0056b3; }
-        .table-placeholder { background-color: #e9ecef; padding: 20px; border-radius: 5px; text-align: center; color: #6c757d; margin-bottom: 20px; }
-        .form-placeholder div { margin-bottom: 15px; }
-        .form-placeholder label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-placeholder input, .form-placeholder textarea, .form-placeholder select {
-            width: calc(100% - 22px); padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.95em;
-        }
-        .form-placeholder textarea { min-height: 80px; }
         /* Basic responsive adjustments */
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; max-height: 50vh; /* Or fixed height for mobile nav */ }
+            .sidebar { width: 100%; height: auto; max-height: 50vh; }
             .sidebar.collapsed { width:100%;}
-            .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile span { display: inline; } /* Show text on mobile when collapsed */
+            .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile span, .sidebar.collapsed .nav-item .arrow { display: inline; }
             .main-content { height: auto;}
         }
     </style>
@@ -67,56 +56,98 @@
         </div>
         <ul class="nav-list">
             <li class="nav-item active" data-page="overview">
-                <span class="icon">🏠</span><span>Overview</span>
+                <div class="nav-item-main-content"><span class="icon">🏠</span><span>Overview</span></div>
             </li>
             <li class="nav-item has-submenu" data-page-group="fms">
-                <span class="icon">🐑</span><span>Farm Management</span>
+                <div class="nav-item-main-content"><span class="icon">🐑</span><span>Farm Management</span></div><span class="arrow">▶</span>
                 <ul class="sub-nav-list">
                     <li class="sub-nav-item" data-page="fms-dashboard">Dashboard</li>
                     <li class="sub-nav-item" data-page="fms-animals">Animals</li>
-                    <li class="sub-nav-item" data-page="fms-tasks">Tasks</li>
-                    <li class="sub-nav-item" data-page="fms-pastures">Pastures</li>
-                    <li class="sub-nav-item" data-page="fms-feed">Feed Log</li>
+                    <li class="sub-nav-item" data-page="fms-tasks">Tasks & Schedules</li>
+                    <li class="sub-nav-item" data-page="fms-pastures">Pastures & Land</li>
+                    <li class="sub-nav-item" data-page="fms-feed">Feed Management</li>
+                    <li class="sub-nav-item" data-page="fms-health">Health & Breeding</li>
+                    <li class="sub-nav-item" data-page="fms-equipment">Equipment</li>
+                    <li class="sub-nav-item" data-page="fms-resources">Resource Usage</li>
+                    <li class="sub-nav-item" data-page="fms-compliance">Compliance</li>
+                    <li class="sub-nav-item" data-page="fms-iot">Sensor Data (IoT)</li>
                 </ul>
             </li>
             <li class="nav-item has-submenu" data-page-group="crm">
-                <span class="icon">👥</span><span>CRM</span>
+                <div class="nav-item-main-content"><span class="icon">👥</span><span>CRM</span></div><span class="arrow">▶</span>
                  <ul class="sub-nav-list">
                     <li class="sub-nav-item" data-page="crm-dashboard">Dashboard</li>
                     <li class="sub-nav-item" data-page="crm-contacts">Contacts</li>
                     <li class="sub-nav-item" data-page="crm-opportunities">Opportunities</li>
+                    <li class="sub-nav-item" data-page="crm-interactions">Interactions</li>
+                    <li class="sub-nav-item" data-page="crm-suppliers">Supplier Mgmt</li>
+                    <li class="sub-nav-item" data-page="crm-loyalty">Loyalty Programs</li>
                 </ul>
             </li>
             <li class="nav-item has-submenu" data-page-group="oms">
-                <span class="icon">🛒</span><span>Order Management</span>
+                <div class="nav-item-main-content"><span class="icon">🛒</span><span>Order Management</span></div><span class="arrow">▶</span>
                 <ul class="sub-nav-list">
                     <li class="sub-nav-item" data-page="oms-dashboard">Dashboard</li>
                     <li class="sub-nav-item" data-page="oms-orders">Orders</li>
-                    <li class="sub-nav-item" data-page="oms-products">Products</li>
+                    <li class="sub-nav-item" data-page="oms-products">Products & Catalog</li>
+                    <li class="sub-nav-item" data-page="oms-inventory">Sales Inventory</li>
+                    <li class="sub-nav-item" data-page="oms-fulfillment">Fulfillment</li>
+                    <li class="sub-nav-item" data-page="oms-shipping">Shipping Integration</li>
+                    <li class="sub-nav-item" data-page="oms-customer-portal">Customer Portal Links</li>
                 </ul>
             </li>
             <li class="nav-item has-submenu" data-page-group="pnl">
-                <span class="icon">💰</span><span>Financials (P&L)</span>
+                <div class="nav-item-main-content"><span class="icon">💰</span><span>Financials</span></div><span class="arrow">▶</span>
                 <ul class="sub-nav-list">
                     <li class="sub-nav-item" data-page="pnl-dashboard">Dashboard</li>
                     <li class="sub-nav-item" data-page="pnl-statement">P&L Statement</li>
+                    <li class="sub-nav-item" data-page="pnl-balance-sheet">Balance Sheet</li>
+                    <li class="sub-nav-item" data-page="pnl-cashflow">Cash Flow</li>
                     <li class="sub-nav-item" data-page="pnl-expenses">Expenses</li>
+                    <li class="sub-nav-item" data-page="pnl-revenue">Revenue Streams</li>
+                    <li class="sub-nav-item" data-page="pnl-budgeting">Budgeting</li>
+                    <li class="sub-nav-item" data-page="pnl-tax">Tax Prep Reports</li>
+                    <li class="sub-nav-item" data-page="pnl-valuation">Asset Valuation</li>
                 </ul>
             </li>
             <li class="nav-item has-submenu" data-page-group="cms">
-                <span class="icon">📄</span><span>Content (CMS)</span>
+                <div class="nav-item-main-content"><span class="icon">📄</span><span>Content (CMS)</span></div><span class="arrow">▶</span>
                 <ul class="sub-nav-list">
                     <li class="sub-nav-item" data-page="cms-dashboard">Dashboard</li>
                     <li class="sub-nav-item" data-page="cms-posts">Posts</li>
                     <li class="sub-nav-item" data-page="cms-pages">Pages</li>
                     <li class="sub-nav-item" data-page="cms-media">Media Library</li>
+                    <li class="sub-nav-item" data-page="cms-categories">Categories & Tags</li>
+                    <li class="sub-nav-item" data-page="cms-seo">SEO Tools</li>
+                    <li class="sub-nav-item" data-page="cms-comments">Comments</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="marketing">
+                <div class="nav-item-main-content"><span class="icon">📢</span><span>Marketing</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="marketing-campaigns">Campaigns (CRM Link)</li>
+                    <li class="sub-nav-item" data-page="marketing-email">Email Marketing</li>
+                    <li class="sub-nav-item" data-page="marketing-social">Social Media</li>
+                    <li class="sub-nav-item" data-page="marketing-analytics">Analytics (CMS/Web)</li>
                 </ul>
             </li>
             <li class="nav-item" data-page="reports">
-                <span class="icon">📊</span><span>Reporting</span>
+                 <div class="nav-item-main-content"><span class="icon">📊</span><span>Reporting</span></div>
             </li>
-            <li class="nav-item" data-page="settings">
-                <span class="icon">⚙️</span><span>Settings</span>
+            <li class="nav-item has-submenu" data-page-group="admin">
+                <div class="nav-item-main-content"><span class="icon">⚙️</span><span>Administration</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="admin-users">User Management</li>
+                    <li class="sub-nav-item" data-page="admin-roles">Roles & Permissions</li>
+                    <li class="sub-nav-item" data-page="admin-audit">Audit Trails</li>
+                    <li class="sub-nav-item" data-page="admin-notifications">Notification Config</li>
+                    <li class="sub-nav-item" data-page="admin-data-io">Data Import/Export</li>
+                    <li class="sub-nav-item" data-page="admin-integrations">Integrations</li>
+                    <li class="sub-nav-item" data-page="admin-backup">Backup & Restore</li>
+                    <li class="sub-nav-item" data-page="admin-system-prefs">System Preferences</li>
+                    <li class="sub-nav-item" data-page="admin-module-settings">Module Settings (FMS, CMS etc.)</li>
+                    <li class="sub-nav-item" data-page="admin-help-docs">Help/Documentation Links</li>
+                </ul>
             </li>
         </ul>
         <div class="user-profile">
@@ -127,170 +158,78 @@
     </div>
 
     <div class="main-content">
-        <!-- Overview Page -->
-        <div id="page-overview" class="page active">
-            <div class="page-header">
-                <h2>System Overview</h2>
-                <p>A quick glance at your farm's key metrics.</p>
-            </div>
-            <div class="kpi-grid">
-                <div class="kpi-card"><h3>Total Animals</h3><p class="kpi-value">152</p></div>
-                <div class="kpi-card"><h3>Needs Attention</h3><p class="kpi-value alert">3</p></div>
-                <div class="kpi-card"><h3>New Leads (Week)</h3><p class="kpi-value">5</p></div>
-                <div class="kpi-card"><h3>Open Orders</h3><p class="kpi-value">8</p></div>
-                <div class="kpi-card"><h3>Revenue MTD</h3><p class="kpi-value">£1,250</p></div>
-                <div class="kpi-card"><h3>Recent Posts</h3><p class="kpi-value">2</p></div>
-            </div>
-            <div class="action-buttons">
-                <button>+ Add Animal</button>
-                <button>+ Log Interaction</button>
-                <button>+ Create Order</button>
-                <button>+ New Post</button>
-            </div>
-            <div class="table-placeholder">Recent Activity Feed will go here...</div>
-        </div>
+        <!-- Create a div for each data-page target -->
+        <div id="page-overview" class="page active"><div class="page-header"><h2>System Overview</h2></div><div class="placeholder-content">Main Dashboard KPIs and Quick Actions...</div></div>
 
         <!-- FMS Pages -->
-        <div id="page-fms-dashboard" class="page">
-            <div class="page-header"><h2>Farm Management Dashboard</h2><p>FMS specific KPIs and summaries.</p></div>
-            <div class="kpi-grid">
-                 <div class="kpi-card"><h3>Animals by Breed</h3><p class="kpi-value">Chart Here</p></div>
-                 <div class="kpi-card"><h3>Upcoming Tasks</h3><p class="kpi-value">7</p></div>
-            </div>
-            <div class="table-placeholder">FMS Dashboard content...</div>
-        </div>
-        <div id="page-fms-animals" class="page">
-            <div class="page-header"><h2>Animals List</h2><p>Manage all your farm animals.</p></div>
-            <div class="action-buttons"><button>+ Add New Animal</button></div>
-            <input type="text" placeholder="Search Animals..." style="margin-bottom:15px; padding:10px; width: 300px;">
-            <div class="table-placeholder">A filterable, sortable table of animals will be displayed here (Tag ID, Name, Breed, Age, Status...). Each row would have View/Edit/Log actions.</div>
-        </div>
-         <div id="page-fms-tasks" class="page">
-            <div class="page-header"><h2>Farm Tasks</h2><p>Manage scheduled and ad-hoc tasks.</p></div>
-            <div class="action-buttons"><button>+ Add New Task</button></div>
-            <div class="table-placeholder">Kanban board or list of tasks (To Do, In Progress, Done) with details like description, due date, assignee.</div>
-        </div>
-        <div id="page-fms-pastures" class="page">
-            <div class="page-header"><h2>Pastures</h2><p>Manage your farm pastures.</p></div>
-            <div class="table-placeholder">List of pastures, capacity, current animals.</div>
-        </div>
-        <div id="page-fms-feed" class="page">
-            <div class="page-header"><h2>Feed Log & Inventory</h2><p>Track feed usage and stock.</p></div>
-            <div class="table-placeholder">Feed log entries, inventory levels.</div>
-        </div>
-
+        <div id="page-fms-dashboard" class="page"><div class="page-header"><h2>Farm Management Dashboard</h2></div><div class="placeholder-content">FMS KPIs, Animal Stats, Upcoming Tasks Summary...</div></div>
+        <div id="page-fms-animals" class="page"><div class="page-header"><h2>Animals</h2></div><div class="placeholder-content">List, Add, Edit, View Animal Details, Health Records, Breeding History...</div></div>
+        <div id="page-fms-tasks" class="page"><div class="page-header"><h2>Tasks & Schedules</h2></div><div class="placeholder-content">Manage Farm Tasks, Schedules, Assignments, Status...</div></div>
+        <div id="page-fms-pastures" class="page"><div class="page-header"><h2>Pastures & Land</h2></div><div class="placeholder-content">Manage Pastures, Rotations, Soil Health, Land Plots...</div></div>
+        <div id="page-fms-feed" class="page"><div class="page-header"><h2>Feed Management</h2></div><div class="placeholder-content">Track Feed Types, Consumption, Inventory, Costs...</div></div>
+        <div id="page-fms-health" class="page"><div class="page-header"><h2>Health & Breeding</h2></div><div class="placeholder-content">Log Treatments, Vaccinations, Illnesses, Manage Breeding Cycles, EBVs...</div></div>
+        <div id="page-fms-equipment" class="page"><div class="page-header"><h2>Equipment</h2></div><div class="placeholder-content">Track Machinery, Maintenance Schedules, Repair Logs...</div></div>
+        <div id="page-fms-resources" class="page"><div class="page-header"><h2>Resource Usage</h2></div><div class="placeholder-content">Track Water Usage, Irrigation, etc...</div></div>
+        <div id="page-fms-compliance" class="page"><div class="page-header"><h2>Compliance</h2></div><div class="placeholder-content">Manage Certification Records, Regulatory Compliance...</div></div>
+        <div id="page-fms-iot" class="page"><div class="page-header"><h2>Sensor Data (IoT)</h2></div><div class="placeholder-content">View Data from On-Farm Sensors...</div></div>
 
         <!-- CRM Pages -->
-        <div id="page-crm-dashboard" class="page">
-            <div class="page-header"><h2>CRM Dashboard</h2><p>Customer relationship insights.</p></div>
-             <div class="kpi-grid">
-                 <div class="kpi-card"><h3>Sales Pipeline</h3><p class="kpi-value">Funnel Chart</p></div>
-                 <div class="kpi-card"><h3>Interactions Logged</h3><p class="kpi-value">25</p></div>
-            </div>
-            <div class="table-placeholder">CRM specific KPIs, charts, recent activity...</div>
-        </div>
-        <div id="page-crm-contacts" class="page">
-            <div class="page-header"><h2>Contacts</h2><p>Manage customers, leads, and suppliers.</p></div>
-            <div class="action-buttons"><button>+ Add New Contact</button></div>
-            <div class="table-placeholder">Table of contacts with search, filters. Actions: View Details, Edit, Log Interaction.</div>
-        </div>
-        <div id="page-crm-opportunities" class="page">
-            <div class="page-header"><h2>Sales Opportunities</h2><p>Track your sales pipeline.</p></div>
-            <div class="action-buttons"><button>+ Add New Opportunity</button></div>
-            <div class="table-placeholder">Kanban board (Lead, Qualified, Proposal, Won, Lost) for sales opportunities.</div>
-        </div>
+        <div id="page-crm-dashboard" class="page"><div class="page-header"><h2>CRM Dashboard</h2></div><div class="placeholder-content">CRM KPIs, Lead Funnel, Recent Interactions...</div></div>
+        <div id="page-crm-contacts" class="page"><div class="page-header"><h2>Contacts</h2></div><div class="placeholder-content">Manage Customers, Leads, Suppliers...</div></div>
+        <div id="page-crm-opportunities" class="page"><div class="page-header"><h2>Opportunities</h2></div><div class="placeholder-content">Sales Pipeline Management...</div></div>
+        <div id="page-crm-interactions" class="page"><div class="page-header"><h2>Interactions</h2></div><div class="placeholder-content">Log Calls, Emails, Meetings...</div></div>
+        <div id="page-crm-suppliers" class="page"><div class="page-header"><h2>Supplier Management</h2></div><div class="placeholder-content">Manage Supplier Details, Contracts, Orders...</div></div>
+        <div id="page-crm-loyalty" class="page"><div class="page-header"><h2>Loyalty Programs</h2></div><div class="placeholder-content">Manage Customer Loyalty Tiers and Rewards...</div></div>
 
         <!-- OMS Pages -->
-        <div id="page-oms-dashboard" class="page">
-            <div class="page-header"><h2>Order Management Dashboard</h2><p>Order processing overview.</p></div>
-            <div class="kpi-grid">
-                 <div class="kpi-card"><h3>Pending Fulfillment</h3><p class="kpi-value alert">4</p></div>
-                 <div class="kpi-card"><h3>Sales Today</h3><p class="kpi-value">£350</p></div>
-            </div>
-            <div class="table-placeholder">OMS specific KPIs, order status summaries...</div>
-        </div>
-        <div id="page-oms-orders" class="page">
-            <div class="page-header"><h2>Orders</h2><p>Manage all customer orders.</p></div>
-            <div class="action-buttons"><button>+ Create New Order</button></div>
-            <div class="table-placeholder">Table of orders (ID, Customer, Date, Amount, Status). Actions: View Details, Update Status.</div>
-        </div>
-        <div id="page-oms-products" class="page">
-            <div class="page-header"><h2>Products</h2><p>Manage your product catalog.</p></div>
-            <div class="action-buttons"><button>+ Add New Product</button></div>
-            <div class="table-placeholder">List/grid of products (Live Animals, Wool, Meat) with price, stock (linked from FMS).</div>
-        </div>
+        <div id="page-oms-dashboard" class="page"><div class="page-header"><h2>Order Management Dashboard</h2></div><div class="placeholder-content">OMS KPIs, Order Status Summary...</div></div>
+        <div id="page-oms-orders" class="page"><div class="page-header"><h2>Orders</h2></div><div class="placeholder-content">Manage Customer Orders, Invoices...</div></div>
+        <div id="page-oms-products" class="page"><div class="page-header"><h2>Products & Catalog</h2></div><div class="placeholder-content">Manage Product Listings (Animals, Wool, Meat)...</div></div>
+        <div id="page-oms-inventory" class="page"><div class="page-header"><h2>Sales Inventory</h2></div><div class="placeholder-content">Track Inventory for Saleable Products...</div></div>
+        <div id="page-oms-fulfillment" class="page"><div class="page-header"><h2>Fulfillment</h2></div><div class="placeholder-content">Manage Picking, Packing, Shipping Logistics...</div></div>
+        <div id="page-oms-shipping" class="page"><div class="page-header"><h2>Shipping Integration</h2></div><div class="placeholder-content">Manage Shipping Provider Integrations, Labels, Tracking...</div></div>
+        <div id="page-oms-customer-portal" class="page"><div class="page-header"><h2>Customer Portal (Settings/Links)</h2></div><div class="placeholder-content">Configuration for Customer Self-Service Portal...</div></div>
 
-        <!-- P&L Pages -->
-        <div id="page-pnl-dashboard" class="page">
-            <div class="page-header"><h2>Financials Dashboard</h2><p>Key financial performance indicators.</p></div>
-            <div class="kpi-grid">
-                 <div class="kpi-card"><h3>Net Profit MTD</h3><p class="kpi-value">£550</p></div>
-                 <div class="kpi-card"><h3>Top Expense Category</h3><p class="kpi-value" style="font-size:1.5em;">Feed</p></div>
-            </div>
-            <div class="table-placeholder">Charts (Revenue vs. Expense), key profit/loss figures...</div>
-        </div>
-        <div id="page-pnl-statement" class="page">
-            <div class="page-header"><h2>P&L Statement</h2><p>Detailed profit and loss report.</p></div>
-            <div class="form-placeholder">
-                <label for="period">Select Period:</label>
-                <select id="period"><option>This Month</option><option>Last Month</option><option>This Quarter</option></select>
-            </div>
-            <div class="table-placeholder">Traditional P&L statement (Revenue, COGS, Gross Profit, Operating Expenses, Net Profit).</div>
-        </div>
-        <div id="page-pnl-expenses" class="page">
-            <div class="page-header"><h2>Expenses Log</h2><p>Track all farm and business expenses.</p></div>
-            <div class="action-buttons"><button>+ Add New Expense</button></div>
-            <div class="table-placeholder">Table of expenses (Date, Category, Description, Amount). Form to add new expense.</div>
-        </div>
+        <!-- Financials Pages -->
+        <div id="page-pnl-dashboard" class="page"><div class="page-header"><h2>Financials Dashboard</h2></div><div class="placeholder-content">Financial KPIs, Profitability Charts...</div></div>
+        <div id="page-pnl-statement" class="page"><div class="page-header"><h2>P&L Statement</h2></div><div class="placeholder-content">Generate Profit & Loss Reports...</div></div>
+        <div id="page-pnl-balance-sheet" class="page"><div class="page-header"><h2>Balance Sheet</h2></div><div class="placeholder-content">Generate Balance Sheet Reports...</div></div>
+        <div id="page-pnl-cashflow" class="page"><div class="page-header"><h2>Cash Flow</h2></div><div class="placeholder-content">Track and Project Cash Flow...</div></div>
+        <div id="page-pnl-expenses" class="page"><div class="page-header"><h2>Expenses</h2></div><div class="placeholder-content">Log and Categorize All Expenses...</div></div>
+        <div id="page-pnl-revenue" class="page"><div class="page-header"><h2>Revenue Streams</h2></div><div class="placeholder-content">Track Different Sources of Revenue...</div></div>
+        <div id="page-pnl-budgeting" class="page"><div class="page-header"><h2>Budgeting</h2></div><div class="placeholder-content">Create and Manage Budgets, Compare Actuals...</div></div>
+        <div id="page-pnl-tax" class="page"><div class="page-header"><h2>Tax Prep Reports</h2></div><div class="placeholder-content">Reports to Assist with Tax Preparation...</div></div>
+        <div id="page-pnl-valuation" class="page"><div class="page-header"><h2>Asset Valuation</h2></div><div class="placeholder-content">Tools for Valuing Livestock and Other Assets...</div></div>
 
         <!-- CMS Pages -->
-        <div id="page-cms-dashboard" class="page">
-            <div class="page-header"><h2>Content Management Dashboard</h2><p>Overview of your website content.</p></div>
-            <div class="kpi-grid">
-                 <div class="kpi-card"><h3>Published Posts</h3><p class="kpi-value">12</p></div>
-                 <div class="kpi-card"><h3>Draft Pages</h3><p class="kpi-value">3</p></div>
-            </div>
-            <div class="table-placeholder">Recent drafts, quick links to create content...</div>
-        </div>
-        <div id="page-cms-posts" class="page">
-            <div class="page-header"><h2>Blog Posts</h2><p>Manage articles and news updates.</p></div>
-            <div class="action-buttons"><button>+ Write New Post</button></div>
-            <div class="table-placeholder">Table of blog posts (Title, Author, Status, Date). Actions: Edit, View, Delete.</div>
-        </div>
-        <div id="page-cms-pages" class="page">
-            <div class="page-header"><h2>Static Pages</h2><p>Manage informational pages (About Us, Contact).</p></div>
-            <div class="action-buttons"><button>+ Create New Page</button></div>
-            <div class="table-placeholder">Table of static pages. Actions: Edit, View, Delete.</div>
-        </div>
-        <div id="page-cms-media" class="page">
-            <div class="page-header"><h2>Media Library</h2><p>Manage images and other media files.</p></div>
-            <div class="action-buttons"><button>Upload Media</button></div>
-            <div class="table-placeholder">Grid of media thumbnails. Upload functionality.</div>
-        </div>
+        <div id="page-cms-dashboard" class="page"><div class="page-header"><h2>Content Management Dashboard</h2></div><div class="placeholder-content">CMS Overview, Recent Content...</div></div>
+        <div id="page-cms-posts" class="page"><div class="page-header"><h2>Posts</h2></div><div class="placeholder-content">Create, Edit, Manage Blog Posts/Articles...</div></div>
+        <div id="page-cms-pages" class="page"><div class="page-header"><h2>Pages</h2></div><div class="placeholder-content">Manage Static Website Pages...</div></div>
+        <div id="page-cms-media" class="page"><div class="page-header"><h2>Media Library</h2></div><div class="placeholder-content">Upload and Manage Images, Videos, Documents...</div></div>
+        <div id="page-cms-categories" class="page"><div class="page-header"><h2>Categories & Tags</h2></div><div class="placeholder-content">Manage Content Taxonomies...</div></div>
+        <div id="page-cms-seo" class="page"><div class="page-header"><h2>SEO Tools</h2></div><div class="placeholder-content">Manage SEO Settings for Content...</div></div>
+        <div id="page-cms-comments" class="page"><div class="page-header"><h2>Comments</h2></div><div class="placeholder-content">Moderate Blog Post Comments...</div></div>
+        
+        <!-- Marketing Pages -->
+        <div id="page-marketing-campaigns" class="page"><div class="page-header"><h2>Marketing Campaigns</h2></div><div class="placeholder-content">Track and Manage Marketing Campaigns (linked to CRM)...</div></div>
+        <div id="page-marketing-email" class="page"><div class="page-header"><h2>Email Marketing</h2></div><div class="placeholder-content">Integration with Email Marketing Platforms, Manage Lists...</div></div>
+        <div id="page-marketing-social" class="page"><div class="page-header"><h2>Social Media</h2></div><div class="placeholder-content">Tools to Schedule or Post Content to Social Media...</div></div>
+        <div id="page-marketing-analytics" class="page"><div class="page-header"><h2>Analytics (Web/CMS)</h2></div><div class="placeholder-content">View Website Traffic and Content Performance Analytics...</div></div>
 
-        <!-- Reports Page -->
-        <div id="page-reports" class="page">
-            <div class="page-header"><h2>Reporting</h2><p>Generate and view custom reports.</p></div>
-            <div class="table-placeholder">List of available reports (e.g., Animal Health Summary, Sales by Product). Options to set filters and generate.</div>
-        </div>
+        <!-- Reporting Page -->
+        <div id="page-reports" class="page"><div class="page-header"><h2>Reporting</h2></div><div class="placeholder-content">Generate Custom and Pre-defined Reports Across All Modules...</div></div>
 
-        <!-- Settings Page -->
-        <div id="page-settings" class="page">
-            <div class="page-header"><h2>System Settings</h2><p>Configure application and module settings.</p></div>
-            <div class="form-placeholder">
-                <h3>User Management</h3>
-                <div><label>New User Email:</label><input type="email"></div>
-                <button>Add User</button>
-                <div class="table-placeholder" style="margin-top:10px;">List of users with roles...</div>
-
-                <h3>Farm Settings</h3>
-                <div><label>Default Breed:</label><input type="text" value="Merino"></div>
-                
-                <h3>CMS Settings</h3>
-                <div><label>Site Title:</label><input type="text" value="My Awesome Farm"></div>
-            </div>
-        </div>
-
+        <!-- Administration Pages -->
+        <div id="page-admin-users" class="page"><div class="page-header"><h2>User Management</h2></div><div class="placeholder-content">Add, Edit, Deactivate Users...</div></div>
+        <div id="page-admin-roles" class="page"><div class="page-header"><h2>Roles & Permissions</h2></div><div class="placeholder-content">Define User Roles and Their Access Permissions...</div></div>
+        <div id="page-admin-audit" class="page"><div class="page-header"><h2>Audit Trails</h2></div><div class="placeholder-content">View Logs of System Activity and Data Changes...</div></div>
+        <div id="page-admin-notifications" class="page"><div class="page-header"><h2>Notification Configuration</h2></div><div class="placeholder-content">Set Up System Alerts and User Notifications...</div></div>
+        <div id="page-admin-data-io" class="page"><div class="page-header"><h2>Data Import/Export</h2></div><div class="placeholder-content">Tools for Importing and Exporting System Data...</div></div>
+        <div id="page-admin-integrations" class="page"><div class="page-header"><h2>Integrations</h2></div><div class="placeholder-content">Manage API Keys and Settings for External Service Integrations...</div></div>
+        <div id="page-admin-backup" class="page"><div class="page-header"><h2>Backup & Restore</h2></div><div class="placeholder-content">Configure and Manage Data Backups...</div></div>
+        <div id="page-admin-system-prefs" class="page"><div class="page-header"><h2>System Preferences</h2></div><div class="placeholder-content">General Application Settings (Language, Currency, Timezone)...</div></div>
+        <div id="page-admin-module-settings" class="page"><div class="page-header"><h2>Module Settings</h2></div><div class="placeholder-content">Specific Configuration for FMS, CRM, OMS, CMS, P&L modules...</div></div>
+        <div id="page-admin-help-docs" class="page"><div class="page-header"><h2>Help/Documentation</h2></div><div class="placeholder-content">Links to System Documentation and Support Resources...</div></div>
     </div>
 
     <script>
@@ -311,11 +250,9 @@
         function setActiveNavItem(selectedItem) {
              document.querySelectorAll('.nav-item, .sub-nav-item').forEach(item => item.classList.remove('active'));
             selectedItem.classList.add('active');
-
-            // If it's a sub-item, also mark its parent nav-item as active (visually)
             let parent = selectedItem.closest('.nav-item.has-submenu');
             if(parent){
-                parent.classList.add('active'); // Keep parent visually active too
+                parent.classList.add('active'); 
             }
         }
 
@@ -325,47 +262,40 @@
                 if (pageId) {
                     showPage(pageId);
                     setActiveNavItem(this);
-
-                    // Close other submenus if a top-level item without submenu is clicked
                     if(!this.classList.contains('sub-nav-item') && !this.classList.contains('has-submenu')){
                         subMenuToggles.forEach(smt => {
-                            if (smt !== this.closest('.nav-item.has-submenu')) { // don't close if it's the parent of current
+                            if (smt !== this.closest('.nav-item.has-submenu')) { 
                                 smt.classList.remove('open');
                             }
                         });
-                    }
-                     // If sidebar is collapsed and we click an item, un-collapse it for better view (optional)
-                    if (sidebar.classList.contains('collapsed') && window.innerWidth > 768) { // Only on desktop
-                       // sidebar.classList.remove('collapsed');
                     }
                 }
             });
         });
 
         subMenuToggles.forEach(toggle => {
-            toggle.addEventListener('click', function(event) {
-                // Prevent page navigation if only toggling submenu, unless a sub-item is clicked directly
-                if (event.target === this || event.target.parentElement === this && !event.target.classList.contains('sub-nav-item')) {
-                     // Don't close others if this is already open and we are clicking a sub-item
-                    if (!this.classList.contains('open') || !event.target.classList.contains('sub-nav-item')) {
-                        // Close other submenus
-                        subMenuToggles.forEach(smt => {
-                            if (smt !== this) {
-                                smt.classList.remove('open');
-                            }
+            const mainContentDiv = toggle.querySelector('.nav-item-main-content');
+            const arrow = toggle.querySelector('.arrow');
+            
+            const handleToggle = function(event) {
+                // Only toggle if the click is on the main content part or the arrow, not on a sub-item
+                if (event.target === mainContentDiv || mainContentDiv.contains(event.target) || event.target === arrow ) {
+                     if (!this.classList.contains('open')) { // If opening this one
+                        subMenuToggles.forEach(smt => { // Close others
+                            if (smt !== this) smt.classList.remove('open');
                         });
                     }
                     this.classList.toggle('open');
                 }
-            });
+            };
+            // Add listener to the whole .nav-item for broader click area to toggle
+            toggle.addEventListener('click', handleToggle);
         });
         
         function toggleSidebar() {
             sidebar.classList.toggle('collapsed');
         }
-
-        // Show the initial page (overview)
-        showPage('overview');
+        showPage('overview'); // Show the initial page
     </script>
 </body>
 </html>
