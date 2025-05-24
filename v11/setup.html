@@ -18,7 +18,7 @@
 </head>
 <body>
     <h1>PocketBase Setup & Seed for SheepLand</h1>
-    <p>Ensure your PocketBase instance is running at <code id="pb_url">http://127.0.0.1:8090</code>.</p>
+    <p>Ensure your PocketBase instance is running at <code id="pb_url">/</code>.</p>
     <p><strong>Important:</strong> Replace placeholder superuser credentials in the script before running. <strong>The collections will be created with public read/write access (API Rules set to ""). This is for development only and is insecure for production.</strong></p>
     <button id="runSetupButton">Run Setup & Seed</button>
     <div id="output">Output will appear here...</div>
@@ -29,8 +29,8 @@
         const outputDiv = document.getElementById('output');
         const runSetupButton = document.getElementById('runSetupButton');
 
-        const SUPERUSER_EMAIL = 'YOUR_SUPERUSER_EMAIL'; // !!! REPLACE THIS !!!
-        const SUPERUSER_PASSWORD = 'YOUR_SUPERUSER_PASSWORD'; // !!! REPLACE THIS !!!
+        const SUPERUSER_EMAIL = 'admin@example.com'; // !!! REPLACE THIS !!!
+        const SUPERUSER_PASSWORD = 'unifiedpassword'; // !!! REPLACE THIS !!!
 
         function log(message, type = 'info') {
             const p = document.createElement('p');
