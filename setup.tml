@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketBase Setup & Seed for SheepLand</title>
+    <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f4f4; color: #333; }
+        #output { margin-top: 20px; padding: 15px; background-color: #fff; border: 1px solid #ddd; white-space: pre-wrap; font-family: monospace; max-height: 600px; overflow-y: auto; }
+        .log-success { color: green; }
+        .log-error { color: red; }
+        .log-info { color: blue; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>PocketBase Setup & Seed for SheepLand</h1>
+    <p>Ensure your PocketBase instance is running at <code id="pb_url">http://127.0.0.1:8090</code>.</p>
+    <p><strong>Important:</strong> Replace placeholder superuser credentials in the script before running. <strong>The collections will be created with public read/write access (API Rules set to ""). This is for development only and is insecure for production.</strong></p>
+    <button id="runSetupButton">Run Setup & Seed</button>
+    <div id="output">Output will appear here...</div>
+
+    <script>
+        const pbUrl = 'http://127.0.0.1:8090';
+        document.getElementById('pb_url').textContent = pbUrl;
+        const outputDiv = document.getElementById('output');
+        const runSetupButton = document.getElementById('runSetupButton');
+
+        const SUPERUSER_EMAIL = 'YOUR_SUPERUSER_EMAIL'; // !!! REPLACE THIS !!!
+        const SUPERUSER_PASSWORD = 'YOUR_SUPERUSER_PASSWORD'; // !!! REPLACE THIS !!!
+
+        function log(message, type = 'info') {
+            const p = document.createElement('p');
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            if (type === 'success') p.classList.add('log-success');
+            else if (type === 'error') p.classList.add('log-error');
+            else p.classList.add('log-info');
+            outputDiv.appendChild(p);
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+
+        const collectionsDefinition = [
+            {
+                "name": "app_settings",
+                "type": "base",
+                "system": false,
+                "schema": [
+                    {"id": "appset_key", "name": "setting_key", "type": "text", "system": false, "required": true, "presentable": true, "unique": true, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "appset_exr", "name": "exchange_rates", "type": "json", "system": false, "required": true, "presentable": false, "options": {"mimeTypes":["application/json"]}},
+                    {"id": "appset_defc", "name": "default_currency", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 3, "max": 3, "pattern": ""}},
+                    {"id": "appset_wnr", "name": "whatsapp_number_raw", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "appset_wnd", "name": "whatsapp_number_display", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "appset_ped", "name": "promo_end_date", "type": "date", "system": false, "required": false, "presentable": false, "options": {"min": "", "max": ""}},
+                    {"id": "appset_pdp", "name": "promo_discount_percent", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min": 0, "max": 100, "noDecimal": false}},
+                    {"id": "appset_pia", "name": "promo_is_active", "type": "bool", "system": false, "required": false, "presentable": false, "options": {}},
+                    {"id": "appset_da", "name": "delivery_areas", "type": "json", "system": false, "required": true, "presentable": false, "options": {"mimeTypes":["application/json"]}},
+                    {"id": "appset_payd", "name": "payment_details", "type": "json", "system": false, "required": true, "presentable": false, "options": {"mimeTypes":["application/json"]}},
+                    {"id": "appset_ussc", "name": "udheya_service_surcharge_egp", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min": 0, "max": null, "noDecimal": false}}
+                ],
+                "indexes": ["CREATE UNIQUE INDEX `idx_appset_setting_key` ON `app_settings` (`setting_key`)"],
+                "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+                "options": {}
+            },
+            {
+                "name": "livestock_types",
+                "type": "base",
+                "system": false,
+                "schema": [
+                    {"id": "lvstk_vkey", "name": "value_key", "type": "text", "system": false, "required": true, "presentable": true, "unique": true, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "lvstk_ne", "name": "name_en", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "lvstk_na", "name": "name_ar", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "lvstk_wp", "name": "weights_prices", "type": "json", "system": false, "required": true, "presentable": false, "options": {"mimeTypes":["application/json"]}}
+                ],
+                "indexes": ["CREATE UNIQUE INDEX `idx_lvstk_value_key` ON `livestock_types` (`value_key`)"],
+                "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+                "options": {}
+            },
+            {
+                "name": "bookings",
+                "type": "base",
+                "system": false,
+                "schema": [
+                    {"id": "book_idtxt", "name": "booking_id_text", "type": "text", "system": false, "required": true, "presentable": true, "unique": true, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_atk", "name": "animal_type_key", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_atne", "name": "animal_type_name_en", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_atna", "name": "animal_type_name_ar", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_aws", "name": "animal_weight_selected", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_abp", "name": "animal_base_price_egp", "type": "number", "system": false, "required": true, "presentable": false, "options": {"min": 0, "max": null, "noDecimal": false}},
+                    {"id": "book_sfae", "name": "service_fee_applied_egp", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min":0,"max":null,"noDecimal":false}},
+                    {"id": "book_psv", "name": "preparation_style_value", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_psne", "name": "preparation_style_name_en", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_psna", "name": "preparation_style_name_ar", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_pspae", "name": "prep_style_price_applied_egp", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min":0,"max":null,"noDecimal":false}},
+                    {"id": "book_icp", "name": "is_custom_prep", "type": "bool", "system": false, "required": false, "presentable": false, "options": {}},
+                    {"id": "book_cpd", "name": "custom_prep_details", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_pv", "name": "packaging_value", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_pne", "name": "packaging_name_en", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_pna", "name": "packaging_name_ar", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_pap", "name": "packaging_addon_price_egp", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min": 0, "max": null, "noDecimal": false}},
+                    {"id": "book_tpe", "name": "total_price_egp", "type": "number", "system": false, "required": true, "presentable": false, "options": {"min": 0, "max": null, "noDecimal": false}},
+                    {"id": "book_sdv", "name": "sacrifice_day_value", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_ts", "name": "time_slot", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_dc", "name": "distribution_choice", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_sdo", "name": "split_details_option", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_csdt", "name": "custom_split_details_text", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_nn", "name": "niyyah_names", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_ce", "name": "customer_email", "type": "email", "system": false, "required": false, "presentable": false, "options": {"exceptDomains": null, "onlyDomains": null}},
+                    {"id": "book_gpi", "name": "group_purchase_interest", "type": "bool", "system": false, "required": false, "presentable": false, "options": {}},
+                    {"id": "book_slvwpr", "name": "slaughter_viewing_preference", "type": "select", "system": false, "required": false, "presentable": false, "options": {"maxSelect": 1, "values": ["none", "physical_inquiry", "video_request", "live_video_inquiry"]}},
+                    {"id": "book_dn", "name": "delivery_name", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_dp", "name": "delivery_phone", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_dgi", "name": "delivery_governorate_id", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_dci", "name": "delivery_city_id", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_da", "name": "delivery_address", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_di", "name": "delivery_instructions", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}},
+                    {"id": "book_dfae", "name": "delivery_fee_applied_egp", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min":0,"max":null,"noDecimal":false}},
+                    {"id": "book_pm", "name": "payment_method", "type": "text", "system": false, "required": true, "presentable": false, "options": {"min": 1, "max": null, "pattern": ""}},
+                    {"id": "book_ps", "name": "payment_status", "type": "select", "system": false, "required": true, "presentable": false, "options": {"maxSelect": 1, "values": ["pending_payment", "pending_confirmation", "paid", "failed", "cod_pending", "refunded", "gateway_redirected"]}},
+                    {"id": "book_bs", "name": "booking_status", "type": "select", "system": false, "required": true, "presentable": false, "options": {"maxSelect": 1, "values": ["confirmed_pending_payment", "processing", "ready_for_delivery", "delivered", "cancelled", "completed"]}},
+                    {"id": "book_alw", "name": "actual_live_weight_kg", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min":0,"max":null,"noDecimal":true}},
+                    {"id": "book_padj", "name": "price_adjustment_egp", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min":null,"max":null,"noDecimal":false}},
+                    {"id": "book_fsp", "name": "final_settled_price_egp", "type": "number", "system": false, "required": false, "presentable": false, "options": {"min":0,"max":null,"noDecimal":false}},
+                    {"id": "book_an", "name": "admin_notes", "type": "text", "system": false, "required": false, "presentable": false, "options": {"min": null, "max": null, "pattern": ""}}
+                ],
+                "indexes": ["CREATE UNIQUE INDEX `idx_bookings_booking_id_text` ON `bookings` (`booking_id_text`)"],
+                "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+                "options": {}
+            }
+        ];
+
+        const seedData = {
+            app_settings: [
+                {
+                    setting_key: "global_config",
+                    exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: true }},
+                    default_currency: "EGP",
+                    whatsapp_number_raw: "201012345678",
+                    whatsapp_number_display: "+20 101 234 5678",
+                    promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    promo_discount_percent: 12,
+                    promo_is_active: true,
+                    udheya_service_surcharge_egp: 600,
+                    delivery_areas: [
+                        {
+                            id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة",
+                            cities: [
+                                { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 },
+                                { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 },
+                                { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 }
+                            ]
+                        },
+                        {
+                            id:"cairo", name_en:"Cairo", name_ar:"القاهرة",
+                            cities:[
+                                {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 100 },
+                                {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 100 },
+                                {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 120}
+                            ]
+                        },
+                        {
+                            id:"alexandria", name_en:"Alexandria", name_ar:"الإسكندرية",
+                             cities:[{id:"smouha",name_en:"Smouha",name_ar:"سموحة", delivery_fee_egp: 200}]
+                        },
+                        {
+                            id:"sharqia", name_en:"Sharqia", name_ar:"الشرقية", cities: [],
+                            delivery_fee_egp: null
+                        }
+                    ],
+                    payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
+                }
+            ],
+            livestock_types: [
+                { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", weights_prices: [{ weight_range: "35-45 kg", price_egp: 4800, stock: 20, is_active: true }, { weight_range: "45-55 kg", price_egp: 5500, stock: 12, is_active: true }, { weight_range: "55+ kg", price_egp: 6200, stock: 5, is_active: false }] },
+                { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", weights_prices: [{ weight_range: "40-50 kg", price_egp: 5300, stock: 18, is_active: true }, { weight_range: "50-60 kg", price_egp: 6100, stock: 0, is_active: true }, { weight_range: "25-35 kg", price_egp: 4000, stock: 10, is_active: true }] }
+            ]
+        };
+
+        async function setupPocketBase() {
+            runSetupButton.disabled = true;
+            log('Starting setup...', 'info');
+            const pb = new PocketBase(pbUrl);
+
+            try {
+                log('Attempting superuser authentication...', 'info');
+                if (!SUPERUSER_EMAIL || SUPERUSER_EMAIL === 'YOUR_SUPERUSER_EMAIL' || !SUPERUSER_PASSWORD || SUPERUSER_PASSWORD === 'YOUR_SUPERUSER_PASSWORD') {
+                    log('Superuser credentials not set. Please update them in the script.', 'error');
+                    runSetupButton.disabled = false;
+                    return;
+                }
+                await pb.admins.authWithPassword(SUPERUSER_EMAIL, SUPERUSER_PASSWORD);
+                log('Superuser authentication successful.', 'success');
+
+                log('Processing collections...', 'info');
+                for (const collectionDef of collectionsDefinition) {
+                    const pbPayload = {
+                        name: collectionDef.name,
+                        type: collectionDef.type,
+                        system: collectionDef.system,
+                        fields: collectionDef.schema, 
+                        indexes: collectionDef.indexes,
+                        listRule: collectionDef.listRule,
+                        viewRule: collectionDef.viewRule,
+                        createRule: collectionDef.createRule,
+                        updateRule: collectionDef.updateRule,
+                        deleteRule: collectionDef.deleteRule,
+                        options: collectionDef.options || {}
+                    };
+
+                    try {
+                        const existingCollection = await pb.collections.getOne(collectionDef.name).catch(() => null);
+
+                        if (existingCollection) {
+                            log(`Collection '${collectionDef.name}' already exists. Attempting to update...`, 'info');
+                            await pb.collections.update(existingCollection.id, pbPayload);
+                            log(`Collection '${collectionDef.name}' updated.`, 'success');
+                        } else {
+                            log(`Creating collection '${collectionDef.name}'...`, 'info');
+                            await pb.collections.create(pbPayload);
+                            log(`Collection '${collectionDef.name}' created.`, 'success');
+                        }
+                    } catch (collectionError) {
+                        log(`Error processing collection '${collectionDef.name}': ${collectionError.message}`, 'error');
+                        console.error(`Error details for ${collectionDef.name}:`, collectionError);
+                         if (collectionError.data && collectionError.data.data) {
+                            log(`Server validation errors: ${JSON.stringify(collectionError.data.data)}`, 'error');
+                        }
+                    }
+                }
+
+                log('Seeding initial data...', 'info');
+                const appSettingsCollectionName = 'app_settings';
+                const appSettingsKeyField = 'setting_key';
+                if (seedData.app_settings) {
+                    for (const recordData of seedData.app_settings) {
+                        try {
+                            const existingRecords = await pb.collection(appSettingsCollectionName).getList(1, 1, {
+                                filter: `${appSettingsKeyField} = "${recordData[appSettingsKeyField]}"`
+                            });
+                            if (existingRecords.items && existingRecords.items.length > 0) {
+                                await pb.collection(appSettingsCollectionName).update(existingRecords.items[0].id, recordData);
+                                log(`Updated record in '${appSettingsCollectionName}' with ${appSettingsKeyField}: ${recordData[appSettingsKeyField]}`, 'success');
+                            } else {
+                                await pb.collection(appSettingsCollectionName).create(recordData);
+                                log(`Created record in '${appSettingsCollectionName}' with ${appSettingsKeyField}: ${recordData[appSettingsKeyField]}`, 'success');
+                            }
+                        } catch (seedError) {
+                            log(`Error seeding record in '${appSettingsCollectionName}' (Key: ${recordData[appSettingsKeyField]}): ${seedError.message}`, 'error');
+                            console.error(seedError);
+                        }
+                    }
+                }
+
+                const livestockCollectionName = 'livestock_types';
+                const livestockKeyField = 'value_key';
+                 if (seedData.livestock_types) {
+                    for (const recordData of seedData.livestock_types) {
+                        try {
+                            const existingRecords = await pb.collection(livestockCollectionName).getList(1, 1, {
+                                filter: `${livestockKeyField} = "${recordData[livestockKeyField]}"`
+                            });
+                            if (existingRecords.items && existingRecords.items.length > 0) {
+                                await pb.collection(livestockCollectionName).update(existingRecords.items[0].id, recordData);
+                                log(`Updated record in '${livestockCollectionName}' with ${livestockKeyField}: ${recordData[livestockKeyField]}`, 'success');
+                            } else {
+                                await pb.collection(livestockCollectionName).create(recordData);
+                                log(`Created record in '${livestockCollectionName}' with ${livestockKeyField}: ${recordData[livestockKeyField]}`, 'success');
+                            }
+                        } catch (seedError) {
+                            log(`Error seeding record in '${livestockCollectionName}' (Key: ${recordData[livestockKeyField]}): ${seedError.message}`, 'error');
+                            console.error(seedError);
+                        }
+                    }
+                }
+                log('Setup and seeding process finished.', 'success');
+            } catch (error) {
+                log(`An error occurred: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                pb.authStore.clear();
+                runSetupButton.disabled = false;
+            }
+        }
+        runSetupButton.addEventListener('click', setupPocketBase);
+    </script>
+</body>
+</html>
