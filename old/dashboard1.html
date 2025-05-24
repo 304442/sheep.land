@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriHub Pro - SPA Style Full Dashboard Mockup</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-hover-color: #0056b3;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
+            --sidebar-active-bg: #34495e;
+            --sidebar-hover-bg: #4a6278;
+            --content-bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --card-border: #e0e0e0;
+            --text-color: #333333;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --input-border: #ced4da;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: var(--content-bg); display: flex; height: 100vh; overflow: hidden; color: var(--text-color); }
+        
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); color: var(--sidebar-text); padding: 15px; overflow-y: auto; transition: width 0.3s ease-in-out; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .sidebar.collapsed { width: 60px; }
+        .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile .user-info, .sidebar.collapsed .nav-item .arrow { display: none; }
+        .sidebar.collapsed .nav-item .icon { margin-right: 0; font-size: 1.3em; }
+        .sidebar-header { text-align: center; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h1 { font-size: 1.6em; margin: 0; font-weight: 600; }
+        .sidebar-toggle { background: none; border: none; color: var(--sidebar-text); font-size: 1.6em; cursor: pointer; display: block; margin-bottom:15px; text-align: left; width:100%; padding: 5px 10px;}
+        
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin-bottom: 5px; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .nav-item:hover { background-color: var(--sidebar-hover-bg); }
+        .nav-item.active { background-color: var(--primary-color); color: #fff; }
+        .nav-item.active .icon, .nav-item.active span { color: #fff; }
+
+        .nav-item-main-content { display: flex; align-items: center; }
+        .nav-item .icon { margin-right: 12px; width: 22px; text-align: center; font-size: 1.1em; }
+        .nav-item span { font-size: 0.95em; font-weight: 500; }
+        .nav-item .arrow { font-size: 0.7em; transition: transform 0.3s; margin-left: auto; }
+        .nav-item.has-submenu.open .arrow { transform: rotate(90deg); }
+        
+        .sub-nav-list { list-style: none; padding-left: 25px; margin-top: 8px; margin-bottom: 8px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background-color: rgba(0,0,0,0.15); border-radius: 4px;}
+        .nav-item.has-submenu.open .sub-nav-list { max-height: 1000px; padding-top: 8px; padding-bottom: 8px;}
+        .sub-nav-item { padding: 9px 15px; cursor: pointer; color: var(--sidebar-text); opacity:0.8; font-size: 0.9em; border-radius: 4px; display: block; }
+        .sub-nav-item:hover { opacity:1; background-color: var(--sidebar-hover-bg); }
+        .sub-nav-item.active { opacity:1; background-color: var(--primary-color); color: #fff; font-weight:500;}
+
+        .user-profile { margin-top: auto; padding: 20px 15px; border-top: 1px solid rgba(255,255,255,0.1); display:flex; align-items:center;}
+        .user-profile .icon { font-size: 1.8em; margin-right:10px;}
+        .user-profile .user-info span { display: block; font-size: 0.9em; }
+        .user-profile .user-info a { color: #bdc3c7; font-size: 0.8em; text-decoration: none; }
+        .user-profile .user-info a:hover {text-decoration:underline;}
+
+        .main-content-area { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        .main-content-area.fade-in { animation: fadeInContent 0.3s ease-in-out; }
+        @keyframes fadeInContent { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Styles for dynamically injected content */
+        .page-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; }
+        .page-header .header-title h2 { margin: 0; font-size: 1.9em; font-weight: 600; color: var(--text-color); }
+        .page-header .header-title p { color: var(--text-muted); margin-top: 5px; font-size: 0.95em; }
+        .page-header .header-actions button { margin-left: 10px; }
+
+        .btn { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 500; transition: background-color 0.2s, box-shadow 0.2s; text-decoration: none; display: inline-flex; align-items:center; gap: 5px;}
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-warning { background-color: var(--warning-color); color: black; }
+        .btn-info { background-color: var(--info-color); color: white; }
+        .btn-outline-primary { background-color: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); }
+        .btn-outline-primary:hover { background-color: var(--primary-color); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8em; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .kpi-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.03); }
+        .kpi-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .kpi-card-header h3 { margin:0; font-size: 0.95em; color: var(--text-muted); font-weight: 500; }
+        .kpi-card-header .icon { font-size: 1.5em; color: var(--primary-color); }
+        .kpi-value { font-size: 2.3em; font-weight: 600; color: var(--text-color); margin: 5px 0; }
+        .kpi-value.alert { color: var(--danger-color); }
+        .kpi-change { font-size: 0.85em; }
+        .kpi-change.positive { color: var(--success-color); }
+        .kpi-change.negative { color: var(--danger-color); }
+
+        .content-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.03); margin-bottom: 25px; }
+        .content-card-header { padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .content-card-header h3 { margin: 0; font-size: 1.3em; font-weight: 600; }
+
+        table.styled-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        table.styled-table th, table.styled-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        table.styled-table thead th { background-color: #f8f9fa; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size:0.8em;}
+        table.styled-table tbody tr:hover { background-color: #f1f3f5; }
+        table.styled-table .actions a, table.styled-table .actions button { margin-right: 8px; color:var(--primary-color); text-decoration:none; background:none; border:none; cursor:pointer; padding:0;}
+        table.styled-table .actions a:hover, table.styled-table .actions button:hover {text-decoration:underline;}
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9em; }
+        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="password"],
+        .form-group input[type="number"], .form-group input[type="date"], .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; box-sizing: border-box; border: 1px solid var(--input-border); border-radius: 5px; font-size: 0.95em; background-color: #fff;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); outline: none;
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-actions { margin-top: 25px; text-align: right; }
+        .form-actions .btn { margin-left:10px;}
+        
+        .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .tab-item { padding: 10px 20px; cursor: pointer; font-weight: 500; color: var(--text-muted); border-bottom: 3px solid transparent; }
+        .tab-item.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+
+        .filter-bar { display: flex; gap:15px; align-items:center; margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius:6px; border:1px solid var(--border-color);}
+        .filter-bar input[type="text"], .filter-bar select { padding:8px 10px; font-size:0.85em; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; max-height: 50vh; }
+            .sidebar.collapsed { width:100%;}
+            .sidebar.collapsed .sidebar-header h1, .sidebar.collapsed .nav-item span, .sidebar.collapsed .user-profile .user-info, .sidebar.collapsed .nav-item .arrow { display: inline; }
+            .main-content-area { height: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="sidebar-header">
+            <h1>AgriHub</h1>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item active" data-page="overview">
+                <div class="nav-item-main-content"><span class="icon">🏠</span><span>Overview</span></div>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="fms">
+                <div class="nav-item-main-content"><span class="icon">🐑</span><span>Farm Management</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="fms-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="fms-animals">Animals</li>
+                    <li class="sub-nav-item" data-page="fms-tasks">Tasks & Schedules</li>
+                    <li class="sub-nav-item" data-page="fms-pastures">Pastures & Land</li>
+                    <li class="sub-nav-item" data-page="fms-feed">Feed Management</li>
+                    <li class="sub-nav-item" data-page="fms-health">Health & Breeding</li>
+                    <li class="sub-nav-item" data-page="fms-equipment">Equipment</li>
+                    <li class="sub-nav-item" data-page="fms-resources">Resource Usage</li>
+                    <li class="sub-nav-item" data-page="fms-compliance">Compliance</li>
+                    <li class="sub-nav-item" data-page="fms-iot">Sensor Data (IoT)</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="crm">
+                <div class="nav-item-main-content"><span class="icon">👥</span><span>CRM</span></div><span class="arrow">▶</span>
+                 <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="crm-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="crm-contacts">Contacts</li>
+                    <li class="sub-nav-item" data-page="crm-opportunities">Opportunities</li>
+                    <li class="sub-nav-item" data-page="crm-interactions">Interactions</li>
+                    <li class="sub-nav-item" data-page="crm-suppliers">Supplier Mgmt</li>
+                    <li class="sub-nav-item" data-page="crm-loyalty">Loyalty Programs</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="oms">
+                <div class="nav-item-main-content"><span class="icon">🛒</span><span>Order Management</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="oms-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="oms-orders">Orders</li>
+                    <li class="sub-nav-item" data-page="oms-products">Products & Catalog</li>
+                    <li class="sub-nav-item" data-page="oms-inventory">Sales Inventory</li>
+                    <li class="sub-nav-item" data-page="oms-fulfillment">Fulfillment</li>
+                    <li class="sub-nav-item" data-page="oms-shipping">Shipping Integration</li>
+                    <li class="sub-nav-item" data-page="oms-customer-portal">Customer Portal</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="pnl">
+                <div class="nav-item-main-content"><span class="icon">💰</span><span>Financials</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="pnl-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="pnl-statement">P&L Statement</li>
+                    <li class="sub-nav-item" data-page="pnl-balance-sheet">Balance Sheet</li>
+                    <li class="sub-nav-item" data-page="pnl-cashflow">Cash Flow</li>
+                    <li class="sub-nav-item" data-page="pnl-expenses">Expenses</li>
+                    <li class="sub-nav-item" data-page="pnl-revenue">Revenue Streams</li>
+                    <li class="sub-nav-item" data-page="pnl-budgeting">Budgeting</li>
+                    <li class="sub-nav-item" data-page="pnl-tax">Tax Prep Reports</li>
+                    <li class="sub-nav-item" data-page="pnl-valuation">Asset Valuation</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="cms">
+                <div class="nav-item-main-content"><span class="icon">📄</span><span>Content (CMS)</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="cms-dashboard">Dashboard</li>
+                    <li class="sub-nav-item" data-page="cms-posts">Posts</li>
+                    <li class="sub-nav-item" data-page="cms-pages">Pages</li>
+                    <li class="sub-nav-item" data-page="cms-post-editor">Post Editor</li>
+                    <li class="sub-nav-item" data-page="cms-media">Media Library</li>
+                    <li class="sub-nav-item" data-page="cms-categories">Categories & Tags</li>
+                    <li class="sub-nav-item" data-page="cms-seo">SEO Tools</li>
+                    <li class="sub-nav-item" data-page="cms-comments">Comments</li>
+                </ul>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="marketing">
+                <div class="nav-item-main-content"><span class="icon">📢</span><span>Marketing</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="marketing-campaigns">Campaigns</li>
+                    <li class="sub-nav-item" data-page="marketing-email">Email Marketing</li>
+                    <li class="sub-nav-item" data-page="marketing-social">Social Media</li>
+                    <li class="sub-nav-item" data-page="marketing-analytics">Analytics</li>
+                </ul>
+            </li>
+            <li class="nav-item" data-page="reports">
+                 <div class="nav-item-main-content"><span class="icon">📊</span><span>Reporting</span></div>
+            </li>
+            <li class="nav-item has-submenu" data-page-group="admin">
+                <div class="nav-item-main-content"><span class="icon">⚙️</span><span>Administration</span></div><span class="arrow">▶</span>
+                <ul class="sub-nav-list">
+                    <li class="sub-nav-item" data-page="admin-users">User Management</li>
+                    <li class="sub-nav-item" data-page="admin-roles">Roles & Permissions</li>
+                    <li class="sub-nav-item" data-page="admin-audit">Audit Trails</li>
+                    <li class="sub-nav-item" data-page="admin-notifications">Notification Config</li>
+                    <li class="sub-nav-item" data-page="admin-data-io">Data Import/Export</li>
+                    <li class="sub-nav-item" data-page="admin-integrations">Integrations</li>
+                    <li class="sub-nav-item" data-page="admin-backup">Backup & Restore</li>
+                    <li class="sub-nav-item" data-page="admin-system-prefs">System Preferences</li>
+                    <li class="sub-nav-item" data-page="admin-module-settings">Module Settings</li>
+                    <li class="sub-nav-item" data-page="admin-help-docs">Help/Docs Links</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="user-profile">
+            <span class="icon">👤</span>
+            <div class="user-info">
+                <span>Admin User</span>
+                <a href="#">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content-area" id="mainContentArea">
+        <!-- Initial content will be loaded here by JavaScript -->
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const mainContentArea = document.getElementById('mainContentArea');
+        const navItemsAndSubItems = document.querySelectorAll('.nav-item[data-page], .sub-nav-item[data-page]');
+        const subMenuToggles = document.querySelectorAll('.sidebar .nav-item.has-submenu');
+
+        // --- Page Content Templates (as JavaScript strings) ---
+        // For brevity, I'll only detail a few. The rest will be generic placeholders.
+        // In a real app, these would be separate component files or fetched templates.
+        const pageContents = {
+            'overview': `
+                <div class="page-header">
+                    <div class="header-title">
+                        <h2>System Overview</h2>
+                        <p>Welcome back, Admin! Here's a snapshot of your farm's activities.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-sm btn-outline-primary">📅 View Calendar</button>
+                        <button class="btn btn-sm btn-primary">⚙️ Quick Settings</button>
+                    </div>
+                </div>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><h3>Total Animals</h3><span class="icon">🐑</span></div>
+                        <p class="kpi-value">152</p><span class="kpi-change positive">+2 this week</span>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><h3>Needs Attention</h3><span class="icon">⚠️</span></div>
+                        <p class="kpi-value alert">3</p><span class="kpi-change">View Details</span>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><h3>Open Orders</h3><span class="icon">🛒</span></div>
+                        <p class="kpi-value">8</p><span class="kpi-change">Total Value: £2,340</span>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><h3>Revenue MTD</h3><span class="icon">📈</span></div>
+                        <p class="kpi-value">£1,250</p><span class="kpi-change positive">+15% vs last month</span>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="content-card-header"><h3>Recent Farm Activity</h3></div>
+                    <ul style="list-style:none; padding-left:0; font-size:0.9em;">
+                        <li style="padding:8px 0; border-bottom:1px solid var(--border-color);">Animal #A078 (Bessy) moved to Pasture 3.</li>
+                        <li style="padding:8px 0; border-bottom:1px solid var(--border-color);">Task "Shearing Prep" marked complete by John Doe.</li>
+                        <li style="padding:8px 0;">New Order #1077 received from "The Gourmet Butcher".</li>
+                    </ul>
+                </div>`,
+            'fms-animals': `
+                <div class="page-header">
+                    <div class="header-title"><h2>Animals</h2><p>Manage your livestock records.</p></div>
+                    <div class="header-actions"><button class="btn btn-primary">🐑 Add New Animal</button></div>
+                </div>
+                <div class="filter-bar">
+                    <input type="text" placeholder="Search by Tag ID or Name..." style="flex-grow:1;">
+                    <select><option>Filter by Breed</option><option>Merino</option><option>Suffolk</option></select>
+                    <select><option>Filter by Status</option><option>Healthy</option><option>Needs Attention</option><option>For Sale</option></select>
+                    <button class="btn btn-secondary btn-sm">Apply Filters</button>
+                </div>
+                <div class="content-card">
+                    <table class="styled-table">
+                        <thead><tr><th>Tag ID</th><th>Name</th><th>Breed</th><th>Age</th><th>Status</th><th>Last Weighed</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <tr><td>A078</td><td>Bessy</td><td>Merino</td><td>2.5 yrs</td><td>Healthy</td><td>75kg (2023-10-15)</td><td class="actions"><a href="#">View</a> <a href="#">Edit</a></td></tr>
+                            <tr><td>B102</td><td>Rambo</td><td>Suffolk</td><td>3 yrs</td><td><span style="color:var(--warning-color); font-weight:bold;">Needs Vet</span></td><td>90kg (2023-10-20)</td><td class="actions"><a href="#">View</a> <a href="#">Edit</a></td></tr>
+                            <tr><td>C033</td><td>Cloud</td><td>Merino</td><td>1 yr</td><td>For Sale</td><td>60kg (2023-11-01)</td><td class="actions"><a href="#">View</a> <a href="#">Edit</a></td></tr>
+                        </tbody>
+                    </table>
+                    <div style="text-align:center; padding-top:20px;">Pagination would go here</div>
+                </div>`,
+            'cms-post-editor': `
+                <div class="page-header">
+                    <div class="header-title"><h2>Create/Edit Post</h2><p>Craft your content for the world to see.</p></div>
+                </div>
+                <div style="display:flex; gap:20px;">
+                    <div class="content-card" style="flex-grow:3;">
+                        <div class="form-group">
+                            <label for="post-title">Post Title</label>
+                            <input type="text" id="post-title" placeholder="Enter a catchy title">
+                        </div>
+                        <div class="form-group">
+                            <label for="post-content">Content</label>
+                            <div style="height:300px; border:1px solid var(--input-border); border-radius:5px; padding:10px; background:#fff; display:flex; align-items:center; justify-content:center; color:var(--text-muted);">Rich Text Editor (e.g., TinyMCE, CKEditor) Placeholder</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-excerpt">Excerpt (Short summary)</label>
+                            <textarea id="post-excerpt" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="content-card" style="flex-grow:1; min-width:250px;">
+                        <div class="content-card-header"><h3>Publish Settings</h3></div>
+                        <div class="form-group">
+                            <label for="post-status">Status</label>
+                            <select id="post-status"><option>Draft</option><option>Published</option><option>Pending Review</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-category">Category</label>
+                            <select id="post-category"><option>Farm News</option><option>Tips & Tricks</option><option>Recipes</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-tags">Tags (comma-separated)</label>
+                            <input type="text" id="post-tags" placeholder="lambing, organic, feed">
+                        </div>
+                        <div class="form-group">
+                            <label>Featured Image</label>
+                            <button class="btn btn-secondary btn-sm">🖼️ Upload Image</button>
+                            <div style="margin-top:10px; font-size:0.8em; color:var(--text-muted);">No image selected.</div>
+                        </div>
+                        <div class="form-actions" style="text-align:left;">
+                            <button class="btn btn-primary">💾 Save Post</button>
+                            <button class="btn btn-outline-primary btn-sm">👁️ Preview</button>
+                        </div>
+                    </div>
+                </div>`,
+            'pnl-expenses': `
+                <div class="page-header">
+                    <div class="header-title"><h2>Expenses</h2><p>Track all farm and business expenditures.</p></div>
+                    <div class="header-actions"><button class="btn btn-primary">💸 Add New Expense</button></div>
+                </div>
+                <div class="content-card">
+                    <div class="content-card-header"><h3>Log New Expense</h3></div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="expense-date">Date</label>
+                            <input type="date" id="expense-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-category">Category</label>
+                            <select id="expense-category"><option>Feed</option><option>Vet Supplies</option><option>Fuel</option><option>Repairs</option><option>Utilities</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-description">Description</label>
+                        <input type="text" id="expense-description" placeholder="e.g., Purchase of sheep feed pellets">
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="expense-amount">Amount (£)</label>
+                            <input type="number" id="expense-amount" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-vendor">Vendor/Supplier (Optional)</label>
+                            <input type="text" id="expense-vendor" placeholder="e.g., Local Feed Store">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-receipt">Receipt/Invoice (Optional)</label>
+                        <input type="file" id="expense-receipt" style="padding:8px;">
+                    </div>
+                    <div class="form-actions"><button class="btn btn-success">➕ Add Expense</button></div>
+                </div>
+                <div class="content-card" style="margin-top:30px;">
+                    <div class="content-card-header"><h3>Recent Expenses</h3></div>
+                    <table class="styled-table">
+                        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <tr><td>2023-11-05</td><td>Feed</td><td>Sheep feed pellets</td><td>£150.00</td><td class="actions"><a href="#">Edit</a></td></tr>
+                            <tr><td>2023-11-03</td><td>Vet Supplies</td><td>Vaccinations Batch A</td><td>£75.50</td><td class="actions"><a href="#">Edit</a></td></tr>
+                        </tbody>
+                    </table>
+                </div>`
+        };
+
+        function getPageContent(pageId) {
+            if (pageContents[pageId]) {
+                return pageContents[pageId];
+            }
+            const title = pageId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            return `
+                <div class="page-header">
+                    <div class="header-title"><h2>${title}</h2><p>Manage ${title.toLowerCase()} and related information.</p></div>
+                     <div class="header-actions"><button class="btn btn-primary btn-sm">➕ Add New ${title.split(' ')[0]}</button></div>
+                </div>
+                <div class="content-card">
+                    <p>Detailed content, forms, tables, and specific functionalities for <strong>${title}</strong> will be implemented here.</p>
+                    <p>This section would typically involve fetching data from PocketBase, displaying it in interactive components, and providing actions to manage the data.</p>
+                </div>
+            `;
+        }
+
+        function loadPageContent(pageId) {
+            mainContentArea.classList.remove('fade-in');
+            void mainContentArea.offsetWidth; 
+            mainContentArea.innerHTML = getPageContent(pageId);
+            mainContentArea.classList.add('fade-in');
+            mainContentArea.scrollTop = 0;
+        }
+
+        function setActiveNavItem(selectedItem) {
+            document.querySelectorAll('.nav-item, .sub-nav-item').forEach(item => item.classList.remove('active'));
+            selectedItem.classList.add('active');
+            let parent = selectedItem.closest('.nav-item.has-submenu');
+            if(parent && !parent.classList.contains('active')){
+                 parent.classList.add('active');
+            }
+        }
+
+        navItemsAndSubItems.forEach(item => {
+            item.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const pageId = this.dataset.page;
+                if (pageId) {
+                    loadPageContent(pageId);
+                    setActiveNavItem(this);
+                    if(!this.classList.contains('sub-nav-item') && !this.classList.contains('has-submenu')){
+                        subMenuToggles.forEach(smt => smt.classList.remove('open'));
+                    }
+                }
+            });
+        });
+
+        subMenuToggles.forEach(toggle => {
+            const mainClickArea = toggle.querySelector('.nav-item-main-content').parentElement; 
+            mainClickArea.addEventListener('click', function(event) {
+                if (event.target.closest('.sub-nav-list')) return;
+                
+                const MIGHT_BE_ACTIVE_PAGE_ID = this.dataset.page;
+                if (MIGHT_BE_ACTIVE_PAGE_ID) { // If the parent itself is a page link
+                  loadPageContent(MIGHT_BE_ACTIVE_PAGE_ID);
+                  setActiveNavItem(this);
+                }
+
+                const isOpening = !this.classList.contains('open');
+                if(isOpening){
+                    subMenuToggles.forEach(smt => {
+                        if (smt !== this) smt.classList.remove('open');
+                    });
+                }
+                this.classList.toggle('open');
+            });
+        });
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPageContent('overview');
+            const initialActiveItem = document.querySelector('.nav-item[data-page="overview"]');
+            if(initialActiveItem) setActiveNavItem(initialActiveItem);
+        });
+    </script>
+</body>
+</html>
