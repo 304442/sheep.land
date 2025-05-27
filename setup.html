@@ -1,33 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>PB Setup: Udheya App (Admin Auth, Final)</title>
+    <meta charset="UTF-8"><title>PB Setup: Bookings Collection (Corrected)</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
-        .c{max-width:700px;width:100%;background:white;padding:15px;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+        .c{max-width:600px;width:100%;background:white;padding:15px;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
         h1{color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin:0 0 10px 0;font-size:1.2em;}
         p{font-size:0.9em;margin:0 0 0.5em 0;} .warn{color:red;font-weight:bold;}
-        button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em;margin-bottom: 5px;}
+        button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em;}
         button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
-        #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:60vh;overflow-y:auto;}
-        .ls{color:lime;} .le{color:salmon;} .li{color:cyan;} .lw{color:yellow;}
+        #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:45vh;overflow-y:auto;}
+        .ls{color:lime;} .le{color:salmon;} .li{color:cyan;}
     </style>
 </head>
 <body>
     <div class="c">
-        <h1>PB Udheya Setup (Bookings, Sheep Types, Sheep Weights - Admin Auth)</h1>
-        <p class="warn">This script attempts to create/update collections and seed product data. Ensure PocketBase is running and admin credentials are correct.</p>
-        <p class="warn">API rules will be set to PUBLIC for dev. SECURE FOR PRODUCTION!</p>
-        <button id="runSetupBookings">1. Create/Update 'bookings' Collection</button>
-        <button id="runSetupCatalog">2. Create/Update & Seed Product Catalog Collections</button>
+        <h1>PB Udheya Setup (Bookings Collection - Corrected)</h1>
+        <p class="warn">This script attempts to create/update the 'bookings' collection following best practices.</p>
+        <button id="runSetup">Create/Update 'bookings' Collection</button>
         <div id="out"></div>
     </div>
 <script>
     const pbUrl = '/';
     const outputDiv = document.getElementById('out');
-    const setupBookingsButton = document.getElementById('runSetupBookings');
-    const setupCatalogButton = document.getElementById('runSetupCatalog');
+    const runSetupButton = document.getElementById('runSetup');
 
     const ADM_E = 'admin@example.com'; 
     const ADM_P = 'unifiedpassword';
@@ -36,295 +33,139 @@
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
         const p = document.createElement('p');
         p.className = `l${type[0]}`;
-        p.innerHTML = timestamp + message; 
+        p.innerHTML = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
         outputDiv.appendChild(p);
         outputDiv.scrollTop = outputDiv.scrollHeight;
         console[type === 'e' ? 'error' : (type === 'w' ? 'warn' : 'log')](timestamp + message.replace(/<[^>]*>?/gm, ''));
     };
 
-    const bookingsCollectionSchema = {
-        name: "bookings", type: "base", system: false,
-        listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
-        options: {},
-        fields: [
-            { id: "bookings_f_booking_id_text", name: "booking_id_text", type: "text", system: false, required: true, unique: true, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_animal_type_name_en", name: "animal_type_name_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_animal_type_name_ar", name: "animal_type_name_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_weight_category_name_en", name: "weight_category_name_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_weight_category_name_ar", name: "weight_category_name_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_weight_range_actual_en", name: "weight_range_actual_en", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_weight_range_actual_ar", name: "weight_range_actual_ar", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_animal_base_price_egp", name: "animal_base_price_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0, noDecimal: false } },
-            { id: "bookings_f_udheya_service_option_selected", name: "udheya_service_option_selected", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_service_fee_applied_egp", name: "service_fee_applied_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0, noDecimal: false } },
-            { id: "bookings_f_delivery_fee_applied_egp", name: "delivery_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: { min: 0, noDecimal: false } },
-            { id: "bookings_f_total_amount_due_egp", name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0, noDecimal: false } },
-            { id: "bookings_f_selected_display_currency", name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, options: { max: 5 } },
-            { id: "bookings_f_sacrifice_day_value", name: "sacrifice_day_value", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_sacrifice_day_text_en", name: "sacrifice_day_text_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_sacrifice_day_text_ar", name: "sacrifice_day_text_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_slaughter_viewing_preference", name: "slaughter_viewing_preference", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_distribution_choice", name: "distribution_choice", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_split_details_option", name: "split_details_option", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_custom_split_details_text", name: "custom_split_details_text", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
-            { id: "bookings_f_niyyah_names", name: "niyyah_names", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
-            { id: "bookings_f_ordering_person_name", name: "ordering_person_name", type: "text", system: false, required: false, presentable: true, options: { max: 150 } },
-            { id: "bookings_f_ordering_person_phone", name: "ordering_person_phone", type: "text", system: false, required: false, presentable: true, options: { max: 30 } },
-            { id: "bookings_f_customer_email", name: "customer_email", type: "email", system: false, required: false, presentable: true, options: {} },
-            { id: "bookings_f_delivery_option", name: "delivery_option", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_delivery_name", name: "delivery_name", type: "text", system: false, required: false, presentable: true, options: { max: 150 } },
-            { id: "bookings_f_delivery_phone", name: "delivery_phone", type: "text", system: false, required: false, presentable: true, options: { max: 30 } },
-            { id: "bookings_f_delivery_area_id", name: "delivery_area_id", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_delivery_area_name_en", name: "delivery_area_name_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_delivery_area_name_ar", name: "delivery_area_name_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-            { id: "bookings_f_delivery_address", name: "delivery_address", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
-            { id: "bookings_f_delivery_instructions", name: "delivery_instructions", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
-            { id: "bookings_f_time_slot", name: "time_slot", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_payment_method", name: "payment_method", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_payment_status", name: "payment_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"], options: {} },
-            { id: "bookings_f_booking_status", name: "booking_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"], options: {} },
-            { id: "bookings_f_terms_agreed", name: "terms_agreed", type: "bool", system: false, required: false, presentable: true, options: {} },
-            { id: "bookings_f_admin_notes", name: "admin_notes", type: "text", system: false, required: false, presentable: true, options: { max: 1000 } },
-            { id: "bookings_f_group_purchase_interest", name: "group_purchase_interest", type: "bool", system: false, required: false, presentable: true, options: {} },
-            { id: "bookings_f_user_ip_address", name: "user_ip_address", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
-            { id: "bookings_f_user_agent_string", name: "user_agent_string", type: "text", system: false, required: false, presentable: true, options: { max: 300 } }
+    const bookingsCollectionDefinition = {
+        "id": "bookings_collection_id_ph", // Placeholder ID for the collection
+        "name": "bookings",
+        "type": "base",
+        "system": false, // Crucial for custom collections
+        "listRule": "", 
+        "viewRule": "", 
+        "createRule": "", 
+        "updateRule": "", 
+        "deleteRule": "",
+        "options": {}, // Ensure options object exists
+        "fields": [ // Corrected from 'schema' to 'fields'
+            { "id": "bk_f01", "name": "booking_id_text", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 50 } },
+            { "id": "bk_f02", "name": "animal_type_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+            { "id": "bk_f03", "name": "animal_type_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
+            { "id": "bk_f04", "name": "weight_category_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+            { "id": "bk_f05", "name": "weight_category_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
+            { "id": "bk_f06", "name": "weight_range_actual_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 }},
+            { "id": "bk_f07", "name": "weight_range_actual_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 }},
+            { "id": "bk_f08", "name": "animal_base_price_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+            { "id": "bk_f09", "name": "udheya_service_option_selected", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+            { "id": "bk_f10", "name": "service_fee_applied_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+            { "id": "bk_f11", "name": "delivery_fee_applied_egp", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+            { "id": "bk_f12", "name": "total_amount_due_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+            { "id": "bk_f13", "name": "selected_display_currency", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 5 } },
+            { "id": "bk_f14", "name": "sacrifice_day_value", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+            { "id": "bk_f15", "name": "sacrifice_day_text_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+            { "id": "bk_f16", "name": "sacrifice_day_text_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
+            { "id": "bk_f17", "name": "slaughter_viewing_preference", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
+            { "id": "bk_f18", "name": "distribution_choice", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+            { "id": "bk_f19", "name": "split_details_option", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+            { "id": "bk_f20", "name": "custom_split_details_text", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } },
+            { "id": "bk_f21", "name": "niyyah_names", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } }, 
+            { "id": "bk_f22", "name": "ordering_person_name", "type": "text", "system": false, "required": false, "presentable": true, "options": {"max": 150}},
+            { "id": "bk_f23", "name": "ordering_person_phone", "type": "text", "system": false, "required": false, "presentable": true, "options": {"max": 30}}, 
+            { "id": "bk_f24", "name": "customer_email", "type": "email", "system": false, "required": false, "presentable": true, "options": {} },
+            { "id": "bk_f25", "name": "delivery_option", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
+            { "id": "bk_f26", "name": "delivery_name", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 150 } },
+            { "id": "bk_f27", "name": "delivery_phone", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 30 } }, 
+            { "id": "bk_f28", "name": "delivery_area_id", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+            { "id": "bk_f29", "name": "delivery_area_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+            { "id": "bk_f30", "name": "delivery_area_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
+            { "id": "bk_f31", "name": "delivery_address", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } }, 
+            { "id": "bk_f32", "name": "delivery_instructions", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } },
+            { "id": "bk_f33", "name": "time_slot", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
+            { "id": "bk_f34", "name": "payment_method", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+            { "id": "bk_f35", "name": "payment_status", "type": "select", "system": false, "required": true, "presentable": true, "maxSelect": 1, "values": ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"], "options": {} },
+            { "id": "bk_f36", "name": "booking_status", "type": "select", "system": false, "required": true, "presentable": true, "maxSelect": 1, "values": ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"], "options": {} },
+            { "id": "bk_f37", "name": "terms_agreed", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} }, 
+            { "id": "bk_f38", "name": "admin_notes", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 1000 } },
+            { "id": "bk_f39", "name": "group_purchase_interest", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} }, 
+            { "id": "bk_f40", "name": "user_ip_address", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+            { "id": "bk_f41", "name": "user_agent_string", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 300 } }
         ]
     };
 
-    const sheepTypesCollectionSchema = {
-        name: "sheep_types", type: "base", system: false,
-        listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
-        options: {},
-        fields: [
-            { id: "sheep_types_f_type_key", name: "type_key", type: "text", system: false, required: true, unique: true, presentable: true, options: { max: 50, pattern: "^[a-z0-9_]+$" } },
-            { id: "sheep_types_f_name_en", name: "name_en", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
-            { id: "sheep_types_f_name_ar", name: "name_ar", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
-            { id: "sheep_types_f_price_per_kg_egp", name: "price_per_kg_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0 } },
-            { id: "sheep_types_f_is_active", name: "is_active", type: "bool", system: false, required: false, presentable: true, options: {} },
-            { id: "sheep_types_f_description_en", name: "description_en", type: "text", system: false, required: false, presentable: true, options: { max: 200 } },
-            { id: "sheep_types_f_description_ar", name: "description_ar", type: "text", system: false, required: false, presentable: true, options: { max: 200 } },
-            { id: "sheep_types_f_sort_order", name: "sort_order", type: "number", system: false, required: false, presentable: true, options: {} }
-        ]
-    };
-
-    const sheepWeightsCollectionSchema = {
-        name: "sheep_weights", type: "base", system: false,
-        listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
-        options: {},
-        fields: [
-            { id: "sheep_weights_f_item_key", name: "item_key", type: "text", system: false, required: true, unique: true, presentable: true, options: { max: 100, pattern: "^[a-z0-9_]+$" } },
-            { id: "sheep_weights_f_sheep_type", name: "sheep_type", type: "relation", system: false, required: true, presentable: true, options: { collectionId: "", cascadeDelete: false, minSelect: 1, maxSelect: 1, displayFields: ["name_en", "type_key"] } },
-            { id: "sheep_weights_f_name_en_specific", name: "name_en_specific", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
-            { id: "sheep_weights_f_name_ar_specific", name: "name_ar_specific", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
-            { id: "sheep_weights_f_weight_range_text_en", name: "weight_range_text_en", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
-            { id: "sheep_weights_f_weight_range_text_ar", name: "weight_range_text_ar", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
-            { id: "sheep_weights_f_avg_weight_kg", name: "avg_weight_kg", type: "number", system: false, required: true, presentable: true, options: { min: 0 } },
-            { id: "sheep_weights_f_initial_stock", name: "initial_stock", type: "number", system: false, required: true, presentable: true, options: { min: 0 } },
-            { id: "sheep_weights_f_is_active", name: "is_active", type: "bool", system: false, required: false, presentable: true, options: {} },
-            { id: "sheep_weights_f_sort_order", name: "sort_order", type: "number", system: false, required: false, presentable: true, options: {} }
-        ]
-    };
-    
-    const initialSeedData = {
-        sheep_types: [
-            { type_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", price_per_kg_egp: 230, is_active: true, description_en: "Local breed, rich flavor.", description_ar: "سلالة محلية، نكهة غنية.", sort_order: 1 },
-            { type_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", price_per_kg_egp: 255, is_active: true, description_en: "Desert breed, lean meat.", description_ar: "سلالة صحراوية، لحم قليل الدهن.", sort_order: 2 }
-        ],
-        sheep_weights: [
-            { item_key: "baladi_40_50", sheep_type_key: "baladi", name_en_specific: "Baladi (40-50kg)", name_ar_specific: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, initial_stock: 7, is_active: true, sort_order: 1 },
-            { item_key: "baladi_50_60", sheep_type_key: "baladi", name_en_specific: "Baladi (50-60kg)", name_ar_specific: "بلدي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, initial_stock: 8, is_active: true, sort_order: 2 },
-            { item_key: "baladi_60_plus", sheep_type_key: "baladi", name_en_specific: "Baladi (60+kg)", name_ar_specific: "بلدي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, initial_stock: 1, is_active: true, sort_order: 3 },
-            { item_key: "barki_30_40", sheep_type_key: "barki", name_en_specific: "Barki (30-40kg)", name_ar_specific: "برقي (٣٠-٤٠كجم)", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", avg_weight_kg: 35, initial_stock: 1, is_active: true, sort_order: 1 },
-            { item_key: "barki_40_50", sheep_type_key: "barki", name_en_specific: "Barki (40-50kg)", name_ar_specific: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, initial_stock: 5, is_active: true, sort_order: 2 },
-            { item_key: "barki_50_60", sheep_type_key: "barki", name_en_specific: "Barki (50-60kg)", name_ar_specific: "برقي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, initial_stock: 3, is_active: true, sort_order: 3 },
-            { item_key: "barki_60_plus", sheep_type_key: "barki", name_en_specific: "Barki (60+kg)", name_ar_specific: "برقي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, initial_stock: 2, is_active: true, sort_order: 4 }
-        ]
-    };
-
-    async function manageCollection(pb, collectionSchema) {
-        let existingCollection = null;
-        try {
-            existingCollection = await pb.collections.getOne(collectionSchema.name);
-        } catch (e) {
-            if (!(e.status === 404 || (e.response && e.response.status === 404))) throw e;
-        }
-
-        if (collectionSchema.name === "sheep_weights") {
-            const sheepTypeCollection = await pb.collections.getOne("sheep_types"); 
-            const relationField = collectionSchema.fields.find(f => f.name === "sheep_type");
-            if (relationField) relationField.options.collectionId = sheepTypeCollection.id;
-        }
-        
-        if (existingCollection) {
-            log(`Collection '<b>${collectionSchema.name}</b>' exists. Attempting to update...`, 'i');
-            const updatePayload = { 
-                fields: collectionSchema.fields, 
-                listRule: collectionSchema.listRule, 
-                viewRule: collectionSchema.viewRule, 
-                createRule: collectionSchema.createRule, 
-                updateRule: collectionSchema.updateRule, 
-                deleteRule: collectionSchema.deleteRule, 
-                options: collectionSchema.options || {} 
-            };
-            await pb.collections.update(existingCollection.id, updatePayload);
-            log(`Collection '<b>${collectionSchema.name}</b>' updated successfully.`, 's');
-            return existingCollection;
-        } else {
-            log(`Collection '<b>${collectionSchema.name}</b>' does not exist. Attempting to create...`, 'i');
-            const createPayload = {
-                name: collectionSchema.name,
-                type: collectionSchema.type,
-                system: collectionSchema.system,
-                fields: collectionSchema.fields,
-                listRule: collectionSchema.listRule,
-                viewRule: collectionSchema.viewRule,
-                createRule: collectionSchema.createRule,
-                updateRule: collectionSchema.updateRule,
-                deleteRule: collectionSchema.deleteRule,
-                options: collectionSchema.options || {}
-            };
-            const created = await pb.collections.create(createPayload);
-            log(`Collection '<b>${collectionSchema.name}</b>' created successfully.`, 's');
-            return created;
-        }
-    }
-
-    async function seedData(pb, collectionName, data, foreignKeyMap = null, pkField = null) {
-        log(`Seeding data for '<b>${collectionName}</b>'...`, 'i');
-        let seededCount = 0;
-        let skippedCount = 0;
-
-        for (const item of data) {
-            const recordData = { ...item };
-            let exists = false;
-
-            if (pkField && recordData[pkField]) { 
-                try {
-                    await pb.collection(collectionName).getFirstListItem(`${pkField}="${recordData[pkField]}"`);
-                    exists = true;
-                } catch (e) { 
-                    if (!(e.status === 404 || (e.response && e.response.status === 404))) {
-                         log(`Error checking existence for ${pkField}=${recordData[pkField]} in ${collectionName}: ${e.message}`, 'e');
-                    }
-                }
-            }
-            
-            if (exists) {
-                log(`Record with ${pkField} '<b>${recordData[pkField]}</b>' already exists in '<b>${collectionName}</b>'. Skipping.`, 'w');
-                skippedCount++;
-                continue;
-            }
-
-            if (foreignKeyMap && recordData[foreignKeyMap.localKeyField]) {
-                const relatedRecordId = foreignKeyMap.map[recordData[foreignKeyMap.localKeyField]];
-                if (relatedRecordId) {
-                    recordData[foreignKeyMap.relationFieldInPB] = relatedRecordId;
-                    delete recordData[foreignKeyMap.localKeyField]; 
-                } else {
-                    log(`Could not find related record ID for ${foreignKeyMap.localKeyField}='${recordData[foreignKeyMap.localKeyField]}' while seeding '<b>${collectionName}</b>'. Skipping item.`, 'e');
-                    skippedCount++;
-                    continue;
-                }
-            }
-            
-            try {
-                await pb.collection(collectionName).create(recordData);
-                seededCount++;
-            } catch (e) {
-                 log(`Error seeding item into '<b>${collectionName}</b>': ${e.message} - Data: ${JSON.stringify(recordData)}`, 'e');
-                 const errorData = e.data || (e.response && e.response.data);
-                 if (errorData) log(`Details: <pre>${JSON.stringify(errorData, null, 2)}</pre>`, 'e');
-                 skippedCount++;
-            }
-        }
-        log(`Seeding for '<b>${collectionName}</b>' complete. Added: ${seededCount}, Skipped (existing/error): ${skippedCount}.`, seededCount > 0 ? 's' : 'w');
-    }
-
-    setupBookingsButton.onclick = async () => {
-        setupBookingsButton.disabled = true;
-        setupCatalogButton.disabled = true;
+    runSetupButton.onclick = async () => {
+        runSetupButton.disabled = true;
         outputDiv.innerHTML = '';
-        log('Bookings Collection Setup process started...', 'i');
+        log('Setup process started for "bookings" collection...', 'i');
         const pb = new PocketBase(pbUrl);
 
         try {
             log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
             await pb.admins.authWithPassword(ADM_E, ADM_P);
             log('Admin authentication successful.', 's');
-            await manageCollection(pb, bookingsCollectionSchema);
+
+            let existingCollection = null;
+            try {
+                existingCollection = await pb.collections.getOne(bookingsCollectionDefinition.name);
+            } catch (e) {
+                if (!(e.status === 404 || (e.response && e.response.status === 404))) {
+                    throw e; 
+                }
+            }
+            
+            // Prepare payload for create or update
+            // For create, send the full definition including placeholder IDs
+            // For update, PocketBase documentation suggests sending only modifiable properties.
+            // The JS SDK's update method mainly takes rules, options, and schema (fields).
+            // Let's use a structure that's generally safe for both by providing the full definition for creation
+            // and a more targeted one for updates.
+
+            const createPayload = { ...bookingsCollectionDefinition }; 
+            // Remove collection 'id' for create, PB assigns it
+            delete createPayload.id; 
+            // For field 'id's, PB will use them if valid or generate new ones.
+
+            const updatePayload = { // For updating an existing collection
+                name: bookingsCollectionDefinition.name, // Name usually not changed, but good to include
+                listRule: bookingsCollectionDefinition.listRule,
+                viewRule: bookingsCollectionDefinition.viewRule,
+                createRule: bookingsCollectionDefinition.createRule,
+                updateRule: bookingsCollectionDefinition.updateRule,
+                deleteRule: bookingsCollectionDefinition.deleteRule,
+                options: bookingsCollectionDefinition.options,
+                fields: bookingsCollectionDefinition.fields // Send the full new fields schema
+                // Note: PocketBase handles merging fields based on their existing IDs.
+                // New fields will be added if their provided IDs are new or if IDs are omitted.
+                // Existing fields are matched by ID and updated. Fields not in the new list are typically removed (be careful).
+                // For simplicity and to match the "full definition" approach that worked for you, we send the whole fields array.
+            };
+
+
+            if (existingCollection) {
+                log(`Collection '<b>${bookingsCollectionDefinition.name}</b>' exists. Attempting to update...`, 'i');
+                // When updating, you pass the collection's *actual existing ID*
+                await pb.collections.update(existingCollection.id, updatePayload);
+                log(`Collection '<b>${bookingsCollectionDefinition.name}</b>' updated successfully.`, 's');
+            } else {
+                log(`Collection '<b>${bookingsCollectionDefinition.name}</b>' does not exist. Attempting to create...`, 'i');
+                await pb.collections.create(createPayload);
+                log(`Collection '<b>${bookingsCollectionDefinition.name}</b>' created successfully.`, 's');
+            }
             log('Setup for "bookings" collection completed.', 's');
         } catch (e) {
             log(`<b>ERROR:</b> ${e.message}`, 'e');
-            const errorData = e.data || (e.response && e.response.data) || e.originalError;
-            if (errorData) log(`Details: <pre>${JSON.stringify(errorData, null, 2)}</pre>`, 'e');
-            console.error("Full Error Object (Bookings):", e);
-        } finally {
-            pb.authStore.clear();
-            setupBookingsButton.disabled = false;
-            setupCatalogButton.disabled = false;
-        }
-    };
-
-    setupCatalogButton.onclick = async () => {
-        setupBookingsButton.disabled = true;
-        setupCatalogButton.disabled = true;
-        outputDiv.innerHTML = '';
-        log('Product Catalog Setup process started...', 'i');
-        const pb = new PocketBase(pbUrl);
-
-        try {
-            log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
-            await pb.admins.authWithPassword(ADM_E, ADM_P);
-            log('Admin authentication successful.', 's');
-
-            const sheepTypesCollection = await manageCollection(pb, sheepTypesCollectionSchema);
-            
-            const createdSheepTypeRecords = {};
-            log(`Seeding data for '<b>${sheepTypesCollection.name}</b>'...`, 'i');
-            let seededTypesCount = 0; let skippedTypesCount = 0;
-            for (const typeData of initialSeedData.sheep_types) {
-                try {
-                    const existing = await pb.collection(sheepTypesCollection.name).getFirstListItem(`type_key="${typeData.type_key}"`);
-                    createdSheepTypeRecords[typeData.type_key] = existing.id; 
-                    log(`Sheep type '<b>${typeData.type_key}</b>' already exists. Skipping creation, using ID: ${existing.id}.`, 'w');
-                    skippedTypesCount++;
-                } catch (e) { 
-                     if (e.status === 404 || (e.response && e.response.status === 404)) {
-                        const createdRecord = await pb.collection(sheepTypesCollection.name).create(typeData);
-                        createdSheepTypeRecords[typeData.type_key] = createdRecord.id;
-                        seededTypesCount++;
-                     } else {
-                        log(`Error checking/creating sheep type '<b>${typeData.type_key}</b>': ${e.message}`, 'e');
-                        skippedTypesCount++;
-                     }
-                }
+            const errorData = e.data || (e.response && e.response.data);
+            if (errorData) {
+                log(`Details: <pre>${JSON.stringify(errorData, null, 2)}</pre>`, 'e');
             }
-            log(`Seeding for '<b>${sheepTypesCollection.name}</b>' complete. Added: ${seededTypesCount}, Skipped/Existing: ${skippedTypesCount}.`, 's');
-
-            sheepWeightsCollectionSchema.fields.find(f => f.name === "sheep_type").options.collectionId = sheepTypesCollection.id;
-            const sheepWeightsCollection = await manageCollection(pb, sheepWeightsCollectionSchema);
-
-            const foreignKeyMapForWeights = {
-                localKeyField: 'sheep_type_key', 
-                relationFieldInPB: 'sheep_type', 
-                map: createdSheepTypeRecords     
-            };
-            await seedData(pb, sheepWeightsCollection.name, initialSeedData.sheep_weights, foreignKeyMapForWeights, 'item_key');
-
-            log('Setup for Product Catalog collections completed.', 's');
-
-        } catch (e) {
-            log(`<b>ERROR:</b> ${e.message}`, 'e');
-            const errorData = e.data || (e.response && e.response.data) || e.originalError;
-            if (errorData) log(`Details: <pre>${JSON.stringify(errorData, null, 2)}</pre>`, 'e');
-            console.error("Full Error Object (Catalog):", e);
+            console.error("Full Error Object:", e);
         } finally {
             pb.authStore.clear();
-            setupBookingsButton.disabled = false;
-            setupCatalogButton.disabled = false;
+            runSetupButton.disabled = false;
         }
     };
-
 </script>
 </body>
 </html>
