@@ -246,7 +246,6 @@
                                 <p class="ar">الحقول المشار إليها بـ * إلزامية.</p>
                             </div>
 
-                            <!-- NEW STEP 1: Select Sheep -->
                             <div id="step1-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep *</span><span class="ar">اختر الخروف *</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
@@ -297,7 +296,6 @@
                                 <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
                             </div>
 
-                            <!-- NEW STEP 2: Arrangements (includes Niyyah and Service Option) -->
                             <div id="step2-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Arrangements *</span><span class="ar">الترتيبات *</span></h2></div>
                                 
@@ -311,7 +309,6 @@
                                     </select>
                                     <div class="form-error-msg" x-show="errors.udheyaService" x-text="errors.udheyaService ? (currentLang === 'ar' ? errors.udheyaService.ar : errors.udheyaService.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
-
                                 <hr class="form-divider">
                                 <div class="fg niyyah-names-wrapper">
                                     <label for="niyyah_names_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Names for Niyyah (Optional)</span><span class="ar">أسماء النية (اختياري)</span></label>
@@ -349,7 +346,7 @@
                                 <hr class="form-divider">
                                 <div class="fg">
                                     <label class="bil-parent-spread form-label-strict"><span class="en">Udheya Distribution? *</span><span class="ar">كيف تود توزيع أضحيتك؟ *</span></label>
-                                    <select id="distribution_choice_select_s2" class="form-input-styled" x-model="distributionChoice">
+                                    <select id="distribution_choice_select_s2" class="form-input-styled" x-model="distributionChoice" @change="clearError('distributionChoice')">
                                         <template x-for="option in distributionChoiceOptions()" :key="option.value">
                                             <option :value="option.value" x-text="currentLang === 'ar' ? option.textAr : option.textEn"></option>
                                         </template>
