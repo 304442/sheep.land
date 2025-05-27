@@ -5,7 +5,10 @@ document.addEventListener('alpine:init', () => {
         whatsapp_number_raw: "201012345678", whatsapp_number_display: "+20 101 234 5678",
         promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), promo_discount_percent: 12, promo_is_active: true,
         udheya_service_surcharge_egp: 600,
-        delivery_areas: [ { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 100 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 100 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 120} ] } ],
+        delivery_areas: [ 
+            { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, 
+            { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 100 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 100 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 120} ] } 
+        ],
         payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
     };
 
@@ -86,7 +89,7 @@ document.addEventListener('alpine:init', () => {
             return item.avg_weight_kg * animalTypeConfig.price_per_kg_egp;
         },
         getApproxPricePerKiloTextForDisplay(animalTypeValueKey) {
-            const animalConfig = this.productOptions.livestock.find(a => a.value_key === animalTypeValueKey);
+             const animalConfig = this.productOptions.livestock.find(a => a.value_key === animalTypeValueKey);
             if (animalConfig && typeof animalConfig.price_per_kg_egp === 'number') {
                  return `(${this.getFormattedPrice(animalConfig.price_per_kg_egp, "EGP")}/kg est.)`;
             }
@@ -97,14 +100,6 @@ document.addEventListener('alpine:init', () => {
             if (stock <= 0) return lang === 'ar' ? " - نفذت الكمية" : " - Out of Stock";
             if (stock > 0 && stock <= 5) return lang === 'ar' ? " - كمية محدودة" : " - Limited Stock";
             return lang === 'ar' ? " - متوفر" : " - Available";
-        },
-
-        // Options for dropdowns - REINSTATED
-        udheyaServiceOptions() {
-            return [
-                { value: 'standard_service', textEn: `Standard Service (Fee: ${this.getFormattedPrice(this.appSettings.udheya_service_surcharge_egp || 0)})`, textAr: `خدمة قياسية (رسوم: ${this.getFormattedPrice(this.appSettings.udheya_service_surcharge_egp || 0)})` },
-                { value: 'live_animal_only', textEn: 'Live Animal Only (No processing service)', textAr: 'الحيوان حي فقط (بدون خدمة تجهيز)' }
-            ];
         },
         slaughterViewingOptions() {
             return [
@@ -180,7 +175,7 @@ document.addEventListener('alpine:init', () => {
             });
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceSelect', validator: this.validateStep2.bind(this) },
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) },
                 { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep3.bind(this) }
             ];
             ['selectedAnimal.basePriceEGP', 'currentCurrency', 'currentServiceFeeEGP'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'currentServiceFeeEGP') this.updateAllDisplayedPrices(); }));
@@ -194,7 +189,7 @@ document.addEventListener('alpine:init', () => {
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             } else if (this.selectedUdheyaService === 'live_animal_only') {
                 this.currentServiceFeeEGP = 0;
-            } else {
+            } else { // Default or if somehow an invalid option is set
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             }
             this.calculateTotalPrice();
