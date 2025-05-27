@@ -3,35 +3,29 @@ document.addEventListener('alpine:init', () => {
         exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
         default_currency: "EGP",
         whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
-        promo_end_date: new Date("2025-06-06T20:59:59.000Z").toISOString(), 
-        promo_discount_percent: 10, // UPDATED
+        // Promo ends at the end of the 13th Dhul Hijjah, 2025
+        // If 10th Dhul Hijjah is June 7, 2025, then 13th is June 10, 2025.
+        promo_end_date: new Date("2025-06-10T23:59:59.000Z").toISOString(), 
+        promo_discount_percent: 10,
         promo_is_active: true,
-        udheya_service_surcharge_egp: 750, // UPDATED
+        udheya_service_surcharge_egp: 750,
         delivery_areas: [ 
-            { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ 
-                { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, 
-                { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, 
-                { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } 
-            ]}, 
-            { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ 
-                {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, // UPDATED
-                {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, // UPDATED (was 100)
-                {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} // UPDATED
-            ]} 
+            { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, 
+            { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} ] } 
         ],
         payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
     };
 
     const HARDCODED_PRODUCT_CATALOG_CONFIG = [
-        { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", price_per_kg_egp: 230, // UPDATED
-            weights_prices: [ // UPDATED Bands
+        { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", price_per_kg_egp: 230,
+            weights_prices: [
                 { item_key: "baladi_40_50", weight_range_text: "40-50kg", nameEN_specific: "Baladi (40-50kg)", nameAR_specific: "بلدي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 7, is_active: true },
                 { item_key: "baladi_50_60", weight_range_text: "50-60kg", nameEN_specific: "Baladi (50-60kg)", nameAR_specific: "بلدي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 8, is_active: true },
                 { item_key: "baladi_60plus", weight_range_text: "60+kg", nameEN_specific: "Baladi (60+kg)", nameAR_specific: "بلدي (+٦٠كجم)", avg_weight_kg: 65, initial_stock: 1, is_active: true }
             ]
         },
-        { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", price_per_kg_egp: 255, // UPDATED
-            weights_prices: [ // UPDATED Bands
+        { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", price_per_kg_egp: 255,
+            weights_prices: [
                 { item_key: "barki_30_40", weight_range_text: "30-40kg", nameEN_specific: "Barki (30-40kg)", nameAR_specific: "برقي (٣٠-٤٠كجم)", avg_weight_kg: 35, initial_stock: 1, is_active: true },
                 { item_key: "barki_40_50", weight_range_text: "40-50kg", nameEN_specific: "Barki (40-50kg)", nameAR_specific: "برقي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 5, is_active: true },
                 { item_key: "barki_50_60", weight_range_text: "50-60kg", nameEN_specific: "Barki (50-60kg)", nameAR_specific: "برقي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 3, is_active: true },
@@ -332,7 +326,11 @@ document.addEventListener('alpine:init', () => {
             }
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
-        updateSacrificeDayTexts() {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${this.selectedSacrificeDay.value}"]`);if(o)Object.assign(this.selectedSacrificeDay,{textEN:o.dataset.en,textAR:o.dataset.ar});},
+        updateSacrificeDayTexts() {
+            const selectElementId = this.stepSectionsMeta.find(s => s.conceptualStep === 3)?.id === '#step3-content' ? '#sacrifice_day_select_s3' : '#sacrifice_day_select_s2'; // Adjust based on where sacrifice day is
+            const optionElement = document.querySelector(`${selectElementId} option[value="${this.selectedSacrificeDay.value}"]`);
+            if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
+        },
         calculateTotalPrice() { 
             let deliveryFeeForTotal = 0;
             if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) {
@@ -406,8 +404,8 @@ document.addEventListener('alpine:init', () => {
                 ordering_person_phone: (this.orderingPersonPhone || "").trim(), 
                 customer_email: (this.customerEmail || "").trim(),
                 delivery_option: delOpt,
-                delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : (this.orderingPersonName || "").trim(),
-                delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : (this.orderingPersonPhone || "").trim(),
+                delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", 
+                delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "",
                 delivery_area_id: this._needsDeliveryDetails ? (selectedCityInfo?.id || "") : "", 
                 delivery_area_name_en: this._needsDeliveryDetails ? (selectedCityInfo?.name_en || "") : "", 
                 delivery_area_name_ar: this._needsDeliveryDetails ? (selectedCityInfo?.name_ar || "") : "",
@@ -438,7 +436,12 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
             finally { this.isLoading.status = false; }
         },
-        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};},
+        getSacrificeDayText(v) {
+            // Determine which select element to query based on current conceptual step if needed, or ensure IDs are unique.
+            // Assuming sacrifice_day_select is consistently in the step where it's defined (new Step 2 for Arrangements).
+            const optionElement = document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`); // Check if this ID is correct for Step 2
+            return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v};
+        },
         resetAndStartOver() {
              const currency = this.currentCurrency; 
              Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
