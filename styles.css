@@ -124,8 +124,8 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .feature-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);text-align:center}
 .feature-item .icon-placeholder{width:60px;height:60px;margin:0 auto var(--s1);background-color:transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--c2)}
 .icon-placeholder.number-icon{font-size:1.3rem;font-weight:700;background-color:var(--c2l); color: var(--c1d);}
-.icon-placeholder .icon-custom{display:inline-flex;align-items:center;justify-content:center;width:45px;height:45px}
-.icon-custom img,.icon-custom svg{width:100%;height:100%;object-fit:contain}
+.icon-placeholder .icon-custom{display:inline-flex;align-items:center;justify-content:center;width:45px;height:45px} /* Retained for feature icons if SVGs were used */
+.icon-custom img,.icon-custom svg{width:100%;height:100%;object-fit:contain} /* Retained */
 .icon-placeholder.emoji-icon { font-size: 2.5rem; width: auto; height: auto; background-color: transparent; }
 
 
@@ -213,7 +213,7 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .stepper-connector{flex-grow:1;height:2px;background-color:var(--bs);margin:0 var(--s1);position:relative;top:-10px}
 .stepper-item.active .step-number{background-color:var(--c2);border-color:var(--c2);color:var(--td)}
 .stepper-item.active{color:var(--c1d);font-weight:700}
-.stepper-item.completed .step-checkmark{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px} /* SVG checkmark styling */
+.stepper-item.completed .step-checkmark{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px}
 .stepper-item.completed{color:var(--tm)}
 .stepper-item.disabled{opacity:.6;pointer-events:none;cursor:not-allowed}
 .stepper-item.disabled .step-number{border-color:var(--bs);background-color:var(--b2);color:var(--tm)}

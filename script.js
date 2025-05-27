@@ -5,7 +5,7 @@ document.addEventListener('alpine:init', () => {
         whatsapp_number_raw: "201012345678", whatsapp_number_display: "+20 101 234 5678",
         promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), promo_discount_percent: 12, promo_is_active: true,
         udheya_service_surcharge_egp: 600,
-        delivery_areas: [ { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 100 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 100 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 120} ] }, { id:"alexandria", name_en:"Alexandria", name_ar:"الإسكندرية", cities:[{id:"smouha",name_en:"Smouha",name_ar:"سموحة", delivery_fee_egp: 200}] }, { id:"sharqia", name_en:"Sharqia", name_ar:"الشرقية", cities: [], delivery_fee_egp: null } ],
+        delivery_areas: [ { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 100 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 100 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 120} ] } ],
         payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
     };
 
@@ -30,8 +30,10 @@ document.addEventListener('alpine:init', () => {
         selectedAnimal: { type: "", item_key: "", weight_range: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
         selectedUdheyaService: 'standard_service', 
         currentServiceFeeEGP: BARE_MINIMUM_APP_SETTINGS.udheya_service_surcharge_egp, 
-        totalPriceEGP: 0, customerEmail: "", deliveryName: "", deliveryPhone: "", selectedGovernorate: "",
-        deliveryCity: "", availableCities: [], deliveryAddress: "", deliveryInstructions: "", niyyahNames: "",
+        totalPriceEGP: 0, customerEmail: "", deliveryName: "", deliveryPhone: "", 
+        deliveryCity: "", 
+        allAvailableCities: [], 
+        deliveryAddress: "", deliveryInstructions: "", niyyahNames: "",
         splitDetailsOption: "", customSplitDetailsText: "", groupPurchase: false,
         selectedSacrificeDay: { value: "day1_10_dhul_hijjah", textEN: "Day 1 of Eid (10th Dhul Hijjah)", textAR: "اليوم الأول (10 ذو الحجة)"},
         selectedTimeSlot: "8 AM-9 AM", distributionChoice: "me", paymentMethod: "fa",
@@ -106,6 +108,34 @@ document.addEventListener('alpine:init', () => {
                 });
                 return animalType;
             });
+            
+            let cities = [];
+            this.appSettings.delivery_areas.forEach(gov => {
+                if (gov.cities && gov.cities.length > 0) {
+                    gov.cities.forEach(city => {
+                        cities.push({
+                            id: `${gov.id}_${city.id}`, 
+                            name_en: `${gov.name_en} - ${city.name_en}`,
+                            name_ar: `${gov.name_ar} - ${city.name_ar}`,
+                            delivery_fee_egp: city.delivery_fee_egp,
+                            governorate_id: gov.id, 
+                            governorate_name_en: gov.name_en,
+                            governorate_name_ar: gov.name_ar
+                        });
+                    });
+                } else if (gov.delivery_fee_egp !== undefined) { 
+                     cities.push({
+                        id: gov.id, 
+                        name_en: gov.name_en,
+                        name_ar: gov.name_ar,
+                        delivery_fee_egp: gov.delivery_fee_egp,
+                        governorate_id: gov.id,
+                        governorate_name_en: gov.name_en,
+                        governorate_name_ar: gov.name_ar
+                    });
+                }
+            });
+            this.allAvailableCities = cities.sort((a,b) => a.name_en.localeCompare(b.name_en));
             this.updateServiceFee(); 
 
             this.currentCurrency = this.appSettings.default_currency;
@@ -119,12 +149,12 @@ document.addEventListener('alpine:init', () => {
             });
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) },
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceSelect', validator: this.validateStep2.bind(this) },
                 { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep3.bind(this) }
             ];
             ['selectedAnimal.basePriceEGP', 'currentCurrency', 'currentServiceFeeEGP'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'currentServiceFeeEGP') this.updateAllDisplayedPrices(); }));
             this.$watch('appSettings.udheya_service_surcharge_egp', () => { this.updateServiceFee(); });
-            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'selectedGovernorate', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'selectedGovernorate' || (prop === 'deliveryCity' && nv !== ov)) this.updateDeliveryFeeDisplay(); if (prop === 'selectedUdheyaService') this.updateServiceFee(); }));
+            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'deliveryCity' && nv !== ov) this.updateDeliveryFeeDisplay(); if (prop === 'selectedUdheyaService') this.updateServiceFee(); }));
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
@@ -154,31 +184,37 @@ document.addEventListener('alpine:init', () => {
         setError(f, m) { this.errors[f] = (typeof m === 'string' ? this.errorMessages[m] : m) || this.errorMessages.required; },
         clearError(f) { if(this.errors[f]) delete this.errors[f]; },
         clearAllErrors() { this.errors = {}; },
-        focusOnRef(r, s=true) {this.$nextTick(()=>{if(this.$refs[r]){this.$refs[r].focus({preventScroll:!s});if(s)setTimeout(()=>{try{this.$refs[r].scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}catch(e){}},50);}})},
+        focusOnRef(r, s=true) {this.$nextTick(()=>{if(this.$refs[r]){this.$refs[r].focus({preventScroll:!s});if(s)setTimeout(()=>{try{this.$refs[r].scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}catch(e){console.warn("ScrollIntoView failed for",r,e);}},50);}})},
         get _needsDeliveryDetails() { const c = (this.customSplitDetailsText || "").toLowerCase(); return this.distributionChoice === 'me' || (this.distributionChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitDetailsOption) || (this.splitDetailsOption === 'custom' && (c.includes("for me") || c.includes("all delivered to me") || c.includes("لي") || c.includes("توصيل لي"))))); },
         get splitDetails() { if(this.distributionChoice !== 'split') return ""; if(this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim(); const o={"1/3_me_2/3_charity_sl":{en:"1/3 me, 2/3 charity (SL)",ar:"ثلث لي، ثلثان صدقة (أرض الأغنام)"},"1/2_me_1/2_charity_sl":{en:"1/2 me, 1/2 charity (SL)",ar:"نصف لي، نصف صدقة (أرض الأغنام)"},"2/3_me_1/3_charity_sl":{en:"2/3 me, 1/3 charity (SL)",ar:"ثلثان لي، ثلث صدقة (أرض الأغنام)"},"all_me_custom_distro":{en:"All for me (I distribute)",ar:"الكل لي (أنا أوزع)"}};const s=o[this.splitDetailsOption];return s?(this.currentLang==='ar'?s.ar:s.en):this.splitDetailsOption;},
-        _getDeliveryLocation(l) {const k=l==='en'?'name_en':'name_ar';const g=(this.appSettings.delivery_areas||[]).find(a=>a.id===this.selectedGovernorate);const c=g?.cities?.find(city=>city.id===this.deliveryCity);if(c?.[k])return c[k];if(g&&g.cities?.length===0&&this.selectedGovernorate&&g[k])return g[k];if(g&&!c&&this.selectedGovernorate&&g[k])return`${g[k]} (${l==='en'?"City not selected":"المدينة غير مختارة"})`;return"";},
+        _getDeliveryLocation(lang) {
+            const selectedCityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
+            if (!selectedCityData) return "";
+            return lang === 'en' ? selectedCityData.name_en : selectedCityData.name_ar;
+        },
         get summaryDeliveryToEN() {if(this.distributionChoice==='char')return"Charity Distribution by Sheep Land";if(this._needsDeliveryDetails){const n=(this.deliveryName||"").trim();const l=this._getDeliveryLocation('en');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join(", ")||"Delivery Details Incomplete";}return"Self Pickup/Distribution";},
         get summaryDeliveryToAR() {if(this.distributionChoice==='char')return"توزيع خيري بواسطة أرض الأغنام";if(this._needsDeliveryDetails){const n=(this.deliveryName||"").trim();const l=this._getDeliveryLocation('ar');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join("، ")||"تفاصيل التوصيل غير مكتملة";}return"استلام ذاتي/توزيع";},
         get summaryDistributionEN() {if(this.distributionChoice==='me')return"All to me";if(this.distributionChoice==='char')return"All to charity (by SL)";return`Split: ${(this.splitDetails||"").trim()||"(Not specified)"}`;},
         get summaryDistributionAR() {if(this.distributionChoice==='me')return"الكل لي";if(this.distributionChoice==='char')return"تبرع بالكل للصدقة (أرض الأغنام)";return`تقسيم: ${(this.splitDetails||"").trim()||"(لم يحدد)"}`;},
         startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
         updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
-        updateCities() { const g=(this.appSettings.delivery_areas||[]).find(a=>a.id===this.selectedGovernorate);this.availableCities=g?.cities||[];this.deliveryCity="";this.updateDeliveryFeeDisplay();},
         updateDeliveryFeeDisplay() {
-            this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false; if (!this.selectedGovernorate && !this.deliveryCity) return;
-            const gov = (this.appSettings.delivery_areas || []).find(a => a.id === this.selectedGovernorate); if (!gov) { this.isDeliveryFeeVariable = true; return; }
-            let city; if (this.deliveryCity && gov.cities && gov.cities.length > 0) { city = gov.cities.find(c => c.id === this.deliveryCity); }
-            const feeSource = city || gov;
-            if (feeSource && typeof feeSource.delivery_fee_egp === 'number') { this.deliveryFeeForDisplayEGP = feeSource.delivery_fee_egp; this.isDeliveryFeeVariable = false; } 
-            else if (feeSource && feeSource.delivery_fee_egp === null) { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; } 
-            else if (!city && this.deliveryCity && gov.cities && gov.cities.length > 0) { if (gov && typeof gov.delivery_fee_egp === 'number') { this.deliveryFeeForDisplayEGP = gov.delivery_fee_egp; this.isDeliveryFeeVariable = false; } else { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; } } 
-            else { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; }
+            this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false;
+            if (!this.deliveryCity) return;
+            const cityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
+            if (cityData && typeof cityData.delivery_fee_egp === 'number') {
+                this.deliveryFeeForDisplayEGP = cityData.delivery_fee_egp;
+                this.isDeliveryFeeVariable = false;
+            } else if (cityData && cityData.delivery_fee_egp === null) {
+                this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
+            } else {
+                this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
+            }
         },
         getFormattedPrice(p, c) {const cc=c||this.currentCurrency;const ci=this.appSettings?.exchange_rates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isValidEmail: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isValidPhone: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
-        scrollToSection(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.site-header')?.offsetHeight||0;if(s.startsWith('#udheya-booking-start')||s.startsWith('#step')||s.startsWith('#udheya-booking-form-panel')){const h=document.querySelector('.stepper-outer-wrapper');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){}},
+        scrollToSection(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.site-header')?.offsetHeight||0;if(s.startsWith('#udheya-booking-start')||s.startsWith('#step')||s.startsWith('#udheya-booking-form-panel')){const h=document.querySelector('.stepper-outer-wrapper');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){console.warn("ScrollToSection error:", err);}},
         validateConceptualStep(cs, se=true) { const m=this.stepSectionsMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProgress[`step${cs}`]=v;return v;},
         updateAllStepCompletionStates() { for(let i=1;i<=this.stepSectionsMeta.length;i++)this.stepProgress[`step${i}`]=this.validateConceptualStep(i,false);},
         handleStepperNavigation(tcs) {this.clearAllErrors();let cp=true;for(let s=1;s<tcs;s++){if(!this.validateConceptualStep(s,true)){this.currentConceptualStep=s;const m=this.stepSectionsMeta[s-1];this.focusOnRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollToSection(m?.id||'#udheya-booking-start');cp=false;break;}}if(cp){this.currentConceptualStep=tcs;this.scrollToSection(this.stepSectionsMeta[tcs-1]?.id||'#udheya-booking-start');this.focusOnRef(this.stepSectionsMeta[tcs-1]?.titleRef);}},
@@ -189,7 +225,7 @@ document.addEventListener('alpine:init', () => {
             return true; 
         },
         validateStep2(setErrors = true) { 
-            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('splitDetails'); this.clearError('timeSlot'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('customerEmail'); }
+            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('splitDetails'); this.clearError('timeSlot'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('customerEmail'); }
             let isValid = true;
             if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
             if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; }
@@ -197,9 +233,7 @@ document.addEventListener('alpine:init', () => {
             if (this._needsDeliveryDetails) {
                 if (!(this.deliveryName || "").trim()) { if (setErrors) this.setError('deliveryName', 'required'); isValid = false; }
                 if (!this.isValidPhone(this.deliveryPhone)) { if (setErrors) this.setError('deliveryPhone', 'phone'); isValid = false; }
-                if (!this.selectedGovernorate) { if (setErrors) this.setError('selectedGovernorate', 'select'); isValid = false; }
-                const gov = this.appSettings.delivery_areas.find(area => area.id === this.selectedGovernorate);
-                if (gov && gov.cities && gov.cities.length > 0 && !this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; }
+                if (!this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; }
                 if (!(this.deliveryAddress || "").trim()) { if (setErrors) this.setError('deliveryAddress', 'required'); isValid = false; }
                 if (!this.selectedTimeSlot) { if (setErrors) this.setError('timeSlot', 'select'); isValid = false; }
             }
@@ -291,8 +325,7 @@ document.addEventListener('alpine:init', () => {
             this.isLoading.booking = true; this.apiError = null; this.userFriendlyApiError = ""; this.calculateTotalPrice();
             const bookingId = `SL-UDHY-${new Date().getFullYear()}-${String(Math.random()).slice(2,7)}`;
             let delOpt = "self_arranged"; if (this.distributionChoice === 'char') delOpt = "charity_distribution"; else if (this._needsDeliveryDetails) delOpt = "home_delivery";
-            const gov = this.appSettings.delivery_areas.find(a => a.id === this.selectedGovernorate);
-            const city = gov?.cities?.find(c => c.id === this.deliveryCity);
+            const selectedCityInfo = this._needsDeliveryDetails ? this.allAvailableCities.find(c => c.id === this.deliveryCity) : null;
 
             const payload = {
                 booking_id_text: bookingId,
@@ -309,7 +342,9 @@ document.addEventListener('alpine:init', () => {
                 niyyah_names: (this.niyyahNames || "").trim(), customer_email: (this.customerEmail || "").trim(),
                 delivery_option: delOpt,
                 delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "",
-                delivery_area_id: this._needsDeliveryDetails ? (city?.id || gov?.id || "") : "", delivery_area_name_en: this._needsDeliveryDetails ? (city?.name_en || gov?.name_en || "") : "", delivery_area_name_ar: this._needsDeliveryDetails ? (city?.name_ar || gov?.name_ar || "") : "",
+                delivery_area_id: this._needsDeliveryDetails ? (selectedCityInfo?.id || "") : "", 
+                delivery_area_name_en: this._needsDeliveryDetails ? (selectedCityInfo?.name_en || "") : "", 
+                delivery_area_name_ar: this._needsDeliveryDetails ? (selectedCityInfo?.name_ar || "") : "",
                 delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "",
                 time_slot: (this.distributionChoice === 'char' || !this._needsDeliveryDetails) ? 'N/A' : this.selectedTimeSlot,
                 payment_method: this.paymentMethod, payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) ? 'cod_pending_confirmation' : 'pending_payment',
