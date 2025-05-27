@@ -241,12 +241,7 @@
                 <div x-show="!bookingConfirmed">
                     <div id="udheya-booking-form-panel" class="card form-panel-card all-steps-panel">
                         <div class="card-b">
-                            <div class="required-fields-note bil-row">
-                                <p class="en">Fields marked with * are required.</p>
-                                <p class="ar">الحقول المشار إليها بـ * إلزامية.</p>
-                            </div>
-
-                            <!-- NEW STEP 1: Select Sheep -->
+                            
                             <div id="step1-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep *</span><span class="ar">اختر الخروف *</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
@@ -297,7 +292,6 @@
                                 <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
                             </div>
 
-                            <!-- NEW STEP 2: Arrangements -->
                             <div id="step2-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Arrangements *</span><span class="ar">الترتيبات *</span></h2></div>
                                 
@@ -305,12 +299,12 @@
                                     <label class="bil-parent-spread form-label-strict"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
                                     <div class="rgrp" x-ref="udheyaServiceRadios">
                                         <label>
-                                            <input type="radio" name="udheya_service_opt" value="standard_service" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
+                                            <input type="radio" name="udheya_service_opt_s2" value="standard_service" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
                                             <span class="en">Standard Service (Slaughter, Cutting, Bagging) - Fee: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
                                             <span class="ar">خدمة قياسية (ذبح، تقطيع، تغليف) - رسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
                                         </label>
                                         <label>
-                                            <input type="radio" name="udheya_service_opt" value="live_animal_only" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
+                                            <input type="radio" name="udheya_service_opt_s2" value="live_animal_only" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
                                             <span class="en">Live Animal Only (No processing service)</span>
                                             <span class="ar">الحيوان حي فقط (بدون خدمة تجهيز)</span>
                                         </label>
@@ -394,8 +388,8 @@
                                         <div x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable)" class="card form-panel-card info-box-step">
                                             <div class="card-b">
                                                 <div class="bil-row">
-                                                    <p class="en" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">Delivery Fee: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(Paid separately).</small></p>
-                                                    <p class="ar" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">رسوم التوصيل: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(تدفع منفصلة).</small></p>
+                                                    <p class="en" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">Delivery Fee: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(Will be added to total).</small></p>
+                                                    <p class="ar" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">رسوم التوصيل: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(ستضاف للمجموع).</small></p>
                                                     <p class="en" x-show="isDeliveryFeeVariable && deliveryCity">Delivery fee for <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_en || 'selected area'"></span> will be confirmed.</p>
                                                     <p class="ar" x-show="isDeliveryFeeVariable && deliveryCity">سيتم تأكيد رسوم التوصيل لـ <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_ar || 'المنطقة المختارة'"></span>.</p>
                                                 </div>
@@ -467,11 +461,15 @@
                                              <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="summaryDistributionEN"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="summaryDistributionAR"></span></div></div></div>
                                             <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
-                                        <div class="summary-item" x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable)">
-                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Est. Delivery Fee:</strong></div><div class="ar"><strong>رسوم التوصيل المقدرة:</strong></div></div></div>
-                                            <span class="summary-item-price bil-row"><span class="en" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable" x-text="getFormattedPrice(deliveryFeeForDisplayEGP) + ' (Paid separately)'"></span><span class="ar" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable" x-text="getFormattedPrice(deliveryFeeForDisplayEGP) + ' (تدفع منفصلة)'"></span><span class="en" x-show="isDeliveryFeeVariable && deliveryCity">To be confirmed for <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_en || 'selected area'"></span></span><span class="ar" x-show="isDeliveryFeeVariable && deliveryCity">سيتم التأكيد لـ <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_ar || 'المنطقة المختارة'"></span></span></span>
+                                        <div class="summary-item" x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable) && !isDeliveryFeeVariable"> <!-- Only show if fee is fixed and applicable -->
+                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery Fee:</strong></div><div class="ar"><strong>رسوم التوصيل:</strong></div></div></div>
+                                            <span class="summary-item-price bil-row"><span class="en" x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></span><span class="ar" x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></span></span>
                                         </div>
-                                        <hr class="summary-hr"><div class="summary-total bil-row"><div class="en"><strong>Order Subtotal:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span> <small x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable)">(Excl. Delivery Fee)</small></div><div class="ar"><strong>المجموع الفرعي للطلب:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span> <small x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable)">(غير شامل رسوم التوصيل)</small></div></div>
+                                        <div class="summary-item" x-show="_needsDeliveryDetails && isDeliveryFeeVariable">
+                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Est. Delivery Fee:</strong> To be confirmed</div><div class="ar"><strong>رسوم التوصيل المقدرة:</strong> سيتم التأكيد</div></div></div>
+                                        </div>
+
+                                        <hr class="summary-hr"><div class="summary-total bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div><div class="ar"><strong>المجموع الكلي للطلب:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div></div>
                                     </div>
                                     <div x-show="!selectedAnimal.item_key" class="tc review-no-selection-text bil-row"><p class="en">Selections will appear here.</p><p class="ar">ستظهر اختياراتك هنا.</p></div>
                                     <div class="bil-row tc review-care-note"><p class="en review-care-note-text">Review carefully before confirming.</p><p class="ar review-care-note-text">راجع اختياراتك بعناية قبل التأكيد.</p></div>
@@ -530,7 +528,7 @@
                             </div>
                             <div class="payment-instructions-wrapper">
                                 <h4 class="form-subhead bil-parent-spread payment-instructions-title"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
-                                <div x-show="paymentMethod === 'fa'"><div class="bil-row"><p class="en">Fawry: Use Booking ID <strong class="payment-ref-highlight" x-text="bookingID"></strong>. Order Subtotal: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. Due in 24h.</p><p class="ar">فوري: استخدم رقم الحجز <strong class="payment-ref-highlight" x-text="bookingID"></strong>. المجموع الفرعي للطلب: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. خلال 24س.</p></div></div>
+                                <div x-show="paymentMethod === 'fa'"><div class="bil-row"><p class="en">Fawry: Use Booking ID <strong class="payment-ref-highlight" x-text="bookingID"></strong>. Order Total: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. Due in 24h.</p><p class="ar">فوري: استخدم رقم الحجز <strong class="payment-ref-highlight" x-text="bookingID"></strong>. المجموع الكلي للطلب: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. خلال 24س.</p></div></div>
                                 <div x-show="paymentMethod === 'vo'"><div class="bil-row"><p class="en">Vodafone Cash: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong> to <strong class="payment-ref-highlight" x-text="appSettings.payment_details.vodafone_cash || '010X'"></strong>. Ref: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. Confirm WA: <a :href="'https://wa.me/' + appSettings.whatsapp_number_raw" target="_blank" x-text="appSettings.whatsapp_number_display"></a></p><p class="ar">فودافون كاش: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong> إلى <strong class="payment-ref-highlight" x-text="appSettings.payment_details.vodafone_cash || '010X'"></strong>. مرجع: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. أكد عبر واتساب: <a :href="'https://wa.me/' + appSettings.whatsapp_number_raw" target="_blank" x-text="appSettings.whatsapp_number_display"></a></p></div></div>
                                 <div x-show="paymentMethod === 'ip'"><div class="bil-row"><p class="en">InstaPay: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong> to <strong class="payment-ref-highlight" x-text="appSettings.payment_details.instapay_ipn || 'IPN@insta'"></strong>. Ref: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. Confirm WA.</p><p class="ar">إنستا باي: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong> إلى <strong class="payment-ref-highlight" x-text="appSettings.payment_details.instapay_ipn || 'IPN@insta'"></strong>. مرجع: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. أكد واتساب.</p></div></div>
                                 <div x-show="paymentMethod === 'revolut'"><div class="bil-row"><p class="en">Revolut: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong> to <strong class="payment-ref-highlight" x-text="appSettings.payment_details.revolut_details || '@Revtag'"></strong>. Ref: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. Confirm WA.</p><p class="ar">ريفولوت: <strong x-text="getFormattedPrice(totalPriceEGP)"></strong> إلى <strong class="payment-ref-highlight" x-text="appSettings.payment_details.revolut_details || '@Revtag'"></strong>. مرجع: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. أكد واتساب.</p></div></div>
@@ -546,7 +544,7 @@
                                     </ul>
                                     <div class="bil-row bank-transfer-crucial-note"><p class="en">Crucial: Ref Booking ID: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. Confirm WA.</p><p class="ar">هام: مرجع الحجز: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. أكد واتساب.</p></div>
                                 </div>
-                                <div x-show="paymentMethod === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="deliveryPhone"></strong>. Order Subtotal <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. ID: <strong x-text="bookingID"></strong>. <span x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">Delivery fee of <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong> also due.</span><span x-show="isDeliveryFeeVariable">Delivery fee to be confirmed.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="deliveryPhone"></strong>. المجموع الفرعي للطلب <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. رقم الحجز: <strong x-text="bookingID"></strong>. <span x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">رسوم التوصيل <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong> مستحقة أيضاً.</span><span x-show="isDeliveryFeeVariable">سيتم تأكيد رسوم التوصيل.</span></p></div></div>
+                                <div x-show="paymentMethod === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="deliveryPhone"></strong>. Total Amount Due <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. ID: <strong x-text="bookingID"></strong>. <span x-show="isDeliveryFeeVariable">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="deliveryPhone"></strong>. المجموع الكلي للطلب <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. رقم الحجز: <strong x-text="bookingID"></strong>. <span x-show="isDeliveryFeeVariable">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span></p></div></div>
                             </div>
                         </div>
                         <div class="form-action tc page-step-action"><a href="#udheya-booking-start" class="btn bp btn-lg btn-block bil-parent-spread-intrinsic" @click.prevent="resetAndStartOver()"><span class="en">Book Another Udheya</span><span class="ar">حجز أضحية أخرى</span></a></div>

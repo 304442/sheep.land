@@ -89,7 +89,7 @@ document.addEventListener('alpine:init', () => {
             return item.avg_weight_kg * animalTypeConfig.price_per_kg_egp;
         },
         getApproxPricePerKiloTextForDisplay(animalTypeValueKey) {
-             const animalConfig = this.productOptions.livestock.find(a => a.value_key === animalTypeValueKey);
+            const animalConfig = this.productOptions.livestock.find(a => a.value_key === animalTypeValueKey);
             if (animalConfig && typeof animalConfig.price_per_kg_egp === 'number') {
                  return `(${this.getFormattedPrice(animalConfig.price_per_kg_egp, "EGP")}/kg est.)`;
             }
@@ -175,12 +175,12 @@ document.addEventListener('alpine:init', () => {
             });
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) },
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) }, // udheyaServiceRadios (if radios) or udheyaServiceSelect (if select)
                 { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep3.bind(this) }
             ];
             ['selectedAnimal.basePriceEGP', 'currentCurrency', 'currentServiceFeeEGP'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'currentServiceFeeEGP') this.updateAllDisplayedPrices(); }));
             this.$watch('appSettings.udheya_service_surcharge_egp', () => { this.updateServiceFee(); });
-            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'deliveryCity' && nv !== ov) this.updateDeliveryFeeDisplay(); if (prop === 'selectedUdheyaService') this.updateServiceFee(); }));
+            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'deliveryCity' && nv !== ov) {this.updateDeliveryFeeDisplay(); this.calculateTotalPrice();} if (prop === 'selectedUdheyaService') this.updateServiceFee(); if (prop === 'distributionChoice') this.calculateTotalPrice(); }));
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
@@ -189,13 +189,13 @@ document.addEventListener('alpine:init', () => {
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             } else if (this.selectedUdheyaService === 'live_animal_only') {
                 this.currentServiceFeeEGP = 0;
-            } else { // Default or if somehow an invalid option is set
+            } else {
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             }
             this.calculateTotalPrice();
         },
         handleScroll() {
-            if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => document.querySelector(step.id) && typeof document.querySelector(step.id).offsetTop === 'number')) {
+            if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => { const el = document.querySelector(step.id); return el && typeof el.offsetTop === 'number'; })) {
                 const scrollMidPoint = window.scrollY + (window.innerHeight / 2); let closestStep = 1; let minDistance = Infinity;
                 this.stepSectionsMeta.forEach(stepMeta => { const element = document.querySelector(stepMeta.id); if (element) { const distance = Math.abs(scrollMidPoint - (element.offsetTop + (element.offsetHeight / 2))); if (distance < minDistance) { minDistance = distance; closestStep = stepMeta.conceptualStep; } } });
                 if (this.currentConceptualStep !== closestStep) this.currentConceptualStep = closestStep;
@@ -226,7 +226,7 @@ document.addEventListener('alpine:init', () => {
         updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
         updateDeliveryFeeDisplay() {
             this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false;
-            if (!this.deliveryCity) return;
+            if (!this.deliveryCity) { this.calculateTotalPrice(); return; } // Recalculate if city is deselected
             const cityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
             if (cityData && typeof cityData.delivery_fee_egp === 'number') {
                 this.deliveryFeeForDisplayEGP = cityData.delivery_fee_egp;
@@ -236,6 +236,7 @@ document.addEventListener('alpine:init', () => {
             } else {
                 this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
             }
+            this.calculateTotalPrice(); // Recalculate total when delivery fee might change
         },
         getFormattedPrice(p, c) {const cc=c||this.currentCurrency;const ci=this.appSettings?.exchange_rates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isValidEmail: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
@@ -303,7 +304,13 @@ document.addEventListener('alpine:init', () => {
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
         updateSacrificeDayTexts() {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${this.selectedSacrificeDay.value}"]`);if(o)Object.assign(this.selectedSacrificeDay,{textEN:o.dataset.en,textAR:o.dataset.ar});},
-        calculateTotalPrice() { this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0); },
+        calculateTotalPrice() { 
+            let deliveryFeeForTotal = 0;
+            if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) {
+                deliveryFeeForTotal = this.deliveryFeeForDisplayEGP;
+            }
+            this.totalPriceEGP = (this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal; 
+        },
 
         updateAllDisplayedPrices() {
             try {
