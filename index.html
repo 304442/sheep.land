@@ -183,33 +183,12 @@
 
     <section class="udheya-booking-section main-page-section sec" id="udheya-booking-start">
         <div class="c">
+            <!-- "Our Udheya Service Process" visual guide removed -->
             <div x-show="!bookingConfirmed">
-                <div class="sec-head tc booking-section-head">
+                 <div class="sec-head tc booking-section-head">
                     <h2 class="bil-parent-spread" x-ref="bookingSectionTitle">
                         <span class="en">Book Your Udheya</span><span class="ar">احجز أضحيتك</span>
                     </h2>
-                </div>
-                <div class="uprocess-wrap compact-how-it-works">
-                    <div class="uprocess">
-                        <div class="sec-head compact-how-it-works-head"><h4 class="bil-parent-spread" tabindex="-1"><span class="en">Our Udheya Service Process</span><span class="ar">خطوات خدمة الأضحية لدينا</span></h4></div>
-                        <div class="feature-grid how-it-works-grid">
-                            <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">1</div>
-                                <h4 class="bil-parent-spread"><span class="en">Select & Niyyah</span><span class="ar">اختر وانوِ</span></h4>
-                                <div class="bil-row"><p class="en card-p">Choose your sheep and provide Niyyah names.</p><p class="ar card-p">اختر خروفك وقدم أسماء النية.</p></div>
-                            </div>
-                            <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">2</div>
-                                <h4 class="bil-parent-spread"><span class="en">Arrange & Schedule</span><span class="ar">نظم وجدول</span></h4>
-                                <div class="bil-row"><p class="en card-p">Set service, sacrifice day, viewing, distribution and delivery.</p><p class="ar card-p">حدد الخدمة، يوم الذبح، المشاهدة، التوزيع والتوصيل.</p></div>
-                            </div>
-                            <div class="feature-item">
-                                <div class="icon-placeholder number-icon" aria-hidden="true">3</div>
-                                 <h4 class="bil-parent-spread"><span class="en">Review & Reserve</span><span class="ar">راجع واحجز</span></h4>
-                                <div class="bil-row"><p class="en card-p">Confirm choices and complete your booking.</p><p class="ar card-p">راجع اختياراتك وأكمل حجزك.</p></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -232,6 +211,12 @@
                             <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
                                 <span class="step-number" x-show="!stepProgress.step3 || currentConceptualStep === 3">3</span>
                                  <svg x-show="stepProgress.step3 && currentConceptualStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <span class="step-label en">Details</span><span class="step-label ar">التفاصيل</span>
+                            </a>
+                            <div class="stepper-connector"></div>
+                            <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
+                                <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
+                                 <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                                 <span class="step-label en">Review & Reserve</span><span class="step-label ar">المراجعة والحجز</span>
                             </a>
                         </div>
@@ -243,7 +228,7 @@
                         <div class="card-b">
                             
                             <div id="step1-content" class="form-step-content">
-                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep *</span><span class="ar">اختر الخروف *</span></h2></div>
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep</span><span class="ar">اختر الخروف</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
                                     <p class="en">All animals meet Sharia age/health requirements for Udheya. Price is based on type and estimated weight category. Price per kilo is shown for transparency.</p>
                                     <p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية. يعتمد السعر على النوع وفئة الوزن التقديرية. يتم عرض السعر للكيلو للشفافية.</p>
@@ -270,7 +255,7 @@
                                                     </div>
                                                     <div class="card-act">
                                                         <label :for="animalType.value_key + 'WeightSelect'" class="sr-only" x-text="'Select ' + animalType.name_en + ' Weight Category'"></label>
-                                                        <select :id="animalType.value_key + 'WeightSelect'" class="form-input-styled" :x-ref="animalType.value_key + 'WeightSelect'" @change="selectAnimal(animalType.value_key, $el)" :aria-invalid="errors.animal ? 'true' : 'false'" aria-required="true">
+                                                        <select :id="animalType.value_key + 'WeightSelect'" class="form-input-styled" :x-ref="animalType.value_key + 'WeightSelect'" @change="selectAnimal(animalType.value_key, $el)" :aria-invalid="errors.animal ? 'true' : 'false'">
                                                             <option value="">-- Select Weight Category -- / -- اختر فئة الوزن --</option>
                                                             <template x-for="wp_item in animalType.weights_prices" :key="wp_item.item_key">
                                                                 <option :value="wp_item.item_key"
@@ -293,7 +278,7 @@
                             </div>
 
                             <div id="step2-content" class="form-step-content">
-                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Arrangements *</span><span class="ar">الترتيبات *</span></h2></div>
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Arrangements</span><span class="ar">الترتيبات</span></h2></div>
                                 
                                 <div class="fg">
                                     <label class="bil-parent-spread form-label-strict"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
@@ -318,7 +303,6 @@
                                     <div class="bil-row field-note-wrapper niyyah-note"><p class="field-note en">Niyyah is core. List names for whom sacrifice is made.</p><p class="field-note ar">النية أساسية. اذكر أسماء من تضحى عنهم.</p></div>
                                 </div>
                                 <hr class="form-divider">
-
                                 <div class="fg">
                                     <label for="sacrifice_day_select_s2" class="bil-parent-spread form-label-strict"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
                                     <select id="sacrifice_day_select_s2" class="form-input-styled" x-model="selectedSacrificeDay.value" @change="updateSacrificeDayTexts(); clearError('sacrificeDay')" x-ref="sacrificeDaySelect" :aria-invalid="errors.sacrificeDay ? 'true' : 'false'" aria-describedby="sacrificeDayError" aria-required="true">
@@ -368,59 +352,66 @@
                                     <div class="bil-row field-note-wrapper distribution-note"><p class="field-note en">Delivery details required if any portion for you. "Charity (SL)" means we handle distribution.</p><p class="field-note ar">تفاصيل التوصيل مطلوبة إذا كان جزء لك. "صدقة (أرض الأغنام)" تعني أننا نتولى التوزيع.</p></div>
                                 </div>
                                 <div class="bil-row field-note-wrapper wakeel-note"><p class="field-note en">If Sheep Land distributes to charity, we act as your Wakeel.</p><p class="field-note ar">إذا وزعت "أرض الأغنام" للجمعيات، فنحن وكيلك.</p></div>
-                                <hr class="form-divider" x-show="_needsDeliveryDetails">
-                                <div x-show="_needsDeliveryDetails">
-                                    <h4 class="form-subhead bil-parent-spread delivery-details-title"><span class="en">Delivery Details</span><span class="ar">تفاصيل التوصيل</span></h4>
-                                    <div>
-                                        <div class="fg"><label for="delivery_name_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Full Name (for delivery) *</span><span class="ar">الاسم الكامل (للتوصيل) *</span></label><input id="delivery_name_input_s2" type="text" class="form-input-styled" x-model="deliveryName" @input="clearError('deliveryName')" x-ref="deliveryNameInput" :aria-invalid="errors.deliveryName ? 'true' : 'false'" aria-describedby="deliveryNameError" :aria-required="_needsDeliveryDetails"><div class="form-error-msg" id="deliveryNameError" x-show="errors.deliveryName" x-text="errors.deliveryName ? (currentLang === 'ar' ? errors.deliveryName.ar : errors.deliveryName.en) : ''" role="alert" aria-live="assertive"></div></div>
-                                        <div class="fg"><label for="delivery_phone_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Phone (for delivery) *</span><span class="ar">رقم الهاتف (للتوصيل) *</span></label><input id="delivery_phone_input_s2" type="tel" class="form-input-styled" x-model="deliveryPhone" @input="clearError('deliveryPhone')" x-ref="deliveryPhoneInput" :aria-invalid="errors.deliveryPhone ? 'true' : 'false'" aria-describedby="deliveryPhoneError" :aria-required="_needsDeliveryDetails"><div class="form-error-msg" id="deliveryPhoneError" x-show="errors.deliveryPhone" x-text="errors.deliveryPhone ? (currentLang === 'ar' ? errors.deliveryPhone.ar : errors.deliveryPhone.en) : ''" role="alert" aria-live="assertive"></div></div>
-                                        <div class="fg"><label for="customer_email_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Your Email (Optional)</span><span class="ar">بريدك الإلكتروني (اختياري)</span></label><input id="customer_email_input_s2" type="email" class="form-input-styled" x-model="customerEmail" @input="clearError('customerEmail')" placeholder="optional@example.com" x-ref="customerEmailInput" :aria-invalid="errors.customerEmail ? 'true' : 'false'" aria-describedby="customerEmailError"><div class="form-error-msg" id="customerEmailError" x-show="errors.customerEmail" x-text="errors.customerEmail ? (currentLang === 'ar' ? errors.customerEmail.ar : errors.customerEmail.en) : ''" role="alert" aria-live="assertive"></div></div>
-                                        <div class="fg">
-                                            <label for="delivery_city_select_s2" class="bil-parent-spread form-label-strict"><span class="en">City *</span><span class="ar">المدينة *</span></label>
-                                            <select id="delivery_city_select_s2" class="form-input-styled" x-model="deliveryCity" @change="clearError('deliveryCity'); updateDeliveryFeeDisplay()" x-ref="deliveryCitySelect" :aria-invalid="errors.deliveryCity ? 'true' : 'false'" aria-describedby="cityError" :aria-required="_needsDeliveryDetails">
-                                                <option value="">-- Select City -- / -- اختر المدينة --</option>
-                                                <template x-for="city in allAvailableCities" :key="city.id">
-                                                    <option :value="city.id" x-text="currentLang === 'ar' ? city.name_ar : city.name_en"></option>
-                                                </template>
-                                            </select>
-                                            <div class="form-error-msg" id="cityError" x-show="errors.deliveryCity" x-text="errors.deliveryCity ? (currentLang === 'ar' ? errors.deliveryCity.ar : errors.deliveryCity.en) : ''" role="alert" aria-live="assertive"></div>
-                                        </div>
-                                        <div x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable)" class="card form-panel-card info-box-step">
-                                            <div class="card-b">
-                                                <div class="bil-row">
-                                                    <p class="en" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">Delivery Fee: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(Will be added to total).</small></p>
-                                                    <p class="ar" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">رسوم التوصيل: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(ستضاف للمجموع).</small></p>
-                                                    <p class="en" x-show="isDeliveryFeeVariable && deliveryCity">Delivery fee for <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_en || 'selected area'"></span> will be confirmed.</p>
-                                                    <p class="ar" x-show="isDeliveryFeeVariable && deliveryCity">سيتم تأكيد رسوم التوصيل لـ <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_ar || 'المنطقة المختارة'"></span>.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="fg"><label for="delivery_address_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Full Address *</span><span class="ar">العنوان بالكامل *</span></label><textarea id="delivery_address_input_s2" class="form-input-styled" rows="2" x-model="deliveryAddress" @input="clearError('deliveryAddress')" x-ref="deliveryAddressInput" :aria-invalid="errors.deliveryAddress ? 'true' : 'false'" aria-describedby="deliveryAddressError" :aria-required="_needsDeliveryDetails"></textarea><div class="form-error-msg" id="deliveryAddressError" x-show="errors.deliveryAddress" x-text="errors.deliveryAddress ? (currentLang === 'ar' ? errors.deliveryAddress.ar : errors.deliveryAddress.en) : ''" role="alert" aria-live="assertive"></div></div>
-                                        <div class="fg"><label for="delivery_instructions_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Special Instructions (Optional)</span><span class="ar">تعليمات خاصة (اختياري)</span></label><textarea id="delivery_instructions_input_s2" class="form-input-styled" rows="2" x-model="deliveryInstructions" x-ref="deliveryInstructionsInput"></textarea></div>
-                                        <div class="fg">
-                                            <label class="bil-parent-spread form-label-strict"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
-                                            <div class="tslots" x-ref="timeSlotContainer">
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '7 AM-8 AM'}" @click="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')">7-8 AM</div>
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '8 AM-9 AM'}" @click="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')">8-9 AM</div>
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '9 AM-10 AM'}" @click="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')">9-10 AM</div>
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '10 AM-11 AM'}" @click="selectedTimeSlot = '10 AM-11 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '10 AM-11 AM'; clearError('timeSlot')">10-11 AM</div>
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '11 AM-12 PM'}" @click="selectedTimeSlot = '11 AM-12 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '11 AM-12 PM'; clearError('timeSlot')">11-12 PM</div>
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '12 PM-1 PM'}" @click="selectedTimeSlot = '12 PM-1 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '12 PM-1 PM'; clearError('timeSlot')">12-1 PM</div>
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '1 PM-2 PM'}" @click="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')">1-2 PM</div>
-                                                <div class="ts" :class="{'sel': selectedTimeSlot === '2 PM-3 PM'}" @click="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')">2-3 PM</div>
-                                            </div>
-                                            <div class="form-error-msg" id="timeSlotError" x-show="errors.timeSlot" x-text="errors.timeSlot ? (currentLang === 'ar' ? errors.timeSlot.ar : errors.timeSlot.en) : ''" role="alert" aria-live="assertive"></div>
-                                            <div class="bil-row field-note-wrapper time-slot-note"><p class="field-note en">Preferred time. We will confirm exact window.</p><p class="field-note ar">هذا وقتكم المفضل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p></div>
-                                        </div>
-                                        <div class="bil-row field-note-wrapper"><p class="field-note en">Delivery details required if Udheya is delivered to you.</p><p class="field-note ar">تفاصيل التوصيل مطلوبة إذا ستُوصل الأضحية إليك.</p></div>
-                                    </div>
-                                </div>
-                                <template x-if="!_needsDeliveryDetails"><p class="bil-row field-note en ar no-delivery-note"><span class="en">Delivery details not required.</span><span class="ar">تفاصيل التوصيل غير مطلوبة.</span></p></template>
                             </div>
 
-                            <!-- NEW STEP 3: Review & Reserve -->
+                            <!-- NEW STEP 3: Details (Contact & Delivery) -->
                             <div id="step3-content" class="form-step-content">
-                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Review & Reserve</span><span class="ar">المراجعة والحجز</span></h2></div>
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Details *</span><span class="ar">التفاصيل *</span></h2></div>
+                                
+                                <h4 class="form-subhead bil-parent-spread delivery-details-title"><span class="en">Your Contact Details</span><span class="ar">بيانات الاتصال الخاصة بك</span></h4>
+                                <div class="fg"><label for="orderingPersonNameInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Your Full Name *</span><span class="ar">اسمك الكامل *</span></label><input id="orderingPersonNameInput_s3" type="text" class="form-input-styled" x-model="orderingPersonName" @input="clearError('orderingPersonName')" x-ref="orderingPersonNameInput_s3" :aria-invalid="errors.orderingPersonName ? 'true' : 'false'"><div class="form-error-msg" x-show="errors.orderingPersonName" x-text="errors.orderingPersonName ? (currentLang === 'ar' ? errors.orderingPersonName.ar : errors.orderingPersonName.en) : ''" role="alert" aria-live="assertive"></div></div>
+                                <div class="fg"><label for="orderingPersonPhoneInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Your Phone *</span><span class="ar">رقم هاتفك *</span></label><input id="orderingPersonPhoneInput_s3" type="tel" class="form-input-styled" x-model="orderingPersonPhone" @input="clearError('orderingPersonPhone')" x-ref="orderingPersonPhoneInput_s3" :aria-invalid="errors.orderingPersonPhone ? 'true' : 'false'"><div class="form-error-msg" x-show="errors.orderingPersonPhone" x-text="errors.orderingPersonPhone ? (currentLang === 'ar' ? errors.orderingPersonPhone.ar : errors.orderingPersonPhone.en) : ''" role="alert" aria-live="assertive"></div></div>
+                                <div class="fg"><label for="customerEmailInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Your Email (Optional)</span><span class="ar">بريدك الإلكتروني (اختياري)</span></label><input id="customerEmailInput_s3" type="email" class="form-input-styled" x-model="customerEmail" @input="clearError('customerEmail')" placeholder="optional@example.com" x-ref="customerEmailInput_s3" :aria-invalid="errors.customerEmail ? 'true' : 'false'"><div class="form-error-msg" x-show="errors.customerEmail" x-text="errors.customerEmail ? (currentLang === 'ar' ? errors.customerEmail.ar : errors.customerEmail.en) : ''" role="alert" aria-live="assertive"></div></div>
+                                
+                                <hr class="form-divider">
+
+                                <h4 class="form-subhead bil-parent-spread delivery-details-title"><span class="en">Recipient & Delivery Details</span><span class="ar">بيانات المستلم والتوصيل</span></h4>
+                                <div class="bil-row field-note-wrapper" style="margin-bottom: var(--s1);"><p class="field-note en">Fill below if delivering to yourself or someone else. Not required if donating all.</p><p class="field-note ar">املأ أدناه إذا كنت ستستلمها بنفسك أو لشخص آخر. غير مطلوب إذا كنت ستتبرع بها كلها.</p></div>
+
+                                <div class="fg"><label for="deliveryNameInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Recipient's Full Name </span><span x-show="_needsDeliveryDetails">*</span><span class="ar">اسم المستلم الكامل </span><span x-show="_needsDeliveryDetails">*</span></label><input id="deliveryNameInput_s3" type="text" class="form-input-styled" x-model="deliveryName" @input="clearError('deliveryName')" x-ref="deliveryNameInput_s3" :aria-invalid="errors.deliveryName ? 'true' : 'false'" :aria-required="_needsDeliveryDetails.toString()"><div class="form-error-msg" x-show="errors.deliveryName" x-text="errors.deliveryName ? (currentLang === 'ar' ? errors.deliveryName.ar : errors.deliveryName.en) : ''"></div></div>
+                                <div class="fg"><label for="deliveryPhoneInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Recipient's Phone </span><span x-show="_needsDeliveryDetails">*</span><span class="ar">رقم هاتف المستلم </span><span x-show="_needsDeliveryDetails">*</span></label><input id="deliveryPhoneInput_s3" type="tel" class="form-input-styled" x-model="deliveryPhone" @input="clearError('deliveryPhone')" x-ref="deliveryPhoneInput_s3" :aria-invalid="errors.deliveryPhone ? 'true' : 'false'" :aria-required="_needsDeliveryDetails.toString()"><div class="form-error-msg" x-show="errors.deliveryPhone" x-text="errors.deliveryPhone ? (currentLang === 'ar' ? errors.deliveryPhone.ar : errors.deliveryPhone.en) : ''"></div></div>
+                                <div class="fg">
+                                    <label for="deliveryCitySelect_s3" class="bil-parent-spread form-label-strict"><span class="en">City </span><span x-show="_needsDeliveryDetails">*</span><span class="ar">المدينة </span><span x-show="_needsDeliveryDetails">*</span></label>
+                                    <select id="deliveryCitySelect_s3" class="form-input-styled" x-model="deliveryCity" @change="clearError('deliveryCity'); updateDeliveryFeeDisplay()" x-ref="deliveryCitySelect_s3" :aria-invalid="errors.deliveryCity ? 'true' : 'false'" :aria-required="_needsDeliveryDetails.toString()">
+                                        <option value="">-- Select City -- / -- اختر المدينة --</option>
+                                        <template x-for="city in allAvailableCities" :key="city.id">
+                                            <option :value="city.id" x-text="currentLang === 'ar' ? city.name_ar : city.name_en"></option>
+                                        </template>
+                                    </select>
+                                    <div class="form-error-msg" x-show="errors.deliveryCity" x-text="errors.deliveryCity ? (currentLang === 'ar' ? errors.deliveryCity.ar : errors.deliveryCity.en) : ''"></div>
+                                </div>
+                                <div x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable)" class="card form-panel-card info-box-step">
+                                    <div class="card-b">
+                                        <div class="bil-row">
+                                            <p class="en" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">Delivery Fee: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(Will be added to total).</small></p>
+                                            <p class="ar" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">رسوم التوصيل: <strong x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></strong>. <small>(ستضاف للمجموع).</small></p>
+                                            <p class="en" x-show="isDeliveryFeeVariable && deliveryCity">Delivery fee for <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_en || 'selected area'"></span> will be confirmed.</p>
+                                            <p class="ar" x-show="isDeliveryFeeVariable && deliveryCity">سيتم تأكيد رسوم التوصيل لـ <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_ar || 'المنطقة المختارة'"></span>.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fg"><label for="deliveryAddressInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Full Address </span><span x-show="_needsDeliveryDetails">*</span><span class="ar">العنوان بالكامل </span><span x-show="_needsDeliveryDetails">*</span></label><textarea id="deliveryAddressInput_s3" class="form-input-styled" rows="2" x-model="deliveryAddress" @input="clearError('deliveryAddress')" x-ref="deliveryAddressInput_s3" :aria-invalid="errors.deliveryAddress ? 'true' : 'false'" :aria-required="_needsDeliveryDetails.toString()"></textarea><div class="form-error-msg" x-show="errors.deliveryAddress" x-text="errors.deliveryAddress ? (currentLang === 'ar' ? errors.deliveryAddress.ar : errors.deliveryAddress.en) : ''"></div></div>
+                                <div class="fg"><label for="deliveryInstructionsInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Special Instructions (Optional)</span><span class="ar">تعليمات خاصة (اختياري)</span></label><textarea id="deliveryInstructionsInput_s3" class="form-input-styled" rows="2" x-model="deliveryInstructions" x-ref="deliveryInstructionsInput_s3"></textarea></div>
+                                <div class="fg" x-show="_needsDeliveryDetails">
+                                    <label class="bil-parent-spread form-label-strict"><span class="en">Preferred Delivery Time Slot </span><span x-show="_needsDeliveryDetails">*</span><span class="ar">وقت التوصيل المفضل </span><span x-show="_needsDeliveryDetails">*</span></label>
+                                    <div class="tslots" x-ref="timeSlotContainer_s3">
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '7 AM-8 AM'}" @click="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')">7-8 AM</div>
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '8 AM-9 AM'}" @click="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')">8-9 AM</div>
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '9 AM-10 AM'}" @click="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')">9-10 AM</div>
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '10 AM-11 AM'}" @click="selectedTimeSlot = '10 AM-11 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '10 AM-11 AM'; clearError('timeSlot')">10-11 AM</div>
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '11 AM-12 PM'}" @click="selectedTimeSlot = '11 AM-12 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '11 AM-12 PM'; clearError('timeSlot')">11-12 PM</div>
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '12 PM-1 PM'}" @click="selectedTimeSlot = '12 PM-1 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '12 PM-1 PM'; clearError('timeSlot')">12-1 PM</div>
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '1 PM-2 PM'}" @click="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')">1-2 PM</div>
+                                        <div class="ts" :class="{'sel': selectedTimeSlot === '2 PM-3 PM'}" @click="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')">2-3 PM</div>
+                                    </div>
+                                    <div class="form-error-msg" id="timeSlotError" x-show="errors.timeSlot" x-text="errors.timeSlot ? (currentLang === 'ar' ? errors.timeSlot.ar : errors.timeSlot.en) : ''"></div>
+                                    <div class="bil-row field-note-wrapper time-slot-note"><p class="field-note en">Preferred time. We will confirm exact window.</p><p class="field-note ar">هذا وقتكم المفضل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p></div>
+                                </div>
+                            </div>
+
+                            <!-- NEW STEP 4: Review & Reserve -->
+                            <div id="step4-content" class="form-step-content">
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step4Title" tabindex="-1"><span class="en">Review & Reserve</span><span class="ar">المراجعة والحجز</span></h2></div>
                                 <div class="review-summary-wrapper">
                                     <h3 class="form-subhead bil-parent-spread review-summary-title"><span class="en">Your Udheya Booking Summary</span><span class="ar">ملخص حجز أضحيتك</span></h3>
                                     <div x-show="selectedAnimal.item_key">
@@ -451,17 +442,17 @@
                                         </div>
                                         <div class="summary-item" x-show="_needsDeliveryDetails">
                                              <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery Time:</strong> <span x-text="selectedTimeSlot"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="selectedTimeSlot"></span></div></div></div>
-                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                            <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item">
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery To:</strong> <span x-text="summaryDeliveryToEN"></span></div><div class="ar"><strong>التوصيل إلى:</strong> <span x-text="summaryDeliveryToAR"></span></div></div></div>
-                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                            <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item">
                                              <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="summaryDistributionEN"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="summaryDistributionAR"></span></div></div></div>
                                             <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
-                                        <div class="summary-item" x-show="_needsDeliveryDetails && (deliveryFeeForDisplayEGP > 0 || isDeliveryFeeVariable) && !isDeliveryFeeVariable"> <!-- Only show if fee is fixed and applicable -->
+                                        <div class="summary-item" x-show="_needsDeliveryDetails && deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery Fee:</strong></div><div class="ar"><strong>رسوم التوصيل:</strong></div></div></div>
                                             <span class="summary-item-price bil-row"><span class="en" x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></span><span class="ar" x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></span></span>
                                         </div>
@@ -544,7 +535,7 @@
                                     </ul>
                                     <div class="bil-row bank-transfer-crucial-note"><p class="en">Crucial: Ref Booking ID: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. Confirm WA.</p><p class="ar">هام: مرجع الحجز: <strong class="payment-ref-highlight" x-text="bookingID"></strong>. أكد واتساب.</p></div>
                                 </div>
-                                <div x-show="paymentMethod === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="deliveryPhone"></strong>. Total Amount Due <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. ID: <strong x-text="bookingID"></strong>. <span x-show="isDeliveryFeeVariable">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="deliveryPhone"></strong>. المجموع الكلي للطلب <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. رقم الحجز: <strong x-text="bookingID"></strong>. <span x-show="isDeliveryFeeVariable">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span></p></div></div>
+                                <div x-show="paymentMethod === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="_needsDeliveryDetails ? deliveryPhone : orderingPersonPhone"></strong>. Total Amount Due <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. ID: <strong x-text="bookingID"></strong>. <span x-show="isDeliveryFeeVariable && _needsDeliveryDetails">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="_needsDeliveryDetails ? deliveryPhone : orderingPersonPhone"></strong>. المجموع الكلي للطلب <strong x-text="getFormattedPrice(totalPriceEGP)"></strong>. رقم الحجز: <strong x-text="bookingID"></strong>. <span x-show="isDeliveryFeeVariable && _needsDeliveryDetails">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span></p></div></div>
                             </div>
                         </div>
                         <div class="form-action tc page-step-action"><a href="#udheya-booking-start" class="btn bp btn-lg btn-block bil-parent-spread-intrinsic" @click.prevent="resetAndStartOver()"><span class="en">Book Another Udheya</span><span class="ar">حجز أضحية أخرى</span></a></div>
