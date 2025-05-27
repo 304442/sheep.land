@@ -99,6 +99,37 @@ document.addEventListener('alpine:init', () => {
             return lang === 'ar' ? " - متوفر" : " - Available";
         },
 
+        // Options for dropdowns - REINSTATED
+        udheyaServiceOptions() {
+            return [
+                { value: 'standard_service', textEn: `Standard Service (Fee: ${this.getFormattedPrice(this.appSettings.udheya_service_surcharge_egp || 0)})`, textAr: `خدمة قياسية (رسوم: ${this.getFormattedPrice(this.appSettings.udheya_service_surcharge_egp || 0)})` },
+                { value: 'live_animal_only', textEn: 'Live Animal Only (No processing service)', textAr: 'الحيوان حي فقط (بدون خدمة تجهيز)' }
+            ];
+        },
+        slaughterViewingOptions() {
+            return [
+                { value: 'none', textEn: 'No Preference / Not Required', textAr: 'لا يوجد تفضيل / غير مطلوب' },
+                { value: 'physical_inquiry', textEn: 'Inquire about Physical Attendance', textAr: 'الاستفسار عن الحضور الشخصي' },
+                { value: 'video_request', textEn: 'Request Video/Photos of Process', textAr: 'طلب فيديو/صور للعملية' }
+            ];
+        },
+        distributionChoiceOptions() {
+            return [
+                { value: 'me', textEn: 'Deliver All to Me', textAr: 'توصيل الكل لي' },
+                { value: 'char', textEn: 'Donate All (Sheep Land distributes)', textAr: 'تبرع بالكل (أرض الأغنام توزع)' },
+                { value: 'split', textEn: 'Split Portions', textAr: 'تقسيم الحصص' }
+            ];
+        },
+        splitDetailOptionsList() {
+            return [
+                { value: '1/3_me_2/3_charity_sl', textEn: '1/3 me, 2/3 charity (SL)', textAr: 'ثلث لي، ثلثان صدقة (أرض الأغنام)' },
+                { value: '1/2_me_1/2_charity_sl', textEn: '1/2 me, 1/2 charity (SL)', textAr: 'نصف لي، نصف صدقة (أرض الأغنام)' },
+                { value: '2/3_me_1/3_charity_sl', textEn: '2/3 me, 1/3 charity (SL)', textAr: 'ثلثان لي، ثلث صدقة (أرض الأغنام)' },
+                { value: 'all_me_custom_distro', textEn: 'All for me (I distribute)', textAr: 'الكل لي (أنا أوزع)' },
+                { value: 'custom', textEn: 'Other (Specify) *', textAr: 'أخرى (حدد) *' }
+            ];
+        },
+
         initApp() {
             this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = "";
             this.productOptions.livestock = JSON.parse(JSON.stringify(HARDCODED_PRODUCT_CATALOG_CONFIG)).map(animalType => {
@@ -233,7 +264,7 @@ document.addEventListener('alpine:init', () => {
             if (this._needsDeliveryDetails) {
                 if (!(this.deliveryName || "").trim()) { if (setErrors) this.setError('deliveryName', 'required'); isValid = false; }
                 if (!this.isValidPhone(this.deliveryPhone)) { if (setErrors) this.setError('deliveryPhone', 'phone'); isValid = false; }
-                if (!this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; }
+                if (!this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; } 
                 if (!(this.deliveryAddress || "").trim()) { if (setErrors) this.setError('deliveryAddress', 'required'); isValid = false; }
                 if (!this.selectedTimeSlot) { if (setErrors) this.setError('timeSlot', 'select'); isValid = false; }
             }
