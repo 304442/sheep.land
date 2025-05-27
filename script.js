@@ -28,6 +28,8 @@ document.addEventListener('alpine:init', () => {
 
     const initialBookingStateData = {
         selectedAnimal: { type: "", item_key: "", weight_range: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
+        selectedUdheyaService: 'standard_service', 
+        currentServiceFeeEGP: BARE_MINIMUM_APP_SETTINGS.udheya_service_surcharge_egp, 
         totalPriceEGP: 0, customerEmail: "", deliveryName: "", deliveryPhone: "", selectedGovernorate: "",
         deliveryCity: "", availableCities: [], deliveryAddress: "", deliveryInstructions: "", niyyahNames: "",
         splitDetailsOption: "", customSplitDetailsText: "", groupPurchase: false,
@@ -55,7 +57,8 @@ document.addEventListener('alpine:init', () => {
                 catch { errorMessage += ` - ${await response.text() || response.statusText}`; }
                 throw new Error(errorMessage);
             }
-            return await response.json();
+            const responseText = await response.text();
+            return responseText ? JSON.parse(responseText) : {};
         } catch (error) {
             throw new Error(error.message.startsWith('API') || error.message.startsWith('Network') ? error.message : `Network Error (POST bookings): ${error.message}`);
         }
@@ -64,15 +67,15 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('udheyaBooking', () => ({
         isLoading: { status: false, booking: false, init: true },
         appSettings: JSON.parse(JSON.stringify(BARE_MINIMUM_APP_SETTINGS)),
-        productOptions: { livestock: [] }, // Preparation and Packaging options removed
+        productOptions: { livestock: [] },
         get availablePaymentMethods() { return paymentMethodDisplayOptions.filter(pm => activePaymentMethodsList.includes(pm.id)); },
         apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingStateData)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", currentCurrency: "EGP", bookingID: "",
-        currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false },
+        currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false },
         isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false,
         countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
         countdownTimerInterval: null, currentLang: "en",
-        errorMessages: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }},
+        errorMessages: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }, udheyaService: {en: "Please select a service option.", ar: "يرجى اختيار خيار الخدمة."}},
         navLinksData: [ { href: "#udheya-booking-start", sectionId: "udheya-booking-start", parentMenu: "Udheya" }, { href: "#check-booking-status", sectionId: "check-booking-status", parentMenu: "Udheya" }],
         activeNavLinkHref: "", stepSectionsMeta: [], deliveryFeeForDisplayEGP: 0, isDeliveryFeeVariable: false,
 
@@ -103,6 +106,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 return animalType;
             });
+            this.updateServiceFee(); 
 
             this.currentCurrency = this.appSettings.default_currency;
             this.startOfferDHDMSCountdown(); this.updateSacrificeDayTexts(); this.clearAllErrors();
@@ -115,15 +119,24 @@ document.addEventListener('alpine:init', () => {
             });
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'niyyahNamesInput_s2', validator: this.validateStep2.bind(this) }, // Niyyah input becomes first focusable if others removed
-                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'sacrificeDaySelect', validator: this.validateStep3.bind(this) },
-                { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep4.bind(this) }
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) },
+                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep3.bind(this) }
             ];
-            ['selectedAnimal.basePriceEGP', 'currentCurrency'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); }));
-            this.$watch('appSettings.udheya_service_surcharge_egp', () => this.calculateTotalPrice() );
-            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'selectedGovernorate', 'deliveryCity'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'selectedGovernorate' || (prop === 'deliveryCity' && nv !== ov)) this.updateDeliveryFeeDisplay(); }));
+            ['selectedAnimal.basePriceEGP', 'currentCurrency', 'currentServiceFeeEGP'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'currentServiceFeeEGP') this.updateAllDisplayedPrices(); }));
+            this.$watch('appSettings.udheya_service_surcharge_egp', () => { this.updateServiceFee(); });
+            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'selectedGovernorate', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'selectedGovernorate' || (prop === 'deliveryCity' && nv !== ov)) this.updateDeliveryFeeDisplay(); if (prop === 'selectedUdheyaService') this.updateServiceFee(); }));
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
+        },
+        updateServiceFee() {
+            if (this.selectedUdheyaService === 'standard_service') {
+                this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
+            } else if (this.selectedUdheyaService === 'live_animal_only') {
+                this.currentServiceFeeEGP = 0;
+            } else {
+                this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
+            }
+            this.calculateTotalPrice();
         },
         handleScroll() {
             if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => document.querySelector(step.id) && typeof document.querySelector(step.id).offsetTop === 'number')) {
@@ -152,7 +165,16 @@ document.addEventListener('alpine:init', () => {
         startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
         updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
         updateCities() { const g=(this.appSettings.delivery_areas||[]).find(a=>a.id===this.selectedGovernorate);this.availableCities=g?.cities||[];this.deliveryCity="";this.updateDeliveryFeeDisplay();},
-        updateDeliveryFeeDisplay() { /* ... same as before ... */ },
+        updateDeliveryFeeDisplay() {
+            this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false; if (!this.selectedGovernorate && !this.deliveryCity) return;
+            const gov = (this.appSettings.delivery_areas || []).find(a => a.id === this.selectedGovernorate); if (!gov) { this.isDeliveryFeeVariable = true; return; }
+            let city; if (this.deliveryCity && gov.cities && gov.cities.length > 0) { city = gov.cities.find(c => c.id === this.deliveryCity); }
+            const feeSource = city || gov;
+            if (feeSource && typeof feeSource.delivery_fee_egp === 'number') { this.deliveryFeeForDisplayEGP = feeSource.delivery_fee_egp; this.isDeliveryFeeVariable = false; } 
+            else if (feeSource && feeSource.delivery_fee_egp === null) { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; } 
+            else if (!city && this.deliveryCity && gov.cities && gov.cities.length > 0) { if (gov && typeof gov.delivery_fee_egp === 'number') { this.deliveryFeeForDisplayEGP = gov.delivery_fee_egp; this.isDeliveryFeeVariable = false; } else { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; } } 
+            else { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; }
+        },
         getFormattedPrice(p, c) {const cc=c||this.currentCurrency;const ci=this.appSettings?.exchange_rates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isValidEmail: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isValidPhone: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
@@ -160,10 +182,35 @@ document.addEventListener('alpine:init', () => {
         validateConceptualStep(cs, se=true) { const m=this.stepSectionsMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProgress[`step${cs}`]=v;return v;},
         updateAllStepCompletionStates() { for(let i=1;i<=this.stepSectionsMeta.length;i++)this.stepProgress[`step${i}`]=this.validateConceptualStep(i,false);},
         handleStepperNavigation(tcs) {this.clearAllErrors();let cp=true;for(let s=1;s<tcs;s++){if(!this.validateConceptualStep(s,true)){this.currentConceptualStep=s;const m=this.stepSectionsMeta[s-1];this.focusOnRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollToSection(m?.id||'#udheya-booking-start');cp=false;break;}}if(cp){this.currentConceptualStep=tcs;this.scrollToSection(this.stepSectionsMeta[tcs-1]?.id||'#udheya-booking-start');this.focusOnRef(this.stepSectionsMeta[tcs-1]?.titleRef);}},
-        validateStep1(setErrors = true) { if (setErrors) this.clearError('animal'); if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; } return true; },
-        validateStep2(setErrors = true) { return true; }, // Simplified: only Niyyah is optional
-        validateStep3(setErrors = true) { /* ... same as before, excluding prep/packaging ... */ return true; },
-        validateStep4(setErrors = true) { /* ... same as before ... */ return true; },
+        
+        validateStep1(setErrors = true) { 
+            if (setErrors) this.clearError('animal');
+            if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
+            return true; 
+        },
+        validateStep2(setErrors = true) { 
+            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('splitDetails'); this.clearError('timeSlot'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('selectedGovernorate'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('customerEmail'); }
+            let isValid = true;
+            if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
+            if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; }
+            if (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) { if (setErrors) this.setError('splitDetails', 'required'); isValid = false; }
+            if (this._needsDeliveryDetails) {
+                if (!(this.deliveryName || "").trim()) { if (setErrors) this.setError('deliveryName', 'required'); isValid = false; }
+                if (!this.isValidPhone(this.deliveryPhone)) { if (setErrors) this.setError('deliveryPhone', 'phone'); isValid = false; }
+                if (!this.selectedGovernorate) { if (setErrors) this.setError('selectedGovernorate', 'select'); isValid = false; }
+                const gov = this.appSettings.delivery_areas.find(area => area.id === this.selectedGovernorate);
+                if (gov && gov.cities && gov.cities.length > 0 && !this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; }
+                if (!(this.deliveryAddress || "").trim()) { if (setErrors) this.setError('deliveryAddress', 'required'); isValid = false; }
+                if (!this.selectedTimeSlot) { if (setErrors) this.setError('timeSlot', 'select'); isValid = false; }
+            }
+            if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
+            return isValid;
+        },
+        validateStep3(setErrors = true) { 
+            if (setErrors) this.clearError('paymentMethod');
+            if (!this.paymentMethod) { if (setErrors) this.setError('paymentMethod', 'select'); return false; }
+            return true;
+        },
 
         selectAnimal(animalTypeKeyFromCard, weightSelectElement) { 
             const selectedItemKey = weightSelectElement.value; 
@@ -195,8 +242,8 @@ document.addEventListener('alpine:init', () => {
             }
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
-        updateSacrificeDayTexts() {const o=document.querySelector(`#sacrifice_day_select_s3 option[value="${this.selectedSacrificeDay.value}"]`);if(o)Object.assign(this.selectedSacrificeDay,{textEN:o.dataset.en,textAR:o.dataset.ar});},
-        calculateTotalPrice() {const s=this.appSettings.udheya_service_surcharge_egp||0;this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0)+s;}, // Simplified
+        updateSacrificeDayTexts() {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${this.selectedSacrificeDay.value}"]`);if(o)Object.assign(this.selectedSacrificeDay,{textEN:o.dataset.en,textAR:o.dataset.ar});},
+        calculateTotalPrice() { this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0); },
 
         updateAllDisplayedPrices() {
             try {
@@ -204,24 +251,25 @@ document.addEventListener('alpine:init', () => {
                     const weightSelectEl = this.$refs[`${livestockTypeConfig.value_key}WeightSelect`]; 
                     const cardEl = document.getElementById(livestockTypeConfig.value_key); 
                     if (!weightSelectEl || !cardEl) return;
-                    const currentVal = weightSelectEl.value; weightSelectEl.innerHTML = `<option value="">${this.currentLang==='ar'?"-- اختر الوزن --":"-- Select Weight --"}</option>`;
-                    let stillValid = false; let minPrice = Infinity;
+                    const currentVal = weightSelectEl.value; weightSelectEl.innerHTML = `<option value="">${this.currentLang==='ar'?"-- اختر فئة الوزن --":"-- Select Weight Category --"}</option>`;
+                    let stillValid = false;
                     (livestockTypeConfig.weights_prices || []).forEach(wp => { 
-                        if (wp.is_active && wp.current_stock > 0 && wp.basePriceEGP < minPrice) minPrice = wp.basePriceEGP;
                         const opt = document.createElement('option'); opt.value = wp.item_key; 
                         const outOfStock = !wp.is_active || wp.current_stock <= 0;
                         const stockTxt = this.getStockDisplayText(wp.current_stock, wp.is_active);
-                        const approxKgTxt = this.getApproxPricePerKiloTextForDisplay(livestockTypeConfig.value_key);
-                        opt.textContent = `${wp.nameEN_specific||wp.weight_range_text} (${this.getFormattedPrice(wp.basePriceEGP)}) ${approxKgTxt} ${stockTxt}`.trim();
+                        opt.textContent = `${wp.nameEN_specific||wp.weight_range_text} (${this.getFormattedPrice(wp.basePriceEGP)}) ${stockTxt}`.trim();
                         opt.disabled = outOfStock; weightSelectEl.appendChild(opt);
                         if (wp.item_key === currentVal && !outOfStock) stillValid = true;
                     });
                     if(currentVal && stillValid) weightSelectEl.value = currentVal;
                     else if (this.selectedAnimal.type === livestockTypeConfig.value_key && this.selectedAnimal.item_key && livestockTypeConfig.weights_prices.find(wp => wp.item_key === this.selectedAnimal.item_key && wp.is_active && (wp.current_stock > 0))) weightSelectEl.value = this.selectedAnimal.item_key;
                     else weightSelectEl.value = ""; 
-                    const fromPrice = minPrice === Infinity ? 0 : minPrice;
-                    const pEN=cardEl.querySelector('.price.bil-row .en span'); if(pEN)pEN.textContent=this.getFormattedPrice(fromPrice);
-                    const pAR=cardEl.querySelector('.price.bil-row .ar span'); if(pAR)pAR.textContent=this.getFormattedPrice(fromPrice);
+                    
+                    const pricePerKilo = livestockTypeConfig.price_per_kg_egp || 0;
+                    const pricePerKiloTextEn = this.getFormattedPrice(pricePerKilo) + '/kg';
+                    const pricePerKiloTextAr = this.getFormattedPrice(pricePerKilo) + '/كجم';
+                    const pEN=cardEl.querySelector('.price.bil-row .en span'); if(pEN)pEN.textContent=pricePerKiloTextEn;
+                    const pAR=cardEl.querySelector('.price.bil-row .ar span'); if(pAR)pAR.textContent=pricePerKiloTextAr;
                 });
                 this.calculateTotalPrice(); 
             } catch (e) { console.error("Err updateAllDisplayedPrices:", e); this.userFriendlyApiError = "Error updating prices."; }
@@ -235,7 +283,7 @@ document.addEventListener('alpine:init', () => {
             const animalTypeCfg = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.type);
             const stockItem = animalTypeCfg?.weights_prices.find(wp => wp.item_key === this.selectedAnimal.item_key);
 
-            if (!stockItem || !stockItem.is_active || stockItem.current_stock <= 0) {
+            if (!stockItem || !stockItem.is_active || stockItem.current_stock <= 0) { 
                 this.setError('animal', { en: `Sorry, selected item is unavailable. Please reselect.`, ar: `عذراً، المنتج المختار غير متوفر. يرجى إعادة الاختيار.` });
                 this.selectedAnimal.basePriceEGP = 0; this.updateAllDisplayedPrices(); this.updateAllStepCompletionStates();
                 this.scrollToSection('#step1-content'); this.focusOnRef(this.stepSectionsMeta[0].firstFocusableErrorRef || this.stepSectionsMeta[0].titleRef); return;
@@ -251,7 +299,8 @@ document.addEventListener('alpine:init', () => {
                 animal_type_name_en: this.selectedAnimal.typeGenericNameEN, animal_type_name_ar: this.selectedAnimal.typeGenericNameAR,
                 weight_category_name_en: this.selectedAnimal.nameEN, weight_category_name_ar: this.selectedAnimal.nameAR,
                 animal_base_price_egp: this.selectedAnimal.basePriceEGP,
-                processing_service_fee_egp: this.appSettings.udheya_service_surcharge_egp || 0,
+                udheya_service_option_selected: this.selectedUdheyaService,
+                service_fee_applied_egp: this.currentServiceFeeEGP,
                 delivery_fee_applied_egp: (this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) ? this.deliveryFeeForDisplayEGP : 0,
                 total_amount_due_egp: this.totalPriceEGP, selected_display_currency: this.currentCurrency,
                 sacrifice_day_value: this.selectedSacrificeDay.value, sacrifice_day_text_en: this.selectedSacrificeDay.textEN, sacrifice_day_text_ar: this.selectedSacrificeDay.textAR,
@@ -288,12 +337,13 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
             finally { this.isLoading.status = false; }
         },
-        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};},
+        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};},
         resetAndStartOver() {
              const currency = this.currentCurrency; 
              Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
              this.currentCurrency = currency; 
              this.productOptions.livestock = JSON.parse(JSON.stringify(HARDCODED_PRODUCT_CATALOG_CONFIG)).map(at => { at.weights_prices.forEach(i => { i.basePriceEGP = this.calculateItemPrice(i, at); i.current_stock = i.initial_stock; }); return at; });
+             this.updateServiceFee();
              if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval);
              this.startOfferDHDMSCountdown(); this.updateSacrificeDayTexts(); this.clearAllErrors();
              this.$nextTick(() => {

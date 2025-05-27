@@ -126,6 +126,8 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .icon-placeholder.number-icon{font-size:1.3rem;font-weight:700;background-color:var(--c2l); color: var(--c1d);}
 .icon-placeholder .icon-custom{display:inline-flex;align-items:center;justify-content:center;width:45px;height:45px}
 .icon-custom img,.icon-custom svg{width:100%;height:100%;object-fit:contain}
+.icon-placeholder.emoji-icon { font-size: 2.5rem; width: auto; height: auto; background-color: transparent; }
+
 
 .site-header{background-color:var(--b2);padding:var(--s1) 0;box-shadow:0 2px 4px rgba(0,0,0,.05);position:fixed;top:0;left:0;width:100%;z-index:1000;height:var(--header-height)}
 .nav-container{display:flex;justify-content:space-between;align-items:center;height:100%}
@@ -147,14 +149,14 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .whatsapp-contact a:hover{color:var(--c1d);background-color:rgba(0,0,0,.03)}
 .whatsapp-icon{width:20px;height:20px}
 .whatsapp-number{font-weight:500;white-space:nowrap}
-.hamburger-btn{display:none;background:0 0;border:none;cursor:pointer;padding:var(--s0);color:var(--c1d);z-index:1010}
+.hamburger-btn{display:none;background:0 0;border:none;cursor:pointer;padding:var(--s0);color:var(--c1d);z-index:1010;}
 .hamburger-btn:hover{color:var(--c2)}
 .mobile-nav-menu{position:absolute;top:var(--header-height);left:0;right:0;background-color:var(--b2);padding:var(--s2) var(--s2) var(--s3);box-shadow:0 4px 6px rgba(0,0,0,.1);z-index:1005;border-top:1px solid var(--bs)}
 .nav-list-mobile{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:0}
 .nav-list-mobile > li{width:100%}
 .nav-link-mobile{font-size:1rem;color:var(--tm);font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--rad);display:flex;align-items:center;gap:.5em;text-decoration:none;width:100%;box-sizing:border-box;justify-content:center}
 .dropdown-toggle-mobile{background:none;border:none;width:100%;text-align:inherit;cursor:pointer;display:flex;justify-content:center;align-items:center;position:relative}
-.dropdown-toggle-mobile .dropdown-arrow{margin-left:auto}
+.dropdown-toggle-mobile svg.dropdown-arrow{margin-left:auto}
 .nav-link-mobile:hover,.nav-link-mobile.active-nav-link,.dropdown-toggle-mobile.active-nav-link{color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700}
 .nav-link-mobile.active-nav-link :is(.en,.ar),.dropdown-toggle-mobile.active-nav-link :is(.en,.ar){color:var(--c1d)}
 .mobile-submenu{list-style:none;padding-left:var(--s2);background-color:rgba(0,0,0,.02);width:100%;max-height:0;overflow:hidden;transition:max-height .3s ease-in-out, padding .3s ease-in-out;}
@@ -189,7 +191,8 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .why-choose-us-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s2);text-align:center;margin-top:var(--s3)}
 .hero-section .why-choose-us-hero-grid .feature-item p.card-p{color:#e0e0e0}
 .hero-section .why-choose-us-hero-grid .feature-item .icon-placeholder{background-color:transparent;color:var(--td);border:none}
-.hero-section .why-choose-us-hero-grid .feature-item .icon-placeholder .icon-custom{filter:brightness(0) invert(1)}
+.hero-section .why-choose-us-hero-grid .feature-item .icon-placeholder.emoji-icon { color: var(--td); filter: none; font-size: 2.5rem; }
+
 
 .udheya-booking-section{background-color:var(--b2)}
 .booking-section-head{margin-bottom:var(--s3)}
@@ -205,12 +208,12 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .stepper-content-flex{display:flex;justify-content:space-between;align-items:center}
 .stepper-item{display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--tm);font-size:.8rem;position:relative;text-decoration:none;cursor:pointer;padding:0 var(--s0)}
 .stepper-item:hover{color:var(--c1d)}
-.stepper-item .step-number,.stepper-item .step-checkmark{width:24px;height:24px;line-height:22px;border-radius:50%;border:1px solid var(--tm);margin-bottom:2px;font-weight:700;transition:background-color .3s,border-color .3s,color .3s;box-sizing:border-box}
+.stepper-item .step-number,.stepper-item .step-checkmark{width:24px;height:24px;line-height:22px;border-radius:50%;border:1px solid var(--tm);margin-bottom:2px;font-weight:700;transition:background-color .3s,border-color .3s,color .3s;box-sizing:border-box; display: inline-flex; align-items: center; justify-content: center;}
 .stepper-item .step-label.ar{font-family:var(--fa)}
 .stepper-connector{flex-grow:1;height:2px;background-color:var(--bs);margin:0 var(--s1);position:relative;top:-10px}
 .stepper-item.active .step-number{background-color:var(--c2);border-color:var(--c2);color:var(--td)}
 .stepper-item.active{color:var(--c1d);font-weight:700}
-.stepper-item.completed .step-checkmark{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px}
+.stepper-item.completed .step-checkmark{background-color:var(--c2l);border-color:var(--c2l);color:var(--c1d);padding:2px} /* SVG checkmark styling */
 .stepper-item.completed{color:var(--tm)}
 .stepper-item.disabled{opacity:.6;pointer-events:none;cursor:not-allowed}
 .stepper-item.disabled .step-number{border-color:var(--bs);background-color:var(--b2);color:var(--tm)}
@@ -244,7 +247,6 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .form-input-styled[aria-invalid=true],.fg :is(input,select,textarea)[aria-invalid=true]{border-color:#dc3545!important;box-shadow:0 0 0 .2rem rgba(220,53,69,.25)!important}
 .form-error-msg{color:#dc3545;font-size:.75rem;margin-top:var(--s0);display:block;text-align:left}
 html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-msg.ar{text-align:right;font-family:var(--fa)}
-.custom-prep-details-container{max-width:100%;margin:var(--s2) auto 0}
 .niyyah-names-wrapper{margin-top:var(--s1)}
 .sacrifice-day-note,.time-slot-note,.distribution-note,.wakeel-note,.niyyah-note, .slaughter-viewing-note{margin-top:var(--s0)}
 .delivery-details-title,.wakeel-note{margin-top:var(--s2)}

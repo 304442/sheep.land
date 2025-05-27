@@ -201,7 +201,7 @@
                             <div class="feature-item">
                                 <div class="icon-placeholder number-icon" aria-hidden="true">2</div>
                                 <h4 class="bil-parent-spread"><span class="en">Arrange & Schedule</span><span class="ar">نظم وجدول</span></h4>
-                                <div class="bil-row"><p class="en card-p">Set sacrifice day, viewing, distribution and delivery.</p><p class="ar card-p">حدد يوم الذبح، المشاهدة، التوزيع والتوصيل.</p></div>
+                                <div class="bil-row"><p class="en card-p">Set service, sacrifice day, viewing, distribution and delivery.</p><p class="ar card-p">حدد الخدمة، يوم الذبح، المشاهدة، التوزيع والتوصيل.</p></div>
                             </div>
                             <div class="feature-item">
                                 <div class="icon-placeholder number-icon" aria-hidden="true">3</div>
@@ -246,7 +246,7 @@
                                 <p class="ar">الحقول المشار إليها بـ * إلزامية.</p>
                             </div>
 
-                            <!-- NEW STEP 1: Select Sheep & Niyyah -->
+                            <!-- NEW STEP 1: Select Sheep -->
                             <div id="step1-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep *</span><span class="ar">اختر الخروف *</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
@@ -295,29 +295,35 @@
                                     </div>
                                 </div>
                                 <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
-                                
-                                <hr class="form-divider">
-                                <div class="fg niyyah-names-wrapper">
-                                    <label for="niyyah_names_input_s1" class="bil-parent-spread form-label-strict"><span class="en">Names for Niyyah (Optional)</span><span class="ar">أسماء النية (اختياري)</span></label>
-                                    <input id="niyyah_names_input_s1" type="text" class="form-input-styled" x-model="niyyahNames" x-ref="niyyahNamesInput_s1">
-                                    <div class="bil-row field-note-wrapper niyyah-note"><p class="field-note en">Niyyah is core. List names for whom sacrifice is made.</p><p class="field-note ar">النية أساسية. اذكر أسماء من تضحى عنهم.</p></div>
-                                </div>
                             </div>
 
                             <!-- NEW STEP 2: Arrangements -->
                             <div id="step2-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Arrangements *</span><span class="ar">الترتيبات *</span></h2></div>
-                                <div class="card form-panel-card info-box-step" x-show="appSettings.udheya_service_surcharge_egp > 0">
-                                    <div class="card-b">
-                                        <h4 class="form-subhead bil-parent-spread">
-                                            <span class="en">Standard Udheya Service</span><span class="ar">خدمة الأضحية القياسية</span>
-                                        </h4>
-                                        <div class="bil-row">
-                                            <p class="en">Includes slaughter and basic bagging. Fee: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong> (added to total).</p>
-                                            <p class="ar">تشمل الذبح والتغليف الأساسي. الرسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong> (تضاف للإجمالي).</p>
-                                        </div>
+                                
+                                <div class="fg">
+                                    <label class="bil-parent-spread form-label-strict"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
+                                    <div class="rgrp" x-ref="udheyaServiceRadios">
+                                        <label>
+                                            <input type="radio" name="udheya_service" value="standard_service" x-model="selectedUdheyaService">
+                                            <span class="en">Standard Service (Slaughter, Cutting, Bagging) - Fee: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
+                                            <span class="ar">خدمة قياسية (ذبح، تقطيع، تغليف) - رسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="udheya_service" value="live_animal_only" x-model="selectedUdheyaService">
+                                            <span class="en">Live Animal Only (No processing service)</span>
+                                            <span class="ar">الحيوان حي فقط (بدون خدمة تجهيز)</span>
+                                        </label>
                                     </div>
+                                    <div class="form-error-msg" x-show="errors.udheyaService" x-text="errors.udheyaService ? (currentLang === 'ar' ? errors.udheyaService.ar : errors.udheyaService.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
+                                <hr class="form-divider">
+                                <div class="fg niyyah-names-wrapper">
+                                    <label for="niyyah_names_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Names for Niyyah (Optional)</span><span class="ar">أسماء النية (اختياري)</span></label>
+                                    <input id="niyyah_names_input_s2" type="text" class="form-input-styled" x-model="niyyahNames" x-ref="niyyahNamesInput_s2">
+                                    <div class="bil-row field-note-wrapper niyyah-note"><p class="field-note en">Niyyah is core. List names for whom sacrifice is made.</p><p class="field-note ar">النية أساسية. اذكر أسماء من تضحى عنهم.</p></div>
+                                </div>
+                                <hr class="form-divider">
                                 <div class="fg">
                                     <label for="sacrifice_day_select_s2" class="bil-parent-spread form-label-strict"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
                                     <select id="sacrifice_day_select_s2" class="form-input-styled" x-model="selectedSacrificeDay.value" @change="updateSacrificeDayTexts(); clearError('sacrificeDay')" x-ref="sacrificeDaySelect" :aria-invalid="errors.sacrificeDay ? 'true' : 'false'" aria-describedby="sacrificeDayError" aria-required="true">
@@ -434,13 +440,18 @@
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Sheep:</strong> <span x-text="selectedAnimal.nameEN"></span>, <span x-text="selectedAnimal.weight_range"></span></div><div class="ar"><strong>الخروف:</strong> <span x-text="selectedAnimal.nameAR"></span>، <span x-text="selectedAnimal.weight_range"></span></div></div></div>
                                             <button type="button" @click.prevent="handleStepperNavigation(1)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Animal Selection"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
-                                        <div class="summary-item" x-show="appSettings.udheya_service_surcharge_egp > 0">
-                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Udheya Service:</strong> <small>(Standard slaughter & bagging)</small></div><div class="ar"><strong>خدمة الأضحية:</strong> <small>(ذبح عادي وتغليف)</small></div></div></div>
-                                            <span class="summary-item-price bil-row"><span class="en" x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></span><span class="ar" x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></span></span>
+                                        <div class="summary-item">
+                                            <div class="summary-item-content">
+                                                <div class="bil-row">
+                                                    <div class="en"><strong>Service:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? ('Standard (Fee: ' + getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0) + ')') : 'Live Animal Only'"></span></div>
+                                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? ('قياسية (رسوم: ' + getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0) + ')') : 'الحيوان حي فقط'"></span></div>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Service Option"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item">
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Niyyah:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div></div></div>
-                                            <button type="button" @click.prevent="handleStepperNavigation(1)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item">
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="selectedSacrificeDay.textEN"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="selectedSacrificeDay.textAR"></span></div></div></div>
@@ -512,6 +523,10 @@
                             <div class="quick-recap-wrapper">
                                 <h4 class="form-subhead bil-parent-spread quick-recap-title"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
                                 <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN + ', ' + selectedAnimal.weight_range"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR + '\u060C ' + selectedAnimal.weight_range"></span></div></div>
+                                <div class="summary-item bil-row">
+                                    <div class="en"><strong>Service:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div>
+                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'خدمة قياسية' : 'الحيوان حي فقط'"></span></div>
+                                </div>
                                 <div class="summary-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="selectedSacrificeDay.textEN"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="selectedSacrificeDay.textAR"></span></div></div>
                                 <div class="summary-item bil-row" x-show="slaughterViewingPreference && slaughterViewingPreference !== 'none'">
                                     <div class="en"><strong>Viewing Pref:</strong> <span x-show="slaughterViewingPreference === 'physical_inquiry'">Physical Inquiry</span><span x-show="slaughterViewingPreference === 'video_request'">Video/Photo Request</span><span x-show="slaughterViewingPreference === 'live_video_inquiry'">Live Video Inquiry</span></div>
