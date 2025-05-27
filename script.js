@@ -1,30 +1,41 @@
 document.addEventListener('alpine:init', () => {
     const BARE_MINIMUM_APP_SETTINGS = {
-        exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.016, symbol: "£", is_active: true } },
+        exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
         default_currency: "EGP",
-        whatsapp_number_raw: "201012345678", whatsapp_number_display: "+20 101 234 5678",
-        promo_end_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), promo_discount_percent: 12, promo_is_active: true,
-        udheya_service_surcharge_egp: 600,
+        whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
+        promo_end_date: new Date("2025-06-06T20:59:59.000Z").toISOString(), 
+        promo_discount_percent: 10, // UPDATED
+        promo_is_active: true,
+        udheya_service_surcharge_egp: 750, // UPDATED
         delivery_areas: [ 
-            { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, 
-            { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 100 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 100 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 120} ] } 
+            { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ 
+                { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, 
+                { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, 
+                { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } 
+            ]}, 
+            { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ 
+                {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, // UPDATED
+                {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, // UPDATED (was 100)
+                {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} // UPDATED
+            ]} 
         ],
         payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
     };
 
     const HARDCODED_PRODUCT_CATALOG_CONFIG = [
-        { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", price_per_kg_egp: 150,
-            weights_prices: [
-                { item_key: "baladi_35_45", weight_range_text: "35-45kg", nameEN_specific: "Baladi (35-45kg)", nameAR_specific: "بلدي (٣٥-٤٥كجم)", avg_weight_kg: 40, initial_stock: 7, is_active: true },
-                { item_key: "baladi_45_55", weight_range_text: "45-55kg", nameEN_specific: "Baladi (45-55kg)", nameAR_specific: "بلدي (٤٥-٥٥كجم)", avg_weight_kg: 50, initial_stock: 8, is_active: true },
-                { item_key: "baladi_55plus", weight_range_text: "55+kg", nameEN_specific: "Baladi (55+kg)", nameAR_specific: "بلدي (+٥٥كجم)", avg_weight_kg: 60, initial_stock: 1, is_active: false }
+        { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", price_per_kg_egp: 230, // UPDATED
+            weights_prices: [ // UPDATED Bands
+                { item_key: "baladi_40_50", weight_range_text: "40-50kg", nameEN_specific: "Baladi (40-50kg)", nameAR_specific: "بلدي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 7, is_active: true },
+                { item_key: "baladi_50_60", weight_range_text: "50-60kg", nameEN_specific: "Baladi (50-60kg)", nameAR_specific: "بلدي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 8, is_active: true },
+                { item_key: "baladi_60plus", weight_range_text: "60+kg", nameEN_specific: "Baladi (60+kg)", nameAR_specific: "بلدي (+٦٠كجم)", avg_weight_kg: 65, initial_stock: 1, is_active: true }
             ]
         },
-        { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", price_per_kg_egp: 165,
-            weights_prices: [
-                { item_key: "barki_25_35", weight_range_text: "25-35kg", nameEN_specific: "Barki (25-35kg)", nameAR_specific: "برقي (٢٥-٣٥كجم)", avg_weight_kg: 30, initial_stock: 1, is_active: true },
+        { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", price_per_kg_egp: 255, // UPDATED
+            weights_prices: [ // UPDATED Bands
+                { item_key: "barki_30_40", weight_range_text: "30-40kg", nameEN_specific: "Barki (30-40kg)", nameAR_specific: "برقي (٣٠-٤٠كجم)", avg_weight_kg: 35, initial_stock: 1, is_active: true },
                 { item_key: "barki_40_50", weight_range_text: "40-50kg", nameEN_specific: "Barki (40-50kg)", nameAR_specific: "برقي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 5, is_active: true },
-                { item_key: "barki_50_60", weight_range_text: "50-60kg", nameEN_specific: "Barki (50-60kg)", nameAR_specific: "برقي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 3, is_active: true }
+                { item_key: "barki_50_60", weight_range_text: "50-60kg", nameEN_specific: "Barki (50-60kg)", nameAR_specific: "برقي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 3, is_active: true },
+                { item_key: "barki_60plus", weight_range_text: "60+kg", nameEN_specific: "Barki (60+kg)", nameAR_specific: "برقي (+٦٠كجم)", avg_weight_kg: 65, initial_stock: 2, is_active: true }
             ]
         }
     ];
@@ -226,8 +237,8 @@ document.addEventListener('alpine:init', () => {
             if (!selectedCityData) return "";
             return lang === 'en' ? selectedCityData.name_en : selectedCityData.name_ar;
         },
-        get summaryDeliveryToEN() {if(this.distributionChoice==='char')return"Charity Distribution by Sheep Land";if(this._needsDeliveryDetails){const n=(this.deliveryName||"").trim();const l=this._getDeliveryLocation('en');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join(", ")||"Delivery Details Incomplete";}return"Self Pickup/Distribution";},
-        get summaryDeliveryToAR() {if(this.distributionChoice==='char')return"توزيع خيري بواسطة أرض الأغنام";if(this._needsDeliveryDetails){const n=(this.deliveryName||"").trim();const l=this._getDeliveryLocation('ar');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join("، ")||"تفاصيل التوصيل غير مكتملة";}return"استلام ذاتي/توزيع";},
+        get summaryDeliveryToEN() {if(this.distributionChoice==='char')return"Charity Distribution by Sheep Land";if(this._needsDeliveryDetails){const n=(this.deliveryName||this.orderingPersonName||"").trim();const l=this._getDeliveryLocation('en');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join(", ")||"Delivery Details Incomplete";}return"Self Pickup/Distribution";},
+        get summaryDeliveryToAR() {if(this.distributionChoice==='char')return"توزيع خيري بواسطة أرض الأغنام";if(this._needsDeliveryDetails){const n=(this.deliveryName||this.orderingPersonName||"").trim();const l=this._getDeliveryLocation('ar');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join("، ")||"تفاصيل التوصيل غير مكتملة";}return"استلام ذاتي/توزيع";},
         get summaryDistributionEN() {if(this.distributionChoice==='me')return"All to me";if(this.distributionChoice==='char')return"All to charity (by SL)";return`Split: ${(this.splitDetails||"").trim()||"(Not specified)"}`;},
         get summaryDistributionAR() {if(this.distributionChoice==='me')return"الكل لي";if(this.distributionChoice==='char')return"تبرع بالكل للصدقة (أرض الأغنام)";return`تقسيم: ${(this.splitDetails||"").trim()||"(لم يحدد)"}`;},
         startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
@@ -259,7 +270,7 @@ document.addEventListener('alpine:init', () => {
             if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
             return true; 
         },
-        validateStep2(setErrors = true) { // Service & Niyyah + Arrangements
+        validateStep2(setErrors = true) { 
             if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('splitDetails'); this.clearError('distributionChoice');}
             let isValid = true;
             if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
@@ -269,7 +280,7 @@ document.addEventListener('alpine:init', () => {
             else if (this.distributionChoice === 'split' && !this.splitDetailsOption) { if (setErrors) this.setError('splitDetails', 'select'); isValid = false; }
             return isValid;
         },
-        validateStep3(setErrors = true) { // Contact & Delivery Details
+        validateStep3(setErrors = true) { 
             if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
             let isValid = true;
             if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
@@ -427,7 +438,7 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
             finally { this.isLoading.status = false; }
         },
-        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};}, // Note: Sacrifice day select is in Step 2 (Arrangements) now
+        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};},
         resetAndStartOver() {
              const currency = this.currentCurrency; 
              Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
