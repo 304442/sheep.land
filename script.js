@@ -3,10 +3,10 @@ document.addEventListener('alpine:init', () => {
         exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
         default_currency: "EGP",
         whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
-        // Promo ends at the end of the 13th Dhul Hijjah, 2025
-        // If 10th Dhul Hijjah is June 7, 2025, then 13th is June 10, 2025.
-        promo_end_date: new Date("2025-06-10T23:59:59.000Z").toISOString(), 
-        promo_discount_percent: 10,
+        // Promo ends at the beginning of the 1st day of Eid (10th Dhul Hijjah)
+        // If 10th Dhul Hijjah is June 7, 2025
+        promo_end_date: new Date("2025-06-07T00:00:00.000Z").toISOString(), 
+        promo_discount_percent: 10, 
         promo_is_active: true,
         udheya_service_surcharge_egp: 750,
         delivery_areas: [ 
@@ -327,9 +327,11 @@ document.addEventListener('alpine:init', () => {
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
         updateSacrificeDayTexts() {
-            const selectElementId = this.stepSectionsMeta.find(s => s.conceptualStep === 3)?.id === '#step3-content' ? '#sacrifice_day_select_s3' : '#sacrifice_day_select_s2'; // Adjust based on where sacrifice day is
-            const optionElement = document.querySelector(`${selectElementId} option[value="${this.selectedSacrificeDay.value}"]`);
-            if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
+            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s2 || this.$refs.sacrificeDaySelect_s3; // Adapt based on final step structure for this element
+            if (sacrificeDaySelectElement) {
+                 const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`);
+                 if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
+            }
         },
         calculateTotalPrice() { 
             let deliveryFeeForTotal = 0;
@@ -404,8 +406,8 @@ document.addEventListener('alpine:init', () => {
                 ordering_person_phone: (this.orderingPersonPhone || "").trim(), 
                 customer_email: (this.customerEmail || "").trim(),
                 delivery_option: delOpt,
-                delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", 
-                delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "",
+                delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : (this.orderingPersonName || "").trim(),
+                delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : (this.orderingPersonPhone || "").trim(),
                 delivery_area_id: this._needsDeliveryDetails ? (selectedCityInfo?.id || "") : "", 
                 delivery_area_name_en: this._needsDeliveryDetails ? (selectedCityInfo?.name_en || "") : "", 
                 delivery_area_name_ar: this._needsDeliveryDetails ? (selectedCityInfo?.name_ar || "") : "",
@@ -437,9 +439,8 @@ document.addEventListener('alpine:init', () => {
             finally { this.isLoading.status = false; }
         },
         getSacrificeDayText(v) {
-            // Determine which select element to query based on current conceptual step if needed, or ensure IDs are unique.
-            // Assuming sacrifice_day_select is consistently in the step where it's defined (new Step 2 for Arrangements).
-            const optionElement = document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`); // Check if this ID is correct for Step 2
+            // Based on the new 4-step flow, sacrifice_day_select is in Step 2 (Arrangements)
+            const optionElement = document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);
             return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v};
         },
         resetAndStartOver() {
