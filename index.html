@@ -246,6 +246,7 @@
                                 <p class="ar">الحقول المشار إليها بـ * إلزامية.</p>
                             </div>
 
+                            <!-- NEW STEP 1: Select Sheep -->
                             <div id="step1-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep *</span><span class="ar">اختر الخروف *</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
@@ -296,17 +297,24 @@
                                 <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
                             </div>
 
+                            <!-- NEW STEP 2: Arrangements -->
                             <div id="step2-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Arrangements *</span><span class="ar">الترتيبات *</span></h2></div>
                                 
                                 <div class="fg">
                                     <label class="bil-parent-spread form-label-strict"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
-                                    <select id="udheyaServiceSelect" class="form-input-styled" x-model="selectedUdheyaService" @change="clearError('udheyaService')" x-ref="udheyaServiceSelect" :aria-invalid="errors.udheyaService ? 'true' : 'false'" aria-required="true">
-                                        <option value="">-- Select Service -- / -- اختر الخدمة --</option>
-                                        <template x-for="service in udheyaServiceOptions()" :key="service.value">
-                                            <option :value="service.value" x-text="currentLang === 'ar' ? service.textAr : service.textEn"></option>
-                                        </template>
-                                    </select>
+                                    <div class="rgrp" x-ref="udheyaServiceRadios">
+                                        <label>
+                                            <input type="radio" name="udheya_service_opt" value="standard_service" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
+                                            <span class="en">Standard Service (Slaughter, Cutting, Bagging) - Fee: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
+                                            <span class="ar">خدمة قياسية (ذبح، تقطيع، تغليف) - رسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="udheya_service_opt" value="live_animal_only" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
+                                            <span class="en">Live Animal Only (No processing service)</span>
+                                            <span class="ar">الحيوان حي فقط (بدون خدمة تجهيز)</span>
+                                        </label>
+                                    </div>
                                     <div class="form-error-msg" x-show="errors.udheyaService" x-text="errors.udheyaService ? (currentLang === 'ar' ? errors.udheyaService.ar : errors.udheyaService.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
                                 <hr class="form-divider">
