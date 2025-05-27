@@ -28,9 +28,6 @@ document.addEventListener('alpine:init', () => {
 
     const initialBookingStateData = {
         selectedAnimal: { type: "", item_key: "", weight_range: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
-        selectedPrepStyle: { value: "Standard Mixed Cuts", nameEN: "Standard Mix", nameAR: "قطع عادية", is_custom: false, addonPriceEGP: 0 },
-        customPrepDetails: "",
-        selectedPackaging: { value: "standard", nameEN: "Standard Packaging", nameAR: "تعبئة عادية", addonPriceEGP: 0 },
         totalPriceEGP: 0, customerEmail: "", deliveryName: "", deliveryPhone: "", selectedGovernorate: "",
         deliveryCity: "", availableCities: [], deliveryAddress: "", deliveryInstructions: "", niyyahNames: "",
         splitDetailsOption: "", customSplitDetailsText: "", groupPurchase: false,
@@ -67,11 +64,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('udheyaBooking', () => ({
         isLoading: { status: false, booking: false, init: true },
         appSettings: JSON.parse(JSON.stringify(BARE_MINIMUM_APP_SETTINGS)),
-        productOptions: {
-            livestock: [],
-            preparationStyles: [ { value: "Standard Mixed Cuts", nameEN: "Standard Mix", nameAR: "قطع عادية", is_custom: false, addonPriceEGP: 0 }, { value: "Charity Portions", nameEN: "Charity Portions", nameAR: "حصص صدقة", is_custom: false, addonPriceEGP: 0 }, { value: "Feast Preparation", nameEN: "Feast Prep", nameAR: "تجهيز وليمة", is_custom: false, addonPriceEGP: 250 }, { value: "Custom & Ground Mix", nameEN: "Custom & Ground", nameAR: "مخصص ومفروم", is_custom: true, addonPriceEGP: 150 } ],
-            packagingOptions: [ { value: "standard", nameEN: "Standard Packaging", nameAR: "تعبئة عادية", addonPriceEGP: 0 }, { value: "vacuum_sealed", nameEN: "Vacuum Sealed", nameAR: "تعبئة مفرغة", addonPriceEGP: 150 } ]
-        },
+        productOptions: { livestock: [] }, // Preparation and Packaging options removed
         get availablePaymentMethods() { return paymentMethodDisplayOptions.filter(pm => activePaymentMethodsList.includes(pm.id)); },
         apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingStateData)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", currentCurrency: "EGP", bookingID: "",
@@ -80,7 +73,7 @@ document.addEventListener('alpine:init', () => {
         countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
         countdownTimerInterval: null, currentLang: "en",
         errorMessages: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }},
-        navLinksData: [ { href: "#udheya-booking-start", sectionId: "udheya-booking-start", parentMenu: "Udheya" }, { href: "#check-booking-status", sectionId: "check-booking-status", parentMenu: "Udheya" }, { href: "#livestock-section", sectionId: "livestock-section" }, { href: "#meat-section", sectionId: "meat-section" }, { href: "#gatherings-section", sectionId: "gatherings-section" }],
+        navLinksData: [ { href: "#udheya-booking-start", sectionId: "udheya-booking-start", parentMenu: "Udheya" }, { href: "#check-booking-status", sectionId: "check-booking-status", parentMenu: "Udheya" }],
         activeNavLinkHref: "", stepSectionsMeta: [], deliveryFeeForDisplayEGP: 0, isDeliveryFeeVariable: false,
 
         calculateItemPrice(item, animalTypeConfig) {
@@ -122,44 +115,54 @@ document.addEventListener('alpine:init', () => {
             });
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'prepStyleSelect', validator: this.validateStep2.bind(this) },
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'niyyahNamesInput_s2', validator: this.validateStep2.bind(this) }, // Niyyah input becomes first focusable if others removed
                 { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'sacrificeDaySelect', validator: this.validateStep3.bind(this) },
                 { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep4.bind(this) }
             ];
-            ['selectedAnimal.basePriceEGP', 'selectedPrepStyle.addonPriceEGP', 'selectedPackaging.addonPriceEGP', 'currentCurrency'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(!['selectedPackaging.addonPriceEGP', 'selectedPrepStyle.addonPriceEGP'].includes(prop)) this.updateAllDisplayedPrices(); }));
+            ['selectedAnimal.basePriceEGP', 'currentCurrency'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); this.updateAllDisplayedPrices(); }));
             this.$watch('appSettings.udheya_service_surcharge_egp', () => this.calculateTotalPrice() );
-            ['selectedSacrificeDay.value', 'distributionChoice', 'selectedPrepStyle.value', 'selectedPackaging.value', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'selectedGovernorate', 'deliveryCity'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'selectedGovernorate' || (prop === 'deliveryCity' && nv !== ov)) this.updateDeliveryFeeDisplay(); }));
+            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'selectedGovernorate', 'deliveryCity'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'selectedGovernorate' || (prop === 'deliveryCity' && nv !== ov)) this.updateDeliveryFeeDisplay(); }));
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
-            this.updateSelectedPrepStyle(this.selectedPrepStyle.value);
-            this.updateSelectedPackaging(this.selectedPackaging.value);
         },
-        handleScroll() { /* ... same as before ... */ },
+        handleScroll() {
+            if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => document.querySelector(step.id) && typeof document.querySelector(step.id).offsetTop === 'number')) {
+                const scrollMidPoint = window.scrollY + (window.innerHeight / 2); let closestStep = 1; let minDistance = Infinity;
+                this.stepSectionsMeta.forEach(stepMeta => { const element = document.querySelector(stepMeta.id); if (element) { const distance = Math.abs(scrollMidPoint - (element.offsetTop + (element.offsetHeight / 2))); if (distance < minDistance) { minDistance = distance; closestStep = stepMeta.conceptualStep; } } });
+                if (this.currentConceptualStep !== closestStep) this.currentConceptualStep = closestStep;
+            }
+            const headerHeight = document.querySelector('.site-header')?.offsetHeight || 70; const scrollCheckOffset = headerHeight + (window.innerHeight * 0.10); const currentScrollYWithOffset = window.scrollY + scrollCheckOffset; let newActiveNavLinkHref = ""; let newActiveParentMenu = null;
+            for (const navLink of this.navLinksData) { const sectionElement = document.getElementById(navLink.sectionId); if (sectionElement) { const sectionTop = sectionElement.offsetTop; const sectionBottom = sectionTop + sectionElement.offsetHeight; if (sectionTop <= currentScrollYWithOffset && sectionBottom > currentScrollYWithOffset) { newActiveNavLinkHref = navLink.href; newActiveParentMenu = navLink.parentMenu; break; } } }
+            const firstNavLinkSection = document.getElementById(this.navLinksData[0]?.sectionId);
+            if (window.scrollY < (firstNavLinkSection?.offsetTop || headerHeight) - headerHeight) { newActiveNavLinkHref = ""; newActiveParentMenu = null; }
+            else if ((window.innerHeight + Math.ceil(window.scrollY)) >= (document.body.offsetHeight - 2)) { const lastVisibleNavLink = this.navLinksData.slice().reverse().find(nl => document.getElementById(nl.sectionId)); if (lastVisibleNavLink) { newActiveNavLinkHref = lastVisibleNavLink.href; newActiveParentMenu = lastVisibleNavLink.parentMenu; } }
+            this.activeNavLinkHref = newActiveParentMenu || newActiveNavLinkHref;
+        },
         setError(f, m) { this.errors[f] = (typeof m === 'string' ? this.errorMessages[m] : m) || this.errorMessages.required; },
         clearError(f) { if(this.errors[f]) delete this.errors[f]; },
         clearAllErrors() { this.errors = {}; },
         focusOnRef(r, s=true) {this.$nextTick(()=>{if(this.$refs[r]){this.$refs[r].focus({preventScroll:!s});if(s)setTimeout(()=>{try{this.$refs[r].scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}catch(e){}},50);}})},
         get _needsDeliveryDetails() { const c = (this.customSplitDetailsText || "").toLowerCase(); return this.distributionChoice === 'me' || (this.distributionChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitDetailsOption) || (this.splitDetailsOption === 'custom' && (c.includes("for me") || c.includes("all delivered to me") || c.includes("لي") || c.includes("توصيل لي"))))); },
-        get splitDetails() { /* ... same as before ... */ return ""; },
-        _getDeliveryLocation(l) { /* ... same as before ... */ return ""; },
-        get summaryDeliveryToEN() { /* ... same as before ... */ return ""; },
-        get summaryDeliveryToAR() { /* ... same as before ... */ return ""; },
-        get summaryDistributionEN() { /* ... same as before ... */ return ""; },
-        get summaryDistributionAR() { /* ... same as before ... */ return ""; },
-        startOfferDHDMSCountdown() { /* ... same as before ... */ },
-        updateDHDMSCountdownDisplay(t) { /* ... same as before ... */ },
-        updateCities() { /* ... same as before ... */ },
+        get splitDetails() { if(this.distributionChoice !== 'split') return ""; if(this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim(); const o={"1/3_me_2/3_charity_sl":{en:"1/3 me, 2/3 charity (SL)",ar:"ثلث لي، ثلثان صدقة (أرض الأغنام)"},"1/2_me_1/2_charity_sl":{en:"1/2 me, 1/2 charity (SL)",ar:"نصف لي، نصف صدقة (أرض الأغنام)"},"2/3_me_1/3_charity_sl":{en:"2/3 me, 1/3 charity (SL)",ar:"ثلثان لي، ثلث صدقة (أرض الأغنام)"},"all_me_custom_distro":{en:"All for me (I distribute)",ar:"الكل لي (أنا أوزع)"}};const s=o[this.splitDetailsOption];return s?(this.currentLang==='ar'?s.ar:s.en):this.splitDetailsOption;},
+        _getDeliveryLocation(l) {const k=l==='en'?'name_en':'name_ar';const g=(this.appSettings.delivery_areas||[]).find(a=>a.id===this.selectedGovernorate);const c=g?.cities?.find(city=>city.id===this.deliveryCity);if(c?.[k])return c[k];if(g&&g.cities?.length===0&&this.selectedGovernorate&&g[k])return g[k];if(g&&!c&&this.selectedGovernorate&&g[k])return`${g[k]} (${l==='en'?"City not selected":"المدينة غير مختارة"})`;return"";},
+        get summaryDeliveryToEN() {if(this.distributionChoice==='char')return"Charity Distribution by Sheep Land";if(this._needsDeliveryDetails){const n=(this.deliveryName||"").trim();const l=this._getDeliveryLocation('en');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join(", ")||"Delivery Details Incomplete";}return"Self Pickup/Distribution";},
+        get summaryDeliveryToAR() {if(this.distributionChoice==='char')return"توزيع خيري بواسطة أرض الأغنام";if(this._needsDeliveryDetails){const n=(this.deliveryName||"").trim();const l=this._getDeliveryLocation('ar');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join("، ")||"تفاصيل التوصيل غير مكتملة";}return"استلام ذاتي/توزيع";},
+        get summaryDistributionEN() {if(this.distributionChoice==='me')return"All to me";if(this.distributionChoice==='char')return"All to charity (by SL)";return`Split: ${(this.splitDetails||"").trim()||"(Not specified)"}`;},
+        get summaryDistributionAR() {if(this.distributionChoice==='me')return"الكل لي";if(this.distributionChoice==='char')return"تبرع بالكل للصدقة (أرض الأغنام)";return`تقسيم: ${(this.splitDetails||"").trim()||"(لم يحدد)"}`;},
+        startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
+        updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
+        updateCities() { const g=(this.appSettings.delivery_areas||[]).find(a=>a.id===this.selectedGovernorate);this.availableCities=g?.cities||[];this.deliveryCity="";this.updateDeliveryFeeDisplay();},
         updateDeliveryFeeDisplay() { /* ... same as before ... */ },
-        getFormattedPrice(p, c) { /* ... same as before ... */ return ""; },
+        getFormattedPrice(p, c) {const cc=c||this.currentCurrency;const ci=this.appSettings?.exchange_rates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isValidEmail: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isValidPhone: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
-        scrollToSection(s) { /* ... same as before ... */ },
+        scrollToSection(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.site-header')?.offsetHeight||0;if(s.startsWith('#udheya-booking-start')||s.startsWith('#step')||s.startsWith('#udheya-booking-form-panel')){const h=document.querySelector('.stepper-outer-wrapper');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){}},
         validateConceptualStep(cs, se=true) { const m=this.stepSectionsMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProgress[`step${cs}`]=v;return v;},
         updateAllStepCompletionStates() { for(let i=1;i<=this.stepSectionsMeta.length;i++)this.stepProgress[`step${i}`]=this.validateConceptualStep(i,false);},
         handleStepperNavigation(tcs) {this.clearAllErrors();let cp=true;for(let s=1;s<tcs;s++){if(!this.validateConceptualStep(s,true)){this.currentConceptualStep=s;const m=this.stepSectionsMeta[s-1];this.focusOnRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollToSection(m?.id||'#udheya-booking-start');cp=false;break;}}if(cp){this.currentConceptualStep=tcs;this.scrollToSection(this.stepSectionsMeta[tcs-1]?.id||'#udheya-booking-start');this.focusOnRef(this.stepSectionsMeta[tcs-1]?.titleRef);}},
         validateStep1(setErrors = true) { if (setErrors) this.clearError('animal'); if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; } return true; },
-        validateStep2(setErrors = true) { /* ... same as before ... */ return true; },
-        validateStep3(setErrors = true) { /* ... same as before ... */ return true; },
+        validateStep2(setErrors = true) { return true; }, // Simplified: only Niyyah is optional
+        validateStep3(setErrors = true) { /* ... same as before, excluding prep/packaging ... */ return true; },
         validateStep4(setErrors = true) { /* ... same as before ... */ return true; },
 
         selectAnimal(animalTypeKeyFromCard, weightSelectElement) { 
@@ -192,10 +195,8 @@ document.addEventListener('alpine:init', () => {
             }
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
-        updateSelectedPrepStyle(v) {const o=this.productOptions.preparationStyles.find(s=>s.value===v);this.selectedPrepStyle=o?{...o,addonPriceEGP:parseFloat(o.addonPriceEGP||0)}:{value:"",nameEN:"",nameAR:"",is_custom:false,addonPriceEGP:0};if(!this.selectedPrepStyle.is_custom)this.customPrepDetails="";this.calculateTotalPrice();this.updateAllStepCompletionStates();},
-        updateSelectedPackaging(v) {const o=this.productOptions.packagingOptions.find(p=>p.value===v);this.selectedPackaging=o?{...o,addonPriceEGP:parseFloat(o.addonPriceEGP||0)}:{value:"",addonPriceEGP:0,nameEN:"",nameAR:""};this.calculateTotalPrice();this.updateAllStepCompletionStates();},
         updateSacrificeDayTexts() {const o=document.querySelector(`#sacrifice_day_select_s3 option[value="${this.selectedSacrificeDay.value}"]`);if(o)Object.assign(this.selectedSacrificeDay,{textEN:o.dataset.en,textAR:o.dataset.ar});},
-        calculateTotalPrice() {const s=this.appSettings.udheya_service_surcharge_egp||0;const p=this.selectedPrepStyle.addonPriceEGP||0;const k=this.selectedPackaging.addonPriceEGP||0;this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0)+s+p+k;},
+        calculateTotalPrice() {const s=this.appSettings.udheya_service_surcharge_egp||0;this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0)+s;}, // Simplified
 
         updateAllDisplayedPrices() {
             try {
@@ -251,13 +252,8 @@ document.addEventListener('alpine:init', () => {
                 weight_category_name_en: this.selectedAnimal.nameEN, weight_category_name_ar: this.selectedAnimal.nameAR,
                 animal_base_price_egp: this.selectedAnimal.basePriceEGP,
                 processing_service_fee_egp: this.appSettings.udheya_service_surcharge_egp || 0,
-                packaging_addon_price_egp: this.selectedPackaging.addonPriceEGP || 0,
-                prep_style_price_applied_egp: this.selectedPrepStyle.addonPriceEGP || 0,
                 delivery_fee_applied_egp: (this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) ? this.deliveryFeeForDisplayEGP : 0,
                 total_amount_due_egp: this.totalPriceEGP, selected_display_currency: this.currentCurrency,
-                preparation_style_value: this.selectedPrepStyle.value, preparation_style_name_en: this.selectedPrepStyle.nameEN, preparation_style_name_ar: this.selectedPrepStyle.nameAR,
-                is_custom_prep: this.selectedPrepStyle.is_custom, custom_prep_details: this.selectedPrepStyle.is_custom ? (this.customPrepDetails || "").trim() : "",
-                packaging_value: this.selectedPackaging.value, packaging_name_en: this.selectedPackaging.nameEN, packaging_name_ar: this.selectedPackaging.nameAR,
                 sacrifice_day_value: this.selectedSacrificeDay.value, sacrifice_day_text_en: this.selectedSacrificeDay.textEN, sacrifice_day_text_ar: this.selectedSacrificeDay.textAR,
                 slaughter_viewing_preference: this.slaughterViewingPreference, distribution_choice: this.distributionChoice,
                 split_details_option: this.distributionChoice === 'split' ? this.splitDetailsOption : "", custom_split_details_text: (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom') ? (this.customSplitDetailsText || "").trim() : "",
@@ -278,7 +274,7 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Issue submitting. Try again or contact support.";this.$nextTick(()=>this.scrollToSection('.global-error-indicator'));}
             finally { this.isLoading.booking = false; }
         },
-        async validateAndCheckBookingStatus() { /* ... same ... */ },
+        async validateAndCheckBookingStatus() {this.clearError('lookupBookingID');if((this.lookupBookingID||"").trim())await this.checkBookingStatus();else{this.setError('lookupBookingID','required');this.focusOnRef('lookupBookingIdInput');}},
         async checkBookingStatus() {
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const id = (this.lookupBookingID || "").trim();
             try {
@@ -292,7 +288,7 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
             finally { this.isLoading.status = false; }
         },
-        getSacrificeDayText(v) { /* ... same ... */ return {en:v,ar:v}; },
+        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};},
         resetAndStartOver() {
              const currency = this.currentCurrency; 
              Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
@@ -303,8 +299,6 @@ document.addEventListener('alpine:init', () => {
              this.$nextTick(() => {
                 this.updateAllDisplayedPrices(); this.updateAllStepCompletionStates(); this.updateDeliveryFeeDisplay();
                 this.scrollToSection('#udheya-booking-start'); this.focusOnRef('bookingSectionTitle');
-                this.updateSelectedPrepStyle(initialBookingStateData.selectedPrepStyle.value);
-                this.updateSelectedPackaging(initialBookingStateData.selectedPackaging.value);
                 this.bookingConfirmed = false; this.bookingID = "";
              });
         }

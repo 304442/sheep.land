@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="Easily book your Sharia-compliant Udheya online with Sheep Land. Choose from Baladi & Barki sheep, customize your preparation, and enjoy reliable delivery.">
-    <title>Sheep Land - Udheya, Livestock & Quality Meats</title>
+    <meta name="description" content="Easily book your Sharia-compliant Udheya online with Sheep Land.">
+    <title>Sheep Land - Udheya Booking</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
@@ -33,9 +33,6 @@
                         <li><a href="#check-booking-status" class="dropdown-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                     </ul>
                 </li>
-                <li><a href="#livestock-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#livestock-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#livestock-section')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
-                <li><a href="#meat-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#meat-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#meat-section')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
-                <li><a href="#gatherings-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#gatherings-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#gatherings-section')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
             </ul>
         </nav>
         <div class="header-extras desktop-extras">
@@ -74,9 +71,6 @@
                         <li><a href="#check-booking-status" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click="isMobileMenuOpen = false; isUdheyaMobileSubmenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                     </ul>
                 </li>
-                <li><a href="#livestock-section" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#livestock-section'}" @click="isMobileMenuOpen = false; scrollToSection('#livestock-section')"><span class="en">Livestock</span><span class="ar">المواشي</span></a></li>
-                <li><a href="#meat-section" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#meat-section'}" @click="isMobileMenuOpen = false; scrollToSection('#meat-section')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
-                <li><a href="#gatherings-section" class="nav-link-mobile bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#gatherings-section'}" @click="isMobileMenuOpen = false; scrollToSection('#gatherings-section')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
             </ul>
         </nav>
         <div class="mobile-header-extras">
@@ -102,16 +96,16 @@
     <section class="hero-section sec">
         <div class="c tc">
             <h1 class="hero-title-row bil-parent-spread bil-keep-side-by-side-mobile">
-                <span class="en">Premium Livestock, Udheya & Quality Meats</span>
-                <span class="ar">أجود الأغنام، الأضاحي واللحوم الممتازة</span>
+                <span class="en">Premium Udheya Booking</span>
+                <span class="ar">حجز الأضاحي الممتازة</span>
             </h1>
             <h2 class="hero-subtitle-row bil-parent-spread bil-keep-side-by-side-mobile">
                 <span class="en">Direct from Our Farm to You, Sharia Compliant Services</span>
                 <span class="ar">من مزرعتنا إليك مباشرة، خدمات متوافقة مع الشريعة</span>
             </h2>
             <div class="hero-desc-row bil-row bil-keep-side-by-side-mobile">
-                <p class="en">Your trusted source for Sharia-compliant Udheya bookings, healthy livestock, and fresh, quality meat cuts. Experience convenience and excellence with Sheep Land.</p>
-                <p class="ar">مصدرك الموثوق لحجوزات الأضاحي المتوافقة مع الشريعة، والمواشي الصحية، وقطعيات اللحوم الطازجة عالية الجودة. اختبر الراحة والتميز مع أرض الأغنام.</p>
+                <p class="en">Your trusted source for Sharia-compliant Udheya bookings. Experience convenience and excellence with Sheep Land.</p>
+                <p class="ar">مصدرك الموثوق لحجوزات الأضاحي المتوافقة مع الشريعة. اختبر الراحة والتميز مع أرض الأغنام.</p>
             </div>
             <div class="hero-promo-wrapper">
                 <a href="#udheya-booking-start" @click.prevent="scrollToSection('#udheya-booking-start')" class="hero-promo-cta-link">
@@ -208,13 +202,13 @@
                             </div>
                             <div class="feature-item">
                                 <div class="icon-placeholder number-icon" aria-hidden="true">2</div>
-                                <h4 class="bil-parent-spread"><span class="en">Processing & Niyyah</span><span class="ar">التجهيز والنية</span></h4>
-                                <div class="bil-row"><p class="en card-p">Select service option and provide Niyyah names.</p><p class="ar card-p">اختر خيار الخدمة وقدم أسماء النية.</p></div>
+                                <h4 class="bil-parent-spread"><span class="en">Niyyah & Details</span><span class="ar">النية والتفاصيل</span></h4>
+                                <div class="bil-row"><p class="en card-p">Provide Niyyah names and any special requests.</p><p class="ar card-p">قدم أسماء النية وأي طلبات خاصة.</p></div>
                             </div>
                             <div class="feature-item">
                                 <div class="icon-placeholder number-icon" aria-hidden="true">3</div>
                                 <h4 class="bil-parent-spread"><span class="en">Final Arrangements</span><span class="ar">الترتيبات النهائية</span></h4>
-                                <div class="bil-row"><p class="en card-p">Pick sacrifice day, viewing, distribution, and delivery/pickup.</p><p class="ar card-p">اختر يوم الذبح، المشاهدة، التوزيع، والتوصيل/الاستلام.</p></div>
+                                <div class="bil-row"><p class="en card-p">Pick sacrifice day, viewing, distribution, and delivery.</p><p class="ar card-p">اختر يوم الذبح، المشاهدة، التوزيع، والتوصيل.</p></div>
                             </div>
                             <div class="feature-item">
                                 <div class="icon-placeholder number-icon" aria-hidden="true">4</div>
@@ -239,7 +233,7 @@
                             <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
                                 <span class="step-number" x-show="!stepProgress.step2 || currentConceptualStep === 2">2</span>
                                 <svg x-show="stepProgress.step2 && currentConceptualStep !== 2" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-label en">Processing & Niyyah</span><span class="step-label ar">التجهيز والنية</span>
+                                <span class="step-label en">Niyyah & Details</span><span class="step-label ar">النية والتفاصيل</span>
                             </a>
                             <div class="stepper-connector"></div>
                             <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
@@ -268,8 +262,8 @@
                             <div id="step1-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Animal & Weight *</span><span class="ar">اختر الحيوان والوزن *</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
-                                    <p class="en">All animals meet Sharia age/health requirements for Udheya. Prices are based on the selected weight band. Approx. price per kilo is shown for transparency. Our team may contact you post-booking if the precisely weighed animal for your order is at the very edge of the selected band, to discuss options and ensure complete fairness.</p>
-                                    <p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية. تعتمد الأسعار على نطاق الوزن المختار. يتم عرض السعر التقريبي للكيلو للشفافية. قد يتواصل معك فريقنا بعد الحجز إذا كان وزن الحيوان المخصص لطلبك عند طرف نطاق الوزن لمناقشة الخيارات وضمان العدالة الكاملة.</p>
+                                    <p class="en">All animals meet Sharia age/health requirements for Udheya. Prices are based on the selected weight band. Approx. price per kilo is shown for transparency.</p>
+                                    <p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية. تعتمد الأسعار على نطاق الوزن المختار. يتم عرض السعر التقريبي للكيلو للشفافية.</p>
                                 </div>
                                 <div class="product-grid grid2">
                                     <template x-for="animalType in productOptions.livestock" :key="animalType.value_key">
@@ -316,45 +310,17 @@
                             </div>
 
                             <div id="step2-content" class="form-step-content">
-                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Customize Udheya</span><span class="ar">تخصيص الأضحية</span></h2></div>
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Niyyah & Details</span><span class="ar">النية والتفاصيل</span></h2></div>
                                 <div class="card form-panel-card info-box-step" x-show="appSettings.udheya_service_surcharge_egp > 0">
                                     <div class="card-b">
                                         <h4 class="form-subhead bil-parent-spread">
                                             <span class="en">Standard Udheya Service</span><span class="ar">خدمة الأضحية القياسية</span>
                                         </h4>
                                         <div class="bil-row">
-                                            <p class="en">Includes slaughter, standard cutting, and basic bagging. Fee: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong> (added to total).</p>
-                                            <p class="ar">تشمل الذبح والتقطيع العادي والتغليف الأساسي. الرسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong> (تضاف للإجمالي).</p>
+                                            <p class="en">Includes slaughter and basic bagging. Fee: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong> (added to total).</p>
+                                            <p class="ar">تشمل الذبح والتغليف الأساسي. الرسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong> (تضاف للإجمالي).</p>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="fg">
-                                    <label for="preparation_style_select_s2" class="bil-parent-spread form-label-strict"><span class="en">Preparation Style *</span><span class="ar">طريقة التجهيز *</span></label>
-                                    <select id="preparation_style_select_s2" class="form-input-styled" x-model="selectedPrepStyle.value" @change="updateSelectedPrepStyle($event.target.value); clearError('prepStyle')" x-ref="prepStyleSelect" :aria-invalid="errors.prepStyle ? 'true' : 'false'" aria-describedby="prepStyleError" aria-required="true">
-                                        <option value="">-- Select Preparation -- / -- اختر طريقة التجهيز --</option>
-                                        <template x-for="prep in productOptions.preparationStyles" :key="prep.value">
-                                            <option :value="prep.value" x-text="`${prep.nameEN} / ${prep.nameAR}${prep.addonPriceEGP > 0 ? (' (' + (currentLang === 'ar' ? 'إضافة ' : 'Add ') + getFormattedPrice(prep.addonPriceEGP) + ')') : ''}`"></option>
-                                        </template>
-                                    </select>
-                                    <div class="form-error-msg" id="prepStyleError" x-show="errors.prepStyle" x-text="errors.prepStyle ? (currentLang === 'ar' ? errors.prepStyle.ar : errors.prepStyle.en) : ''" role="alert" aria-live="assertive"></div>
-                                </div>
-                                <div class="fg custom-prep-details-container" x-show="selectedPrepStyle.is_custom" x-transition>
-                                    <label for="custom_prep_details_s2" class="bil-parent-spread form-label-strict"><span class="en">Custom Preparation Details (Optional)</span><span class="ar">تفاصيل التجهيز المخصص (اختياري)</span></label>
-                                    <textarea id="custom_prep_details_s2" class="form-input-styled" x-model="customPrepDetails" x-ref="customPrepDetailsTextarea"></textarea>
-                                </div>
-                                 <div class="bil-row field-note-wrapper" style="margin-top: var(--s1); margin-bottom: var(--s1);">
-                                    <p class="field-note en">For other preparation requests not listed, please specify in 'Custom Preparation Details'. We will contact you to confirm feasibility and any additional costs.</p>
-                                    <p class="field-note ar">لطلبات التجهيز الأخرى غير المدرجة، يرجى التحديد في "تفاصيل التجهيز المخصص". سنتواصل معكم لتأكيد الإمكانية وأي تكاليف إضافية.</p>
-                                </div>
-                                <div class="fg">
-                                    <label for="packaging_preference_select_s2" class="bil-parent-spread form-label-strict"><span class="en">Packaging Preference *</span><span class="ar">طريقة التغليف *</span></label>
-                                    <select id="packaging_preference_select_s2" class="form-input-styled" x-model="selectedPackaging.value" @change="updateSelectedPackaging($event.target.value); clearError('packaging')" x-ref="packagingSelect" :aria-invalid="errors.packaging ? 'true' : 'false'" aria-describedby="packagingError" aria-required="true">
-                                        <option value="">-- Select Packaging -- / -- اختر طريقة التغليف --</option>
-                                        <template x-for="pkg in productOptions.packagingOptions" :key="pkg.value">
-                                            <option :value="pkg.value" x-text="`${pkg.nameEN} / ${pkg.nameAR}${pkg.addonPriceEGP > 0 ? (' (' + (currentLang === 'ar' ? 'إضافة ' : 'Add ') + getFormattedPrice(pkg.addonPriceEGP) + ')') : ''}`"></option>
-                                        </template>
-                                    </select>
-                                    <div class="form-error-msg" id="packagingError" x-show="errors.packaging" x-text="errors.packaging ? (currentLang === 'ar' ? errors.packaging.ar : errors.packaging.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
                                 <div class="fg niyyah-names-wrapper">
                                     <label for="niyyah_names_input_s2" class="bil-parent-spread form-label-strict"><span class="en">Names for Niyyah (Optional)</span><span class="ar">أسماء النية (اختياري)</span></label>
@@ -477,31 +443,12 @@
                                     <h3 class="form-subhead bil-parent-spread review-summary-title"><span class="en">Your Udheya Booking Summary</span><span class="ar">ملخص حجز أضحيتك</span></h3>
                                     <div x-show="selectedAnimal.item_key">
                                         <div class="summary-item">
-                                            <div class="summary-item-content">
-                                                <div class="bil-row">
-                                                    <div class="en"><strong>Sheep:</strong> <span x-text="selectedAnimal.nameEN"></span>, <span x-text="selectedAnimal.weight_range"></span></div>
-                                                    <div class="ar"><strong>الخروف:</strong> <span x-text="selectedAnimal.nameAR"></span>، <span x-text="selectedAnimal.weight_range"></span></div>
-                                                </div>
-                                            </div>
+                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Sheep:</strong> <span x-text="selectedAnimal.nameEN"></span>, <span x-text="selectedAnimal.weight_range"></span></div><div class="ar"><strong>الخروف:</strong> <span x-text="selectedAnimal.nameAR"></span>، <span x-text="selectedAnimal.weight_range"></span></div></div></div>
                                             <button type="button" @click.prevent="handleStepperNavigation(1)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Animal Selection"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item" x-show="appSettings.udheya_service_surcharge_egp > 0">
-                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Udheya Service:</strong> <small>(Standard prep & bagging)</small></div><div class="ar"><strong>خدمة الأضحية:</strong> <small>(تجهيز عادي وتغليف)</small></div></div></div>
+                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Udheya Service:</strong> <small>(Standard slaughter & bagging)</small></div><div class="ar"><strong>خدمة الأضحية:</strong> <small>(ذبح عادي وتغليف)</small></div></div></div>
                                             <span class="summary-item-price bil-row"><span class="en" x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></span><span class="ar" x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></span></span>
-                                        </div>
-                                        <div class="summary-item" x-show="selectedPrepStyle.value && selectedPrepStyle.addonPriceEGP > 0">
-                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Prep Upgrade:</strong> <span x-text="selectedPrepStyle.nameEN"></span></div><div class="ar"><strong>ترقية التجهيز:</strong> <span x-text="selectedPrepStyle.nameAR"></span></div></div></div>
-                                            <span class="summary-item-price bil-row"><span class="en" x-text="getFormattedPrice(selectedPrepStyle.addonPriceEGP || 0)"></span><span class="ar" x-text="getFormattedPrice(selectedPrepStyle.addonPriceEGP || 0)"></span></span>
-                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Preparation"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="summary-item" x-show="selectedPrepStyle.is_custom && customPrepDetails">
-                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Custom Prep Notes:</strong> <span x-text="customPrepDetails.substring(0,30) + (customPrepDetails.length > 30 ? '...' : '')"></span></div><div class="ar"><strong>ملاحظات تجهيز مخصص:</strong> <span x-text="customPrepDetails.substring(0,30) + (customPrepDetails.length > 30 ? '...' : '')"></span></div></div></div>
-                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Custom Preparation"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="summary-item">
-                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Package:</strong> <span x-text="selectedPackaging.nameEN || '(Pkg)'"></span></div><div class="ar"><strong>التعبئة:</strong> <span x-text="selectedPackaging.nameAR || '(التغليف)'"></span></div></div></div>
-                                            <span class="summary-item-price bil-row" x-show="selectedPackaging.addonPriceEGP > 0"><span class="en" x-text="getFormattedPrice(selectedPackaging.addonPriceEGP || 0)"></span><span class="ar" x-text="getFormattedPrice(selectedPackaging.addonPriceEGP || 0)"></span></span>
-                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Packaging"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item">
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Niyyah:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div></div></div>
@@ -577,8 +524,6 @@
                             <div class="quick-recap-wrapper">
                                 <h4 class="form-subhead bil-parent-spread quick-recap-title"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
                                 <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN + ', ' + selectedAnimal.weight_range"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR + '\u060C ' + selectedAnimal.weight_range"></span></div></div>
-                                <div class="summary-item bil-row"><div class="en"><strong>Prep:</strong> <span x-text="selectedPrepStyle.nameEN + (selectedPrepStyle.addonPriceEGP > 0 ? ' (Upgrade)' : (selectedPrepStyle.is_custom && customPrepDetails ? ' (Custom)' : ' (Standard)'))"></span></div><div class="ar"><strong>التجهيز:</strong> <span x-text="selectedPrepStyle.nameAR + (selectedPrepStyle.addonPriceEGP > 0 ? ' (ترقية)' : (selectedPrepStyle.is_custom && customPrepDetails ? ' (مخصص)' : ' (قياسي)'))"></span></div></div>
-                                <div class="summary-item bil-row"><div class="en"><strong>Package:</strong> <span x-text="selectedPackaging.nameEN"></span></div><div class="ar"><strong>التعبئة:</strong> <span x-text="selectedPackaging.nameAR"></span></div></div>
                                 <div class="summary-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="selectedSacrificeDay.textEN"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="selectedSacrificeDay.textAR"></span></div></div>
                                 <div class="summary-item bil-row" x-show="slaughterViewingPreference && slaughterViewingPreference !== 'none'">
                                     <div class="en"><strong>Viewing Pref:</strong> <span x-show="slaughterViewingPreference === 'physical_inquiry'">Physical Inquiry</span><span x-show="slaughterViewingPreference === 'video_request'">Video/Photo Request</span><span x-show="slaughterViewingPreference === 'live_video_inquiry'">Live Video Inquiry</span></div>
@@ -611,36 +556,6 @@
                     </div>
                 </section>
             </form>
-        </div>
-    </section>
-
-    <section id="livestock-section" class="main-page-section sec" style="background-color: var(--b2);">
-        <div class="c">
-            <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Our Livestock</span><span class="ar">أغنامنا</span></h2></div>
-            <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">More information about our general livestock offerings (for purposes other than Udheya) will be available here soon. Stay tuned!</span>
-                <span class="ar" style="flex-basis: 100%;">ستتوفر هنا قريبًا المزيد من المعلومات حول عروض المواشي العامة لدينا (لأغراض أخرى غير الأضحية). ترقبونا!</span>
-            </p>
-        </div>
-    </section>
-
-    <section id="meat-section" class="main-page-section sec">
-        <div class="c">
-            <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span></h2></div>
-             <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">Explore our range of premium, fresh meat cuts directly from our farm. Details coming soon!</span>
-                <span class="ar" style="flex-basis: 100%;">اكتشف تشكيلتنا من قطعيات اللحوم الطازجة والممتازة مباشرة من مزرعتنا. التفاصيل قريبًا!</span>
-            </p>
-        </div>
-    </section>
-
-    <section id="gatherings-section" class="main-page-section sec" style="background-color: var(--b1);">
-        <div class="c">
-            <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Gatherings & Feasts</span><span class="ar">الولائم والمناسبات</span></h2></div>
-            <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">Information about our special livestock and meat packages for gatherings and feasts will be available here soon. Contact us for bespoke orders!</span>
-                <span class="ar" dir="rtl" style="flex-basis: 100%;">ستتوفر هنا قريبًا معلومات حول باقات المواشي واللحوم الخاصة بنا للمناسبات والولائم. اتصل بنا للطلبات المخصصة!</span>
-            </p>
         </div>
     </section>
 

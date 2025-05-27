@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>PB Setup: Bookings Collection</title>
+    <meta charset="UTF-8"><title>PB Setup: Bookings Collection (Simplified)</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="c">
-        <h1>PB Udheya Setup (Bookings Collection Only)</h1>
+        <h1>PB Udheya Setup (Bookings Collection Only - Simplified)</h1>
         <p class="warn">This script attempts to create/update the 'bookings' collection. Ensure PocketBase is running.</p>
         <p class="warn">API rules will be set to PUBLIC for dev. SECURE FOR PRODUCTION!</p>
         <button id="runSetup">Create/Update 'bookings' Collection</button>
@@ -49,19 +49,13 @@
             { name: "weight_category_name_ar", type: "text", options: { max: 100 } },
             { name: "animal_base_price_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
             { name: "processing_service_fee_egp", type: "number", options: { min: 0, noDecimal: false } },
-            { name: "packaging_addon_price_egp", type: "number", options: { min: 0, noDecimal: false } },
-            { name: "prep_style_price_applied_egp", type: "number", options: { min: 0, noDecimal: false } },
+            // packaging_addon_price_egp REMOVED
+            // prep_style_price_applied_egp REMOVED
             { name: "delivery_fee_applied_egp", type: "number", options: { min: 0, noDecimal: false } },
             { name: "total_amount_due_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
             { name: "selected_display_currency", type: "text", options: { max: 5 } },
-            { name: "preparation_style_value", type: "text", options: { max: 100 } },
-            { name: "preparation_style_name_en", type: "text", options: { max: 100 } },
-            { name: "preparation_style_name_ar", type: "text", options: { max: 100 } },
-            { name: "is_custom_prep", type: "bool", options: {} },
-            { name: "custom_prep_details", type: "text", options: { max: 1000 } },
-            { name: "packaging_value", type: "text", options: { max: 100 } },
-            { name: "packaging_name_en", type: "text", options: { max: 100 } },
-            { name: "packaging_name_ar", type: "text", options: { max: 100 } },
+            // Preparation style fields REMOVED
+            // Packaging fields REMOVED
             { name: "sacrifice_day_value", type: "text", required: true, options: { max: 50 } },
             { name: "sacrifice_day_text_en", type: "text", options: { max: 100 } },
             { name: "sacrifice_day_text_ar", type: "text", options: { max: 100 } },
