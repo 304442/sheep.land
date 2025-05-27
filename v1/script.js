@@ -14,8 +14,26 @@ document.addEventListener('alpine:init', () => {
         payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
     };
 
+    const HARDCODED_PRODUCT_CATALOG_CONFIG = [
+        { value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", price_per_kg_egp: 230,
+            weights_prices: [
+                { item_key: "baladi_40_50", weight_range_text: "40-50kg", nameEN_specific: "Baladi (40-50kg)", nameAR_specific: "بلدي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 7, is_active: true },
+                { item_key: "baladi_50_60", weight_range_text: "50-60kg", nameEN_specific: "Baladi (50-60kg)", nameAR_specific: "بلدي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 8, is_active: true },
+                { item_key: "baladi_60plus", weight_range_text: "60+kg", nameEN_specific: "Baladi (60+kg)", nameAR_specific: "بلدي (+٦٠كجم)", avg_weight_kg: 65, initial_stock: 1, is_active: true }
+            ]
+        },
+        { value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", price_per_kg_egp: 255,
+            weights_prices: [
+                { item_key: "barki_30_40", weight_range_text: "30-40kg", nameEN_specific: "Barki (30-40kg)", nameAR_specific: "برقي (٣٠-٤٠كجم)", avg_weight_kg: 35, initial_stock: 1, is_active: true },
+                { item_key: "barki_40_50", weight_range_text: "40-50kg", nameEN_specific: "Barki (40-50kg)", nameAR_specific: "برقي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 5, is_active: true },
+                { item_key: "barki_50_60", weight_range_text: "50-60kg", nameEN_specific: "Barki (50-60kg)", nameAR_specific: "برقي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 3, is_active: true },
+                { item_key: "barki_60plus", weight_range_text: "60+kg", nameEN_specific: "Barki (60+kg)", nameAR_specific: "برقي (+٦٠كجم)", avg_weight_kg: 65, initial_stock: 2, is_active: true }
+            ]
+        }
+    ];
+
     const initialBookingStateData = {
-        selectedAnimal: { type: "", item_key: "", weight_range_en: "", weight_range_ar: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
+        selectedAnimal: { type: "", item_key: "", weight_range: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
         orderingPersonName: "", 
         orderingPersonPhone: "", 
         customerEmail: "", 
@@ -74,23 +92,34 @@ document.addEventListener('alpine:init', () => {
         currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false },
         isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false,
         countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
-        countdownTimerInterval: null, currentLang: "en",
+        countdownTimerInterval: null, currentLang: "en", // currentLang will now primarily affect labels, not select option content
         errorMessages: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }, udheyaService: {en: "Please select a service option.", ar: "يرجى اختيار خيار الخدمة."}},
         navLinksData: [ { href: "#udheya-booking-start", sectionId: "udheya-booking-start", parentMenu: "Udheya" }, { href: "#check-booking-status", sectionId: "check-booking-status", parentMenu: "Udheya" }],
         activeNavLinkHref: "", stepSectionsMeta: [], deliveryFeeForDisplayEGP: 0, isDeliveryFeeVariable: false,
 
-        getEnglishStockStatusText(stock, isActive) {
-            if (!isActive) return "Inactive";
-            if (stock <= 0) return "Out of Stock";
-            if (stock > 0 && stock <= 5) return "Limited Stock";
-            return "Available";
+        calculateItemPrice(item, animalTypeConfig) {
+            if (!item || !animalTypeConfig || typeof animalTypeConfig.price_per_kg_egp !== 'number' || typeof item.avg_weight_kg !== 'number') return 0;
+            return item.avg_weight_kg * animalTypeConfig.price_per_kg_egp;
+        },
+        getApproxPricePerKiloTextForDisplay(animalTypeValueKey) {
+            const animalConfig = this.productOptions.livestock.find(a => a.value_key === animalTypeValueKey);
+            if (animalConfig && typeof animalConfig.price_per_kg_egp === 'number') {
+                 return `(${this.getFormattedPrice(animalConfig.price_per_kg_egp, "EGP")}/kg est.)`;
+            }
+            return "";
+        },
+        getStockDisplayText(stock, isActive) { // Removed lang parameter as it's less relevant for stock in concatenated options
+            if (!isActive) return " - Inactive / غير نشط";
+            if (stock <= 0) return " - Out of Stock / نفذت الكمية";
+            if (stock > 0 && stock <= 5) return " - Limited Stock / كمية محدودة";
+            return " - Available / متوفر";
         },
         slaughterViewingOptions() {
             return [
                 { value: 'none', textEn: 'No Preference / Not Required', textAr: 'لا يوجد تفضيل / غير مطلوب' },
                 { value: 'physical_inquiry', textEn: 'Inquire about Physical Attendance', textAr: 'الاستفسار عن الحضور الشخصي' },
                 { value: 'video_request', textEn: 'Request Video/Photos of Process', textAr: 'طلب فيديو/صور للعملية' },
-                { value: 'live_video_inquiry', textEn: 'Inquire about Live Video', textAr: 'الاستفسار عن فيديو مباشر' }
+                { value: 'live_video_inquiry', textEn: 'Inquire about Live Video', textAr: 'الاستفسار عن فيديو مباشر' } // Added based on summary
             ];
         },
         distributionChoiceOptions() {
@@ -110,58 +139,58 @@ document.addEventListener('alpine:init', () => {
             ];
         },
 
-        async initApp() {
+        initApp() {
             this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = "";
-            const pb = new PocketBase('/'); 
-
-            try {
-                const fetchedSheepTypes = await pb.collection('sheep_types').getFullList({ sort: 'sort_order', filter: 'is_active = true' });
-                const fetchedSheepWeights = await pb.collection('sheep_weights').getFullList({ sort: 'sort_order', filter: 'is_active = true', expand: 'sheep_type' });
-
-                this.productOptions.livestock = fetchedSheepTypes.map(type => {
-                    const typeConfig = {
-                        value_key: type.type_key, name_en: type.name_en, name_ar: type.name_ar,
-                        price_per_kg_egp: type.price_per_kg_egp, description_en: type.description_en, description_ar: type.description_ar,
-                        weights_prices: []
-                    };
-                    typeConfig.weights_prices = fetchedSheepWeights
-                        .filter(weight => weight.expand.sheep_type.id === type.id)
-                        .map(weight => ({
-                            item_key: weight.item_key, nameEN_specific: weight.name_en_specific, nameAR_specific: weight.name_ar_specific,
-                            weight_range_text_en: weight.weight_range_text_en, weight_range_text_ar: weight.weight_range_text_ar,
-                            avg_weight_kg: weight.avg_weight_kg, initial_stock: weight.initial_stock, current_stock: weight.initial_stock,
-                            is_active: weight.is_active, basePriceEGP: weight.avg_weight_kg * type.price_per_kg_egp
-                        }));
-                    return typeConfig;
-                }).filter(type => type.weights_prices.length > 0);
-            } catch (e) {
-                console.error("Error fetching product data from PocketBase:", e);
-                this.apiError = "Could not load product catalog from server."; this.userFriendlyApiError = "Error loading sheep options. Please try again later.";
-                this.productOptions.livestock = [];
-            }
+            this.productOptions.livestock = JSON.parse(JSON.stringify(HARDCODED_PRODUCT_CATALOG_CONFIG)).map(animalType => {
+                animalType.weights_prices.forEach(item => {
+                    item.basePriceEGP = this.calculateItemPrice(item, animalType);
+                    item.current_stock = item.initial_stock;
+                });
+                return animalType;
+            });
             
-            let cities = []; 
+            let cities = [];
             this.appSettings.delivery_areas.forEach(gov => {
-                if (gov.cities && gov.cities.length > 0) { gov.cities.forEach(city => { cities.push({ id: `${gov.id}_${city.id}`, name_en: `${gov.name_en} - ${city.name_en}`, name_ar: `${gov.name_ar} - ${city.name_ar}`, delivery_fee_egp: city.delivery_fee_egp, governorate_id: gov.id, governorate_name_en: gov.name_en, governorate_name_ar: gov.name_ar }); });
-                } else if (gov.delivery_fee_egp !== undefined) { cities.push({ id: gov.id, name_en: gov.name_en, name_ar: gov.name_ar, delivery_fee_egp: gov.delivery_fee_egp, governorate_id: gov.id, governorate_name_en: gov.name_en, governorate_name_ar: gov.name_ar });}
+                if (gov.cities && gov.cities.length > 0) {
+                    gov.cities.forEach(city => {
+                        cities.push({
+                            id: `${gov.id}_${city.id}`, 
+                            name_en: `${gov.name_en} - ${city.name_en}`,
+                            name_ar: `${gov.name_ar} - ${city.name_ar}`,
+                            delivery_fee_egp: city.delivery_fee_egp,
+                            governorate_id: gov.id, 
+                            governorate_name_en: gov.name_en,
+                            governorate_name_ar: gov.name_ar
+                        });
+                    });
+                } else if (gov.delivery_fee_egp !== undefined) { 
+                     cities.push({
+                        id: gov.id, 
+                        name_en: gov.name_en,
+                        name_ar: gov.name_ar,
+                        delivery_fee_egp: gov.delivery_fee_egp,
+                        governorate_id: gov.id,
+                        governorate_name_en: gov.name_en,
+                        governorate_name_ar: gov.name_ar
+                    });
+                }
             });
             this.allAvailableCities = cities.sort((a,b) => a.name_en.localeCompare(b.name_en));
             this.updateServiceFee(); 
+
             this.currentCurrency = this.appSettings.default_currency;
             this.startOfferDHDMSCountdown(); 
             this.updateSacrificeDayTexts(); 
             this.clearAllErrors();
-
             this.$nextTick(() => {
-                if (this.productOptions.livestock?.length > 0) { this.updateAllDisplayedPrices(); }
-                else if (!this.apiError) { this.userFriendlyApiError = "No sheep options are currently available. Please check back later."; }
+                if (this.productOptions.livestock?.length > 0) this.updateAllDisplayedPrices();
+                else this.userFriendlyApiError = "Livestock options could not be loaded.";
                 this.updateAllStepCompletionStates(); this.handleScroll();
                 this.focusOnRef(this.bookingConfirmed ? "bookingConfirmedTitle" : "body", false);
                 this.updateDeliveryFeeDisplay(); this.isLoading.init = false;
             });
-
             this.stepSectionsMeta = [
-                { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: (this.productOptions.livestock[0]?.value_key + 'WeightSelect') || 'step1Title', validator: this.validateStep1.bind(this) },
+                { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
                 { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'orderingPersonNameInput_s2', validator: this.validateStep2.bind(this) },
                 { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'udheyaServiceRadios_s3', validator: this.validateStep3.bind(this) },
                 { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep4.bind(this) }
@@ -177,12 +206,17 @@ document.addEventListener('alpine:init', () => {
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
-        updateServiceFee() { 
-            if (this.selectedUdheyaService === 'standard_service') { this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0; }
-            else if (this.selectedUdheyaService === 'live_animal_only') { this.currentServiceFeeEGP = 0; }
-            else { this.selectedUdheyaService = 'standard_service'; this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0; }
+        updateServiceFee() {
+            if (this.selectedUdheyaService === 'standard_service') {
+                this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
+            } else if (this.selectedUdheyaService === 'live_animal_only') {
+                this.currentServiceFeeEGP = 0;
+            } else { 
+                this.selectedUdheyaService = 'standard_service';
+                this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
+            }
             this.calculateTotalPrice();
-         },
+        },
         handleScroll() {
             if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => { const el = document.querySelector(step.id); return el && typeof el.offsetTop === 'number'; })) {
                 const scrollMidPoint = window.scrollY + (window.innerHeight / 2); let closestStep = 1; let minDistance = Infinity;
@@ -236,9 +270,14 @@ document.addEventListener('alpine:init', () => {
             this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false;
             if (!this._needsDeliveryDetails || !this.deliveryCity) { this.calculateTotalPrice(); return; } 
             const cityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
-            if (cityData && typeof cityData.delivery_fee_egp === 'number') { this.deliveryFeeForDisplayEGP = cityData.delivery_fee_egp; this.isDeliveryFeeVariable = false; } 
-            else if (cityData && cityData.delivery_fee_egp === null) { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; } 
-            else { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; }
+            if (cityData && typeof cityData.delivery_fee_egp === 'number') {
+                this.deliveryFeeForDisplayEGP = cityData.delivery_fee_egp;
+                this.isDeliveryFeeVariable = false;
+            } else if (cityData && cityData.delivery_fee_egp === null) {
+                this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
+            } else { 
+                this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
+            }
             this.calculateTotalPrice(); 
         },
         getFormattedPrice(p, c) {const cc=c||this.currentCurrency;const ci=this.appSettings?.exchange_rates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
@@ -248,28 +287,65 @@ document.addEventListener('alpine:init', () => {
         validateConceptualStep(cs, se=true) { const m=this.stepSectionsMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProgress[`step${cs}`]=v;return v;},
         updateAllStepCompletionStates() { for(let i=1;i<=this.stepSectionsMeta.length;i++)this.stepProgress[`step${i}`]=this.validateConceptualStep(i,false);},
         handleStepperNavigation(tcs) {this.clearAllErrors();let cp=true;for(let s=1;s<tcs;s++){if(!this.validateConceptualStep(s,true)){this.currentConceptualStep=s;const m=this.stepSectionsMeta[s-1];this.focusOnRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollToSection(m?.id||'#udheya-booking-start');cp=false;break;}}if(cp){this.currentConceptualStep=tcs;this.scrollToSection(this.stepSectionsMeta[tcs-1]?.id||'#udheya-booking-start');this.focusOnRef(this.stepSectionsMeta[tcs-1]?.titleRef);}},
-        validateStep1(setErrors = true) { if (setErrors) this.clearError('animal'); if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; } return true;  },
-        validateStep2(setErrors = true) { if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail');} let isValid = true; if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; } if (!this.isValidPhone(this.orderingPersonPhone)) { if (setErrors) this.setError('orderingPersonPhone', 'phone'); isValid = false; } if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; } return isValid; },
-        validateStep3(setErrors = true) { if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('distributionChoice'); this.clearError('splitDetails'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');} let isValid = true; if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;} if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; } if (!this.distributionChoice) { if(setErrors) this.setError('distributionChoice', 'select'); isValid = false; } if (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) { if (setErrors) this.setError('splitDetails', 'required'); isValid = false; } else if (this.distributionChoice === 'split' && !this.splitDetailsOption) { if (setErrors) this.setError('splitDetails', 'select'); isValid = false; } if (this._needsDeliveryDetails) {  if (!this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; }  if (!(this.deliveryAddress || "").trim()) { if (setErrors) this.setError('deliveryAddress', 'required'); isValid = false; } if (!this.selectedTimeSlot) { if (setErrors) this.setError('timeSlot', 'select'); isValid = false; } } return isValid; },
-        validateStep4(setErrors = true) { if (setErrors) this.clearError('paymentMethod'); if (!this.paymentMethod) { if (setErrors) this.setError('paymentMethod', 'select'); return false; } return true; },
+        
+        validateStep1(setErrors = true) { 
+            if (setErrors) this.clearError('animal');
+            if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
+            return true; 
+        },
+        validateStep2(setErrors = true) { 
+            if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail');}
+            let isValid = true;
+            if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
+            if (!this.isValidPhone(this.orderingPersonPhone)) { if (setErrors) this.setError('orderingPersonPhone', 'phone'); isValid = false; }
+            if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
+            return isValid;
+        },
+        validateStep3(setErrors = true) { 
+            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('distributionChoice'); this.clearError('splitDetails'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
+            let isValid = true;
+            if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
+            if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; }
+            if (!this.distributionChoice) { if(setErrors) this.setError('distributionChoice', 'select'); isValid = false; }
+            if (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) { if (setErrors) this.setError('splitDetails', 'required'); isValid = false; }
+            else if (this.distributionChoice === 'split' && !this.splitDetailsOption) { if (setErrors) this.setError('splitDetails', 'select'); isValid = false; }
+            
+            if (this._needsDeliveryDetails) { 
+                if (!this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; } 
+                if (!(this.deliveryAddress || "").trim()) { if (setErrors) this.setError('deliveryAddress', 'required'); isValid = false; }
+                if (!this.selectedTimeSlot) { if (setErrors) this.setError('timeSlot', 'select'); isValid = false; }
+            }
+            return isValid;
+        },
+        validateStep4(setErrors = true) { 
+            if (setErrors) this.clearError('paymentMethod');
+            if (!this.paymentMethod) { if (setErrors) this.setError('paymentMethod', 'select'); return false; }
+            return true;
+        },
+
         selectAnimal(animalTypeKeyFromCard, weightSelectElement) { 
             const selectedItemKey = weightSelectElement.value; 
             this.clearError('animal');
             if (!selectedItemKey) {
                 this.selectedAnimal = { ...initialBookingStateData.selectedAnimal };
-                this.productOptions.livestock.forEach(type => { if (type.value_key !== animalTypeKeyFromCard && this.$refs[`${type.value_key}WeightSelect`]) { this.$refs[`${type.value_key}WeightSelect`].value = ""; } });
+                const otherTypeKey = animalTypeKeyFromCard === 'baladi' ? 'barki' : 'baladi';
+                if (this.$refs[`${otherTypeKey}WeightSelect`]) this.$refs[`${otherTypeKey}WeightSelect`].value = "";
                 this.calculateTotalPrice(); this.updateAllStepCompletionStates(); return;
             }
-            this.productOptions.livestock.forEach(type => { if (type.value_key !== animalTypeKeyFromCard && this.$refs[`${type.value_key}WeightSelect`]) { this.$refs[`${type.value_key}WeightSelect`].value = ""; } });
+            const otherTypeKey = animalTypeKeyFromCard === 'baladi' ? 'barki' : 'baladi';
+            if (this.$refs[`${otherTypeKey}WeightSelect`]) this.$refs[`${otherTypeKey}WeightSelect`].value = "";
+
             const animalTypeConfig = this.productOptions.livestock.find(a => a.value_key === animalTypeKeyFromCard);
             if (!animalTypeConfig) { this.selectedAnimal = { ...initialBookingStateData.selectedAnimal }; this.calculateTotalPrice(); this.updateAllStepCompletionStates(); return; }
             const selectedSpecificItem = animalTypeConfig.weights_prices.find(wp => wp.item_key === selectedItemKey);
+
             if (selectedSpecificItem && selectedSpecificItem.is_active && selectedSpecificItem.current_stock > 0) {
                 this.selectedAnimal = {
                     type: animalTypeConfig.value_key, item_key: selectedSpecificItem.item_key, 
-                    weight_range_en: selectedSpecificItem.weight_range_text_en, weight_range_ar: selectedSpecificItem.weight_range_text_ar,
-                    basePriceEGP: selectedSpecificItem.basePriceEGP, nameEN: selectedSpecificItem.nameEN_specific, nameAR: selectedSpecificItem.nameAR_specific,
-                    stock: selectedSpecificItem.current_stock, typeGenericNameEN: animalTypeConfig.name_en, typeGenericNameAR: animalTypeConfig.name_ar
+                    weight_range: selectedSpecificItem.weight_range_text, basePriceEGP: selectedSpecificItem.basePriceEGP,
+                    nameEN: selectedSpecificItem.nameEN_specific, nameAR: selectedSpecificItem.nameAR_specific,
+                    stock: selectedSpecificItem.current_stock, typeGenericNameEN: animalTypeConfig.name_en, 
+                    typeGenericNameAR: animalTypeConfig.name_ar
                 };
             } else {
                 this.selectedAnimal = { ...initialBookingStateData.selectedAnimal };
@@ -277,46 +353,69 @@ document.addEventListener('alpine:init', () => {
             }
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
-        updateSacrificeDayTexts() { const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; if (sacrificeDaySelectElement) { const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`); if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});} },
-        calculateTotalPrice() { let deliveryFeeForTotal = 0; if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) { deliveryFeeForTotal = this.deliveryFeeForDisplayEGP; } this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal;  },
+        updateSacrificeDayTexts() {
+            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3;
+            if (sacrificeDaySelectElement) {
+                 const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`);
+                 if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
+            }
+        },
+        calculateTotalPrice() { 
+            let deliveryFeeForTotal = 0;
+            if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) {
+                deliveryFeeForTotal = this.deliveryFeeForDisplayEGP;
+            }
+            this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal; 
+        },
+
         updateAllDisplayedPrices() {
             try {
                 (this.productOptions.livestock || []).forEach(livestockTypeConfig => { 
                     const weightSelectEl = this.$refs[`${livestockTypeConfig.value_key}WeightSelect`]; 
                     const cardEl = document.getElementById(livestockTypeConfig.value_key); 
-                    if (!weightSelectEl || !cardEl) { console.warn(`Missing elements for ${livestockTypeConfig.value_key}`); return; }
+                    if (!weightSelectEl || !cardEl) return;
                     const currentVal = weightSelectEl.value; 
-                    weightSelectEl.innerHTML = `<option value="">-- Select Weight --</option>`;
+                    
+                    // Bilingual placeholder for weight select
+                    weightSelectEl.innerHTML = `<option value="">${this.currentLang === 'ar' ? "-- اختر فئة الوزن --" : "-- Select Weight Category --"} / ${this.currentLang === 'ar' ? "-- اختر فئة الوزن --" : "-- Select Weight Category --"}</option>`;
+                    
                     let stillValid = false;
                     (livestockTypeConfig.weights_prices || []).forEach(wp => { 
-                        const opt = document.createElement('option'); 
-                        opt.value = wp.item_key; 
+                        const opt = document.createElement('option'); opt.value = wp.item_key; 
                         const outOfStock = !wp.is_active || wp.current_stock <= 0;
-                        const statusTextEN = this.getEnglishStockStatusText(wp.current_stock, wp.is_active);
-                        const priceDisplayEN = this.getFormattedPrice(wp.basePriceEGP);
-                        opt.textContent = `${wp.weight_range_text_en} (${priceDisplayEN}) - ${statusTextEN}`.trim();
-                        opt.disabled = outOfStock; 
-                        weightSelectEl.appendChild(opt);
+                        const stockTxt = this.getStockDisplayText(wp.current_stock, wp.is_active); // getStockDisplayText is now bilingual
+                        
+                        // Concatenated bilingual text for weight/price options
+                        const priceDisplay = this.getFormattedPrice(wp.basePriceEGP);
+                        const optionTextEN = `${wp.nameEN_specific||wp.weight_range_text} (${priceDisplay})`;
+                        const optionTextAR = `${wp.nameAR_specific||wp.weight_range_text} (${priceDisplay})`; // Assuming similar structure for AR
+                        opt.textContent = `${optionTextEN} / ${optionTextAR} ${stockTxt}`.trim();
+                        
+                        opt.disabled = outOfStock; weightSelectEl.appendChild(opt);
                         if (wp.item_key === currentVal && !outOfStock) stillValid = true;
                     });
-                    if(currentVal && stillValid) { weightSelectEl.value = currentVal; }
-                    else if (this.selectedAnimal.type === livestockTypeConfig.value_key && this.selectedAnimal.item_key && livestockTypeConfig.weights_prices.find(wp => wp.item_key === this.selectedAnimal.item_key && wp.is_active && (wp.current_stock > 0))) { weightSelectEl.value = this.selectedAnimal.item_key; }
-                    else { weightSelectEl.value = ""; }
+                    if(currentVal && stillValid) weightSelectEl.value = currentVal;
+                    else if (this.selectedAnimal.type === livestockTypeConfig.value_key && this.selectedAnimal.item_key && livestockTypeConfig.weights_prices.find(wp => wp.item_key === this.selectedAnimal.item_key && wp.is_active && (wp.current_stock > 0))) weightSelectEl.value = this.selectedAnimal.item_key;
+                    else weightSelectEl.value = ""; 
+                    
                     const pricePerKilo = livestockTypeConfig.price_per_kg_egp || 0;
                     const pricePerKiloTextEn = this.getFormattedPrice(pricePerKilo) + '/kg';
                     const pricePerKiloTextAr = this.getFormattedPrice(pricePerKilo) + '/كجم';
-                    const pEN_el = cardEl.querySelector('.price.bil-row .en span'); if(pEN_el) pEN_el.textContent = pricePerKiloTextEn;
-                    const pAR_el = cardEl.querySelector('.price.bil-row .ar span'); if(pAR_el) pAR_el.textContent = pricePerKiloTextAr;
+                    const pEN=cardEl.querySelector('.price.bil-row .en span'); if(pEN)pEN.textContent=pricePerKiloTextEn;
+                    const pAR=cardEl.querySelector('.price.bil-row .ar span'); if(pAR)pAR.textContent=pricePerKiloTextAr;
                 });
                 this.calculateTotalPrice(); 
-            } catch (e) { console.error("Error in updateAllDisplayedPrices:", e); this.userFriendlyApiError = "Error updating prices."; }
+            } catch (e) { console.error("Err updateAllDisplayedPrices:", e); this.userFriendlyApiError = "Error updating prices."; }
         },
-        async validateAndSubmitBooking() { 
+
+        async validateAndSubmitBooking() {
             this.clearAllErrors(); let isValid = true;
             for (let i = 1; i <= this.stepSectionsMeta.length; i++) { if (!this.validateConceptualStep(i, true)) { isValid = false; const meta = this.stepSectionsMeta[i-1]; if (meta) { this.focusOnRef(meta.firstFocusableErrorRef || meta.titleRef); this.scrollToSection(meta.id || '#udheya-booking-start'); } break; }}
             if (!isValid) return;
+
             const animalTypeCfg = this.productOptions.livestock.find(lt => lt.value_key === this.selectedAnimal.type);
             const stockItem = animalTypeCfg?.weights_prices.find(wp => wp.item_key === this.selectedAnimal.item_key);
+
             if (!stockItem || !stockItem.is_active || stockItem.current_stock <= 0) { 
                 this.setError('animal', { en: `Sorry, selected item is unavailable. Please reselect.`, ar: `عذراً، المنتج المختار غير متوفر. يرجى إعادة الاختيار.` });
                 this.selectedAnimal.basePriceEGP = 0; this.updateAllDisplayedPrices(); this.updateAllStepCompletionStates();
@@ -327,21 +426,28 @@ document.addEventListener('alpine:init', () => {
             let delOpt = "self_pickup_or_internal_distribution"; 
             if (this.distributionChoice === 'char') delOpt = "charity_distribution_by_sl"; 
             else if (this._needsDeliveryDetails) delOpt = "home_delivery_to_orderer";
+            
             const selectedCityInfo = (this._needsDeliveryDetails && this.deliveryCity) ? this.allAvailableCities.find(c => c.id === this.deliveryCity) : null;
+
             const payload = {
-                booking_id_text: bookingId, animal_type_name_en: this.selectedAnimal.typeGenericNameEN, animal_type_name_ar: this.selectedAnimal.typeGenericNameAR,
+                booking_id_text: bookingId,
+                animal_type_name_en: this.selectedAnimal.typeGenericNameEN, animal_type_name_ar: this.selectedAnimal.typeGenericNameAR,
                 weight_category_name_en: this.selectedAnimal.nameEN, weight_category_name_ar: this.selectedAnimal.nameAR,
-                weight_range_actual_en: this.selectedAnimal.weight_range_en, weight_range_actual_ar: this.selectedAnimal.weight_range_ar,
-                animal_base_price_egp: this.selectedAnimal.basePriceEGP, udheya_service_option_selected: this.selectedUdheyaService,
+                animal_base_price_egp: this.selectedAnimal.basePriceEGP,
+                udheya_service_option_selected: this.selectedUdheyaService,
                 service_fee_applied_egp: this.currentServiceFeeEGP,
                 delivery_fee_applied_egp: (this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) ? this.deliveryFeeForDisplayEGP : 0,
                 total_amount_due_egp: this.totalPriceEGP, selected_display_currency: this.currentCurrency,
                 sacrifice_day_value: this.selectedSacrificeDay.value, sacrifice_day_text_en: this.selectedSacrificeDay.textEN, sacrifice_day_text_ar: this.selectedSacrificeDay.textAR,
                 slaughter_viewing_preference: this.slaughterViewingPreference, distribution_choice: this.distributionChoice,
                 split_details_option: this.distributionChoice === 'split' ? this.splitDetailsOption : "", custom_split_details_text: (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom') ? (this.customSplitDetailsText || "").trim() : "",
-                niyyah_names: (this.niyyahNames || "").trim(), ordering_person_name: (this.orderingPersonName || "").trim(), 
-                ordering_person_phone: (this.orderingPersonPhone || "").trim(), customer_email: (this.customerEmail || "").trim(),
-                delivery_option: delOpt, delivery_name: (this.orderingPersonName || "").trim(), delivery_phone: (this.orderingPersonPhone || "").trim(), 
+                niyyah_names: (this.niyyahNames || "").trim(), 
+                ordering_person_name: (this.orderingPersonName || "").trim(), 
+                ordering_person_phone: (this.orderingPersonPhone || "").trim(), 
+                customer_email: (this.customerEmail || "").trim(),
+                delivery_option: delOpt,
+                delivery_name: (this.orderingPersonName || "").trim(), 
+                delivery_phone: (this.orderingPersonPhone || "").trim(), 
                 delivery_area_id: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.id : "", 
                 delivery_area_name_en: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.name_en : "", 
                 delivery_area_name_ar: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.name_ar : "",
@@ -354,13 +460,13 @@ document.addEventListener('alpine:init', () => {
             };
             try {
                 const created = await postBookingToPB(payload); this.bookingID = created.booking_id_text || created.id;
-                if (stockItem && stockItem.current_stock > 0) { stockItem.current_stock--; this.selectedAnimal.stock = stockItem.current_stock; this.updateAllDisplayedPrices(); }
+                if (stockItem && stockItem.current_stock > 0) { stockItem.current_stock--; this.selectedAnimal.stock = stockItem.current_stock; }
                 this.bookingConfirmed = true; this.$nextTick(() => { this.scrollToSection('#booking-confirmation-section'); this.focusOnRef('bookingConfirmedTitle'); });
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Issue submitting. Try again or contact support.";this.$nextTick(()=>this.scrollToSection('.global-error-indicator'));}
             finally { this.isLoading.booking = false; }
         },
         async validateAndCheckBookingStatus() {this.clearError('lookupBookingID');if((this.lookupBookingID||"").trim())await this.checkBookingStatus();else{this.setError('lookupBookingID','required');this.focusOnRef('lookupBookingIdInput');}},
-        async checkBookingStatus() { 
+        async checkBookingStatus() {
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const id = (this.lookupBookingID || "").trim();
             try {
                 const response = await fetch(`/api/collections/bookings/records?filter=(booking_id_text='${encodeURIComponent(id)}')`);
@@ -368,23 +474,27 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
                 if (data.items?.length > 0) {
                     const b = data.items[0];
-                    this.statusResult = { 
-                        booking_id_text: b.booking_id_text, status: b.booking_status?.replace(/_/g," ")||"Unknown", 
-                        animal_type: b.animal_type_name_en, animal_weight_selected: b.weight_category_name_en || (b.weight_range_actual_en || "N/A"), 
-                        sacrifice_day: b.sacrifice_day_value, time_slot: b.time_slot 
-                    };
+                    this.statusResult = { booking_id_text: b.booking_id_text, status: b.booking_status?.replace(/_/g," ")||"Unknown", animal_type: b.animal_type_name_en, animal_weight_selected: b.weight_category_name_en, sacrifice_day: b.sacrifice_day_value, time_slot: b.time_slot };
                 } else this.statusNotFound = true;
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
             finally { this.isLoading.status = false; }
         },
-        getSacrificeDayText(v) { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v}; },
-        async resetAndStartOver() { 
-             const currency = this.currentCurrency; const lang = this.currentLang;
+        getSacrificeDayText(v) {
+            const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); 
+            return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v};
+        },
+        resetAndStartOver() {
+             const currency = this.currentCurrency; 
+             const lang = this.currentLang;
              Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
-             this.currentCurrency = currency; this.currentLang = lang;
+             this.currentCurrency = currency; 
+             this.currentLang = lang;
+             this.productOptions.livestock = JSON.parse(JSON.stringify(HARDCODED_PRODUCT_CATALOG_CONFIG)).map(at => { at.weights_prices.forEach(i => { i.basePriceEGP = this.calculateItemPrice(i, at); i.current_stock = i.initial_stock; }); return at; });
+             this.updateServiceFee();
              if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval);
-             await this.initApp(); 
+             this.startOfferDHDMSCountdown(); this.updateSacrificeDayTexts(); this.clearAllErrors();
              this.$nextTick(() => {
+                this.updateAllDisplayedPrices(); this.updateAllStepCompletionStates(); this.updateDeliveryFeeDisplay();
                 this.scrollToSection('#udheya-booking-start'); this.focusOnRef('bookingSectionTitle');
                 this.bookingConfirmed = false; this.bookingID = "";
              });

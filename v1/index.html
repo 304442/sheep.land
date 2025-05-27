@@ -243,8 +243,8 @@
                                                 <div class="card-content">
                                                     <h3 class="card-h bil-parent-spread"><span x-text="animalType.name_en"></span><span x-text="animalType.name_ar"></span></h3>
                                                     <div class="bil-row card-p-row">
-                                                        <p class="en card-p" x-text="animalType.description_en || (animalType.value_key === 'baladi' ? 'Local breed, rich flavor.' : 'Desert breed, lean meat.')"></p>
-                                                        <p class="ar card-p" x-text="animalType.description_ar || (animalType.value_key === 'baladi' ? 'سلالة محلية، نكهة غنية.' : 'سلالة صحراوية، لحم قليل الدهن.')"></p>
+                                                        <p class="en card-p" x-text="animalType.value_key === 'baladi' ? 'Local breed, rich flavor.' : 'Desert breed, lean meat.'"></p>
+                                                        <p class="ar card-p" x-text="animalType.value_key === 'baladi' ? 'سلالة محلية، نكهة غنية.' : 'سلالة صحراوية، لحم قليل الدهن.'"></p>
                                                     </div>
                                                 </div>
                                                 <div class="card-foot">
@@ -255,11 +255,11 @@
                                                     <div class="card-act">
                                                         <label :for="animalType.value_key + 'WeightSelect'" class="sr-only" x-text="'Select ' + animalType.name_en + ' Weight Category'"></label>
                                                         <select :id="animalType.value_key + 'WeightSelect'" class="form-input-styled" :x-ref="animalType.value_key + 'WeightSelect'" @change="selectAnimal(animalType.value_key, $el)" :aria-invalid="errors.animal ? 'true' : 'false'">
-                                                            <option value="">-- Select Weight --</option>
+                                                            <option value="">-- Select Weight Category -- / -- اختر فئة الوزن --</option>
                                                             <template x-for="wp_item in animalType.weights_prices" :key="wp_item.item_key">
                                                                 <option :value="wp_item.item_key"
                                                                         :disabled="!wp_item.is_active || wp_item.current_stock <= 0"
-                                                                        x-text="`${wp_item.weight_range_text_en} (${getFormattedPrice(wp_item.basePriceEGP)}) - ${getEnglishStockStatusText(wp_item.current_stock, wp_item.is_active)}`.trim()">
+                                                                        x-text="`${wp_item.nameEN_specific || wp_item.weight_range_text} (${getFormattedPrice(wp_item.basePriceEGP)}) / ${wp_item.nameAR_specific || wp_item.weight_range_text} (${getFormattedPrice(wp_item.basePriceEGP)}) ${getStockDisplayText(wp_item.current_stock, wp_item.is_active)}`.trim()">
                                                                 </option>
                                                             </template>
                                                         </select>
@@ -436,7 +436,7 @@
                                     <h3 class="form-subhead bil-parent-spread review-summary-title"><span class="en">Your Udheya Booking Summary</span><span class="ar">ملخص حجز أضحيتك</span></h3>
                                     <div x-show="selectedAnimal.item_key">
                                         <div class="summary-item">
-                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Sheep:</strong> <span x-text="selectedAnimal.nameEN"></span> (<span x-text="selectedAnimal.weight_range_en"></span>)</div><div class="ar"><strong>الخروف:</strong> <span x-text="selectedAnimal.nameAR"></span> (<span x-text="selectedAnimal.weight_range_ar"></span>)</div></div></div>
+                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Sheep:</strong> <span x-text="selectedAnimal.nameEN"></span>, <span x-text="selectedAnimal.weight_range"></span></div><div class="ar"><strong>الخروف:</strong> <span x-text="selectedAnimal.nameAR"></span>، <span x-text="selectedAnimal.weight_range"></span></div></div></div>
                                             <button type="button" @click.prevent="handleStepperNavigation(1)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Animal Selection"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item">
@@ -535,7 +535,7 @@
                             </div></div>
                             <div class="quick-recap-wrapper">
                                 <h4 class="form-subhead bil-parent-spread quick-recap-title"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
-                                <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN"></span> (<span x-text="selectedAnimal.weight_range_en"></span>)</div><div class="ar"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR"></span> (<span x-text="selectedAnimal.weight_range_ar"></span>)</div></div>
+                                <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN + ', ' + selectedAnimal.weight_range"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR + '\u060C ' + selectedAnimal.weight_range"></span></div></div>
                                 <div class="summary-item bil-row">
                                     <div class="en"><strong>Service:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div>
                                     <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'خدمة قياسية' : 'الحيوان حي فقط'"></span></div>
