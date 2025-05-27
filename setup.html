@@ -43,64 +43,85 @@
     };
 
     const bookingsCollectionSchema = {
-        name: "bookings", type: "base", listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
-        schema: [
-            { name: "booking_id_text", type: "text", required: true, unique: true, options: { max: 50 } },
-            { name: "animal_type_name_en", type: "text", options: { max: 100 } }, { name: "animal_type_name_ar", type: "text", options: { max: 100 } },
-            { name: "weight_category_name_en", type: "text", options: { max: 100 } }, { name: "weight_category_name_ar", type: "text", options: { max: 100 } },
-            { name: "weight_range_actual_en", type: "text", options: { max: 50 } }, { name: "weight_range_actual_ar", type: "text", options: { max: 50 } },
-            { name: "animal_base_price_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
-            { name: "udheya_service_option_selected", type: "text", required: true, options: { max: 50 } },
-            { name: "service_fee_applied_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
-            { name: "delivery_fee_applied_egp", type: "number", options: { min: 0, noDecimal: false } },
-            { name: "total_amount_due_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
-            { name: "selected_display_currency", type: "text", options: { max: 5 } },
-            { name: "sacrifice_day_value", type: "text", required: true, options: { max: 50 } },
-            { name: "sacrifice_day_text_en", type: "text", options: { max: 100 } }, { name: "sacrifice_day_text_ar", type: "text", options: { max: 100 } },
-            { name: "slaughter_viewing_preference", type: "text", options: { max: 50 } }, { name: "distribution_choice", type: "text", options: { max: 50 } },
-            { name: "split_details_option", type: "text", options: { max: 100 } }, { name: "custom_split_details_text", type: "text", options: { max: 500 } },
-            { name: "niyyah_names", type: "text", options: { max: 500 } }, { name: "ordering_person_name", type: "text", options: {max: 150}},
-            { name: "ordering_person_phone", type: "text", options: {max: 30}}, { name: "customer_email", type: "email", options: {} },
-            { name: "delivery_option", type: "text", options: { max: 50 } }, { name: "delivery_name", type: "text", options: { max: 150 } },
-            { name: "delivery_phone", type: "text", options: { max: 30 } }, { name: "delivery_area_id", type: "text", options: { max: 50 } },
-            { name: "delivery_area_name_en", type: "text", options: { max: 100 } }, { name: "delivery_area_name_ar", type: "text", options: { max: 100 } },
-            { name: "delivery_address", type: "text", options: { max: 500 } }, { name: "delivery_instructions", type: "text", options: { max: 500 } },
-            { name: "time_slot", type: "text", options: { max: 50 } }, { name: "payment_method", type: "text", required: true, options: { max: 50 } },
-            { name: "payment_status", type: "select", required: true, options: { maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] } },
-            { name: "booking_status", type: "select", required: true, options: { maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] } },
-            { name: "terms_agreed", type: "bool", options: {} }, { name: "admin_notes", type: "text", options: { max: 1000 } },
-            { name: "group_purchase_interest", type: "bool", options: {} }, { name: "user_ip_address", type: "text", options: { max: 50 } },
-            { name: "user_agent_string", type: "text", options: { max: 300 } }
+        name: "bookings", type: "base", system: false,
+        listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
+        options: {},
+        fields: [
+            { id: "bookings_f_booking_id_text", name: "booking_id_text", type: "text", system: false, required: true, unique: true, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_animal_type_name_en", name: "animal_type_name_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_animal_type_name_ar", name: "animal_type_name_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_weight_category_name_en", name: "weight_category_name_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_weight_category_name_ar", name: "weight_category_name_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_weight_range_actual_en", name: "weight_range_actual_en", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_weight_range_actual_ar", name: "weight_range_actual_ar", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_animal_base_price_egp", name: "animal_base_price_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0, noDecimal: false } },
+            { id: "bookings_f_udheya_service_option_selected", name: "udheya_service_option_selected", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_service_fee_applied_egp", name: "service_fee_applied_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0, noDecimal: false } },
+            { id: "bookings_f_delivery_fee_applied_egp", name: "delivery_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: { min: 0, noDecimal: false } },
+            { id: "bookings_f_total_amount_due_egp", name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0, noDecimal: false } },
+            { id: "bookings_f_selected_display_currency", name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, options: { max: 5 } },
+            { id: "bookings_f_sacrifice_day_value", name: "sacrifice_day_value", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_sacrifice_day_text_en", name: "sacrifice_day_text_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_sacrifice_day_text_ar", name: "sacrifice_day_text_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_slaughter_viewing_preference", name: "slaughter_viewing_preference", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_distribution_choice", name: "distribution_choice", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_split_details_option", name: "split_details_option", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_custom_split_details_text", name: "custom_split_details_text", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
+            { id: "bookings_f_niyyah_names", name: "niyyah_names", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
+            { id: "bookings_f_ordering_person_name", name: "ordering_person_name", type: "text", system: false, required: false, presentable: true, options: { max: 150 } },
+            { id: "bookings_f_ordering_person_phone", name: "ordering_person_phone", type: "text", system: false, required: false, presentable: true, options: { max: 30 } },
+            { id: "bookings_f_customer_email", name: "customer_email", type: "email", system: false, required: false, presentable: true, options: {} },
+            { id: "bookings_f_delivery_option", name: "delivery_option", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_delivery_name", name: "delivery_name", type: "text", system: false, required: false, presentable: true, options: { max: 150 } },
+            { id: "bookings_f_delivery_phone", name: "delivery_phone", type: "text", system: false, required: false, presentable: true, options: { max: 30 } },
+            { id: "bookings_f_delivery_area_id", name: "delivery_area_id", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_delivery_area_name_en", name: "delivery_area_name_en", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_delivery_area_name_ar", name: "delivery_area_name_ar", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+            { id: "bookings_f_delivery_address", name: "delivery_address", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
+            { id: "bookings_f_delivery_instructions", name: "delivery_instructions", type: "text", system: false, required: false, presentable: true, options: { max: 500 } },
+            { id: "bookings_f_time_slot", name: "time_slot", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_payment_method", name: "payment_method", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_payment_status", name: "payment_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"], options: {} },
+            { id: "bookings_f_booking_status", name: "booking_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"], options: {} },
+            { id: "bookings_f_terms_agreed", name: "terms_agreed", type: "bool", system: false, required: false, presentable: true, options: {} },
+            { id: "bookings_f_admin_notes", name: "admin_notes", type: "text", system: false, required: false, presentable: true, options: { max: 1000 } },
+            { id: "bookings_f_group_purchase_interest", name: "group_purchase_interest", type: "bool", system: false, required: false, presentable: true, options: {} },
+            { id: "bookings_f_user_ip_address", name: "user_ip_address", type: "text", system: false, required: false, presentable: true, options: { max: 50 } },
+            { id: "bookings_f_user_agent_string", name: "user_agent_string", type: "text", system: false, required: false, presentable: true, options: { max: 300 } }
         ]
     };
 
     const sheepTypesCollectionSchema = {
-        name: "sheep_types", type: "base", listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null,
-        schema: [
-            { name: "type_key", type: "text", required: true, unique: true, options: { max: 50, pattern: "^[a-z0-9_]+$" } },
-            { name: "name_en", type: "text", required: true, options: { max: 100 } },
-            { name: "name_ar", type: "text", required: true, options: { max: 100 } },
-            { name: "price_per_kg_egp", type: "number", required: true, options: { min: 0 } },
-            { name: "is_active", type: "bool", defaultValue: true },
-            { name: "description_en", type: "text", options: { max: 200 } },
-            { name: "description_ar", type: "text", options: { max: 200 } },
-            { name: "sort_order", type: "number", defaultValue: 0 }
+        name: "sheep_types", type: "base", system: false,
+        listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
+        options: {},
+        fields: [
+            { id: "sheep_types_f_type_key", name: "type_key", type: "text", system: false, required: true, unique: true, presentable: true, options: { max: 50, pattern: "^[a-z0-9_]+$" } },
+            { id: "sheep_types_f_name_en", name: "name_en", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
+            { id: "sheep_types_f_name_ar", name: "name_ar", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
+            { id: "sheep_types_f_price_per_kg_egp", name: "price_per_kg_egp", type: "number", system: false, required: true, presentable: true, options: { min: 0 } },
+            { id: "sheep_types_f_is_active", name: "is_active", type: "bool", system: false, required: false, presentable: true, options: {} },
+            { id: "sheep_types_f_description_en", name: "description_en", type: "text", system: false, required: false, presentable: true, options: { max: 200 } },
+            { id: "sheep_types_f_description_ar", name: "description_ar", type: "text", system: false, required: false, presentable: true, options: { max: 200 } },
+            { id: "sheep_types_f_sort_order", name: "sort_order", type: "number", system: false, required: false, presentable: true, options: {} }
         ]
     };
 
     const sheepWeightsCollectionSchema = {
-        name: "sheep_weights", type: "base", listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null,
-        schema: [
-            { name: "item_key", type: "text", required: true, unique: true, options: { max: 100, pattern: "^[a-z0-9_]+$" } },
-            { name: "sheep_type", type: "relation", required: true, options: { collectionId: "_pb_users_auth_", cascadeDelete: false, minSelect: 1, maxSelect: 1, displayFields: ["name_en", "type_key"] } },
-            { name: "name_en_specific", type: "text", required: true, options: { max: 100 } },
-            { name: "name_ar_specific", type: "text", required: true, options: { max: 100 } },
-            { name: "weight_range_text_en", type: "text", required: true, options: { max: 50 } },
-            { name: "weight_range_text_ar", type: "text", required: true, options: { max: 50 } },
-            { name: "avg_weight_kg", type: "number", required: true, options: { min: 0 } },
-            { name: "initial_stock", type: "number", required: true, options: { min: 0 }, defaultValue: 0 },
-            { name: "is_active", type: "bool", defaultValue: true },
-            { name: "sort_order", type: "number", defaultValue: 0 }
+        name: "sheep_weights", type: "base", system: false,
+        listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
+        options: {},
+        fields: [
+            { id: "sheep_weights_f_item_key", name: "item_key", type: "text", system: false, required: true, unique: true, presentable: true, options: { max: 100, pattern: "^[a-z0-9_]+$" } },
+            { id: "sheep_weights_f_sheep_type", name: "sheep_type", type: "relation", system: false, required: true, presentable: true, options: { collectionId: "", cascadeDelete: false, minSelect: 1, maxSelect: 1, displayFields: ["name_en", "type_key"] } },
+            { id: "sheep_weights_f_name_en_specific", name: "name_en_specific", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
+            { id: "sheep_weights_f_name_ar_specific", name: "name_ar_specific", type: "text", system: false, required: true, presentable: true, options: { max: 100 } },
+            { id: "sheep_weights_f_weight_range_text_en", name: "weight_range_text_en", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
+            { id: "sheep_weights_f_weight_range_text_ar", name: "weight_range_text_ar", type: "text", system: false, required: true, presentable: true, options: { max: 50 } },
+            { id: "sheep_weights_f_avg_weight_kg", name: "avg_weight_kg", type: "number", system: false, required: true, presentable: true, options: { min: 0 } },
+            { id: "sheep_weights_f_initial_stock", name: "initial_stock", type: "number", system: false, required: true, presentable: true, options: { min: 0 } },
+            { id: "sheep_weights_f_is_active", name: "is_active", type: "bool", system: false, required: false, presentable: true, options: {} },
+            { id: "sheep_weights_f_sort_order", name: "sort_order", type: "number", system: false, required: false, presentable: true, options: {} }
         ]
     };
     
@@ -130,21 +151,39 @@
 
         if (collectionSchema.name === "sheep_weights") {
             const sheepTypeCollection = await pb.collections.getOne("sheep_types"); 
-            const relationField = collectionSchema.schema.find(f => f.name === "sheep_type");
+            const relationField = collectionSchema.fields.find(f => f.name === "sheep_type");
             if (relationField) relationField.options.collectionId = sheepTypeCollection.id;
         }
         
-        const payload = { ...collectionSchema }; 
-
         if (existingCollection) {
             log(`Collection '<b>${collectionSchema.name}</b>' exists. Attempting to update...`, 'i');
-            const updatePayload = { schema: payload.schema, listRule: payload.listRule, viewRule: payload.viewRule, createRule: payload.createRule, updateRule: payload.updateRule, deleteRule: payload.deleteRule, options: payload.options || {} };
+            const updatePayload = { 
+                fields: collectionSchema.fields, 
+                listRule: collectionSchema.listRule, 
+                viewRule: collectionSchema.viewRule, 
+                createRule: collectionSchema.createRule, 
+                updateRule: collectionSchema.updateRule, 
+                deleteRule: collectionSchema.deleteRule, 
+                options: collectionSchema.options || {} 
+            };
             await pb.collections.update(existingCollection.id, updatePayload);
             log(`Collection '<b>${collectionSchema.name}</b>' updated successfully.`, 's');
             return existingCollection;
         } else {
             log(`Collection '<b>${collectionSchema.name}</b>' does not exist. Attempting to create...`, 'i');
-            const created = await pb.collections.create(payload);
+            const createPayload = {
+                name: collectionSchema.name,
+                type: collectionSchema.type,
+                system: collectionSchema.system,
+                fields: collectionSchema.fields,
+                listRule: collectionSchema.listRule,
+                viewRule: collectionSchema.viewRule,
+                createRule: collectionSchema.createRule,
+                updateRule: collectionSchema.updateRule,
+                deleteRule: collectionSchema.deleteRule,
+                options: collectionSchema.options || {}
+            };
+            const created = await pb.collections.create(createPayload);
             log(`Collection '<b>${collectionSchema.name}</b>' created successfully.`, 's');
             return created;
         }
@@ -200,7 +239,6 @@
         }
         log(`Seeding for '<b>${collectionName}</b>' complete. Added: ${seededCount}, Skipped (existing/error): ${skippedCount}.`, seededCount > 0 ? 's' : 'w');
     }
-
 
     setupBookingsButton.onclick = async () => {
         setupBookingsButton.disabled = true;
@@ -263,7 +301,7 @@
             }
             log(`Seeding for '<b>${sheepTypesCollection.name}</b>' complete. Added: ${seededTypesCount}, Skipped/Existing: ${skippedTypesCount}.`, 's');
 
-            sheepWeightsCollectionSchema.schema.find(f => f.name === "sheep_type").options.collectionId = sheepTypesCollection.id;
+            sheepWeightsCollectionSchema.fields.find(f => f.name === "sheep_type").options.collectionId = sheepTypesCollection.id;
             const sheepWeightsCollection = await manageCollection(pb, sheepWeightsCollectionSchema);
 
             const foreignKeyMapForWeights = {
