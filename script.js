@@ -3,8 +3,6 @@ document.addEventListener('alpine:init', () => {
         exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
         default_currency: "EGP",
         whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
-        // Promo ends at the beginning of the 1st day of Eid (10th Dhul Hijjah)
-        // If 10th Dhul Hijjah is June 7, 2025
         promo_end_date: new Date("2025-06-07T00:00:00.000Z").toISOString(), 
         promo_discount_percent: 10, 
         promo_is_active: true,
@@ -36,20 +34,25 @@ document.addEventListener('alpine:init', () => {
 
     const initialBookingStateData = {
         selectedAnimal: { type: "", item_key: "", weight_range: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
-        selectedUdheyaService: 'standard_service', 
-        currentServiceFeeEGP: BARE_MINIMUM_APP_SETTINGS.udheya_service_surcharge_egp, 
         orderingPersonName: "", 
         orderingPersonPhone: "", 
         customerEmail: "", 
-        deliveryName: "", 
-        deliveryPhone: "", 
+        niyyahNames: "",
+        selectedUdheyaService: 'standard_service', 
+        currentServiceFeeEGP: BARE_MINIMUM_APP_SETTINGS.udheya_service_surcharge_egp, 
+        selectedSacrificeDay: { value: "day1_10_dhul_hijjah", textEN: "Day 1 of Eid (10th Dhul Hijjah)", textAR: "اليوم الأول (10 ذو الحجة)"},
+        slaughterViewingPreference: "none", 
+        distributionChoice: "me", 
+        splitDetailsOption: "", 
+        customSplitDetailsText: "", 
         deliveryCity: "", 
         allAvailableCities: [], 
-        deliveryAddress: "", deliveryInstructions: "", niyyahNames: "",
-        splitDetailsOption: "", customSplitDetailsText: "", groupPurchase: false,
-        selectedSacrificeDay: { value: "day1_10_dhul_hijjah", textEN: "Day 1 of Eid (10th Dhul Hijjah)", textAR: "اليوم الأول (10 ذو الحجة)"},
-        selectedTimeSlot: "8 AM-9 AM", distributionChoice: "me", paymentMethod: "fa",
-        slaughterViewingPreference: "none", errors: {},
+        deliveryAddress: "", 
+        deliveryInstructions: "", 
+        selectedTimeSlot: "8 AM-9 AM", 
+        groupPurchase: false, 
+        paymentMethod: "fa", 
+        errors: {},
         totalPriceEGP: 0
     };
 
@@ -187,13 +190,18 @@ document.addEventListener('alpine:init', () => {
             });
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) },
-                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'orderingPersonNameInput_s3', validator: this.validateStep3.bind(this) },
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'orderingPersonNameInput_s2', validator: this.validateStep2.bind(this) },
+                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'udheyaServiceRadios_s3', validator: this.validateStep3.bind(this) },
                 { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep4.bind(this) }
             ];
             ['selectedAnimal.basePriceEGP', 'currentCurrency', 'currentServiceFeeEGP'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'currentServiceFeeEGP') this.updateAllDisplayedPrices(); }));
             this.$watch('appSettings.udheya_service_surcharge_egp', () => { this.updateServiceFee(); });
-            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'orderingPersonName', 'orderingPersonPhone', 'customerEmail', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'deliveryCity' && nv !== ov) {this.updateDeliveryFeeDisplay(); this.calculateTotalPrice();} if (prop === 'selectedUdheyaService') this.updateServiceFee(); if (prop === 'distributionChoice') this.calculateTotalPrice(); }));
+            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'orderingPersonName', 'orderingPersonPhone', 'customerEmail', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'deliveryCity', 'selectedUdheyaService', 'niyyahNames'].forEach(prop => this.$watch(prop, (nv,ov) => { 
+                this.updateAllStepCompletionStates(); 
+                if (prop === 'deliveryCity' && nv !== ov) {this.updateDeliveryFeeDisplay(); this.calculateTotalPrice();} 
+                if (prop === 'selectedUdheyaService') this.updateServiceFee(); 
+                if (prop === 'distributionChoice') this.calculateTotalPrice(); 
+            }));
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
@@ -202,7 +210,8 @@ document.addEventListener('alpine:init', () => {
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             } else if (this.selectedUdheyaService === 'live_animal_only') {
                 this.currentServiceFeeEGP = 0;
-            } else {
+            } else { // Default to standard if somehow invalid
+                this.selectedUdheyaService = 'standard_service';
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             }
             this.calculateTotalPrice();
@@ -227,26 +236,45 @@ document.addEventListener('alpine:init', () => {
         get _needsDeliveryDetails() { const c = (this.customSplitDetailsText || "").toLowerCase(); return this.distributionChoice === 'me' || (this.distributionChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitDetailsOption) || (this.splitDetailsOption === 'custom' && (c.includes("for me") || c.includes("all delivered to me") || c.includes("لي") || c.includes("توصيل لي"))))); },
         get splitDetails() { if(this.distributionChoice !== 'split') return ""; if(this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim(); const o={"1/3_me_2/3_charity_sl":{en:"1/3 me, 2/3 charity (SL)",ar:"ثلث لي، ثلثان صدقة (أرض الأغنام)"},"1/2_me_1/2_charity_sl":{en:"1/2 me, 1/2 charity (SL)",ar:"نصف لي، نصف صدقة (أرض الأغنام)"},"2/3_me_1/3_charity_sl":{en:"2/3 me, 1/3 charity (SL)",ar:"ثلثان لي، ثلث صدقة (أرض الأغنام)"},"all_me_custom_distro":{en:"All for me (I distribute)",ar:"الكل لي (أنا أوزع)"}};const s=o[this.splitDetailsOption];return s?(this.currentLang==='ar'?s.ar:s.en):this.splitDetailsOption;},
         _getDeliveryLocation(lang) {
+            if (!this._needsDeliveryDetails || !this.deliveryCity) return "";
             const selectedCityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
             if (!selectedCityData) return "";
             return lang === 'en' ? selectedCityData.name_en : selectedCityData.name_ar;
         },
-        get summaryDeliveryToEN() {if(this.distributionChoice==='char')return"Charity Distribution by Sheep Land";if(this._needsDeliveryDetails){const n=(this.deliveryName||this.orderingPersonName||"").trim();const l=this._getDeliveryLocation('en');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join(", ")||"Delivery Details Incomplete";}return"Self Pickup/Distribution";},
-        get summaryDeliveryToAR() {if(this.distributionChoice==='char')return"توزيع خيري بواسطة أرض الأغنام";if(this._needsDeliveryDetails){const n=(this.deliveryName||this.orderingPersonName||"").trim();const l=this._getDeliveryLocation('ar');const s=(this.deliveryAddress||"").substring(0,20)+((this.deliveryAddress||"").length>20?"...":"");return[n,l,s].filter(p=>p?.trim()).join("، ")||"تفاصيل التوصيل غير مكتملة";}return"استلام ذاتي/توزيع";},
+        get summaryDeliveryToEN() {
+            if(this.distributionChoice === 'char') return "Charity Distribution by Sheep Land";
+            if(this._needsDeliveryDetails) {
+                const name = (this.orderingPersonName || "").trim();
+                const location = this._getDeliveryLocation('en');
+                const addressShort = (this.deliveryAddress || "").substring(0,30) + ((this.deliveryAddress || "").length > 30 ? "..." : "");
+                return [name, location, addressShort].filter(p => p?.trim()).join(", ") || "Delivery Details Incomplete";
+            }
+            return "Self Pickup/Distribution (No delivery details provided)";
+        },
+        get summaryDeliveryToAR() {
+            if(this.distributionChoice === 'char') return "توزيع خيري بواسطة أرض الأغنام";
+            if(this._needsDeliveryDetails) {
+                const name = (this.orderingPersonName || "").trim();
+                const location = this._getDeliveryLocation('ar');
+                const addressShort = (this.deliveryAddress || "").substring(0,30) + ((this.deliveryAddress || "").length > 30 ? "..." : "");
+                return [name, location, addressShort].filter(p => p?.trim()).join("، ") || "تفاصيل التوصيل غير مكتملة";
+            }
+            return "استلام ذاتي/توزيع (لم تقدم تفاصيل توصيل)";
+        },
         get summaryDistributionEN() {if(this.distributionChoice==='me')return"All to me";if(this.distributionChoice==='char')return"All to charity (by SL)";return`Split: ${(this.splitDetails||"").trim()||"(Not specified)"}`;},
         get summaryDistributionAR() {if(this.distributionChoice==='me')return"الكل لي";if(this.distributionChoice==='char')return"تبرع بالكل للصدقة (أرض الأغنام)";return`تقسيم: ${(this.splitDetails||"").trim()||"(لم يحدد)"}`;},
         startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
         updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
         updateDeliveryFeeDisplay() {
             this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false;
-            if (!this.deliveryCity) { this.calculateTotalPrice(); return; } 
+            if (!this._needsDeliveryDetails || !this.deliveryCity) { this.calculateTotalPrice(); return; } 
             const cityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
             if (cityData && typeof cityData.delivery_fee_egp === 'number') {
                 this.deliveryFeeForDisplayEGP = cityData.delivery_fee_egp;
                 this.isDeliveryFeeVariable = false;
             } else if (cityData && cityData.delivery_fee_egp === null) {
                 this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
-            } else {
+            } else { // City not found or fee not set, assume variable or to be confirmed
                 this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
             }
             this.calculateTotalPrice(); 
@@ -264,26 +292,24 @@ document.addEventListener('alpine:init', () => {
             if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
             return true; 
         },
-        validateStep2(setErrors = true) { 
-            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('splitDetails'); this.clearError('distributionChoice');}
+        validateStep2(setErrors = true) { // Your Details
+            if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail');}
+            let isValid = true;
+            if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
+            if (!this.isValidPhone(this.orderingPersonPhone)) { if (setErrors) this.setError('orderingPersonPhone', 'phone'); isValid = false; }
+            if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
+            return isValid;
+        },
+        validateStep3(setErrors = true) { // Udheya & Delivery
+            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('distributionChoice'); this.clearError('splitDetails'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
             let isValid = true;
             if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
             if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; }
             if (!this.distributionChoice) { if(setErrors) this.setError('distributionChoice', 'select'); isValid = false; }
             if (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) { if (setErrors) this.setError('splitDetails', 'required'); isValid = false; }
             else if (this.distributionChoice === 'split' && !this.splitDetailsOption) { if (setErrors) this.setError('splitDetails', 'select'); isValid = false; }
-            return isValid;
-        },
-        validateStep3(setErrors = true) { 
-            if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
-            let isValid = true;
-            if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
-            if (!this.isValidPhone(this.orderingPersonPhone)) { if (setErrors) this.setError('orderingPersonPhone', 'phone'); isValid = false; }
-            if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
             
             if (this._needsDeliveryDetails) { 
-                if (!(this.deliveryName || "").trim()) { if (setErrors) this.setError('deliveryName', 'required'); isValid = false; }
-                if (!this.isValidPhone(this.deliveryPhone)) { if (setErrors) this.setError('deliveryPhone', 'phone'); isValid = false; }
                 if (!this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; } 
                 if (!(this.deliveryAddress || "").trim()) { if (setErrors) this.setError('deliveryAddress', 'required'); isValid = false; }
                 if (!this.selectedTimeSlot) { if (setErrors) this.setError('timeSlot', 'select'); isValid = false; }
@@ -327,7 +353,7 @@ document.addEventListener('alpine:init', () => {
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
         updateSacrificeDayTexts() {
-            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s2 || this.$refs.sacrificeDaySelect_s3; // Adapt based on final step structure for this element
+            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3;
             if (sacrificeDaySelectElement) {
                  const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`);
                  if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
@@ -386,8 +412,11 @@ document.addEventListener('alpine:init', () => {
             }
             this.isLoading.booking = true; this.apiError = null; this.userFriendlyApiError = ""; this.calculateTotalPrice();
             const bookingId = `SL-UDHY-${new Date().getFullYear()}-${String(Math.random()).slice(2,7)}`;
-            let delOpt = "self_arranged"; if (this.distributionChoice === 'char') delOpt = "charity_distribution"; else if (this._needsDeliveryDetails) delOpt = "home_delivery";
-            const selectedCityInfo = this._needsDeliveryDetails ? this.allAvailableCities.find(c => c.id === this.deliveryCity) : null;
+            let delOpt = "self_pickup_or_internal_distribution"; 
+            if (this.distributionChoice === 'char') delOpt = "charity_distribution_by_sl"; 
+            else if (this._needsDeliveryDetails) delOpt = "home_delivery_to_orderer";
+            
+            const selectedCityInfo = (this._needsDeliveryDetails && this.deliveryCity) ? this.allAvailableCities.find(c => c.id === this.deliveryCity) : null;
 
             const payload = {
                 booking_id_text: bookingId,
@@ -406,12 +435,13 @@ document.addEventListener('alpine:init', () => {
                 ordering_person_phone: (this.orderingPersonPhone || "").trim(), 
                 customer_email: (this.customerEmail || "").trim(),
                 delivery_option: delOpt,
-                delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : (this.orderingPersonName || "").trim(),
-                delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : (this.orderingPersonPhone || "").trim(),
-                delivery_area_id: this._needsDeliveryDetails ? (selectedCityInfo?.id || "") : "", 
-                delivery_area_name_en: this._needsDeliveryDetails ? (selectedCityInfo?.name_en || "") : "", 
-                delivery_area_name_ar: this._needsDeliveryDetails ? (selectedCityInfo?.name_ar || "") : "",
-                delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "",
+                delivery_name: (this.orderingPersonName || "").trim(), // Always ordering person's name for delivery contact
+                delivery_phone: (this.orderingPersonPhone || "").trim(), // Always ordering person's phone for delivery contact
+                delivery_area_id: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.id : "", 
+                delivery_area_name_en: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.name_en : "", 
+                delivery_area_name_ar: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.name_ar : "",
+                delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", 
+                delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "",
                 time_slot: (this.distributionChoice === 'char' || !this._needsDeliveryDetails) ? 'N/A' : this.selectedTimeSlot,
                 payment_method: this.paymentMethod, payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) ? 'cod_pending_confirmation' : 'pending_payment',
                 booking_status: 'confirmed_pending_payment', terms_agreed: true, 
@@ -439,8 +469,7 @@ document.addEventListener('alpine:init', () => {
             finally { this.isLoading.status = false; }
         },
         getSacrificeDayText(v) {
-            // Based on the new 4-step flow, sacrifice_day_select is in Step 2 (Arrangements)
-            const optionElement = document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);
+            const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); // Ensure this ref is correct for the new step
             return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v};
         },
         resetAndStartOver() {

@@ -74,7 +74,7 @@ ul,ol{list-style:none}
 .brand-logo.bil-parent-spread-intrinsic,
 .nav-link.bil-parent-spread-intrinsic,
 .nav-link-mobile.bil-parent-spread-intrinsic,
-.dropdown-link.bil-parent-spread-intrinsic,
+/* .dropdown-link.bil-parent-spread-intrinsic, /* Switched to bil-parent-spread for dropdowns */
 .badge.bil-parent-spread-intrinsic,
 .btn.bil-parent-spread-intrinsic{display:inline-flex;width:auto}
 
@@ -196,7 +196,6 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 
 .udheya-booking-section{background-color:var(--b2)}
 .booking-section-head{margin-bottom:var(--s3)}
-/* .uprocess-wrap.compact-how-it-works removed as section is deleted */
 
 .stepper-outer-wrapper{position:sticky;top:var(--header-height);background-color:var(--b1);z-index:999;border-bottom:1px solid var(--bs);box-shadow:0 2px 4px rgba(0,0,0,.03);padding:0;margin-bottom:var(--s3)}
 .stepper-outer-wrapper .c{padding:var(--s1) 0}
@@ -221,7 +220,6 @@ html[lang=ar] .form-label-checkbox input[type=checkbox], :root:lang(ar) .form-la
 .form-step-content:not(:first-child){border-top:1px dashed var(--bs);margin-top:var(--s2);padding-top:var(--s3)}
 .form-step-content:last-of-type{border-bottom:none}
 .form-panel-card{margin-bottom:0}.form-panel-card .card-b{padding:var(--s2) var(--s2)}
-/* .required-fields-note removed */
 .livestock-sharia-note{font-size:.9em;color:var(--tm);margin:var(--s1) 0 var(--s2); padding: var(--s1); background-color:var(--b1); border-radius: var(--rad); border-left: 3px solid var(--c2l); }
 .livestock-sharia-note p { margin-bottom: var(--s0); }
 .livestock-sharia-note p:last-child { margin-bottom: 0; }
@@ -266,7 +264,7 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .summary-item-content{flex-grow:1}.summary-item .summary-item-content > .bil-row > div{font-size:.9rem;color:var(--tm)}
 .summary-item .summary-item-content > .bil-row strong{color:var(--c1d)}
 .summary-item-price { flex-shrink: 0; text-align: right; min-width: 100px; font-size: 0.9rem; color: var(--tm); }
-.summary-item-price.bil-row > .en { text-align: right; }
+.summary-item-price.bil-row > .en { text-align: left; } /* Corrected from text-align: right */
 .summary-item-price.bil-row > .ar { text-align: right; font-family: var(--fa); }
 .summary-item-price strong { color: var(--c1d); font-weight: 700; }
 .btn-edit-summary{padding:2px var(--s0);font-size:.7rem;font-weight:400;line-height:1;background-color:transparent;border:1px solid var(--bs);color:var(--tm);border-radius:var(--rad);text-transform:uppercase;margin-left:var(--s1);flex-shrink:0}
@@ -360,9 +358,9 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .bil-row:not(.footer-brand-desc):not(.pban-text-content .bil-row):not(.check-status-label):not(.summary-item .summary-item-content .bil-row):not(.summary-total):not(.bank-details-list li.bil-row):not(.bil-keep-side-by-side-mobile):not(.hero-desc-row):not(.livestock-sharia-note):not(.info-box-step .bil-row):not(.field-note-wrapper)>:last-child{ margin-bottom:0; }
     .field-note-wrapper > .en, .field-note-wrapper > .ar { flex-basis: 100% !important; text-align: center !important; }
     .field-note-wrapper > .en { margin-bottom: var(--s0); }
-    .bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-title-row):not(.hero-subtitle-row){ flex-direction:column; align-items:center; text-align:center; }
-    .bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-title-row):not(.hero-subtitle-row)>:is(.en,.ar){ margin:0 auto var(--s0)!important; text-align:center!important; padding:0!important; }
-    .bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-title-row):not(.hero-subtitle-row)>:last-child{ margin-bottom:0!important; }
+    .bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-title-row):not(.hero-subtitle-row):not(.rgrp > label.bil-parent-spread){ flex-direction:column; align-items:center; text-align:center; }
+    .bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-title-row):not(.hero-subtitle-row):not(.rgrp > label.bil-parent-spread)>:is(.en,.ar){ margin:0 auto var(--s0)!important; text-align:center!important; padding:0!important; }
+    .bil-parent-spread:not(.form-label-strict):not(.form-subhead):not(.sec-head > h2):not(.sec-head > h3):not(.footer-payment-methods > h5):not(.booking-id-card > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-title-row):not(.hero-subtitle-row):not(.rgrp > label.bil-parent-spread)>:last-child{ margin-bottom:0!important; }
     .sec-head:not(.form-step-content .sec-head):not(.compact-how-it-works-head) :is(h2,h3).bil-parent-spread :is(.en,.ar)::after,
     .hero-section .why-choose-us-hero-head h2.bil-parent-spread :is(.en,.ar)::after{ left:50%; transform:translateX(-50%); right:auto; }
     .bil-parent-spread-intrinsic>:is(.en,.ar){margin:0!important;padding:0!important}
