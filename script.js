@@ -33,14 +33,19 @@ document.addEventListener('alpine:init', () => {
         selectedAnimal: { type: "", item_key: "", weight_range: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
         selectedUdheyaService: 'standard_service', 
         currentServiceFeeEGP: BARE_MINIMUM_APP_SETTINGS.udheya_service_surcharge_egp, 
-        totalPriceEGP: 0, customerEmail: "", deliveryName: "", deliveryPhone: "", 
+        orderingPersonName: "", 
+        orderingPersonPhone: "", 
+        customerEmail: "", 
+        deliveryName: "", 
+        deliveryPhone: "", 
         deliveryCity: "", 
         allAvailableCities: [], 
         deliveryAddress: "", deliveryInstructions: "", niyyahNames: "",
         splitDetailsOption: "", customSplitDetailsText: "", groupPurchase: false,
         selectedSacrificeDay: { value: "day1_10_dhul_hijjah", textEN: "Day 1 of Eid (10th Dhul Hijjah)", textAR: "اليوم الأول (10 ذو الحجة)"},
         selectedTimeSlot: "8 AM-9 AM", distributionChoice: "me", paymentMethod: "fa",
-        slaughterViewingPreference: "none", errors: {}
+        slaughterViewingPreference: "none", errors: {},
+        totalPriceEGP: 0
     };
 
     const activePaymentMethodsList = [ 'revolut', 'monzo', 'ip', 'fa', 'vo', 'cod', 'bank_transfer' ];
@@ -76,7 +81,7 @@ document.addEventListener('alpine:init', () => {
         get availablePaymentMethods() { return paymentMethodDisplayOptions.filter(pm => activePaymentMethodsList.includes(pm.id)); },
         apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingStateData)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", currentCurrency: "EGP", bookingID: "",
-        currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false },
+        currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false },
         isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false,
         countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
         countdownTimerInterval: null, currentLang: "en",
@@ -165,7 +170,9 @@ document.addEventListener('alpine:init', () => {
             this.updateServiceFee(); 
 
             this.currentCurrency = this.appSettings.default_currency;
-            this.startOfferDHDMSCountdown(); this.updateSacrificeDayTexts(); this.clearAllErrors();
+            this.startOfferDHDMSCountdown(); 
+            this.updateSacrificeDayTexts(); 
+            this.clearAllErrors();
             this.$nextTick(() => {
                 if (this.productOptions.livestock?.length > 0) this.updateAllDisplayedPrices();
                 else this.userFriendlyApiError = "Livestock options could not be loaded.";
@@ -175,12 +182,13 @@ document.addEventListener('alpine:init', () => {
             });
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: 'baladiWeightSelect', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) }, // udheyaServiceRadios (if radios) or udheyaServiceSelect (if select)
-                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep3.bind(this) }
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'udheyaServiceRadios', validator: this.validateStep2.bind(this) },
+                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'orderingPersonNameInput_s3', validator: this.validateStep3.bind(this) },
+                { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep4.bind(this) }
             ];
             ['selectedAnimal.basePriceEGP', 'currentCurrency', 'currentServiceFeeEGP'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'currentServiceFeeEGP') this.updateAllDisplayedPrices(); }));
             this.$watch('appSettings.udheya_service_surcharge_egp', () => { this.updateServiceFee(); });
-            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'deliveryCity' && nv !== ov) {this.updateDeliveryFeeDisplay(); this.calculateTotalPrice();} if (prop === 'selectedUdheyaService') this.updateServiceFee(); if (prop === 'distributionChoice') this.calculateTotalPrice(); }));
+            ['selectedSacrificeDay.value', 'distributionChoice', 'splitDetailsOption', 'customSplitDetailsText', 'orderingPersonName', 'orderingPersonPhone', 'customerEmail', 'deliveryName', 'deliveryPhone', 'deliveryAddress', 'selectedTimeSlot', 'paymentMethod', 'slaughterViewingPreference', 'deliveryCity', 'selectedUdheyaService'].forEach(prop => this.$watch(prop, (nv,ov) => { this.updateAllStepCompletionStates(); if (prop === 'deliveryCity' && nv !== ov) {this.updateDeliveryFeeDisplay(); this.calculateTotalPrice();} if (prop === 'selectedUdheyaService') this.updateServiceFee(); if (prop === 'distributionChoice') this.calculateTotalPrice(); }));
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
@@ -226,7 +234,7 @@ document.addEventListener('alpine:init', () => {
         updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
         updateDeliveryFeeDisplay() {
             this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false;
-            if (!this.deliveryCity) { this.calculateTotalPrice(); return; } // Recalculate if city is deselected
+            if (!this.deliveryCity) { this.calculateTotalPrice(); return; } 
             const cityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
             if (cityData && typeof cityData.delivery_fee_egp === 'number') {
                 this.deliveryFeeForDisplayEGP = cityData.delivery_fee_egp;
@@ -236,7 +244,7 @@ document.addEventListener('alpine:init', () => {
             } else {
                 this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
             }
-            this.calculateTotalPrice(); // Recalculate total when delivery fee might change
+            this.calculateTotalPrice(); 
         },
         getFormattedPrice(p, c) {const cc=c||this.currentCurrency;const ci=this.appSettings?.exchange_rates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isValidEmail: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
@@ -251,23 +259,33 @@ document.addEventListener('alpine:init', () => {
             if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
             return true; 
         },
-        validateStep2(setErrors = true) { 
-            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('splitDetails'); this.clearError('timeSlot'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('customerEmail'); }
+        validateStep2(setErrors = true) { // Service & Niyyah + Arrangements
+            if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('splitDetails'); this.clearError('distributionChoice');}
             let isValid = true;
             if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
             if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; }
+            if (!this.distributionChoice) { if(setErrors) this.setError('distributionChoice', 'select'); isValid = false; }
             if (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom' && !(this.customSplitDetailsText || "").trim()) { if (setErrors) this.setError('splitDetails', 'required'); isValid = false; }
-            if (this._needsDeliveryDetails) {
+            else if (this.distributionChoice === 'split' && !this.splitDetailsOption) { if (setErrors) this.setError('splitDetails', 'select'); isValid = false; }
+            return isValid;
+        },
+        validateStep3(setErrors = true) { // Contact & Delivery Details
+            if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail'); this.clearError('deliveryName'); this.clearError('deliveryPhone'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
+            let isValid = true;
+            if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
+            if (!this.isValidPhone(this.orderingPersonPhone)) { if (setErrors) this.setError('orderingPersonPhone', 'phone'); isValid = false; }
+            if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
+            
+            if (this._needsDeliveryDetails) { 
                 if (!(this.deliveryName || "").trim()) { if (setErrors) this.setError('deliveryName', 'required'); isValid = false; }
                 if (!this.isValidPhone(this.deliveryPhone)) { if (setErrors) this.setError('deliveryPhone', 'phone'); isValid = false; }
                 if (!this.deliveryCity) { if (setErrors) this.setError('deliveryCity', 'select'); isValid = false; } 
                 if (!(this.deliveryAddress || "").trim()) { if (setErrors) this.setError('deliveryAddress', 'required'); isValid = false; }
                 if (!this.selectedTimeSlot) { if (setErrors) this.setError('timeSlot', 'select'); isValid = false; }
             }
-            if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
             return isValid;
         },
-        validateStep3(setErrors = true) { 
+        validateStep4(setErrors = true) { 
             if (setErrors) this.clearError('paymentMethod');
             if (!this.paymentMethod) { if (setErrors) this.setError('paymentMethod', 'select'); return false; }
             return true;
@@ -309,7 +327,7 @@ document.addEventListener('alpine:init', () => {
             if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) {
                 deliveryFeeForTotal = this.deliveryFeeForDisplayEGP;
             }
-            this.totalPriceEGP = (this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal; 
+            this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal; 
         },
 
         updateAllDisplayedPrices() {
@@ -372,9 +390,13 @@ document.addEventListener('alpine:init', () => {
                 sacrifice_day_value: this.selectedSacrificeDay.value, sacrifice_day_text_en: this.selectedSacrificeDay.textEN, sacrifice_day_text_ar: this.selectedSacrificeDay.textAR,
                 slaughter_viewing_preference: this.slaughterViewingPreference, distribution_choice: this.distributionChoice,
                 split_details_option: this.distributionChoice === 'split' ? this.splitDetailsOption : "", custom_split_details_text: (this.distributionChoice === 'split' && this.splitDetailsOption === 'custom') ? (this.customSplitDetailsText || "").trim() : "",
-                niyyah_names: (this.niyyahNames || "").trim(), customer_email: (this.customerEmail || "").trim(),
+                niyyah_names: (this.niyyahNames || "").trim(), 
+                ordering_person_name: (this.orderingPersonName || "").trim(), 
+                ordering_person_phone: (this.orderingPersonPhone || "").trim(), 
+                customer_email: (this.customerEmail || "").trim(),
                 delivery_option: delOpt,
-                delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : "", delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : "",
+                delivery_name: this._needsDeliveryDetails ? (this.deliveryName || "").trim() : (this.orderingPersonName || "").trim(),
+                delivery_phone: this._needsDeliveryDetails ? (this.deliveryPhone || "").trim() : (this.orderingPersonPhone || "").trim(),
                 delivery_area_id: this._needsDeliveryDetails ? (selectedCityInfo?.id || "") : "", 
                 delivery_area_name_en: this._needsDeliveryDetails ? (selectedCityInfo?.name_en || "") : "", 
                 delivery_area_name_ar: this._needsDeliveryDetails ? (selectedCityInfo?.name_ar || "") : "",
@@ -405,7 +427,7 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
             finally { this.isLoading.status = false; }
         },
-        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};},
+        getSacrificeDayText(v) {const o=document.querySelector(`#sacrifice_day_select_s2 option[value="${v}"]`);return o?{en:o.dataset.en,ar:o.dataset.ar}:{en:v,ar:v};}, // Note: Sacrifice day select is in Step 2 (Arrangements) now
         resetAndStartOver() {
              const currency = this.currentCurrency; 
              Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
