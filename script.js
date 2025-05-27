@@ -92,7 +92,7 @@ document.addEventListener('alpine:init', () => {
         currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false },
         isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false,
         countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
-        countdownTimerInterval: null, currentLang: "en",
+        countdownTimerInterval: null, currentLang: "en", // currentLang will now primarily affect labels, not select option content
         errorMessages: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }, udheyaService: {en: "Please select a service option.", ar: "يرجى اختيار خيار الخدمة."}},
         navLinksData: [ { href: "#udheya-booking-start", sectionId: "udheya-booking-start", parentMenu: "Udheya" }, { href: "#check-booking-status", sectionId: "check-booking-status", parentMenu: "Udheya" }],
         activeNavLinkHref: "", stepSectionsMeta: [], deliveryFeeForDisplayEGP: 0, isDeliveryFeeVariable: false,
@@ -108,17 +108,18 @@ document.addEventListener('alpine:init', () => {
             }
             return "";
         },
-        getStockDisplayText(stock, isActive, lang = this.currentLang) {
-            if (!isActive) return lang === 'ar' ? " - غير نشط" : " - Inactive";
-            if (stock <= 0) return lang === 'ar' ? " - نفذت الكمية" : " - Out of Stock";
-            if (stock > 0 && stock <= 5) return lang === 'ar' ? " - كمية محدودة" : " - Limited Stock";
-            return lang === 'ar' ? " - متوفر" : " - Available";
+        getStockDisplayText(stock, isActive) { // Removed lang parameter as it's less relevant for stock in concatenated options
+            if (!isActive) return " - Inactive / غير نشط";
+            if (stock <= 0) return " - Out of Stock / نفذت الكمية";
+            if (stock > 0 && stock <= 5) return " - Limited Stock / كمية محدودة";
+            return " - Available / متوفر";
         },
         slaughterViewingOptions() {
             return [
                 { value: 'none', textEn: 'No Preference / Not Required', textAr: 'لا يوجد تفضيل / غير مطلوب' },
                 { value: 'physical_inquiry', textEn: 'Inquire about Physical Attendance', textAr: 'الاستفسار عن الحضور الشخصي' },
-                { value: 'video_request', textEn: 'Request Video/Photos of Process', textAr: 'طلب فيديو/صور للعملية' }
+                { value: 'video_request', textEn: 'Request Video/Photos of Process', textAr: 'طلب فيديو/صور للعملية' },
+                { value: 'live_video_inquiry', textEn: 'Inquire about Live Video', textAr: 'الاستفسار عن فيديو مباشر' } // Added based on summary
             ];
         },
         distributionChoiceOptions() {
@@ -210,7 +211,7 @@ document.addEventListener('alpine:init', () => {
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             } else if (this.selectedUdheyaService === 'live_animal_only') {
                 this.currentServiceFeeEGP = 0;
-            } else { // Default to standard if somehow invalid
+            } else { 
                 this.selectedUdheyaService = 'standard_service';
                 this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0;
             }
@@ -274,7 +275,7 @@ document.addEventListener('alpine:init', () => {
                 this.isDeliveryFeeVariable = false;
             } else if (cityData && cityData.delivery_fee_egp === null) {
                 this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
-            } else { // City not found or fee not set, assume variable or to be confirmed
+            } else { 
                 this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0;
             }
             this.calculateTotalPrice(); 
@@ -292,7 +293,7 @@ document.addEventListener('alpine:init', () => {
             if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
             return true; 
         },
-        validateStep2(setErrors = true) { // Your Details
+        validateStep2(setErrors = true) { 
             if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail');}
             let isValid = true;
             if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
@@ -300,7 +301,7 @@ document.addEventListener('alpine:init', () => {
             if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
             return isValid;
         },
-        validateStep3(setErrors = true) { // Udheya & Delivery
+        validateStep3(setErrors = true) { 
             if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); this.clearError('distributionChoice'); this.clearError('splitDetails'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
             let isValid = true;
             if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
@@ -373,13 +374,23 @@ document.addEventListener('alpine:init', () => {
                     const weightSelectEl = this.$refs[`${livestockTypeConfig.value_key}WeightSelect`]; 
                     const cardEl = document.getElementById(livestockTypeConfig.value_key); 
                     if (!weightSelectEl || !cardEl) return;
-                    const currentVal = weightSelectEl.value; weightSelectEl.innerHTML = `<option value="">${this.currentLang==='ar'?"-- اختر فئة الوزن --":"-- Select Weight Category --"}</option>`;
+                    const currentVal = weightSelectEl.value; 
+                    
+                    // Bilingual placeholder for weight select
+                    weightSelectEl.innerHTML = `<option value="">${this.currentLang === 'ar' ? "-- اختر فئة الوزن --" : "-- Select Weight Category --"} / ${this.currentLang === 'ar' ? "-- اختر فئة الوزن --" : "-- Select Weight Category --"}</option>`;
+                    
                     let stillValid = false;
                     (livestockTypeConfig.weights_prices || []).forEach(wp => { 
                         const opt = document.createElement('option'); opt.value = wp.item_key; 
                         const outOfStock = !wp.is_active || wp.current_stock <= 0;
-                        const stockTxt = this.getStockDisplayText(wp.current_stock, wp.is_active);
-                        opt.textContent = `${wp.nameEN_specific||wp.weight_range_text} (${this.getFormattedPrice(wp.basePriceEGP)}) ${stockTxt}`.trim();
+                        const stockTxt = this.getStockDisplayText(wp.current_stock, wp.is_active); // getStockDisplayText is now bilingual
+                        
+                        // Concatenated bilingual text for weight/price options
+                        const priceDisplay = this.getFormattedPrice(wp.basePriceEGP);
+                        const optionTextEN = `${wp.nameEN_specific||wp.weight_range_text} (${priceDisplay})`;
+                        const optionTextAR = `${wp.nameAR_specific||wp.weight_range_text} (${priceDisplay})`; // Assuming similar structure for AR
+                        opt.textContent = `${optionTextEN} / ${optionTextAR} ${stockTxt}`.trim();
+                        
                         opt.disabled = outOfStock; weightSelectEl.appendChild(opt);
                         if (wp.item_key === currentVal && !outOfStock) stillValid = true;
                     });
@@ -435,8 +446,8 @@ document.addEventListener('alpine:init', () => {
                 ordering_person_phone: (this.orderingPersonPhone || "").trim(), 
                 customer_email: (this.customerEmail || "").trim(),
                 delivery_option: delOpt,
-                delivery_name: (this.orderingPersonName || "").trim(), // Always ordering person's name for delivery contact
-                delivery_phone: (this.orderingPersonPhone || "").trim(), // Always ordering person's phone for delivery contact
+                delivery_name: (this.orderingPersonName || "").trim(), 
+                delivery_phone: (this.orderingPersonPhone || "").trim(), 
                 delivery_area_id: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.id : "", 
                 delivery_area_name_en: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.name_en : "", 
                 delivery_area_name_ar: (this._needsDeliveryDetails && selectedCityInfo) ? selectedCityInfo.name_ar : "",
@@ -469,13 +480,15 @@ document.addEventListener('alpine:init', () => {
             finally { this.isLoading.status = false; }
         },
         getSacrificeDayText(v) {
-            const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); // Ensure this ref is correct for the new step
+            const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); 
             return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v};
         },
         resetAndStartOver() {
              const currency = this.currentCurrency; 
+             const lang = this.currentLang;
              Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
              this.currentCurrency = currency; 
+             this.currentLang = lang;
              this.productOptions.livestock = JSON.parse(JSON.stringify(HARDCODED_PRODUCT_CATALOG_CONFIG)).map(at => { at.weights_prices.forEach(i => { i.basePriceEGP = this.calculateItemPrice(i, at); i.current_stock = i.initial_stock; }); return at; });
              this.updateServiceFee();
              if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval);

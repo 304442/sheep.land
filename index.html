@@ -259,7 +259,7 @@
                                                             <template x-for="wp_item in animalType.weights_prices" :key="wp_item.item_key">
                                                                 <option :value="wp_item.item_key"
                                                                         :disabled="!wp_item.is_active || wp_item.current_stock <= 0"
-                                                                        x-text="`${wp_item.nameEN_specific || wp_item.weight_range_text} (${getFormattedPrice(wp_item.basePriceEGP)}) ${getStockDisplayText(wp_item.current_stock, wp_item.is_active)}`.trim()">
+                                                                        x-text="`${wp_item.nameEN_specific || wp_item.weight_range_text} (${getFormattedPrice(wp_item.basePriceEGP)}) / ${wp_item.nameAR_specific || wp_item.weight_range_text} (${getFormattedPrice(wp_item.basePriceEGP)}) ${getStockDisplayText(wp_item.current_stock, wp_item.is_active)}`.trim()">
                                                                 </option>
                                                             </template>
                                                         </select>
@@ -327,10 +327,10 @@
                                 <div class="fg">
                                     <label for="sacrifice_day_select_s3" class="bil-parent-spread form-label-strict"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
                                     <select id="sacrifice_day_select_s3" class="form-input-styled" x-model="selectedSacrificeDay.value" @change="updateSacrificeDayTexts(); clearError('sacrificeDay')" x-ref="sacrificeDaySelect_s3" :aria-invalid="errors.sacrificeDay ? 'true' : 'false'" aria-describedby="sacrificeDayError_s3" aria-required="true">
-                                        <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)">Day 1 of Eid / اليوم الأول</option>
-                                        <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)">Day 2 of Eid / اليوم الثاني</option>
-                                        <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)">Day 3 of Eid / اليوم الثالث</option>
-                                        <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)">Day 4 of Eid / اليوم الرابع</option>
+                                        <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)" x-text="`Day 1 of Eid (10th Dhul Hijjah) / اليوم الأول (10 ذو الحجة)`">Day 1 of Eid / اليوم الأول</option>
+                                        <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)" x-text="`Day 2 of Eid (11th Dhul Hijjah) / اليوم الثاني (11 ذو الحجة)`">Day 2 of Eid / اليوم الثاني</option>
+                                        <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)" x-text="`Day 3 of Eid (12th Dhul Hijjah) / اليوم الثالث (12 ذو الحجة)`">Day 3 of Eid / اليوم الثالث</option>
+                                        <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)" x-text="`Day 4 of Eid (13th Dhul Hijjah) / اليوم الرابع (13 ذو الحجة)`">Day 4 of Eid / اليوم الرابع</option>
                                     </select>
                                     <div class="form-error-msg" id="sacrificeDayError_s3" x-show="errors.sacrificeDay" x-text="errors.sacrificeDay ? (currentLang === 'ar' ? errors.sacrificeDay.ar : errors.sacrificeDay.en) : ''" role="alert" aria-live="assertive"></div>
                                     <div class="bil-row field-note-wrapper sacrifice-day-note">
@@ -342,7 +342,7 @@
                                     <label for="slaughter_viewing_select_s3" class="bil-parent-spread form-label-strict"><span class="en">Slaughter Viewing Preference (Optional)</span><span class="ar">تفضيل مشاهدة الذبح (اختياري)</span></label>
                                     <select id="slaughter_viewing_select_s3" class="form-input-styled" x-model="slaughterViewingPreference">
                                         <template x-for="option in slaughterViewingOptions()" :key="option.value">
-                                            <option :value="option.value" x-text="currentLang === 'ar' ? option.textAr : option.textEn"></option>
+                                            <option :value="option.value" x-text="`${option.textEn} / ${option.textAr}`"></option>
                                         </template>
                                     </select>
                                     <div class="bil-row field-note-wrapper slaughter-viewing-note">
@@ -357,7 +357,7 @@
                                     <label class="bil-parent-spread form-label-strict"><span class="en">Udheya Distribution? *</span><span class="ar">كيف تود توزيع أضحيتك؟ *</span></label>
                                     <select id="distribution_choice_select_s3" class="form-input-styled" x-model="distributionChoice" @change="clearError('distributionChoice')">
                                         <template x-for="option in distributionChoiceOptions()" :key="option.value">
-                                            <option :value="option.value" x-text="currentLang === 'ar' ? option.textAr : option.textEn"></option>
+                                            <option :value="option.value" x-text="`${option.textEn} / ${option.textAr}`"></option>
                                         </template>
                                     </select>
                                     
@@ -366,7 +366,7 @@
                                         <select id="split_detail_select_s3" class="form-input-styled" x-model="splitDetailsOption" @change="clearError('splitDetails')">
                                             <option value="">-- Select Split -- / -- اختر التقسيم --</option>
                                             <template x-for="option in splitDetailOptionsList()" :key="option.value">
-                                                 <option :value="option.value" x-text="currentLang === 'ar' ? option.textAr : option.textEn"></option>
+                                                 <option :value="option.value" x-text="`${option.textEn} / ${option.textAr}`"></option>
                                             </template>
                                         </select>
                                         <textarea class="form-input-styled custom-split-textarea" x-show="distributionChoice === 'split' && splitDetailsOption === 'custom'" x-model="customSplitDetailsText" @input="clearError('splitDetails')" placeholder="e.g., 1/4 me, 3/4 relative (all delivered to me)" rows="2" x-ref="customSplitTextarea_s3" :aria-invalid="errors.splitDetails && splitDetailsOption === 'custom' ? 'true' : 'false'" aria-describedby="splitDetailsError_s3" :aria-required="distributionChoice === 'split' && splitDetailsOption === 'custom'"></textarea>
@@ -388,7 +388,7 @@
                                         <select id="deliveryCitySelect_s3" class="form-input-styled" x-model="deliveryCity" @change="clearError('deliveryCity'); updateDeliveryFeeDisplay()" x-ref="deliveryCitySelect_s3" :aria-invalid="errors.deliveryCity ? 'true' : 'false'" aria-required="true">
                                             <option value="">-- Select City -- / -- اختر المدينة --</option>
                                             <template x-for="city in allAvailableCities" :key="city.id">
-                                                <option :value="city.id" x-text="currentLang === 'ar' ? city.name_ar : city.name_en"></option>
+                                                <option :value="city.id" x-text="`${city.name_en} / ${city.name_ar}`"></option>
                                             </template>
                                         </select>
                                         <div class="form-error-msg" x-show="errors.deliveryCity" x-text="errors.deliveryCity ? (currentLang === 'ar' ? errors.deliveryCity.ar : errors.deliveryCity.en) : ''"></div>
