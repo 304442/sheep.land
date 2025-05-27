@@ -45,7 +45,7 @@ document.addEventListener('alpine:init', () => {
             promo_end_date: new Date().toISOString(),
             promo_discount_percent: 0,
             promo_is_active: false,
-            udheya_service_surcharge_egp: 600, 
+            udheya_service_surcharge_egp: 750, 
             delivery_areas: [],
             payment_details: {
                 vodafone_cash: "010X-XXXXXXX", instapay_ipn: "fallback_ipn@instapay", revolut_details: "@fallbackRevolut",
