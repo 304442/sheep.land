@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>PB Setup: Bookings Collection (Final)</title>
+    <meta charset="UTF-8"><title>PB Setup: Bookings Collection (Admin Auth, Final)</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
@@ -16,8 +16,8 @@
 </head>
 <body>
     <div class="c">
-        <h1>PB Udheya Setup (Bookings Collection Only - Final)</h1>
-        <p class="warn">This script attempts to create/update the 'bookings' collection. Ensure PocketBase is running.</p>
+        <h1>PB Udheya Setup (Bookings Collection - Admin Auth)</h1>
+        <p class="warn">This script attempts to create/update the 'bookings' collection. Ensure PocketBase is running and admin credentials are correct.</p>
         <p class="warn">API rules will be set to PUBLIC for dev. SECURE FOR PRODUCTION!</p>
         <button id="runSetup">Create/Update 'bookings' Collection</button>
         <div id="out"></div>
@@ -26,6 +26,9 @@
     const pbUrl = '/';
     const outputDiv = document.getElementById('out');
     const runSetupButton = document.getElementById('runSetup');
+
+    const ADM_E = 'admin@example.com'; 
+    const ADM_P = 'unifiedpassword';
 
     const log = (message, type = 'i') => {
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
@@ -61,6 +64,8 @@
             { name: "split_details_option", type: "text", options: { max: 100 } },
             { name: "custom_split_details_text", type: "text", options: { max: 500 } },
             { name: "niyyah_names", type: "text", options: { max: 500 } },
+            { name: "ordering_person_name", type: "text", options: {max: 150}},
+            { name: "ordering_person_phone", type: "text", options: {max: 30}},
             { name: "customer_email", type: "email", options: {} },
             { name: "delivery_option", type: "text", options: { max: 50 } },
             { name: "delivery_name", type: "text", options: { max: 150 } },
@@ -85,10 +90,14 @@
     runSetupButton.onclick = async () => {
         runSetupButton.disabled = true;
         outputDiv.innerHTML = '';
-        log('Setup process started (no-auth)...', 'i');
+        log('Setup process started...', 'i');
         const pb = new PocketBase(pbUrl);
 
         try {
+            log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
+            await pb.admins.authWithPassword(ADM_E, ADM_P);
+            log('Admin authentication successful.', 's');
+
             let existingCollection = null;
             try {
                 existingCollection = await pb.collections.getOne(bookingsCollectionSchema.name);
@@ -137,6 +146,7 @@
             }
             console.error("Full Error Object:", e);
         } finally {
+            pb.authStore.clear();
             runSetupButton.disabled = false;
         }
     };
