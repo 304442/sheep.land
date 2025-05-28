@@ -227,7 +227,7 @@ document.addEventListener('alpine:init', () => {
             this.pbAdminUrl = window.location.origin;
             this.loginForm.email = ADM_E_PLACEHOLDER;
 
-            if (this.pb.authStore.isAdmin && this.pb.authStore.isValid) {
+            if (this.pb.pb.authStore.isSuperuser && this.pb.authStore.isValid) {
                 this.isAdminAuth = true;
                 this.setDefaultDateRange();
                 this.refreshCurrentTabData();
