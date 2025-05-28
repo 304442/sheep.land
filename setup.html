@@ -237,20 +237,21 @@
         }
     }
     
-    async function addRelationField(pb, collectionName, fieldName, targetCollectionId, isRequired = true, insertPosition = 1, displayFields = ["id"]) {
+      
+async function addRelationField(pb, collectionName, fieldName, targetCollectionId, isRequired = true, insertPosition = 1, displayFields = ["id"]) {
         try {
             log(`Processing relation field <b>${fieldName}</b> for <b>${collectionName}</b> to target <b>${targetCollectionId}</b>...`, 'li');
-            const collection = await pb.collections.getOne(collectionName);
-            const currentFields = collection.schema || []; // Use .schema here as it's the direct representation
-            const fieldExists = currentFields.some(f => f.name === fieldName);
+            let collection = await pb.collections.getOne(collectionName); // Fetch fresh
+            const currentSchema = collection.schema || []; // Use .schema, default to empty array
+            const fieldExists = currentSchema.some(f => f.name === fieldName);
 
             const newFieldDefinition = {
                 name: fieldName,
                 type: "relation",
                 required: isRequired,
                 presentable: true,
-                system: false, // User-defined fields are not system fields
-                options: { // Relation-specific options are nested
+                system: false,
+                options: {
                     collectionId: targetCollectionId,
                     cascadeDelete: false,
                     minSelect: isRequired ? 1 : null,
@@ -259,30 +260,29 @@
                 }
             };
 
-            let updatedSchemaArray; // This will be the new schema array
+            let updatedSchemaArray;
             if (fieldExists) {
-                const existingField = currentFields.find(f => f.name === fieldName);
+                const existingField = currentSchema.find(f => f.name === fieldName);
                 if (existingField.type === 'relation' && existingField.options && existingField.options.collectionId === targetCollectionId) {
                     log(`Field <b>${fieldName}</b> already exists and is correctly configured in <b>${collectionName}</b>.`, 'lw');
-                    return true;
+                    return true; // No change needed
                 }
-                log(`Field <b>${fieldName}</b> exists in <b>${collectionName}</b>, attempting to update to correct relation.`, 'lw');
-                updatedSchemaArray = currentFields.map(f => {
+                log(`Field <b>${fieldName}</b> exists in <b>${collectionName}</b>, attempting to update.`, 'lw');
+                updatedSchemaArray = currentSchema.map(f => {
                     if (f.name === fieldName) {
-                        // Important: Preserve existing field 'id' if updating
-                        return { id: f.id, ...newFieldDefinition };
+                        return { id: f.id, ...newFieldDefinition }; // Preserve ID when updating
                     }
                     return f;
                 });
             } else {
-                updatedSchemaArray = [...currentFields];
+                log(`Field <b>${fieldName}</b> does not exist in <b>${collectionName}</b>, adding new.`, 'li');
+                updatedSchemaArray = [...currentSchema];
                 // Create a temporary field definition without an 'id' for new fields
                 const tempNewField = {...newFieldDefinition};
-                delete tempNewField.id; // PocketBase will assign an ID
+                delete tempNewField.id; 
                 updatedSchemaArray.splice(insertPosition, 0, tempNewField);
             }
             
-            // When updating, provide the schema under the 'schema' key
             await pb.collections.update(collection.id, { schema: updatedSchemaArray }); 
             log(`Relation field <b>${fieldName}</b> in <b>${collectionName}</b> processed successfully.`, 's');
             return true;
@@ -293,7 +293,6 @@
             return false;
         }
     }
-
 
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
         // ... (same as before)
@@ -348,32 +347,29 @@
         }
     }
 
-    async function setupSchema(pb) {
+      
+async function setupSchema(pb) {
         log('=== SCHEMA SETUP PHASE ===', 'i');
         
         if (!await authenticateAdmin(pb)) return false;
         
-        // Correctly pass the collections definitions to importCollections
         const collectionsToImport = collectionsWithoutRelations.map(c => {
-            // The import function expects 'schema' to contain the fields.
-            // Field options (min, max, pattern, values etc.) should be direct properties of field objects.
-            // Collection-level options (like maxRecords) are under 'options' for the collection.
             const schemaForImport = c.fields.map(field => {
                 const fieldCopy = {...field};
-                // If field.options exists and is for field-specific properties, hoist them.
                 if (fieldCopy.options && typeof fieldCopy.options === 'object') {
-                    // This assumes field.options was meant for field-specific properties
-                    // and not for relation options (which are handled by addRelationField)
                     Object.assign(fieldCopy, fieldCopy.options); 
                     delete fieldCopy.options;
                 }
+                if (field.type === 'select' && field.options && field.options.values) {
+                    fieldCopy.values = field.options.values;
+                    if (field.options.maxSelect) fieldCopy.maxSelect = field.options.maxSelect;
+                }
                 return fieldCopy;
             });
-            return { ...c, schema: schemaForImport, fields: undefined }; // use 'schema', remove 'fields' for import
+            return { ...c, schema: schemaForImport, fields: undefined };
         });
 
         if (!await importCollections(pb, collectionsToImport)) return false;
-
 
         log('Step 2: Adding relation fields...', 'i');
         const productsCollection = await pb.collections.getOne('products');
@@ -385,23 +381,38 @@
         }
 
         let relSuccess;
+        // Add user relation to bookings (optional), position 0 (very first field)
         relSuccess = await addRelationField(pb, 'bookings', 'user', usersCollection.id, false, 0, ["username", "email"]); 
         if (!relSuccess) { log('Failed to add "user" relation to bookings.', 'e'); return false; }
 
-        const bookingsCollAfterUser = await pb.collections.getOne('bookings');
-        const userFieldInSchema = bookingsCollAfterUser.schema.some(f => f.name === 'user');
-        const productInsertPos = userFieldInSchema ? 1 : 1; 
+        // Add product_id relation to bookings (required)
+        // Determine insert position for product_id: after 'user' if it exists, otherwise after 'booking_id_text'
+        // Fetch the bookings collection *again* after 'user' field modification to get the updated schema
+        let bookingsCollCurrent = await pb.collections.getOne('bookings');
+        let productInsertPos = 1; // Default: after the first field (likely booking_id_text if user wasn't added or is first)
+        
+        const bookingIdTextIndex = (bookingsCollCurrent.schema || []).findIndex(f => f.name === 'booking_id_text');
+        const userFieldIndex = (bookingsCollCurrent.schema || []).findIndex(f => f.name === 'user');
+
+        if (userFieldIndex !== -1) { // if user field is present
+            productInsertPos = userFieldIndex + 1;
+        } else if (bookingIdTextIndex !== -1) { // if user is not present, but booking_id_text is
+             productInsertPos = bookingIdTextIndex + 1;
+        }
+        // else, it defaults to 1, which is fine.
+
+        log(`Determined insert position for 'product_id': ${productInsertPos}`, 'd');
         
         relSuccess = await addRelationField(pb, 'bookings', 'product_id', productsCollection.id, true, productInsertPos, ["item_key", "variant_name_en"]);
         if (!relSuccess) { log('Failed to add "product_id" relation to bookings.', 'e'); return false; }
         
         log('Step 3: Updating API rules for "bookings" collection AFTER relations are added...', 'i');
         const finalBookingsRules = {
-            listRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone", // For status check
-            viewRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone", // For status check
-            createRule: "@request.auth.id != '' || @request.data.ordering_person_phone != ''", // Allow anonymous if phone provided
-            updateRule: "user = @request.auth.id", // Only owner can update (admins implicitly can)
-            deleteRule: null // Admin only delete
+            listRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone",
+            viewRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone",
+            createRule: "@request.auth.id != '' || @request.data.ordering_person_phone != ''",
+            updateRule: "user = @request.auth.id",
+            deleteRule: null
         };
         if (!await updateCollectionRules(pb, 'bookings', finalBookingsRules)) {
              log('Failed to update "bookings" collection rules.', 'e'); return false;
