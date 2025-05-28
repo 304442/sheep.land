@@ -52,13 +52,14 @@
     };
 
     // Collections WITHOUT relations for initial import.
+    // Use 'schema' key for the fields array for import.
     // Field-specific options (min, max, pattern, values, etc.) are DIRECT properties of the field object.
     const collectionsDefinition = [
         {
             name: "settings",
             type: "base",
             listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null,
-            schema: [ // Use 'schema' key for fields array when importing/creating
+            schema: [
                 { name: "xchgRates", type: "json", required: true, presentable: true },
                 { name: "defCurr", type: "text", required: true, presentable: true, max: 5 },
                 { name: "waNumRaw", type: "text", required: false, presentable: true },
@@ -103,7 +104,7 @@
             type: "base",
             // Temporarily simple rules for initial import. Will be updated after relations are set.
             listRule: "", viewRule: "", createRule: "", updateRule: null, deleteRule: null,
-            schema: [
+            schema: [ // NO relation fields ('user', 'product_id') in this initial definition
                 { name: "booking_id_text", type: "text", required: true, presentable: true, unique: true, max: 50 },
                 { name: "booked_product_name_en", type: "text", required: false, presentable: true, max: 150 },
                 { name: "booked_product_name_ar", type: "text", required: false, presentable: true, max: 150 },
@@ -147,7 +148,7 @@
         }
     ];
 
-    const seedData = { // Same seed data as before
+    const seedData = { 
         settings: [
             {
                 xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
@@ -169,9 +170,9 @@
             { item_key: "baladi_50_60", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (50-60kg)", variant_name_ar: "بلدي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 230), stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
             { item_key: "baladi_60_plus", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (60+kg)", variant_name_ar: "بلدي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 230), stock_available_pb: 1, is_active: true, sort_order_type: 1, sort_order_variant: 3 },
             { item_key: "barki_30_40", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (30-40kg)", variant_name_ar: "برقي (٣٠-٤٠كجم)", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", avg_weight_kg: 35, base_price_egp: (35 * 255), stock_available_pb: 1, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
-            { item_key: "barki_40_50", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (40-50kg)", variant_name_ar: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 255), stock_available_pb: 5, is_active: true, sort_order_type: 2, sort_order_variant: 2 },
-            { item_key: "barki_50_60", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (50-60kg)", variant_name_ar: "برقي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 255), stock_available_pb: 3, is_active: true, sort_order_type: 2, sort_order_variant: 3 },
-            { item_key: "barki_60_plus", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (60+kg)", variant_name_ar: "برقي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 255), stock_available_pb: 2, is_active: true, sort_order_type: 2, sort_order_variant: 4 }
+            { item_key: "barki_40_50", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 255, variant_name_en: "Barki (40-50kg)", variant_name_ar: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 255), stock_available_pb: 5, is_active: true, sort_order_type: 2, sort_order_variant: 2 },
+            { item_key: "barki_50_60", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 255, variant_name_en: "Barki (50-60kg)", variant_name_ar: "برقي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 255), stock_available_pb: 3, is_active: true, sort_order_type: 2, sort_order_variant: 3 },
+            { item_key: "barki_60_plus", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 255, variant_name_en: "Barki (60+kg)", variant_name_ar: "برقي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 255), stock_available_pb: 2, is_active: true, sort_order_type: 2, sort_order_variant: 4 }
         ]
     };
 
@@ -192,7 +193,6 @@
     async function importInitialCollections(pb, collectionsToImport) {
         try {
             log('Importing collections (base schema)...', 'i');
-            // The collectionsToImport should already be in the correct format with 'schema' key
             log('Collections being imported:', 'd', collectionsToImport); 
             await pb.collections.import(collectionsToImport, false /* deleteMissing */);
             log('Collections (base schema) imported successfully', 's');
@@ -212,14 +212,13 @@
             const currentSchema = collection.schema || [];
             const fieldExists = currentSchema.some(f => f.name === fieldName);
 
-            // For relation fields, options are nested.
             const newFieldDefinition = {
                 name: fieldName,
                 type: "relation",
                 required: isRequired,
                 presentable: true,
                 system: false,
-                options: {
+                options: { // Relation options are nested
                     collectionId: targetCollectionId,
                     cascadeDelete: false,
                     minSelect: isRequired ? 1 : null,
@@ -238,19 +237,19 @@
                 log(`Field <b>${fieldName}</b> exists in <b>${collectionName}</b>, attempting to update.`, 'lw');
                 updatedSchemaArray = currentSchema.map(f => {
                     if (f.name === fieldName) {
-                        return { id: f.id, ...newFieldDefinition }; 
+                        return { id: f.id, ...newFieldDefinition }; // Preserve ID when updating
                     }
                     return f;
                 });
             } else {
                 log(`Field <b>${fieldName}</b> does not exist in <b>${collectionName}</b>, adding new.`, 'li');
                 updatedSchemaArray = [...currentSchema];
-                const tempNewField = {...newFieldDefinition}; // Create a copy for new field
-                delete tempNewField.id; // Remove ID for new field, PB will assign it
+                const tempNewField = {...newFieldDefinition};
+                delete tempNewField.id; // PB assigns ID for new fields
                 updatedSchemaArray.splice(insertPosition, 0, tempNewField);
             }
             
-            await pb.collections.update(collection.id, { schema: updatedSchemaArray }); 
+            await pb.collections.update(collection.id, { schema: updatedSchemaArray }); // Use 'schema' key for update
             log(`Relation field <b>${fieldName}</b> in <b>${collectionName}</b> processed successfully.`, 's');
             return true;
         } catch (error) {
@@ -317,8 +316,7 @@
         
         if (!await authenticateAdmin(pb)) return false;
         
-        // Pass collectionsDefinition directly as it's already structured with 'schema' key
-        if (!await importInitialCollections(pb, collectionsDefinition)) return false;
+        if (!await importInitialCollections(pb, collectionsDefinition)) return false; // Pass the correctly structured definition
 
         log('Step 2: Adding relation fields...', 'i');
         let productsCollection, usersCollection;
@@ -330,20 +328,23 @@
             return false;
         }
 
-        if (!productsCollection || !usersCollection) {
-            log('Could not retrieve products or users collection object. Aborting relation setup.', 'e');
+        if (!productsCollection || !productsCollection.id || !usersCollection || !usersCollection.id) { // Check for IDs too
+            log('Could not retrieve IDs for products or users collection. Aborting relation setup.', 'e');
             return false;
         }
 
         let relSuccess;
+        // Add user relation to bookings (optional), position 0 (very first field)
         relSuccess = await addRelationField(pb, 'bookings', 'user', usersCollection.id, false, 0, ["username", "email"]); 
         if (!relSuccess) { log('Failed to add "user" relation to bookings.', 'e'); return false; }
 
+        // Fetch the bookings collection *again* after 'user' field modification to get the updated schema
         let bookingsCollCurrent = await pb.collections.getOne('bookings');
-        let productInsertPos = 1; 
+        let productInsertPos = 1; // Default
         
-        const bookingIdTextIndex = (bookingsCollCurrent.schema || []).findIndex(f => f.name === 'booking_id_text');
-        const userFieldIndex = (bookingsCollCurrent.schema || []).findIndex(f => f.name === 'user');
+        const currentBookingsSchema = bookingsCollCurrent.schema || [];
+        const bookingIdTextIndex = currentBookingsSchema.findIndex(f => f.name === 'booking_id_text');
+        const userFieldIndex = currentBookingsSchema.findIndex(f => f.name === 'user');
 
         if (userFieldIndex !== -1) { 
             productInsertPos = userFieldIndex + 1;
@@ -359,7 +360,7 @@
         const finalBookingsRules = {
             listRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string",
             viewRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string",
-            createRule: "@request.auth.id != '' || ordering_person_phone != ''", // ordering_person_phone is in schema
+            createRule: "@request.auth.id != '' || ordering_person_phone != ''",
             updateRule: "user = @request.auth.id",
             deleteRule: null 
         };
@@ -460,7 +461,7 @@
                     }
                 }
             } catch (error) {
-                issues.push(`✗ Collection ${name} missing or inaccessible.`);
+                issues.push(`✗ Collection ${name} missing or inaccessible: ${error.message}`);
                 log(`✗ Collection ${name} missing or inaccessible: ${error.message}`, 'e');
             }
         }
@@ -509,7 +510,7 @@
             }
             await new Promise(resolve => setTimeout(resolve, 500)); 
 
-            await setupSeedData(pb); // Seed data even if some seed items fail, error is logged per item
+            await setupSeedData(pb); 
             await new Promise(resolve => setTimeout(resolve, 500)); 
 
             await validateSetup(pb);
