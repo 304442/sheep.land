@@ -42,108 +42,99 @@
 
     const collectionsToDefine = [
         {
-            "id": "bookings_placeholder",
-            "name": "bookings", 
-            "type": "base", 
-            "system": false, 
-            "listRule": "", 
-            "viewRule": "", 
-            "createRule": "", 
-            "updateRule": "", 
-            "deleteRule": "",
-            "options": {}, 
-            "fields": [ 
-                { "id": "bkf_bidtext", "name": "booking_id_text", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 50 } },
-                { "id": "bkf_atype_en", "name": "animal_type_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
-                { "id": "bkf_atype_ar", "name": "animal_type_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
-                { "id": "bkf_wcat_en", "name": "weight_category_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
-                { "id": "bkf_wcat_ar", "name": "weight_category_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
-                { "id": "bkf_wrange_en", "name": "weight_range_actual_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 }},
-                { "id": "bkf_wrange_ar", "name": "weight_range_actual_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 }},
-                { "id": "bkf_abaseprice", "name": "animal_base_price_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
-                { "id": "bkf_servopt", "name": "udheya_service_option_selected", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
-                { "id": "bkf_servfee", "name": "service_fee_applied_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
-                { "id": "bkf_delfee", "name": "delivery_fee_applied_egp", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": false } },
-                { "id": "bkf_totaldue", "name": "total_amount_due_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
-                { "id": "bkf_displcurr", "name": "selected_display_currency", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 5 } },
-                { "id": "bkf_sacdayval", "name": "sacrifice_day_value", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
-                { "id": "bkf_sacdayen", "name": "sacrifice_day_text_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
-                { "id": "bkf_sacdayar", "name": "sacrifice_day_text_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
-                { "id": "bkf_viewpref", "name": "slaughter_viewing_preference", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
-                { "id": "bkf_distchoice", "name": "distribution_choice", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
-                { "id": "bkf_splitopt", "name": "split_details_option", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
-                { "id": "bkf_splittext", "name": "custom_split_details_text", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } },
-                { "id": "bkf_niyyah", "name": "niyyah_names", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } }, 
-                { "id": "bkf_ordername", "name": "ordering_person_name", "type": "text", "system": false, "required": false, "presentable": true, "options": {"max": 150}},
-                { "id": "bkf_orderphone", "name": "ordering_person_phone", "type": "text", "system": false, "required": false, "presentable": true, "options": {"max": 30}}, 
-                { "id": "bkf_custemail", "name": "customer_email", "type": "email", "system": false, "required": false, "presentable": true, "options": {} },
-                { "id": "bkf_delopt", "name": "delivery_option", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
-                { "id": "bkf_delname", "name": "delivery_name", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 150 } },
-                { "id": "bkf_delphone", "name": "delivery_phone", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 30 } }, 
-                { "id": "bkf_delareaid", "name": "delivery_area_id", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
-                { "id": "bkf_delareaen", "name": "delivery_area_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
-                { "id": "bkf_delareaar", "name": "delivery_area_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
-                { "id": "bkf_deladdr", "name": "delivery_address", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } }, 
-                { "id": "bkf_delinstr", "name": "delivery_instructions", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } },
-                { "id": "bkf_timeslot", "name": "time_slot", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
-                { "id": "bkf_paymethod", "name": "payment_method", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
-                { "id": "bkf_paystatus", "name": "payment_status", "type": "select", "system": false, "required": true, "presentable": true, "maxSelect": 1, "values": ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"], "options": {} },
-                { "id": "bkf_bookstatus", "name": "booking_status", "type": "select", "system": false, "required": true, "presentable": true, "maxSelect": 1, "values": ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"], "options": {} },
-                { "id": "bkf_terms", "name": "terms_agreed", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} }, 
-                { "id": "bkf_adminnotes", "name": "admin_notes", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 1000 } },
-                { "id": "bkf_grppurch", "name": "group_purchase_interest", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} }, 
-                { "id": "bkf_userip", "name": "user_ip_address", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
-                { "id": "bkf_useragent", "name": "user_agent_string", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 300 } }
+            name: "bookings", 
+            type: "base", 
+            listRule: "", 
+            viewRule: "", 
+            createRule: "", 
+            updateRule: "", 
+            deleteRule: "",
+            fields: [ 
+                { name: "booking_id_text", type: "text", required: true, unique: true, presentable: true, max: 50 },
+                { name: "animal_type_name_en", type: "text", required: false, presentable: true, max: 100 }, 
+                { name: "animal_type_name_ar", type: "text", required: false, presentable: true, max: 100 },
+                { name: "weight_category_name_en", type: "text", required: false, presentable: true, max: 100 }, 
+                { name: "weight_category_name_ar", type: "text", required: false, presentable: true, max: 100 },
+                { name: "weight_range_actual_en", type: "text", required: false, presentable: true, max: 50 },
+                { name: "weight_range_actual_ar", type: "text", required: false, presentable: true, max: 50 },
+                { name: "animal_base_price_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "udheya_service_option_selected", type: "text", required: true, presentable: true, max: 50 },
+                { name: "service_fee_applied_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
+                { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 },
+                { name: "sacrifice_day_value", type: "text", required: true, presentable: true, max: 50 },
+                { name: "sacrifice_day_text_en", type: "text", required: false, presentable: true, max: 100 }, 
+                { name: "sacrifice_day_text_ar", type: "text", required: false, presentable: true, max: 100 },
+                { name: "slaughter_viewing_preference", type: "text", required: false, presentable: true, max: 50 }, 
+                { name: "distribution_choice", type: "text", required: false, presentable: true, max: 50 },
+                { name: "split_details_option", type: "text", required: false, presentable: true, max: 100 }, 
+                { name: "custom_split_details_text", type: "text", required: false, presentable: true, max: 500 },
+                { name: "niyyah_names", type: "text", required: false, presentable: true, max: 500 }, 
+                { name: "ordering_person_name", type: "text", required: false, presentable: true, max: 150 },
+                { name: "ordering_person_phone", type: "text", required: false, presentable: true, max: 30 }, 
+                { name: "customer_email", type: "email", required: false, presentable: true },
+                { name: "delivery_option", type: "text", required: false, presentable: true, max: 50 }, 
+                { name: "delivery_name", type: "text", required: false, presentable: true, max: 150 },
+                { name: "delivery_phone", type: "text", required: false, presentable: true, max: 30 }, 
+                { name: "delivery_area_id", type: "text", required: false, presentable: true, max: 50 },
+                { name: "delivery_area_name_en", type: "text", required: false, presentable: true, max: 100 }, 
+                { name: "delivery_area_name_ar", type: "text", required: false, presentable: true, max: 100 },
+                { name: "delivery_address", type: "text", required: false, presentable: true, max: 500 }, 
+                { name: "delivery_instructions", type: "text", required: false, presentable: true, max: 500 },
+                { name: "time_slot", type: "text", required: false, presentable: true, max: 50 }, 
+                { name: "payment_method", type: "text", required: true, presentable: true, max: 50 },
+                { name: "payment_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] },
+                { name: "booking_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] },
+                { name: "terms_agreed", type: "bool", required: false, presentable: true }, 
+                { name: "admin_notes", type: "text", required: false, presentable: true, max: 1000 },
+                { name: "group_purchase_interest", type: "bool", required: false, presentable: true }, 
+                { name: "user_ip_address", type: "text", required: false, presentable: true, max: 50 },
+                { name: "user_agent_string", type: "text", required: false, presentable: true, max: 300 }
             ]
         },
         {
-            "id": "sheep_types_placeholder",
-            "name": "sheep_types", 
-            "type": "base", 
-            "system": false,
-            "listRule": "", 
-            "viewRule": "", 
-            "createRule": "", 
-            "updateRule": "", 
-            "deleteRule": "",
-            "options": {},
-            "fields": [
-                { "id": "st_typekey", "name": "type_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 50, "pattern": "^[a-z0-9_]+$" } },
-                { "id": "st_nameen", "name": "name_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 100 } },
-                { "id": "st_namear", "name": "name_ar", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 100 } },
-                { "id": "st_descen", "name": "description_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 200 } },
-                { "id": "st_descar", "name": "description_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 200 } },
-                { "id": "st_pricekg", "name": "price_per_kg_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0 } },
-                { "id": "st_isactive", "name": "is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} },
-                { "id": "st_sort", "name": "sort_order", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": true } }
+            name: "sheep_types", 
+            type: "base", 
+            listRule: "", 
+            viewRule: "", 
+            createRule: "", 
+            updateRule: "", 
+            deleteRule: "",
+            fields: [
+                { name: "type_key", type: "text", required: true, unique: true, presentable: true, max: 50, pattern: "^[a-z0-9_]+$" },
+                { name: "name_en", type: "text", required: true, presentable: true, max: 100 },
+                { name: "name_ar", type: "text", required: true, presentable: true, max: 100 },
+                { name: "description_en", type: "text", required: false, presentable: true, max: 200 },
+                { name: "description_ar", type: "text", required: false, presentable: true, max: 200 },
+                { name: "price_per_kg_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "is_active", type: "bool", required: false, presentable: true },
+                { name: "sort_order", type: "number", required: false, presentable: true, min: 0 }
             ]
         }
     ];
 
     // Sheep variants collection WITHOUT relation field initially
     const sheepVariantsWithoutRelation = {
-        "id": "sheep_variants_placeholder",
-        "name": "sheep_variants", 
-        "type": "base", 
-        "system": false,
-        "listRule": "", 
-        "viewRule": "", 
-        "createRule": "", 
-        "updateRule": "", 
-        "deleteRule": "",
-        "options": {},
-        "fields": [
-            { "id": "sv_itemkey", "name": "item_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 100, "pattern": "^[a-z0-9_]+$" } },
-            { "id": "sv_nameen_var", "name": "name_en_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
-            { "id": "sv_namear_var", "name": "name_ar_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
-            { "id": "sv_wrange_en", "name": "weight_range_text_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
-            { "id": "sv_wrange_ar", "name": "weight_range_text_ar", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
-            { "id": "sv_avgw", "name": "avg_weight_kg", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0 } },
-            { "id": "sv_baseprice", "name": "base_price_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
-            { "id": "sv_stockmaster", "name": "stock_master", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": true } },
-            { "id": "sv_stockavail", "name": "stock_available_pb", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": true } },
-            { "id": "sv_isactive", "name": "is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} },
-            { "id": "sv_sort", "name": "sort_order", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": true } }
+        name: "sheep_variants", 
+        type: "base", 
+        listRule: "", 
+        viewRule: "", 
+        createRule: "", 
+        updateRule: "", 
+        deleteRule: "",
+        fields: [
+            { name: "item_key", type: "text", required: true, unique: true, presentable: true, max: 100, pattern: "^[a-z0-9_]+$" },
+            { name: "name_en_variant", type: "text", required: true, presentable: true, max: 150 },
+            { name: "name_ar_variant", type: "text", required: true, presentable: true, max: 150 },
+            { name: "weight_range_text_en", type: "text", required: true, presentable: true, max: 50 },
+            { name: "weight_range_text_ar", type: "text", required: true, presentable: true, max: 50 },
+            { name: "avg_weight_kg", type: "number", required: true, presentable: true, min: 0 },
+            { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 },
+            { name: "stock_master", type: "number", required: true, presentable: true, min: 0 },
+            { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0 },
+            { name: "is_active", type: "bool", required: false, presentable: true },
+            { name: "sort_order", type: "number", required: false, presentable: true, min: 0 }
         ]
     };
     
@@ -184,8 +175,7 @@
                     viewRule: collectionDef.viewRule,
                     createRule: collectionDef.createRule, 
                     updateRule: collectionDef.updateRule,
-                    deleteRule: collectionDef.deleteRule, 
-                    options: collectionDef.options
+                    deleteRule: collectionDef.deleteRule
                 };
                 await pb.collections.update(existingCollection.id, updatePayload);
                 log(`Collection '<b>${collectionDef.name}</b>' updated successfully.`, 's');
@@ -194,14 +184,12 @@
                 const createPayload = {
                     name: collectionDef.name,
                     type: collectionDef.type,
-                    system: collectionDef.system,
                     fields: collectionDef.fields,
                     listRule: collectionDef.listRule,
                     viewRule: collectionDef.viewRule,
                     createRule: collectionDef.createRule,
                     updateRule: collectionDef.updateRule,
-                    deleteRule: collectionDef.deleteRule,
-                    options: collectionDef.options
+                    deleteRule: collectionDef.deleteRule
                 };
                 const created = await pb.collections.create(createPayload);
                 log(`Collection '<b>${collectionDef.name}</b>' created successfully.`, 's');
@@ -238,21 +226,17 @@
                 return;
             }
             
-            // Create the relation field
+            // Create the relation field with correct API structure
             const relationField = {
-                "id": "sv_sheeptype",
-                "name": "sheep_type_id",
-                "type": "relation",
-                "system": false,
-                "required": true,
-                "presentable": true,
-                "options": {
-                    "collectionId": sheepTypesCollectionId,
-                    "cascadeDelete": false,
-                    "minSelect": 1,
-                    "maxSelect": 1,
-                    "displayFields": ["name_en", "type_key"]
-                }
+                name: "sheep_type_id",
+                type: "relation",
+                required: true,
+                presentable: true,
+                collectionId: sheepTypesCollectionId,
+                cascadeDelete: false,
+                minSelect: 1,
+                maxSelect: 1,
+                displayFields: ["name_en", "type_key"]
             };
             
             // Add the relation field at position 1 (after item_key)
