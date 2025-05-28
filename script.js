@@ -59,7 +59,8 @@ document.addEventListener('alpine:init', () => {
         groupPurchase: false, 
         paymentMethod: "fa", 
         errors: {},
-        totalPriceEGP: 0
+        totalPriceEGP: 0,
+        lookupPhoneNumber: "" // Added for check status
     };
 
     const activePaymentMethodsList = [ 'revolut', 'monzo', 'ip', 'fa', 'vo', 'cod', 'bank_transfer' ];
@@ -71,11 +72,11 @@ document.addEventListener('alpine:init', () => {
     ];
 
     async function postBookingToPB(bookingPayload) {
-        const pb = new PocketBase('/');
+        const pb = new PocketBase('/'); 
         const apiUrl = `/api/collections/bookings/records`;
         const options = { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(bookingPayload) };
         try {
-            const response = await fetch(apiUrl, options);
+            const response = await fetch(apiUrl, options); 
             if (!response.ok) {
                 let errorMessage = `API Error (POST bookings): ${response.status}`;
                 try { const errorData = await response.json(); errorMessage += ` - ${errorData?.message || JSON.stringify(errorData.data) || response.statusText}`; }
@@ -114,7 +115,7 @@ document.addEventListener('alpine:init', () => {
         productOptions: { livestock: [] },
         get availablePaymentMethods() { return paymentMethodDisplayOptions.filter(pm => activePaymentMethodsList.includes(pm.id)); },
         apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingStateData)),
-        bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", currentCurrency: "EGP", bookingID: "",
+        bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", 
         currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false, step5: false },
         isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false,
         countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
@@ -359,7 +360,7 @@ document.addEventListener('alpine:init', () => {
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
         updateSacrificeDayTexts() { 
-            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; // Updated ref for new Step 3
+            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; 
             if (sacrificeDaySelectElement) { 
                 const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`); 
                 if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
@@ -387,7 +388,7 @@ document.addEventListener('alpine:init', () => {
                         const outOfStock = !wp.is_active || wp.current_stock <= 0;
                         const statusTextEN = this.getEnglishStockStatusText(wp.current_stock, wp.is_active);
                         const priceDisplayEN = this.getFormattedPrice(wp.basePriceEGP);
-                        opt.textContent = `${wp.nameEN_specific || wp.weight_range_text_en} (${priceDisplayEN}) - ${statusTextEN}`.trim(); // Using nameEN_specific
+                        opt.textContent = `${wp.nameEN_specific || wp.weight_range_text_en} (${priceDisplayEN}) - ${statusTextEN}`.trim();
                         opt.disabled = outOfStock; 
                         weightSelectEl.appendChild(opt);
                         if (wp.item_key === currentVal && !outOfStock) stillValid = true;
@@ -478,12 +479,33 @@ document.addEventListener('alpine:init', () => {
             }
             finally { this.isLoading.booking = false; }
         },
-        async validateAndCheckBookingStatus() {this.clearError('lookupBookingID');if((this.lookupBookingID||"").trim())await this.checkBookingStatus();else{this.setError('lookupBookingID','required');this.focusOnRef('lookupBookingIdInput');}},
+        async validateAndCheckBookingStatus() {
+            this.clearError('lookupBookingID');
+            this.clearError('lookupPhoneNumber'); // Clear phone error too
+            let isValid = true;
+            if (!(this.lookupBookingID || "").trim()) {
+                this.setError('lookupBookingID', 'required');
+                isValid = false;
+            }
+            if (!this.isValidPhone(this.lookupPhoneNumber)) {
+                this.setError('lookupPhoneNumber', 'phone');
+                isValid = false;
+            }
+            if(isValid) {
+                await this.checkBookingStatus();
+            } else {
+                if(this.errors.lookupBookingID) this.focusOnRef('lookupBookingIdInput');
+                else if(this.errors.lookupPhoneNumber) this.focusOnRef('lookupPhoneInput');
+            }
+        },
         async checkBookingStatus() { 
-            this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const id = (this.lookupBookingID || "").trim();
+            this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; 
+            const id = (this.lookupBookingID || "").trim();
+            const phone = (this.lookupPhoneNumber || "").trim();
             const pb = new PocketBase('/');
             try {
-                const records = await pb.collection('bookings').getFullList({filter: `booking_id_text = "${pb.realtime.client.utils.escapeFilterValue(id)}"`}); // Used escapeFilterValue
+                const filterString = `(booking_id_text = "${pb.realtime.client.utils.escapeFilterValue(id)}" && ordering_person_phone = "${pb.realtime.client.utils.escapeFilterValue(phone)}")`;
+                const records = await pb.collection('bookings').getFullList({filter: filterString});
 
                 if (records && records.length > 0) {
                     const b = records[0];
