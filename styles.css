@@ -152,7 +152,7 @@ html[lang=ar] .lbl-chk input[type=checkbox], :root:lang(ar) .lbl-chk input[type=
 .why-us-wrap.hero-why-us{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid rgba(255,255,255,.2);width:100%}
 .why-us-hero-head.bil-parent-spread>:is(.en,.ar){color:var(--td)}
 .why-us-hero-head h2.bil-parent-spread :is(.en,.ar)::after{background:var(--c3)}
-.hero .why-us-hero-grid .feat-item h4 { color: var(--td); } 
+.hero .why-us-hero-grid .feat-item h4 { color: var(--td); }
 .why-us-hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s2);text-align:center;margin-top:var(--s3)}
 .hero .why-us-hero-grid .feat-item p.card-p{color:#e0e0e0}
 .hero .why-us-hero-grid .feat-item .icon-ph{background-color:transparent;color:var(--td);border:none}
@@ -203,8 +203,8 @@ html[lang=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right
 .niyyah-wrap{margin-top:var(--s1)}
 .sac-day-note,.time-slot-note,.distr-note,.wakeel-note,.niyyah-note, .view-note{margin-top:var(--s0)}
 .del-det-title,.wakeel-note{margin-top:var(--s2)}
-.split-opts-rgrp{margin:var(--s1) 0 0 var(--s2)} 
-.rgrp{margin-top:var(--s0)}.rgrp fieldset{border:none;padding:0;margin:0} 
+.split-opts-rgrp{margin:var(--s1) 0 0 var(--s2)}
+.rgrp{margin-top:var(--s0)}.rgrp fieldset{border:none;padding:0;margin:0}
 .rgrp legend.bil-parent-spread{margin-bottom:var(--s0)}
 .rgrp label{display:flex;align-items:center;margin-bottom:2px;font-size:.85rem;cursor:pointer;padding:5px 0}
 .rgrp label.bil-parent-spread > .en { text-align: left; flex-grow: 1; margin-right: auto; }
@@ -226,7 +226,7 @@ html[lang=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right
 .sum-item-content{flex-grow:1}.sum-item .sum-item-content > .bil-row > div{font-size:.9rem;color:var(--tm)}
 .sum-item .sum-item-content > .bil-row strong{color:var(--c1d)}
 .sum-item-price { flex-shrink: 0; text-align: right; min-width: 100px; font-size: 0.9rem; color: var(--tm); }
-.sum-item-price.bil-row > .en { text-align: left; } 
+.sum-item-price.bil-row > .en { text-align: left; }
 .sum-item-price.bil-row > .ar { text-align: right; font-family: var(--fa); }
 .sum-item-price strong { color: var(--c1d); font-weight: 700; }
 .btn-edit-sum{padding:2px var(--s0);font-size:.7rem;font-weight:400;line-height:1;background-color:transparent;border:1px solid var(--bs);color:var(--tm);border-radius:var(--rad);text-transform:uppercase;margin-left:var(--s1);flex-shrink:0}
@@ -294,8 +294,8 @@ html[lang=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right
 .foot-brand-desc p.ar{font-family:var(--fa);direction:rtl;text-align:right;flex-basis:48%}
 .foot-pay-meths{margin-top:var(--s3);padding-bottom:var(--s2)}
 .foot-pay-meths h5{margin-bottom:var(--s1); color: var(--b2);}
-.pay-icons-grid{display:flex;justify-content:center;align-items:center;gap:var(--s2);flex-wrap:wrap} 
-.foot-pay-icon{height:40px;width:auto;max-width:100px;object-fit:contain;opacity:0.85;transition:opacity .2s} 
+.pay-icons-grid{display:flex;justify-content:center;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.foot-pay-icon{height:40px;width:auto;max-width:100px;object-fit:contain;opacity:0.85;transition:opacity .2s}
 .foot-pay-icon:hover{opacity:1}
 .foot-div{border-color:rgba(255,255,255,.2);margin:var(--s2) 0 var(--s1)}
 .foot-copy{font-size:.8em;text-align:center;color:var(--b2);opacity:.7;margin-bottom:0}
@@ -307,35 +307,68 @@ html[lang=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right
 .bil-parent-spread.bil-keep-side-by-side-mobile > .en { margin-right: auto !important; text-align: left !important;}
 .bil-parent-spread.bil-keep-side-by-side-mobile > .ar { margin-left: auto !important; text-align: right !important;}
 
-@media(max-width:991px){
+
+/* --- CONSOLIDATED MOBILE STYLES --- */
+/* Styles below apply for screens with max-width: 768px */
+@media(max-width:768px){
+    /* Styles originally from @media(max-width:991px) - Merged Here */
     .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .sum-item-content .bil-row):not(.sum-total):not(.bank-det-list li.bil-row):not(.bil-keep-side-by-side-mobile):not(.hero-desc):not(.live-note):not(.info-box-step .bil-row):not(.field-note-wrap) { flex-wrap:wrap; }
     .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .sum-item-content .bil-row):not(.sum-total):not(.bank-det-list li.bil-row):not(.bil-keep-side-by-side-mobile):not(.hero-desc):not(.live-note):not(.info-box-step .bil-row):not(.field-note-wrap)>:is(.en,p.en){ flex-basis:100%!important; text-align:center!important; margin-bottom:var(--s0); }
     .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .sum-item-content .bil-row):not(.sum-total):not(.bank-det-list li.bil-row):not(.bil-keep-side-by-side-mobile):not(.hero-desc):not(.live-note):not(.info-box-step .bil-row):not(.field-note-wrap)>:is(.ar,p.ar){ flex-basis:100%!important; text-align:center!important; }
     .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .sum-item-content .bil-row):not(.sum-total):not(.bank-det-list li.bil-row):not(.bil-keep-side-by-side-mobile):not(.hero-desc):not(.live-note):not(.info-box-step .bil-row):not(.field-note-wrap)>:last-child{ margin-bottom:0; }
     .field-note-wrap > .en, .field-note-wrap > .ar { flex-basis: 100% !important; text-align: center !important; }
     .field-note-wrap > .en { margin-bottom: var(--s0); }
-    .bil-parent-spread:not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread){ flex-direction:column; align-items:center; text-align:center; }
-    .bil-parent-spread:not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:is(.en,.ar){ margin:0 auto var(--s0)!important; text-align:center!important; padding:0!important; }
-    .bil-parent-spread:not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:last-child{ margin-bottom:0!important; }
+
+    /* Make .bil-parent-spread stack on mobile, UNLESS it's also .bil-parent-spread-intrinsic or .bil-keep-side-by-side-mobile */
+    .bil-parent-spread:not(.bil-parent-spread-intrinsic):not(.bil-keep-side-by-side-mobile):not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread){
+        flex-direction:column;
+        align-items:center;
+        text-align:center;
+    }
+    .bil-parent-spread:not(.bil-parent-spread-intrinsic):not(.bil-keep-side-by-side-mobile):not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:is(.en,.ar){
+        margin:0 auto var(--s0)!important;
+        text-align:center!important;
+        padding:0!important;
+    }
+    .bil-parent-spread:not(.bil-parent-spread-intrinsic):not(.bil-keep-side-by-side-mobile):not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:last-child{
+        margin-bottom:0!important;
+    }
+
+    /* Ensure .bil-parent-spread-intrinsic and its children specifically do NOT stack */
+    .bil-parent-spread-intrinsic {
+        flex-direction: row !important;
+    }
+    .bil-parent-spread-intrinsic > .en,
+    .bil-parent-spread-intrinsic > .ar {
+        margin: 0 !important;
+        padding: 0 var(--s0) !important; /* Adjust gap if needed */
+        text-align: inherit !important;
+    }
+
+
     .sec-head:not(.form-step .sec-head):not(.compact-how-it-works-head) :is(h2,h3).bil-parent-spread :is(.en,.ar)::after,
     .hero .why-us-hero-head h2.bil-parent-spread :is(.en,.ar)::after{ left:50%; transform:translateX(-50%); right:auto; }
-    .bil-parent-spread-intrinsic>:is(.en,.ar){margin:0!important;padding:0!important}
+    /* .bil-parent-spread-intrinsic>:is(.en,.ar){margin:0!important;padding:0!important} /* Covered by more specific rule above */
     .pban-text .bil-row{ flex-direction:column; align-items:center; }
     .pban-text .bil-row>:is(.en,.ar){ text-align:center!important; }
     .pban-text .bil-row>.en{ margin-bottom:var(--s1); }
-}
-@media(max-width:768px){
-    html{font-size:14px} body{padding-top:var(--head-h)} .c{padding:0 var(--s1)} .sec{padding:var(--s3) 0}
-    #udh-book-panel{scroll-margin-top:calc(var(--head-h) + 45px)}
-    .form-step .sec-head{padding:var(--s1)} .form-step{padding:var(--s2) var(--s1)}
+
+    /* Styles originally from @media(max-width:768px) - Base for this consolidated block */
+    html{font-size:14px}
+    body{padding-top:var(--head-h)} /* Note: 480px had var(--head-h-mob-sm), 768px value kept */
+    .c{padding:0 var(--s1)}
+    .sec{padding:var(--s3) 0}
+    #udh-book-panel{scroll-margin-top:calc(var(--head-h) + 45px)} /* Note: 480px had different calc, 768px value kept */
+    .form-step .sec-head{padding:var(--s1)}
+    .form-step{padding:var(--s2) var(--s1)}
     .grid2:not(.prod-grid):not(.feat-grid):not(.why-us-hero-grid){grid-template-columns:1fr}
-    .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+    .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))} /* Note: 480px had 160px, 768px value kept */
     :is(.why-us-hero-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
     .sum-item .sum-item-content .bil-row,.sum-total.bil-row,.bank-det-list li.bil-row{flex-direction:row;align-items:baseline;flex-wrap:nowrap}
     .sum-item .sum-item-content .bil-row > div,.sum-total.bil-row > div, .bank-det-list li.bil-row > span{flex-basis:auto}
-    #chk-stat-form .chk-stat-input{flex-grow:1;min-width:0; margin-bottom:var(--s1);} 
-    #chk-stat-form .card-act{flex-wrap: wrap; justify-content: center;} 
-    #chk-stat-form .chk-stat-btn{flex:1 1 100%;} 
+    #chk-stat-form .chk-stat-input{flex-grow:1;min-width:0; margin-bottom:var(--s1);}
+    #chk-stat-form .card-act{flex-wrap: wrap; justify-content: center;}
+    #chk-stat-form .chk-stat-btn{flex:1 1 100%;}
     .card-content .bil-row:not(.bil-keep-side-by-side-mobile){ flex-direction:column; align-items:flex-start; gap:2px; }
     .card-content .bil-parent-spread:not(.bil-keep-side-by-side-mobile){ text-align:left; }
     .card-h.bil-parent-spread { flex-direction: row !important; justify-content: space-between !important; }
@@ -344,45 +377,68 @@ html[lang=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right
     .card-content .bil-row.card-p-row > .en { text-align: left !important; margin-bottom: var(--s0); }
     .card-content .bil-row.card-p-row > .ar { text-align: right !important; }
     .conf-msg .bil-row:not(.quick-recap-title):not(.pay-instr-title):not(.book-id-box .bil-parent-spread):not(.bil-keep-side-by-side-mobile)>:is(.en,.ar){ text-align:center; }
-    .book-id-box .bil-parent-spread>p.en{text-align:left!important} .book-id-box .bil-parent-spread>p.ar{text-align:right!important}
-    .tslots{justify-content:center}.ts{font-size:.8rem;padding:var(--s0) var(--s1);min-width:90px}
+    .book-id-box .bil-parent-spread>p.en{text-align:left!important}
+    .book-id-box .bil-parent-spread>p.ar{text-align:right!important}
+    .tslots{justify-content:center}
+    .ts{font-size:.8rem;padding:var(--s0) var(--s1);min-width:90px} /* Note: 480px had smaller values, 768px value kept */
     .pban .btn{width:auto;padding:var(--s0) var(--s2)}
-    .card-b{padding:var(--s1)}.card-content{margin-bottom:var(--s0)}.card-foot{padding-top:var(--s0)}
+    .card-b{padding:var(--s1)}
+    .card-content{margin-bottom:var(--s0)}
+    .card-foot{padding-top:var(--s0)}
     .card-act select,.card-act .btn{height:30px;font-size:.7rem}
-    .btn{font-size:.8rem}.btn-lg{font-size:.85rem}
+    .btn{font-size:.8rem}
+    .btn-lg{font-size:.85rem}
     #chk-book-stat .form-panel{margin-top:var(--s1)}
-    .step-wrap{top:var(--head-h)}
-    .step-item .step-lbl.en,.step-item .step-lbl.ar{font-size:.7rem} .step-item .step-lbl.ar{margin-top:1px}
-    .stepper{top:-9px;margin:0 var(--s0)} .step-item .step,.step-item .step-chk{width:20px;height:20px;line-height:18px}
+    .step-wrap{top:var(--head-h)} /* Note: 480px had var(--head-h-mob-sm), 768px value kept */
+    .step-item .step-lbl.en,.step-item .step-lbl.ar{font-size:.7rem} /* English label visible, size from 768px */
+    .step-item .step-lbl.ar{margin-top:1px}
+    .stepper{top:-9px;margin:0 var(--s0)}
+    .step-item .step,.step-item .step-chk{width:20px;height:20px;line-height:18px}
     .nav-cont{flex-direction:row;align-items:center;justify-content:space-between}
-    .logo{margin-right:0;margin-bottom:0;text-align:left;justify-content:flex-start}
-    .nav-main.nav-desk,.head-xtras.desk-xtras{display:none} .menu-btn{display:inline-flex;align-items:center;justify-content:center}
-    .hero h1{font-size:1.5rem}.hero h2{font-size:1.1rem}.hero p{font-size:.9rem}
-    .pm label{min-height:80px; padding: var(--s2);} 
-    .pay-meths .pay-icon{height:50px;} 
-    .pay-meths {grid-template-columns:repeat(auto-fit,minmax(100px,1fr));}
-    .foot-pay-icon{height:40px; max-width: 100px; gap: var(--s2);} 
+    .logo{margin-right:0;margin-bottom:0;text-align:left;justify-content:flex-start} /* Note: 480px had smaller font-size, 768px inherits or uses base*/
+    .nav-main.nav-desk,.head-xtras.desk-xtras{display:none}
+    .menu-btn{display:inline-flex;align-items:center;justify-content:center} /* Note: 480px had smaller svg, 768px inherits or uses base */
+    .hero h1{font-size:1.5rem} /* Note: 480px had 1.4rem, 768px value kept */
+    .hero h2{font-size:1.1rem} /* Note: 480px had 1rem, 768px value kept */
+    .hero p{font-size:.9rem}
+    .pm label{min-height:80px; padding: var(--s2);}
+    .pay-meths .pay-icon{height:50px;} /* Note: 480px had 40px, 768px value kept */
+    .pay-meths {grid-template-columns:repeat(auto-fit,minmax(100px,1fr));} /* Note: 480px had 80px, 768px value kept */
+    .foot-pay-icon{height:40px; max-width: 100px; gap: var(--s2);} /* Note: 480px had 35px, 768px value kept */
     .foot-brand-desc{ flex-direction:column; align-items:center; }
     .foot-brand-desc p.en,.foot-brand-desc p.ar{ width:100%; text-align:center!important; flex-basis:auto; }
     .foot-copy{text-align:center}
     .bil-copy-suf{display:block;width:100%;text-align:center;margin-left:0;margin-top:var(--s0)}
     .bil-copy-suf :is(.en,.ar){display:block;width:100%;text-align:center!important}
-}
-@media(max-width:480px){
-    body{padding-top:var(--head-h-mob-sm)} .head-site{height:var(--head-h-mob-sm)}
-    .mob-nav{top:var(--head-h-mob-sm)} .step-wrap{top:var(--head-h-mob-sm)}
+
+    /* Styles originally from @media(max-width:480px) - Merged and adapted */
+    body{padding-top:var(--head-h-mob-sm)} /* Overrides 768px body padding-top for very small screens implicitly by being later in the merged block if it was different*/
+    .head-site{height:var(--head-h-mob-sm)}
+    .mob-nav{top:var(--head-h-mob-sm)}
+    .step-wrap{top:var(--head-h-mob-sm)} /* Overrides previous step-wrap top */
     #udh-book-panel{scroll-margin-top:calc(var(--head-h-mob-sm) + 40px)}
-    .step-item .step-lbl.en{display:none} .step-item .step-lbl.ar{font-size:.65rem}
-    .logo{font-size:1rem} .menu-btn svg{width:24px;height:24px}
-    .pay-meths .pay-icon{height:40px} 
-    .pm label{min-height:70px; padding: var(--s1);}
-    .pay-meths {grid-template-columns:repeat(auto-fit,minmax(80px,1fr));}
-    .foot-pay-icon{height:35px} 
-    .ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
-    .cd-wrap{font-size:.8em;gap:2px;flex-wrap:wrap} .cd-seg{min-width:30px;padding:2px}
-    .cd-val{font-size:1.1em} .cd-sep{padding:0 1px}
-    .hero h1{font-size:1.4rem}.hero h2{font-size:1rem}
-    .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+    /* .step-item .step-lbl.en{display:none} /* REMOVED TO FIX STEPPER LABELS */
+    /* .step-item .step-lbl.ar{font-size:.65rem} /* Now handled by the .7rem above, could be adjusted if too large for 480px */
+    .logo{font-size:1rem}
+    .menu-btn svg{width:24px;height:24px}
+    /* pay-meths and foot-pay-icon sizes are taken from 768px block's preference if they existed, or 480px if not */
+    .pay-meths .pay-icon{height:40px} /* This will be the effective style for <768px */
+    .pm label{min-height:70px; padding: var(--s1);} /* This will be effective */
+    .pay-meths {grid-template-columns:repeat(auto-fit,minmax(80px,1fr));} /* This will be effective */
+    .foot-pay-icon{height:35px} /* This will be effective */
+
+    .ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px} /* More specific than .ts in 768px, so this applies */
+    .cd-wrap{
+        font-size:.8em;
+        gap:2px;
+        /* flex-wrap:wrap; /* REMOVED TO FIX SECONDS NOT SHOWING */
+    }
+    .cd-seg{min-width:28px; padding: 2px 1px;} /* Applied to make segments fit */
+    .cd-val{font-size:1em;} /* Applied to make segments fit */
+    .cd-lbl{font-size:.6em;} /* Applied to make segments fit */
+    .hero h1{font-size:1.4rem} /* More specific, applies for <768px */
+    .hero h2{font-size:1rem} /* More specific, applies for <768px */
+    .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))} /* More specific, applies */
     .live-note { font-size: 0.8em; }
     .info-box-step p, .info-box-step h4.form-subh { font-size: 0.8em; }
     .sum-item .sum-item-content > .bil-row > div, .sum-item-price { font-size: 0.85rem; }
