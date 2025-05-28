@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>PB Setup: Bookings Collection (Admin Auth, Final)</title>
+    <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
+    <style>
+        body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
+        .c{max-width:600px;width:100%;background:white;padding:15px;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+        h1{color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin:0 0 10px 0;font-size:1.2em;}
+        p{font-size:0.9em;margin:0 0 0.5em 0;} .warn{color:red;font-weight:bold;}
+        button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em;}
+        button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
+        #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:45vh;overflow-y:auto;}
+        .ls{color:lime;} .le{color:salmon;} .li{color:cyan;}
+    </style>
+</head>
+<body>
+    <div class="c">
+        <h1>PB Udheya Setup (Bookings Collection - Admin Auth)</h1>
+        <p class="warn">This script attempts to create/update the 'bookings' collection. Ensure PocketBase is running and admin credentials are correct.</p>
+        <p class="warn">API rules will be set to PUBLIC for dev. SECURE FOR PRODUCTION!</p>
+        <button id="runSetup">Create/Update 'bookings' Collection</button>
+        <div id="out"></div>
+    </div>
+<script>
+    const pbUrl = '/';
+    const outputDiv = document.getElementById('out');
+    const runSetupButton = document.getElementById('runSetup');
+
+    const ADM_E = 'admin@example.com'; 
+    const ADM_P = 'unifiedpassword';
+
+    const log = (message, type = 'i') => {
+        const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
+        const p = document.createElement('p');
+        p.className = `l${type[0]}`;
+        p.textContent = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
+        outputDiv.appendChild(p);
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+        console[type === 'e' ? 'error' : (type === 'w' ? 'warn' : 'log')](timestamp + message.replace(/<[^>]*>?/gm, ''));
+    };
+
+    const bookingsCollectionSchema = {
+        name: "bookings",
+        type: "base",
+        listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
+        schema: [
+            { name: "booking_id_text", type: "text", required: true, unique: true, options: { max: 50 } },
+            { name: "animal_type_name_en", type: "text", options: { max: 100 } },
+            { name: "animal_type_name_ar", type: "text", options: { max: 100 } },
+            { name: "weight_category_name_en", type: "text", options: { max: 100 } },
+            { name: "weight_category_name_ar", type: "text", options: { max: 100 } },
+            { name: "animal_base_price_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
+            { name: "udheya_service_option_selected", type: "text", required: true, options: { max: 50 } },
+            { name: "service_fee_applied_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
+            { name: "delivery_fee_applied_egp", type: "number", options: { min: 0, noDecimal: false } },
+            { name: "total_amount_due_egp", type: "number", required: true, options: { min: 0, noDecimal: false } },
+            { name: "selected_display_currency", type: "text", options: { max: 5 } },
+            { name: "sacrifice_day_value", type: "text", required: true, options: { max: 50 } },
+            { name: "sacrifice_day_text_en", type: "text", options: { max: 100 } },
+            { name: "sacrifice_day_text_ar", type: "text", options: { max: 100 } },
+            { name: "slaughter_viewing_preference", type: "text", options: { max: 50 } },
+            { name: "distribution_choice", type: "text", options: { max: 50 } },
+            { name: "split_details_option", type: "text", options: { max: 100 } },
+            { name: "custom_split_details_text", type: "text", options: { max: 500 } },
+            { name: "niyyah_names", type: "text", options: { max: 500 } },
+            { name: "ordering_person_name", type: "text", options: {max: 150}},
+            { name: "ordering_person_phone", type: "text", options: {max: 30}},
+            { name: "customer_email", type: "email", options: {} },
+            { name: "delivery_option", type: "text", options: { max: 50 } },
+            { name: "delivery_name", type: "text", options: { max: 150 } },
+            { name: "delivery_phone", type: "text", options: { max: 30 } },
+            { name: "delivery_area_id", type: "text", options: { max: 50 } },
+            { name: "delivery_area_name_en", type: "text", options: { max: 100 } },
+            { name: "delivery_area_name_ar", type: "text", options: { max: 100 } },
+            { name: "delivery_address", type: "text", options: { max: 500 } },
+            { name: "delivery_instructions", type: "text", options: { max: 500 } },
+            { name: "time_slot", type: "text", options: { max: 50 } },
+            { name: "payment_method", type: "text", required: true, options: { max: 50 } },
+            { name: "payment_status", type: "select", required: true, options: { maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] } },
+            { name: "booking_status", type: "select", required: true, options: { maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] } },
+            { name: "terms_agreed", type: "bool", options: {} },
+            { name: "admin_notes", type: "text", options: { max: 1000 } },
+            { name: "group_purchase_interest", type: "bool", options: {} },
+            { name: "user_ip_address", type: "text", options: { max: 50 } },
+            { name: "user_agent_string", type: "text", options: { max: 300 } }
+        ]
+    };
+
+    runSetupButton.onclick = async () => {
+        runSetupButton.disabled = true;
+        outputDiv.innerHTML = '';
+        log('Setup process started...', 'i');
+        const pb = new PocketBase(pbUrl);
+
+        try {
+            log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
+            await pb.admins.authWithPassword(ADM_E, ADM_P);
+            log('Admin authentication successful.', 's');
+
+            let existingCollection = null;
+            try {
+                existingCollection = await pb.collections.getOne(bookingsCollectionSchema.name);
+            } catch (e) {
+                if (!(e.status === 404 || (e.response && e.response.status === 404))) {
+                    throw e;
+                }
+            }
+
+            const payload = {
+                name: bookingsCollectionSchema.name,
+                type: bookingsCollectionSchema.type,
+                listRule: bookingsCollectionSchema.listRule,
+                viewRule: bookingsCollectionSchema.viewRule,
+                createRule: bookingsCollectionSchema.createRule,
+                updateRule: bookingsCollectionSchema.updateRule,
+                deleteRule: bookingsCollectionSchema.deleteRule,
+                schema: bookingsCollectionSchema.schema,
+                options: bookingsCollectionSchema.options || {}
+            };
+
+            if (existingCollection) {
+                log(`Collection '<b>${bookingsCollectionSchema.name}</b>' exists. Attempting to update...`, 'i');
+                const updatePayload = {
+                    listRule: payload.listRule,
+                    viewRule: payload.viewRule,
+                    createRule: payload.createRule,
+                    updateRule: payload.updateRule,
+                    deleteRule: payload.deleteRule,
+                    schema: payload.schema,
+                    options: payload.options
+                };
+                await pb.collections.update(existingCollection.id, updatePayload);
+                log(`Collection '<b>${bookingsCollectionSchema.name}</b>' updated successfully.`, 's');
+            } else {
+                log(`Collection '<b>${bookingsCollectionSchema.name}</b>' does not exist. Attempting to create...`, 'i');
+                await pb.collections.create(payload);
+                log(`Collection '<b>${bookingsCollectionSchema.name}</b>' created successfully.`, 's');
+            }
+            log('Setup for "bookings" collection completed.', 's');
+        } catch (e) {
+            log(`<b>ERROR:</b> ${e.message}`, 'e');
+            const errorData = e.data || (e.response && e.response.data) || e.originalError;
+            if (errorData) {
+                log(`Details: <pre>${JSON.stringify(errorData, null, 2)}</pre>`, 'e');
+            }
+            console.error("Full Error Object:", e);
+        } finally {
+            pb.authStore.clear();
+            runSetupButton.disabled = false;
+        }
+    };
+</script>
+</body>
+</html>
