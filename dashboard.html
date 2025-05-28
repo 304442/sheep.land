@@ -8,74 +8,68 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* Basic Reset & Root Variables (can be shared if you have a global reset) */
         :root{
             --c1:#5D4037; --c1d:#3E2723; --c2:#386641; --c2l:#A3B18A; --c3:#F28C28;
-            --t1:#212529; --tm:#6c757d; --td:#FAF8F5; --border-color: #e0e0e0;
+            --t1:#212529; --tm:#6c757d; --td:#FAF8F5;
             --b1:var(--td); --b2:#F0EBE3; --bc:#fff; --bs:#DDE0E3;
-            --rad:4px; --s0:.25rem; --s1:.5rem; --s2:.75rem; --s3:1rem; --s4:1.5rem;
+            --rad:6px; --s0:.2rem; --s1:.4rem; --s2:.5rem; --s3:1.2rem; --s4:1.6rem;
             --fe:'Inter',sans-serif; --fa:'Noto Kufi Arabic',sans-serif;
-            --lh:1.4;
+            --lh:1.5;
         }
         *,::after,::before{box-sizing:border-box;margin:0;padding:0}
-        html{font-size:14px;scroll-behavior:smooth;}
-        body { font-family: var(--fe); line-height: var(--lh); color:var(--t1); padding: 15px; background-color: #f7f9fc; }
+        html{font-size:15px;scroll-behavior:smooth;}
+        body { font-family: var(--fe); line-height: var(--lh); color:var(--t1); padding: 20px; background-color: #f4f6f8; }
         a{text-decoration:none;color:var(--c2);} a:hover{color:var(--c1d)}
-        :focus-visible{outline:2px solid var(--c3);outline-offset:1px;}
-
-        .dash-container { max-width: 95%; margin: 15px auto; padding: 15px; background-color: #fff; border-radius: var(--rad); box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.05); }
-        .dash-header { text-align: center; margin-bottom: 15px; display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom: 1px solid var(--border-color);}
-        .dash-header h1 {font-size: 1.6rem; color: var(--c1); margin:0;}
-        .dash-nav { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; display:flex; flex-wrap:wrap; gap:6px; }
+        :focus-visible{outline:2px solid var(--c3);outline-offset:2px;}
+        /* Dashboard Specific Styles */
+        .dash-container { max-width: 1400px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .dash-header { text-align: center; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; padding-bottom:15px; border-bottom: 1px solid var(--bs);}
+        .dash-header h1 {font-size: 1.8rem; color: var(--c1); margin:0;}
+        .dash-nav { margin-bottom: 20px; border-bottom: 1px solid var(--bs); padding-bottom: 10px; display:flex; flex-wrap:wrap; gap:5px; }
         .dash-nav button, .btn {
-            padding: 7px 10px; font-size: 0.85rem; border-radius: var(--rad); cursor:pointer;
-            background-color: #f0f0f0; color: var(--t1); border:1px solid var(--border-color);
-            transition: background-color .2s, color .2s, border-color .2s;
+            padding: 8px 12px; font-size: 0.9rem; border-radius: var(--rad); cursor:pointer;
+            background-color: var(--b2); color: var(--c1d); border:1px solid var(--bs);
+            transition: background-color .2s, color .2s;
         }
-        .dash-nav button:hover, .btn:hover { background-color: #e9e9e9; border-color: #ccc; }
-        .dash-nav button.active-tab, .btn.bp { background-color: var(--c1); color: white; border-color: var(--c1d); }
+        .dash-nav button:hover, .btn:hover { background-color: var(--c2l); color:var(--c1d); }
+        .dash-nav button.active-tab, .btn.bp { background-color: var(--c1); color: white; border-color: var(--c1); }
         .dash-nav button.active-tab:hover, .btn.bp:hover { background-color: var(--c1d); }
         .btn.bac { background-color: var(--c2); color:white; border-color: var(--c2); }
-        .btn.bac:hover { background-color: #2a5031; }
+        .btn.bac:hover { background-color: #2a5031; } /* Darker green */
         .btn-block { display: block; width: 100%; }
         .btn-small { font-size: 0.8rem; padding: 5px 10px; }
 
-        .dash-section { margin-bottom: 25px; }
-        .dash-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .dash-section-header h2 { font-size: 1.3rem; color: var(--c1d); margin:0; padding-bottom:0; border-bottom:none; }
-        .btn-add-new { font-size: 0.8rem; padding: 6px 10px; }
+        .dash-section { margin-bottom: 30px; }
+        .dash-section h2 { font-size: 1.5rem; color: var(--c1d); border-bottom: 2px solid var(--c2l); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         
-        .dash-filters { margin-bottom: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px; background-color: #f9f9f9; border-radius:var(--rad); border: 1px solid var(--border-color); }
-        .dash-filters label { font-weight: 500; margin-right: 4px; font-size:0.85rem;}
-        .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"] { padding: 7px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.85rem; }
+        .dash-filters { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .dash-filters label { font-weight: 500; margin-right: 5px;}
+        .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"], .dash-filters button { padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
         
-        .dash-table-wrapper { max-height: 60vh; overflow: auto; border: 1px solid var(--border-color); border-radius: var(--rad); }
-        .dash-table { width: 100%; border-collapse: separate; border-spacing:0; font-size: 0.8rem; }
-        .dash-table th, .dash-table td { border-bottom: 1px solid var(--border-color); padding: 7px 9px; text-align: left; white-space: nowrap; vertical-align: middle;}
-        .dash-table td { border-right: 1px solid var(--border-color); }
-        .dash-table th:last-child, .dash-table td:last-child { border-right: none; }
-        .dash-table thead th { background-color: #f1f3f5; font-weight: 600; color: var(--t1); position: sticky; top: 0; z-index: 10; }
-        .dash-table tbody td { background-color: var(--bc); position: relative; }
-        .dash-table tbody td.editable { cursor: cell; }
-        .dash-table tbody td.editable:hover { background-color: #e6f7ff; }
-        .dash-table td input[type="text"], .dash-table td input[type="number"], .dash-table td input[type="date"], .dash-table td select, .dash-table td textarea {
-            width: calc(100% - 4px); padding: 5px; font-size: inherit; border: 1px solid var(--c3); border-radius: 3px; background-color: white;
-            box-sizing: border-box; line-height: inherit; font-family: inherit;
-        }
-        .dash-table td textarea { resize: vertical; min-height: 40px; }
-        .dash-table td input[type="checkbox"] { margin: 0; vertical-align: middle; height: 1em; width: 1em; cursor:pointer; }
-
-        .actions-col { width: 100px; text-align: center; white-space: nowrap;}
+        .dash-table-wrapper { max-height: 500px; overflow-y: auto; border: 1px solid var(--bs); margin-bottom:10px; border-radius: var(--rad); }
+        .dash-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .dash-table th, .dash-table td { border-bottom: 1px solid var(--bs); padding: 8px 10px; text-align: left; word-wrap: break-word; vertical-align: top;}
+        .dash-table th { background-color: var(--b2); font-weight: 600; color: var(--c1d); position: sticky; top: 0; z-index: 1; }
+        .dash-table td { background-color: var(--bc); }
+        .dash-table tbody tr:nth-child(even) td { background-color: #f9f9f9; }
+        .dash-table tbody tr:hover td { background-color: #f0f4f8; } /* Lighter hover */
+        .dash-table .actions-col { width: 130px; text-align: center;}
+        .dash-table .btn { font-size: 0.75rem; padding: 4px 8px; margin: 2px; }
+        .btn.btn-delete { background-color: #e74c3c; color: white; border-color: #e74c3c;} /* Softer red */
+        .btn.btn-delete:hover { background-color: #c0392b; border-color: #c0392b;}
+        
         .currency { text-align: right; }
-        .status-paid { background-color: #d4edda; color: #155724; padding: 3px 6px; border-radius: var(--rad); display: inline-block; }
-        .status-pending { background-color: #fff3cd; color: #856404; padding: 3px 6px; border-radius: var(--rad); display: inline-block; }
-        .status-failed { background-color: #f8d7da; color: #721c24; padding: 3px 6px; border-radius: var(--rad); display: inline-block; }
+        .status-paid { color: #2ecc71; font-weight: bold; } /* Green */
+        .status-pending { color: #f39c12; } /* Orange */
+        .status-failed { color: #e74c3c; } /* Red */
         
-        .pnl-summary { background-color: var(--b1); padding: 15px; border-radius: var(--rad); border: 1px solid var(--bs); font-size: 0.9rem; }
-        .pnl-summary div { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed #eee; }
+        .pnl-summary { background-color: var(--b1); padding: 15px; border-radius: var(--rad); border: 1px solid var(--bs); }
+        .pnl-summary div { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--bs); }
         .pnl-summary div:last-child { border-bottom: none; }
         .pnl-summary strong { color: var(--c1d); }
-        .pnl-profit { color: var(--c2); font-size: 1.05rem; }
-        .pnl-loss { color: #e74c3c; font-size: 1.05rem; }
+        .pnl-profit { color: var(--c2); font-size: 1.1rem; }
+        .pnl-loss { color: #e74c3c; font-size: 1.1rem; }
         
         .login-form { max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid var(--bs); border-radius: var(--rad); background-color: var(--b1); }
         .login-form .fg { margin-bottom: 15px; }
@@ -86,9 +80,7 @@
         .load-text { text-align: center; color: var(--tm); padding: 20px; font-weight: bold; }
         .pagination { margin-top: 15px; text-align: center; }
         .pagination button { margin: 0 5px; }
-        .json-viewer { background-color: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: var(--rad); font-size: 0.8em; white-space: pre-wrap; max-height: 150px; overflow: auto; margin-top: 5px;}
-        .cell-saving-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,0,0,.1); border-left-color: var(--c2); border-radius: 50%; animation: spin 0.6s linear infinite; margin-left: 5px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .json-viewer { background-color: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: var(--rad); font-size: 0.8em; white-space: pre-wrap; max-height: 200px; overflow: auto; margin-top: 5px;}
         [x-cloak] { display: none !important; }
     </style>
 </head>
@@ -146,21 +138,19 @@
 
             <template x-if="activeTab !== 'pnl' && activeTab !== 'settings'">
                 <section class="dash-section">
-                    <div class="dash-section-header">
-                        <h2 x-text="getTabTitle(activeTab)"></h2>
-                        <a :href="getPbAdminCreateUrl(getCollectionNameForTab(activeTab))" target="_blank" class="btn bp btn-add-new" x-show="getCollectionNameForTab(activeTab)">+ New Record (Admin UI)</a>
-                    </div>
+                    <h2>
+                        <span x-text="getTabTitle(activeTab)"></span>
+                        <a :href="getPbAdminCreateUrl(getCollectionNameForTab(activeTab))" target="_blank" class="btn bp btn-small" x-show="getCollectionNameForTab(activeTab)">+ New</a>
+                    </h2>
                     <div x-show="loading.current" class="load-text" x-text="`Loading ${getTabTitle(activeTab).toLowerCase()}...`"></div>
                     <div class="dash-table-wrapper" x-show="!loading.current && data[getCollectionNameForTab(activeTab)]?.items.length > 0">
                         <table class="dash-table">
                             <thead>
-                                <!-- Headers are now dynamically generated by getTableHeaders() -->
                                 <tr x-html="getTableHeaders(activeTab)"></tr>
                             </thead>
                             <tbody>
                                 <template x-for="item in data[getCollectionNameForTab(activeTab)]?.items" :key="item.id">
-                                    <!-- Row content is now dynamically generated by getTableRowCellsHtml() -->
-                                    <tr x-html="getTableRowCellsHtml(activeTab, item)"></tr>
+                                    <tr x-html="getTableRow(activeTab, item)"></tr>
                                 </template>
                             </tbody>
                         </table>
@@ -175,20 +165,23 @@
             </template>
 
             <div x-show="activeTab === 'settings'">
-                 <section class="dash-section">
-                    <div class="dash-section-header"><h2>Application Settings</h2> </div>
+                <section class="dash-section">
+                    <h2><span>Application Settings</span></h2>
                     <div x-show="loading.current" class="load-text">Loading settings...</div>
                     <div x-show="!loading.current && data.settings?.items.length > 0">
                         <template x-for="item in data.settings.items" :key="item.id">
                             <div class="card" style="padding: 15px; font-size:0.9rem;">
-                                <template x-for="(value, key) in item" :key="key">
-                                    <div x-show="!['id', 'collectionId', 'collectionName', 'created', 'updated', 'expand'].includes(key)" style="margin-bottom:8px; padding-bottom:8px; border-bottom: 1px solid #eee;">
-                                        <strong style="text-transform: capitalize; color: var(--c1d);" x-text="key.replace(/([A-Z_])/g, ' $1').trim().replace(/^./, str => str.toUpperCase()) + ':'"></strong>
-                                        <div x-show="typeof value === 'object'" class="json-viewer" x-text="JSON.stringify(value, null, 2)"></div>
-                                        <span x-show="typeof value !== 'object'" x-text="value"></span>
-                                    </div>
-                                </template>
-                                <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Full Settings in Admin UI</a>
+                                <p><strong>Default Currency:</strong> <span x-text="item.defCurr"></span></p>
+                                <p><strong>WhatsApp Raw:</strong> <span x-text="item.waNumRaw"></span></p>
+                                <p><strong>WhatsApp Display:</strong> <span x-text="item.waNumDisp"></span></p>
+                                <p><strong>Promo Active:</strong> <span x-text="item.promoActive ? 'Yes' : 'No'"></span></p>
+                                <p><strong>Promo Discount:</strong> <span x-text="item.promoDiscPc + '%'"></span></p>
+                                <p><strong>Promo End:</strong> <span x-text="formatDate(item.promoEndISO)"></span></p>
+                                <p><strong>Service Fee (EGP):</strong> <span x-text="formatCurrency(item.servFeeEGP, 'EGP', 0)"></span></p>
+                                <div><strong>Exchange Rates:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.xchgRates, null, 2)"></pre></div>
+                                <div style="margin-top:10px;"><strong>Delivery Areas:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.delAreas, null, 2)"></pre></div>
+                                <div style="margin-top:10px;"><strong>Payment Details:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.payDetails, null, 2)"></pre></div>
+                                <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Settings in Admin UI</a>
                             </div>
                         </template>
                     </div>
@@ -202,10 +195,14 @@
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script>
 document.addEventListener('alpine:init', () => {
-    const ADM_E_PLACEHOLDER = 'admin@example.com';
+    const ADM_E_PLACEHOLDER = 'admin@example.com'; // For login form prefill
     Alpine.data('adminDashboard', () => ({
-        pb: null, isAdminAuth: false, loading: { auth: false, pnl: true, current: true },
-        loginForm: { email: ADM_E_PLACEHOLDER, password: '' }, authError: '', activeTab: 'pnl',
+        pb: null,
+        isAdminAuth: false,
+        loading: { auth: false, pnl: true, current: true },
+        loginForm: { email: ADM_E_PLACEHOLDER, password: '' },
+        authError: '',
+        activeTab: 'pnl',
         data: {
             orders: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
             expenses: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
@@ -215,15 +212,14 @@ document.addEventListener('alpine:init', () => {
             settings: { items: [], page: 1, perPage: 1, totalItems: 0, totalPages: 1 }
         },
         pnl: { totalRevenue: 0, totalCOGS: 0, grossProfit: 0, totalExpenses: 0, netProfit: 0 },
-        filterStartDate: '', filterEndDate: '', pbAdminUrl: '',
-        editingCell: { recordId: null, field: null, collection: null, originalValue: null, type: 'text', options: [] },
-        editFormData: {}, 
-        savingCell: { recordId: null, field: null },
+        filterStartDate: '',
+        filterEndDate: '',
+        pbAdminUrl: '',
 
         initDashboard() {
             this.pb = new PocketBase(window.location.origin);
             this.pbAdminUrl = window.location.origin;
-            this.loginForm.email = ADM_E_PLACEHOLDER;
+            this.loginForm.email = ADM_E_PLACEHOLDER; // Default for convenience
 
             if (this.pb.authStore.isAdmin && this.pb.authStore.isValid) {
                 this.isAdminAuth = true;
@@ -238,7 +234,7 @@ document.addEventListener('alpine:init', () => {
             const today = new Date();
             const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             this.filterStartDate = firstDayOfMonth.toISOString().split('T')[0];
-            this.filterEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+            this.filterEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]; // Last day of current month
         },
 
         async loginAdmin() {
@@ -267,7 +263,6 @@ document.addEventListener('alpine:init', () => {
         
         async switchTab(tabName) {
             this.activeTab = tabName;
-            this.cancelInlineEdit();
             await this.refreshCurrentTabData();
         },
 
@@ -281,7 +276,7 @@ document.addEventListener('alpine:init', () => {
         },
         
         getCollectionNameForTab(tabKey) {
-            const map = { animals: 'sheep_log', animal_events: 'animal_events' };
+            const map = { animals: 'sheep_log', animal_events: 'animal_events' }; // Map tab keys to collection names if different
             return map[tabKey] || tabKey;
         },
 
@@ -373,231 +368,73 @@ document.addEventListener('alpine:init', () => {
             this.pnl.netProfit = this.pnl.grossProfit - this.pnl.totalExpenses;
         },
         
-        getSelectOptionsForField(collectionName, fieldName) {
-            const collection = this.pb.collections.getOne(collectionName, { '$cancelKey': `schema-${collectionName}` }); // Caching might be an issue if schema changes often
-            const fieldSchema = collection?.schema?.find(f => f.name === fieldName);
-            return fieldSchema?.options?.values || [];
-        },
+        async deleteRecord(collectionName, recordId, recordIdentifier) {
+            if (!this.isAdminAuth) { alert("Authentication required."); return; }
+            if (!confirm(`Are you sure you want to delete this ${collectionName.replace(/_/g, ' ').slice(0,-1)}: "${recordIdentifier}"? This action cannot be undone.`)) return;
 
-        isFieldInlineEditable(collectionName, fieldName) {
-            const schema = this.pb.getCollection(collectionName)?.schema;
-            if (!schema) return null;
-            const fieldSchema = schema.find(f => f.name === fieldName);
-            if (!fieldSchema || fieldSchema.system) return null; // Don't edit system fields
-
-            const simpleEditableTypes = ['text', 'number', 'date', 'email', 'url'];
-            if (simpleEditableTypes.includes(fieldSchema.type)) return fieldSchema.type;
-            if (fieldSchema.type === 'select' && (!fieldSchema.options.maxSelect || fieldSchema.options.maxSelect === 1)) return 'select';
-            if (fieldSchema.type === 'bool') return 'boolean';
-            if (fieldSchema.type === 'editor') return 'textarea'; // Assuming PocketBase 'editor' type is for longer text
-            
-            return null;
-        },
-
-        isEditing(recordId, field) { return this.editingCell.recordId === recordId && this.editingCell.field === field; },
-        isSaving(recordId, field) { return this.savingCell.recordId === recordId && this.savingCell.field === field; },
-
-        async startInlineEdit(collectionName, recordId, fieldName, event) {
-            const fieldType = this.isFieldInlineEditable(collectionName, fieldName);
-            if (!fieldType) return;
-
-            if (this.editingCell.recordId && (this.editingCell.recordId !== recordId || this.editingCell.field !== fieldName)) {
-                await this.saveInlineEdit(this.editingCell.collection, this.editingCell.recordId, this.editingCell.field, true); // Attempt to save previous before switching
-            }
-            
-            const record = this.data[collectionName]?.items.find(item => item.id === recordId);
-            if (record) {
-                let options = [];
-                if (fieldType === 'select') {
-                    try { options = await this.getSelectOptionsForField(collectionName, fieldName); } catch(e) { console.error("Failed to get select options", e)}
-                }
-                this.editingCell = { recordId, field: fieldName, collection: collectionName, originalValue: record[fieldName], type: fieldType, options: options };
-                this.editFormData = { ...record }; 
-                
-                this.$nextTick(() => {
-                    const targetTd = event.target.closest('td');
-                    const inputElement = targetTd ? targetTd.querySelector('input, select, textarea') : null;
-                    if (inputElement) {
-                        inputElement.focus();
-                        if (inputElement.select && typeof inputElement.select === 'function') inputElement.select();
-                    }
-                });
-            }
-        },
-
-        cancelInlineEdit() {
-            this.editingCell = { recordId: null, field: null, collection: null, originalValue: null, type: 'text', options: [] };
-            this.editFormData = {};
-        },
-
-        async saveInlineEdit(collectionName, recordId, fieldName, isBlurSave = false) {
-            if (!this.editingCell.recordId || this.editingCell.recordId !== recordId || this.editingCell.field !== fieldName) {
-                 if(isBlurSave && this.editingCell.recordId) { /* If blur save is on a different cell than currently active, do nothing */ }
-                 else if (this.editingCell.recordId) { /* Active edit on different cell, try to save it */
-                    await this.saveInlineEdit(this.editingCell.collection, this.editingCell.recordId, this.editingCell.field, true);
-                 }
-                 return; // Not in edit mode for this specific cell if not blurSave of current
-            }
-
-            let newValue = this.editFormData[fieldName];
-            if (this.editingCell.type === 'number' && typeof newValue === 'string') {
-                const parsed = parseFloat(newValue);
-                newValue = isNaN(parsed) ? null : parsed; // Handle invalid number input
-            }
-            if (this.editingCell.type === 'boolean') newValue = !!newValue;
-
-            // For dates, ensure they are in YYYY-MM-DD format if coming from input type="date"
-            if (this.editingCell.type === 'date' && newValue && !/^\d{4}-\d{2}-\d{2}$/.test(newValue)) {
-                try { newValue = new Date(newValue).toISOString().split('T')[0]; } catch(e) { /* keep original if parse fails */ }
-            }
-
-
-            if (newValue === this.editingCell.originalValue && this.editingCell.type !== 'boolean' && !(this.editingCell.originalValue === undefined && newValue === '')) {
-                this.cancelInlineEdit(); return;
-            }
-             if (this.editingCell.type === 'boolean' && newValue === (this.editingCell.originalValue === true) ) {
-                this.cancelInlineEdit(); return;
-            }
-
-
-            this.savingCell = { recordId, field: fieldName };
+            this.loading.current = true;
             try {
-                const dataToUpdate = { [fieldName]: newValue };
-                await this.pb.collection(collectionName).update(recordId, dataToUpdate);
-                
-                const recordIndex = this.data[collectionName].items.findIndex(item => item.id === recordId);
-                if (recordIndex > -1) {
-                    this.data[collectionName].items[recordIndex][fieldName] = newValue;
-                }
-                console.log(`Record ${recordId} in ${collectionName}, field ${fieldName} updated to: ${newValue}`);
-                if (['orders', 'expenses', 'sheep_log'].includes(collectionName) && (fieldName === 'total_amount_due_egp' || fieldName === 'cost_of_animal_egp' || fieldName === 'amount_egp')) { 
-                    await this.fetchPnlData();
-                }
-
-            } catch (error) {
-                console.error(`Error updating ${collectionName}.${fieldName} for ${recordId}:`, error);
-                alert(`Failed to save change for ${fieldName}. Value reverted. Error: ${error.message}`);
-                if(this.data[collectionName]){ // Revert UI on failure
-                    const recordIndex = this.data[collectionName].items.findIndex(item => item.id === recordId);
-                    if (recordIndex > -1) this.data[collectionName].items[recordIndex][fieldName] = this.editingCell.originalValue;
-                }
-            } finally {
-                this.cancelInlineEdit();
-                this.savingCell = { recordId: null, field: null };
-            }
+                await this.pb.collection(collectionName).delete(recordId);
+                log(`${collectionName.slice(0,-1)} "${recordIdentifier}" deleted successfully.`, 's'); // Use existing log for console
+                await this.fetchPaginatedData(collectionName, this.data[collectionName].page); 
+                if (['orders', 'expenses', 'sheep_log'].includes(collectionName)) { await this.fetchPnlData(); }
+            } catch (error) { this.handleFetchError(error, `deleting from ${collectionName}`); } 
+            finally { this.loading.current = false; }
         },
 
         formatDate(dateString) {
             if (!dateString) return 'N/A';
-            try { const date = new Date(dateString); if(isNaN(date.valueOf())) return dateString; return date.toLocaleDateString('en-CA'); } 
+            try { const date = new Date(dateString); return date.toLocaleDateString('en-CA'); } 
             catch (e) { return dateString; }
         },
         formatCurrency(amount, currency = 'EGP', digits = 0) {
-            if (typeof amount !== 'number' && amount !== 0) return amount === null || amount === undefined ? 'N/A' : amount;
+            if (typeof amount !== 'number') return 'N/A';
             const options = { style: 'currency', currency: currency, minimumFractionDigits: digits, maximumFractionDigits: digits };
             try { return new Intl.NumberFormat('en-US', options).format(amount); }
-            catch (e) { return `${currency} ${Number(amount).toFixed(digits)}`; }
+            catch (e) { return `${currency} ${amount.toFixed(digits)}`; }
         },
-        escapeHtml(unsafe) {
-            if (typeof unsafe !== 'string') return unsafe === null || unsafe === undefined ? '' : unsafe;
-            return unsafe.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "'");
-        },
-        
+        // Dynamic table rendering (basic example)
         getTableHeaders(tabKey) {
             const collName = this.getCollectionNameForTab(tabKey);
             let headers = '';
-            // Define headers more dynamically or based on schema if needed
-            if (collName === 'orders') headers = `<th>Order ID</th><th>Date</th><th>Customer</th><th>Product</th><th class="currency">Total</th><th>Payment</th><th>Status</th><th class="actions-col">Details</th>`;
-            else if (collName === 'expenses') headers = `<th>Date</th><th>Category</th><th>Description</th><th class="currency">Amount</th><th class="actions-col">Details</th>`;
-            else if (collName === 'sheep_log') headers = `<th>Tag ID</th><th>Breed</th><th>Acq. Date</th><th class="currency">Acq. Cost</th><th>Status</th><th>Sold Order</th><th class="actions-col">Details / +Event</th>`;
-            else if (collName === 'animal_events') headers = `<th>Animal Tag</th><th>Event Date</th><th>Type</th><th>Description</th><th class="currency">Cost</th><th class="actions-col">Details</th>`;
-            else if (collName === 'products') headers = `<th>Key</th><th>Variant</th><th class="currency">Price</th><th>Stock</th><th>Active</th><th class="actions-col">Details</th>`;
-            return `<tr>${headers}</tr>`;
+            if (collName === 'orders') headers = `<th>ID</th><th>Date</th><th>Customer</th><th>Product</th><th class="currency">Total</th><th>Payment</th><th>Status</th><th class="actions-col">Actions</th>`;
+            else if (collName === 'expenses') headers = `<th>Date</th><th>Category</th><th>Description</th><th class="currency">Amount</th><th class="actions-col">Actions</th>`;
+            else if (collName === 'sheep_log') headers = `<th>Tag ID</th><th>Breed</th><th>Acq. Date</th><th class="currency">Acq. Cost</th><th>Status</th><th>Sold Order</th><th class="actions-col">Actions</th>`;
+            else if (collName === 'animal_events') headers = `<th>Animal Tag</th><th>Event Date</th><th>Type</th><th>Description</th><th class="currency">Cost</th><th class="actions-col">Actions</th>`;
+            else if (collName === 'products') headers = `<th>Key</th><th>Variant</th><th class="currency">Price</th><th>Stock</th><th>Active</th><th class="actions-col">Actions</th>`;
+            return headers;
         },
-        getTableRowCellsHtml(tabKey, item) {
+        getTableRow(tabKey, item) {
             const collName = this.getCollectionNameForTab(tabKey);
-            let cells = '';
-            const adminEditUrl = this.getPbAdminEditUrl(collName, item.id);
-
-            const renderCell = (fieldName, displayValueFallback, isCurrency = false, customClass = '', fieldTypeOverride = null) => {
-                const displayValue = item[fieldName] !== undefined && item[fieldName] !== null ? item[fieldName] : displayValueFallback;
-                const fieldType = fieldTypeOverride || this.isFieldInlineEditable(collName, fieldName);
-                const editableClass = fieldType ? 'editable' : '';
-                const clickHandler = editableClass ? ` @click="startInlineEdit('${collName}', '${item.id}', '${fieldName}', $event)"` : '';
-                
-                let content = `<span x-show="!isEditing('${item.id}', '${fieldName}')">${isCurrency ? this.formatCurrency(displayValue) : (fieldType === 'date' ? this.formatDate(displayValue) : this.escapeHtml(displayValue))}</span>`;
-                if (fieldType) {
-                    let inputHtml = '';
-                    const commonInputAttrs = `x-show="isEditing('${item.id}', '${fieldName}')" x-model="editFormData.${fieldName}" 
-                                            @blur.prevent="saveInlineEdit('${collName}', '${item.id}', '${fieldName}', true)" 
-                                            @keydown.enter.prevent="saveInlineEdit('${collName}', '${item.id}', '${fieldName}')"
-                                            @keydown.escape.prevent="cancelInlineEdit()" x-ref="'input-${item.id}-${fieldName}'" 
-                                            class="input" style="width:100%; padding:4px; font-size:inherit;"`;
-                    
-                    if (fieldType === 'select') {
-                        inputHtml = `<select ${commonInputAttrs}>`;
-                        const options = this.editingCell.recordId === item.id && this.editingCell.field === fieldName ? this.editingCell.options : [];
-                        options.forEach(opt => { inputHtml += `<option value="${this.escapeHtml(opt)}" :selected="'${this.escapeHtml(opt)}' === editFormData.${fieldName}">${this.escapeHtml(opt)}</option>`; });
-                        inputHtml += `</select>`;
-                    } else if (fieldType === 'boolean') {
-                        inputHtml = `<input type="checkbox" ${commonInputAttrs.replace(/x-model="[^"]+"/, '')} :checked="editFormData.${fieldName}" @change="editFormData.${fieldName} = $event.target.checked; saveInlineEdit('${collName}', '${item.id}', '${fieldName}')">`;
-                    } else if (fieldType === 'textarea') {
-                         inputHtml = `<textarea ${commonInputAttrs} rows="2"></textarea>`;
-                    } else {
-                        const inputType = fieldType === 'number' ? 'number' : (fieldType === 'date' ? 'date' : 'text');
-                        const step = inputType === 'number' && !Number.isInteger(Number(item[fieldName])) ? '0.01' : (inputType === 'number' ? '1' : '');
-                        inputHtml = `<input type="${inputType}" ${step ? `step="${step}"` : ''} ${commonInputAttrs}>`;
-                    }
-                    content += inputHtml;
-                }
-                const savingSpinner = `<span x-show="isSaving('${item.id}', '${fieldName}')" class="cell-saving-spinner"></span>`;
-                return `<td class="${editableClass} ${isCurrency ? 'currency' : ''} ${customClass}" ${clickHandler}>${content}${savingSpinner}</td>`;
-            };
+            let rowHtml = '';
+            const editUrl = this.getPbAdminEditUrl(collName, item.id);
+            const deleteAction = `deleteRecord('${collName}', '${item.id}', '${(item.order_id_text || item.animal_tag_id || item.item_key || item.description || item.id).toString().replace(/'/g, "\\'")}')`;
 
             if (collName === 'orders') {
-                cells = renderCell('order_id_text', item.order_id_text) +
-                        `<td>${this.formatDate(item.created)}</td>` +
-                        renderCell('ordering_person_name', item.ordering_person_name) +
-                        `<td>${this.escapeHtml(item.ordered_product_name_en || item.ordered_product_name_ar || '')}</td>` +
-                        renderCell('total_amount_due_egp', item.total_amount_due_egp, true, '', 'number') + // Editable for adjustments
-                        renderCell('payment_status', item.payment_status?.replace(/_/g, ' '), false, `status-${item.payment_status?.split('_')[0] || 'default'}`, 'select') +
-                        renderCell('order_status', item.order_status?.replace(/_/g, ' '), false, '', 'select');
+                rowHtml = `<td>${item.order_id_text}</td><td>${this.formatDate(item.created)}</td><td>${item.ordering_person_name}</td><td>${item.ordered_product_name_en || ''}</td>
+                           <td class="currency">${this.formatCurrency(item.total_amount_due_egp, 'EGP', 0)}</td>
+                           <td><span class="${item.payment_status === 'paid_confirmed' ? 'status-paid' : item.payment_status.includes('pending') ? 'status-pending' : 'status-failed'}">${item.payment_status?.replace(/_/g, ' ')}</span></td>
+                           <td>${item.order_status?.replace(/_/g, ' ')}</td>`;
             } else if (collName === 'expenses') {
-                cells = renderCell('expense_date', item.expense_date, false, '', 'date') +
-                        renderCell('category', item.category) +
-                        renderCell('description', item.description, false, '', 'textarea') +
-                        renderCell('amount_egp', item.amount_egp, true, '', 'number');
+                rowHtml = `<td>${this.formatDate(item.expense_date)}</td><td>${item.category}</td><td>${item.description}</td>
+                           <td class="currency">${this.formatCurrency(item.amount_egp, 'EGP', 0)}</td>`;
             } else if (collName === 'sheep_log') {
-                 cells = renderCell('animal_tag_id', item.animal_tag_id) +
-                           renderCell('breed', item.breed || '') +
-                           renderCell('acquisition_date', item.acquisition_date, false, '', 'date') +
-                           renderCell('acquisition_cost_egp', item.acquisition_cost_egp, true, '', 'number') +
-                           renderCell('current_status', item.current_status, false, '', 'select') +
-                           `<td>${item.expanded?.sale_order_id?.order_id_text || (item.sale_order_id ? 'Loading...' : 'N/A')}</td>`;
+                rowHtml = `<td>${item.animal_tag_id}</td><td>${item.breed || 'N/A'}</td><td>${this.formatDate(item.acquisition_date)}</td>
+                           <td class="currency">${this.formatCurrency(item.acquisition_cost_egp, 'EGP', 0)}</td><td>${item.current_status}</td>
+                           <td>${item.expanded?.sale_order_id?.order_id_text || (item.sale_order_id ? '...' : 'N/A')}</td>`;
             } else if (collName === 'animal_events') {
-                 cells = `<td>${item.expanded?.animal_id?.animal_tag_id || 'N/A'}</td>` +
-                           renderCell('event_date', item.event_date, false, '', 'date') +
-                           renderCell('event_type', item.event_type, false, '', 'select') +
-                           renderCell('description', item.description, false, '', 'textarea') +
-                           renderCell('cost_associated_egp', item.cost_associated_egp, true, '', 'number');
+                 rowHtml = `<td>${item.expanded?.animal_id?.animal_tag_id || 'N/A'}</td><td>${this.formatDate(item.event_date)}</td><td>${item.event_type}</td>
+                           <td>${item.description}</td><td class="currency">${this.formatCurrency(item.cost_associated_egp, 'EGP', 0)}</td>`;
             } else if (collName === 'products') {
-                cells = `<td>${item.item_key}</td>` + // Item key usually not editable after creation
-                          renderCell('variant_name_en', item.variant_name_en) +
-                          renderCell('base_price_egp', item.base_price_egp, true, '', 'number') +
-                          renderCell('stock_available_pb', item.stock_available_pb, false, '', 'number') +
-                          renderCell('is_active', item.is_active, false, '', 'boolean');
+                rowHtml = `<td>${item.item_key}</td><td>${item.variant_name_en}</td><td class="currency">${this.formatCurrency(item.base_price_egp, 'EGP', 0)}</td>
+                           <td>${item.stock_available_pb}</td><td>${item.is_active ? 'Yes':'No'}</td>`;
             }
-            cells += `<td class="actions-col"><a href="${adminEditUrl}" target="_blank" class="btn bp btn-small">Full Edit</a></td>`;
-            if(collName === 'sheep_log') {
-                 cells += `<td class="actions-col"><a href="${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}" target="_blank" class="btn bp btn-small" title="Add Event">+Event</a></td>`;
-            } else if (collName === 'animal_events' || collName === 'products' || collName === 'expenses') {
-                cells += `<td></td>`; // Placeholder for consistent number of columns if some tables have more actions
-            }
+            rowHtml += `<td class="actions-col"><a href="${editUrl}" target="_blank" class="btn bp">Edit</a> <button @click="${deleteAction}" class="btn btn-delete">Del</button></td>`;
+            if(collName === 'sheep_log') rowHtml += `<a href="${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}" target="_blank" class="btn bp" title="Add Event" style="margin-left:2px;">+Evt</a>`;
 
 
-            return cells;
+            return rowHtml;
         }
-
     }));
 });
 </script>
