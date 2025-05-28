@@ -290,7 +290,7 @@
 <script>
 document.addEventListener('alpine:init', () => {
     const ADM_E_PLACEHOLDER = 'admin@example.com'; // For login form prefill
-    Alpine.data('adminDashboard', () => ({
+    Alpine.data('adminDashboard', () => ({ // This is the component factory function
         pb: null,
         isAdminAuth: false,
         loading: { auth: false, pnl: true, current: true },
@@ -303,7 +303,7 @@ document.addEventListener('alpine:init', () => {
             sheep_log: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 }, // Mapped from 'animals' view
             animal_events: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
             products: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
-            settings: { items: [], page: 1, perPage: 1, totalItems: 0, totalPages: 1 } // Usually only one settings doc
+            settings: { items: [], page: 1, perPage: 1, totalItems: 0, totalPages: 1 } 
         },
         pnl: { totalRevenue: 0, totalCOGS: 0, grossProfit: 0, totalExpenses: 0, netProfit: 0 },
         filterStartDate: '',
@@ -328,12 +328,12 @@ document.addEventListener('alpine:init', () => {
                 { key: 'amount_egp', label: 'Amount', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
                 { key: 'id', label: 'Actions', type: 'actions', identifierField: 'description', headerWidth: '130px', textAlign: 'right' }
             ],
-            sheep_log: [ // 'animals' view
+            sheep_log: [ 
                 { key: 'animal_tag_id', label: 'Tag ID', type: 'text', headerWidth: '100px' },
                 { key: 'breed', label: 'Breed', type: 'text', cellMaxWidth: '120px' },
                 { key: 'acquisition_date', label: 'Acq. Date', type: 'date', headerWidth: '120px' },
                 { key: 'acquisition_cost_egp', label: 'Acq. Cost', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '110px' },
-                { key: 'current_status', label: 'Status', type: 'status_pill', headerWidth: '100px' }, // Assuming status can be styled
+                { key: 'current_status', label: 'Status', type: 'status_pill', headerWidth: '100px' }, 
                 { key: 'sale_order_id', label: 'Sold Order', type: 'expand', expandedField: 'sale_order_id', displayField: 'order_id_text', placeholder: 'N/A', headerWidth: '120px' },
                 { key: 'id', label: 'Actions', type: 'actions_animal', identifierField: 'animal_tag_id', headerWidth: '180px', textAlign: 'right' }
             ],
@@ -357,6 +357,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         initDashboard() {
+            // Make component instance available on window for easier debugging if needed
+            // window.adminDashboardInstance = this; 
             this.pb = new PocketBase(window.location.origin);
             this.pbAdminUrl = window.location.origin; 
             this.loginForm.email = ADM_E_PLACEHOLDER;
@@ -374,7 +376,7 @@ document.addEventListener('alpine:init', () => {
             const today = new Date();
             const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             this.filterStartDate = firstDayOfMonth.toISOString().split('T')[0];
-            this.filterEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]; // Last day of current month
+            this.filterEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]; 
         },
 
         async loginAdmin() {
@@ -396,7 +398,7 @@ document.addEventListener('alpine:init', () => {
             this.isAdminAuth = false; 
             this.authError = '';
             Object.keys(this.data).forEach(key => { 
-                const perPage = this.data[key]?.perPage || 15; // Preserve perPage setting
+                const perPage = this.data[key]?.perPage || 15; 
                 this.data[key] = { items: [], page: 1, perPage: perPage, totalItems: 0, totalPages: 1 }; 
             });
             this.pnl = { totalRevenue: 0, totalCOGS: 0, grossProfit: 0, totalExpenses: 0, netProfit: 0 };
@@ -423,7 +425,6 @@ document.addEventListener('alpine:init', () => {
             } else {
                 const collectionName = this.getCollectionNameForView(this.currentView);
                 if (collectionName) {
-                     // Reset page to 1 when switching views or refreshing with filters, unless specifically paginating
                     const currentDataState = this.data[collectionName];
                     if(currentDataState) currentDataState.page = 1;
                     await this.fetchPaginatedData(collectionName, 1);
@@ -482,10 +483,9 @@ document.addEventListener('alpine:init', () => {
             }
             currentDataState.page = page;
 
-            const params = { page: page, perPage: currentDataState.perPage, sort: '-created' }; // Default sort
+            const params = { page: page, perPage: currentDataState.perPage, sort: '-created' }; 
             let expandFields = [];
             
-            // Get expand fields from column configuration
             const viewColumns = this.getColumnsForView(this.currentView); 
             if (viewColumns) {
                 viewColumns.forEach(col => {
@@ -496,19 +496,18 @@ document.addEventListener('alpine:init', () => {
             }
             if (expandFields.length > 0) params.expand = expandFields.join(',');
 
-            // Collection-specific overrides for filters and sorting
             if (collectionName === 'settings') {
-                 params.sort = 'created'; // Or by a specific field if applicable for settings
+                 params.sort = 'created'; 
             } else if (collectionName === 'orders') {
                  params.sort = '-created';
                  let filter = 'id != ""'; 
-                 if (this.filterStartDate && this.filterEndDate && ['orders'].includes(this.currentView)) { // Apply date filter only if relevant view
+                 if (this.filterStartDate && this.filterEndDate && ['orders'].includes(this.currentView)) { 
                     filter += ` && created >= "${this.filterStartDate} 00:00:00.000Z" && created <= "${this.filterEndDate} 23:59:59.999Z"`;
                  }
                  params.filter = filter;
             } else if (collectionName === 'expenses') {
                 params.sort = '-expense_date';
-                if (this.filterStartDate && this.filterEndDate && ['expenses'].includes(this.currentView)) { // Apply date filter only if relevant view
+                if (this.filterStartDate && this.filterEndDate && ['expenses'].includes(this.currentView)) { 
                     params.filter = `expense_date >= "${this.filterStartDate}" && expense_date <= "${this.filterEndDate}"`;
                 }
             } else if (collectionName === 'sheep_log') { 
@@ -536,7 +535,7 @@ document.addEventListener('alpine:init', () => {
         handleFetchError(error, context) {
             console.error(`Error fetching ${context}:`, error);
             this.authError = `Failed to load data for ${context}. Check console for details.`;
-            if (error.status === 401 || error.status === 403) { // Unauthorized or Forbidden
+            if (error.status === 401 || error.status === 403) { 
                 this.isAdminAuth = false; 
                 this.authError = 'Session expired or unauthorized. Please login again.';
             }
@@ -560,7 +559,7 @@ document.addEventListener('alpine:init', () => {
         async deleteRecord(collectionName, recordId, recordIdentifier) {
             if (!this.isAdminAuth) { alert("Authentication required."); return; }
             
-            const displayIdentifier = String(recordIdentifier).replace(/"/g, "'"); // Sanitize for confirm dialog
+            const displayIdentifier = String(recordIdentifier).replace(/"/g, "'"); 
             const singularName = (this.getSingularViewTitle(this.currentView) || collectionName.replace(/_/g, ' ').replace(/s$/, '')).toLowerCase();
 
             if (!confirm(`Are you sure you want to delete this ${singularName}: "${displayIdentifier}"? This action cannot be undone.`)) return;
@@ -570,7 +569,6 @@ document.addEventListener('alpine:init', () => {
                 await this.pb.collection(collectionName).delete(recordId);
                 console.info(`${singularName} "${displayIdentifier}" deleted successfully.`);
                 
-                // Re-fetch data for the current page, or previous if last item on page deleted
                 const currentDataState = this.data[collectionName];
                 let pageToFetch = currentDataState.page;
                 if(currentDataState.items.length === 1 && pageToFetch > 1) {
@@ -579,7 +577,7 @@ document.addEventListener('alpine:init', () => {
                 await this.fetchPaginatedData(collectionName, pageToFetch); 
                 
                 if (['orders', 'expenses', 'sheep_log'].includes(collectionName)) { 
-                    await this.fetchPnlData(); // Refresh P&L if relevant data changed
+                    await this.fetchPnlData(); 
                 }
             } catch (error) { this.handleFetchError(error, `deleting from ${collectionName}`); } 
             finally { this.loading.current = false; }
@@ -589,10 +587,10 @@ document.addEventListener('alpine:init', () => {
             if (!dateString) return 'N/A';
             try { 
                 const date = new Date(dateString); 
-                if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+                if (isNaN(date.getTime())) return dateString; 
                 return date.toLocaleDateString(undefined, options); 
             } 
-            catch (e) { return dateString; } // Return original string if parsing fails
+            catch (e) { return dateString; } 
         },
         formatCurrency(amount, currency = 'EGP', digits = 0) {
             if (amount === null || typeof amount === 'undefined') return 'N/A';
@@ -620,15 +618,16 @@ document.addEventListener('alpine:init', () => {
 
         renderCellContent(item, column, collectionName) {
             let value = item[column.key];
-             // Handle nested keys for expanded fields (basic, assumes item.expand.fieldName)
             if (column.type === 'expand' && column.expandedField) {
                  value = item.expand && item.expand[column.expandedField] ? item.expand[column.expandedField][column.displayField] : (item[column.expandedField] ? '...' : (column.placeholder || 'N/A'));
             }
             
             const cellContentClasses = ['cell-content'];
-            if(!column.cellMaxWidth) cellContentClasses.push('no-truncate'); // Don't truncate if no max width set
+            if(!column.cellMaxWidth) cellContentClasses.push('no-truncate'); 
 
-            const contentSpan = `<span class="${cellContentClasses.join(' ')}" ${column.cellMaxWidth ? `style="max-width:${column.cellMaxWidth};"` : ''} title="${this.escapeHtml(typeof value === 'object' ? JSON.stringify(value) : value)}">`;
+            const titleAttributeValue = (typeof value === 'object' && value !== null) ? JSON.stringify(value) : value;
+            const escapedTitle = this.escapeHtml(titleAttributeValue);
+            const contentSpan = `<span class="${cellContentClasses.join(' ')}" ${column.cellMaxWidth ? `style="max-width:${column.cellMaxWidth};"` : ''} title="${escapedTitle}">`;
 
             switch (column.type) {
                 case 'text':
@@ -643,12 +642,11 @@ document.addEventListener('alpine:init', () => {
                 case 'boolean':
                     return `${contentSpan}${value ? 'Yes' : 'No'}</span>`;
                 case 'status_pill':
-                    const rawStatus = item[column.key]; // Get raw status from item for class generation
+                    const rawStatus = item[column.key]; 
                     const statusClass = rawStatus ? String(rawStatus).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/gi, '') : 'default';
                     const statusText = rawStatus ? this.escapeHtml(String(rawStatus).replace(/_/g, ' ')) : 'N/A';
-                    return `<span class="status-pill ${this.escapeHtml(statusClass)}">${statusText}</span>`; // Pill itself doesn't get wrapped by cell-content span
+                    return `<span class="status-pill ${this.escapeHtml(statusClass)}">${statusText}</span>`; 
                 case 'expand':
-                    // Value already processed above for expand type
                     return `${contentSpan}${this.escapeHtml(value)}</span>`;
                 case 'actions': 
                 case 'actions_animal': {
@@ -659,8 +657,17 @@ document.addEventListener('alpine:init', () => {
                     } else {
                         identifier = item[column.identifierField] || item.id;
                     }
-                    const safeIdentifier = String(identifier).replace(/'/g, "\\'"); // Escape for JS string literal
-                    const deleteAction = `Alpine.store('adminDashboardRef').deleteRecord('${collectionName}', '${item.id}', '${safeIdentifier}')`;
+
+                    // ***** THE CRITICAL FIX IS HERE *****
+                    const safeIdentifier = String(identifier)
+                        .replace(/\\/g, '\\\\') // Must be first
+                        .replace(/'/g, "\\'")
+                        .replace(/"/g, '\\"') // Also escape double quotes for robustness if used in HTML attributes
+                        .replace(/\n/g, "\\n")
+                        .replace(/\r/g, "\\r");
+                    
+                    // Use $el to get to the component data context for calling methods from x-html generated content
+                    const deleteAction = `$data.deleteRecord('${collectionName}', '${item.id}', '${safeIdentifier}')`;
                     
                     let buttonsHtml = `<a href="${editUrl}" target="_blank" class="btn bp btn-small">Edit</a> 
                                        <button @click="${deleteAction}" class="btn btn-delete btn-small">Del</button>`;
@@ -668,13 +675,16 @@ document.addEventListener('alpine:init', () => {
                         const addEventUrl = `${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}`;
                         buttonsHtml += ` <a href="${addEventUrl}" target="_blank" class="btn bp btn-small" title="Add Event">+Evt</a>`;
                     }
-                    return buttonsHtml; // Actions don't get wrapped by cell-content span
+                    return buttonsHtml; 
                 }
                 default:
                     return `${contentSpan}${(value !== null && typeof value !== 'undefined' ? this.escapeHtml(value) : 'N/A')}</span>`;
             }
         }
-    }), {name: 'adminDashboardRef'}) // Expose on Alpine.store for @click access if needed
+    // No need for the {name: 'adminDashboardRef'} store registration for this simple component usage.
+    // x-data="adminDashboard" will correctly initialize and scope this component.
+    // Methods called via @click from within x-html should use $data.methodName if 'this' context is an issue.
+    })); 
 });
 </script>
 </body>
