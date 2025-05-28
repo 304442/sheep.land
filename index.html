@@ -249,8 +249,8 @@
                                                 <div class="card-content">
                                                     <h3 class="card-h bil-parent-spread"><span x-text="animalType.name_en"></span><span x-text="animalType.name_ar"></span></h3>
                                                     <div class="bil-row card-p-row">
-                                                        <p class="en card-p" x-text="animalType.description_en || (animalType.value_key === 'baladi' ? 'Local breed, rich flavor.' : 'Desert breed, lean meat.')"></p>
-                                                        <p class="ar card-p" x-text="animalType.description_ar || (animalType.value_key === 'baladi' ? 'سلالة محلية، نكهة غنية.' : 'سلالة صحراوية، لحم قليل الدهن.')"></p>
+                                                        <p class="en card-p" x-text="animalType.description_en"></p>
+                                                        <p class="ar card-p" x-text="animalType.description_ar"></p>
                                                     </div>
                                                 </div>
                                                 <div class="card-foot">
@@ -265,7 +265,7 @@
                                                             <template x-for="wp_item in animalType.weights_prices" :key="wp_item.item_key">
                                                                 <option :value="wp_item.item_key"
                                                                         :disabled="!wp_item.is_active || wp_item.current_stock <= 0"
-                                                                        x-text="`${wp_item.nameEN_specific || wp_item.weight_range_text_en} (${getFormattedPrice(wp_item.basePriceEGP)}) - ${getEnglishStockStatusText(wp_item.current_stock, wp_item.is_active)}`.trim()">
+                                                                        x-text="`${wp_item.nameEN_specific} (${getFormattedPrice(wp_item.basePriceEGP)}) - ${getEnglishStockStatusText(wp_item.current_stock, wp_item.is_active)}`.trim()">
                                                                 </option>
                                                             </template>
                                                         </select>
@@ -542,14 +542,14 @@
                                 <div class="bil-parent-spread"><p class="en booking-id-card-important"><strong>Important: Your Booking Details</strong></p><p class="ar booking-id-card-important"><strong>هام: تفاصيل حجزكم</strong></p></div>
                                 <div class="bil-parent-spread"><p class="en booking-id-card-label">Booking ID:</p><p class="ar booking-id-card-label">رقم حجزكم:</p></div>
                                 <p class="booking-id-display" x-text="bookingID"></p>
-                                <div class="bil-row"><p class="en booking-id-card-note">Save ID for status check. You will NOT receive an email confirmation.</p><p class="ar booking-id-card-note">احفظ الرقم للتحقق من حالة الطلب. لن يتم إرسال تأكيد عبر البريد الإلكتروني.</p></div>
+                                <div class="bil-row"><p class="en booking-id-card-note">Save ID and Phone for status check. You will NOT receive an email confirmation.</p><p class="ar booking-id-card-note">احفظ الرقم والهاتف للتحقق من حالة الطلب. لن يتم إرسال تأكيد عبر البريد الإلكتروني.</p></div>
                             </div></div>
                             <div class="quick-recap-wrapper">
                                 <h4 class="form-subhead bil-parent-spread quick-recap-title"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
                                 <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN"></span> (<span x-text="selectedAnimal.weight_range_en"></span>)</div><div class="ar"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR"></span> (<span x-text="selectedAnimal.weight_range_ar"></span>)</div></div>
                                  <div class="summary-item bil-row">
-                                    <div class="en"><strong>Booked By:</strong> <span x-text="orderingPersonName"></span></div>
-                                    <div class="ar"><strong>الحجز باسم:</strong> <span x-text="orderingPersonName"></span></div>
+                                    <div class="en"><strong>Booked By:</strong> <span x-text="orderingPersonName"></span> (<span x-text="orderingPersonPhone"></span>)</div>
+                                    <div class="ar"><strong>الحجز باسم:</strong> <span x-text="orderingPersonName"></span> (<span x-text="orderingPersonPhone"></span>)</div>
                                 </div>
                                 <div class="summary-item bil-row" x-show="niyyahNames.trim() !== ''">
                                     <div class="en"><strong>Niyyah For:</strong> <span x-text="niyyahNames"></span></div>

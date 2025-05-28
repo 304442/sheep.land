@@ -1,0 +1,658 @@
+# Complete PocketBase Setup HTML Instructions for LLM
+
+**Create a complete PocketBase setup HTML file. Follow these EXACT patterns:**
+
+## HTML Structure:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PB Setup: [App Name]</title>
+    <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
+    <style>
+        body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
+        .c{max-width:700px;width:100%;background:white;padding:15px;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+        h1{color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin:0 0 10px 0;font-size:1.2em;}
+        p{font-size:0.9em;margin:0 0 0.5em 0;} .warn{color:red;font-weight:bold;}
+        button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em;margin-bottom:5px;}
+        button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
+        #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:70vh;overflow-y:auto;}
+        .ls{color:lime;font-weight:bold;} .le{color:salmon;font-weight:bold;} .li{color:cyan;} .lw{color:yellow;} .ld{color:gray;}
+    </style>
+</head>
+<body>
+    <div class="c">
+        <h1>PB [App Name] Setup</h1>
+        <p class="warn">Warning text about admin credentials and production security.</p>
+        <button id="runFullSetup">Run Full Setup</button>
+        <button id="runSchemaOnly">Schema Only</button>
+        <button id="runSeedOnly" disabled>Seed Data Only</button>
+        <div id="out"></div>
+    </div>
+```
+
+## JavaScript Structure:
+```javascript
+<script>
+    const pbUrl = '/';
+    const outputDiv = document.getElementById('out');
+    const runFullSetupButton = document.getElementById('runFullSetup');
+    const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
+    const runSeedOnlyButton = document.getElementById('runSeedOnly');
+    const ADM_E = 'admin@example.com';
+    const ADM_P = 'unifiedpassword';
+
+    // Logging function with full debug capabilities
+    const log = (message, type = 'i', data = null) => {
+        const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
+        const p = document.createElement('p');
+        p.className = `l${type[0]}`;
+        let logMessage = timestamp + message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        if (data) {
+            logMessage += `\n<pre class="ld">${JSON.stringify(data, null, 2).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
+        }
+        p.innerHTML = logMessage;
+        outputDiv.appendChild(p);
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+        const consoleMessage = timestamp + message.replace(/<[^>]*>?/gm, '');
+        if (type === 'e') console.error(consoleMessage, data || '');
+        else if (type === 'w') console.warn(consoleMessage, data || '');
+        else if (type === 'd') console.debug(consoleMessage, data || '');
+        else console.log(consoleMessage, data || '');
+    };
+
+    // Collections WITHOUT relations (step 1)
+    const collectionsWithoutRelations = [
+        // Collection definitions here
+    ];
+
+    // Seed data
+    const seedData = {
+        // Seed data here
+    };
+
+    // Utility functions
+    async function authenticateAdmin(pb) {
+        try {
+            log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
+            await pb.admins.authWithPassword(ADM_E, ADM_P);
+            log('Admin authentication successful', 's');
+            return true;
+        } catch (error) {
+            log(`Authentication failed: ${error.message}`, 'e');
+            console.error('Auth error:', error);
+            if (error.response?.data) log('Auth error details:', 'e', error.response.data);
+            return false;
+        }
+    }
+
+    async function importCollections(pb, collections) {
+        try {
+            log('Importing collections without relations...', 'i');
+            log('Collections being imported:', 'd', collections);
+            await pb.collections.import(collections, false);
+            log('Collections imported successfully', 's');
+            return true;
+        } catch (error) {
+            log(`Collections import failed: ${error.message}`, 'e');
+            console.error('Import error:', error);
+            if (error.response?.data) log('Import error details:', 'e', error.response.data);
+            return false;
+        }
+    }
+
+    async function addRelationField(pb, collectionName, fieldName, targetCollectionId, insertPosition = 1, displayFields = ["name"]) {
+        try {
+            log(`Adding relation field <b>${fieldName}</b> to <b>${collectionName}</b>...`, 'i');
+            const collection = await pb.collections.getOne(collectionName);
+            const fieldExists = collection.fields.some(f => f.name === fieldName);
+            if (fieldExists) {
+                log(`Field <b>${fieldName}</b> already exists in <b>${collectionName}</b>`, 'w');
+                return true;
+            }
+            const relationField = {
+                name: fieldName,
+                type: "relation",
+                required: true,
+                presentable: true,
+                collectionId: targetCollectionId,
+                cascadeDelete: false,
+                minSelect: 1,
+                maxSelect: 1,
+                displayFields: displayFields
+            };
+            const updatedFields = [...collection.fields];
+            updatedFields.splice(insertPosition, 0, relationField);
+            log(`Updating collection ${collectionName} with new relation field`, 'd', { collectionId: collection.id, newField: relationField });
+            await pb.collections.update(collection.id, { fields: updatedFields });
+            log(`Relation field <b>${fieldName}</b> added to <b>${collectionName}</b> successfully`, 's');
+            return true;
+        } catch (error) {
+            log(`Error adding relation field ${fieldName} to ${collectionName}: ${error.message}`, 'e');
+            console.error('Relation field error:', error);
+            if (error.response?.data) log('Relation field error details:', 'e', error.response.data);
+            return false;
+        }
+    }
+
+    async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
+        log(`Seeding data for <b>${collectionName}</b>...`, 'i');
+        let createdCount = 0, updatedCount = 0, errorCount = 0;
+        
+        for (const item of seedItems) {
+            try {
+                let existingRecord = null;
+                if (uniqueKeyField && item[uniqueKeyField]) {
+                    existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`).catch(() => null);
+                } else if (!uniqueKeyField) {
+                    const list = await pb.collection(collectionName).getList(1, 1);
+                    if (list.items.length > 0) existingRecord = list.items[0];
+                }
+
+                if (existingRecord) {
+                    log(`Updating existing record in ${collectionName}`, 'd', { id: existingRecord.id, data: item });
+                    await pb.collection(collectionName).update(existingRecord.id, item);
+                    updatedCount++;
+                } else {
+                    log(`Creating new record in ${collectionName}`, 'd', item);
+                    await pb.collection(collectionName).create(item);
+                    createdCount++;
+                }
+            } catch (error) {
+                log(`Error processing item in ${collectionName}: ${error.message}`, 'e');
+                console.error('Seed error:', error);
+                if (error.response?.data) log('Seed error details:', 'e', error.response.data);
+                log('Failed item data:', 'e', item);
+                errorCount++;
+            }
+        }
+        log(`Seeding <b>${collectionName}</b> complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, 's');
+        return { created: createdCount, updated: updatedCount, errors: errorCount };
+    }
+
+    async function setupSchema(pb) {
+        log('=== SCHEMA SETUP PHASE ===', 'i');
+        
+        if (!await authenticateAdmin(pb)) return false;
+        if (!await importCollections(pb, collectionsWithoutRelations)) return false;
+
+        log('Step 2: Adding relation fields...', 'i');
+        // Add relation fields here
+        // Example: 
+        // const targetCollection = await pb.collections.getOne('target_collection_name');
+        // await addRelationField(pb, 'source_collection', 'relation_field_name', targetCollection.id, 1, ["name", "title"]);
+
+        log('Schema setup completed successfully', 's');
+        return true;
+    }
+
+    async function setupSeedData(pb) {
+        log('=== SEED DATA PHASE ===', 'i');
+        
+        if (!await authenticateAdmin(pb)) return false;
+
+        log('Pausing for 1 second before seeding...', 'i');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Seed data here
+        // Example:
+        // await seedCollectionData(pb, 'collection1', seedData.collection1, 'unique_field');
+        // await seedCollectionData(pb, 'collection2', seedData.collection2, null);
+
+        log('Seed data setup completed successfully', 's');
+        return true;
+    }
+
+    // Button event handlers
+    runFullSetupButton.onclick = async () => {
+        runFullSetupButton.disabled = true;
+        runSchemaOnlyButton.disabled = true;
+        runSeedOnlyButton.disabled = true;
+        outputDiv.innerHTML = '';
+        log('=== FULL SETUP PROCESS STARTED ===', 'i');
+        const pb = new PocketBase(pbUrl);
+        
+        try {
+            const schemaSuccess = await setupSchema(pb);
+            if (!schemaSuccess) {
+                log('Schema setup failed, aborting full setup', 'e');
+                return;
+            }
+
+            const seedSuccess = await setupSeedData(pb);
+            if (!seedSuccess) {
+                log('Seed data setup failed', 'e');
+                return;
+            }
+
+            log('<b>=== FULL SETUP COMPLETED SUCCESSFULLY ===</b>', 's');
+            runSeedOnlyButton.disabled = false;
+        } catch (error) {
+            log(`<b>CRITICAL ERROR during full setup:</b> ${error.message}`, 'e');
+            console.error('Full setup error:', error);
+            if (error.response?.data) log('Full setup error details:', 'e', error.response.data);
+            if (error.stack) log('Stack trace:', 'e', error.stack);
+        } finally {
+            if (pb.authStore.isValid) pb.authStore.clear();
+            runFullSetupButton.disabled = false;
+            runSchemaOnlyButton.disabled = false;
+            log('Process finished, auth cleared', 'i');
+        }
+    };
+
+    runSchemaOnlyButton.onclick = async () => {
+        runFullSetupButton.disabled = true;
+        runSchemaOnlyButton.disabled = true;
+        runSeedOnlyButton.disabled = true;
+        outputDiv.innerHTML = '';
+        const pb = new PocketBase(pbUrl);
+        
+        try {
+            const success = await setupSchema(pb);
+            if (success) {
+                runSeedOnlyButton.disabled = false;
+                log('<b>Schema setup completed successfully</b>', 's');
+            }
+        } catch (error) {
+            log(`<b>ERROR during schema setup:</b> ${error.message}`, 'e');
+            console.error('Schema error:', error);
+            if (error.response?.data) log('Schema error details:', 'e', error.response.data);
+        } finally {
+            if (pb.authStore.isValid) pb.authStore.clear();
+            runFullSetupButton.disabled = false;
+            runSchemaOnlyButton.disabled = false;
+        }
+    };
+
+    runSeedOnlyButton.onclick = async () => {
+        runFullSetupButton.disabled = true;
+        runSchemaOnlyButton.disabled = true;
+        runSeedOnlyButton.disabled = true;
+        outputDiv.innerHTML = '';
+        const pb = new PocketBase(pbUrl);
+        
+        try {
+            await setupSeedData(pb);
+            log('<b>Seed data setup completed successfully</b>', 's');
+        } catch (error) {
+            log(`<b>ERROR during seed setup:</b> ${error.message}`, 'e');
+            console.error('Seed error:', error);
+            if (error.response?.data) log('Seed error details:', 'e', error.response.data);
+        } finally {
+            if (pb.authStore.isValid) pb.authStore.clear();
+            runFullSetupButton.disabled = false;
+            runSchemaOnlyButton.disabled = false;
+            runSeedOnlyButton.disabled = false;
+        }
+    };
+</script>
+```
+
+## Collection Structure (NO relations initially):
+```javascript
+{
+    name: "collection_name",
+    type: "base",
+    listRule: "",
+    viewRule: "",
+    createRule: "",
+    updateRule: "",
+    deleteRule: "",
+    fields: [
+        // Field definitions - NO relation fields here
+    ]
+}
+```
+
+## Auth Collection Structure:
+```javascript
+{
+    name: "users",
+    type: "auth",
+    listRule: "id = @request.auth.id",
+    viewRule: "id = @request.auth.id",
+    createRule: "",
+    updateRule: "id = @request.auth.id",
+    deleteRule: "id = @request.auth.id",
+    passwordAuth: {
+        enabled: true,
+        identityFields: ["email"]
+    },
+    oauth2: {
+        enabled: false
+    },
+    fields: [
+        // Custom auth fields only - system fields auto-added
+    ]
+}
+```
+
+## Complete Field Types Reference:
+```javascript
+// Text with validation
+{ name: "title", type: "text", required: true, presentable: true, max: 100, min: 1, pattern: "^[a-zA-Z0-9_\\-\\s]+$" }
+
+// Text without limits
+{ name: "description", type: "text", required: false, presentable: true }
+
+// Number with constraints
+{ name: "price", type: "number", required: true, presentable: true, min: 0, max: 999999 }
+
+// Number integer only
+{ name: "quantity", type: "number", required: true, presentable: true, min: 0, noDecimal: true }
+
+// Boolean
+{ name: "is_active", type: "bool", required: false, presentable: true }
+
+```javascript
+// Email
+{ name: "email", type: "email", required: true, presentable: true }
+
+// URL
+{ name: "website", type: "url", required: false, presentable: true }
+
+// Date
+{ name: "end_date", type: "date", required: false, presentable: true }
+
+// DateTime
+{ name: "created_at", type: "datetime", required: false, presentable: true }
+
+// JSON
+{ name: "settings", type: "json", required: false, presentable: true }
+
+// Select single
+{ name: "status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending", "active", "inactive", "archived"] }
+
+// Select multiple
+{ name: "tags", type: "select", required: false, presentable: true, maxSelect: 5, values: ["tag1", "tag2", "tag3", "tag4"] }
+
+// File single
+{ name: "avatar", type: "file", required: false, presentable: true, maxSelect: 1, maxSize: 5242880, mimeTypes: ["image/jpeg", "image/png", "image/gif", "image/webp"] }
+
+// File multiple
+{ name: "attachments", type: "file", required: false, presentable: true, maxSelect: 10, maxSize: 10485760, mimeTypes: ["image/jpeg", "image/png", "application/pdf", "text/plain"] }
+
+// Editor/Rich text
+{ name: "content", type: "editor", required: false, presentable: true }
+
+// Autodate (created)
+{ name: "created", type: "autodate", required: false, presentable: false, onCreate: true, onUpdate: false }
+
+// Autodate (updated)
+{ name: "updated", type: "autodate", required: false, presentable: false, onCreate: true, onUpdate: true }
+```
+
+## API Rules Reference:
+```javascript
+// Public access
+listRule: "",
+viewRule: "",
+createRule: "",
+updateRule: "",
+deleteRule: "",
+
+// Admin only
+listRule: null,
+viewRule: null,
+createRule: null,
+updateRule: null,
+deleteRule: null,
+
+// Auth required
+listRule: "@request.auth.id != ''",
+viewRule: "@request.auth.id != ''",
+createRule: "@request.auth.id != ''",
+updateRule: "@request.auth.id != ''",
+deleteRule: "@request.auth.id != ''",
+
+// Owner only
+listRule: "user = @request.auth.id",
+viewRule: "user = @request.auth.id",
+createRule: "@request.auth.id != ''",
+updateRule: "user = @request.auth.id",
+deleteRule: "user = @request.auth.id",
+
+// Mixed rules
+listRule: "",  // Public read
+viewRule: "",  // Public read
+createRule: "@request.auth.id != ''",  // Auth required for create
+updateRule: "user = @request.auth.id",  // Owner only update
+deleteRule: "user = @request.auth.id",  // Owner only delete
+```
+
+## Complete Seed Data Patterns:
+```javascript
+const seedData = {
+    // Settings collection (singleton)
+    app_settings: [
+        {
+            app_name: "My App",
+            version: "1.0.0",
+            maintenance_mode: false,
+            settings_json: {
+                theme: "light",
+                notifications: true,
+                features: ["feature1", "feature2"]
+            }
+        }
+    ],
+
+    // Regular collection with unique field
+    categories: [
+        { slug: "electronics", name: "Electronics", description: "Electronic devices", is_active: true, sort_order: 1 },
+        { slug: "clothing", name: "Clothing", description: "Apparel and accessories", is_active: true, sort_order: 2 }
+    ],
+
+    // Collection with relations (use placeholder, will be resolved)
+    products: [
+        { 
+            sku: "PROD001", 
+            name: "Product 1", 
+            price: 99.99, 
+            category_placeholder: "electronics",  // Will be resolved to actual ID
+            is_active: true,
+            tags: ["new", "featured"],
+            metadata_json: { weight: "1kg", dimensions: "10x10x5" }
+        }
+    ]
+};
+```
+
+## Advanced Relation Handling:
+```javascript
+// For complex relations with multiple targets
+async function setupAllRelations(pb) {
+    log('Setting up all relation fields...', 'i');
+    
+    // Get all target collection IDs
+    const collections = {};
+    const collectionNames = ['users', 'categories', 'products', 'orders'];
+    
+    for (const name of collectionNames) {
+        try {
+            collections[name] = await pb.collections.getOne(name);
+            log(`Got ${name} collection ID: ${collections[name].id}`, 'd');
+        } catch (error) {
+            log(`Warning: Collection ${name} not found`, 'w');
+        }
+    }
+
+    // Add relation fields
+    const relations = [
+        { source: 'products', field: 'category_id', target: 'categories', position: 2, display: ['name', 'slug'] },
+        { source: 'orders', field: 'user_id', target: 'users', position: 1, display: ['email', 'name'] },
+        { source: 'orders', field: 'product_id', target: 'products', position: 2, display: ['name', 'sku'] }
+    ];
+
+    for (const rel of relations) {
+        if (collections[rel.target]) {
+            await addRelationField(pb, rel.source, rel.field, collections[rel.target].id, rel.position, rel.display);
+        } else {
+            log(`Skipping relation ${rel.source}.${rel.field} - target ${rel.target} not found`, 'w');
+        }
+    }
+}
+```
+
+## Advanced Seed Data with Relation Resolution:
+```javascript
+async function seedWithRelations(pb, collectionName, seedItems, uniqueKeyField, relationMappings = {}) {
+    log(`Seeding ${collectionName} with relation resolution...`, 'i');
+    
+    for (const item of seedItems) {
+        const processedItem = { ...item };
+        
+        // Resolve relation placeholders
+        for (const [placeholderField, config] of Object.entries(relationMappings)) {
+            if (processedItem[placeholderField]) {
+                try {
+                    const relatedRecord = await pb.collection(config.collection)
+                        .getFirstListItem(`${config.field}="${processedItem[placeholderField]}"`);
+                    processedItem[config.targetField] = relatedRecord.id;
+                    delete processedItem[placeholderField];
+                    log(`Resolved ${placeholderField} to ${relatedRecord.id}`, 'd');
+                } catch (error) {
+                    log(`Failed to resolve ${placeholderField}: ${error.message}`, 'e');
+                    delete processedItem[placeholderField];
+                }
+            }
+        }
+        
+        // Continue with normal seeding logic...
+    }
+}
+
+// Usage example:
+// await seedWithRelations(pb, 'products', seedData.products, 'sku', {
+//     category_placeholder: { collection: 'categories', field: 'slug', targetField: 'category_id' }
+// });
+```
+
+## Error Recovery and Validation:
+```javascript
+async function validateSetup(pb) {
+    log('Validating setup...', 'i');
+    const issues = [];
+    
+    try {
+        // Check collections exist
+        const expectedCollections = ['app_settings', 'categories', 'products', 'orders'];
+        for (const name of expectedCollections) {
+            try {
+                await pb.collections.getOne(name);
+                log(`✓ Collection ${name} exists`, 's');
+            } catch (error) {
+                issues.push(`✗ Collection ${name} missing`);
+                log(`✗ Collection ${name} missing`, 'e');
+            }
+        }
+        
+        // Check data exists
+        for (const [collectionName, data] of Object.entries(seedData)) {
+            try {
+                const records = await pb.collection(collectionName).getList(1, 1);
+                if (records.items.length > 0) {
+                    log(`✓ Collection ${collectionName} has data`, 's');
+                } else {
+                    issues.push(`✗ Collection ${collectionName} is empty`);
+                    log(`✗ Collection ${collectionName} is empty`, 'w');
+                }
+            } catch (error) {
+                issues.push(`✗ Cannot access ${collectionName}: ${error.message}`);
+                log(`✗ Cannot access ${collectionName}: ${error.message}`, 'e');
+            }
+        }
+        
+        if (issues.length === 0) {
+            log('✓ All validations passed', 's');
+            return true;
+        } else {
+            log(`Found ${issues.length} issues`, 'w');
+            return false;
+        }
+    } catch (error) {
+        log(`Validation failed: ${error.message}`, 'e');
+        return false;
+    }
+}
+```
+
+## Complete Error Handling Pattern:
+```javascript
+async function safeExecute(operation, operationName, pb = null) {
+    try {
+        log(`Starting ${operationName}...`, 'i');
+        const result = await operation();
+        log(`${operationName} completed successfully`, 's');
+        return { success: true, result };
+    } catch (error) {
+        log(`${operationName} failed: ${error.message}`, 'e');
+        console.error(`${operationName} error:`, error);
+        
+        // Log detailed error information
+        if (error.response?.data) {
+            log(`${operationName} server error:`, 'e', error.response.data);
+        }
+        if (error.stack) {
+            log(`${operationName} stack trace:`, 'e', error.stack);
+        }
+        
+        // Log request details if available
+        if (error.url) log(`Failed URL: ${error.url}`, 'e');
+        if (error.status) log(`HTTP Status: ${error.status}`, 'e');
+        
+        return { success: false, error };
+    } finally {
+        // Cleanup if needed
+        if (pb && pb.authStore.isValid) {
+            log(`Clearing auth for ${operationName}`, 'd');
+        }
+    }
+}
+```
+
+## Production Security Checklist:
+```javascript
+// Add this validation before production
+function validateProductionSecurity() {
+    const warnings = [];
+    
+    // Check for public rules
+    collectionsWithoutRelations.forEach(collection => {
+        if (collection.listRule === "" || collection.createRule === "" || 
+            collection.updateRule === "" || collection.deleteRule === "") {
+            warnings.push(`Collection ${collection.name} has public access rules`);
+        }
+    });
+    
+    // Check for default admin credentials
+    if (ADM_E === 'admin@example.com' && ADM_P === 'unifiedpassword') {
+        warnings.push('Using default admin credentials - CHANGE FOR PRODUCTION');
+    }
+    
+    if (warnings.length > 0) {
+        log('🚨 PRODUCTION SECURITY WARNINGS:', 'e');
+        warnings.forEach(warning => log(`⚠️  ${warning}`, 'w'));
+        log('🚨 SECURE THESE BEFORE PRODUCTION DEPLOYMENT', 'e');
+    }
+    
+    return warnings.length === 0;
+}
+```
+
+## Critical Rules Summary:
+1. **NO `options: {}` wrappers** - All properties direct on field
+2. **NO `schema:`** - Use `fields:` only
+3. **NO relations in initial import** - Add after collections exist
+4. **Use `pb.admins.authWithPassword()`** not `pb.collection("_superusers")`
+5. **Remove ALL comments from JSON**
+6. **Include comprehensive error logging with full error objects**
+7. **Use step-by-step process with delays between operations**
+8. **Always clear auth in finally blocks**
+9. **Validate setup after completion**
+10. **Include production security warnings**
+11. **Support both full setup and individual operations**
+12. **Handle relation resolution for complex seed data**
+
+**Create complete working HTML file following ALL these patterns exactly.**

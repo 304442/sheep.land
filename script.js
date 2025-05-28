@@ -1,31 +1,12 @@
 document.addEventListener('alpine:init', () => {
-    const BARE_MINIMUM_APP_SETTINGS = {
-        exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
-        default_currency: "EGP",
-        whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
-        promo_end_date: new Date("2025-06-07T00:00:00.000Z").toISOString(), 
-        promo_discount_percent: 10, 
-        promo_is_active: true,
-        udheya_service_surcharge_egp: 750,
-        delivery_areas: [ 
-            { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, 
-            { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} ] } 
-        ],
-        payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
-    };
-
-    // HARDCODED_PRODUCT_CATALOG_CONFIG is no longer the primary source for product details,
-    // but its structure is a good reference for how productOptions.livestock will be formed.
-    // Actual data now comes from PocketBase 'sheep_types' and 'sheep_variants'.
-
     const initialBookingStateData = {
-        selectedAnimal: { type: "", item_key: "", weight_range_en: "", weight_range_ar: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
+        selectedAnimal: { type: "", item_key: "", variant_pb_id: "", weight_range_en: "", weight_range_ar: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "", typePricePerKgEGP:0 },
         orderingPersonName: "", 
         orderingPersonPhone: "", 
         customerEmail: "", 
         niyyahNames: "",
         selectedUdheyaService: 'standard_service', 
-        currentServiceFeeEGP: BARE_MINIMUM_APP_SETTINGS.udheya_service_surcharge_egp, 
+        currentServiceFeeEGP: 0, 
         selectedSacrificeDay: { value: "day1_10_dhul_hijjah", textEN: "Day 1 of Eid (10th Dhul Hijjah)", textAR: "اليوم الأول (10 ذو الحجة)"},
         slaughterViewingPreference: "none", 
         distributionChoice: "me", 
@@ -43,58 +24,55 @@ document.addEventListener('alpine:init', () => {
         lookupPhoneNumber: "" 
     };
 
-    const activePaymentMethodsList = [ 'revolut', 'monzo', 'ip', 'fa', 'vo', 'cod', 'bank_transfer' ];
-    const paymentMethodDisplayOptions = [
+    const paymentMethodDisplayOptionsStructure = [ 
         { id: 'revolut', title: 'Revolut', imgSrc: 'images/revolut.svg' }, { id: 'monzo', title: 'Monzo', imgSrc: 'images/monzo.svg' },
         { id: 'ip', title: 'InstaPay', imgSrc: 'images/instapay.svg' }, { id: 'fa', title: 'Fawry', imgSrc: 'images/fawry.svg' },
         { id: 'vo', title: 'Vodafone Cash', imgSrc: 'images/vodafone.svg' }, { id: 'cod', title: 'Cash on Delivery', imgSrc: 'images/cod.svg' },
         { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'images/bank_transfer.svg' }
     ];
-
-    async function postBookingToPB(bookingPayload) {
-        const pb = new PocketBase('/'); 
-        const apiUrl = `/api/collections/bookings/records`;
-        const options = { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(bookingPayload) };
-        try {
-            const response = await fetch(apiUrl, options); 
-            if (!response.ok) {
-                let errorMessage = `API Error (POST bookings): ${response.status}`;
-                try { const errorData = await response.json(); errorMessage += ` - ${errorData?.message || JSON.stringify(errorData.data) || response.statusText}`; }
-                catch { errorMessage += ` - ${await response.text() || response.statusText}`; }
-                throw new Error(errorMessage);
-            }
-            const responseText = await response.text();
-            return responseText ? JSON.parse(responseText) : {};
-        } catch (error) {
-            throw new Error(error.message.startsWith('API') || error.message.startsWith('Network') ? error.message : `Network Error (POST bookings): ${error.message}`);
-        }
-    }
     
-    async function updateStockInPB(itemKey, quantityToDecrement = 1) {
+    async function callCustomBookUdheyaEndpoint(bookingPayload) {
         const pb = new PocketBase('/');
         try {
-            const stockRecords = await pb.collection('sheep_variants').getFullList({ filter: `item_key = "${pb.realtime.client.utils.escapeFilterValue(itemKey)}"` });
-            if (stockRecords && stockRecords.length > 0) {
-                const stockRecord = stockRecords[0];
-                const newStock = Math.max(0, stockRecord.stock_available_pb - quantityToDecrement);
-                await pb.collection('sheep_variants').update(stockRecord.id, { stock_available_pb: newStock });
-                console.log(`Stock updated in PB for ${itemKey} to ${newStock}`);
-                return newStock; 
-            } else {
-                console.warn(`Stock record (variant) not found in PB for item_key: ${itemKey}. Cannot update stock.`);
-                return null; 
-            }
+            const result = await pb.send("/api/custom_book_udheya", {
+                method: "POST",
+                body: bookingPayload,
+            });
+            return result; 
         } catch (error) {
-            console.error(`Error updating stock in PB for ${itemKey}:`, error);
-            throw new Error(`Failed to update stock for ${itemKey}: ${error.message}`); 
+            console.error("Error calling /api/custom_book_udheya endpoint:", error);
+            let userMessage = "Failed to place booking. Please try again.";
+            if (error.data && error.data.error) { 
+                userMessage = error.data.error;
+            } else if (error.data && error.data.data && Object.keys(error.data.data).length > 0) { 
+                userMessage = "Booking failed due to validation issues: ";
+                const fieldErrors = [];
+                for (const key in error.data.data) {
+                    fieldErrors.push(`${key}: ${error.data.data[key].message}`);
+                }
+                userMessage += fieldErrors.join("; ");
+            } else if (error.message) {
+                 userMessage = error.message;
+            }
+            throw new Error(userMessage);
         }
     }
 
     Alpine.data('udheyaBooking', () => ({
         isLoading: { status: false, booking: false, init: true },
-        appSettings: JSON.parse(JSON.stringify(BARE_MINIMUM_APP_SETTINGS)),
-        productOptions: { livestock: [] },
-        get availablePaymentMethods() { return paymentMethodDisplayOptions.filter(pm => activePaymentMethodsList.includes(pm.id)); },
+        appSettings: { 
+            exchange_rates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } }, 
+            default_currency: "EGP",
+            whatsapp_number_raw: "201001234567", whatsapp_number_display: "+20 100 123 4567",
+            promo_end_date_iso: new Date().toISOString(), promo_discount_percent: 0, promo_is_active: false,
+            udheya_service_surcharge_egp: 750,
+            delivery_areas: [], 
+            payment_details: {}
+        },
+        productOptions: { livestock: [] }, // This will be a list of types, each containing its variants (products)
+        get availablePaymentMethods() { 
+            return paymentMethodDisplayOptionsStructure; 
+        },
         apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingStateData)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", 
         currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false, step5: false },
@@ -107,7 +85,7 @@ document.addEventListener('alpine:init', () => {
 
         getEnglishStockStatusText(stock, isActive) {
             if (!isActive) return "Inactive";
-            if (stock <= 0) return "Out of Stock";
+            if (stock === undefined || stock === null || stock <= 0) return "Out of Stock";
             if (stock > 0 && stock <= 5) return "Limited Stock";
             return "Available";
         },
@@ -141,55 +119,70 @@ document.addEventListener('alpine:init', () => {
             const pb = new PocketBase('/');
 
             try {
-                const fetchedSheepTypes = await pb.collection('sheep_types').getFullList({ 
-                    sort: 'sort_order', 
-                    filter: 'is_active = true',
-                    requestKey: `sheep_types-${Date.now()}` // Attempt to bypass cache
+                const settingsRecords = await pb.collection('app_settings').getFullList({ requestKey: null });
+                if (settingsRecords && settingsRecords.length > 0) {
+                    const remoteSettings = settingsRecords[0];
+                    this.appSettings.exchange_rates = remoteSettings.exchange_rates_json || this.appSettings.exchange_rates;
+                    this.appSettings.default_currency = remoteSettings.default_currency || this.appSettings.default_currency;
+                    this.appSettings.whatsapp_number_raw = remoteSettings.whatsapp_number_raw || this.appSettings.whatsapp_number_raw;
+                    this.appSettings.whatsapp_number_display = remoteSettings.whatsapp_number_display || this.appSettings.whatsapp_number_display;
+                    this.appSettings.promo_end_date_iso = remoteSettings.promo_end_date_iso || this.appSettings.promo_end_date_iso;
+                    this.appSettings.promo_discount_percent = remoteSettings.promo_discount_percent === undefined ? this.appSettings.promo_discount_percent : remoteSettings.promo_discount_percent;
+                    this.appSettings.promo_is_active = remoteSettings.promo_is_active !== undefined ? remoteSettings.promo_is_active : this.appSettings.promo_is_active;
+                    this.appSettings.udheya_service_surcharge_egp = remoteSettings.udheya_service_surcharge_egp === undefined ? this.appSettings.udheya_service_surcharge_egp : remoteSettings.udheya_service_surcharge_egp;
+                    this.appSettings.delivery_areas = remoteSettings.delivery_areas_json || this.appSettings.delivery_areas;
+                    this.appSettings.payment_details = remoteSettings.payment_details_json || this.appSettings.payment_details;
+                } else {
+                    console.warn("App settings not found in PocketBase. Using client-side defaults.");
+                    this.userFriendlyApiError = "Application configuration could not be loaded. Some features might be limited.";
+                }
+                this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp;
+
+                // Fetch all products (variants with type info embedded)
+                const fetchedProducts = await pb.collection('products').getFullList({ 
+                    sort: '+sort_order_type,+sort_order_variant', // Sort by type, then by variant within type
+                    filter: 'is_active = true', 
+                    requestKey: null 
                 });
-
-                const fetchedSheepVariants = await pb.collection('sheep_variants').getFullList({ 
-                    sort: 'sort_order', 
-                    filter: 'is_active = true',
-                    expand: 'sheep_type_id', // Crucial: expand the related sheep_type record
-                    requestKey: `sheep_variants-${Date.now()}` // Attempt to bypass cache
+                
+                // Transform flat product list into grouped structure for the UI
+                const productGroups = {};
+                fetchedProducts.forEach(p => {
+                    if (!productGroups[p.type_key]) {
+                        productGroups[p.type_key] = {
+                            value_key: p.type_key,
+                            name_en: p.type_name_en,
+                            name_ar: p.type_name_ar,
+                            description_en: p.type_description_en,
+                            description_ar: p.type_description_ar,
+                            price_per_kg_egp: p.price_per_kg_egp,
+                            weights_prices: []
+                        };
+                    }
+                    productGroups[p.type_key].weights_prices.push({
+                        item_key: p.item_key,
+                        variant_id_pb: p.id, // Store PB ID of the product record
+                        nameEN_specific: p.variant_name_en,
+                        nameAR_specific: p.variant_name_ar,
+                        weight_range_text_en: p.weight_range_text_en,
+                        weight_range_text_ar: p.weight_range_text_ar,
+                        avg_weight_kg: p.avg_weight_kg,
+                        basePriceEGP: p.base_price_egp,
+                        current_stock: p.stock_available_pb,
+                        is_active: p.is_active
+                    });
                 });
-
-                this.productOptions.livestock = fetchedSheepTypes.map(type => {
-                    const typeConfig = {
-                        value_key: type.type_key,
-                        name_en: type.name_en,
-                        name_ar: type.name_ar,
-                        price_per_kg_egp: type.price_per_kg_egp,
-                        description_en: type.description_en,
-                        description_ar: type.description_ar,
-                        weights_prices: []
-                    };
-
-                    typeConfig.weights_prices = fetchedSheepVariants
-                        .filter(variant => variant.expand?.sheep_type_id?.id === type.id && variant.is_active) // Ensure expanded field exists
-                        .map(variant => ({
-                            item_key: variant.item_key,
-                            nameEN_specific: variant.name_en_variant, 
-                            nameAR_specific: variant.name_ar_variant, 
-                            weight_range_text_en: variant.weight_range_text_en,
-                            weight_range_text_ar: variant.weight_range_text_ar,
-                            avg_weight_kg: variant.avg_weight_kg,
-                            basePriceEGP: variant.base_price_egp, // Use pre-calculated base price from variant
-                            current_stock: variant.stock_available_pb, // Use current stock from PB
-                            is_active: variant.is_active,
-                        }));
-                    return typeConfig;
-                }).filter(type => type.weights_prices.length > 0);
+                this.productOptions.livestock = Object.values(productGroups);
 
             } catch (e) {
-                console.error("Error fetching product data from PocketBase:", e);
-                this.apiError = "Could not load product catalog from server.";
-                this.userFriendlyApiError = "Error loading sheep options. Please try again later.";
+                console.error("Error fetching initial application data from PocketBase:", e);
+                this.apiError = "Could not load application configuration or products from server.";
+                this.userFriendlyApiError = "Error loading essential data. Please try again later or contact support.";
                 this.productOptions.livestock = [];
             }
             
             let cities = []; 
-            this.appSettings.delivery_areas.forEach(gov => {
+            (this.appSettings.delivery_areas || []).forEach(gov => {
                 if (gov.cities && gov.cities.length > 0) { gov.cities.forEach(city => { cities.push({ id: `${gov.id}_${city.id}`, name_en: `${gov.name_en} - ${city.name_en}`, name_ar: `${gov.name_ar} - ${city.name_ar}`, delivery_fee_egp: city.delivery_fee_egp, governorate_id: gov.id, governorate_name_en: gov.name_en, governorate_name_ar: gov.name_ar }); });
                 } else if (gov.delivery_fee_egp !== undefined) { cities.push({ id: gov.id, name_en: gov.name_en, name_ar: gov.name_ar, delivery_fee_egp: gov.delivery_fee_egp, governorate_id: gov.id, governorate_name_en: gov.name_en, governorate_name_ar: gov.name_ar });}
             });
@@ -279,7 +272,7 @@ document.addEventListener('alpine:init', () => {
         },
         get summaryDistributionEN() {if(this.distributionChoice==='me')return"All to me";if(this.distributionChoice==='char')return"All to charity (by SL)";return`Split: ${(this.splitDetails||"").trim()||"(Not specified)"}`;},
         get summaryDistributionAR() {if(this.distributionChoice==='me')return"الكل لي";if(this.distributionChoice==='char')return"تبرع بالكل للصدقة (أرض الأغنام)";return`تقسيم: ${(this.splitDetails||"").trim()||"(لم يحدد)"}`;},
-        startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
+        startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date_iso) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date_iso).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
         updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
         updateDeliveryFeeDisplay() {
             this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false;
@@ -353,9 +346,11 @@ document.addEventListener('alpine:init', () => {
             if (selectedSpecificItem && selectedSpecificItem.is_active && selectedSpecificItem.current_stock > 0) {
                 this.selectedAnimal = {
                     type: animalTypeConfig.value_key, item_key: selectedSpecificItem.item_key, 
+                    variant_id_pb: selectedSpecificItem.variant_id_pb, 
                     weight_range_en: selectedSpecificItem.weight_range_text_en, weight_range_ar: selectedSpecificItem.weight_range_text_ar,
                     basePriceEGP: selectedSpecificItem.basePriceEGP, nameEN: selectedSpecificItem.nameEN_specific, nameAR: selectedSpecificItem.nameAR_specific,
-                    stock: selectedSpecificItem.current_stock, typeGenericNameEN: animalTypeConfig.name_en, typeGenericNameAR: animalTypeConfig.name_ar
+                    stock: selectedSpecificItem.current_stock, typeGenericNameEN: animalTypeConfig.name_en, typeGenericNameAR: animalTypeConfig.name_ar,
+                    typePricePerKgEGP: animalTypeConfig.price_per_kg_egp // Store this for denormalization if needed
                 };
             } else {
                 this.selectedAnimal = { ...initialBookingStateData.selectedAnimal };
@@ -423,16 +418,23 @@ document.addEventListener('alpine:init', () => {
                 this.scrollToSection('#step1-content'); this.focusOnRef(this.stepSectionsMeta[0].firstFocusableErrorRef || this.stepSectionsMeta[0].titleRef); return;
             }
             this.isLoading.booking = true; this.apiError = null; this.userFriendlyApiError = ""; this.calculateTotalPrice();
-            const bookingId = `SL-UDHY-${new Date().getFullYear()}-${String(Math.random()).slice(2,7)}`;
+            const bookingIdTextClient = `SL-UDHY-${new Date().getFullYear()}-${String(Math.random()).slice(2,7)}`;
             let delOpt = "self_pickup_or_internal_distribution"; 
             if (this.distributionChoice === 'char') delOpt = "charity_distribution_by_sl"; 
             else if (this._needsDeliveryDetails) delOpt = "home_delivery_to_orderer";
             const selectedCityInfo = (this._needsDeliveryDetails && this.deliveryCity) ? this.allAvailableCities.find(c => c.id === this.deliveryCity) : null;
-            const payload = {
-                booking_id_text: bookingId, animal_type_name_en: this.selectedAnimal.typeGenericNameEN, animal_type_name_ar: this.selectedAnimal.typeGenericNameAR,
+            
+            const payloadToHook = {
+                booking_id_text: bookingIdTextClient, 
+                product_item_key: this.selectedAnimal.item_key, // For the hook to find the product
+                quantity: 1, 
+                // Denormalized product info at time of booking
+                animal_type_name_en: this.selectedAnimal.typeGenericNameEN, animal_type_name_ar: this.selectedAnimal.typeGenericNameAR,
                 weight_category_name_en: this.selectedAnimal.nameEN, weight_category_name_ar: this.selectedAnimal.nameAR,
                 weight_range_actual_en: this.selectedAnimal.weight_range_en, weight_range_actual_ar: this.selectedAnimal.weight_range_ar,
-                animal_base_price_egp: this.selectedAnimal.basePriceEGP, udheya_service_option_selected: this.selectedUdheyaService,
+                animal_base_price_egp: this.selectedAnimal.basePriceEGP, // Price of variant
+                // Booking specific details
+                udheya_service_option_selected: this.selectedUdheyaService,
                 service_fee_applied_egp: this.currentServiceFeeEGP,
                 delivery_fee_applied_egp: (this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) ? this.deliveryFeeForDisplayEGP : 0,
                 total_amount_due_egp: this.totalPriceEGP, selected_display_currency: this.currentCurrency,
@@ -448,37 +450,28 @@ document.addEventListener('alpine:init', () => {
                 delivery_address: this._needsDeliveryDetails ? (this.deliveryAddress || "").trim() : "", 
                 delivery_instructions: this._needsDeliveryDetails ? (this.deliveryInstructions || "").trim() : "",
                 time_slot: (this.distributionChoice === 'char' || !this._needsDeliveryDetails) ? 'N/A' : this.selectedTimeSlot,
-                payment_method: this.paymentMethod, payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) ? 'cod_pending_confirmation' : 'pending_payment',
+                payment_method: this.paymentMethod, 
+                payment_status: (this.paymentMethod === 'cod' && this._needsDeliveryDetails) ? 'cod_pending_confirmation' : 'pending_payment',
                 booking_status: 'confirmed_pending_payment', terms_agreed: true, 
                 group_purchase_interest: this.groupPurchase, admin_notes: this.groupPurchase ? "Group purchase interest." : ""
             };
+
             try {
-                const createdBooking = await postBookingToPB(payload); 
-                this.bookingID = createdBooking.booking_id_text || createdBooking.id;
+                const bookingResult = await callCustomBookUdheyaEndpoint(payloadToHook); 
+                this.bookingID = bookingResult.booking_id_text || bookingIdTextClient; 
                 
-                try {
-                    const newStockLevelAfterBooking = await updateStockInPB(stockItemConfig.item_key, 1); 
-                    if (newStockLevelAfterBooking !== null) {
-                        stockItemConfig.current_stock = newStockLevelAfterBooking; 
-                        this.selectedAnimal.stock = newStockLevelAfterBooking; 
-                        this.updateAllDisplayedPrices(); 
-                    } else {
-                        console.error(`CRITICAL: Booking ${this.bookingID} created, but stock record for ${stockItemConfig.item_key} was NOT FOUND in PocketBase for update.`);
-                        this.userFriendlyApiError = "Booking placed, but there was an issue finding the stock record to update. Please contact support with your Booking ID.";
-                    }
-                } catch (stockUpdateError) {
-                    console.error(`CRITICAL: Booking ${this.bookingID} created, but FAILED to update stock for ${stockItemConfig.item_key} in PocketBase. Error: ${stockUpdateError.message}`);
-                    this.userFriendlyApiError = "Booking placed, but the stock update failed. Please contact support with your Booking ID to ensure stock accuracy.";
+                if (stockItemConfig) {
+                    const newClientStock = bookingResult.new_stock_level !== undefined ? bookingResult.new_stock_level : (stockItemConfig.current_stock -1);
+                    stockItemConfig.current_stock = newClientStock;
+                    this.selectedAnimal.stock = newClientStock;
+                    this.updateAllDisplayedPrices(); 
                 }
 
                 this.bookingConfirmed = true; 
                 this.$nextTick(() => { this.scrollToSection('#booking-confirmation-section'); this.focusOnRef('bookingConfirmedTitle'); });
             } catch (e) { 
-                this.apiError=String(e.message);
-                this.userFriendlyApiError="Issue submitting your booking. Please try again or contact support.";
-                if (e.message.includes("Failed to update stock")) { 
-                    this.userFriendlyApiError = "Booking submission failed during stock update. Please try again.";
-                }
+                this.apiError=String(e.message); 
+                this.userFriendlyApiError = e.message; 
                 this.$nextTick(()=>this.scrollToSection('.global-error-indicator'));
             }
             finally { this.isLoading.booking = false; }
@@ -487,39 +480,26 @@ document.addEventListener('alpine:init', () => {
             this.clearError('lookupBookingID');
             this.clearError('lookupPhoneNumber');
             let isValid = true;
-            if (!(this.lookupBookingID || "").trim()) {
-                this.setError('lookupBookingID', 'required');
-                isValid = false;
-            }
-            if (!this.isValidPhone(this.lookupPhoneNumber)) {
-                this.setError('lookupPhoneNumber', 'phone');
-                isValid = false;
-            }
-            if(isValid) {
-                await this.checkBookingStatus();
-            } else {
-                if(this.errors.lookupBookingID) this.focusOnRef('lookupBookingIdInput');
-                else if(this.errors.lookupPhoneNumber) this.focusOnRef('lookupPhoneInput');
-            }
+            if (!(this.lookupBookingID || "").trim()) { this.setError('lookupBookingID', 'required'); isValid = false; }
+            if (!this.isValidPhone(this.lookupPhoneNumber)) { this.setError('lookupPhoneNumber', 'phone'); isValid = false; }
+            if(isValid) { await this.checkBookingStatus(); } 
+            else { if(this.errors.lookupBookingID) this.focusOnRef('lookupBookingIdInput'); else if(this.errors.lookupPhoneNumber) this.focusOnRef('lookupPhoneInput');}
         },
         async checkBookingStatus() { 
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; 
             const id = (this.lookupBookingID || "").trim();
-            const phone = (this.lookupPhoneNumber || "").trim(); // Get phone number for query
+            const phone = (this.lookupPhoneNumber || "").trim(); 
             const pb = new PocketBase('/');
             try {
                 const filterString = `(booking_id_text = "${pb.realtime.client.utils.escapeFilterValue(id)}" && ordering_person_phone = "${pb.realtime.client.utils.escapeFilterValue(phone)}")`;
-                const records = await pb.collection('bookings').getFullList({filter: filterString});
+                const records = await pb.collection('bookings').getFullList({filter: filterString, requestKey: null});
 
                 if (records && records.length > 0) {
                     const b = records[0];
                     let distributionTextEN = b.distribution_choice;
                     let distributionTextAR = b.distribution_choice; 
                      const distOpt = this.distributionChoiceOptions().find(opt => opt.value === b.distribution_choice);
-                     if(distOpt) {
-                        distributionTextEN = distOpt.textEn;
-                        distributionTextAR = distOpt.textAr;
-                     }
+                     if(distOpt) { distributionTextEN = distOpt.textEn; distributionTextAR = distOpt.textAr; }
 
                     if (b.distribution_choice === 'split') {
                         let splitDetailTextEN = b.split_details_option;
@@ -529,38 +509,24 @@ document.addEventListener('alpine:init', () => {
                             splitDetailTextAR = b.custom_split_details_text || "مخصص";
                         } else {
                             const splitOpt = this.splitDetailOptionsList().find(opt => opt.value === b.split_details_option);
-                            if(splitOpt){
-                                splitDetailTextEN = splitOpt.textEn;
-                                splitDetailTextAR = splitOpt.textAr;
-                            }
+                            if(splitOpt){ splitDetailTextEN = splitOpt.textEn; splitDetailTextAR = splitOpt.textAr;}
                         }
                         distributionTextEN += ` (${splitDetailTextEN})`;
                         distributionTextAR += ` (${splitDetailTextAR})`;
                     }
                     
                     this.statusResult = { 
-                        booking_id_text: b.booking_id_text, 
-                        status: b.booking_status?.replace(/_/g," ")||"Unknown", 
+                        booking_id_text: b.booking_id_text, status: b.booking_status?.replace(/_/g," ")||"Unknown", 
                         payment_status_text: b.payment_status?.replace(/_/g, " ") || "N/A",
-                        animal_type_name_en: b.animal_type_name_en,
-                        animal_type_name_ar: b.animal_type_name_ar,
-                        weight_category_name_en: b.weight_category_name_en,
-                        weight_category_name_ar: b.weight_category_name_ar,
+                        animal_type_name_en: b.animal_type_name_en, animal_type_name_ar: b.animal_type_name_ar,
+                        weight_category_name_en: b.weight_category_name_en, weight_category_name_ar: b.weight_category_name_ar,
                         udheya_service_option_selected: b.udheya_service_option_selected,
-                        sacrifice_day_value: b.sacrifice_day_value, 
-                        sacrifice_day_text_en: b.sacrifice_day_text_en,
-                        sacrifice_day_text_ar: b.sacrifice_day_text_ar,
-                        slaughter_viewing_preference: b.slaughter_viewing_preference,
-                        time_slot: b.time_slot,
-                        ordering_person_name: b.ordering_person_name,
-                        niyyah_names: b.niyyah_names,
-                        distribution_choice_en: distributionTextEN,
-                        distribution_choice_ar: distributionTextAR,
-                        delivery_address: b.delivery_address,
-                        delivery_city_name_en: b.delivery_city_name_en,
-                        delivery_city_name_ar: b.delivery_city_name_ar,
-                        total_amount_due_egp: b.total_amount_due_egp,
-                        payment_method: b.payment_method,
+                        sacrifice_day_value: b.sacrifice_day_value, sacrifice_day_text_en: b.sacrifice_day_text_en, sacrifice_day_text_ar: b.sacrifice_day_text_ar,
+                        slaughter_viewing_preference: b.slaughter_viewing_preference, time_slot: b.time_slot,
+                        ordering_person_name: b.ordering_person_name, niyyah_names: b.niyyah_names,
+                        distribution_choice_en: distributionTextEN, distribution_choice_ar: distributionTextAR,
+                        delivery_address: b.delivery_address, delivery_city_name_en: b.delivery_city_name_en, delivery_city_name_ar: b.delivery_city_name_ar,
+                        total_amount_due_egp: b.total_amount_due_egp, payment_method: b.payment_method,
                          _needs_delivery: (b.delivery_option === 'home_delivery_to_orderer' || (b.distribution_choice === 'split' && (b.split_details_option?.includes('_me_') || b.split_details_option === 'all_me_custom_distro' || (b.split_details_option === 'custom' && b.custom_split_details_text?.toLowerCase().includes('me')))))
                     };
                 } else this.statusNotFound = true;
