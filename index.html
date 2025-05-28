@@ -210,12 +210,18 @@
                             <a href="#step3-content" class="stepper-item" :class="{'active': currentConceptualStep === 3, 'completed': stepProgress.step3, 'disabled': !stepProgress.step2}" @click.prevent="handleStepperNavigation(3)">
                                 <span class="step-number" x-show="!stepProgress.step3 || currentConceptualStep === 3">3</span>
                                  <svg x-show="stepProgress.step3 && currentConceptualStep !== 3" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-label en">Udheya & Delivery</span><span class="step-label ar">الأضحية والتوصيل</span>
+                                <span class="step-label en">Arrangements</span><span class="step-label ar">الترتيبات</span>
                             </a>
                             <div class="stepper-connector"></div>
                             <a href="#step4-content" class="stepper-item" :class="{'active': currentConceptualStep === 4, 'completed': stepProgress.step4, 'disabled': !stepProgress.step3}" @click.prevent="handleStepperNavigation(4)">
                                 <span class="step-number" x-show="!stepProgress.step4 || currentConceptualStep === 4">4</span>
                                  <svg x-show="stepProgress.step4 && currentConceptualStep !== 4" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                                <span class="step-label en">Distribution</span><span class="step-label ar">التوزيع والتوصيل</span>
+                            </a>
+                            <div class="stepper-connector"></div>
+                            <a href="#step5-content" class="stepper-item" :class="{'active': currentConceptualStep === 5, 'completed': stepProgress.step5, 'disabled': !stepProgress.step4}" @click.prevent="handleStepperNavigation(5)">
+                                <span class="step-number" x-show="!stepProgress.step5 || currentConceptualStep === 5">5</span>
+                                 <svg x-show="stepProgress.step5 && currentConceptualStep !== 5" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                                 <span class="step-label en">Review & Reserve</span><span class="step-label ar">المراجعة والحجز</span>
                             </a>
                         </div>
@@ -226,6 +232,7 @@
                     <div id="udheya-booking-form-panel" class="card form-panel-card all-steps-panel">
                         <div class="card-b">
                             
+                            <!-- Step 1: Select Sheep -->
                             <div id="step1-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep</span><span class="ar">اختر الخروف</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
@@ -276,6 +283,7 @@
                                 <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
                             </div>
 
+                            <!-- Step 2: Your Details -->
                             <div id="step2-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Your Details</span><span class="ar">بياناتك</span></h2></div>
                                 <h4 class="form-subhead bil-parent-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h4>
@@ -304,8 +312,9 @@
                                 </div>
                             </div>
 
+                            <!-- Step 3: Udheya Arrangements -->
                             <div id="step3-content" class="form-step-content">
-                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Udheya & Delivery</span><span class="ar">الأضحية والتوصيل</span></h2></div>
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step3Title" tabindex="-1"><span class="en">Udheya Arrangements</span><span class="ar">ترتيبات الأضحية</span></h2></div>
                                 
                                 <h4 class="form-subhead bil-parent-spread"><span class="en">Service & Sacrifice</span><span class="ar">الخدمة والذبح</span></h4>
                                 <div class="fg">
@@ -327,20 +336,20 @@
                                 <div class="fg">
                                     <label for="sacrifice_day_select_s3" class="bil-parent-spread form-label-strict"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
                                     <select id="sacrifice_day_select_s3" class="form-input-styled" x-model="selectedSacrificeDay.value" @change="updateSacrificeDayTexts(); clearError('sacrificeDay')" x-ref="sacrificeDaySelect_s3" :aria-invalid="errors.sacrificeDay ? 'true' : 'false'" aria-describedby="sacrificeDayError_s3" aria-required="true">
-                                        <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)" x-text="`Day 1 of Eid (10th Dhul Hijjah) / اليوم الأول (10 ذو الحجة)`">Day 1 of Eid / اليوم الأول</option>
-                                        <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)" x-text="`Day 2 of Eid (11th Dhul Hijjah) / اليوم الثاني (11 ذو الحجة)`">Day 2 of Eid / اليوم الثاني</option>
-                                        <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)" x-text="`Day 3 of Eid (12th Dhul Hijjah) / اليوم الثالث (12 ذو الحجة)`">Day 3 of Eid / اليوم الثالث</option>
-                                        <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)" x-text="`Day 4 of Eid (13th Dhul Hijjah) / اليوم الرابع (13 ذو الحجة)`">Day 4 of Eid / اليوم الرابع</option>
+                                        <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)" x-text="`Day 1 of Eid (10th Dhul Hijjah) / اليوم الأول (10 ذو الحجة)`"></option>
+                                        <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)" x-text="`Day 2 of Eid (11th Dhul Hijjah) / اليوم الثاني (11 ذو الحجة)`"></option>
+                                        <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)" x-text="`Day 3 of Eid (12th Dhul Hijjah) / اليوم الثالث (12 ذو الحجة)`"></option>
+                                        <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)" x-text="`Day 4 of Eid (13th Dhul Hijjah) / اليوم الرابع (13 ذو الحجة)`"></option>
                                     </select>
                                     <div class="form-error-msg" id="sacrificeDayError_s3" x-show="errors.sacrificeDay" x-text="errors.sacrificeDay ? (currentLang === 'ar' ? errors.sacrificeDay.ar : errors.sacrificeDay.en) : ''" role="alert" aria-live="assertive"></div>
                                     <div class="bil-row field-note-wrapper sacrifice-day-note">
-                                        <p class="field-note en">Sacrifice occurs per Sharia timings on selected Eid day. Delivery scheduled based on preferences below (if applicable).</p>
-                                        <p class="field-note ar">يتم الذبح وفقًا للتوقيتات الشرعية في يوم العيد المختار. سيتم جدولة التوصيل بناءً على تفضيلاتكم أدناه (إذا انطبق).</p>
+                                        <p class="field-note en">Sacrifice occurs per Sharia timings on selected Eid day.</p>
+                                        <p class="field-note ar">يتم الذبح وفقًا للتوقيتات الشرعية في يوم العيد المختار.</p>
                                     </div>
                                 </div>
                                 <div class="fg">
                                     <label for="slaughter_viewing_select_s3" class="bil-parent-spread form-label-strict"><span class="en">Slaughter Viewing Preference (Optional)</span><span class="ar">تفضيل مشاهدة الذبح (اختياري)</span></label>
-                                    <select id="slaughter_viewing_select_s3" class="form-input-styled" x-model="slaughterViewingPreference">
+                                    <select id="slaughter_viewing_select_s3" class="form-input-styled" x-model="slaughterViewingPreference" x-ref="slaughterViewingSelect_s3">
                                         <template x-for="option in slaughterViewingOptions()" :key="option.value">
                                             <option :value="option.value" x-text="`${option.textEn} / ${option.textAr}`"></option>
                                         </template>
@@ -350,28 +359,30 @@
                                         <p class="field-note ar">الحضور الشخصي يخضع للتوافر والترتيب المسبق. سنتواصل معكم. سيتم مشاركة الفيديو/الصور بعد العملية في حال الطلب.</p>
                                     </div>
                                 </div>
-                                <hr class="form-divider">
-                                
-                                <h4 class="form-subhead bil-parent-spread"><span class="en">Distribution & Delivery</span><span class="ar">التوزيع والتوصيل</span></h4>
+                            </div>
+                            
+                            <!-- Step 4: Distribution & Delivery -->
+                            <div id="step4-content" class="form-step-content">
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step4Title" tabindex="-1"><span class="en">Distribution & Delivery</span><span class="ar">التوزيع والتوصيل</span></h2></div>
                                 <div class="fg">
                                     <label class="bil-parent-spread form-label-strict"><span class="en">Udheya Distribution? *</span><span class="ar">كيف تود توزيع أضحيتك؟ *</span></label>
-                                    <select id="distribution_choice_select_s3" class="form-input-styled" x-model="distributionChoice" @change="clearError('distributionChoice')">
+                                    <select id="distribution_choice_select_s4" class="form-input-styled" x-model="distributionChoice" @change="clearError('distributionChoice')" x-ref="distributionChoiceSelect_s4">
                                         <template x-for="option in distributionChoiceOptions()" :key="option.value">
                                             <option :value="option.value" x-text="`${option.textEn} / ${option.textAr}`"></option>
                                         </template>
                                     </select>
                                     
                                     <div class="rgrp split-options-rgrp" x-show="distributionChoice === 'split'" x-transition>
-                                        <label for="split_detail_select_s3" class="bil-parent-spread form-label-strict"><span class="en">Split Options *</span><span class="ar">خيارات التقسيم *</span></label>
-                                        <select id="split_detail_select_s3" class="form-input-styled" x-model="splitDetailsOption" @change="clearError('splitDetails')">
+                                        <label for="split_detail_select_s4" class="bil-parent-spread form-label-strict"><span class="en">Split Options *</span><span class="ar">خيارات التقسيم *</span></label>
+                                        <select id="split_detail_select_s4" class="form-input-styled" x-model="splitDetailsOption" @change="clearError('splitDetails')" x-ref="splitDetailSelect_s4">
                                             <option value="">-- Select Split -- / -- اختر التقسيم --</option>
                                             <template x-for="option in splitDetailOptionsList()" :key="option.value">
                                                  <option :value="option.value" x-text="`${option.textEn} / ${option.textAr}`"></option>
                                             </template>
                                         </select>
-                                        <textarea class="form-input-styled custom-split-textarea" x-show="distributionChoice === 'split' && splitDetailsOption === 'custom'" x-model="customSplitDetailsText" @input="clearError('splitDetails')" placeholder="e.g., 1/4 me, 3/4 relative (all delivered to me)" rows="2" x-ref="customSplitTextarea_s3" :aria-invalid="errors.splitDetails && splitDetailsOption === 'custom' ? 'true' : 'false'" aria-describedby="splitDetailsError_s3" :aria-required="distributionChoice === 'split' && splitDetailsOption === 'custom'"></textarea>
+                                        <textarea class="form-input-styled custom-split-textarea" x-show="distributionChoice === 'split' && splitDetailsOption === 'custom'" x-model="customSplitDetailsText" @input="clearError('splitDetails')" placeholder="e.g., 1/4 me, 3/4 relative (all delivered to me)" rows="2" x-ref="customSplitTextarea_s4" :aria-invalid="errors.splitDetails && splitDetailsOption === 'custom' ? 'true' : 'false'" aria-describedby="splitDetailsError_s4" :aria-required="distributionChoice === 'split' && splitDetailsOption === 'custom'"></textarea>
                                     </div>
-                                    <div class="form-error-msg" id="splitDetailsError_s3" x-show="errors.splitDetails" x-text="errors.splitDetails ? (currentLang === 'ar' ? errors.splitDetails.ar : errors.splitDetails.en) : ''" role="alert" aria-live="assertive"></div>
+                                    <div class="form-error-msg" id="splitDetailsError_s4" x-show="errors.splitDetails" x-text="errors.splitDetails ? (currentLang === 'ar' ? errors.splitDetails.ar : errors.splitDetails.en) : ''" role="alert" aria-live="assertive"></div>
                                     <div class="bil-row field-note-wrapper distribution-note"><p class="field-note en">Delivery details required below if any portion for you. "Charity (SL)" means we handle distribution.</p><p class="field-note ar">تفاصيل التوصيل مطلوبة أدناه إذا كان جزء لك. "صدقة (أرض الأغنام)" تعني أننا نتولى التوزيع.</p></div>
                                 </div>
                                 <div class="bil-row field-note-wrapper wakeel-note"><p class="field-note en">If Sheep Land distributes to charity, we act as your Wakeel.</p><p class="field-note ar">إذا وزعت "أرض الأغنام" للجمعيات، فنحن وكيلك.</p></div>
@@ -384,8 +395,8 @@
                                         <p class="field-note ar">مطلوب لأنك اخترت استلام جزء أو كل الأضحية.</p>
                                     </div>
                                     <div class="fg">
-                                        <label for="deliveryCitySelect_s3" class="bil-parent-spread form-label-strict"><span class="en">City *</span><span class="ar">المدينة *</span></label>
-                                        <select id="deliveryCitySelect_s3" class="form-input-styled" x-model="deliveryCity" @change="clearError('deliveryCity'); updateDeliveryFeeDisplay()" x-ref="deliveryCitySelect_s3" :aria-invalid="errors.deliveryCity ? 'true' : 'false'" aria-required="true">
+                                        <label for="deliveryCitySelect_s4" class="bil-parent-spread form-label-strict"><span class="en">City *</span><span class="ar">المدينة *</span></label>
+                                        <select id="deliveryCitySelect_s4" class="form-input-styled" x-model="deliveryCity" @change="clearError('deliveryCity'); updateDeliveryFeeDisplay()" x-ref="deliveryCitySelect_s4" :aria-invalid="errors.deliveryCity ? 'true' : 'false'" aria-required="true">
                                             <option value="">-- Select City -- / -- اختر المدينة --</option>
                                             <template x-for="city in allAvailableCities" :key="city.id">
                                                 <option :value="city.id" x-text="`${city.name_en} / ${city.name_ar}`"></option>
@@ -404,17 +415,17 @@
                                         </div>
                                     </div>
                                     <div class="fg">
-                                        <label for="deliveryAddressInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Full Address *</span><span class="ar">العنوان بالكامل *</span></label>
-                                        <textarea id="deliveryAddressInput_s3" class="form-input-styled" rows="2" x-model="deliveryAddress" @input="clearError('deliveryAddress')" x-ref="deliveryAddressInput_s3" :aria-invalid="errors.deliveryAddress ? 'true' : 'false'" aria-required="true"></textarea>
+                                        <label for="deliveryAddressInput_s4" class="bil-parent-spread form-label-strict"><span class="en">Full Address *</span><span class="ar">العنوان بالكامل *</span></label>
+                                        <textarea id="deliveryAddressInput_s4" class="form-input-styled" rows="2" x-model="deliveryAddress" @input="clearError('deliveryAddress')" x-ref="deliveryAddressInput_s4" :aria-invalid="errors.deliveryAddress ? 'true' : 'false'" aria-required="true"></textarea>
                                         <div class="form-error-msg" x-show="errors.deliveryAddress" x-text="errors.deliveryAddress ? (currentLang === 'ar' ? errors.deliveryAddress.ar : errors.deliveryAddress.en) : ''"></div>
                                     </div>
                                     <div class="fg">
-                                        <label for="deliveryInstructionsInput_s3" class="bil-parent-spread form-label-strict"><span class="en">Special Instructions (Optional)</span><span class="ar">تعليمات خاصة (اختياري)</span></label>
-                                        <textarea id="deliveryInstructionsInput_s3" class="form-input-styled" rows="2" x-model="deliveryInstructions" x-ref="deliveryInstructionsInput_s3"></textarea>
+                                        <label for="deliveryInstructionsInput_s4" class="bil-parent-spread form-label-strict"><span class="en">Special Instructions (Optional)</span><span class="ar">تعليمات خاصة (اختياري)</span></label>
+                                        <textarea id="deliveryInstructionsInput_s4" class="form-input-styled" rows="2" x-model="deliveryInstructions" x-ref="deliveryInstructionsInput_s4"></textarea>
                                     </div>
                                     <div class="fg">
                                         <label class="bil-parent-spread form-label-strict"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
-                                        <div class="tslots" x-ref="timeSlotContainer_s3">
+                                        <div class="tslots" x-ref="timeSlotContainer_s4">
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '7 AM-8 AM'}" @click="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '7 AM-8 AM'; clearError('timeSlot')">7-8 AM</div>
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '8 AM-9 AM'}" @click="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '8 AM-9 AM'; clearError('timeSlot')">8-9 AM</div>
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '9 AM-10 AM'}" @click="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '9 AM-10 AM'; clearError('timeSlot')">9-10 AM</div>
@@ -424,14 +435,15 @@
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '1 PM-2 PM'}" @click="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '1 PM-2 PM'; clearError('timeSlot')">1-2 PM</div>
                                             <div class="ts" :class="{'sel': selectedTimeSlot === '2 PM-3 PM'}" @click="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')" tabindex="0" @keydown.enter.space.prevent="selectedTimeSlot = '2 PM-3 PM'; clearError('timeSlot')">2-3 PM</div>
                                         </div>
-                                        <div class="form-error-msg" id="timeSlotError_s3" x-show="errors.timeSlot" x-text="errors.timeSlot ? (currentLang === 'ar' ? errors.timeSlot.ar : errors.timeSlot.en) : ''"></div>
+                                        <div class="form-error-msg" id="timeSlotError_s4" x-show="errors.timeSlot" x-text="errors.timeSlot ? (currentLang === 'ar' ? errors.timeSlot.ar : errors.timeSlot.en) : ''"></div>
                                         <div class="bil-row field-note-wrapper time-slot-note"><p class="field-note en">Preferred time. We will confirm exact window.</p><p class="field-note ar">هذا وقتكم المفضل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div id="step4-content" class="form-step-content">
-                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step4Title" tabindex="-1"><span class="en">Review & Reserve</span><span class="ar">المراجعة والحجز</span></h2></div>
+                            <!-- Step 5: Review & Reserve -->
+                            <div id="step5-content" class="form-step-content">
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step5Title" tabindex="-1"><span class="en">Review & Reserve</span><span class="ar">المراجعة والحجز</span></h2></div>
                                 <div class="review-summary-wrapper">
                                     <h3 class="form-subhead bil-parent-spread review-summary-title"><span class="en">Your Udheya Booking Summary</span><span class="ar">ملخص حجز أضحيتك</span></h3>
                                     <div x-show="selectedAnimal.item_key">
@@ -443,6 +455,10 @@
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Contact:</strong> <span x-text="orderingPersonName"></span>, <span x-text="orderingPersonPhone"></span></div><div class="ar"><strong>الاتصال:</strong> <span x-text="orderingPersonName"></span>، <span x-text="orderingPersonPhone"></span></div></div></div>
                                             <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Your Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
+                                         <div class="summary-item">
+                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Niyyah:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div></div></div>
+                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                        </div>
                                         <div class="summary-item">
                                             <div class="summary-item-content">
                                                 <div class="bil-row">
@@ -451,10 +467,6 @@
                                                 </div>
                                             </div>
                                             <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Service Option"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="summary-item">
-                                            <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Niyyah:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || (currentLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div></div></div>
-                                            <button type="button" @click.prevent="handleStepperNavigation(2)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="summary-item">
                                             <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="selectedSacrificeDay.textEN"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="selectedSacrificeDay.textAR"></span></div></div></div>
@@ -466,16 +478,16 @@
                                         </div>
                                         <div class="summary-item">
                                              <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="summaryDistributionEN"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="summaryDistributionAR"></span></div></div></div>
-                                            <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                            <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div x-show="_needsDeliveryDetails">
                                             <div class="summary-item">
                                                 <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery To:</strong> <span x-text="summaryDeliveryToEN"></span></div><div class="ar"><strong>التوصيل إلى:</strong> <span x-text="summaryDeliveryToAR"></span></div></div></div>
-                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item">
                                                  <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery Time:</strong> <span x-text="selectedTimeSlot"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="selectedTimeSlot"></span></div></div></div>
-                                                <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
+                                                <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="summary-item" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">
                                                 <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery Fee:</strong></div><div class="ar"><strong>رسوم التوصيل:</strong></div></div></div>
@@ -488,7 +500,6 @@
                                         <div class="summary-item" x-show="distributionChoice === 'char'">
                                              <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery:</strong> Handled by Sheep Land for charity</div><div class="ar"><strong>التوصيل:</strong> تتولاه أرض الأغنام للجمعيات الخيرية</div></div></div>
                                         </div>
-
 
                                         <hr class="summary-hr"><div class="summary-total bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div><div class="ar"><strong>المجموع الكلي للطلب:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div></div>
                                     </div>
