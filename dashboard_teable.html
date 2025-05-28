@@ -8,16 +8,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Basic Reset & Root Variables */
         :root{
             --c1:#5D4037; --c1d:#3E2723; --c2:#386641; --c2l:#A3B18A; --c3:#F28C28;
             --t1:#212529; --tm:#6c757d; --td:#FAF8F5;
             --b1:var(--td); --b2:#F0EBE3; --bc:#fff; --bs:#DDE0E3; --bs-darker: #c5c8cb;
             --rad:6px; --s0:.2rem; --s1:.4rem; --s2:.5rem; --s3:1.2rem; --s4:1.6rem;
-            --fe:'Inter',sans-serif; --fa:'Noto+Kufi+Arabic',sans-serif;
+            --fe:'Inter',sans-serif; --fa:'Noto Kufi Arabic',sans-serif;
             --lh:1.5;
-
-            --bg-main: #f8f9fa; /* Lighter background for the main content area */
+            --bg-main: #f8f9fa; 
             --sidebar-bg: #ffffff;
             --sidebar-width: 240px;
             --header-height: 60px;
@@ -31,25 +29,21 @@
         body { font-family: var(--fe); line-height: var(--lh); color:var(--t1); background-color: var(--bg-main); }
         a{text-decoration:none;color:var(--c2);} a:hover{color:var(--c1d)}
         :focus-visible{outline:2px solid var(--c3);outline-offset:2px;}
-
-        /* Dashboard Layout */
         .dash-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
         .dash-main-app { display: flex; flex-grow: 1; }
-
         .dash-global-header {
             background-color: #fff; border-bottom: 1px solid var(--border-color);
             padding: 0 20px; height: var(--header-height); display: flex;
             justify-content: space-between; align-items: center; flex-shrink: 0;
         }
         .dash-global-header h1 {font-size: 1.5rem; color: var(--c1); margin:0;}
-
         .dash-sidebar {
             width: var(--sidebar-width); background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border-color); padding: 20px 0; flex-shrink: 0;
             display: flex; flex-direction: column;
         }
         .dash-sidebar-nav { list-style: none; padding: 0; margin: 0; }
-        .dash-sidebar-nav li button { /* Changed from a to button for actions */
+        .dash-sidebar-nav li button { 
             display: block; padding: 10px 20px; color: var(--text-dark);
             font-size: 0.95rem; border:none; background:none; width:100%; text-align:left; cursor:pointer;
             border-left: 3px solid transparent; font-family: var(--fe);
@@ -58,7 +52,6 @@
         .dash-sidebar-nav li.active button {
             background-color: var(--b2); color: var(--c1d); font-weight: 600; border-left-color: var(--c1);
         }
-
         .dash-content-area {
             flex-grow: 1; padding: 20px; overflow-x: auto;
         }
@@ -67,12 +60,10 @@
             margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
         }
         .dash-content-header h2 { font-size: 1.6rem; color: var(--c1d); margin: 0; }
-        
-        /* General Buttons */
         .btn {
             padding: 8px 12px; font-size: 0.9rem; border-radius: var(--rad); cursor:pointer;
             background-color: var(--b2); color: var(--c1d); border:1px solid var(--border-color);
-            transition: background-color .2s, color .2s; line-height: normal; /* Added line-height */
+            transition: background-color .2s, color .2s; line-height: normal; 
         }
         .btn:hover { background-color: var(--c2l); color:var(--c1d); }
         .btn.bp { background-color: var(--c1); color: white; border-color: var(--c1); }
@@ -83,30 +74,24 @@
         .btn-small { font-size: 0.8rem; padding: 5px 10px; }
         .btn.btn-delete { background-color: #e74c3c; color: white; border-color: #e74c3c;}
         .btn.btn-delete:hover { background-color: #c0392b; border-color: #c0392b;}
-
-        /* Filters */
         .dash-filters { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .dash-filters label { font-weight: 500; margin-right: 5px;}
         .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"], .dash-filters button {
             padding: 8px; border: 1px solid var(--border-color); border-radius: var(--rad); font-size: 0.9rem;
         }
-
-        /* Teable-like Grid */
-        .teable-grid-wrapper { max-height: calc(100vh - var(--header-height) - 180px); /* Adjust as needed */ overflow: auto; border: 1px solid var(--bs-darker); border-radius: var(--rad); margin-bottom:10px; background-color: var(--bc); }
-        .teable-grid { width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: auto; } /* table-layout auto for content fitting */
+        .teable-grid-wrapper { max-height: calc(100vh - var(--header-height) - 180px); overflow: auto; border: 1px solid var(--bs-darker); border-radius: var(--rad); margin-bottom:10px; background-color: var(--bc); }
+        .teable-grid { width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: auto; } 
         .teable-grid th, .teable-grid td { border-bottom: 1px solid var(--border-color); padding: 10px 12px; text-align: left; vertical-align: middle; word-wrap: break-word;}
         .teable-grid th { background-color: #f1f3f5; font-weight: 600; color: var(--text-dark); position: sticky; top: 0; z-index: 1; border-bottom-width:2px; border-bottom-color: var(--bs-darker); white-space: nowrap; }
         .teable-grid td { background-color: var(--bc); }
-        .teable-grid td .cell-content { display: block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* For text overflow */
-        .teable-grid td .cell-content.no-truncate { max-width: none; white-space: normal; } /* For content that shouldn't be truncated */
+        .teable-grid td .cell-content { display: block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
+        .teable-grid td .cell-content.no-truncate { max-width: none; white-space: normal; } 
         .teable-grid tbody tr:nth-child(even) td { background-color: #fdfdfd; }
         .teable-grid tbody tr:hover td { background-color: #e9ecef; }
-        .teable-grid .actions-col { width: auto; text-align: right; white-space: nowrap;} /* Adjusted for multiple buttons */
+        .teable-grid .actions-col { width: auto; text-align: right; white-space: nowrap;} 
         .teable-grid .actions-col .btn { margin-left: 4px; }
         .teable-grid .text-right { text-align: right; }
         .teable-grid .text-center { text-align: center; }
-
-        /* Status Pills */
         .status-pill {
             padding: 3px 10px; border-radius: var(--pill-radius); font-size: 0.75rem; display: inline-block;
             text-transform: capitalize; font-weight: 500; border: 1px solid transparent; line-height: 1.4;
@@ -115,12 +100,8 @@
         .status-pill.pending_confirmation, .status-pill.processing_pending, .status-pill.order_pending_confirmation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa;}
         .status-pill.payment_failed, .status-pill.order_failed { background-color: #fee2e2; color: #991b1b; border-color: #fecaca;}
         .status-pill.default { background-color: #e5e7eb; color: #374151; border-color: #d1d5db;}
-        /* Add more specific status pills as needed */
         .status-pill.available { background-color: #e0f2fe; color: #075985; border-color: #bae6fd;}
         .status-pill.sold { background-color: #fee2e2; color: #991b1b; border-color: #fecaca;}
-
-
-        /* P&L Summary & Settings (retained styles) */
         .pnl-summary { background-color: var(--bc); padding: 20px; border-radius: var(--rad); border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         .pnl-summary h3 { margin-top:0; margin-bottom:15px; color: var(--c1d); font-size:1.3rem; }
         .pnl-summary div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color); font-size:0.95rem; }
@@ -131,15 +112,12 @@
         .settings-card { padding: 20px; font-size:0.9rem; background-color: #fff; border:1px solid var(--border-color); border-radius: var(--rad); box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         .settings-card p, .settings-card div { margin-bottom: 10px; }
         .settings-card strong {color: var(--c1d); }
-
-        /* Login Form (retained) */
         .login-container { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; background-color: #e9ecef;}
         .login-form { max-width: 400px; width:100%; padding: 30px; border: 1px solid var(--border-color); border-radius: var(--rad); background-color: var(--bc); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .login-form h2 { text-align:center; margin-bottom: 25px; color:var(--c1d); font-size:1.8rem; }
         .login-form .fg { margin-bottom: 15px; }
         .login-form .fg label { display: block; margin-bottom: 5px; font-weight:500; }
         .login-form .input { width:100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--rad); font-size: 0.9rem; }
-        
         .no-data { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
         .load-text { text-align: center; color: var(--text-muted); padding: 20px; font-weight: bold; }
         .pagination { margin-top: 15px; text-align: center; }
@@ -198,7 +176,6 @@
                     <label for="endDate">To:</label> <input type="date" id="endDate" x-model="filterEndDate" @change="refreshCurrentViewData()">
                 </div>
                 
-                <!-- P&L View -->
                 <div x-show="currentView === 'pnl'">
                     <section class="pnl-summary">
                         <h3>Profit & Loss <span x-text="filterDateRangeText" style="font-size: 0.9rem; color: var(--text-muted);"></span></h3>
@@ -214,7 +191,6 @@
                     </section>
                 </div>
 
-                <!-- Settings View -->
                 <div x-show="currentView === 'settings'">
                     <section>
                         <div x-show="loading.current" class="load-text">Loading settings...</div>
@@ -239,7 +215,6 @@
                     </section>
                 </div>
 
-                <!-- Teable-like Grid for Data Collections -->
                 <template x-if="!['pnl', 'settings'].includes(currentView)">
                     <section>
                         <div x-show="loading.current" class="load-text" x-text="`Loading ${getViewTitle(currentView).toLowerCase()}...`"></div>
@@ -319,14 +294,18 @@ document.addEventListener('alpine:init', () => {
                 { key: 'total_amount_due_egp', label: 'Total', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
                 { key: 'payment_status', label: 'Payment', type: 'status_pill', headerWidth: '140px' },
                 { key: 'order_status', label: 'Order Status', type: 'text', format: (val) => val ? val.replace(/_/g, ' ') : 'N/A', headerWidth: '140px' },
-                { key: 'id', label: 'Actions', type: 'actions', identifierField: 'order_id_text', headerWidth: '130px', textAlign: 'right' }
+                { key: 'id', label: 'Actions', type: 'actions', 
+                  identifierField: (item) => `Order-${item.id}`,
+                  headerWidth: '130px', textAlign: 'right' }
             ],
             expenses: [
                 { key: 'expense_date', label: 'Date', type: 'date', headerWidth: '120px' },
                 { key: 'category', label: 'Category', type: 'text', cellMaxWidth: '150px' },
                 { key: 'description', label: 'Description', type: 'text', cellMaxWidth: '300px' },
                 { key: 'amount_egp', label: 'Amount', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
-                { key: 'id', label: 'Actions', type: 'actions', identifierField: 'description', headerWidth: '130px', textAlign: 'right' }
+                { key: 'id', label: 'Actions', type: 'actions', 
+                  identifierField: (item) => `Expense-${item.id}`,
+                  headerWidth: '130px', textAlign: 'right' }
             ],
             sheep_log: [ 
                 { key: 'animal_tag_id', label: 'Tag ID', type: 'text', headerWidth: '100px' },
@@ -335,24 +314,18 @@ document.addEventListener('alpine:init', () => {
                 { key: 'acquisition_cost_egp', label: 'Acq. Cost', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '110px' },
                 { key: 'current_status', label: 'Status', type: 'status_pill', headerWidth: '100px' }, 
                 { key: 'sale_order_id', label: 'Sold Order', type: 'expand', expandedField: 'sale_order_id', displayField: 'order_id_text', placeholder: 'N/A', headerWidth: '120px' },
-                { key: 'id', label: 'Actions', type: 'actions_animal', identifierField: 'animal_tag_id', headerWidth: '180px', textAlign: 'right' }
+                { key: 'id', label: 'Actions', type: 'actions_animal', 
+                  identifierField: (item) => `Animal-${item.id}`,
+                  headerWidth: '180px', textAlign: 'right' }
             ],
             animal_events: [
                 { key: 'animal_id', label: 'Animal Tag', type: 'expand', expandedField: 'animal_id', displayField: 'animal_tag_id', placeholder: 'N/A', headerWidth: '120px' },
                 { key: 'event_date', label: 'Event Date', type: 'date', headerWidth: '120px' },
                 { key: 'event_type', label: 'Type', type: 'text', cellMaxWidth: '150px' },
-                { key: 'description', label: 'Description', type: 'text', cellMaxWidth: '300px' }, // This could be the source of newlines
+                { key: 'description', label: 'Description', type: 'text', cellMaxWidth: '300px' },
                 { key: 'cost_associated_egp', label: 'Cost', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
                 { key: 'id', label: 'Actions', type: 'actions', 
-                  identifierField: (item) => {
-                      const animalTag = item.expand?.animal_id?.animal_tag_id || 'Event';
-                      const eventDate = this.formatDate(item.event_date, { day:'2-digit',month:'short' });
-                      // If description is part of identifier, ensure it's short or truncated for the confirm dialog.
-                      // For now, just tag and date for simplicity if description is problematic.
-                      let descForIdentifier = item.description || '';
-                      if (descForIdentifier.length > 30) descForIdentifier = descForIdentifier.substring(0,27) + '...';
-                      return `${animalTag} - ${descForIdentifier} @ ${eventDate}`; 
-                  }, 
+                  identifierField: (item) => `Event-${item.id}`,
                   headerWidth: '130px', textAlign: 'right' 
                 }
             ],
@@ -363,7 +336,9 @@ document.addEventListener('alpine:init', () => {
                 { key: 'base_price_egp', label: 'Price', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
                 { key: 'stock_available_pb', label: 'Stock', type: 'number', textAlign: 'right', headerWidth: '80px' },
                 { key: 'is_active', label: 'Active', type: 'boolean', headerWidth: '80px', textAlign: 'center' },
-                { key: 'id', label: 'Actions', type: 'actions', identifierField: 'item_key', headerWidth: '130px', textAlign: 'right' }
+                { key: 'id', label: 'Actions', type: 'actions', 
+                  identifierField: (item) => `Product-${item.id}`,
+                  headerWidth: '130px', textAlign: 'right' }
             ]
         },
 
@@ -550,6 +525,14 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        handleDeleteClick(event) {
+            const button = event.currentTarget;
+            const collectionName = button.dataset.collection;
+            const recordId = button.dataset.id;
+            const recordIdentifier = button.dataset.identifier;
+            this.deleteRecord(collectionName, recordId, recordIdentifier);
+        },
+
         async changePage(collectionName, newPage) {
             const currentDataState = this.data[collectionName];
             if (currentDataState && newPage >= 1 && newPage <= currentDataState.totalPages) {
@@ -610,14 +593,14 @@ document.addEventListener('alpine:init', () => {
             try { return new Intl.NumberFormat('en-US', options).format(numAmount); }
             catch (e) { return `${currency} ${numAmount.toFixed(digits)}`; }
         },
-        escapeHtml(unsafe) { // For HTML content and attributes
+        escapeHtml(unsafe) {
             if (unsafe === null || typeof unsafe === 'undefined') return '';
             return String(unsafe)
                  .replace(/&/g, "&")
                  .replace(/</g, "<")
                  .replace(/>/g, ">")
                  .replace(/"/g, """)
-                 .replace(/'/g, "'"); // Escapes single quotes for HTML attributes too
+                 .replace(/'/g, "'");
         },
 
         getColumnsForView(viewKey) {
@@ -635,21 +618,9 @@ document.addEventListener('alpine:init', () => {
             if(!column.cellMaxWidth) cellContentClasses.push('no-truncate'); 
 
             const titleAttributeValue = (typeof value === 'object' && value !== null) ? JSON.stringify(value) : value;
-            const escapedTitle = this.escapeHtml(titleAttributeValue);
-            const contentSpan = `<span class="${cellContentClasses.join(' ')}" ${column.cellMaxWidth ? `style="max-width:${column.cellMaxWidth};"` : ''} title="${escapedTitle}">`;
-
-            // Helper function to escape strings for inclusion in a JS single-quoted string literal
-            const escapeForJsSingleQuote = (str) => {
-                if (str === null || typeof str === 'undefined') return '';
-                return String(str)
-                    .replace(/\\/g, '\\\\')       // 1. Escape backslashes
-                    .replace(/'/g, "\\'")        // 2. Escape single quotes
-                    .replace(/\n/g, "\\n")       // 3. Escape LF newlines
-                    .replace(/\r/g, "\\r")       // 4. Escape CR newlines
-                    .replace(/\u2028/g, "\\u2028") // 5. Escape Unicode Line Separator
-                    .replace(/\u2029/g, "\\u2029"); // 6. Escape Unicode Paragraph Separator
-            };
-
+            const escapedTitleHtml = this.escapeHtml(titleAttributeValue);
+            const contentSpan = `<span class="${cellContentClasses.join(' ')}" ${column.cellMaxWidth ? `style="max-width:${column.cellMaxWidth};"` : ''} title="${escapedTitleHtml}">`;
+            
             switch (column.type) {
                 case 'text':
                     const textValue = column.format ? column.format(value) : (value !== null && typeof value !== 'undefined' ? this.escapeHtml(value) : 'N/A');
@@ -672,21 +643,11 @@ document.addEventListener('alpine:init', () => {
                 case 'actions': 
                 case 'actions_animal': {
                     const editUrl = this.getPbAdminEditUrl(collectionName, item.id);
-                    let identifierValue;
-                    if (typeof column.identifierField === 'function') {
-                        identifierValue = column.identifierField(item);
-                    } else {
-                        identifierValue = item[column.identifierField] || item.id;
-                    }
-
-                    const jsEscapedCollectionName = escapeForJsSingleQuote(collectionName);
-                    const jsEscapedItemId = escapeForJsSingleQuote(item.id);
-                    const jsEscapedIdentifier = escapeForJsSingleQuote(identifierValue);
                     
-                    const deleteAction = `$data.deleteRecord('${jsEscapedCollectionName}', '${jsEscapedItemId}', '${jsEscapedIdentifier}')`;
-                    
+                    // TEMPORARILY REMOVE DELETE BUTTON LOGIC for diagnostic
                     let buttonsHtml = `<a href="${editUrl}" target="_blank" class="btn bp btn-small">Edit</a> 
-                                       <button @click="${deleteAction}" class="btn btn-delete btn-small">Del</button>`;
+                                       <button class="btn btn-delete btn-small" disabled title="Delete temporarily disabled for diagnostics">Del (diag)</button>`;
+                                       
                     if (column.type === 'actions_animal') {
                         const addEventUrl = `${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}`;
                         buttonsHtml += ` <a href="${addEventUrl}" target="_blank" class="btn bp btn-small" title="Add Event">+Evt</a>`;
