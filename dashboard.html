@@ -6,78 +6,142 @@
     <title>Sheep Land - Admin Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Basic Reset & Root Variables (can be shared if you have a global reset) */
+        /* Basic Reset & Root Variables */
         :root{
             --c1:#5D4037; --c1d:#3E2723; --c2:#386641; --c2l:#A3B18A; --c3:#F28C28;
             --t1:#212529; --tm:#6c757d; --td:#FAF8F5;
-            --b1:var(--td); --b2:#F0EBE3; --bc:#fff; --bs:#DDE0E3;
+            --b1:var(--td); --b2:#F0EBE3; --bc:#fff; --bs:#DDE0E3; --bs-darker: #c5c8cb;
             --rad:6px; --s0:.2rem; --s1:.4rem; --s2:.5rem; --s3:1.2rem; --s4:1.6rem;
             --fe:'Inter',sans-serif; --fa:'Noto Kufi Arabic',sans-serif;
             --lh:1.5;
+
+            --bg-main: #f8f9fa; /* Lighter background for the main content area */
+            --sidebar-bg: #ffffff;
+            --sidebar-width: 240px;
+            --header-height: 60px;
+            --border-color: var(--bs);
+            --text-muted: var(--tm);
+            --text-dark: var(--t1);
+            --pill-radius: 12px;
         }
         *,::after,::before{box-sizing:border-box;margin:0;padding:0}
         html{font-size:15px;scroll-behavior:smooth;}
-        body { font-family: var(--fe); line-height: var(--lh); color:var(--t1); padding: 20px; background-color: #f4f6f8; }
+        body { font-family: var(--fe); line-height: var(--lh); color:var(--t1); background-color: var(--bg-main); }
         a{text-decoration:none;color:var(--c2);} a:hover{color:var(--c1d)}
         :focus-visible{outline:2px solid var(--c3);outline-offset:2px;}
-        /* Dashboard Specific Styles */
-        .dash-container { max-width: 1400px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .dash-header { text-align: center; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; padding-bottom:15px; border-bottom: 1px solid var(--bs);}
-        .dash-header h1 {font-size: 1.8rem; color: var(--c1); margin:0;}
-        .dash-nav { margin-bottom: 20px; border-bottom: 1px solid var(--bs); padding-bottom: 10px; display:flex; flex-wrap:wrap; gap:5px; }
-        .dash-nav button, .btn {
-            padding: 8px 12px; font-size: 0.9rem; border-radius: var(--rad); cursor:pointer;
-            background-color: var(--b2); color: var(--c1d); border:1px solid var(--bs);
-            transition: background-color .2s, color .2s;
+
+        /* Dashboard Layout */
+        .dash-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+        .dash-main-app { display: flex; flex-grow: 1; }
+
+        .dash-global-header {
+            background-color: #fff; border-bottom: 1px solid var(--border-color);
+            padding: 0 20px; height: var(--header-height); display: flex;
+            justify-content: space-between; align-items: center; flex-shrink: 0;
         }
-        .dash-nav button:hover, .btn:hover { background-color: var(--c2l); color:var(--c1d); }
-        .dash-nav button.active-tab, .btn.bp { background-color: var(--c1); color: white; border-color: var(--c1); }
-        .dash-nav button.active-tab:hover, .btn.bp:hover { background-color: var(--c1d); }
+        .dash-global-header h1 {font-size: 1.5rem; color: var(--c1); margin:0;}
+
+        .dash-sidebar {
+            width: var(--sidebar-width); background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color); padding: 20px 0; flex-shrink: 0;
+            display: flex; flex-direction: column;
+        }
+        .dash-sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .dash-sidebar-nav li button { /* Changed from a to button for actions */
+            display: block; padding: 10px 20px; color: var(--text-dark);
+            font-size: 0.95rem; border:none; background:none; width:100%; text-align:left; cursor:pointer;
+            border-left: 3px solid transparent; font-family: var(--fe);
+        }
+        .dash-sidebar-nav li button:hover { background-color: #f0f0f0; color: var(--c1d); }
+        .dash-sidebar-nav li.active button {
+            background-color: var(--b2); color: var(--c1d); font-weight: 600; border-left-color: var(--c1);
+        }
+
+        .dash-content-area {
+            flex-grow: 1; padding: 20px; overflow-x: auto;
+        }
+        .dash-content-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
+        }
+        .dash-content-header h2 { font-size: 1.6rem; color: var(--c1d); margin: 0; }
+        
+        /* General Buttons */
+        .btn {
+            padding: 8px 12px; font-size: 0.9rem; border-radius: var(--rad); cursor:pointer;
+            background-color: var(--b2); color: var(--c1d); border:1px solid var(--border-color);
+            transition: background-color .2s, color .2s; line-height: normal; /* Added line-height */
+        }
+        .btn:hover { background-color: var(--c2l); color:var(--c1d); }
+        .btn.bp { background-color: var(--c1); color: white; border-color: var(--c1); }
+        .btn.bp:hover { background-color: var(--c1d); }
         .btn.bac { background-color: var(--c2); color:white; border-color: var(--c2); }
-        .btn.bac:hover { background-color: #2a5031; } /* Darker green */
+        .btn.bac:hover { background-color: #2a5031; }
         .btn-block { display: block; width: 100%; }
         .btn-small { font-size: 0.8rem; padding: 5px 10px; }
+        .btn.btn-delete { background-color: #e74c3c; color: white; border-color: #e74c3c;}
+        .btn.btn-delete:hover { background-color: #c0392b; border-color: #c0392b;}
 
-        .dash-section { margin-bottom: 30px; }
-        .dash-section h2 { font-size: 1.5rem; color: var(--c1d); border-bottom: 2px solid var(--c2l); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
+        /* Filters */
         .dash-filters { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .dash-filters label { font-weight: 500; margin-right: 5px;}
-        .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"], .dash-filters button { padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
-        
-        .dash-table-wrapper { max-height: 500px; overflow-y: auto; border: 1px solid var(--bs); margin-bottom:10px; border-radius: var(--rad); }
-        .dash-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .dash-table th, .dash-table td { border-bottom: 1px solid var(--bs); padding: 8px 10px; text-align: left; word-wrap: break-word; vertical-align: top;}
-        .dash-table th { background-color: var(--b2); font-weight: 600; color: var(--c1d); position: sticky; top: 0; z-index: 1; }
-        .dash-table td { background-color: var(--bc); }
-        .dash-table tbody tr:nth-child(even) td { background-color: #f9f9f9; }
-        .dash-table tbody tr:hover td { background-color: #f0f4f8; } /* Lighter hover */
-        .dash-table .actions-col { width: 130px; text-align: center;}
-        .dash-table .btn { font-size: 0.75rem; padding: 4px 8px; margin: 2px; }
-        .btn.btn-delete { background-color: #e74c3c; color: white; border-color: #e74c3c;} /* Softer red */
-        .btn.btn-delete:hover { background-color: #c0392b; border-color: #c0392b;}
-        
-        .currency { text-align: right; }
-        .status-paid { color: #2ecc71; font-weight: bold; } /* Green */
-        .status-pending { color: #f39c12; } /* Orange */
-        .status-failed { color: #e74c3c; } /* Red */
-        
-        .pnl-summary { background-color: var(--b1); padding: 15px; border-radius: var(--rad); border: 1px solid var(--bs); }
-        .pnl-summary div { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--bs); }
+        .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"], .dash-filters button {
+            padding: 8px; border: 1px solid var(--border-color); border-radius: var(--rad); font-size: 0.9rem;
+        }
+
+        /* Teable-like Grid */
+        .teable-grid-wrapper { max-height: calc(100vh - var(--header-height) - 180px); /* Adjust as needed */ overflow: auto; border: 1px solid var(--bs-darker); border-radius: var(--rad); margin-bottom:10px; background-color: var(--bc); }
+        .teable-grid { width: 100%; border-collapse: collapse; font-size: 0.85rem; table-layout: auto; } /* table-layout auto for content fitting */
+        .teable-grid th, .teable-grid td { border-bottom: 1px solid var(--border-color); padding: 10px 12px; text-align: left; vertical-align: middle; word-wrap: break-word;}
+        .teable-grid th { background-color: #f1f3f5; font-weight: 600; color: var(--text-dark); position: sticky; top: 0; z-index: 1; border-bottom-width:2px; border-bottom-color: var(--bs-darker); white-space: nowrap; }
+        .teable-grid td { background-color: var(--bc); }
+        .teable-grid td .cell-content { display: block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* For text overflow */
+        .teable-grid td .cell-content.no-truncate { max-width: none; white-space: normal; } /* For content that shouldn't be truncated */
+        .teable-grid tbody tr:nth-child(even) td { background-color: #fdfdfd; }
+        .teable-grid tbody tr:hover td { background-color: #e9ecef; }
+        .teable-grid .actions-col { width: auto; text-align: right; white-space: nowrap;} /* Adjusted for multiple buttons */
+        .teable-grid .actions-col .btn { margin-left: 4px; }
+        .teable-grid .text-right { text-align: right; }
+        .teable-grid .text-center { text-align: center; }
+
+        /* Status Pills */
+        .status-pill {
+            padding: 3px 10px; border-radius: var(--pill-radius); font-size: 0.75rem; display: inline-block;
+            text-transform: capitalize; font-weight: 500; border: 1px solid transparent; line-height: 1.4;
+        }
+        .status-pill.paid_confirmed { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0;}
+        .status-pill.pending_confirmation, .status-pill.processing_pending, .status-pill.order_pending_confirmation { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa;}
+        .status-pill.payment_failed, .status-pill.order_failed { background-color: #fee2e2; color: #991b1b; border-color: #fecaca;}
+        .status-pill.default { background-color: #e5e7eb; color: #374151; border-color: #d1d5db;}
+        /* Add more specific status pills as needed */
+        .status-pill.available { background-color: #e0f2fe; color: #075985; border-color: #bae6fd;}
+        .status-pill.sold { background-color: #fee2e2; color: #991b1b; border-color: #fecaca;}
+
+
+        /* P&L Summary & Settings (retained styles) */
+        .pnl-summary { background-color: var(--bc); padding: 20px; border-radius: var(--rad); border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        .pnl-summary h3 { margin-top:0; margin-bottom:15px; color: var(--c1d); font-size:1.3rem; }
+        .pnl-summary div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color); font-size:0.95rem; }
         .pnl-summary div:last-child { border-bottom: none; }
-        .pnl-summary strong { color: var(--c1d); }
+        .pnl-summary strong { color: var(--c1d); font-weight:600; }
         .pnl-profit { color: var(--c2); font-size: 1.1rem; }
         .pnl-loss { color: #e74c3c; font-size: 1.1rem; }
-        
-        .login-form { max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid var(--bs); border-radius: var(--rad); background-color: var(--b1); }
+        .settings-card { padding: 20px; font-size:0.9rem; background-color: #fff; border:1px solid var(--border-color); border-radius: var(--rad); box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        .settings-card p, .settings-card div { margin-bottom: 10px; }
+        .settings-card strong {color: var(--c1d); }
+
+        /* Login Form (retained) */
+        .login-container { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; background-color: #e9ecef;}
+        .login-form { max-width: 400px; width:100%; padding: 30px; border: 1px solid var(--border-color); border-radius: var(--rad); background-color: var(--bc); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .login-form h2 { text-align:center; margin-bottom: 25px; color:var(--c1d); font-size:1.8rem; }
         .login-form .fg { margin-bottom: 15px; }
         .login-form .fg label { display: block; margin-bottom: 5px; font-weight:500; }
-        .login-form .input { width:100%; padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
+        .login-form .input { width:100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--rad); font-size: 0.9rem; }
         
-        .no-data { text-align: center; color: var(--tm); padding: 20px; font-style: italic; }
-        .load-text { text-align: center; color: var(--tm); padding: 20px; font-weight: bold; }
+        .no-data { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
+        .load-text { text-align: center; color: var(--text-muted); padding: 20px; font-weight: bold; }
         .pagination { margin-top: 15px; text-align: center; }
         .pagination button { margin: 0 5px; }
         .json-viewer { background-color: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: var(--rad); font-size: 0.8em; white-space: pre-wrap; max-height: 200px; overflow: auto; margin-top: 5px;}
@@ -86,17 +150,9 @@
 </head>
 <body x-data="adminDashboard" x-init="initDashboard()" x-cloak>
 
-    <div class="dash-container">
-        <header class="dash-header">
-            <h1>Sheep Land - Admin Dashboard</h1>
-            <div>
-                <a href="index.html" class="btn bp" style="margin-right:10px;">Main Site</a>
-                <button class="btn bp" @click="logoutAdmin()" x-show="isAdminAuth">Logout</button>
-            </div>
-        </header>
-
-        <div x-show="!isAdminAuth" class="login-form">
-            <h2 style="text-align:center; margin-bottom: 20px;">Admin Login</h2>
+    <div x-show="!isAdminAuth" class="login-container">
+        <div class="login-form">
+            <h2>Admin Login</h2>
             <div class="fg"> <label for="adminEmail">Email:</label> <input type="email" id="adminEmail" x-model="loginForm.email" class="input"> </div>
             <div class="fg"> <label for="adminPassword">Password:</label> <input type="password" id="adminPassword" x-model="loginForm.password" class="input" @keyup.enter="loginAdmin()"> </div>
             <button class="btn bac btn-block" @click="loginAdmin()" :disabled="loading.auth">
@@ -104,90 +160,128 @@
             </button>
             <p x-show="authError" x-text="authError" style="color:red; text-align:center; margin-top:10px;"></p>
         </div>
+    </div>
 
-        <div x-show="isAdminAuth">
-            <nav class="dash-nav">
-                <button :class="{'active-tab': activeTab === 'pnl'}" @click="switchTab('pnl')">P&L</button>
-                <button :class="{'active-tab': activeTab === 'orders'}" @click="switchTab('orders')">Orders</button>
-                <button :class="{'active-tab': activeTab === 'animals'}" @click="switchTab('animals')">Animals</button>
-                <button :class="{'active-tab': activeTab === 'animal_events'}" @click="switchTab('animal_events')">Events</button>
-                <button :class="{'active-tab': activeTab === 'products'}" @click="switchTab('products')">Products</button>
-                <button :class="{'active-tab': activeTab === 'expenses'}" @click="switchTab('expenses')">Expenses</button>
-                <button :class="{'active-tab': activeTab === 'settings'}" @click="switchTab('settings')">Settings</button>
-            </nav>
-
-            <div class="dash-filters" x-show="['pnl', 'orders', 'expenses'].includes(activeTab)">
-                <label for="startDate">From:</label> <input type="date" id="startDate" x-model="filterStartDate" @change="refreshCurrentTabData()">
-                <label for="endDate">To:</label> <input type="date" id="endDate" x-model="filterEndDate" @change="refreshCurrentTabData()">
+    <div x-show="isAdminAuth" class="dash-wrapper">
+        <header class="dash-global-header">
+            <h1>Sheep Land - Admin</h1>
+            <div>
+                <a href="index.html" class="btn bp" style="margin-right:10px;">Main Site</a>
+                <button class="btn bp" @click="logoutAdmin()">Logout</button>
             </div>
-            
-            <div x-show="activeTab === 'pnl'">
-                <section class="dash-section pnl-summary">
-                    <h2>Profit & Loss Summary <span x-text="filterDateRangeText" style="font-size: 0.9rem; color: var(--tm);"></span></h2>
-                    <div x-show="loading.pnl" class="load-text">Calculating P&L...</div>
-                    <div x-show="!loading.pnl">
-                        <div><span>Total Revenue (Paid Orders):</span> <strong x-text="formatCurrency(pnl.totalRevenue)"></strong></div>
-                        <div><span>Total Cost of Animals Sold (COGS):</span> <strong x-text="formatCurrency(pnl.totalCOGS)"></strong></div>
-                        <div><span>Gross Profit:</span> <strong x-text="formatCurrency(pnl.grossProfit)"></strong></div>
-                        <div><span>Total Operating Expenses:</span> <strong x-text="formatCurrency(pnl.totalExpenses)"></strong></div>
-                        <hr style="margin: 10px 0; border-color: var(--bs);">
-                        <div><span>Net Profit / (Loss):</span> <strong :class="pnl.netProfit >= 0 ? 'pnl-profit' : 'pnl-loss'" x-text="formatCurrency(pnl.netProfit)"></strong></div>
-                    </div>
-                </section>
-            </div>
+        </header>
 
-            <template x-if="activeTab !== 'pnl' && activeTab !== 'settings'">
-                <section class="dash-section">
-                    <h2>
-                        <span x-text="getTabTitle(activeTab)"></span>
-                        <a :href="getPbAdminCreateUrl(getCollectionNameForTab(activeTab))" target="_blank" class="btn bp btn-small" x-show="getCollectionNameForTab(activeTab)">+ New</a>
-                    </h2>
-                    <div x-show="loading.current" class="load-text" x-text="`Loading ${getTabTitle(activeTab).toLowerCase()}...`"></div>
-                    <div class="dash-table-wrapper" x-show="!loading.current && data[getCollectionNameForTab(activeTab)]?.items.length > 0">
-                        <table class="dash-table">
-                            <thead>
-                                <tr x-html="getTableHeaders(activeTab)"></tr>
-                            </thead>
-                            <tbody>
-                                <template x-for="item in data[getCollectionNameForTab(activeTab)]?.items" :key="item.id">
-                                    <tr x-html="getTableRow(activeTab, item)"></tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div x-show="!loading.current && (!data[getCollectionNameForTab(activeTab)] || data[getCollectionNameForTab(activeTab)]?.items.length === 0)" class="no-data" x-text="`No ${getTabTitle(activeTab).toLowerCase()} found.`"></div>
-                    <div class="pagination" x-show="data[getCollectionNameForTab(activeTab)]?.totalPages > 1">
-                        <button class="btn" @click="changePage(getCollectionNameForTab(activeTab), data[getCollectionNameForTab(activeTab)].page - 1)" :disabled="data[getCollectionNameForTab(activeTab)].page <= 1">Prev</button>
-                        <span x-text="`Page ${data[getCollectionNameForTab(activeTab)]?.page} of ${data[getCollectionNameForTab(activeTab)]?.totalPages}`"></span>
-                        <button class="btn" @click="changePage(getCollectionNameForTab(activeTab), data[getCollectionNameForTab(activeTab)].page + 1)" :disabled="data[getCollectionNameForTab(activeTab)].page >= data[getCollectionNameForTab(activeTab)].totalPages">Next</button>
-                    </div>
-                </section>
-            </template>
+        <div class="dash-main-app">
+            <aside class="dash-sidebar">
+                <ul class="dash-sidebar-nav">
+                    <li :class="{'active': currentView === 'pnl'}"><button @click="switchView('pnl')">P&L Summary</button></li>
+                    <li :class="{'active': currentView === 'orders'}"><button @click="switchView('orders')">Orders</button></li>
+                    <li :class="{'active': currentView === 'animals'}"><button @click="switchView('animals')">Animals</button></li>
+                    <li :class="{'active': currentView === 'animal_events'}"><button @click="switchView('animal_events')">Events</button></li>
+                    <li :class="{'active': currentView === 'products'}"><button @click="switchView('products')">Products</button></li>
+                    <li :class="{'active': currentView === 'expenses'}"><button @click="switchView('expenses')">Expenses</button></li>
+                    <li :class="{'active': currentView === 'settings'}"><button @click="switchView('settings')">Settings</button></li>
+                </ul>
+            </aside>
 
-            <div x-show="activeTab === 'settings'">
-                <section class="dash-section">
-                    <h2><span>Application Settings</span></h2>
-                    <div x-show="loading.current" class="load-text">Loading settings...</div>
-                    <div x-show="!loading.current && data.settings?.items.length > 0">
-                        <template x-for="item in data.settings.items" :key="item.id">
-                            <div class="card" style="padding: 15px; font-size:0.9rem;">
-                                <p><strong>Default Currency:</strong> <span x-text="item.defCurr"></span></p>
-                                <p><strong>WhatsApp Raw:</strong> <span x-text="item.waNumRaw"></span></p>
-                                <p><strong>WhatsApp Display:</strong> <span x-text="item.waNumDisp"></span></p>
-                                <p><strong>Promo Active:</strong> <span x-text="item.promoActive ? 'Yes' : 'No'"></span></p>
-                                <p><strong>Promo Discount:</strong> <span x-text="item.promoDiscPc + '%'"></span></p>
-                                <p><strong>Promo End:</strong> <span x-text="formatDate(item.promoEndISO)"></span></p>
-                                <p><strong>Service Fee (EGP):</strong> <span x-text="formatCurrency(item.servFeeEGP, 'EGP', 0)"></span></p>
-                                <div><strong>Exchange Rates:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.xchgRates, null, 2)"></pre></div>
-                                <div style="margin-top:10px;"><strong>Delivery Areas:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.delAreas, null, 2)"></pre></div>
-                                <div style="margin-top:10px;"><strong>Payment Details:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.payDetails, null, 2)"></pre></div>
-                                <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Settings in Admin UI</a>
+            <main class="dash-content-area">
+                <div class="dash-content-header">
+                    <h2 x-text="getViewTitle(currentView)"></h2>
+                    <a :href="getPbAdminCreateUrl(getCollectionNameForView(currentView))" target="_blank" class="btn bp btn-small"
+                       x-show="getCollectionNameForView(currentView) && !['pnl', 'settings'].includes(currentView)">
+                       + New <span x-text="getSingularViewTitle(currentView) || 'Item'"></span>
+                    </a>
+                </div>
+
+                <div class="dash-filters" x-show="['pnl', 'orders', 'expenses'].includes(currentView)">
+                    <label for="startDate">From:</label> <input type="date" id="startDate" x-model="filterStartDate" @change="refreshCurrentViewData()">
+                    <label for="endDate">To:</label> <input type="date" id="endDate" x-model="filterEndDate" @change="refreshCurrentViewData()">
+                </div>
+                
+                <!-- P&L View -->
+                <div x-show="currentView === 'pnl'">
+                    <section class="pnl-summary">
+                        <h3>Profit & Loss <span x-text="filterDateRangeText" style="font-size: 0.9rem; color: var(--text-muted);"></span></h3>
+                        <div x-show="loading.pnl" class="load-text">Calculating P&L...</div>
+                        <div x-show="!loading.pnl">
+                            <div><span>Total Revenue (Paid Orders):</span> <strong x-text="formatCurrency(pnl.totalRevenue)"></strong></div>
+                            <div><span>Total Cost of Animals Sold (COGS):</span> <strong x-text="formatCurrency(pnl.totalCOGS)"></strong></div>
+                            <div><span>Gross Profit:</span> <strong x-text="formatCurrency(pnl.grossProfit)"></strong></div>
+                            <div><span>Total Operating Expenses:</span> <strong x-text="formatCurrency(pnl.totalExpenses)"></strong></div>
+                            <hr style="margin: 10px 0; border-color: var(--border-color); border-style:dashed;">
+                            <div><span>Net Profit / (Loss):</span> <strong :class="pnl.netProfit >= 0 ? 'pnl-profit' : 'pnl-loss'" x-text="formatCurrency(pnl.netProfit)"></strong></div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Settings View -->
+                <div x-show="currentView === 'settings'">
+                    <section>
+                        <div x-show="loading.current" class="load-text">Loading settings...</div>
+                        <div x-show="!loading.current && data.settings?.items.length > 0">
+                            <template x-for="item in data.settings.items" :key="item.id">
+                                <div class="settings-card">
+                                    <p><strong>Default Currency:</strong> <span x-text="item.defCurr"></span></p>
+                                    <p><strong>WhatsApp Raw:</strong> <span x-text="item.waNumRaw"></span></p>
+                                    <p><strong>WhatsApp Display:</strong> <span x-text="item.waNumDisp"></span></p>
+                                    <p><strong>Promo Active:</strong> <span x-text="item.promoActive ? 'Yes' : 'No'"></span></p>
+                                    <p><strong>Promo Discount:</strong> <span x-text="item.promoDiscPc + '%'"></span></p>
+                                    <p><strong>Promo End:</strong> <span x-text="formatDate(item.promoEndISO)"></span></p>
+                                    <p><strong>Service Fee (EGP):</strong> <span x-text="formatCurrency(item.servFeeEGP, 'EGP', 0)"></span></p>
+                                    <div><strong>Exchange Rates:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.xchgRates, null, 2)"></pre></div>
+                                    <div style="margin-top:10px;"><strong>Delivery Areas:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.delAreas, null, 2)"></pre></div>
+                                    <div style="margin-top:10px;"><strong>Payment Details:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.payDetails, null, 2)"></pre></div>
+                                    <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Settings in Admin UI</a>
+                                </div>
+                            </template>
+                        </div>
+                        <div x-show="!loading.current && (!data.settings || data.settings?.items.length === 0)" class="no-data">No settings found.</div>
+                    </section>
+                </div>
+
+                <!-- Teable-like Grid for Data Collections -->
+                <template x-if="!['pnl', 'settings'].includes(currentView)">
+                    <section>
+                        <div x-show="loading.current" class="load-text" x-text="`Loading ${getViewTitle(currentView).toLowerCase()}...`"></div>
+                        
+                        <template x-if="!loading.current && data[getCollectionNameForView(currentView)]?.items.length > 0">
+                            <div class="teable-grid-wrapper">
+                                <table class="teable-grid">
+                                    <thead>
+                                        <tr>
+                                            <template x-for="column in getColumnsForView(currentView)" :key="column.key">
+                                                <th :class="{ 'text-right': column.textAlign === 'right', 'text-center': column.textAlign === 'center' }" 
+                                                    :style="column.headerWidth ? `width: ${column.headerWidth};` : ''"
+                                                    x-text="column.label">
+                                                </th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="item in data[getCollectionNameForView(currentView)].items" :key="item.id">
+                                            <tr>
+                                                <template x-for="column in getColumnsForView(currentView)" :key="column.key + '_' + item.id">
+                                                    <td :class="{ 'text-right': column.textAlign === 'right', 'text-center': column.textAlign === 'center', 'actions-col': column.type === 'actions' || column.type === 'actions_animal' }"
+                                                        x-html="renderCellContent(item, column, getCollectionNameForView(currentView))">
+                                                    </td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                             </div>
                         </template>
-                    </div>
-                    <div x-show="!loading.current && (!data.settings || data.settings?.items.length === 0)" class="no-data">No settings found.</div>
-                </section>
-            </div>
+
+                        <div x-show="!loading.current && (!data[getCollectionNameForView(currentView)] || data[getCollectionNameForView(currentView)]?.items.length === 0)" class="no-data" x-text="`No ${getViewTitle(currentView).toLowerCase()} found.`"></div>
+                        
+                        <div class="pagination" x-show="data[getCollectionNameForView(currentView)]?.totalPages > 1">
+                            <button class="btn" @click="changePage(getCollectionNameForView(currentView), data[getCollectionNameForView(currentView)].page - 1)" :disabled="data[getCollectionNameForView(currentView)].page <= 1">Prev</button>
+                            <span x-text="`Page ${data[getCollectionNameForView(currentView)]?.page} of ${data[getCollectionNameForView(currentView)]?.totalPages}`"></span>
+                            <button class="btn" @click="changePage(getCollectionNameForView(currentView), data[getCollectionNameForView(currentView)].page + 1)" :disabled="data[getCollectionNameForView(currentView)].page >= data[getCollectionNameForView(currentView)].totalPages">Next</button>
+                        </div>
+                    </section>
+                </template>
+            </main>
         </div>
     </div>
 
@@ -202,29 +296,75 @@ document.addEventListener('alpine:init', () => {
         loading: { auth: false, pnl: true, current: true },
         loginForm: { email: ADM_E_PLACEHOLDER, password: '' },
         authError: '',
-        activeTab: 'pnl',
+        currentView: 'pnl', // Default view
         data: {
             orders: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
             expenses: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
-            sheep_log: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
+            sheep_log: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 }, // Mapped from 'animals' view
             animal_events: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
             products: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
-            settings: { items: [], page: 1, perPage: 1, totalItems: 0, totalPages: 1 }
+            settings: { items: [], page: 1, perPage: 1, totalItems: 0, totalPages: 1 } // Usually only one settings doc
         },
         pnl: { totalRevenue: 0, totalCOGS: 0, grossProfit: 0, totalExpenses: 0, netProfit: 0 },
         filterStartDate: '',
         filterEndDate: '',
         pbAdminUrl: '',
 
+        columnsConfig: {
+            orders: [
+                { key: 'order_id_text', label: 'ID', type: 'text', headerWidth: '100px' },
+                { key: 'created', label: 'Date', type: 'date', headerWidth: '120px' },
+                { key: 'ordering_person_name', label: 'Customer', type: 'text', cellMaxWidth: '180px' },
+                { key: 'ordered_product_name_en', label: 'Product', type: 'text', cellMaxWidth: '200px'},
+                { key: 'total_amount_due_egp', label: 'Total', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
+                { key: 'payment_status', label: 'Payment', type: 'status_pill', headerWidth: '140px' },
+                { key: 'order_status', label: 'Order Status', type: 'text', format: (val) => val ? val.replace(/_/g, ' ') : 'N/A', headerWidth: '140px' },
+                { key: 'id', label: 'Actions', type: 'actions', identifierField: 'order_id_text', headerWidth: '130px', textAlign: 'right' }
+            ],
+            expenses: [
+                { key: 'expense_date', label: 'Date', type: 'date', headerWidth: '120px' },
+                { key: 'category', label: 'Category', type: 'text', cellMaxWidth: '150px' },
+                { key: 'description', label: 'Description', type: 'text', cellMaxWidth: '300px' },
+                { key: 'amount_egp', label: 'Amount', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
+                { key: 'id', label: 'Actions', type: 'actions', identifierField: 'description', headerWidth: '130px', textAlign: 'right' }
+            ],
+            sheep_log: [ // 'animals' view
+                { key: 'animal_tag_id', label: 'Tag ID', type: 'text', headerWidth: '100px' },
+                { key: 'breed', label: 'Breed', type: 'text', cellMaxWidth: '120px' },
+                { key: 'acquisition_date', label: 'Acq. Date', type: 'date', headerWidth: '120px' },
+                { key: 'acquisition_cost_egp', label: 'Acq. Cost', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '110px' },
+                { key: 'current_status', label: 'Status', type: 'status_pill', headerWidth: '100px' }, // Assuming status can be styled
+                { key: 'sale_order_id', label: 'Sold Order', type: 'expand', expandedField: 'sale_order_id', displayField: 'order_id_text', placeholder: 'N/A', headerWidth: '120px' },
+                { key: 'id', label: 'Actions', type: 'actions_animal', identifierField: 'animal_tag_id', headerWidth: '180px', textAlign: 'right' }
+            ],
+            animal_events: [
+                { key: 'animal_id', label: 'Animal Tag', type: 'expand', expandedField: 'animal_id', displayField: 'animal_tag_id', placeholder: 'N/A', headerWidth: '120px' },
+                { key: 'event_date', label: 'Event Date', type: 'date', headerWidth: '120px' },
+                { key: 'event_type', label: 'Type', type: 'text', cellMaxWidth: '150px' },
+                { key: 'description', label: 'Description', type: 'text', cellMaxWidth: '300px' },
+                { key: 'cost_associated_egp', label: 'Cost', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
+                { key: 'id', label: 'Actions', type: 'actions', identifierField: (item) => `${item.expand?.animal_id?.animal_tag_id || 'Event'} @ ${this.formatDate(item.event_date, { day:'2-digit',month:'short' })}`, headerWidth: '130px', textAlign: 'right' }
+            ],
+            products: [
+                { key: 'item_key', label: 'Key', type: 'text', cellMaxWidth: '150px' },
+                { key: 'type_key', label: 'Type', type: 'text', headerWidth: '100px' },
+                { key: 'variant_name_en', label: 'Variant (EN)', type: 'text', cellMaxWidth: '200px' },
+                { key: 'base_price_egp', label: 'Price', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
+                { key: 'stock_available_pb', label: 'Stock', type: 'number', textAlign: 'right', headerWidth: '80px' },
+                { key: 'is_active', label: 'Active', type: 'boolean', headerWidth: '80px', textAlign: 'center' },
+                { key: 'id', label: 'Actions', type: 'actions', identifierField: 'item_key', headerWidth: '130px', textAlign: 'right' }
+            ]
+        },
+
         initDashboard() {
             this.pb = new PocketBase(window.location.origin);
-            this.pbAdminUrl = window.location.origin;
-            this.loginForm.email = ADM_E_PLACEHOLDER; // Default for convenience
+            this.pbAdminUrl = window.location.origin; 
+            this.loginForm.email = ADM_E_PLACEHOLDER;
 
             if (this.pb.authStore.isAdmin && this.pb.authStore.isValid) {
                 this.isAdminAuth = true;
                 this.setDefaultDateRange();
-                this.refreshCurrentTabData();
+                this.refreshCurrentViewData();
             } else {
                 this.setDefaultDateRange();
             }
@@ -242,15 +382,25 @@ document.addEventListener('alpine:init', () => {
             try {
                 await this.pb.admins.authWithPassword(this.loginForm.email, this.loginForm.password);
                 this.isAdminAuth = true; this.loginForm.password = '';
-                await this.refreshCurrentTabData();
-            } catch (error) { this.authError = 'Login failed. Check credentials or server status.'; } 
+                this.currentView = 'pnl'; 
+                await this.refreshCurrentViewData();
+            } catch (error) { 
+                this.authError = 'Login failed. Check credentials or server status.'; 
+                console.error("Login Error:", error);
+            } 
             finally { this.loading.auth = false; }
         },
 
         logoutAdmin() {
-            this.pb.authStore.clear(); this.isAdminAuth = false; this.authError = '';
-            Object.keys(this.data).forEach(key => { this.data[key] = { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 }; });
+            this.pb.authStore.clear(); 
+            this.isAdminAuth = false; 
+            this.authError = '';
+            Object.keys(this.data).forEach(key => { 
+                const perPage = this.data[key]?.perPage || 15; // Preserve perPage setting
+                this.data[key] = { items: [], page: 1, perPage: perPage, totalItems: 0, totalPages: 1 }; 
+            });
             this.pnl = { totalRevenue: 0, totalCOGS: 0, grossProfit: 0, totalExpenses: 0, netProfit: 0 };
+            this.currentView = 'pnl'; 
         },
 
         get filterDateRangeText() {
@@ -259,41 +409,53 @@ document.addEventListener('alpine:init', () => {
         },
 
         getPbAdminEditUrl(collectionName, recordId) { return `${this.pbAdminUrl}/_/collections/${collectionName}/records/${recordId}`; },
-        getPbAdminCreateUrl(collectionName) { return `${this.pbAdminUrl}/_/collections/${collectionName}/records/new`; },
+        getPbAdminCreateUrl(collectionName) { return collectionName ? `${this.pbAdminUrl}/_/collections/${collectionName}/records/new` : '#'; },
         
-        async switchTab(tabName) {
-            this.activeTab = tabName;
-            await this.refreshCurrentTabData();
+        async switchView(viewName) {
+            this.currentView = viewName;
+            await this.refreshCurrentViewData();
         },
 
-        async refreshCurrentTabData() {
-            if (this.activeTab === 'pnl') {
+        async refreshCurrentViewData() {
+            if (!this.isAdminAuth) return;
+            if (this.currentView === 'pnl') {
                 await this.fetchPnlData();
             } else {
-                const collectionName = this.getCollectionNameForTab(this.activeTab);
-                if (collectionName) await this.fetchPaginatedData(collectionName, 1);
+                const collectionName = this.getCollectionNameForView(this.currentView);
+                if (collectionName) {
+                     // Reset page to 1 when switching views or refreshing with filters, unless specifically paginating
+                    const currentDataState = this.data[collectionName];
+                    if(currentDataState) currentDataState.page = 1;
+                    await this.fetchPaginatedData(collectionName, 1);
+                }
             }
         },
         
-        getCollectionNameForTab(tabKey) {
-            const map = { animals: 'sheep_log', animal_events: 'animal_events' }; // Map tab keys to collection names if different
-            return map[tabKey] || tabKey;
+        getCollectionNameForView(viewKey) {
+            const map = { animals: 'sheep_log' }; 
+            return map[viewKey] || viewKey;
         },
 
-        getTabTitle(tabKey) {
-            const titles = { pnl: 'P&L Summary', orders: 'Orders', animals: 'Animal Log', animal_events: 'Animal Events', products: 'Products', expenses: 'Expenses', settings: 'Settings'};
-            return titles[tabKey] || 'Data';
+        getViewTitle(viewKey) {
+            const titles = { pnl: 'P&L Summary', orders: 'Orders', animals: 'Animals', animal_events: 'Animal Events', products: 'Products', expenses: 'Expenses', settings: 'Settings'};
+            return titles[viewKey] || 'Data';
+        },
+        getSingularViewTitle(viewKey) { 
+             const titles = { orders: 'Order', animals: 'Animal', animal_events: 'Event', products: 'Product', expenses: 'Expense'};
+            return titles[viewKey] || '';
         },
 
         async fetchPnlData() {
             if (!this.isAdminAuth) return;
             this.loading.pnl = true;
-            let ordersForPnl = []; let expensesForPnl = [];
+            let ordersForPnl = []; 
+            let expensesForPnl = [];
             let orderFilter = `payment_status = "paid_confirmed"`;
             let expenseFilter = '';
 
             if (this.filterStartDate && this.filterEndDate) {
-                const start = `${this.filterStartDate} 00:00:00.000Z`; const end = `${this.filterEndDate} 23:59:59.999Z`;
+                const start = `${this.filterStartDate} 00:00:00.000Z`; 
+                const end = `${this.filterEndDate} 23:59:59.999Z`;
                 orderFilter += ` && created >= "${start}" && created <= "${end}"`;
                 expenseFilter = `expense_date >= "${this.filterStartDate}" && expense_date <= "${this.filterEndDate}"`;
             }
@@ -312,50 +474,77 @@ document.addEventListener('alpine:init', () => {
             if (!this.isAdminAuth) return;
             this.loading.current = true;
             const currentDataState = this.data[collectionName];
+
+            if (!currentDataState) {
+                console.error(`Data state for ${collectionName} is undefined. View key: ${this.currentView}`);
+                this.loading.current = false;
+                return;
+            }
             currentDataState.page = page;
 
-            const params = { page: page, perPage: currentDataState.perPage, sort: '-created' };
+            const params = { page: page, perPage: currentDataState.perPage, sort: '-created' }; // Default sort
             let expandFields = [];
+            
+            // Get expand fields from column configuration
+            const viewColumns = this.getColumnsForView(this.currentView); 
+            if (viewColumns) {
+                viewColumns.forEach(col => {
+                    if (col.type === 'expand' && col.expandedField) {
+                        expandFields.push(col.expandedField);
+                    }
+                });
+            }
+            if (expandFields.length > 0) params.expand = expandFields.join(',');
 
-            if (collectionName === 'orders') {
-                 params.sort = '-created'; expandFields.push('animal_id');
+            // Collection-specific overrides for filters and sorting
+            if (collectionName === 'settings') {
+                 params.sort = 'created'; // Or by a specific field if applicable for settings
+            } else if (collectionName === 'orders') {
+                 params.sort = '-created';
                  let filter = 'id != ""'; 
-                 if (this.filterStartDate && this.filterEndDate) {
+                 if (this.filterStartDate && this.filterEndDate && ['orders'].includes(this.currentView)) { // Apply date filter only if relevant view
                     filter += ` && created >= "${this.filterStartDate} 00:00:00.000Z" && created <= "${this.filterEndDate} 23:59:59.999Z"`;
                  }
                  params.filter = filter;
-            }
-            if (collectionName === 'expenses') {
+            } else if (collectionName === 'expenses') {
                 params.sort = '-expense_date';
-                if (this.filterStartDate && this.filterEndDate) {
+                if (this.filterStartDate && this.filterEndDate && ['expenses'].includes(this.currentView)) { // Apply date filter only if relevant view
                     params.filter = `expense_date >= "${this.filterStartDate}" && expense_date <= "${this.filterEndDate}"`;
                 }
+            } else if (collectionName === 'sheep_log') { 
+                params.sort = '-acquisition_date';
+            } else if (collectionName === 'animal_events') { 
+                params.sort = '-event_date';
+            } else if (collectionName === 'products') { 
+                params.sort = 'type_key,sort_order_variant';
             }
-            if (collectionName === 'sheep_log') { params.sort = '-acquisition_date'; expandFields.push('sale_order_id');}
-            if (collectionName === 'animal_events') { params.sort = '-event_date'; expandFields.push('animal_id');}
-            if (collectionName === 'products') { params.sort = 'type_key,sort_order_variant';}
             
-            if(expandFields.length > 0) params.expand = expandFields.join(',');
-
             try {
                 const resultList = await this.pb.collection(collectionName).getList(page, currentDataState.perPage, params);
                 currentDataState.items = resultList.items;
                 currentDataState.totalPages = resultList.totalPages;
                 currentDataState.totalItems = resultList.totalItems;
-            } catch (error) { this.handleFetchError(error, collectionName); currentDataState.items = []; }
+            } catch (error) { 
+                this.handleFetchError(error, collectionName); 
+                currentDataState.items = []; 
+                currentDataState.totalPages = 1; 
+                currentDataState.totalItems = 0;
+            }
             finally { this.loading.current = false; }
         },
         
         handleFetchError(error, context) {
             console.error(`Error fetching ${context}:`, error);
-            this.authError = `Failed to load data for ${context}. Check console.`;
-            if (error.status === 401 || error.status === 403) {
-                this.isAdminAuth = false; this.authError = 'Session expired or unauthorized. Please login again.';
+            this.authError = `Failed to load data for ${context}. Check console for details.`;
+            if (error.status === 401 || error.status === 403) { // Unauthorized or Forbidden
+                this.isAdminAuth = false; 
+                this.authError = 'Session expired or unauthorized. Please login again.';
             }
         },
 
         async changePage(collectionName, newPage) {
-            if (newPage >= 1 && newPage <= this.data[collectionName].totalPages) {
+            const currentDataState = this.data[collectionName];
+            if (currentDataState && newPage >= 1 && newPage <= currentDataState.totalPages) {
                 await this.fetchPaginatedData(collectionName, newPage);
             }
         },
@@ -370,72 +559,122 @@ document.addEventListener('alpine:init', () => {
         
         async deleteRecord(collectionName, recordId, recordIdentifier) {
             if (!this.isAdminAuth) { alert("Authentication required."); return; }
-            if (!confirm(`Are you sure you want to delete this ${collectionName.replace(/_/g, ' ').slice(0,-1)}: "${recordIdentifier}"? This action cannot be undone.`)) return;
+            
+            const displayIdentifier = String(recordIdentifier).replace(/"/g, "'"); // Sanitize for confirm dialog
+            const singularName = (this.getSingularViewTitle(this.currentView) || collectionName.replace(/_/g, ' ').replace(/s$/, '')).toLowerCase();
+
+            if (!confirm(`Are you sure you want to delete this ${singularName}: "${displayIdentifier}"? This action cannot be undone.`)) return;
 
             this.loading.current = true;
             try {
                 await this.pb.collection(collectionName).delete(recordId);
-                log(`${collectionName.slice(0,-1)} "${recordIdentifier}" deleted successfully.`, 's'); // Use existing log for console
-                await this.fetchPaginatedData(collectionName, this.data[collectionName].page); 
-                if (['orders', 'expenses', 'sheep_log'].includes(collectionName)) { await this.fetchPnlData(); }
+                console.info(`${singularName} "${displayIdentifier}" deleted successfully.`);
+                
+                // Re-fetch data for the current page, or previous if last item on page deleted
+                const currentDataState = this.data[collectionName];
+                let pageToFetch = currentDataState.page;
+                if(currentDataState.items.length === 1 && pageToFetch > 1) {
+                    pageToFetch--;
+                }
+                await this.fetchPaginatedData(collectionName, pageToFetch); 
+                
+                if (['orders', 'expenses', 'sheep_log'].includes(collectionName)) { 
+                    await this.fetchPnlData(); // Refresh P&L if relevant data changed
+                }
             } catch (error) { this.handleFetchError(error, `deleting from ${collectionName}`); } 
             finally { this.loading.current = false; }
         },
 
-        formatDate(dateString) {
+        formatDate(dateString, options = { year: 'numeric', month: 'short', day: 'numeric' }) {
             if (!dateString) return 'N/A';
-            try { const date = new Date(dateString); return date.toLocaleDateString('en-CA'); } 
-            catch (e) { return dateString; }
+            try { 
+                const date = new Date(dateString); 
+                if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+                return date.toLocaleDateString(undefined, options); 
+            } 
+            catch (e) { return dateString; } // Return original string if parsing fails
         },
         formatCurrency(amount, currency = 'EGP', digits = 0) {
-            if (typeof amount !== 'number') return 'N/A';
+            if (amount === null || typeof amount === 'undefined') return 'N/A';
+            const numAmount = Number(amount);
+            if (isNaN(numAmount)) return 'N/A';
+            
             const options = { style: 'currency', currency: currency, minimumFractionDigits: digits, maximumFractionDigits: digits };
-            try { return new Intl.NumberFormat('en-US', options).format(amount); }
-            catch (e) { return `${currency} ${amount.toFixed(digits)}`; }
+            try { return new Intl.NumberFormat('en-US', options).format(numAmount); }
+            catch (e) { return `${currency} ${numAmount.toFixed(digits)}`; }
         },
-        // Dynamic table rendering (basic example)
-        getTableHeaders(tabKey) {
-            const collName = this.getCollectionNameForTab(tabKey);
-            let headers = '';
-            if (collName === 'orders') headers = `<th>ID</th><th>Date</th><th>Customer</th><th>Product</th><th class="currency">Total</th><th>Payment</th><th>Status</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'expenses') headers = `<th>Date</th><th>Category</th><th>Description</th><th class="currency">Amount</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'sheep_log') headers = `<th>Tag ID</th><th>Breed</th><th>Acq. Date</th><th class="currency">Acq. Cost</th><th>Status</th><th>Sold Order</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'animal_events') headers = `<th>Animal Tag</th><th>Event Date</th><th>Type</th><th>Description</th><th class="currency">Cost</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'products') headers = `<th>Key</th><th>Variant</th><th class="currency">Price</th><th>Stock</th><th>Active</th><th class="actions-col">Actions</th>`;
-            return headers;
+        escapeHtml(unsafe) {
+            if (unsafe === null || typeof unsafe === 'undefined') return '';
+            return String(unsafe)
+                 .replace(/&/g, "&")
+                 .replace(/</g, "<")
+                 .replace(/>/g, ">")
+                 .replace(/"/g, """)
+                 .replace(/'/g, "'");
         },
-        getTableRow(tabKey, item) {
-            const collName = this.getCollectionNameForTab(tabKey);
-            let rowHtml = '';
-            const editUrl = this.getPbAdminEditUrl(collName, item.id);
-            const deleteAction = `deleteRecord('${collName}', '${item.id}', '${(item.order_id_text || item.animal_tag_id || item.item_key || item.description || item.id).toString().replace(/'/g, "\\'")}')`;
 
-            if (collName === 'orders') {
-                rowHtml = `<td>${item.order_id_text}</td><td>${this.formatDate(item.created)}</td><td>${item.ordering_person_name}</td><td>${item.ordered_product_name_en || ''}</td>
-                           <td class="currency">${this.formatCurrency(item.total_amount_due_egp, 'EGP', 0)}</td>
-                           <td><span class="${item.payment_status === 'paid_confirmed' ? 'status-paid' : item.payment_status.includes('pending') ? 'status-pending' : 'status-failed'}">${item.payment_status?.replace(/_/g, ' ')}</span></td>
-                           <td>${item.order_status?.replace(/_/g, ' ')}</td>`;
-            } else if (collName === 'expenses') {
-                rowHtml = `<td>${this.formatDate(item.expense_date)}</td><td>${item.category}</td><td>${item.description}</td>
-                           <td class="currency">${this.formatCurrency(item.amount_egp, 'EGP', 0)}</td>`;
-            } else if (collName === 'sheep_log') {
-                rowHtml = `<td>${item.animal_tag_id}</td><td>${item.breed || 'N/A'}</td><td>${this.formatDate(item.acquisition_date)}</td>
-                           <td class="currency">${this.formatCurrency(item.acquisition_cost_egp, 'EGP', 0)}</td><td>${item.current_status}</td>
-                           <td>${item.expanded?.sale_order_id?.order_id_text || (item.sale_order_id ? '...' : 'N/A')}</td>`;
-            } else if (collName === 'animal_events') {
-                 rowHtml = `<td>${item.expanded?.animal_id?.animal_tag_id || 'N/A'}</td><td>${this.formatDate(item.event_date)}</td><td>${item.event_type}</td>
-                           <td>${item.description}</td><td class="currency">${this.formatCurrency(item.cost_associated_egp, 'EGP', 0)}</td>`;
-            } else if (collName === 'products') {
-                rowHtml = `<td>${item.item_key}</td><td>${item.variant_name_en}</td><td class="currency">${this.formatCurrency(item.base_price_egp, 'EGP', 0)}</td>
-                           <td>${item.stock_available_pb}</td><td>${item.is_active ? 'Yes':'No'}</td>`;
+        getColumnsForView(viewKey) {
+            const collectionName = this.getCollectionNameForView(viewKey);
+            return this.columnsConfig[collectionName] || [];
+        },
+
+        renderCellContent(item, column, collectionName) {
+            let value = item[column.key];
+             // Handle nested keys for expanded fields (basic, assumes item.expand.fieldName)
+            if (column.type === 'expand' && column.expandedField) {
+                 value = item.expand && item.expand[column.expandedField] ? item.expand[column.expandedField][column.displayField] : (item[column.expandedField] ? '...' : (column.placeholder || 'N/A'));
             }
-            rowHtml += `<td class="actions-col"><a href="${editUrl}" target="_blank" class="btn bp">Edit</a> <button @click="${deleteAction}" class="btn btn-delete">Del</button></td>`;
-            if(collName === 'sheep_log') rowHtml += `<a href="${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}" target="_blank" class="btn bp" title="Add Event" style="margin-left:2px;">+Evt</a>`;
+            
+            const cellContentClasses = ['cell-content'];
+            if(!column.cellMaxWidth) cellContentClasses.push('no-truncate'); // Don't truncate if no max width set
 
+            const contentSpan = `<span class="${cellContentClasses.join(' ')}" ${column.cellMaxWidth ? `style="max-width:${column.cellMaxWidth};"` : ''} title="${this.escapeHtml(typeof value === 'object' ? JSON.stringify(value) : value)}">`;
 
-            return rowHtml;
+            switch (column.type) {
+                case 'text':
+                    const textValue = column.format ? column.format(value) : (value !== null && typeof value !== 'undefined' ? this.escapeHtml(value) : 'N/A');
+                    return `${contentSpan}${textValue}</span>`;
+                case 'date':
+                    return `${contentSpan}${this.formatDate(value)}</span>`;
+                case 'currency':
+                    return `${contentSpan}${this.formatCurrency(value, column.currency, column.digits)}</span>`;
+                case 'number':
+                     return `${contentSpan}${(typeof value === 'number' ? value.toLocaleString() : 'N/A')}</span>`;
+                case 'boolean':
+                    return `${contentSpan}${value ? 'Yes' : 'No'}</span>`;
+                case 'status_pill':
+                    const rawStatus = item[column.key]; // Get raw status from item for class generation
+                    const statusClass = rawStatus ? String(rawStatus).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/gi, '') : 'default';
+                    const statusText = rawStatus ? this.escapeHtml(String(rawStatus).replace(/_/g, ' ')) : 'N/A';
+                    return `<span class="status-pill ${this.escapeHtml(statusClass)}">${statusText}</span>`; // Pill itself doesn't get wrapped by cell-content span
+                case 'expand':
+                    // Value already processed above for expand type
+                    return `${contentSpan}${this.escapeHtml(value)}</span>`;
+                case 'actions': 
+                case 'actions_animal': {
+                    const editUrl = this.getPbAdminEditUrl(collectionName, item.id);
+                    let identifier;
+                    if (typeof column.identifierField === 'function') {
+                        identifier = column.identifierField(item);
+                    } else {
+                        identifier = item[column.identifierField] || item.id;
+                    }
+                    const safeIdentifier = String(identifier).replace(/'/g, "\\'"); // Escape for JS string literal
+                    const deleteAction = `Alpine.store('adminDashboardRef').deleteRecord('${collectionName}', '${item.id}', '${safeIdentifier}')`;
+                    
+                    let buttonsHtml = `<a href="${editUrl}" target="_blank" class="btn bp btn-small">Edit</a> 
+                                       <button @click="${deleteAction}" class="btn btn-delete btn-small">Del</button>`;
+                    if (column.type === 'actions_animal') {
+                        const addEventUrl = `${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}`;
+                        buttonsHtml += ` <a href="${addEventUrl}" target="_blank" class="btn bp btn-small" title="Add Event">+Evt</a>`;
+                    }
+                    return buttonsHtml; // Actions don't get wrapped by cell-content span
+                }
+                default:
+                    return `${contentSpan}${(value !== null && typeof value !== 'undefined' ? this.escapeHtml(value) : 'N/A')}</span>`;
+            }
         }
-    }));
+    }), {name: 'adminDashboardRef'}) // Expose on Alpine.store for @click access if needed
 });
 </script>
 </body>
