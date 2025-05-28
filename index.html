@@ -502,12 +502,21 @@
                                                 <button type="button" @click.prevent="navStep(4)" class="btn-edit-sum bil-parent-spread-intrinsic" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="sum-item" x-show="delFeeDispEGP > 0 && !isDelFeeVar">
-                                                <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery Fee:</strong></div><div class="ar"><strong>رسوم التوصيل:</strong></div></div></div>
-                                                <span class="sum-item-price bil-row"><span class="en" x-text="fmtPrice(delFeeDispEGP)"></span><span class="ar" x-text="fmtPrice(delFeeDispEGP)"></span></span>
+                                                <div class="sum-item-content">
+                                                    <div class="bil-row">
+                                                        <div class="en"><strong>Delivery Fee:</strong> <span x-text="fmtPrice(delFeeDispEGP)"></span></div>
+                                                        <div class="ar"><strong>رسوم التوصيل:</strong> <span x-text="fmtPrice(delFeeDispEGP)"></span></div>
+                                                    </div>
+                                                </div>
                                                 <button type="button" @click.prevent="navStep(4)" class="btn-edit-sum bil-parent-spread-intrinsic" aria-label="Edit Delivery City/Fee"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="sum-item" x-show="isDelFeeVar && delCity">
-                                                 <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Est. Delivery Fee:</strong> To be confirmed</div><div class="ar"><strong>رسوم التوصيل المقدرة:</strong> سيتم التأكيد</div></div></div>
+                                                 <div class="sum-item-content">
+                                                     <div class="bil-row">
+                                                         <div class="en"><strong>Est. Delivery Fee:</strong> To be confirmed</div>
+                                                         <div class="ar"><strong>رسوم التوصيل المقدرة:</strong> سيتم التأكيد</div>
+                                                     </div>
+                                                 </div>
                                                  <button type="button" @click.prevent="navStep(4)" class="btn-edit-sum bil-parent-spread-intrinsic" aria-label="Edit Delivery City"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                         </div>
