@@ -14,29 +14,9 @@ document.addEventListener('alpine:init', () => {
         payment_details: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
     };
 
-    const HARDCODED_PRODUCT_CATALOG_CONFIG = [
-        { 
-            value_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", 
-            description_en: "Local breed, rich flavor.", description_ar: "سلالة محلية، نكهة غنية.",
-            price_per_kg_egp: 230,
-            weights_prices: [ 
-                { item_key: "baladi_40_50", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", nameEN_specific: "Baladi (40-50kg)", nameAR_specific: "بلدي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 7, is_active: true },
-                { item_key: "baladi_50_60", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", nameEN_specific: "Baladi (50-60kg)", nameAR_specific: "بلدي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 8, is_active: true },
-                { item_key: "baladi_60_plus", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", nameEN_specific: "Baladi (60+kg)", nameAR_specific: "بلدي (+٦٠كجم)", avg_weight_kg: 65, initial_stock: 1, is_active: true }
-            ]
-        },
-        { 
-            value_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", 
-            description_en: "Desert breed, lean meat.", description_ar: "سلالة صحراوية، لحم قليل الدهن.",
-            price_per_kg_egp: 255,
-            weights_prices: [
-                { item_key: "barki_30_40", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", nameEN_specific: "Barki (30-40kg)", nameAR_specific: "برقي (٣٠-٤٠كجم)", avg_weight_kg: 35, initial_stock: 1, is_active: true },
-                { item_key: "barki_40_50", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", nameEN_specific: "Barki (40-50kg)", nameAR_specific: "برقي (٤٠-٥٠كجم)", avg_weight_kg: 45, initial_stock: 5, is_active: true },
-                { item_key: "barki_50_60", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", nameEN_specific: "Barki (50-60kg)", nameAR_specific: "برقي (٥٠-٦٠كجم)", avg_weight_kg: 55, initial_stock: 3, is_active: true },
-                { item_key: "barki_60_plus", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", nameEN_specific: "Barki (60+kg)", nameAR_specific: "برقي (+٦٠كجم)", avg_weight_kg: 65, initial_stock: 2, is_active: true }
-            ]
-        }
-    ];
+    // HARDCODED_PRODUCT_CATALOG_CONFIG is no longer the primary source for product details,
+    // but its structure is a good reference for how productOptions.livestock will be formed.
+    // Actual data now comes from PocketBase 'sheep_types' and 'sheep_variants'.
 
     const initialBookingStateData = {
         selectedAnimal: { type: "", item_key: "", weight_range_en: "", weight_range_ar: "", basePriceEGP: 0, nameEN: "", nameAR: "", stock: null, typeGenericNameEN: "", typeGenericNameAR: "" },
@@ -60,7 +40,7 @@ document.addEventListener('alpine:init', () => {
         paymentMethod: "fa", 
         errors: {},
         totalPriceEGP: 0,
-        lookupPhoneNumber: "" // Added for check status
+        lookupPhoneNumber: "" 
     };
 
     const activePaymentMethodsList = [ 'revolut', 'monzo', 'ip', 'fa', 'vo', 'cod', 'bank_transfer' ];
@@ -93,14 +73,15 @@ document.addEventListener('alpine:init', () => {
     async function updateStockInPB(itemKey, quantityToDecrement = 1) {
         const pb = new PocketBase('/');
         try {
-            const stockRecord = await pb.collection('stock_levels').getFirstListItem(`item_key="${itemKey}"`);
-            if (stockRecord) {
-                const newStock = Math.max(0, stockRecord.current_stock - quantityToDecrement);
-                await pb.collection('stock_levels').update(stockRecord.id, { current_stock: newStock });
+            const stockRecords = await pb.collection('sheep_variants').getFullList({ filter: `item_key = "${pb.realtime.client.utils.escapeFilterValue(itemKey)}"` });
+            if (stockRecords && stockRecords.length > 0) {
+                const stockRecord = stockRecords[0];
+                const newStock = Math.max(0, stockRecord.stock_available_pb - quantityToDecrement);
+                await pb.collection('sheep_variants').update(stockRecord.id, { stock_available_pb: newStock });
                 console.log(`Stock updated in PB for ${itemKey} to ${newStock}`);
                 return newStock; 
             } else {
-                console.warn(`Stock record not found in PB for item_key: ${itemKey}. Cannot update stock.`);
+                console.warn(`Stock record (variant) not found in PB for item_key: ${itemKey}. Cannot update stock.`);
                 return null; 
             }
         } catch (error) {
@@ -159,30 +140,53 @@ document.addEventListener('alpine:init', () => {
             this.isLoading.init = true; this.apiError = null; this.userFriendlyApiError = "";
             const pb = new PocketBase('/');
 
-            let fetchedStockLevels = [];
             try {
-                fetchedStockLevels = await pb.collection('stock_levels').getFullList({ requestKey: null });
-            } catch (e) {
-                console.error("Error fetching stock levels from PocketBase:", e);
-                this.apiError = "Could not load stock information. Please refresh.";
-                this.userFriendlyApiError = "Error loading availability. Please refresh the page.";
-            }
-            
-            this.productOptions.livestock = JSON.parse(JSON.stringify(HARDCODED_PRODUCT_CATALOG_CONFIG)).map(animalType => {
-                animalType.weights_prices.forEach(item => {
-                    item.basePriceEGP = item.avg_weight_kg * animalType.price_per_kg_egp;
-                    const stockInfo = fetchedStockLevels.find(s => s.item_key === item.item_key);
-                    if (stockInfo) {
-                        item.current_stock = stockInfo.current_stock;
-                        item.is_active = stockInfo.is_active !== undefined ? stockInfo.is_active : item.is_active; 
-                    } else {
-                        item.current_stock = 0; 
-                        item.is_active = false; 
-                        console.warn(`Stock info for item_key ${item.item_key} not found in PocketBase stock_levels. Marking as inactive/out of stock.`);
-                    }
+                const fetchedSheepTypes = await pb.collection('sheep_types').getFullList({ 
+                    sort: 'sort_order', 
+                    filter: 'is_active = true',
+                    requestKey: `sheep_types-${Date.now()}` // Attempt to bypass cache
                 });
-                return animalType;
-            });
+
+                const fetchedSheepVariants = await pb.collection('sheep_variants').getFullList({ 
+                    sort: 'sort_order', 
+                    filter: 'is_active = true',
+                    expand: 'sheep_type_id', // Crucial: expand the related sheep_type record
+                    requestKey: `sheep_variants-${Date.now()}` // Attempt to bypass cache
+                });
+
+                this.productOptions.livestock = fetchedSheepTypes.map(type => {
+                    const typeConfig = {
+                        value_key: type.type_key,
+                        name_en: type.name_en,
+                        name_ar: type.name_ar,
+                        price_per_kg_egp: type.price_per_kg_egp,
+                        description_en: type.description_en,
+                        description_ar: type.description_ar,
+                        weights_prices: []
+                    };
+
+                    typeConfig.weights_prices = fetchedSheepVariants
+                        .filter(variant => variant.expand?.sheep_type_id?.id === type.id && variant.is_active) // Ensure expanded field exists
+                        .map(variant => ({
+                            item_key: variant.item_key,
+                            nameEN_specific: variant.name_en_variant, 
+                            nameAR_specific: variant.name_ar_variant, 
+                            weight_range_text_en: variant.weight_range_text_en,
+                            weight_range_text_ar: variant.weight_range_text_ar,
+                            avg_weight_kg: variant.avg_weight_kg,
+                            basePriceEGP: variant.base_price_egp, // Use pre-calculated base price from variant
+                            current_stock: variant.stock_available_pb, // Use current stock from PB
+                            is_active: variant.is_active,
+                        }));
+                    return typeConfig;
+                }).filter(type => type.weights_prices.length > 0);
+
+            } catch (e) {
+                console.error("Error fetching product data from PocketBase:", e);
+                this.apiError = "Could not load product catalog from server.";
+                this.userFriendlyApiError = "Error loading sheep options. Please try again later.";
+                this.productOptions.livestock = [];
+            }
             
             let cities = []; 
             this.appSettings.delivery_areas.forEach(gov => {
@@ -481,7 +485,7 @@ document.addEventListener('alpine:init', () => {
         },
         async validateAndCheckBookingStatus() {
             this.clearError('lookupBookingID');
-            this.clearError('lookupPhoneNumber'); // Clear phone error too
+            this.clearError('lookupPhoneNumber');
             let isValid = true;
             if (!(this.lookupBookingID || "").trim()) {
                 this.setError('lookupBookingID', 'required');
@@ -501,7 +505,7 @@ document.addEventListener('alpine:init', () => {
         async checkBookingStatus() { 
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; 
             const id = (this.lookupBookingID || "").trim();
-            const phone = (this.lookupPhoneNumber || "").trim();
+            const phone = (this.lookupPhoneNumber || "").trim(); // Get phone number for query
             const pb = new PocketBase('/');
             try {
                 const filterString = `(booking_id_text = "${pb.realtime.client.utils.escapeFilterValue(id)}" && ordering_person_phone = "${pb.realtime.client.utils.escapeFilterValue(phone)}")`;
