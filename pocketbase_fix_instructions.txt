@@ -1,0 +1,76 @@
+PocketBase Fix Instructions for LLM
+Fix PocketBase HTML using official API structure:
+
+Collection Structure:
+{
+    name: "collection_name",
+    type: "base", 
+    listRule: "",
+    viewRule: "",
+    createRule: "",
+    updateRule: "",
+    deleteRule: "",
+    fields: []
+}
+
+Field Structure:
+{
+    name: "field_name",
+    type: "text",
+    required: false,
+    presentable: true,
+    max: 100
+}
+
+Field Types:
+// Text
+{ name: "title", type: "text", required: true, max: 100, pattern: "^[a-z]+$" }
+
+// Number  
+{ name: "price", type: "number", required: true, min: 0 }
+
+// Bool
+{ name: "active", type: "bool", required: false }
+
+// Email
+{ name: "email", type: "email", required: false }
+
+// Select
+{ name: "status", type: "select", required: true, maxSelect: 1, values: ["pending", "active"] }
+
+// Relation
+{ name: "user_id", type: "relation", required: true, collectionId: "actual_id", cascadeDelete: false, minSelect: 1, maxSelect: 1, displayFields: ["name"] }
+
+// File
+{ name: "avatar", type: "file", required: false, maxSelect: 1, maxSize: 5242880, mimeTypes: ["image/jpeg", "image/png"] }
+
+Critical Changes:
+Remove ALL options: {} wrappers - properties go directly on field
+Remove id, system, unique from fields/collections
+Rules: "" not null
+Remove all comments
+Field properties are direct: max, min, pattern, maxSelect, values, collectionId, cascadeDelete, minSelect, displayFields, maxSize, mimeTypes
+Use pb.admins.authWithPassword() not pb.collection("_superusers").authWithPassword()
+Auth collections need: passwordAuth: { enabled: true, identityFields: ["email"] }, oauth2: { enabled: false }
+Relation Fix:
+Create collections without relations (collectionId: "")
+Add relation fields after with real collectionId
+API Calls:
+// CREATE
+await pb.collections.create({ name, type, fields, listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "" });
+
+// UPDATE  
+await pb.collections.update(id, { fields, listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "" });
+
+// AUTH
+await pb.admins.authWithPassword(email, password);
+
+Error Logging:
+catch (error) {
+    console.error('Full error:', error);
+    if (error.response?.data) console.error('Validation:', error.response.data);
+    console.error('Payload:', payload);
+}
+
+Apply these changes and return complete fixed HTML with full debug logging.
+
