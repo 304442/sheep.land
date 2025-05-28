@@ -51,7 +51,7 @@
         else console.log(consoleMessage, data || '');
     };
 
-    // Collections definition for initial import
+    // Collections definition using the correct PocketBase API format
     const collectionsDefinition = [
         {
             name: "settings",
@@ -61,21 +61,18 @@
             createRule: null, 
             updateRule: null, 
             deleteRule: null,
-            schema: [
+            fields: [
                 { name: "xchgRates", type: "json", required: true, presentable: true },
-                { name: "defCurr", type: "text", required: true, presentable: true, options: { max: 5 } },
+                { name: "defCurr", type: "text", required: true, presentable: true, max: 5 },
                 { name: "waNumRaw", type: "text", required: false, presentable: true },
                 { name: "waNumDisp", type: "text", required: false, presentable: true },
                 { name: "promoEndISO", type: "date", required: false, presentable: true },
-                { name: "promoDiscPc", type: "number", required: false, presentable: true, options: { min: 0, max: 100 } },
+                { name: "promoDiscPc", type: "number", required: false, presentable: true, min: 0, max: 100 },
                 { name: "promoActive", type: "bool", required: false, presentable: true },
-                { name: "servFeeEGP", type: "number", required: true, presentable: true, options: { min: 0 } },
+                { name: "servFeeEGP", type: "number", required: true, presentable: true, min: 0 },
                 { name: "delAreas", type: "json", required: false, presentable: true },
                 { name: "payDetails", type: "json", required: false, presentable: true }
-            ],
-            options: {
-                maxRecords: 1
-            }
+            ]
         },
         {
             name: "products",
@@ -85,24 +82,24 @@
             createRule: "", 
             updateRule: "", 
             deleteRule: "",
-            schema: [
-                { name: "item_key", type: "text", required: true, presentable: true, options: { max: 100, pattern: "^[a-z0-9_]+$" } },
-                { name: "type_key", type: "text", required: true, presentable: true, options: { max: 50, pattern: "^[a-z0-9_]+$" } },
-                { name: "type_name_en", type: "text", required: true, presentable: true, options: { max: 100 } },
-                { name: "type_name_ar", type: "text", required: true, presentable: true, options: { max: 100 } },
-                { name: "type_description_en", type: "text", required: false, presentable: true, options: { max: 200 } },
-                { name: "type_description_ar", type: "text", required: false, presentable: true, options: { max: 200 } },
-                { name: "price_per_kg_egp", type: "number", required: true, presentable: true, options: { min: 0 } },
-                { name: "variant_name_en", type: "text", required: true, presentable: true, options: { max: 150 } },
-                { name: "variant_name_ar", type: "text", required: true, presentable: true, options: { max: 150 } },
-                { name: "weight_range_text_en", type: "text", required: true, presentable: true, options: { max: 50 } },
-                { name: "weight_range_text_ar", type: "text", required: true, presentable: true, options: { max: 50 } },
-                { name: "avg_weight_kg", type: "number", required: true, presentable: true, options: { min: 0 } },
-                { name: "base_price_egp", type: "number", required: true, presentable: true, options: { min: 0 } },
-                { name: "stock_available_pb", type: "number", required: true, presentable: true, options: { min: 0, noDecimal: true } },
+            fields: [
+                { name: "item_key", type: "text", required: true, presentable: true, max: 100, pattern: "^[a-z0-9_]+$" },
+                { name: "type_key", type: "text", required: true, presentable: true, max: 50, pattern: "^[a-z0-9_]+$" },
+                { name: "type_name_en", type: "text", required: true, presentable: true, max: 100 },
+                { name: "type_name_ar", type: "text", required: true, presentable: true, max: 100 },
+                { name: "type_description_en", type: "text", required: false, presentable: true, max: 200 },
+                { name: "type_description_ar", type: "text", required: false, presentable: true, max: 200 },
+                { name: "price_per_kg_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "variant_name_en", type: "text", required: true, presentable: true, max: 150 },
+                { name: "variant_name_ar", type: "text", required: true, presentable: true, max: 150 },
+                { name: "weight_range_text_en", type: "text", required: true, presentable: true, max: 50 },
+                { name: "weight_range_text_ar", type: "text", required: true, presentable: true, max: 50 },
+                { name: "avg_weight_kg", type: "number", required: true, presentable: true, min: 0 },
+                { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0, noDecimal: true },
                 { name: "is_active", type: "bool", required: false, presentable: true },
-                { name: "sort_order_type", type: "number", required: false, presentable: true, options: { min: 0, noDecimal: true } },
-                { name: "sort_order_variant", type: "number", required: false, presentable: true, options: { min: 0, noDecimal: true } }
+                { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
+                { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true }
             ],
             indexes: [
                 "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)"
@@ -116,46 +113,46 @@
             createRule: "", 
             updateRule: null, 
             deleteRule: null,
-            schema: [
-                { name: "booking_id_text", type: "text", required: true, presentable: true, options: { max: 50 } },
-                { name: "booked_product_name_en", type: "text", required: false, presentable: true, options: { max: 150 } },
-                { name: "booked_product_name_ar", type: "text", required: false, presentable: true, options: { max: 150 } },
-                { name: "booked_weight_range_en", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "booked_weight_range_ar", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "booked_price_at_booking_egp", type: "number", required: true, presentable: true, options: { min: 0 } },
-                { name: "udheya_service_option_selected", type: "text", required: true, presentable: true, options: { max: 50 } },
-                { name: "service_fee_applied_egp", type: "number", required: true, presentable: true, options: { min: 0 } },
-                { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, options: { min: 0 } },
-                { name: "total_amount_due_egp", type: "number", required: true, presentable: true, options: { min: 0 } },
-                { name: "selected_display_currency", type: "text", required: false, presentable: true, options: { max: 5 } },
-                { name: "sacrifice_day_value", type: "text", required: true, presentable: true, options: { max: 50 } },
-                { name: "sacrifice_day_text_en", type: "text", required: false, presentable: true, options: { max: 100 } },
-                { name: "sacrifice_day_text_ar", type: "text", required: false, presentable: true, options: { max: 100 } },
-                { name: "slaughter_viewing_preference", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "distribution_choice", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "split_details_option", type: "text", required: false, presentable: true, options: { max: 100 } },
-                { name: "custom_split_details_text", type: "text", required: false, presentable: true, options: { max: 500 } },
-                { name: "niyyah_names", type: "text", required: false, presentable: true, options: { max: 500 } },
-                { name: "ordering_person_name", type: "text", required: true, presentable: true, options: { max: 150 } },
-                { name: "ordering_person_phone", type: "text", required: true, presentable: true, options: { max: 30 } },
+            fields: [
+                { name: "booking_id_text", type: "text", required: true, presentable: true, max: 50 },
+                { name: "booked_product_name_en", type: "text", required: false, presentable: true, max: 150 },
+                { name: "booked_product_name_ar", type: "text", required: false, presentable: true, max: 150 },
+                { name: "booked_weight_range_en", type: "text", required: false, presentable: true, max: 50 },
+                { name: "booked_weight_range_ar", type: "text", required: false, presentable: true, max: 50 },
+                { name: "booked_price_at_booking_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "udheya_service_option_selected", type: "text", required: true, presentable: true, max: 50 },
+                { name: "service_fee_applied_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
+                { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 },
+                { name: "sacrifice_day_value", type: "text", required: true, presentable: true, max: 50 },
+                { name: "sacrifice_day_text_en", type: "text", required: false, presentable: true, max: 100 },
+                { name: "sacrifice_day_text_ar", type: "text", required: false, presentable: true, max: 100 },
+                { name: "slaughter_viewing_preference", type: "text", required: false, presentable: true, max: 50 },
+                { name: "distribution_choice", type: "text", required: false, presentable: true, max: 50 },
+                { name: "split_details_option", type: "text", required: false, presentable: true, max: 100 },
+                { name: "custom_split_details_text", type: "text", required: false, presentable: true, max: 500 },
+                { name: "niyyah_names", type: "text", required: false, presentable: true, max: 500 },
+                { name: "ordering_person_name", type: "text", required: true, presentable: true, max: 150 },
+                { name: "ordering_person_phone", type: "text", required: true, presentable: true, max: 30 },
                 { name: "customer_email", type: "email", required: false, presentable: true },
-                { name: "delivery_option", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "delivery_name", type: "text", required: false, presentable: true, options: { max: 150 } },
-                { name: "delivery_phone", type: "text", required: false, presentable: true, options: { max: 30 } },
-                { name: "delivery_area_id", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "delivery_area_name_en", type: "text", required: false, presentable: true, options: { max: 100 } },
-                { name: "delivery_area_name_ar", type: "text", required: false, presentable: true, options: { max: 100 } },
-                { name: "delivery_address", type: "text", required: false, presentable: true, options: { max: 500 } },
-                { name: "delivery_instructions", type: "text", required: false, presentable: true, options: { max: 500 } },
-                { name: "time_slot", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "payment_method", type: "text", required: true, presentable: true, options: { max: 50 } },
-                { name: "payment_status", type: "select", required: true, presentable: true, options: { maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] } },
-                { name: "booking_status", type: "select", required: true, presentable: true, options: { maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] } },
+                { name: "delivery_option", type: "text", required: false, presentable: true, max: 50 },
+                { name: "delivery_name", type: "text", required: false, presentable: true, max: 150 },
+                { name: "delivery_phone", type: "text", required: false, presentable: true, max: 30 },
+                { name: "delivery_area_id", type: "text", required: false, presentable: true, max: 50 },
+                { name: "delivery_area_name_en", type: "text", required: false, presentable: true, max: 100 },
+                { name: "delivery_area_name_ar", type: "text", required: false, presentable: true, max: 100 },
+                { name: "delivery_address", type: "text", required: false, presentable: true, max: 500 },
+                { name: "delivery_instructions", type: "text", required: false, presentable: true, max: 500 },
+                { name: "time_slot", type: "text", required: false, presentable: true, max: 50 },
+                { name: "payment_method", type: "text", required: true, presentable: true, max: 50 },
+                { name: "payment_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] },
+                { name: "booking_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] },
                 { name: "terms_agreed", type: "bool", required: false, presentable: true },
-                { name: "admin_notes", type: "text", required: false, presentable: true, options: { max: 1000 } },
+                { name: "admin_notes", type: "text", required: false, presentable: true, max: 1000 },
                 { name: "group_purchase_interest", type: "bool", required: false, presentable: true },
-                { name: "user_ip_address", type: "text", required: false, presentable: true, options: { max: 50 } },
-                { name: "user_agent_string", type: "text", required: false, presentable: true, options: { max: 300 } }
+                { name: "user_ip_address", type: "text", required: false, presentable: true, max: 50 },
+                { name: "user_agent_string", type: "text", required: false, presentable: true, max: 300 }
             ],
             indexes: [
                 "CREATE UNIQUE INDEX `idx_bookings_booking_id_text` ON `bookings` (`booking_id_text`)"
@@ -364,78 +361,80 @@
         }
     }
 
-    async function importInitialCollections(pb, collectionsToImport) {
+    async function createCollections(pb, collectionsToCreate) {
         try {
-            log('Importing collections (base schema)...', 'i');
-            await pb.collections.import(collectionsToImport, false);
-            log('Collections (base schema) imported successfully', 's');
+            log('Creating collections individually...', 'i');
+            
+            for (const collectionDef of collectionsToCreate) {
+                try {
+                    // Check if collection already exists
+                    let existingCollection = null;
+                    try {
+                        existingCollection = await pb.collections.getOne(collectionDef.name);
+                        log(`Collection ${collectionDef.name} already exists, skipping creation`, 'w');
+                        continue;
+                    } catch (e) {
+                        // Collection doesn't exist, which is what we want
+                    }
+
+                    log(`Creating collection: ${collectionDef.name}`, 'i');
+                    const createdCollection = await pb.collections.create(collectionDef);
+                    log(`Collection ${collectionDef.name} created successfully with ID: ${createdCollection.id}`, 's');
+                    
+                } catch (error) {
+                    log(`Failed to create collection ${collectionDef.name}: ${error.message}`, 'e');
+                    console.error(`Collection creation error for ${collectionDef.name}:`, error);
+                    if (error.response?.data) log('Collection creation error details:', 'e', error.response.data);
+                    return false;
+                }
+            }
+            
+            log('All collections created successfully', 's');
             return true;
         } catch (error) {
-            log(`Collections import failed: ${error.message}`, 'e');
-            console.error('Import error:', error);
-            if (error.response?.data) log('Import error details:', 'e', error.response.data);
+            log(`Collections creation failed: ${error.message}`, 'e');
+            console.error('Collections creation error:', error);
+            if (error.response?.data) log('Collections creation error details:', 'e', error.response.data);
             return false;
         }
     }
     
-    async function addRelationField(pb, collectionName, fieldName, targetCollectionId, isRequired = true, insertPosition = null, displayFields = ["id"]) {
+    async function addRelationField(pb, collectionName, fieldName, targetCollectionId, isRequired = true, displayFields = ["id"]) {
         try {
-            log(`Processing relation field ${fieldName} for ${collectionName} to target ${targetCollectionId}...`, 'i');
-            let collection = await pb.collections.getOne(collectionName);
-            const currentSchema = collection.schema || [];
-            const fieldExists = currentSchema.some(f => f.name === fieldName);
+            log(`Adding relation field ${fieldName} to ${collectionName}...`, 'i');
+            
+            const collection = await pb.collections.getOne(collectionName);
+            const currentFields = collection.fields || [];
+            
+            // Check if field already exists
+            const fieldExists = currentFields.some(f => f.name === fieldName);
+            if (fieldExists) {
+                log(`Field ${fieldName} already exists in ${collectionName}, skipping`, 'w');
+                return true;
+            }
 
-            const newFieldDefinition = {
+            const relationField = {
                 name: fieldName,
                 type: "relation",
                 required: isRequired,
                 presentable: true,
-                system: false,
-                options: {
-                    collectionId: targetCollectionId,
-                    cascadeDelete: false,
-                    minSelect: isRequired ? 1 : null,
-                    maxSelect: 1,
-                    displayFields: displayFields
-                }
+                collectionId: targetCollectionId,
+                cascadeDelete: false,
+                minSelect: isRequired ? 1 : null,
+                maxSelect: 1,
+                displayFields: displayFields
             };
 
-            let updatedSchemaArray;
-            if (fieldExists) {
-                const existingField = currentSchema.find(f => f.name === fieldName);
-                if (existingField.type === 'relation' && existingField.options && existingField.options.collectionId === targetCollectionId) {
-                    log(`Field ${fieldName} already exists and is correctly configured in ${collectionName}.`, 'w');
-                    return true; 
-                }
-                log(`Field ${fieldName} exists in ${collectionName}, updating.`, 'w');
-                updatedSchemaArray = currentSchema.map(f => {
-                    if (f.name === fieldName) {
-                        return { id: f.id, ...newFieldDefinition };
-                    }
-                    return f;
-                });
-            } else {
-                log(`Field ${fieldName} does not exist in ${collectionName}, adding new.`, 'i');
-                updatedSchemaArray = [...currentSchema];
-                if (insertPosition !== null && insertPosition >= 0 && insertPosition <= updatedSchemaArray.length) {
-                    updatedSchemaArray.splice(insertPosition, 0, newFieldDefinition);
-                } else {
-                    updatedSchemaArray.push(newFieldDefinition);
-                }
-            }
+            const updatedFields = [relationField, ...currentFields];
             
-            await pb.collections.update(collection.id, { schema: updatedSchemaArray });
-            log(`Relation field ${fieldName} in ${collectionName} processed successfully.`, 's');
+            await pb.collections.update(collection.id, { fields: updatedFields });
+            log(`Relation field ${fieldName} added to ${collectionName} successfully`, 's');
             return true;
+            
         } catch (error) {
-            log(`ERROR processing relation field ${fieldName} in ${collectionName}: ${error.message}`, 'e');
-            console.error('Full error details (addRelationField):', error);
-            if (error.response?.data) { 
-                log('Server Error:', 'e', error.response.data); 
-                if (error.response.data.data) { 
-                    log('Validation Issues:', 'e', error.response.data.data); 
-                } 
-            }
+            log(`ERROR adding relation field ${fieldName} to ${collectionName}: ${error.message}`, 'e');
+            console.error('Relation field error:', error);
+            if (error.response?.data) log('Relation field error details:', 'e', error.response.data);
             return false;
         }
     }
@@ -445,12 +444,12 @@
         let createdCount = 0, updatedCount = 0, errorCount = 0;
         
         for (const item of seedItems) {
-            const actualData = { ...item }; 
             try {
                 let existingRecord = null;
-                if (uniqueKeyField && actualData[uniqueKeyField]) {
+                
+                if (uniqueKeyField && item[uniqueKeyField]) {
                     try {
-                        existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${actualData[uniqueKeyField]}"`);
+                        existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`);
                     } catch (e) {
                         // Record not found, which is fine
                         existingRecord = null;
@@ -462,20 +461,21 @@
 
                 if (existingRecord) {
                     log(`Updating existing record in ${collectionName}`, 'd');
-                    await pb.collection(collectionName).update(existingRecord.id, actualData);
+                    await pb.collection(collectionName).update(existingRecord.id, item);
                     updatedCount++;
                 } else {
                     log(`Creating new record in ${collectionName}`, 'd');
-                    await pb.collection(collectionName).create(actualData);
+                    await pb.collection(collectionName).create(item);
                     createdCount++;
                 }
             } catch (error) {
-                log(`Error processing item in ${collectionName} (key: ${actualData[uniqueKeyField] || 'singleton'}): ${error.message}`, 'e');
+                log(`Error processing item in ${collectionName}: ${error.message}`, 'e');
                 console.error('Seed error:', error);
                 if (error.response?.data) log('Seed error details:', 'e', error.response.data);
                 errorCount++;
             }
         }
+        
         log(`Seeding ${collectionName} complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, errorCount > 0 ? 'w' : 's');
         return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
@@ -485,14 +485,12 @@
             log(`Updating rules for collection ${collectionName}...`, 'i');
             const collection = await pb.collections.getOne(collectionName); 
             await pb.collections.update(collection.id, rules); 
-            log(`Rules for ${collectionName} updated successfully.`, 's');
+            log(`Rules for ${collectionName} updated successfully`, 's');
             return true;
         } catch (error) {
             log(`ERROR updating rules for ${collectionName}: ${error.message}`, 'e');
             console.error('Rule update error:', error);
-            if (error.response?.data) { 
-                log('Server Error (rules):', 'e', error.response.data); 
-            }
+            if (error.response?.data) log('Server Error (rules):', 'e', error.response.data);
             return false;
         }
     }
@@ -502,7 +500,7 @@
         
         if (!await authenticateAdmin(pb)) return false;
         
-        if (!await importInitialCollections(pb, collectionsDefinition)) return false;
+        if (!await createCollections(pb, collectionsDefinition)) return false;
 
         log('Step 2: Adding relation fields...', 'i');
         let productsCollection, usersCollection;
@@ -519,21 +517,21 @@
             return false;
         }
 
-        // Add user relation to bookings (optional), position 0 (very first field)
-        let relSuccess = await addRelationField(pb, 'bookings', 'user', usersCollection.id, false, 0, ["username", "email"]); 
+        // Add user relation to bookings (optional)
+        let relSuccess = await addRelationField(pb, 'bookings', 'user', usersCollection.id, false, ["username", "email"]); 
         if (!relSuccess) { 
             log('Failed to add "user" relation to bookings.', 'e'); 
             return false; 
         }
 
-        // Add product_id relation to bookings (required), position 1 (after user field)
-        relSuccess = await addRelationField(pb, 'bookings', 'product_id', productsCollection.id, true, 1, ["item_key", "variant_name_en"]);
+        // Add product_id relation to bookings (required)
+        relSuccess = await addRelationField(pb, 'bookings', 'product_id', productsCollection.id, true, ["item_key", "variant_name_en"]);
         if (!relSuccess) { 
             log('Failed to add "product_id" relation to bookings.', 'e'); 
             return false; 
         }
         
-        log('Step 3: Updating API rules for "bookings" collection AFTER relations are added...', 'i');
+        log('Step 3: Updating API rules for "bookings" collection...', 'i');
         const finalBookingsRules = {
             listRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string",
             viewRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string",
@@ -610,22 +608,22 @@
                 if (name === 'users') usersCollId = coll.id; 
 
                 if (name === 'bookings') {
-                    const currentBookingsSchema = coll.schema || [];
-                    const userField = currentBookingsSchema.find(f => f.name === 'user');
-                    const productField = currentBookingsSchema.find(f => f.name === 'product_id');
+                    const currentFields = coll.fields || [];
+                    const userField = currentFields.find(f => f.name === 'user');
+                    const productField = currentFields.find(f => f.name === 'product_id');
                     
-                    if (userField && userField.type === 'relation' && userField.options && userField.options.collectionId === usersCollId) {
+                    if (userField && userField.type === 'relation' && userField.collectionId === usersCollId) {
                         log(`✓ Relation 'user' in 'bookings' correctly configured.`, 's');
                     } else {
                         issues.push(`✗ Relation 'user' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${usersCollId}`);
-                        log(`✗ Relation 'user' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${usersCollId}, Found: ${JSON.stringify(userField?.options?.collectionId)}`, 'e');
+                        log(`✗ Relation 'user' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${usersCollId}, Found: ${userField?.collectionId}`, 'e');
                     }
                     
-                    if (productField && productField.type === 'relation' && productField.options && productField.options.collectionId === productsCollId) {
+                    if (productField && productField.type === 'relation' && productField.collectionId === productsCollId) {
                         log(`✓ Relation 'product_id' in 'bookings' correctly configured.`, 's');
                     } else {
                         issues.push(`✗ Relation 'product_id' in 'bookings' MISCONFIGURED or MISSING (Expected target: ${productsCollId}).`);
-                         log(`✗ Relation 'product_id' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${productsCollId}, Found: ${JSON.stringify(productField?.options?.collectionId)}`, 'e');
+                         log(`✗ Relation 'product_id' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${productsCollId}, Found: ${productField?.collectionId}`, 'e');
                     }
                     
                     const expectedRules = {
