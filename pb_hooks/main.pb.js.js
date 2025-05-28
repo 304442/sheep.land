@@ -18,6 +18,7 @@ routerAdd("POST", "/api/custom_book_udheya", (c) => {
 
     let createdBookingPocketBaseId = null;
     let finalStockLevel = null;
+    const authRecord = $apis.requestInfo(c).authRecord; // Get authenticated user
 
     try {
         $app.dao().runInTransaction(async (txDao) => {
@@ -41,6 +42,11 @@ routerAdd("POST", "/api/custom_book_udheya", (c) => {
 
             const bookingsCollection = txDao.findCollectionByNameOrId("bookings");
             const newBooking = new Record(bookingsCollection);
+
+            // Set user if authenticated
+            if (authRecord) {
+                newBooking.set("user", authRecord.id);
+            }
 
             newBooking.set("booking_id_text", requestData.booking_id_text);
             newBooking.set("product_id", productRecord.id); 
@@ -90,7 +96,7 @@ routerAdd("POST", "/api/custom_book_udheya", (c) => {
             productRecord.set("stock_available_pb", finalStockLevel);
             txDao.saveRecord(productRecord);
 
-            console.log(`[Hook Success] Booking ${newBooking.getString("booking_id_text")} created for product ${productItemKey}. Stock updated to ${finalStockLevel}.`);
+            console.log(`[Hook Success] Booking ${newBooking.getString("booking_id_text")} created for product ${productItemKey}. Stock updated to ${finalStockLevel}. User: ${authRecord ? authRecord.id : 'Anonymous'}`);
         });
 
         return c.json(200, { 
