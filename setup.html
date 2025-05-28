@@ -22,6 +22,7 @@
         <button id="runFullSetup">Run Full Setup</button>
         <button id="runSchemaOnly">Schema Only</button>
         <button id="runSeedOnly" disabled>Seed Data Only</button>
+        <button id="debugCollections">Debug Collections Schema</button>
         <div id="out"></div>
     </div>
 <script>
@@ -30,6 +31,7 @@
     const runFullSetupButton = document.getElementById('runFullSetup');
     const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
     const runSeedOnlyButton = document.getElementById('runSeedOnly');
+    const debugCollectionsButton = document.getElementById('debugCollections');
     const ADM_E = 'admin@example.com';
     const ADM_P = 'unifiedpassword';
 
@@ -428,6 +430,27 @@
         }
     }
 
+    async function debugCollectionSchema(pb, collectionName) {
+        try {
+            const collection = await pb.collections.getOne(collectionName);
+            log(`=== DEBUG: ${collectionName} Collection Schema ===`, 'i');
+            log(`Collection ID: ${collection.id}`, 'd');
+            log(`Fields (${collection.fields.length}):`, 'd');
+            collection.fields.forEach((field, index) => {
+                log(`  ${index + 1}. ${field.name} (${field.type})${field.type === 'relation' ? ` -> ${field.collectionId}` : ''}`, 'd');
+            });
+            log(`Rules:`, 'd', {
+                listRule: collection.listRule,
+                viewRule: collection.viewRule,
+                createRule: collection.createRule,
+                updateRule: collection.updateRule,
+                deleteRule: collection.deleteRule
+            });
+        } catch (error) {
+            log(`Error debugging ${collectionName}: ${error.message}`, 'e');
+        }
+    }
+
     async function setupSchema(pb) {
         log('=== SCHEMA SETUP PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
@@ -528,6 +551,14 @@
                 if (name === 'sheep_log') sheepLogCollId = coll.id;
 
                 if (name === 'orders') {
+                    // Debug the orders collection schema
+                    log(`Debugging orders collection fields...`, 'd');
+                    coll.fields.forEach(field => {
+                        if (field.type === 'relation') {
+                            log(`  Relation field: ${field.name} -> ${field.collectionId}`, 'd');
+                        }
+                    });
+
                     const userField = coll.fields.find(f => f.name === 'user');
                     const productField = coll.fields.find(f => f.name === 'product_id');
                     const animalLinkField = coll.fields.find(f => f.name === 'animal_id');
@@ -535,19 +566,22 @@
                     if (userField?.type === 'relation' && userField.collectionId === usersCollId) {
                         log(`✓ Relation 'user' in 'orders' OK.`, 's'); 
                     } else {
-                        issues.push(`✗ Relation 'user' in 'orders' MISCONFIGURED.`);
+                        issues.push(`✗ Relation 'user' in 'orders' MISCONFIGURED. Found: ${userField ? `${userField.type} -> ${userField.collectionId}` : 'MISSING'}, Expected: relation -> ${usersCollId}`);
+                        log(`✗ User field details:`, 'e', userField);
                     }
                     
                     if (productField?.type === 'relation' && productField.collectionId === productsCollId) {
                         log(`✓ Relation 'product_id' in 'orders' OK.`, 's'); 
                     } else {
-                        issues.push(`✗ Relation 'product_id' in 'orders' MISCONFIGURED.`);
+                        issues.push(`✗ Relation 'product_id' in 'orders' MISCONFIGURED. Found: ${productField ? `${productField.type} -> ${productField.collectionId}` : 'MISSING'}, Expected: relation -> ${productsCollId}`);
+                        log(`✗ Product field details:`, 'e', productField);
                     }
                     
                     if (animalLinkField?.type === 'relation' && animalLinkField.collectionId === sheepLogCollId) {
                         log(`✓ Relation 'animal_id' in 'orders' OK.`, 's'); 
                     } else {
-                        issues.push(`✗ Relation 'animal_id' in 'orders' MISCONFIGURED or MISSING.`);
+                        issues.push(`✗ Relation 'animal_id' in 'orders' MISCONFIGURED or MISSING. Found: ${animalLinkField ? `${animalLinkField.type} -> ${animalLinkField.collectionId}` : 'MISSING'}, Expected: relation -> ${sheepLogCollId}`);
+                        log(`✗ Animal field details:`, 'e', animalLinkField);
                     }
 
                     const expectedRules = { 
@@ -560,7 +594,7 @@
                     
                     for (const ruleKey in expectedRules) { 
                         if (coll[ruleKey] !== expectedRules[ruleKey]) {
-                            issues.push(`✗ Rule '${ruleKey}' for 'orders' NOT as expected.`); 
+                            issues.push(`✗ Rule '${ruleKey}' for 'orders' NOT as expected. Found: "${coll[ruleKey]}", Expected: "${expectedRules[ruleKey]}"`); 
                         } else {
                             log(`✓ Rule '${ruleKey}' for 'orders' is correct.`, 's');
                         }
@@ -572,7 +606,7 @@
                     if (animalLinkField?.type === 'relation' && animalLinkField.collectionId === sheepLogCollId) {
                         log(`✓ Relation 'animal_id' in 'animal_events' OK.`, 's'); 
                     } else {
-                        issues.push(`✗ Relation 'animal_id' in 'animal_events' MISCONFIGURED.`);
+                        issues.push(`✗ Relation 'animal_id' in 'animal_events' MISCONFIGURED. Found: ${animalLinkField ? `${animalLinkField.type} -> ${animalLinkField.collectionId}` : 'MISSING'}, Expected: relation -> ${sheepLogCollId}`);
                     }
                 }
 
@@ -605,6 +639,26 @@
             return false; 
         }
     }
+
+    debugCollectionsButton.onclick = async () => {
+        outputDiv.innerHTML = '';
+        const pb = new PocketBase(pbUrl);
+        try {
+            if (!await authenticateAdmin(pb)) return;
+            
+            log('=== DEBUGGING ALL COLLECTIONS ===', 'i');
+            const collections = ['settings', 'products', 'orders', 'users', 'expenses', 'sheep_log', 'animal_events'];
+            
+            for (const collName of collections) {
+                await debugCollectionSchema(pb, collName);
+            }
+            
+        } catch (error) {
+            log(`Debug error: ${error.message}`, 'e');
+        } finally {
+            if (pb.authStore.isValid) pb.authStore.clear();
+        }
+    };
 
     runFullSetupButton.onclick = async () => {
         runFullSetupButton.disabled = true; 
