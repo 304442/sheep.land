@@ -12,20 +12,20 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
     if (!requestData || !requestData.product_item_key) {
         return c.json(400, { error: "Missing 'product_item_key' in request." });
     }
-    // Check for order_id_text which should be sent from client (even if it's just a placeholder for server generation)
     if (!requestData.order_id_text) {
         return c.json(400, { error: "Missing 'order_id_text' in request." });
     }
 
     let createdOrderPocketBaseId = null;
     let finalStockLevel = null;
-    const authRecord = $apis.requestInfo(c).authRecord;
+    const authRecord = $apis.requestInfo(c).authRecord; // Get authenticated user if any
 
     try {
         $app.dao().runInTransaction(async (txDao) => {
             const productItemKey = requestData.product_item_key;
             const quantityToOrder = requestData.quantity || 1;
 
+            // 1. Fetch the product to check stock and get details
             const productRecord = txDao.findFirstRecordByFilter(
                 "products",
                 "item_key = {:itemKey} && is_active = true",
@@ -41,6 +41,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                 throw new Error(`Insufficient stock for product '${productItemKey}'. Available: ${currentStock}, Requested: ${quantityToOrder}`);
             }
 
+            // 2. Create the new order record
             const ordersCollection = txDao.findCollectionByNameOrId("orders");
             const newOrder = new Record(ordersCollection);
 
@@ -57,10 +58,12 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             newOrder.set("ordered_weight_range_ar", productRecord.getString("weight_range_text_ar"));
             newOrder.set("price_at_order_time_egp", productRecord.getFloat("base_price_egp"));
             
+            // P&L: Set cost_of_animal_egp if provided (could come from client if specific animal is selected)
             if (requestData.cost_of_animal_egp !== undefined && requestData.cost_of_animal_egp !== null) {
                 newOrder.set("cost_of_animal_egp", parseFloat(requestData.cost_of_animal_egp) || 0);
             }
 
+            // Set other fields from requestData
             newOrder.set("udheya_service_option_selected", requestData.udheya_service_option_selected);
             newOrder.set("service_fee_applied_egp", requestData.service_fee_applied_egp);
             newOrder.set("delivery_fee_applied_egp", requestData.delivery_fee_applied_egp);
@@ -89,23 +92,55 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             newOrder.set("payment_method", requestData.payment_method);
             newOrder.set("payment_status", requestData.payment_status);
             newOrder.set("order_status", requestData.order_status);
-            newOrder.set("terms_agreed", requestData.terms_agreed === true); // Ensure boolean
+            newOrder.set("terms_agreed", requestData.terms_agreed === true);
             newOrder.set("admin_notes", requestData.admin_notes);
-            newOrder.set("group_purchase_interest", requestData.group_purchase_interest === true); // Ensure boolean
+            newOrder.set("group_purchase_interest", requestData.group_purchase_interest === true);
 
-            // Optional: Capture IP and User Agent if available and desired
-            const clientIp = c.realIp() // Or c.request().remoteAddr if behind proxy not configured for realIp
-            if (clientIp) {
-                newOrder.set("user_ip_address", clientIp);
-            }
+            const clientIp = c.realIp();
+            if (clientIp) { newOrder.set("user_ip_address", clientIp); }
             const userAgent = c.request().headers.get("User-Agent");
-            if (userAgent) {
-                newOrder.set("user_agent_string", userAgent.substring(0,300)); // Truncate if necessary
+            if (userAgent) { newOrder.set("user_agent_string", userAgent.substring(0,300)); }
+
+            // If a specific animal_tag_id was part of the order request (for specific animal sale)
+            if (requestData.animal_tag_id) {
+                const animalRecord = txDao.findFirstRecordByFilter(
+                    "sheep_log",
+                    "animal_tag_id = {:tagId} && current_status = 'Active'", // Ensure it's an active animal
+                    { tagId: requestData.animal_tag_id }
+                );
+                if (animalRecord) {
+                    newOrder.set("animal_id", animalRecord.id); // Link order to the specific animal
+                    // If cost_of_animal_egp wasn't provided directly in request, get it from sheep_log
+                    if (requestData.cost_of_animal_egp === undefined || requestData.cost_of_animal_egp === null) {
+                        newOrder.set("cost_of_animal_egp", animalRecord.getFloat("acquisition_cost_egp") || 0);
+                    }
+                    // Update animal_log status
+                    animalRecord.set("current_status", "Sold");
+                    animalRecord.set("sale_order_id", newOrder.id); // This needs newOrder to be saved first or handle potential circularity if ID is needed before save.
+                                                               // For now, we'll save newOrder first, then update animalRecord.
+                } else {
+                    console.warn(`[Hook Warn] Animal with tag_id ${requestData.animal_tag_id} not found or not active. Order will be created without specific animal link.`);
+                    // Potentially throw error if specific animal selection is mandatory and not found
+                    // throw new Error(`Animal with tag_id '${requestData.animal_tag_id}' not found or not available for sale.`);
+                }
+            }
+            
+            txDao.saveRecord(newOrder);
+            createdOrderPocketBaseId = newOrder.getId(); // Get the ID after saving
+
+            // If a specific animal was linked, update its sale_order_id now that newOrder has an ID
+            if (requestData.animal_tag_id && newOrder.get("animal_id")) {
+                 const animalToUpdate = txDao.findRecordById("sheep_log", newOrder.getString("animal_id"));
+                 if (animalToUpdate) {
+                    animalToUpdate.set("sale_order_id", createdOrderPocketBaseId); // Link animal to this order ID
+                    animalToUpdate.set("current_status", "Sold"); // Re-ensure status is sold
+                    txDao.saveRecord(animalToUpdate);
+                    console.log(`[Hook Info] Animal ${animalToUpdate.getString("animal_tag_id")} status updated to Sold and linked to order ${newOrder.getString("order_id_text")}.`);
+                 }
             }
 
-            txDao.saveRecord(newOrder);
-            createdOrderPocketBaseId = newOrder.getId();
 
+            // 3. Update product stock
             finalStockLevel = currentStock - quantityToOrder;
             productRecord.set("stock_available_pb", finalStockLevel);
             txDao.saveRecord(productRecord);
@@ -115,7 +150,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
 
         return c.json(200, {
             message: "Order placed successfully and stock updated.",
-            order_id_text: requestData.order_id_text, // Return the client-sent or generated ID
+            order_id_text: requestData.order_id_text,
             id: createdOrderPocketBaseId,
             new_stock_level: finalStockLevel
         });
@@ -123,7 +158,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
     } catch (err) {
         console.error(`[Hook Error] /api/custom_place_order: ${err.message}`, err);
         let statusCode = 400;
-        if (err.message && (err.message.includes("Variant not found") || err.message.includes("Insufficient stock"))) {
+        if (err.message && (err.message.includes("not found") || err.message.includes("Insufficient stock"))) {
             statusCode = 409;
         } else if (err.isAbort || err.name === 'AbortError') {
             statusCode = 503;
@@ -133,28 +168,3 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
         return c.json(statusCode, { error: "Failed to process order: " + err.message });
     }
 });
-
-// Optional hook: Update order status if a payment is marked as confirmed elsewhere
-// This is a placeholder for more complex payment integration logic.
-// For now, the client sets initial status, and admin would manually update via UI.
-/*
-onRecordAfterUpdateRequest((e) => {
-    if (e.collection.name === "payments" && e.record.get("status") === "confirmed") {
-        // Find related order and update its status
-        const orderId = e.record.get("related_order_id"); // Assuming a 'payments' collection exists
-        if (orderId) {
-            try {
-                const order = $app.dao().findRecordById("orders", orderId);
-                if (order && order.get("payment_status") !== "paid_confirmed") {
-                    order.set("payment_status", "paid_confirmed");
-                    order.set("order_status", "payment_confirmed_processing");
-                    $app.dao().saveRecord(order);
-                    console.log(`Order ${order.get("order_id_text")} payment status updated to paid_confirmed via payment hook.`);
-                }
-            } catch (findErr) {
-                console.error(`Error finding order ${orderId} to update payment status:`, findErr);
-            }
-        }
-    }
-}, "payments"); // Assuming you might have a 'payments' collection
-*/

@@ -21,7 +21,7 @@ document.addEventListener('alpine:init', () => {
         payMeth: "fa",
         errs: {},
         totalEgp: 0,
-        cost_of_animal_egp: null, // For P&L, not directly set by form yet
+        cost_of_animal_egp: null, // For P&L - not set by UI yet
         lookupPhone: ""
     };
 
@@ -59,7 +59,7 @@ document.addEventListener('alpine:init', () => {
         }
     }
 
-    Alpine.data('udh', () => ({ // Simplified Alpine component name
+    Alpine.data('udh', () => ({
         load: { status: false, ordering: false, init: true },
         settings: {
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
@@ -152,7 +152,7 @@ document.addEventListener('alpine:init', () => {
                 this.stepMeta.forEach(meta => { const el = document.querySelector(meta.id); if (el) { const dist = Math.abs(scrollMid - (el.offsetTop + (el.offsetHeight / 2))); if (dist < minDist) { minDist = dist; closestStep = meta.conceptualStep; } } });
                 if (this.currStep !== closestStep) this.currStep = closestStep;
             }
-            const headH = document.querySelector('.head-site')?.offsetHeight || 70; const scrollOff = headH + (window.innerHeight * 0.10); const currScrollYOff = window.scrollY + scrollOff; let newActHref = ""; let newActParent = null;
+            const headH = document.querySelector('.site-head')?.offsetHeight || 70; const scrollOff = headH + (window.innerHeight * 0.10); const currScrollYOff = window.scrollY + scrollOff; let newActHref = ""; let newActParent = null;
             for (const navLink of this.navData) { const sectEl = document.getElementById(navLink.sectId); if (sectEl) { const sectTop = sectEl.offsetTop; const sectBot = sectTop + sectEl.offsetHeight; if (sectTop <= currScrollYOff && sectBot > currScrollYOff) { newActHref = navLink.href; newActParent = navLink.parentMenu; break; } } }
             const firstNavSect = document.getElementById(this.navData[0]?.sectId);
             if (window.scrollY < (firstNavSect?.offsetTop || headH) - headH) { newActHref = ""; newActParent = null; }
@@ -176,7 +176,7 @@ document.addEventListener('alpine:init', () => {
         fmtPrice(p, c) { const cc=c||this.curr;const ci=this.settings?.xchgRates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isEmailValid: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
-        scrollSect(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.head-site')?.offsetHeight||0;if(s.startsWith('#udh-order-start')||s.startsWith('#step')||s.startsWith('#udh-order-panel')){const h=document.querySelector('.step-wrap');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){console.warn("ScrollSect err:", err);}},
+        scrollSect(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.site-head')?.offsetHeight||0;if(s.startsWith('#udh-order-start')||s.startsWith('#step')||s.startsWith('#udh-order-panel')){const h=document.querySelector('.step-wrap');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){console.warn("ScrollSect err:", err);}},
         valConceptStep(cs, se=true) { const m=this.stepMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProg[`step${cs}`]=v;return v;},
         updAllStepStates() { for(let i=1;i<=this.stepMeta.length;i++)this.stepProg[`step${i}`]=this.valConceptStep(i,false);},
         navStep(tcs) {this.clrAllErrs();let cp=true;for(let s=1;s<tcs;s++){if(!this.valConceptStep(s,true)){this.currStep=s;const m=this.stepMeta[s-1];this.focusRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollSect(m?.id||'#udh-order-start');cp=false;break;}}if(cp){this.currStep=tcs;this.scrollSect(this.stepMeta[tcs-1]?.id||'#udh-order-start');this.focusRef(this.stepMeta[tcs-1]?.titleRef);}},
@@ -216,12 +216,11 @@ document.addEventListener('alpine:init', () => {
                 order_id_text: orderIdClient,
                 product_item_key: this.selAnim.itemKey,
                 quantity: 1,
-                // These animal_... fields are for the backend to store on the order record, not directly part of "products" table structure for this payload
                 animal_type_name_en: this.selAnim.typeGenEn, animal_type_name_ar: this.selAnim.typeGenAr,
                 weight_category_name_en: this.selAnim.nameEN, weight_category_name_ar: this.selAnim.nameAR,
                 weight_range_actual_en: this.selAnim.wtRangeEn, weight_range_actual_ar: this.selAnim.wtRangeAr,
-                price_at_order_time_egp: this.selAnim.priceEgp, // This is correct for backend field
-                cost_of_animal_egp: this.cost_of_animal_egp, // Send if available
+                price_at_order_time_egp: this.selAnim.priceEgp,
+                cost_of_animal_egp: this.cost_of_animal_egp, // Send to backend
                 udheya_service_option_selected: this.selUdhServ,
                 service_fee_applied_egp: this.servFee,
                 delivery_fee_applied_egp: (this.needsDelDetails && this.delFeeDispEGP > 0 && !this.isDelFeeVar) ? this.delFeeDispEGP : 0,
@@ -243,6 +242,7 @@ document.addEventListener('alpine:init', () => {
                 order_status: 'confirmed_pending_payment',
                 terms_agreed: true,
                 group_purchase_interest: this.grpBuy, admin_notes: this.grpBuy ? "Group purchase interest." : ""
+                // animal_tag_id could be added here if a specific animal is selected from sheep_log by the UI
             };
 
             try {
@@ -324,10 +324,10 @@ document.addEventListener('alpine:init', () => {
             Object.assign(this, JSON.parse(JSON.stringify(initOrderData)));
             this.curr = currency; this.currLang = lang;
             if (this.cdTimer) clearInterval(this.cdTimer);
-            await this.initApp(); // Re-initialize data
+            await this.initApp();
             this.$nextTick(() => {
                 this.scrollSect('#udh-order-start');
-                this.focusRef('orderSectTitle'); // Should match x-ref on the H2
+                this.focusRef('orderSectTitle');
                 this.orderConf = false;
                 this.orderID = "";
             });

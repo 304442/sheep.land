@@ -113,15 +113,15 @@
 <main>
     <section class="hero sec">
         <div class="c tc">
-            <h1 class="hero-h bil-spread bil-row-mob"> {/* Simplified classes */}
+            <h1 class="hero-h bil-spread bil-row-mob">
                 <span class="en">Premium Udheya Orders</span>
                 <span class="ar">طلبات الأضاحي الممتازة</span>
             </h1>
-            <h2 class="hero-sub bil-spread bil-row-mob"> {/* Simplified classes */}
+            <h2 class="hero-sub bil-spread bil-row-mob">
                 <span class="en">Direct from Our Farm to You, Sharia Compliant Services</span>
                 <span class="ar">من مزرعتنا إليك مباشرة، خدمات متوافقة مع الشريعة</span>
             </h2>
-            <div class="hero-desc bil-row bil-row-mob"> {/* Simplified classes */}
+            <div class="hero-desc bil-row bil-row-mob">
                 <p class="en">Your trusted source for Sharia-compliant Udheya orders. Experience convenience and excellence with Sheep Land.</p>
                 <p class="ar">مصدرك الموثوق لطلبات الأضاحي المتوافقة مع الشريعة. اختبر الراحة والتميز مع أرض الأغنام.</p>
             </div>
@@ -167,13 +167,13 @@
                     </div>
                 </a>
             </div>
-            <div class="why-us hero-why"> {/* Simplified classes */}
-                <div class="sec-head tc why-us-h"> {/* Simplified classes */}
+            <div class="why-us hero-why">
+                <div class="sec-head tc why-us-h">
                     <h2 class="bil-spread">
                         <span class="en">Why Choose Sheep Land?</span><span class="ar">لماذا أرض الأغنام؟</span>
                     </h2>
                 </div>
-                <div class="feat-grid why-us-grid"> {/* Simplified classes */}
+                <div class="feat-grid why-us-grid">
                     <div class="feat-item">
                         <div class="icon-ph emoji" aria-hidden="true">✅</div>
                         <h4 class="bil-spread"><span class="en">Sharia Compliant</span><span class="ar">متوافق مع الشريعة</span></h4>
@@ -547,7 +547,7 @@
                                         <div class="err-msg" id="payMethErr" x-show="errs.payMeth" x-text="errs.payMeth ? (currLang === 'ar' ? errs.payMeth.ar : errs.payMeth.en) : ''" role="alert" aria-live="assertive"></div>
                                     </div>
                                 </div>
-                                <div class="form-act tc page-act final-submit"> {/* Simplified classes */}
+                                <div class="form-act tc page-act final-submit">
                                     <button type="submit" class="btn bac btn-lg btn-block mt1 bil-inline" :disabled="load.ordering" :class="{'disabled-btn': load.ordering}">
                                         <span x-show="!load.ordering"><span class="en">Confirm & Place Udheya Order</span><span class="ar">تأكيد وإرسال طلب الأضحية</span></span>
                                         <span x-show="load.ordering" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري المعالجة...</span></span>
@@ -624,7 +624,7 @@
                                 <div x-show="payMeth === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="custPhone"></strong>. Total Amount Due <strong x-text="fmtPrice(totalEgp)"></strong>. ID: <strong x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="custPhone"></strong>. المجموع الكلي للطلب <strong x-text="fmtPrice(totalEgp)"></strong>. رقم الطلب: <strong x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span></p></div></div>
                             </div>
                         </div>
-                        <div class="form-act tc page-act"><a href="#udh-order-start" class="btn bp btn-lg btn-block bil-inline" @click.prevent="resetForm()"><span class="en">Place Another Udheya Order</span><span class="ar">تقديم طلب أضحية أخرى</span></a></div> {/* Simplified classes */}
+                        <div class="form-act tc page-act"><a href="#udh-order-start" class="btn bp btn-lg btn-block bil-inline" @click.prevent="resetForm()"><span class="en">Place Another Udheya Order</span><span class="ar">تقديم طلب أضحية أخرى</span></a></div>
                     </div>
                 </section>
             </form>
