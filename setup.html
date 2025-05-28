@@ -117,34 +117,35 @@
                 { "id": "st_isactive", "name": "is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} },
                 { "id": "st_sort", "name": "sort_order", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": true } }
             ]
-        },
-        {
-            "id": "sheep_variants_placeholder",
-            "name": "sheep_variants", 
-            "type": "base", 
-            "system": false,
-            "listRule": "", 
-            "viewRule": "", 
-            "createRule": "", 
-            "updateRule": "", 
-            "deleteRule": "",
-            "options": {},
-            "fields": [
-                { "id": "sv_itemkey", "name": "item_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 100, "pattern": "^[a-z0-9_]+$" } },
-                { "id": "sv_sheeptype", "name": "sheep_type_id", "type": "relation", "system": false, "required": true, "presentable": true, "options": { "collectionId": "", "cascadeDelete": false, "minSelect": 1, "maxSelect": 1, "displayFields": ["name_en", "type_key"] } },
-                { "id": "sv_nameen_var", "name": "name_en_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
-                { "id": "sv_namear_var", "name": "name_ar_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
-                { "id": "sv_wrange_en", "name": "weight_range_text_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
-                { "id": "sv_wrange_ar", "name": "weight_range_text_ar", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
-                { "id": "sv_avgw", "name": "avg_weight_kg", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0 } },
-                { "id": "sv_baseprice", "name": "base_price_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
-                { "id": "sv_stockmaster", "name": "stock_master", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": true } },
-                { "id": "sv_stockavail", "name": "stock_available_pb", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": true } },
-                { "id": "sv_isactive", "name": "is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} },
-                { "id": "sv_sort", "name": "sort_order", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": true } }
-            ]
         }
     ];
+
+    // Sheep variants collection WITHOUT relation field initially
+    const sheepVariantsWithoutRelation = {
+        "id": "sheep_variants_placeholder",
+        "name": "sheep_variants", 
+        "type": "base", 
+        "system": false,
+        "listRule": "", 
+        "viewRule": "", 
+        "createRule": "", 
+        "updateRule": "", 
+        "deleteRule": "",
+        "options": {},
+        "fields": [
+            { "id": "sv_itemkey", "name": "item_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 100, "pattern": "^[a-z0-9_]+$" } },
+            { "id": "sv_nameen_var", "name": "name_en_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
+            { "id": "sv_namear_var", "name": "name_ar_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
+            { "id": "sv_wrange_en", "name": "weight_range_text_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+            { "id": "sv_wrange_ar", "name": "weight_range_text_ar", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+            { "id": "sv_avgw", "name": "avg_weight_kg", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0 } },
+            { "id": "sv_baseprice", "name": "base_price_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+            { "id": "sv_stockmaster", "name": "stock_master", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": true } },
+            { "id": "sv_stockavail", "name": "stock_available_pb", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": true } },
+            { "id": "sv_isactive", "name": "is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} },
+            { "id": "sv_sort", "name": "sort_order", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": true } }
+        ]
+    };
     
     const seedDataForCatalog = {
         sheep_types: [
@@ -223,6 +224,58 @@
         }
     }
 
+    async function addRelationFieldToSheepVariants(pb, sheepTypesCollectionId) {
+        try {
+            log('Adding relation field to sheep_variants collection...', 'i');
+            
+            const sheepVariantsCollection = await pb.collections.getOne('sheep_variants');
+            
+            // Check if relation field already exists
+            const relationFieldExists = sheepVariantsCollection.fields.some(field => field.name === 'sheep_type_id');
+            
+            if (relationFieldExists) {
+                log('Relation field already exists in sheep_variants collection.', 'w');
+                return;
+            }
+            
+            // Create the relation field
+            const relationField = {
+                "id": "sv_sheeptype",
+                "name": "sheep_type_id",
+                "type": "relation",
+                "system": false,
+                "required": true,
+                "presentable": true,
+                "options": {
+                    "collectionId": sheepTypesCollectionId,
+                    "cascadeDelete": false,
+                    "minSelect": 1,
+                    "maxSelect": 1,
+                    "displayFields": ["name_en", "type_key"]
+                }
+            };
+            
+            // Add the relation field at position 1 (after item_key)
+            const updatedFields = [...sheepVariantsCollection.fields];
+            updatedFields.splice(1, 0, relationField);
+            
+            // Update the collection
+            await pb.collections.update(sheepVariantsCollection.id, {
+                fields: updatedFields
+            });
+            
+            log('Relation field added to sheep_variants collection successfully.', 's');
+        } catch (error) {
+            log(`Error adding relation field to sheep_variants: ${error.message}`, 'e');
+            console.error('Error adding relation field:', error);
+            
+            if (error.response?.data) {
+                log(`Server validation errors: ${JSON.stringify(error.response.data, null, 2)}`, 'e');
+            }
+            throw error;
+        }
+    }
+
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField, fkMapping = null) {
         log(`Starting to seed data for '<b>${collectionName}</b>'...`, 'i');
         let createdCount = 0;
@@ -286,21 +339,21 @@
             await pb.admins.authWithPassword(ADM_E, ADM_P);
             log('Admin authentication successful.', 's');
 
+            // Step 1: Create/update sheep_types collection
             const sheepTypesCollectionInfo = await manageCollection(pb, collectionsToDefine.find(c => c.name === 'sheep_types'));
             
-            const sheepVariantsDef = collectionsToDefine.find(c => c.name === 'sheep_variants');
-            const relationFieldInVariants = sheepVariantsDef.fields.find(f => f.name === 'sheep_type_id');
-            if (relationFieldInVariants && sheepTypesCollectionInfo) {
-                relationFieldInVariants.options.collectionId = sheepTypesCollectionInfo.id;
-                log(`Updated relation field collectionId to: ${sheepTypesCollectionInfo.id}`, 'i');
-            } else {
-                throw new Error("Could not set relation ID for sheep_variants. Sheep types collection info missing.");
-            }
+            // Step 2: Create/update sheep_variants collection WITHOUT relation field
+            await manageCollection(pb, sheepVariantsWithoutRelation);
             
-            await manageCollection(pb, sheepVariantsDef);
+            // Step 3: Add relation field to sheep_variants
+            await addRelationFieldToSheepVariants(pb, sheepTypesCollectionInfo.id);
+            
+            // Step 4: Create/update bookings collection
             await manageCollection(pb, collectionsToDefine.find(c => c.name === 'bookings'));
-            log('All collections processed.', 's');
+            
+            log('All collections processed successfully.', 's');
 
+            // Step 5: Seed data
             log('Pausing for 1 second before seeding data...', 'i');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
