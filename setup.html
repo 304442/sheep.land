@@ -542,6 +542,7 @@
         let usersCollId = null; 
         let sheepLogCollId = null;
 
+        // First, get all collection IDs
         for (const name of expectedCollections) {
             try {
                 const coll = await pb.collections.getOne(name);
@@ -549,72 +550,70 @@
                 if (name === 'products') productsCollId = coll.id;
                 if (name === 'users') usersCollId = coll.id;
                 if (name === 'sheep_log') sheepLogCollId = coll.id;
-
-                if (name === 'orders') {
-                    // Debug the orders collection schema
-                    log(`Debugging orders collection fields...`, 'd');
-                    coll.fields.forEach(field => {
-                        if (field.type === 'relation') {
-                            log(`  Relation field: ${field.name} -> ${field.collectionId}`, 'd');
-                        }
-                    });
-
-                    const userField = coll.fields.find(f => f.name === 'user');
-                    const productField = coll.fields.find(f => f.name === 'product_id');
-                    const animalLinkField = coll.fields.find(f => f.name === 'animal_id');
-                    
-                    if (userField?.type === 'relation' && userField.collectionId === usersCollId) {
-                        log(`✓ Relation 'user' in 'orders' OK.`, 's'); 
-                    } else {
-                        issues.push(`✗ Relation 'user' in 'orders' MISCONFIGURED. Found: ${userField ? `${userField.type} -> ${userField.collectionId}` : 'MISSING'}, Expected: relation -> ${usersCollId}`);
-                        log(`✗ User field details:`, 'e', userField);
-                    }
-                    
-                    if (productField?.type === 'relation' && productField.collectionId === productsCollId) {
-                        log(`✓ Relation 'product_id' in 'orders' OK.`, 's'); 
-                    } else {
-                        issues.push(`✗ Relation 'product_id' in 'orders' MISCONFIGURED. Found: ${productField ? `${productField.type} -> ${productField.collectionId}` : 'MISSING'}, Expected: relation -> ${productsCollId}`);
-                        log(`✗ Product field details:`, 'e', productField);
-                    }
-                    
-                    if (animalLinkField?.type === 'relation' && animalLinkField.collectionId === sheepLogCollId) {
-                        log(`✓ Relation 'animal_id' in 'orders' OK.`, 's'); 
-                    } else {
-                        issues.push(`✗ Relation 'animal_id' in 'orders' MISCONFIGURED or MISSING. Found: ${animalLinkField ? `${animalLinkField.type} -> ${animalLinkField.collectionId}` : 'MISSING'}, Expected: relation -> ${sheepLogCollId}`);
-                        log(`✗ Animal field details:`, 'e', animalLinkField);
-                    }
-
-                    const expectedRules = { 
-                        listRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string", 
-                        viewRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string", 
-                        createRule: "@request.auth.id != '' || ordering_person_phone != ''", 
-                        updateRule: "user = @request.auth.id", 
-                        deleteRule: null 
-                    };
-                    
-                    for (const ruleKey in expectedRules) { 
-                        if (coll[ruleKey] !== expectedRules[ruleKey]) {
-                            issues.push(`✗ Rule '${ruleKey}' for 'orders' NOT as expected. Found: "${coll[ruleKey]}", Expected: "${expectedRules[ruleKey]}"`); 
-                        } else {
-                            log(`✓ Rule '${ruleKey}' for 'orders' is correct.`, 's');
-                        }
-                    }
-                }
-                
-                if (name === 'animal_events') {
-                    const animalLinkField = coll.fields.find(f => f.name === 'animal_id');
-                    if (animalLinkField?.type === 'relation' && animalLinkField.collectionId === sheepLogCollId) {
-                        log(`✓ Relation 'animal_id' in 'animal_events' OK.`, 's'); 
-                    } else {
-                        issues.push(`✗ Relation 'animal_id' in 'animal_events' MISCONFIGURED. Found: ${animalLinkField ? `${animalLinkField.type} -> ${animalLinkField.collectionId}` : 'MISSING'}, Expected: relation -> ${sheepLogCollId}`);
-                    }
-                }
-
             } catch (error) { 
                 issues.push(`✗ Collection ${name} missing: ${error.message}`); 
             }
         }
+
+        // Now validate relations with the correct IDs
+        try {
+            const ordersCollection = await pb.collections.getOne('orders');
+            
+            const userField = ordersCollection.fields.find(f => f.name === 'user');
+            const productField = ordersCollection.fields.find(f => f.name === 'product_id');
+            const animalLinkField = ordersCollection.fields.find(f => f.name === 'animal_id');
+            
+            if (userField?.type === 'relation' && userField.collectionId === usersCollId) {
+                log(`✓ Relation 'user' in 'orders' correctly points to users collection.`, 's'); 
+            } else {
+                issues.push(`✗ Relation 'user' in 'orders' MISCONFIGURED. Found: ${userField ? `${userField.type} -> ${userField.collectionId}` : 'MISSING'}, Expected: relation -> ${usersCollId}`);
+            }
+            
+            if (productField?.type === 'relation' && productField.collectionId === productsCollId) {
+                log(`✓ Relation 'product_id' in 'orders' correctly points to products collection.`, 's'); 
+            } else {
+                issues.push(`✗ Relation 'product_id' in 'orders' MISCONFIGURED. Found: ${productField ? `${productField.type} -> ${productField.collectionId}` : 'MISSING'}, Expected: relation -> ${productsCollId}`);
+            }
+            
+            if (animalLinkField?.type === 'relation' && animalLinkField.collectionId === sheepLogCollId) {
+                log(`✓ Relation 'animal_id' in 'orders' correctly points to sheep_log collection.`, 's'); 
+            } else {
+                issues.push(`✗ Relation 'animal_id' in 'orders' MISCONFIGURED or MISSING. Found: ${animalLinkField ? `${animalLinkField.type} -> ${animalLinkField.collectionId}` : 'MISSING'}, Expected: relation -> ${sheepLogCollId}`);
+            }
+
+            const expectedRules = { 
+                listRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string", 
+                viewRule: "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string", 
+                createRule: "@request.auth.id != '' || ordering_person_phone != ''", 
+                updateRule: "user = @request.auth.id", 
+                deleteRule: null 
+            };
+            
+            for (const ruleKey in expectedRules) { 
+                if (ordersCollection[ruleKey] !== expectedRules[ruleKey]) {
+                    issues.push(`✗ Rule '${ruleKey}' for 'orders' NOT as expected. Found: "${ordersCollection[ruleKey]}", Expected: "${expectedRules[ruleKey]}"`); 
+                } else {
+                    log(`✓ Rule '${ruleKey}' for 'orders' is correct.`, 's');
+                }
+            }
+        } catch (error) {
+            issues.push(`✗ Error validating orders collection: ${error.message}`);
+        }
         
+        // Validate animal_events collection
+        try {
+            const animalEventsCollection = await pb.collections.getOne('animal_events');
+            const animalLinkField = animalEventsCollection.fields.find(f => f.name === 'animal_id');
+            if (animalLinkField?.type === 'relation' && animalLinkField.collectionId === sheepLogCollId) {
+                log(`✓ Relation 'animal_id' in 'animal_events' correctly points to sheep_log collection.`, 's'); 
+            } else {
+                issues.push(`✗ Relation 'animal_id' in 'animal_events' MISCONFIGURED. Found: ${animalLinkField ? `${animalLinkField.type} -> ${animalLinkField.collectionId}` : 'MISSING'}, Expected: relation -> ${sheepLogCollId}`);
+            }
+        } catch (error) {
+            issues.push(`✗ Error validating animal_events collection: ${error.message}`);
+        }
+        
+        // Validate seed data
         for (const [collectionName, dataToSeed] of Object.entries(seedData)) {
             if (["settings", "products", "expenses", "sheep_log"].includes(collectionName)) { 
                 try {
@@ -631,7 +630,7 @@
         }
         
         if (issues.length === 0) { 
-            log('✓ All critical validations passed.', 's'); 
+            log('✓ All critical validations passed! Your setup is working correctly.', 's'); 
             return true; 
         } else { 
             log(`Found ${issues.length} critical issues during validation.`, 'e'); 
