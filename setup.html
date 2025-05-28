@@ -11,7 +11,7 @@
         button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em; margin-bottom: 5px;}
         button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
         #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:70vh;overflow-y:auto;}
-        .ls{color:lime;} .le{color:salmon;} .li{color:cyan;} .lw{color:yellow;}
+        .ls{color:lime;font-weight:bold;} .le{color:salmon;font-weight:bold;} .li{color:cyan;} .lw{color:yellow;}
     </style>
 </head>
 <body>
@@ -34,7 +34,7 @@
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
         const p = document.createElement('p');
         p.className = `l${type[0]}`;
-        p.innerHTML = timestamp + message.replace(/</g, '<').replace(/>/g, '>'); // Use innerHTML for bold
+        p.innerHTML = timestamp + message;
         outputDiv.appendChild(p);
         outputDiv.scrollTop = outputDiv.scrollHeight;
         console[type === 'e' ? 'error' : (type === 'w' ? 'warn' : 'log')](timestamp + message.replace(/<[^>]*>?/gm, ''));
@@ -42,8 +42,15 @@
 
     const collectionsToDefine = [
         {
-            "name": "bookings", "type": "base", "system": false, 
-            "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+            "id": "bookings_placeholder",
+            "name": "bookings", 
+            "type": "base", 
+            "system": false, 
+            "listRule": "", 
+            "viewRule": "", 
+            "createRule": "", 
+            "updateRule": "", 
+            "deleteRule": "",
             "options": {}, 
             "fields": [ 
                 { "id": "bkf_bidtext", "name": "booking_id_text", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 50 } },
@@ -90,8 +97,15 @@
             ]
         },
         {
-            "name": "sheep_types", "type": "base", "system": false,
-            "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+            "id": "sheep_types_placeholder",
+            "name": "sheep_types", 
+            "type": "base", 
+            "system": false,
+            "listRule": "", 
+            "viewRule": "", 
+            "createRule": "", 
+            "updateRule": "", 
+            "deleteRule": "",
             "options": {},
             "fields": [
                 { "id": "st_typekey", "name": "type_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 50, "pattern": "^[a-z0-9_]+$" } },
@@ -105,12 +119,19 @@
             ]
         },
         {
-            "name": "sheep_variants", "type": "base", "system": false,
-            "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+            "id": "sheep_variants_placeholder",
+            "name": "sheep_variants", 
+            "type": "base", 
+            "system": false,
+            "listRule": "", 
+            "viewRule": "", 
+            "createRule": "", 
+            "updateRule": "", 
+            "deleteRule": "",
             "options": {},
             "fields": [
                 { "id": "sv_itemkey", "name": "item_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 100, "pattern": "^[a-z0-9_]+$" } },
-                { "id": "sv_sheeptype", "name": "sheep_type_id", "type": "relation", "system": false, "required": true, "presentable": true, "options": { "collectionId": "PLACEHOLDER_SHEEP_TYPES_ID", "cascadeDelete": false, "minSelect": 1, "maxSelect": 1, "displayFields": ["name_en", "type_key"] } },
+                { "id": "sv_sheeptype", "name": "sheep_type_id", "type": "relation", "system": false, "required": true, "presentable": true, "options": { "collectionId": "", "cascadeDelete": false, "minSelect": 1, "maxSelect": 1, "displayFields": ["name_en", "type_key"] } },
                 { "id": "sv_nameen_var", "name": "name_en_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
                 { "id": "sv_namear_var", "name": "name_ar_variant", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
                 { "id": "sv_wrange_en", "name": "weight_range_text_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
@@ -145,29 +166,60 @@
         let existingCollection = null;
         try {
             existingCollection = await pb.collections.getOne(collectionDef.name);
+            log(`Collection '<b>${collectionDef.name}</b>' exists. Attempting to update...`, 'i');
         } catch (e) {
-            if (!(e.status === 404 || (e.response && e.response.status === 404))) throw e;
+            if (!(e.status === 404 || (e.response && e.response.status === 404))) {
+                log(`Error checking collection '<b>${collectionDef.name}</b>': ${e.message}`, 'e');
+                throw e;
+            }
+            log(`Collection '<b>${collectionDef.name}</b>' does not exist. Attempting to create...`, 'i');
         }
         
-        const { id, ...payloadForCreate } = collectionDef; 
-
-        const payloadForUpdate = { 
-            listRule: collectionDef.listRule, viewRule: collectionDef.viewRule,
-            createRule: collectionDef.createRule, updateRule: collectionDef.updateRule,
-            deleteRule: collectionDef.deleteRule, options: collectionDef.options,
-            fields: collectionDef.fields 
-        };
-
-        if (existingCollection) {
-            log(`Collection '<b>${collectionDef.name}</b>' exists. Attempting to update...`, 'i');
-            await pb.collections.update(existingCollection.id, payloadForUpdate);
-            log(`Collection '<b>${collectionDef.name}</b>' updated successfully.`, 's');
-            return existingCollection; // Return the existing collection object which includes its actual ID
-        } else {
-            log(`Collection '<b>${collectionDef.name}</b>' does not exist. Attempting to create...`, 'i');
-            const created = await pb.collections.create(payloadForCreate);
-            log(`Collection '<b>${collectionDef.name}</b>' created successfully.`, 's');
-            return created; // Return the newly created collection object
+        try {
+            if (existingCollection) {
+                const updatePayload = { 
+                    fields: collectionDef.fields,
+                    listRule: collectionDef.listRule, 
+                    viewRule: collectionDef.viewRule,
+                    createRule: collectionDef.createRule, 
+                    updateRule: collectionDef.updateRule,
+                    deleteRule: collectionDef.deleteRule, 
+                    options: collectionDef.options
+                };
+                await pb.collections.update(existingCollection.id, updatePayload);
+                log(`Collection '<b>${collectionDef.name}</b>' updated successfully.`, 's');
+                return existingCollection;
+            } else {
+                const createPayload = {
+                    name: collectionDef.name,
+                    type: collectionDef.type,
+                    system: collectionDef.system,
+                    fields: collectionDef.fields,
+                    listRule: collectionDef.listRule,
+                    viewRule: collectionDef.viewRule,
+                    createRule: collectionDef.createRule,
+                    updateRule: collectionDef.updateRule,
+                    deleteRule: collectionDef.deleteRule,
+                    options: collectionDef.options
+                };
+                const created = await pb.collections.create(createPayload);
+                log(`Collection '<b>${collectionDef.name}</b>' created successfully.`, 's');
+                return created;
+            }
+        } catch (error) {
+            log(`Error managing collection '<b>${collectionDef.name}</b>': ${error.message}`, 'e');
+            console.error('Full error object:', error);
+            
+            if (error.response?.data) {
+                log(`Server validation errors: ${JSON.stringify(error.response.data, null, 2)}`, 'e');
+            }
+            
+            if (error.data) {
+                log(`Error data: ${JSON.stringify(error.data, null, 2)}`, 'e');
+            }
+            
+            log(`Failed collection definition: ${JSON.stringify(collectionDef, null, 2)}`, 'e');
+            throw error;
         }
     }
 
@@ -193,23 +245,29 @@
                 delete dataToProcess[fkMapping.localPlaceholderField];
             }
             
-            const { id_placeholder, ...actualData } = dataToProcess; // Remove id_placeholder before sending to PB
+            const { id_placeholder, ...actualData } = dataToProcess;
 
             try {
                 const existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${actualData[uniqueKeyField]}"`).catch(() => null);
                 if (existingRecord) {
                     await pb.collection(collectionName).update(existingRecord.id, actualData);
                     createdRecordsMap[id_placeholder || actualData[uniqueKeyField]] = existingRecord.id;
+                    log(`Updated record '<b>${actualData[uniqueKeyField]}</b>' in ${collectionName}`, 's');
                     updatedCount++;
                 } else {
                     const newRecord = await pb.collection(collectionName).create(actualData);
                     createdRecordsMap[id_placeholder || actualData[uniqueKeyField]] = newRecord.id;
+                    log(`Created record '<b>${actualData[uniqueKeyField]}</b>' in ${collectionName}`, 's');
                     createdCount++;
                 }
             } catch (e) {
                 log(`Error processing item ${actualData[uniqueKeyField]} for collection ${collectionName}: ${e.message}`, 'e');
+                console.error('Full error object:', e);
+                
                 const errorDetails = e.data || (e.response && e.response.data);
-                 if (errorDetails) log(`Details: <pre>${JSON.stringify(errorDetails, null, 2)}</pre>`, 'e');
+                if (errorDetails) log(`Details: ${JSON.stringify(errorDetails, null, 2)}`, 'e');
+                
+                log(`Failed data: ${JSON.stringify(actualData, null, 2)}`, 'e');
                 skippedCount++;
             }
         }
@@ -228,23 +286,22 @@
             await pb.admins.authWithPassword(ADM_E, ADM_P);
             log('Admin authentication successful.', 's');
 
-            // Manage Collections
             const sheepTypesCollectionInfo = await manageCollection(pb, collectionsToDefine.find(c => c.name === 'sheep_types'));
             
-            // Update placeholder ID in sheep_variants schema before managing it
             const sheepVariantsDef = collectionsToDefine.find(c => c.name === 'sheep_variants');
             const relationFieldInVariants = sheepVariantsDef.fields.find(f => f.name === 'sheep_type_id');
             if (relationFieldInVariants && sheepTypesCollectionInfo) {
                 relationFieldInVariants.options.collectionId = sheepTypesCollectionInfo.id;
+                log(`Updated relation field collectionId to: ${sheepTypesCollectionInfo.id}`, 'i');
             } else {
                 throw new Error("Could not set relation ID for sheep_variants. Sheep types collection info missing.");
             }
+            
             await manageCollection(pb, sheepVariantsDef);
             await manageCollection(pb, collectionsToDefine.find(c => c.name === 'bookings'));
             log('All collections processed.', 's');
 
-            // Seed Data
-            log('Pausing for 1 second before seeding data...', 'li');
+            log('Pausing for 1 second before seeding data...', 'i');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
             const seededSheepTypesMap = await seedCollectionData(pb, 'sheep_types', seedDataForCatalog.sheep_types, 'type_key');
@@ -257,59 +314,23 @@
             await seedCollectionData(pb, 'sheep_variants', seedDataForCatalog.sheep_variants, 'item_key', sheepTypeFKMap);
             
             log('Product catalog data seeding completed.', 's');
+            log('<b>Full Setup completed successfully!</b>', 's');
 
         } catch (e) {
             log(`<b>ERROR during full setup:</b> ${e.message}`, 'e');
-            const errorData = e.data || (e.response && e.response.data);
-            if (errorData) log(`Details: <pre>${JSON.stringify(errorData, null, 2)}</pre>`, 'e');
             console.error("Full Error Object (Full Setup):", e);
-        } finally {
-            pb.authStore.clear();
-            runFullSetupButton.disabled = false;
-        }
-    };
-
-    // Kept the separate seed button for stock_levels if needed, but primary seeding is in full setup
-    runStockSeedButton.onclick = async () => {
-        runFullSetupButton.disabled = true; // Disable other button during this operation
-        runStockSeedButton.disabled = true;
-        outputDiv.innerHTML = '';
-        log('Stock Level Seeding/Update process started (using sheep_variants)...', 'i');
-        const pb = new PocketBase(pbUrl);
-
-        try {
-            log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
-            await pb.admins.authWithPassword(ADM_E, ADM_P);
-            log('Admin authentication successful for seeding.', 's');
-
-            for (const variantSeed of seedDataForCatalog.sheep_variants) {
-                 const dataToUpdate = {
-                    stock_available_pb: variantSeed.stock_available_pb, // Or stock_master if that's the source
-                    is_active: variantSeed.is_active
-                };
-                try {
-                    const existing = await pb.collection('sheep_variants').getFirstListItem(`item_key="${variantSeed.item_key}"`).catch(() => null);
-                    if (existing) {
-                        await pb.collection('sheep_variants').update(existing.id, dataToUpdate);
-                        log(`Updated stock for variant '<b>${variantSeed.item_key}</b>'.`, 's');
-                    } else {
-                         log(`Variant '<b>${variantSeed.item_key}</b>' not found for stock update. Seed via Full Setup first.`, 'w');
-                    }
-                } catch (e) {
-                    log(`Error updating stock for variant '<b>${variantSeed.item_key}</b>': ${e.message}`, 'e');
-                }
+            
+            const errorData = e.data || (e.response && e.response.data);
+            if (errorData) log(`Error details: ${JSON.stringify(errorData, null, 2)}`, 'e');
+            
+            if (e.stack) {
+                log(`Stack trace: ${e.stack}`, 'e');
             }
-            log('Stock level update process completed.', 's');
-
-        } catch (e) {
-            log(`<b>ERROR during stock update:</b> ${e.message}`, 'e');
         } finally {
-            pb.authStore.clear();
+            if (pb.authStore.isValid) pb.authStore.clear();
             runFullSetupButton.disabled = false;
-            runStockSeedButton.disabled = false;
         }
     };
-
 
 </script>
 </body>
