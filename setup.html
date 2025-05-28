@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>PB Setup: Bookings & Stock Levels (for Automation)</title>
+    <meta charset="UTF-8"><title>PB Setup: Bookings & Stock Levels (Strict)</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="c">
-        <h1>PB Udheya Setup (Bookings & Stock Levels for Automation)</h1>
+        <h1>PB Udheya Setup (Bookings & Stock Levels)</h1>
         <p class="warn">This script creates/updates 'bookings' and 'stock_levels' collections.</p>
         <button id="runCollectionsSetup">1. Create/Update Collections</button>
         <button id="runStockSeed">2. Seed Initial Stock Levels (Run After Step 1)</button>
@@ -96,14 +96,12 @@
             "options": {},
             "fields": [
                 { "id": "sl_itemkey", "name": "item_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "min": 1, "max": 100, "pattern": "^[a-zA-Z0-9_\\-]+$" }},
-                { "id": "sl_currstock", "name": "current_stock", "type": "number", "system": false, "required": true, "presentable": true, "options": {"min": 0, "noDecimal": true}}, // Max can be null
+                { "id": "sl_currstock", "name": "current_stock", "type": "number", "system": false, "required": true, "presentable": true, "options": {"min": 0, "noDecimal": true}},
                 { "id": "sl_isactive", "name": "is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {}} 
             ]
         }
     ];
 
-    // This data corresponds to the HARDCODED_PRODUCT_CATALOG_CONFIG in script.js
-    // It's used to seed initial stock values.
     const initialStockSeedData = [ 
         { item_key: "baladi_40_50", current_stock: 7, is_active: true },
         { item_key: "baladi_50_60", current_stock: 8, is_active: true },
@@ -137,16 +135,13 @@
                     }
                 }
                 
-                // Remove placeholder collection id for creation payload
-                const { id, ...createPayloadDef } = collectionDef;
-                const payloadForCreate = createPayloadDef;
-
+                const { id, ...payloadForCreate } = collectionDef; // Remove placeholder collection id for create
 
                 const payloadForUpdate = { 
                     listRule: collectionDef.listRule, viewRule: collectionDef.viewRule,
                     createRule: collectionDef.createRule, updateRule: collectionDef.updateRule,
                     deleteRule: collectionDef.deleteRule, options: collectionDef.options,
-                    fields: collectionDef.fields // For updates, PB merges fields based on their 'id'
+                    fields: collectionDef.fields 
                 };
 
                 if (existingCollection) {
@@ -188,11 +183,9 @@
                 try {
                     const existing = await pb.collection('stock_levels').getFirstListItem(`item_key="${stockItem.item_key}"`).catch(() => null);
                     if (existing) {
-                        // Update existing stock item
                         await pb.collection('stock_levels').update(existing.id, stockItem);
                         log(`Updated stock for '<b>${stockItem.item_key}</b>'.`, 's');
                     } else {
-                        // Create new stock item
                         await pb.collection('stock_levels').create(stockItem);
                         log(`Seeded stock for '<b>${stockItem.item_key}</b>'.`, 's');
                     }

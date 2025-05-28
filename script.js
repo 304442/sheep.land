@@ -71,10 +71,11 @@ document.addEventListener('alpine:init', () => {
     ];
 
     async function postBookingToPB(bookingPayload) {
+        const pb = new PocketBase('/'); // Ensure PocketBase instance is available
         const apiUrl = `/api/collections/bookings/records`;
         const options = { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(bookingPayload) };
         try {
-            const response = await fetch(apiUrl, options);
+            const response = await fetch(apiUrl, options); // Assuming direct fetch if pb instance not used for this
             if (!response.ok) {
                 let errorMessage = `API Error (POST bookings): ${response.status}`;
                 try { const errorData = await response.json(); errorMessage += ` - ${errorData?.message || JSON.stringify(errorData.data) || response.statusText}`; }
@@ -96,14 +97,14 @@ document.addEventListener('alpine:init', () => {
                 const newStock = Math.max(0, stockRecord.current_stock - quantityToDecrement);
                 await pb.collection('stock_levels').update(stockRecord.id, { current_stock: newStock });
                 console.log(`Stock updated in PB for ${itemKey} to ${newStock}`);
-                return newStock; // Return the new stock level
+                return newStock; 
             } else {
                 console.warn(`Stock record not found in PB for item_key: ${itemKey}. Cannot update stock.`);
-                return null; // Indicate stock record not found
+                return null; 
             }
         } catch (error) {
             console.error(`Error updating stock in PB for ${itemKey}:`, error);
-            throw error; // Rethrow to be handled by the caller
+            throw new Error(`Failed to update stock for ${itemKey}: ${error.message}`); 
         }
     }
 
@@ -115,7 +116,7 @@ document.addEventListener('alpine:init', () => {
         get availablePaymentMethods() { return paymentMethodDisplayOptions.filter(pm => activePaymentMethodsList.includes(pm.id)); },
         apiError: null, userFriendlyApiError: "", ...JSON.parse(JSON.stringify(initialBookingStateData)),
         bookingConfirmed: false, statusResult: null, statusNotFound: false, lookupBookingID: "", currentCurrency: "EGP", bookingID: "",
-        currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false, step5: false }, // 5 steps
+        currentConceptualStep: 1, stepProgress: { step1: false, step2: false, step3: false, step4: false, step5: false },
         isMobileMenuOpen: false, isUdheyaDropdownOpen: false, isUdheyaMobileSubmenuOpen: false,
         countdown: { days: "00", hours: "00", minutes: "00", seconds: "00", ended: false },
         countdownTimerInterval: null, currentLang: "en",
@@ -160,7 +161,7 @@ document.addEventListener('alpine:init', () => {
 
             let fetchedStockLevels = [];
             try {
-                fetchedStockLevels = await pb.collection('stock_levels').getFullList({ requestKey: `stock-${Date.now()}` }); // Add requestKey to try and avoid cache
+                fetchedStockLevels = await pb.collection('stock_levels').getFullList({ requestKey: null }); // requestKey: null to bypass cache for this fetch
             } catch (e) {
                 console.error("Error fetching stock levels from PocketBase:", e);
                 this.apiError = "Could not load stock information. Please refresh.";
@@ -173,7 +174,7 @@ document.addEventListener('alpine:init', () => {
                     const stockInfo = fetchedStockLevels.find(s => s.item_key === item.item_key);
                     if (stockInfo) {
                         item.current_stock = stockInfo.current_stock;
-                        item.is_active = stockInfo.is_active !== undefined ? stockInfo.is_active : item.is_active;
+                        item.is_active = stockInfo.is_active !== undefined ? stockInfo.is_active : item.is_active; 
                     } else {
                         item.current_stock = 0; 
                         item.is_active = false; 
@@ -203,13 +204,12 @@ document.addEventListener('alpine:init', () => {
                 this.updateDeliveryFeeDisplay(); this.isLoading.init = false;
             });
 
-            // New 5-step order
             this.stepSectionsMeta = [
                 { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: (this.productOptions.livestock[0]?.value_key + 'WeightSelect') || 'step1Title', validator: this.validateStep1.bind(this) },
-                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'orderingPersonNameInput_s2', validator: this.validateStep2.bind(this) }, // Your Details
-                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'udheyaServiceRadios_s3', validator: this.validateStep3.bind(this) }, // Udheya Arrangements
-                { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'distributionChoiceSelect_s4', validator: this.validateStep4.bind(this) }, // Distribution & Delivery
-                { id: "#step5-content", conceptualStep: 5, titleRef: "step5Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep5.bind(this) }  // Review & Reserve
+                { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'orderingPersonNameInput_s2', validator: this.validateStep2.bind(this) },
+                { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'udheyaServiceRadios_s3', validator: this.validateStep3.bind(this) },
+                { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'distributionChoiceSelect_s4', validator: this.validateStep4.bind(this) },
+                { id: "#step5-content", conceptualStep: 5, titleRef: "step5Title", firstFocusableErrorRef: 'paymentMethodRadios', validator: this.validateStep5.bind(this) }
             ];
             ['selectedAnimal.basePriceEGP', 'currentCurrency', 'currentServiceFeeEGP'].forEach(prop => this.$watch(prop, () => { this.calculateTotalPrice(); if(prop !== 'currentServiceFeeEGP') this.updateAllDisplayedPrices(); }));
             this.$watch('appSettings.udheya_service_surcharge_egp', () => { this.updateServiceFee(); });
@@ -222,26 +222,74 @@ document.addEventListener('alpine:init', () => {
             window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startOfferDHDMSCountdown(); else if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval); });
         },
-        updateServiceFee() { /* ... (logic unchanged) ... */ },
-        handleScroll() { /* ... (logic unchanged) ... */ },
+        updateServiceFee() { 
+            if (this.selectedUdheyaService === 'standard_service') { this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0; }
+            else if (this.selectedUdheyaService === 'live_animal_only') { this.currentServiceFeeEGP = 0; }
+            else { this.selectedUdheyaService = 'standard_service'; this.currentServiceFeeEGP = this.appSettings.udheya_service_surcharge_egp || 0; }
+            this.calculateTotalPrice();
+         },
+        handleScroll() {
+            if (!this.bookingConfirmed && this.stepSectionsMeta.some(step => { const el = document.querySelector(step.id); return el && typeof el.offsetTop === 'number'; })) {
+                const scrollMidPoint = window.scrollY + (window.innerHeight / 2); let closestStep = 1; let minDistance = Infinity;
+                this.stepSectionsMeta.forEach(stepMeta => { const element = document.querySelector(stepMeta.id); if (element) { const distance = Math.abs(scrollMidPoint - (element.offsetTop + (element.offsetHeight / 2))); if (distance < minDistance) { minDistance = distance; closestStep = stepMeta.conceptualStep; } } });
+                if (this.currentConceptualStep !== closestStep) this.currentConceptualStep = closestStep;
+            }
+            const headerHeight = document.querySelector('.site-header')?.offsetHeight || 70; const scrollCheckOffset = headerHeight + (window.innerHeight * 0.10); const currentScrollYWithOffset = window.scrollY + scrollCheckOffset; let newActiveNavLinkHref = ""; let newActiveParentMenu = null;
+            for (const navLink of this.navLinksData) { const sectionElement = document.getElementById(navLink.sectionId); if (sectionElement) { const sectionTop = sectionElement.offsetTop; const sectionBottom = sectionTop + sectionElement.offsetHeight; if (sectionTop <= currentScrollYWithOffset && sectionBottom > currentScrollYWithOffset) { newActiveNavLinkHref = navLink.href; newActiveParentMenu = navLink.parentMenu; break; } } }
+            const firstNavLinkSection = document.getElementById(this.navLinksData[0]?.sectionId);
+            if (window.scrollY < (firstNavLinkSection?.offsetTop || headerHeight) - headerHeight) { newActiveNavLinkHref = ""; newActiveParentMenu = null; }
+            else if ((window.innerHeight + Math.ceil(window.scrollY)) >= (document.body.offsetHeight - 2)) { const lastVisibleNavLink = this.navLinksData.slice().reverse().find(nl => document.getElementById(nl.sectionId)); if (lastVisibleNavLink) { newActiveNavLinkHref = lastVisibleNavLink.href; newActiveParentMenu = lastVisibleNavLink.parentMenu; } }
+            this.activeNavLinkHref = newActiveParentMenu || newActiveNavLinkHref;
+        },
         setError(f, m) { this.errors[f] = (typeof m === 'string' ? this.errorMessages[m] : m) || this.errorMessages.required; },
         clearError(f) { if(this.errors[f]) delete this.errors[f]; },
         clearAllErrors() { this.errors = {}; },
         focusOnRef(r, s=true) {this.$nextTick(()=>{if(this.$refs[r]){this.$refs[r].focus({preventScroll:!s});if(s)setTimeout(()=>{try{this.$refs[r].scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}catch(e){console.warn("ScrollIntoView failed for",r,e);}},50);}})},
-        get _needsDeliveryDetails() { /* ... (logic unchanged) ... */ },
-        get splitDetails() { /* ... (logic unchanged) ... */ },
-        _getDeliveryLocation(lang) { /* ... (logic unchanged) ... */ },
-        get summaryDeliveryToEN() { /* ... (logic unchanged) ... */ },
-        get summaryDeliveryToAR() { /* ... (logic unchanged) ... */ },
-        get summaryDistributionEN() { /* ... (logic unchanged) ... */ },
-        get summaryDistributionAR() { /* ... (logic unchanged) ... */ },
-        startOfferDHDMSCountdown() { /* ... (logic unchanged) ... */ },
-        updateDHDMSCountdownDisplay(t) { /* ... (logic unchanged) ... */ },
-        updateDeliveryFeeDisplay() { /* ... (logic unchanged) ... */ },
-        getFormattedPrice(p, c) { /* ... (logic unchanged) ... */ },
+        get _needsDeliveryDetails() { const c = (this.customSplitDetailsText || "").toLowerCase(); return this.distributionChoice === 'me' || (this.distributionChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitDetailsOption) || (this.splitDetailsOption === 'custom' && (c.includes("for me") || c.includes("all delivered to me") || c.includes("لي") || c.includes("توصيل لي"))))); },
+        get splitDetails() { if(this.distributionChoice !== 'split') return ""; if(this.splitDetailsOption === 'custom') return (this.customSplitDetailsText || "").trim(); const o={"1/3_me_2/3_charity_sl":{en:"1/3 me, 2/3 charity (SL)",ar:"ثلث لي، ثلثان صدقة (أرض الأغنام)"},"1/2_me_1/2_charity_sl":{en:"1/2 me, 1/2 charity (SL)",ar:"نصف لي، نصف صدقة (أرض الأغنام)"},"2/3_me_1/3_charity_sl":{en:"2/3 me, 1/3 charity (SL)",ar:"ثلثان لي، ثلث صدقة (أرض الأغنام)"},"all_me_custom_distro":{en:"All for me (I distribute)",ar:"الكل لي (أنا أوزع)"}};const s=o[this.splitDetailsOption];return s?(this.currentLang==='ar'?s.ar:s.en):this.splitDetailsOption;},
+        _getDeliveryLocation(lang) {
+            if (!this._needsDeliveryDetails || !this.deliveryCity) return "";
+            const selectedCityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
+            if (!selectedCityData) return "";
+            return lang === 'en' ? selectedCityData.name_en : selectedCityData.name_ar;
+        },
+        get summaryDeliveryToEN() {
+            if(this.distributionChoice === 'char') return "Charity Distribution by Sheep Land";
+            if(this._needsDeliveryDetails) {
+                const name = (this.orderingPersonName || "").trim();
+                const location = this._getDeliveryLocation('en');
+                const addressShort = (this.deliveryAddress || "").substring(0,30) + ((this.deliveryAddress || "").length > 30 ? "..." : "");
+                return [name, location, addressShort].filter(p => p?.trim()).join(", ") || "Delivery Details Incomplete";
+            }
+            return "Self Pickup/Distribution (No delivery details provided)";
+        },
+        get summaryDeliveryToAR() {
+            if(this.distributionChoice === 'char') return "توزيع خيري بواسطة أرض الأغنام";
+            if(this._needsDeliveryDetails) {
+                const name = (this.orderingPersonName || "").trim();
+                const location = this._getDeliveryLocation('ar');
+                const addressShort = (this.deliveryAddress || "").substring(0,30) + ((this.deliveryAddress || "").length > 30 ? "..." : "");
+                return [name, location, addressShort].filter(p => p?.trim()).join("، ") || "تفاصيل التوصيل غير مكتملة";
+            }
+            return "استلام ذاتي/توزيع (لم تقدم تفاصيل توصيل)";
+        },
+        get summaryDistributionEN() {if(this.distributionChoice==='me')return"All to me";if(this.distributionChoice==='char')return"All to charity (by SL)";return`Split: ${(this.splitDetails||"").trim()||"(Not specified)"}`;},
+        get summaryDistributionAR() {if(this.distributionChoice==='me')return"الكل لي";if(this.distributionChoice==='char')return"تبرع بالكل للصدقة (أرض الأغنام)";return`تقسيم: ${(this.splitDetails||"").trim()||"(لم يحدد)"}`;},
+        startOfferDHDMSCountdown() { if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);if(!this.appSettings.promo_is_active||!this.appSettings.promo_end_date) {this.countdown.ended=true;return;} const t=new Date(this.appSettings.promo_end_date).getTime();if(isNaN(t)){this.countdown.ended=true;return;}this.updateDHDMSCountdownDisplay(t);this.countdownTimerInterval=setInterval(()=>this.updateDHDMSCountdownDisplay(t),1000);},
+        updateDHDMSCountdownDisplay(t) {const d=t-Date.now();if(d<0){if(this.countdownTimerInterval)clearInterval(this.countdownTimerInterval);Object.assign(this.countdown,{days:"00",hours:"00",minutes:"00",seconds:"00",ended:true});return;}this.countdown.ended=false;this.countdown={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),minutes:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),seconds:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
+        updateDeliveryFeeDisplay() {
+            this.deliveryFeeForDisplayEGP = 0; this.isDeliveryFeeVariable = false;
+            if (!this._needsDeliveryDetails || !this.deliveryCity) { this.calculateTotalPrice(); return; } 
+            const cityData = this.allAvailableCities.find(c => c.id === this.deliveryCity);
+            if (cityData && typeof cityData.delivery_fee_egp === 'number') { this.deliveryFeeForDisplayEGP = cityData.delivery_fee_egp; this.isDeliveryFeeVariable = false; } 
+            else if (cityData && cityData.delivery_fee_egp === null) { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; } 
+            else { this.isDeliveryFeeVariable = true; this.deliveryFeeForDisplayEGP = 0; }
+            this.calculateTotalPrice(); 
+        },
+        getFormattedPrice(p, c) {const cc=c||this.currentCurrency;const ci=this.appSettings?.exchange_rates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isValidEmail: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isValidPhone: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
-        scrollToSection(s) { /* ... (logic unchanged) ... */ },
+        scrollToSection(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.site-header')?.offsetHeight||0;if(s.startsWith('#udheya-booking-start')||s.startsWith('#step')||s.startsWith('#udheya-booking-form-panel')){const h=document.querySelector('.stepper-outer-wrapper');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){console.warn("ScrollToSection error:", err);}},
         validateConceptualStep(cs, se=true) { const m=this.stepSectionsMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProgress[`step${cs}`]=v;return v;},
         updateAllStepCompletionStates() { for(let i=1;i<=this.stepSectionsMeta.length;i++)this.stepProgress[`step${i}`]=this.validateConceptualStep(i,false);},
         handleStepperNavigation(tcs) {this.clearAllErrors();let cp=true;for(let s=1;s<tcs;s++){if(!this.validateConceptualStep(s,true)){this.currentConceptualStep=s;const m=this.stepSectionsMeta[s-1];this.focusOnRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollToSection(m?.id||'#udheya-booking-start');cp=false;break;}}if(cp){this.currentConceptualStep=tcs;this.scrollToSection(this.stepSectionsMeta[tcs-1]?.id||'#udheya-booking-start');this.focusOnRef(this.stepSectionsMeta[tcs-1]?.titleRef);}},
@@ -251,24 +299,22 @@ document.addEventListener('alpine:init', () => {
             if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
             return true; 
         },
-        validateStep2(setErrors = true) { // New Step 2: Your Details
+        validateStep2(setErrors = true) { // Your Details
             if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail');}
             let isValid = true;
             if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
             if (!this.isValidPhone(this.orderingPersonPhone)) { if (setErrors) this.setError('orderingPersonPhone', 'phone'); isValid = false; }
             if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
-            // Niyyah is optional, no validation needed unless it becomes required
             return isValid;
         },
-        validateStep3(setErrors = true) { // New Step 3: Udheya Arrangements
+        validateStep3(setErrors = true) { // Udheya Arrangements
             if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); }
             let isValid = true;
             if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
             if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; }
-            // Slaughter viewing is optional
             return isValid;
         },
-        validateStep4(setErrors = true) { // New Step 4: Distribution & Delivery
+        validateStep4(setErrors = true) { // Distribution & Delivery
             if (setErrors) { this.clearError('distributionChoice'); this.clearError('splitDetails'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
             let isValid = true;
             if (!this.distributionChoice) { if(setErrors) this.setError('distributionChoice', 'select'); isValid = false; }
@@ -282,17 +328,71 @@ document.addEventListener('alpine:init', () => {
             }
             return isValid;
         },
-        validateStep5(setErrors = true) { // New Step 5: Review & Reserve (was Step 4)
+        validateStep5(setErrors = true) { // Review & Reserve
             if (setErrors) this.clearError('paymentMethod');
             if (!this.paymentMethod) { if (setErrors) this.setError('paymentMethod', 'select'); return false; }
             return true;
         },
 
-        selectAnimal(animalTypeKeyFromCard, weightSelectElement) { /* ... (logic remains the same as previous version) ... */ },
-        updateSacrificeDayTexts() { const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; if (sacrificeDaySelectElement) { const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`); if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});} }, // Refers to s3, will need to be s2 in HTML
-        calculateTotalPrice() { /* ... (logic remains the same) ... */ },
-        updateAllDisplayedPrices() { /* ... (logic remains the same as previous version, using getEnglishStockStatusText) ... */ },
-
+        selectAnimal(animalTypeKeyFromCard, weightSelectElement) { 
+            const selectedItemKey = weightSelectElement.value; 
+            this.clearError('animal');
+            if (!selectedItemKey) {
+                this.selectedAnimal = { ...initialBookingStateData.selectedAnimal };
+                this.productOptions.livestock.forEach(type => { if (type.value_key !== animalTypeKeyFromCard && this.$refs[`${type.value_key}WeightSelect`]) { this.$refs[`${type.value_key}WeightSelect`].value = ""; } });
+                this.calculateTotalPrice(); this.updateAllStepCompletionStates(); return;
+            }
+            this.productOptions.livestock.forEach(type => { if (type.value_key !== animalTypeKeyFromCard && this.$refs[`${type.value_key}WeightSelect`]) { this.$refs[`${type.value_key}WeightSelect`].value = ""; } });
+            const animalTypeConfig = this.productOptions.livestock.find(a => a.value_key === animalTypeKeyFromCard);
+            if (!animalTypeConfig) { this.selectedAnimal = { ...initialBookingStateData.selectedAnimal }; this.calculateTotalPrice(); this.updateAllStepCompletionStates(); return; }
+            const selectedSpecificItem = animalTypeConfig.weights_prices.find(wp => wp.item_key === selectedItemKey);
+            if (selectedSpecificItem && selectedSpecificItem.is_active && selectedSpecificItem.current_stock > 0) {
+                this.selectedAnimal = {
+                    type: animalTypeConfig.value_key, item_key: selectedSpecificItem.item_key, 
+                    weight_range_en: selectedSpecificItem.weight_range_text_en, weight_range_ar: selectedSpecificItem.weight_range_text_ar,
+                    basePriceEGP: selectedSpecificItem.basePriceEGP, nameEN: selectedSpecificItem.nameEN_specific, nameAR: selectedSpecificItem.nameAR_specific,
+                    stock: selectedSpecificItem.current_stock, typeGenericNameEN: animalTypeConfig.name_en, typeGenericNameAR: animalTypeConfig.name_ar
+                };
+            } else {
+                this.selectedAnimal = { ...initialBookingStateData.selectedAnimal };
+                this.setError('animal', {en: 'Selected item is out of stock or inactive.', ar: 'الخيار المحدد غير متوفر أو غير نشط.'});
+            }
+            this.calculateTotalPrice(); this.updateAllStepCompletionStates();
+        },
+        updateSacrificeDayTexts() { const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; if (sacrificeDaySelectElement) { const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`); if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});} },
+        calculateTotalPrice() { let deliveryFeeForTotal = 0; if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) { deliveryFeeForTotal = this.deliveryFeeForDisplayEGP; } this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal;  },
+        updateAllDisplayedPrices() {
+            try {
+                (this.productOptions.livestock || []).forEach(livestockTypeConfig => { 
+                    const weightSelectEl = this.$refs[`${livestockTypeConfig.value_key}WeightSelect`]; 
+                    const cardEl = document.getElementById(livestockTypeConfig.value_key); 
+                    if (!weightSelectEl || !cardEl) { console.warn(`Missing elements for ${livestockTypeConfig.value_key}`); return; }
+                    const currentVal = weightSelectEl.value; 
+                    weightSelectEl.innerHTML = `<option value="">-- Select Weight --</option>`;
+                    let stillValid = false;
+                    (livestockTypeConfig.weights_prices || []).forEach(wp => { 
+                        const opt = document.createElement('option'); 
+                        opt.value = wp.item_key; 
+                        const outOfStock = !wp.is_active || wp.current_stock <= 0;
+                        const statusTextEN = this.getEnglishStockStatusText(wp.current_stock, wp.is_active);
+                        const priceDisplayEN = this.getFormattedPrice(wp.basePriceEGP);
+                        opt.textContent = `${wp.weight_range_text_en} (${priceDisplayEN}) - ${statusTextEN}`.trim();
+                        opt.disabled = outOfStock; 
+                        weightSelectEl.appendChild(opt);
+                        if (wp.item_key === currentVal && !outOfStock) stillValid = true;
+                    });
+                    if(currentVal && stillValid) { weightSelectEl.value = currentVal; }
+                    else if (this.selectedAnimal.type === livestockTypeConfig.value_key && this.selectedAnimal.item_key && livestockTypeConfig.weights_prices.find(wp => wp.item_key === this.selectedAnimal.item_key && wp.is_active && (wp.current_stock > 0))) { weightSelectEl.value = this.selectedAnimal.item_key; }
+                    else { weightSelectEl.value = ""; }
+                    const pricePerKilo = livestockTypeConfig.price_per_kg_egp || 0;
+                    const pricePerKiloTextEn = this.getFormattedPrice(pricePerKilo) + '/kg';
+                    const pricePerKiloTextAr = this.getFormattedPrice(pricePerKilo) + '/كجم';
+                    const pEN_el = cardEl.querySelector('.price.bil-row .en span'); if(pEN_el) pEN_el.textContent = pricePerKiloTextEn;
+                    const pAR_el = cardEl.querySelector('.price.bil-row .ar span'); if(pAR_el) pAR_el.textContent = pricePerKiloTextAr;
+                });
+                this.calculateTotalPrice(); 
+            } catch (e) { console.error("Error in updateAllDisplayedPrices:", e); this.userFriendlyApiError = "Error updating prices."; }
+        },
         async validateAndSubmitBooking() { 
             this.clearAllErrors(); let isValid = true;
             for (let i = 1; i <= this.stepSectionsMeta.length; i++) { if (!this.validateConceptualStep(i, true)) { isValid = false; const meta = this.stepSectionsMeta[i-1]; if (meta) { this.focusOnRef(meta.firstFocusableErrorRef || meta.titleRef); this.scrollToSection(meta.id || '#udheya-booking-start'); } break; }}
@@ -340,15 +440,21 @@ document.addEventListener('alpine:init', () => {
                 const createdBooking = await postBookingToPB(payload); 
                 this.bookingID = createdBooking.booking_id_text || createdBooking.id;
                 
-                const newStockLevelAfterBooking = await updateStockInPB(stockItemConfig.item_key, 1); // Decrement by 1
-                if (newStockLevelAfterBooking !== null) {
-                    stockItemConfig.current_stock = newStockLevelAfterBooking; 
-                    this.selectedAnimal.stock = newStockLevelAfterBooking; 
-                    this.updateAllDisplayedPrices(); 
-                } else {
-                    // Stock update failed, but booking was made. Log this seriously.
-                    console.error(`CRITICAL: Booking ${this.bookingID} created, but failed to update stock for ${stockItemConfig.item_key} in PocketBase.`);
-                    this.userFriendlyApiError = "Booking placed, but there was an issue updating stock. Please contact support with your Booking ID.";
+                try {
+                    const newStockLevelAfterBooking = await updateStockInPB(stockItemConfig.item_key, 1); 
+                    if (newStockLevelAfterBooking !== null) {
+                        stockItemConfig.current_stock = newStockLevelAfterBooking; 
+                        this.selectedAnimal.stock = newStockLevelAfterBooking; 
+                        this.updateAllDisplayedPrices(); 
+                    } else {
+                        // Stock record was not found in PB to update - this is an issue if it was expected
+                        console.error(`CRITICAL: Booking ${this.bookingID} created, but stock record for ${stockItemConfig.item_key} was NOT FOUND in PocketBase for update.`);
+                        this.userFriendlyApiError = "Booking placed, but there was an issue finding the stock record to update. Please contact support with your Booking ID.";
+                    }
+                } catch (stockUpdateError) {
+                    // Stock update itself failed after booking was made
+                    console.error(`CRITICAL: Booking ${this.bookingID} created, but FAILED to update stock for ${stockItemConfig.item_key} in PocketBase. Error: ${stockUpdateError.message}`);
+                    this.userFriendlyApiError = "Booking placed, but the stock update failed. Please contact support with your Booking ID to ensure stock accuracy.";
                 }
 
                 this.bookingConfirmed = true; 
@@ -356,23 +462,40 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { 
                 this.apiError=String(e.message);
                 this.userFriendlyApiError="Issue submitting your booking. Please try again or contact support.";
-                if (e.message.includes("Failed to update stock")) { // Specific error from updateStockInPB
-                    this.userFriendlyApiError = "Booking submission failed during stock update. Please try again.";
-                }
                 this.$nextTick(()=>this.scrollToSection('.global-error-indicator'));
             }
             finally { this.isLoading.booking = false; }
         },
-        async validateAndCheckBookingStatus() { /* ... (logic remains the same) ... */ },
-        async checkBookingStatus() { /* ... (logic remains the same) ... */ },
-        getSacrificeDayText(v) { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v}; }, // Refers to s3, will change in HTML
+        async validateAndCheckBookingStatus() {this.clearError('lookupBookingID');if((this.lookupBookingID||"").trim())await this.checkBookingStatus();else{this.setError('lookupBookingID','required');this.focusOnRef('lookupBookingIdInput');}},
+        async checkBookingStatus() { 
+            this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const id = (this.lookupBookingID || "").trim();
+            try {
+                const response = await fetch(`/api/collections/bookings/records?filter=(booking_id_text='${encodeURIComponent(id)}')`);
+                if (!response.ok && response.status !== 404) throw new Error(`API Error: ${response.status}`);
+                const data = await response.json();
+                if (data.items?.length > 0) {
+                    const b = data.items[0];
+                    this.statusResult = { 
+                        booking_id_text: b.booking_id_text, status: b.booking_status?.replace(/_/g," ")||"Unknown", 
+                        animal_type: b.animal_type_name_en, animal_weight_selected: b.weight_category_name_en || (b.weight_range_actual_en || "N/A"), 
+                        sacrifice_day: b.sacrifice_day_value, time_slot: b.time_slot 
+                    };
+                } else this.statusNotFound = true;
+            } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
+            finally { this.isLoading.status = false; }
+        },
+        getSacrificeDayText(v) { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v}; },
         
         async resetAndStartOver() { 
             const currency = this.currentCurrency; const lang = this.currentLang;
             Object.assign(this, JSON.parse(JSON.stringify(initialBookingStateData)));
             this.currentCurrency = currency; this.currentLang = lang;
+            
             if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval);
+            
+            // initApp will re-fetch stock and re-initialize productOptions based on hardcoded + PB stock
             await this.initApp(); 
+             
             this.$nextTick(() => {
                 this.scrollToSection('#udheya-booking-start'); 
                 this.focusOnRef('bookingSectionTitle');
