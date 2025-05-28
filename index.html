@@ -282,7 +282,7 @@
                                 <div class="form-error-msg" x-show="errors.animal" x-text="errors.animal ? (currentLang === 'ar' ? errors.animal.ar : errors.animal.en) : ''" role="alert" aria-live="assertive"></div>
                             </div>
 
-                            <!-- Step 2: Your Details (New Order) -->
+                            <!-- Step 2: Your Details -->
                             <div id="step2-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step2Title" tabindex="-1"><span class="en">Your Details</span><span class="ar">بياناتك</span></h2></div>
                                 <h4 class="form-subhead bil-parent-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h4>
@@ -490,9 +490,11 @@
                                             <div class="summary-item" x-show="deliveryFeeForDisplayEGP > 0 && !isDeliveryFeeVariable">
                                                 <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Delivery Fee:</strong></div><div class="ar"><strong>رسوم التوصيل:</strong></div></div></div>
                                                 <span class="summary-item-price bil-row"><span class="en" x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></span><span class="ar" x-text="getFormattedPrice(deliveryFeeForDisplayEGP)"></span></span>
+                                                <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery City/Fee"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
-                                            <div class="summary-item" x-show="isDeliveryFeeVariable">
+                                            <div class="summary-item" x-show="isDeliveryFeeVariable && deliveryCity">
                                                  <div class="summary-item-content"><div class="bil-row"><div class="en"><strong>Est. Delivery Fee:</strong> To be confirmed</div><div class="ar"><strong>رسوم التوصيل المقدرة:</strong> سيتم التأكيد</div></div></div>
+                                                 <button type="button" @click.prevent="handleStepperNavigation(4)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Delivery City"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                         </div>
                                         <div class="summary-item" x-show="distributionChoice === 'char'">
