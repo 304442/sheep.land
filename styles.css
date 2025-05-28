@@ -246,7 +246,7 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .rgrp{margin-top:var(--s0)}.rgrp fieldset{border:none;padding:0;margin:0} 
 .rgrp legend.bil-parent-spread{margin-bottom:var(--s0)}
 .rgrp label{display:flex;align-items:center;margin-bottom:2px;font-size:.85rem;cursor:pointer;padding:5px 0}
-.rgrp label.bil-parent-spread > .en { text-align: left; flex-grow: 1; margin-right: auto; } /* Ensure radio labels spread */
+.rgrp label.bil-parent-spread > .en { text-align: left; flex-grow: 1; margin-right: auto; }
 .rgrp label.bil-parent-spread > .ar { text-align: right; flex-grow: 1; margin-left: auto; font-family: var(--fa); }
 .rgrp label span.ar{direction:rtl;text-align:right;font-family:var(--fa)}
 .rgrp input[type=radio]{margin-right:calc(var(--s0) + 2px);transform:scale(1.1)}
@@ -281,8 +281,8 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .additional-options-payment-wrapper .form-subhead{margin-bottom:var(--s2)}
 .pmeths{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:var(--s1);margin-top:var(--s0)}
 .pm input[type=radio]{display:none}
-.pm label{display:flex;align-items:center;justify-content:center;padding:var(--s0);border:1px solid var(--bs);border-radius:var(--rad);cursor:pointer;text-align:center;min-height:60px;background-color:var(--bc);transition: background-color .2s, border-color .2s}
-.pmeths .payment-icon{height:30px;width:auto;max-width:100%;object-fit:contain;display:block;transition: filter .2s}
+.pm label{display:flex;align-items:center;justify-content:center;padding:var(--s1);border:1px solid var(--bs);border-radius:var(--rad);cursor:pointer;text-align:center;min-height:70px;background-color:var(--bc);transition: background-color .2s, border-color .2s}
+.pmeths .payment-icon{height:40px;width:auto;max-width:100%;object-fit:contain;display:block;transition: filter .2s}
 .pm input[type=radio]:checked+label,.pm.sel label{border-color:var(--c1d);background:var(--c2)}
 .pm input[type=radio]:checked+label img,.pm.sel label img{filter:brightness(0) invert(1)}
 .form-step-content>.bil-parent-spread:first-child .form-subhead{margin-top:0}
@@ -338,7 +338,7 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
 .footer-payment-methods{margin-top:var(--s3);padding-bottom:var(--s2)}
 .footer-payment-methods h5{margin-bottom:var(--s1); color: var(--b2);}
 .payment-icons-grid{display:flex;justify-content:center;align-items:center;gap:var(--s1);flex-wrap:wrap}
-.footer-payment-icon{height:28px;width:auto;max-width:80px;object-fit:contain;opacity:0.85;transition:opacity .2s}
+.footer-payment-icon{height:36px;width:auto;max-width:90px;object-fit:contain;opacity:0.85;transition:opacity .2s} 
 .footer-payment-icon:hover{opacity:1}
 .footer-divider{border-color:rgba(255,255,255,.2);margin:var(--s2) 0 var(--s1)}
 .footer-copyright{font-size:.8em;text-align:center;color:var(--b2);opacity:.7;margin-bottom:0}
@@ -405,7 +405,9 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     .brand-logo{margin-right:0;margin-bottom:0;text-align:left;justify-content:flex-start}
     .main-nav.desktop-nav,.header-extras.desktop-extras{display:none} .hamburger-btn{display:inline-flex;align-items:center;justify-content:center}
     .hero-section h1{font-size:1.5rem}.hero-section h2{font-size:1.1rem}.hero-section p{font-size:.9rem}
-    .pm label{min-height:50px} .pmeths .payment-icon{height:28px} .footer-payment-icon{height:24px}
+    .pm label{min-height:70px; padding: var(--s1);} 
+    .pmeths .payment-icon{height:40px;} 
+    .footer-payment-icon{height:36px; max-width: 90px;} 
     .footer-brand-desc{ flex-direction:column; align-items:center; }
     .footer-brand-desc p.en,.footer-brand-desc p.ar{ width:100%; text-align:center!important; flex-basis:auto; }
     .footer-copyright{text-align:center}
@@ -422,7 +424,10 @@ html[lang=ar] .form-error-msg,body:has([dir=rtl]) .form-error-msg,.form-error-ms
     #udheya-booking-form-panel{scroll-margin-top:calc(var(--header-height-mobile-sm) + 40px)}
     .stepper-item .step-label.en{display:none} .stepper-item .step-label.ar{font-size:.65rem}
     .brand-logo{font-size:1rem} .hamburger-btn svg{width:24px;height:24px}
-    .pmeths .payment-icon{height:26px} .ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
+    .pmeths .payment-icon{height:35px} 
+    .pm label{min-height:60px;}
+    .footer-payment-icon{height:30px} 
+    .ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
     .countdown-timer{font-size:.8em;gap:2px;flex-wrap:wrap} .countdown-segment{min-width:30px;padding:2px}
     .countdown-value{font-size:1.1em} .countdown-separator{padding:0 1px}
     .hero-section h1{font-size:1.4rem}.hero-section h2{font-size:1rem}
