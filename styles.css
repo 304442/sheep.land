@@ -318,12 +318,37 @@ html[lang=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right
     .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .sum-item-content .bil-row):not(.sum-total):not(.bank-det-list li.bil-row):not(.bil-keep-side-by-side-mobile):not(.hero-desc):not(.live-note):not(.info-box-step .bil-row):not(.field-note-wrap)>:last-child{ margin-bottom:0; }
     .field-note-wrap > .en, .field-note-wrap > .ar { flex-basis: 100% !important; text-align: center !important; }
     .field-note-wrap > .en { margin-bottom: var(--s0); }
-    .bil-parent-spread:not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread){ flex-direction:column; align-items:center; text-align:center; }
-    .bil-parent-spread:not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:is(.en,.ar){ margin:0 auto var(--s0)!important; text-align:center!important; padding:0!important; }
-    .bil-parent-spread:not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.bil-keep-side-by-side-mobile):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:last-child{ margin-bottom:0!important; }
+
+    /* Make .bil-parent-spread stack on mobile, UNLESS it's also .bil-parent-spread-intrinsic or .bil-keep-side-by-side-mobile */
+    .bil-parent-spread:not(.bil-parent-spread-intrinsic):not(.bil-keep-side-by-side-mobile):not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread){
+        flex-direction:column;
+        align-items:center;
+        text-align:center;
+    }
+    .bil-parent-spread:not(.bil-parent-spread-intrinsic):not(.bil-keep-side-by-side-mobile):not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:is(.en,.ar){
+        margin:0 auto var(--s0)!important;
+        text-align:center!important;
+        padding:0!important;
+    }
+    .bil-parent-spread:not(.bil-parent-spread-intrinsic):not(.bil-keep-side-by-side-mobile):not(.lbl-req):not(.form-subh):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay-meths > h5):not(.book-id-box > .bil-parent-spread):not(.hero-head):not(.hero-sub):not(.rgrp > label.bil-parent-spread)>:last-child{
+        margin-bottom:0!important;
+    }
+
+    /* Ensure .bil-parent-spread-intrinsic and its children specifically do NOT stack */
+    .bil-parent-spread-intrinsic {
+        flex-direction: row !important;
+    }
+    .bil-parent-spread-intrinsic > .en,
+    .bil-parent-spread-intrinsic > .ar {
+        margin: 0 !important;
+        padding: 0 var(--s0) !important; /* Adjust gap if needed */
+        text-align: inherit !important;
+    }
+
+
     .sec-head:not(.form-step .sec-head):not(.compact-how-it-works-head) :is(h2,h3).bil-parent-spread :is(.en,.ar)::after,
     .hero .why-us-hero-head h2.bil-parent-spread :is(.en,.ar)::after{ left:50%; transform:translateX(-50%); right:auto; }
-    .bil-parent-spread-intrinsic>:is(.en,.ar){margin:0!important;padding:0!important}
+    /* .bil-parent-spread-intrinsic>:is(.en,.ar){margin:0!important;padding:0!important} /* Covered by more specific rule above */
     .pban-text .bil-row{ flex-direction:column; align-items:center; }
     .pban-text .bil-row>:is(.en,.ar){ text-align:center!important; }
     .pban-text .bil-row>.en{ margin-bottom:var(--s1); }
