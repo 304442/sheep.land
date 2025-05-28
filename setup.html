@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>PB Setup: SheepLand Full (Admin Auth)</title>
+    <meta charset="UTF-8"><title>PB Setup: SheepLand Consolidated (Import API)</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
@@ -11,15 +11,15 @@
         button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em; margin-bottom: 5px;}
         button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
         #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:70vh;overflow-y:auto;}
-        .ls{color:lime;font-weight:bold;} .le{color:salmon;font-weight:bold;} .li{color:cyan;} .lw{color:yellow;}
+        .ls{color:lime;} .le{color:salmon;} .li{color:cyan;} .lw{color:yellow;}
     </style>
 </head>
 <body>
     <div class="c">
-        <h1>PB Udheya Setup (Full: Bookings, Types, Variants)</h1>
-        <p class="warn">This script creates/updates collections and seeds product data. Ensure PocketBase is running and admin credentials are correct.</p>
+        <h1>PB Udheya Setup (Consolidated Collections & Seed via Import API)</h1>
+        <p class="warn">This script creates/updates 'app_settings', 'products', and 'bookings' collections, and seeds initial data. Ensure PocketBase is running and admin credentials are correct.</p>
         <p class="warn">API rules for non-auth collections will be set to PUBLIC for dev. SECURE FOR PRODUCTION!</p>
-        <button id="runFullSetup">Run Full Setup (Collections & Seed)</button>
+        <button id="runFullSetup">Run Full Setup (Import Collections & Seed Data)</button>
         <div id="out"></div>
     </div>
 <script>
@@ -34,282 +34,200 @@
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
         const p = document.createElement('p');
         p.className = `l${type[0]}`;
-        p.innerHTML = timestamp + message;
+        p.innerHTML = timestamp + message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         outputDiv.appendChild(p);
         outputDiv.scrollTop = outputDiv.scrollHeight;
         console[type === 'e' ? 'error' : (type === 'w' ? 'warn' : 'log')](timestamp + message.replace(/<[^>]*>?/gm, ''));
     };
 
-    const collectionsToDefine = [
+    const collectionsImportDefinition = [
         {
-            name: "bookings", 
-            type: "base", 
-            listRule: "", 
-            viewRule: "", 
-            createRule: "", 
-            updateRule: "", 
-            deleteRule: "",
-            fields: [ 
-                { name: "booking_id_text", type: "text", required: true, unique: true, presentable: true, max: 50 },
-                { name: "animal_type_name_en", type: "text", required: false, presentable: true, max: 100 }, 
-                { name: "animal_type_name_ar", type: "text", required: false, presentable: true, max: 100 },
-                { name: "weight_category_name_en", type: "text", required: false, presentable: true, max: 100 }, 
-                { name: "weight_category_name_ar", type: "text", required: false, presentable: true, max: 100 },
-                { name: "weight_range_actual_en", type: "text", required: false, presentable: true, max: 50 },
-                { name: "weight_range_actual_ar", type: "text", required: false, presentable: true, max: 50 },
-                { name: "animal_base_price_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "udheya_service_option_selected", type: "text", required: true, presentable: true, max: 50 },
-                { name: "service_fee_applied_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 },
-                { name: "sacrifice_day_value", type: "text", required: true, presentable: true, max: 50 },
-                { name: "sacrifice_day_text_en", type: "text", required: false, presentable: true, max: 100 }, 
-                { name: "sacrifice_day_text_ar", type: "text", required: false, presentable: true, max: 100 },
-                { name: "slaughter_viewing_preference", type: "text", required: false, presentable: true, max: 50 }, 
-                { name: "distribution_choice", type: "text", required: false, presentable: true, max: 50 },
-                { name: "split_details_option", type: "text", required: false, presentable: true, max: 100 }, 
-                { name: "custom_split_details_text", type: "text", required: false, presentable: true, max: 500 },
-                { name: "niyyah_names", type: "text", required: false, presentable: true, max: 500 }, 
-                { name: "ordering_person_name", type: "text", required: false, presentable: true, max: 150 },
-                { name: "ordering_person_phone", type: "text", required: false, presentable: true, max: 30 }, 
-                { name: "customer_email", type: "email", required: false, presentable: true },
-                { name: "delivery_option", type: "text", required: false, presentable: true, max: 50 }, 
-                { name: "delivery_name", type: "text", required: false, presentable: true, max: 150 },
-                { name: "delivery_phone", type: "text", required: false, presentable: true, max: 30 }, 
-                { name: "delivery_area_id", type: "text", required: false, presentable: true, max: 50 },
-                { name: "delivery_area_name_en", type: "text", required: false, presentable: true, max: 100 }, 
-                { name: "delivery_area_name_ar", type: "text", required: false, presentable: true, max: 100 },
-                { name: "delivery_address", type: "text", required: false, presentable: true, max: 500 }, 
-                { name: "delivery_instructions", type: "text", required: false, presentable: true, max: 500 },
-                { name: "time_slot", type: "text", required: false, presentable: true, max: 50 }, 
-                { name: "payment_method", type: "text", required: true, presentable: true, max: 50 },
-                { name: "payment_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] },
-                { name: "booking_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] },
-                { name: "terms_agreed", type: "bool", required: false, presentable: true }, 
-                { name: "admin_notes", type: "text", required: false, presentable: true, max: 1000 },
-                { name: "group_purchase_interest", type: "bool", required: false, presentable: true }, 
-                { name: "user_ip_address", type: "text", required: false, presentable: true, max: 50 },
-                { name: "user_agent_string", type: "text", required: false, presentable: true, max: 300 }
+            "name": "app_settings", "type": "base", "system": false,
+            "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null,
+            "options": { "maxRecords": 1 }, 
+            "schema": [ 
+                { "id": "asf1", "name": "exchange_rates_json", "type": "json", "system": false, "required": true, "presentable": true, "options": {} },
+                { "id": "asf2", "name": "default_currency", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 5 } },
+                { "id": "asf3", "name": "whatsapp_number_raw", "type": "text", "system": false, "required": false, "presentable": true, "options": {} },
+                { "id": "asf4", "name": "whatsapp_number_display", "type": "text", "system": false, "required": false, "presentable": true, "options": {} },
+                { "id": "asf5", "name": "promo_end_date_iso", "type": "date", "system": false, "required": false, "presentable": true, "options": {} },
+                { "id": "asf6", "name": "promo_discount_percent", "type": "number", "system": false, "required": false, "presentable": true, "options": {"min": 0, "max": 100} },
+                { "id": "asf7", "name": "promo_is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} },
+                { "id": "asf8", "name": "udheya_service_surcharge_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": {"min": 0} },
+                { "id": "asf9", "name": "delivery_areas_json", "type": "json", "system": false, "required": false, "presentable": true, "options": {} },
+                { "id": "asf10", "name": "payment_details_json", "type": "json", "system": false, "required": false, "presentable": true, "options": {} }
             ]
         },
         {
-            name: "sheep_types", 
-            type: "base", 
-            listRule: "", 
-            viewRule: "", 
-            createRule: "", 
-            updateRule: "", 
-            deleteRule: "",
-            fields: [
-                { name: "type_key", type: "text", required: true, unique: true, presentable: true, max: 50, pattern: "^[a-z0-9_]+$" },
-                { name: "name_en", type: "text", required: true, presentable: true, max: 100 },
-                { name: "name_ar", type: "text", required: true, presentable: true, max: 100 },
-                { name: "description_en", type: "text", required: false, presentable: true, max: 200 },
-                { name: "description_ar", type: "text", required: false, presentable: true, max: 200 },
-                { name: "price_per_kg_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "is_active", type: "bool", required: false, presentable: true },
-                { name: "sort_order", type: "number", required: false, presentable: true, min: 0 }
+            "name": "products", "type": "base", "system": false,
+            "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+            "options": {},
+            "schema": [
+                { "id": "pdf1", "name": "item_key", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 100, "pattern": "^[a-z0-9_]+$" } },
+                { "id": "pdf2", "name": "type_key", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50, "pattern": "^[a-z0-9_]+$" } },
+                { "id": "pdf3", "name": "type_name_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 100 } },
+                { "id": "pdf4", "name": "type_name_ar", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 100 } },
+                { "id": "pdf5", "name": "type_description_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 200 } },
+                { "id": "pdf6", "name": "type_description_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 200 } },
+                { "id": "pdf7", "name": "price_per_kg_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0 } },
+                { "id": "pdf8", "name": "variant_name_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
+                { "id": "pdf9", "name": "variant_name_ar", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 150 } },
+                { "id": "pdf10", "name": "weight_range_text_en", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+                { "id": "pdf11", "name": "weight_range_text_ar", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+                { "id": "pdf12", "name": "avg_weight_kg", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0 } },
+                { "id": "pdf13", "name": "base_price_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+                { "id": "pdf14", "name": "stock_available_pb", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": true } },
+                { "id": "pdf15", "name": "is_active", "type": "bool", "system": false, "required": false, "presentable": true, "options": {} },
+                { "id": "pdf16", "name": "sort_order_type", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": true } },
+                { "id": "pdf17", "name": "sort_order_variant", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": true } }
+            ]
+        },
+        {
+            "name": "bookings", "type": "base", "system": false, 
+            "listRule": "", "viewRule": "", "createRule": "", "updateRule": "", "deleteRule": "",
+            "options": {}, 
+            "fields": [ 
+                { "id": "bkf_f1", "name": "booking_id_text", "type": "text", "system": false, "required": true, "unique": true, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f2", "name": "product_id", "type": "relation", "system": false, "required": true, "presentable": true, "options": { "collectionId": "PLACEHOLDER_PRODUCTS_ID", "cascadeDelete": false, "minSelect":1, "maxSelect":1, "displayFields": ["item_key", "variant_name_en"] }},
+                { "id": "bkf_f3", "name": "booked_product_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 150 } }, 
+                { "id": "bkf_f4", "name": "booked_product_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 150 } },
+                { "id": "bkf_f7", "name": "booked_weight_range_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f8", "name": "booked_weight_range_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f9", "name": "booked_price_at_booking_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+                { "id": "bkf_f10", "name": "udheya_service_option_selected", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f11", "name": "service_fee_applied_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+                { "id": "bkf_f12", "name": "delivery_fee_applied_egp", "type": "number", "system": false, "required": false, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+                { "id": "bkf_f13", "name": "total_amount_due_egp", "type": "number", "system": false, "required": true, "presentable": true, "options": { "min": 0, "noDecimal": false } },
+                { "id": "bkf_f14", "name": "selected_display_currency", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 5 } },
+                { "id": "bkf_f15", "name": "sacrifice_day_value", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f16", "name": "sacrifice_day_text_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+                { "id": "bkf_f17", "name": "sacrifice_day_text_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
+                { "id": "bkf_f18", "name": "slaughter_viewing_preference", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
+                { "id": "bkf_f19", "name": "distribution_choice", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f20", "name": "split_details_option", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+                { "id": "bkf_f21", "name": "custom_split_details_text", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } },
+                { "id": "bkf_f22", "name": "niyyah_names", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } }, 
+                { "id": "bkf_f23", "name": "ordering_person_name", "type": "text", "system": false, "required": false, "presentable": true, "options": {"max": 150}},
+                { "id": "bkf_f24", "name": "ordering_person_phone", "type": "text", "system": false, "required": false, "presentable": true, "options": {"max": 30}}, 
+                { "id": "bkf_f25", "name": "customer_email", "type": "email", "system": false, "required": false, "presentable": true },
+                { "id": "bkf_f26", "name": "delivery_option", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
+                { "id": "bkf_f27", "name": "delivery_name", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 150 } },
+                { "id": "bkf_f28", "name": "delivery_phone", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 30 } }, 
+                { "id": "bkf_f29", "name": "delivery_area_id", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f30", "name": "delivery_area_name_en", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } }, 
+                { "id": "bkf_f31", "name": "delivery_area_name_ar", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 100 } },
+                { "id": "bkf_f32", "name": "delivery_address", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } }, 
+                { "id": "bkf_f33", "name": "delivery_instructions", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 500 } },
+                { "id": "bkf_f34", "name": "time_slot", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } }, 
+                { "id": "bkf_f35", "name": "payment_method", "type": "text", "system": false, "required": true, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f36", "name": "payment_status", "type": "select", "system": false, "required": true, "presentable": true, "maxSelect": 1, "values": ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] },
+                { "id": "bkf_f37", "name": "booking_status", "type": "select", "system": false, "required": true, "presentable": true, "maxSelect": 1, "values": ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] },
+                { "id": "bkf_f38", "name": "terms_agreed", "type": "bool", "system": false, "required": false, "presentable": true }, 
+                { "id": "bkf_f39", "name": "admin_notes", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 1000 } },
+                { "id": "bkf_f40", "name": "group_purchase_interest", "type": "bool", "system": false, "required": false, "presentable": true }, 
+                { "id": "bkf_f41", "name": "user_ip_address", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 50 } },
+                { "id": "bkf_f42", "name": "user_agent_string", "type": "text", "system": false, "required": false, "presentable": true, "options": { "max": 300 } }
             ]
         }
     ];
-
-    // Sheep variants collection WITHOUT relation field initially
-    const sheepVariantsWithoutRelation = {
-        name: "sheep_variants", 
-        type: "base", 
-        listRule: "", 
-        viewRule: "", 
-        createRule: "", 
-        updateRule: "", 
-        deleteRule: "",
-        fields: [
-            { name: "item_key", type: "text", required: true, unique: true, presentable: true, max: 100, pattern: "^[a-z0-9_]+$" },
-            { name: "name_en_variant", type: "text", required: true, presentable: true, max: 150 },
-            { name: "name_ar_variant", type: "text", required: true, presentable: true, max: 150 },
-            { name: "weight_range_text_en", type: "text", required: true, presentable: true, max: 50 },
-            { name: "weight_range_text_ar", type: "text", required: true, presentable: true, max: 50 },
-            { name: "avg_weight_kg", type: "number", required: true, presentable: true, min: 0 },
-            { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 },
-            { name: "stock_master", type: "number", required: true, presentable: true, min: 0 },
-            { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0 },
-            { name: "is_active", type: "bool", required: false, presentable: true },
-            { name: "sort_order", type: "number", required: false, presentable: true, min: 0 }
-        ]
-    };
     
-    const seedDataForCatalog = {
-        sheep_types: [
-            { id_placeholder: "baladi_type", type_key: "baladi", name_en: "Baladi Sheep", name_ar: "خروف بلدي", price_per_kg_egp: 230, is_active: true, description_en: "Local breed, rich flavor.", description_ar: "سلالة محلية، نكهة غنية.", sort_order: 1 },
-            { id_placeholder: "barki_type", type_key: "barki", name_en: "Barki Sheep", name_ar: "خروف برقي", price_per_kg_egp: 255, is_active: true, description_en: "Desert breed, lean meat.", description_ar: "سلالة صحراوية، لحم قليل الدهن.", sort_order: 2 }
+    const seedData = {
+        app_settings: [ 
+            {
+                // id_placeholder for app_settings is not strictly needed as we target the first/only record
+                exchange_rates_json: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
+                default_currency: "EGP",
+                whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
+                promo_end_date_iso: new Date("2025-06-07T00:00:00.000Z").toISOString(), 
+                promo_discount_percent: 10, 
+                promo_is_active: true,
+                udheya_service_surcharge_egp: 750,
+                delivery_areas_json: [ 
+                    { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, 
+                    { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} ] } 
+                ],
+                payment_details_json: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
+            }
         ],
-        sheep_variants: [
-            { item_key: "baladi_40_50", sheep_type_placeholder_id: "baladi_type", name_en_variant: "Baladi (40-50kg)", name_ar_variant: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 45 * 230, stock_master: 7, stock_available_pb: 7, is_active: true, sort_order: 1 },
-            { item_key: "baladi_50_60", sheep_type_placeholder_id: "baladi_type", name_en_variant: "Baladi (50-60kg)", name_ar_variant: "بلدي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: 55 * 230, stock_master: 8, stock_available_pb: 8, is_active: true, sort_order: 2 },
-            { item_key: "baladi_60_plus", sheep_type_placeholder_id: "baladi_type", name_en_variant: "Baladi (60+kg)", name_ar_variant: "بلدي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: 65 * 230, stock_master: 1, stock_available_pb: 1, is_active: true, sort_order: 3 },
-            { item_key: "barki_30_40", sheep_type_placeholder_id: "barki_type", name_en_variant: "Barki (30-40kg)", name_ar_variant: "برقي (٣٠-٤٠كجم)", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", avg_weight_kg: 35, base_price_egp: 35 * 255, stock_master: 1, stock_available_pb: 1, is_active: true, sort_order: 1 },
-            { item_key: "barki_40_50", sheep_type_placeholder_id: "barki_type", name_en_variant: "Barki (40-50kg)", name_ar_variant: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 45 * 255, stock_master: 5, stock_available_pb: 5, is_active: true, sort_order: 2 },
-            { item_key: "barki_50_60", sheep_type_placeholder_id: "barki_type", name_en_variant: "Barki (50-60kg)", name_ar_variant: "برقي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: 55 * 255, stock_master: 3, stock_available_pb: 3, is_active: true, sort_order: 3 },
-            { item_key: "barki_60_plus", sheep_type_placeholder_id: "barki_type", name_en_variant: "Barki (60+kg)", name_ar_variant: "برقي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: 65 * 255, stock_master: 2, stock_available_pb: 2, is_active: true, sort_order: 4 }
+        products: [ // Combined sheep_types and sheep_variants
+            // Baladi Variants
+            { item_key: "baladi_40_50", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (40-50kg)", variant_name_ar: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 230), stock_available_pb: 7, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
+            { item_key: "baladi_50_60", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (50-60kg)", variant_name_ar: "بلدي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 230), stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
+            { item_key: "baladi_60_plus", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (60+kg)", variant_name_ar: "بلدي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 230), stock_available_pb: 1, is_active: true, sort_order_type: 1, sort_order_variant: 3 },
+            // Barki Variants
+            { item_key: "barki_30_40", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (30-40kg)", variant_name_ar: "برقي (٣٠-٤٠كجم)", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", avg_weight_kg: 35, base_price_egp: (35 * 255), stock_available_pb: 1, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
+            { item_key: "barki_40_50", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (40-50kg)", name_ar_variant: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 255), stock_available_pb: 5, is_active: true, sort_order_type: 2, sort_order_variant: 2 },
+            { item_key: "barki_50_60", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (50-60kg)", name_ar_variant: "برقي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 255), stock_available_pb: 3, is_active: true, sort_order_type: 2, sort_order_variant: 3 },
+            { item_key: "barki_60_plus", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (60+kg)", name_ar_variant: "برقي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 255), stock_available_pb: 2, is_active: true, sort_order_type: 2, sort_order_variant: 4 }
         ]
     };
 
-    async function manageCollection(pb, collectionDef) {
-        let existingCollection = null;
+    async function fixRelationField(pb, collectionName, fieldName, relatedCollectionId) {
+        log(`Fixing relation for <b>${collectionName}.${fieldName}</b> to collection ID <b>${relatedCollectionId}</b>`, 'li');
         try {
-            existingCollection = await pb.collections.getOne(collectionDef.name);
-            log(`Collection '<b>${collectionDef.name}</b>' exists. Attempting to update...`, 'i');
-        } catch (e) {
-            if (!(e.status === 404 || (e.response && e.response.status === 404))) {
-                log(`Error checking collection '<b>${collectionDef.name}</b>': ${e.message}`, 'e');
-                throw e;
-            }
-            log(`Collection '<b>${collectionDef.name}</b>' does not exist. Attempting to create...`, 'i');
-        }
-        
-        try {
-            if (existingCollection) {
-                const updatePayload = { 
-                    fields: collectionDef.fields,
-                    listRule: collectionDef.listRule, 
-                    viewRule: collectionDef.viewRule,
-                    createRule: collectionDef.createRule, 
-                    updateRule: collectionDef.updateRule,
-                    deleteRule: collectionDef.deleteRule
-                };
-                await pb.collections.update(existingCollection.id, updatePayload);
-                log(`Collection '<b>${collectionDef.name}</b>' updated successfully.`, 's');
-                return existingCollection;
-            } else {
-                const createPayload = {
-                    name: collectionDef.name,
-                    type: collectionDef.type,
-                    fields: collectionDef.fields,
-                    listRule: collectionDef.listRule,
-                    viewRule: collectionDef.viewRule,
-                    createRule: collectionDef.createRule,
-                    updateRule: collectionDef.updateRule,
-                    deleteRule: collectionDef.deleteRule
-                };
-                const created = await pb.collections.create(createPayload);
-                log(`Collection '<b>${collectionDef.name}</b>' created successfully.`, 's');
-                return created;
-            }
-        } catch (error) {
-            log(`Error managing collection '<b>${collectionDef.name}</b>': ${error.message}`, 'e');
-            console.error('Full error object:', error);
-            
-            if (error.response?.data) {
-                log(`Server validation errors: ${JSON.stringify(error.response.data, null, 2)}`, 'e');
-            }
-            
-            if (error.data) {
-                log(`Error data: ${JSON.stringify(error.data, null, 2)}`, 'e');
-            }
-            
-            log(`Failed collection definition: ${JSON.stringify(collectionDef, null, 2)}`, 'e');
-            throw error;
-        }
-    }
+            const collection = await pb.collections.getOne(collectionName);
+            const fieldToUpdate = collection.schema.find(f => f.name === fieldName);
 
-    async function addRelationFieldToSheepVariants(pb, sheepTypesCollectionId) {
-        try {
-            log('Adding relation field to sheep_variants collection...', 'i');
-            
-            const sheepVariantsCollection = await pb.collections.getOne('sheep_variants');
-            
-            // Check if relation field already exists
-            const relationFieldExists = sheepVariantsCollection.fields.some(field => field.name === 'sheep_type_id');
-            
-            if (relationFieldExists) {
-                log('Relation field already exists in sheep_variants collection.', 'w');
-                return;
+            if (!fieldToUpdate) {
+                log(`Field '${fieldName}' not found in collection '${collectionName}'. Cannot fix relation.`, 'le');
+                return false;
+            }
+            if (fieldToUpdate.options.collectionId === relatedCollectionId) {
+                log(`Relation for <b>${collectionName}.${fieldName}</b> already correct.`, 'lw');
+                return true;
             }
             
-            // Create the relation field with correct API structure
-            const relationField = {
-                name: "sheep_type_id",
-                type: "relation",
-                required: true,
-                presentable: true,
-                collectionId: sheepTypesCollectionId,
-                cascadeDelete: false,
-                minSelect: 1,
-                maxSelect: 1,
-                displayFields: ["name_en", "type_key"]
-            };
+            const originalFieldOptions = {...fieldToUpdate.options};
+            fieldToUpdate.options.collectionId = relatedCollectionId;
             
-            // Add the relation field at position 1 (after item_key)
-            const updatedFields = [...sheepVariantsCollection.fields];
-            updatedFields.splice(1, 0, relationField);
-            
-            // Update the collection
-            await pb.collections.update(sheepVariantsCollection.id, {
-                fields: updatedFields
+            const schemaForUpdate = collection.schema.map(f => {
+                const { id, name, type, system, required, presentable, unique, options, ...rest } = f; 
+                if (name === fieldName) {
+                    return { id, name, type, system, required, presentable, unique, options: fieldToUpdate.options, ...rest };
+                }
+                return { id, name, type, system, required, presentable, unique, options, ...rest };
             });
-            
-            log('Relation field added to sheep_variants collection successfully.', 's');
-        } catch (error) {
-            log(`Error adding relation field to sheep_variants: ${error.message}`, 'e');
-            console.error('Error adding relation field:', error);
-            
-            if (error.response?.data) {
-                log(`Server validation errors: ${JSON.stringify(error.response.data, null, 2)}`, 'e');
-            }
-            throw error;
+
+            await pb.collections.update(collection.id, { schema: schemaForUpdate });
+            log(`Relation for <b>${collectionName}.${fieldName}</b> updated successfully.`, 's');
+            return true;
+        } catch (e) {
+            log(`<b>ERROR</b> fixing relation <b>${collectionName}.${fieldName}</b>: ${e.message}`, 'le');
+            console.error(e);
+            return false;
         }
     }
 
-    async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField, fkMapping = null) {
-        log(`Starting to seed data for '<b>${collectionName}</b>'...`, 'i');
-        let createdCount = 0;
-        let updatedCount = 0;
-        let skippedCount = 0;
-        const createdRecordsMap = {};
+
+    async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField) {
+        log(`Starting to seed/update data for '<b>${collectionName}</b>'...`, 'i');
+        let createdCount = 0; let updatedCount = 0; let errorCount = 0;
 
         for (const item of seedItems) {
-            const dataToProcess = { ...item };
-            let relatedId = null;
-
-            if (fkMapping && dataToProcess[fkMapping.localPlaceholderField]) {
-                relatedId = fkMapping.map[dataToProcess[fkMapping.localPlaceholderField]];
-                if (!relatedId) {
-                    log(`Error: Could not find mapped ID for ${fkMapping.localPlaceholderField} = ${dataToProcess[fkMapping.localPlaceholderField]} in ${collectionName}. Skipping item: ${item[uniqueKeyField]}`, 'e');
-                    skippedCount++;
-                    continue;
-                }
-                dataToProcess[fkMapping.pbRelationField] = relatedId;
-                delete dataToProcess[fkMapping.localPlaceholderField];
-            }
-            
-            const { id_placeholder, ...actualData } = dataToProcess;
-
+            const actualData = { ...item };
             try {
-                const existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${actualData[uniqueKeyField]}"`).catch(() => null);
+                let existingRecord = null;
+                if (uniqueKeyField) {
+                     existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${actualData[uniqueKeyField]}"`).catch(() => null);
+                } else { 
+                    const list = await pb.collection(collectionName).getList(1,1);
+                    if (list.items.length > 0) existingRecord = list.items[0];
+                }
                 if (existingRecord) {
                     await pb.collection(collectionName).update(existingRecord.id, actualData);
-                    createdRecordsMap[id_placeholder || actualData[uniqueKeyField]] = existingRecord.id;
-                    log(`Updated record '<b>${actualData[uniqueKeyField]}</b>' in ${collectionName}`, 's');
                     updatedCount++;
                 } else {
-                    const newRecord = await pb.collection(collectionName).create(actualData);
-                    createdRecordsMap[id_placeholder || actualData[uniqueKeyField]] = newRecord.id;
-                    log(`Created record '<b>${actualData[uniqueKeyField]}</b>' in ${collectionName}`, 's');
+                    await pb.collection(collectionName).create(actualData);
                     createdCount++;
                 }
             } catch (e) {
-                log(`Error processing item ${actualData[uniqueKeyField]} for collection ${collectionName}: ${e.message}`, 'e');
-                console.error('Full error object:', e);
-                
+                log(`Error processing item ${actualData[uniqueKeyField] || '(singleton)'} for collection ${collectionName}: ${e.message}`, 'e');
                 const errorDetails = e.data || (e.response && e.response.data);
-                if (errorDetails) log(`Details: ${JSON.stringify(errorDetails, null, 2)}`, 'e');
-                
-                log(`Failed data: ${JSON.stringify(actualData, null, 2)}`, 'e');
-                skippedCount++;
+                 if (errorDetails) log(`Details: <pre>${JSON.stringify(errorDetails, null, 2)}</pre>`, 'e');
+                errorCount++;
             }
         }
-        log(`Seeding for '<b>${collectionName}</b>' done. Created: ${createdCount}, Updated: ${updatedCount}, Skipped: ${skippedCount}.`, 's');
-        return createdRecordsMap;
+        log(`Seeding/Updating for '<b>${collectionName}</b>' done. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}.`, 's');
     }
 
     runFullSetupButton.onclick = async () => {
@@ -323,52 +241,39 @@
             await pb.admins.authWithPassword(ADM_E, ADM_P);
             log('Admin authentication successful.', 's');
 
-            // Step 1: Create/update sheep_types collection
-            const sheepTypesCollectionInfo = await manageCollection(pb, collectionsToDefine.find(c => c.name === 'sheep_types'));
+            log('Importing collection definitions (deleteMissing: false, automigrate: true)...', 'i');
+            await pb.collections.import(collectionsImportDefinition, false, true); 
+            log('Collections import/update process completed.', 's');
             
-            // Step 2: Create/update sheep_variants collection WITHOUT relation field
-            await manageCollection(pb, sheepVariantsWithoutRelation);
+            log('Fetching actual collection IDs post-import for relation fixing...', 'i');
+            const productsActual = await pb.collections.getOne('products'); // Changed from sheep_variants
+            log(`'products' actual ID: ${productsActual.id}`, 'li');
             
-            // Step 3: Add relation field to sheep_variants
-            await addRelationFieldToSheepVariants(pb, sheepTypesCollectionInfo.id);
+            // No sheep_types to products relation anymore as they are merged
+            // Fix relation for bookings.product_id to point to products collection
+            await fixRelationField(pb, 'bookings', 'product_id', productsActual.id);
             
-            // Step 4: Create/update bookings collection
-            await manageCollection(pb, collectionsToDefine.find(c => c.name === 'bookings'));
-            
-            log('All collections processed successfully.', 's');
+            log('All collections and relations configured.', 's');
 
-            // Step 5: Seed data
-            log('Pausing for 1 second before seeding data...', 'i');
+            log('Pausing for 1 second before seeding data...', 'li');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const seededSheepTypesMap = await seedCollectionData(pb, 'sheep_types', seedDataForCatalog.sheep_types, 'type_key');
+            await seedCollectionData(pb, 'app_settings', seedData.app_settings, null); 
+            await seedCollectionData(pb, 'products', seedData.products, 'item_key'); // Seed combined products
             
-            const sheepTypeFKMap = {
-                localPlaceholderField: 'sheep_type_placeholder_id',
-                pbRelationField: 'sheep_type_id',
-                map: seededSheepTypesMap
-            };
-            await seedCollectionData(pb, 'sheep_variants', seedDataForCatalog.sheep_variants, 'item_key', sheepTypeFKMap);
-            
-            log('Product catalog data seeding completed.', 's');
-            log('<b>Full Setup completed successfully!</b>', 's');
+            log('All data seeding completed.', 's');
+            log('Full setup complete. Refresh the app to see changes.', 'ls');
 
         } catch (e) {
             log(`<b>ERROR during full setup:</b> ${e.message}`, 'e');
-            console.error("Full Error Object (Full Setup):", e);
-            
             const errorData = e.data || (e.response && e.response.data);
-            if (errorData) log(`Error details: ${JSON.stringify(errorData, null, 2)}`, 'e');
-            
-            if (e.stack) {
-                log(`Stack trace: ${e.stack}`, 'e');
-            }
+            if (errorData) log(`Details: <pre>${JSON.stringify(errorData, null, 2)}</pre>`, 'e');
+            console.error("Full Error Object (Full Setup):", e);
         } finally {
-            if (pb.authStore.isValid) pb.authStore.clear();
+            pb.authStore.clear();
             runFullSetupButton.disabled = false;
         }
     };
-
 </script>
 </body>
 </html>
