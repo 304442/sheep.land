@@ -198,7 +198,7 @@
                             <a href="#step1-content" class="stepper-item" :class="{ 'active': currentConceptualStep === 1, 'completed': stepProgress.step1 }" @click.prevent="handleStepperNavigation(1)">
                                 <span class="step-number" x-show="!stepProgress.step1 || currentConceptualStep === 1">1</span>
                                 <svg x-show="stepProgress.step1 && currentConceptualStep !== 1" class="step-checkmark" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-label en">Select Sheep</span><span class="step-label ar">اختر الخروف</span>
+                                <span class="step-label en">Select Sheep & Weight</span><span class="step-label ar">اختر الخروف والوزن</span>
                             </a>
                             <div class="stepper-connector"></div>
                             <a href="#step2-content" class="stepper-item" :class="{'active': currentConceptualStep === 2, 'completed': stepProgress.step2, 'disabled': !stepProgress.step1}" @click.prevent="handleStepperNavigation(2)">
@@ -233,7 +233,7 @@
                         <div class="card-b">
                             
                             <div id="step1-content" class="form-step-content">
-                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep</span><span class="ar">اختر الخروف</span></h2></div>
+                                <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep & Weight</span><span class="ar">اختر الخروف والوزن</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
                                     <p class="en">All animals meet Sharia age/health requirements for Udheya. Price is based on type and estimated weight category. Price per kilo is shown for transparency.</p>
                                     <p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية. يعتمد السعر على النوع وفئة الوزن التقديرية. يتم عرض السعر للكيلو للشفافية.</p>
@@ -321,7 +321,7 @@
                                         <label class="bil-parent-spread">
                                             <input type="radio" name="udheya_service_opt_s3" value="standard_service" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
                                             <span class="en">Standard Service (Slaughter, Cutting, Bagging) - Fee: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
-                                            <span class="ar">خدمة قياسية (ذبح، تقطيع، تغليف) - رسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
+                                            <span class="ar">خدمة عادية (ذبح، تقطيع، تغليف) - رسوم: <strong x-text="getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0)"></strong></span>
                                         </label>
                                         <label class="bil-parent-spread">
                                             <input type="radio" name="udheya_service_opt_s3" value="live_animal_only" x-model="selectedUdheyaService" @change="clearError('udheyaService')">
@@ -461,7 +461,7 @@
                                             <div class="summary-item-content">
                                                 <div class="bil-row">
                                                     <div class="en"><strong>Service:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? ('Standard (Fee: ' + getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0) + ')') : 'Live Animal Only'"></span></div>
-                                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? ('قياسية (رسوم: ' + getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0) + ')') : 'الحيوان حي فقط'"></span></div>
+                                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? ('عادية (رسوم: ' + getFormattedPrice(appSettings.udheya_service_surcharge_egp || 0) + ')') : 'الحيوان حي فقط'"></span></div>
                                                 </div>
                                             </div>
                                             <button type="button" @click.prevent="handleStepperNavigation(3)" class="btn-edit-summary bil-parent-spread-intrinsic" aria-label="Edit Service Option"><span class="en">Edit</span><span class="ar">تعديل</span></button>
@@ -557,7 +557,7 @@
                                 </div>
                                 <div class="summary-item bil-row">
                                     <div class="en"><strong>Service:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div>
-                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'خدمة قياسية' : 'الحيوان حي فقط'"></span></div>
+                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'خدمة عادية' : 'الحيوان حي فقط'"></span></div>
                                 </div>
                                 <div class="summary-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="selectedSacrificeDay.textEN"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="selectedSacrificeDay.textAR"></span></div></div>
                                 <div class="summary-item bil-row" x-show="slaughterViewingPreference && slaughterViewingPreference !== 'none'">
@@ -611,9 +611,22 @@
         <div class="sec-head"><h2 class="bil-parent-spread" x-ref="checkStatusTitle" tabindex="-1"><span class="en">Check Udheya Booking Status</span><span class="ar">تحقق من حالة حجز أضحيتك</span></h2></div>
         <div class="card form-panel-card check-status-form-card"><div class="card-b">
             <form id="check-status-form-tag" @submit.prevent="validateAndCheckBookingStatus()" novalidate>
-                <label for="booking_id_lookup" class="bil-parent-spread form-label-strict check-status-label"><span class="en">Enter Booking ID</span><span class="ar">أدخل رقم الحجز</span></label>
-                                    <div class="card-act"><input type="text" id="booking_id_lookup" class="form-input-styled check-status-input" x-model="lookupBookingID" placeholder="e.g., SL-UDHY-YYYY-XXXXX" x-ref="lookupBookingIdInput" :aria-invalid="errors.lookupBookingID ? 'true' : 'false'" aria-describedby="lookupBookingIdError" @input="clearError('lookupBookingID')" aria-required="true"><button type="submit" id="btn-check-status" class="btn bp check-status-button bil-parent-spread-intrinsic" :disabled="isLoading.status"><span x-show="!isLoading.status"><span class="en">Check</span><span class="ar">تحقق</span></span><span x-show="isLoading.status" aria-live="polite"><span class="en">Checking...</span><span class="ar">جاري...</span></span></button></div>
-                <div class="form-error-msg" id="lookupBookingIdError" x-show="errors.lookupBookingID" x-text="errors.lookupBookingID ? (currentLang === 'ar' ? errors.lookupBookingID.ar : errors.lookupBookingID.en) : ''" role="alert" aria-live="assertive"></div>
+                <div class="fg">
+                    <label for="booking_id_lookup" class="bil-parent-spread form-label-strict check-status-label"><span class="en">Enter Booking ID *</span><span class="ar">أدخل رقم الحجز *</span></label>
+                    <input type="text" id="booking_id_lookup" class="form-input-styled check-status-input" x-model="lookupBookingID" placeholder="e.g., SL-UDHY-YYYY-XXXXX" x-ref="lookupBookingIdInput" :aria-invalid="errors.lookupBookingID ? 'true' : 'false'" aria-describedby="lookupBookingIdError" @input="clearError('lookupBookingID')" aria-required="true">
+                    <div class="form-error-msg" id="lookupBookingIdError" x-show="errors.lookupBookingID" x-text="errors.lookupBookingID ? (currentLang === 'ar' ? errors.lookupBookingID.ar : errors.lookupBookingID.en) : ''" role="alert" aria-live="assertive"></div>
+                </div>
+                <div class="fg">
+                    <label for="lookup_phone_number" class="bil-parent-spread form-label-strict check-status-label"><span class="en">Enter Phone Number Used for Booking *</span><span class="ar">أدخل رقم الهاتف المستخدم في الحجز *</span></label>
+                    <input type="tel" id="lookup_phone_number" class="form-input-styled check-status-input" x-model="lookupPhoneNumber" placeholder="e.g., 01xxxxxxxxx" x-ref="lookupPhoneInput" :aria-invalid="errors.lookupPhoneNumber ? 'true' : 'false'" aria-describedby="lookupPhoneError" @input="clearError('lookupPhoneNumber')" aria-required="true">
+                    <div class="form-error-msg" id="lookupPhoneError" x-show="errors.lookupPhoneNumber" x-text="errors.lookupPhoneNumber ? (currentLang === 'ar' ? errors.lookupPhoneNumber.ar : errors.lookupPhoneNumber.en) : ''" role="alert" aria-live="assertive"></div>
+                </div>
+                <div class="card-act" style="margin-top: var(--s2);">
+                    <button type="submit" id="btn-check-status" class="btn bp check-status-button bil-parent-spread-intrinsic btn-block" :disabled="isLoading.status">
+                        <span x-show="!isLoading.status"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></span>
+                        <span x-show="isLoading.status" aria-live="polite"><span class="en">Checking...</span><span class="ar">جاري...</span></span>
+                    </button>
+                </div>
             </form>
         </div></div>
         <div id="booking-status-results" class="card form-panel-card booking-status-results-card" x-show="isLoading.status || statusResult || statusNotFound" x-transition><div class="card-b">
@@ -626,7 +639,7 @@
                     <div class="summary-item bil-row"><div class="en"><strong>Booking Status:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div><div class="ar"><strong>حالة الحجز:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div></div>
                     <div class="summary-item bil-row"><div class="en"><strong>Payment Status:</strong> <span x-text="statusResult?.payment_status_text"></span></div><div class="ar"><strong>حالة الدفع:</strong> <span x-text="statusResult?.payment_status_text"></span></div></div>
                     <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statusResult?.animal_type_name_en"></span>, <span x-text="statusResult?.weight_category_name_en"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statusResult?.animal_type_name_ar"></span>، <span x-text="statusResult?.weight_category_name_ar"></span></div></div>
-                    <div class="summary-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="statusResult?.udheya_service_option_selected === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="statusResult?.udheya_service_option_selected === 'standard_service' ? 'خدمة قياسية' : 'الحيوان حي فقط'"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="statusResult?.udheya_service_option_selected === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="statusResult?.udheya_service_option_selected === 'standard_service' ? 'خدمة عادية' : 'الحيوان حي فقط'"></span></div></div>
                     <div class="summary-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="statusResult?.sacrifice_day_text_en"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="statusResult?.sacrifice_day_text_ar"></span></div></div>
                     <div class="summary-item bil-row" x-show="statusResult?.niyyah_names && statusResult.niyyah_names.trim() !== ''"><div class="en"><strong>Niyyah For:</strong> <span x-text="statusResult.niyyah_names"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="statusResult.niyyah_names"></span></div></div>
                     <div class="summary-item bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="statusResult?.distribution_choice_en"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="statusResult?.distribution_choice_ar"></span></div></div>
@@ -639,7 +652,7 @@
                     <div class="summary-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statusResult?.payment_method?.toUpperCase()"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statusResult?.payment_method?.toUpperCase()"></span></div></div>
                 </div>
             </div>
-            <div id="status-no-results" class="status-no-results-text bil-row" x-show="statusNotFound && !isLoading.status"><p class="en">No booking found. Check ID or contact support.</p><p class="ar">لم يتم العثور على حجز. تحقق من الرقم أو اتصل بالدعم.</p></div>
+            <div id="status-no-results" class="status-no-results-text bil-row" x-show="statusNotFound && !isLoading.status"><p class="en">No booking found. Check ID and Phone or contact support.</p><p class="ar">لم يتم العثور على حجز. تحقق من رقم الحجز ورقم الهاتف أو اتصل بالدعم.</p></div>
         </div></div>
     </section>
 </main>
