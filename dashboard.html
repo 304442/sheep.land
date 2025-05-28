@@ -40,157 +40,170 @@
         .btn-block { display: block; width: 100%; }
         .btn-small { font-size: 0.8rem; padding: 5px 10px; }
 
-        .dash-section { margin-bottom: 30px; }
-        .dash-section h2 { font-size: 1.5rem; color: var(--c1d); border-bottom: 2px solid var(--c2l); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .dash-filters { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .dash-filters label { font-weight: 500; margin-right: 5px;}
-        .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"], .dash-filters button { padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
-        
-        .dash-table-wrapper { max-height: 500px; overflow-y: auto; border: 1px solid var(--bs); margin-bottom:10px; border-radius: var(--rad); }
-        .dash-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .dash-table th, .dash-table td { border-bottom: 1px solid var(--bs); padding: 8px 10px; text-align: left; word-wrap: break-word; vertical-align: top;}
-        .dash-table th { background-color: var(--b2); font-weight: 600; color: var(--c1d); position: sticky; top: 0; z-index: 1; }
-        .dash-table td { background-color: var(--bc); }
-        .dash-table tbody tr:nth-child(even) td { background-color: #f9f9f9; }
-        .dash-table tbody tr:hover td { background-color: #f0f4f8; } /* Lighter hover */
-        .dash-table .actions-col { width: 130px; text-align: center;}
-        .dash-table .btn { font-size: 0.75rem; padding: 4px 8px; margin: 2px; }
-        .btn.btn-delete { background-color: #e74c3c; color: white; border-color: #e74c3c;} /* Softer red */
-        .btn.btn-delete:hover { background-color: #c0392b; border-color: #c0392b;}
-        
-        .currency { text-align: right; }
-        .status-paid { color: #2ecc71; font-weight: bold; } /* Green */
-        .status-pending { color: #f39c12; } /* Orange */
-        .status-failed { color: #e74c3c; } /* Red */
-        
-        .pnl-summary { background-color: var(--b1); padding: 15px; border-radius: var(--rad); border: 1px solid var(--bs); }
-        .pnl-summary div { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--bs); }
-        .pnl-summary div:last-child { border-bottom: none; }
-        .pnl-summary strong { color: var(--c1d); }
-        .pnl-profit { color: var(--c2); font-size: 1.1rem; }
-        .pnl-loss { color: #e74c3c; font-size: 1.1rem; }
-        
-        .login-form { max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid var(--bs); border-radius: var(--rad); background-color: var(--b1); }
-        .login-form .fg { margin-bottom: 15px; }
-        .login-form .fg label { display: block; margin-bottom: 5px; font-weight:500; }
-        .login-form .input { width:100%; padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
-        
-        .no-data { text-align: center; color: var(--tm); padding: 20px; font-style: italic; }
-        .load-text { text-align: center; color: var(--tm); padding: 20px; font-weight: bold; }
-        .pagination { margin-top: 15px; text-align: center; }
-        .pagination button { margin: 0 5px; }
-        .json-viewer { background-color: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: var(--rad); font-size: 0.8em; white-space: pre-wrap; max-height: 200px; overflow: auto; margin-top: 5px;}
-        [x-cloak] { display: none !important; }
-    </style>
+      
+.dash-section { margin-bottom: 30px; }
+    .dash-section h2 { font-size: 1.5rem; color: var(--c1d); border-bottom: 2px solid var(--c2l); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .dash-filters { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .dash-filters label { font-weight: 500; margin-right: 5px;}
+    .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"], .dash-filters button { padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
+    
+    .dash-table-wrapper { max-height: 500px; overflow-y: auto; border: 1px solid var(--bs); margin-bottom:10px; border-radius: var(--rad); }
+    .dash-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dash-table th, .dash-table td { border-bottom: 1px solid var(--bs); padding: 8px 10px; text-align: left; word-wrap: break-word; vertical-align: top;}
+    .dash-table th { background-color: var(--b2); font-weight: 600; color: var(--c1d); position: sticky; top: 0; z-index: 1; }
+    .dash-table td { background-color: var(--bc); }
+    .dash-table tbody tr:nth-child(even) td { background-color: #f9f9f9; }
+    .dash-table tbody tr:hover td { background-color: #f0f4f8; } /* Lighter hover */
+    .dash-table .actions-col { width: 130px; text-align: center;}
+    .dash-table .btn { font-size: 0.75rem; padding: 4px 8px; margin: 2px; }
+    .btn.btn-delete { background-color: #e74c3c; color: white; border-color: #e74c3c;} /* Softer red */
+    .btn.btn-delete:hover { background-color: #c0392b; border-color: #c0392b;}
+    
+    .currency { text-align: right; }
+    .status-paid { color: #2ecc71; font-weight: bold; } /* Green */
+    .status-pending { color: #f39c12; } /* Orange */
+    .status-failed { color: #e74c3c; } /* Red */
+    
+    .pnl-summary { background-color: var(--b1); padding: 15px; border-radius: var(--rad); border: 1px solid var(--bs); }
+    .pnl-summary div { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--bs); }
+    .pnl-summary div:last-child { border-bottom: none; }
+    .pnl-summary strong { color: var(--c1d); }
+    .pnl-profit { color: var(--c2); font-size: 1.1rem; }
+    .pnl-loss { color: #e74c3c; font-size: 1.1rem; }
+    
+    .login-form { max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid var(--bs); border-radius: var(--rad); background-color: var(--b1); }
+    .login-form .fg { margin-bottom: 15px; }
+    .login-form .fg label { display: block; margin-bottom: 5px; font-weight:500; }
+    .login-form .input { width:100%; padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
+    
+    .no-data { text-align: center; color: var(--tm); padding: 20px; font-style: italic; }
+    .load-text { text-align: center; color: var(--tm); padding: 20px; font-weight: bold; }
+    .pagination { margin-top: 15px; text-align: center; }
+    .pagination button { margin: 0 5px; }
+    .json-viewer { background-color: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: var(--rad); font-size: 0.8em; white-space: pre-wrap; max-height: 200px; overflow: auto; margin-top: 5px;}
+    [x-cloak] { display: none !important; }
+</style>
+
+    
+
+IGNORE_WHEN_COPYING_START
+Use code with caution.
+IGNORE_WHEN_COPYING_END
 </head>
 <body x-data="adminDashboard" x-init="initDashboard()" x-cloak>
 
-    <div class="dash-container">
-        <header class="dash-header">
-            <h1>Sheep Land - Admin Dashboard</h1>
-            <div>
-                <a href="index.html" class="btn bp" style="margin-right:10px;">Main Site</a>
-                <button class="btn bp" @click="logoutAdmin()" x-show="isAdminAuth">Logout</button>
-            </div>
-        </header>
-
-        <div x-show="!isAdminAuth" class="login-form">
-            <h2 style="text-align:center; margin-bottom: 20px;">Admin Login</h2>
-            <div class="fg"> <label for="adminEmail">Email:</label> <input type="email" id="adminEmail" x-model="loginForm.email" class="input"> </div>
-            <div class="fg"> <label for="adminPassword">Password:</label> <input type="password" id="adminPassword" x-model="loginForm.password" class="input" @keyup.enter="loginAdmin()"> </div>
-            <button class="btn bac btn-block" @click="loginAdmin()" :disabled="loading.auth">
-                <span x-show="!loading.auth">Login</span> <span x-show="loading.auth">Logging in...</span>
-            </button>
-            <p x-show="authError" x-text="authError" style="color:red; text-align:center; margin-top:10px;"></p>
+      
+<div class="dash-container">
+    <header class="dash-header">
+        <h1>Sheep Land - Admin Dashboard</h1>
+        <div>
+            <a href="index.html" class="btn bp" style="margin-right:10px;">Main Site</a>
+            <button class="btn bp" @click="logoutAdmin()" x-show="isAdminAuth">Logout</button>
         </div>
+    </header>
 
-        <div x-show="isAdminAuth">
-            <nav class="dash-nav">
-                <button :class="{'active-tab': activeTab === 'pnl'}" @click="switchTab('pnl')">P&L</button>
-                <button :class="{'active-tab': activeTab === 'orders'}" @click="switchTab('orders')">Orders</button>
-                <button :class="{'active-tab': activeTab === 'animals'}" @click="switchTab('animals')">Animals</button>
-                <button :class="{'active-tab': activeTab === 'animal_events'}" @click="switchTab('animal_events')">Events</button>
-                <button :class="{'active-tab': activeTab === 'products'}" @click="switchTab('products')">Products</button>
-                <button :class="{'active-tab': activeTab === 'expenses'}" @click="switchTab('expenses')">Expenses</button>
-                <button :class="{'active-tab': activeTab === 'settings'}" @click="switchTab('settings')">Settings</button>
-            </nav>
-
-            <div class="dash-filters" x-show="['pnl', 'orders', 'expenses'].includes(activeTab)">
-                <label for="startDate">From:</label> <input type="date" id="startDate" x-model="filterStartDate" @change="refreshCurrentTabData()">
-                <label for="endDate">To:</label> <input type="date" id="endDate" x-model="filterEndDate" @change="refreshCurrentTabData()">
-            </div>
-            
-            <div x-show="activeTab === 'pnl'">
-                <section class="dash-section pnl-summary">
-                    <h2>Profit & Loss Summary <span x-text="filterDateRangeText" style="font-size: 0.9rem; color: var(--tm);"></span></h2>
-                    <div x-show="loading.pnl" class="load-text">Calculating P&L...</div>
-                    <div x-show="!loading.pnl">
-                        <div><span>Total Revenue (Paid Orders):</span> <strong x-text="formatCurrency(pnl.totalRevenue)"></strong></div>
-                        <div><span>Total Cost of Animals Sold (COGS):</span> <strong x-text="formatCurrency(pnl.totalCOGS)"></strong></div>
-                        <div><span>Gross Profit:</span> <strong x-text="formatCurrency(pnl.grossProfit)"></strong></div>
-                        <div><span>Total Operating Expenses:</span> <strong x-text="formatCurrency(pnl.totalExpenses)"></strong></div>
-                        <hr style="margin: 10px 0; border-color: var(--bs);">
-                        <div><span>Net Profit / (Loss):</span> <strong :class="pnl.netProfit >= 0 ? 'pnl-profit' : 'pnl-loss'" x-text="formatCurrency(pnl.netProfit)"></strong></div>
-                    </div>
-                </section>
-            </div>
-
-            <template x-if="activeTab !== 'pnl' && activeTab !== 'settings'">
-                <section class="dash-section">
-                    <h2>
-                        <span x-text="getTabTitle(activeTab)"></span>
-                        <a :href="getPbAdminCreateUrl(getCollectionNameForTab(activeTab))" target="_blank" class="btn bp btn-small" x-show="getCollectionNameForTab(activeTab)">+ New</a>
-                    </h2>
-                    <div x-show="loading.current" class="load-text" x-text="`Loading ${getTabTitle(activeTab).toLowerCase()}...`"></div>
-                    <div class="dash-table-wrapper" x-show="!loading.current && data[getCollectionNameForTab(activeTab)]?.items.length > 0">
-                        <table class="dash-table">
-                            <thead>
-                                <tr x-html="getTableHeaders(activeTab)"></tr>
-                            </thead>
-                            <tbody>
-                                <template x-for="item in data[getCollectionNameForTab(activeTab)]?.items" :key="item.id">
-                                    <tr x-html="getTableRow(activeTab, item)"></tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div x-show="!loading.current && (!data[getCollectionNameForTab(activeTab)] || data[getCollectionNameForTab(activeTab)]?.items.length === 0)" class="no-data" x-text="`No ${getTabTitle(activeTab).toLowerCase()} found.`"></div>
-                    <div class="pagination" x-show="data[getCollectionNameForTab(activeTab)]?.totalPages > 1">
-                        <button class="btn" @click="changePage(getCollectionNameForTab(activeTab), data[getCollectionNameForTab(activeTab)].page - 1)" :disabled="data[getCollectionNameForTab(activeTab)].page <= 1">Prev</button>
-                        <span x-text="`Page ${data[getCollectionNameForTab(activeTab)]?.page} of ${data[getCollectionNameForTab(activeTab)]?.totalPages}`"></span>
-                        <button class="btn" @click="changePage(getCollectionNameForTab(activeTab), data[getCollectionNameForTab(activeTab)].page + 1)" :disabled="data[getCollectionNameForTab(activeTab)].page >= data[getCollectionNameForTab(activeTab)].totalPages">Next</button>
-                    </div>
-                </section>
-            </template>
-
-            <div x-show="activeTab === 'settings'">
-                <section class="dash-section">
-                    <h2><span>Application Settings</span></h2>
-                    <div x-show="loading.current" class="load-text">Loading settings...</div>
-                    <div x-show="!loading.current && data.settings?.items.length > 0">
-                        <template x-for="item in data.settings.items" :key="item.id">
-                            <div class="card" style="padding: 15px; font-size:0.9rem;">
-                                <p><strong>Default Currency:</strong> <span x-text="item.defCurr"></span></p>
-                                <p><strong>WhatsApp Raw:</strong> <span x-text="item.waNumRaw"></span></p>
-                                <p><strong>WhatsApp Display:</strong> <span x-text="item.waNumDisp"></span></p>
-                                <p><strong>Promo Active:</strong> <span x-text="item.promoActive ? 'Yes' : 'No'"></span></p>
-                                <p><strong>Promo Discount:</strong> <span x-text="item.promoDiscPc + '%'"></span></p>
-                                <p><strong>Promo End:</strong> <span x-text="formatDate(item.promoEndISO)"></span></p>
-                                <p><strong>Service Fee (EGP):</strong> <span x-text="formatCurrency(item.servFeeEGP, 'EGP', 0)"></span></p>
-                                <div><strong>Exchange Rates:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.xchgRates, null, 2)"></pre></div>
-                                <div style="margin-top:10px;"><strong>Delivery Areas:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.delAreas, null, 2)"></pre></div>
-                                <div style="margin-top:10px;"><strong>Payment Details:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.payDetails, null, 2)"></pre></div>
-                                <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Settings in Admin UI</a>
-                            </div>
-                        </template>
-                    </div>
-                    <div x-show="!loading.current && (!data.settings || data.settings?.items.length === 0)" class="no-data">No settings found.</div>
-                </section>
-            </div>
-        </div>
+    <div x-show="!isAdminAuth" class="login-form">
+        <h2 style="text-align:center; margin-bottom: 20px;">Admin Login</h2>
+        <div class="fg"> <label for="adminEmail">Email:</label> <input type="email" id="adminEmail" x-model="loginForm.email" class="input"> </div>
+        <div class="fg"> <label for="adminPassword">Password:</label> <input type="password" id="adminPassword" x-model="loginForm.password" class="input" @keyup.enter="loginAdmin()"> </div>
+        <button class="btn bac btn-block" @click="loginAdmin()" :disabled="loading.auth">
+            <span x-show="!loading.auth">Login</span> <span x-show="loading.auth">Logging in...</span>
+        </button>
+        <p x-show="authError" x-text="authError" style="color:red; text-align:center; margin-top:10px;"></p>
     </div>
 
+    <div x-show="isAdminAuth">
+        <nav class="dash-nav">
+            <button :class="{'active-tab': activeTab === 'pnl'}" @click="switchTab('pnl')">P&L</button>
+            <button :class="{'active-tab': activeTab === 'orders'}" @click="switchTab('orders')">Orders</button>
+            <button :class="{'active-tab': activeTab === 'animals'}" @click="switchTab('animals')">Animals</button>
+            <button :class="{'active-tab': activeTab === 'animal_events'}" @click="switchTab('animal_events')">Events</button>
+            <button :class="{'active-tab': activeTab === 'products'}" @click="switchTab('products')">Products</button>
+            <button :class="{'active-tab': activeTab === 'expenses'}" @click="switchTab('expenses')">Expenses</button>
+            <button :class="{'active-tab': activeTab === 'settings'}" @click="switchTab('settings')">Settings</button>
+        </nav>
+
+        <div class="dash-filters" x-show="['pnl', 'orders', 'expenses'].includes(activeTab)">
+            <label for="startDate">From:</label> <input type="date" id="startDate" x-model="filterStartDate" @change="refreshCurrentTabData()">
+            <label for="endDate">To:</label> <input type="date" id="endDate" x-model="filterEndDate" @change="refreshCurrentTabData()">
+        </div>
+        
+        <div x-show="activeTab === 'pnl'">
+            <section class="dash-section pnl-summary">
+                <h2>Profit & Loss Summary <span x-text="filterDateRangeText" style="font-size: 0.9rem; color: var(--tm);"></span></h2>
+                <div x-show="loading.pnl" class="load-text">Calculating P&L...</div>
+                <div x-show="!loading.pnl">
+                    <div><span>Total Revenue (Paid Orders):</span> <strong x-text="formatCurrency(pnl.totalRevenue)"></strong></div>
+                    <div><span>Total Cost of Animals Sold (COGS):</span> <strong x-text="formatCurrency(pnl.totalCOGS)"></strong></div>
+                    <div><span>Gross Profit:</span> <strong x-text="formatCurrency(pnl.grossProfit)"></strong></div>
+                    <div><span>Total Operating Expenses:</span> <strong x-text="formatCurrency(pnl.totalExpenses)"></strong></div>
+                    <hr style="margin: 10px 0; border-color: var(--bs);">
+                    <div><span>Net Profit / (Loss):</span> <strong :class="pnl.netProfit >= 0 ? 'pnl-profit' : 'pnl-loss'" x-text="formatCurrency(pnl.netProfit)"></strong></div>
+                </div>
+            </section>
+        </div>
+
+        <template x-if="activeTab !== 'pnl' && activeTab !== 'settings'">
+            <section class="dash-section">
+                <h2>
+                    <span x-text="getTabTitle(activeTab)"></span>
+                    <a :href="getPbAdminCreateUrl(getCollectionNameForTab(activeTab))" target="_blank" class="btn bp btn-small" x-show="getCollectionNameForTab(activeTab)">+ New</a>
+                </h2>
+                <div x-show="loading.current" class="load-text" x-text="`Loading ${getTabTitle(activeTab).toLowerCase()}...`"></div>
+                <div class="dash-table-wrapper" x-show="!loading.current && data[getCollectionNameForTab(activeTab)]?.items.length > 0">
+                    <table class="dash-table">
+                        <thead>
+                            <tr x-html="getTableHeaders(activeTab)"></tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="item in data[getCollectionNameForTab(activeTab)]?.items" :key="item.id">
+                                <tr x-html="getTableRow(activeTab, item)"></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <div x-show="!loading.current && (!data[getCollectionNameForTab(activeTab)] || data[getCollectionNameForTab(activeTab)]?.items.length === 0)" class="no-data" x-text="`No ${getTabTitle(activeTab).toLowerCase()} found.`"></div>
+                <div class="pagination" x-show="data[getCollectionNameForTab(activeTab)]?.totalPages > 1">
+                    <button class="btn" @click="changePage(getCollectionNameForTab(activeTab), data[getCollectionNameForTab(activeTab)].page - 1)" :disabled="data[getCollectionNameForTab(activeTab)].page <= 1">Prev</button>
+                    <span x-text="`Page ${data[getCollectionNameForTab(activeTab)]?.page} of ${data[getCollectionNameForTab(activeTab)]?.totalPages}`"></span>
+                    <button class="btn" @click="changePage(getCollectionNameForTab(activeTab), data[getCollectionNameForTab(activeTab)].page + 1)" :disabled="data[getCollectionNameForTab(activeTab)].page >= data[getCollectionNameForTab(activeTab)].totalPages">Next</button>
+                </div>
+            </section>
+        </template>
+
+        <div x-show="activeTab === 'settings'">
+            <section class="dash-section">
+                <h2><span>Application Settings</span></h2>
+                <div x-show="loading.current" class="load-text">Loading settings...</div>
+                <div x-show="!loading.current && data.settings?.items.length > 0">
+                    <template x-for="item in data.settings.items" :key="item.id">
+                        <div class="card" style="padding: 15px; font-size:0.9rem;">
+                            <p><strong>Default Currency:</strong> <span x-text="item.defCurr"></span></p>
+                            <p><strong>WhatsApp Raw:</strong> <span x-text="item.waNumRaw"></span></p>
+                            <p><strong>WhatsApp Display:</strong> <span x-text="item.waNumDisp"></span></p>
+                            <p><strong>Promo Active:</strong> <span x-text="item.promoActive ? 'Yes' : 'No'"></span></p>
+                            <p><strong>Promo Discount:</strong> <span x-text="item.promoDiscPc + '%'"></span></p>
+                            <p><strong>Promo End:</strong> <span x-text="formatDate(item.promoEndISO)"></span></p>
+                            <p><strong>Service Fee (EGP):</strong> <span x-text="formatCurrency(item.servFeeEGP, 'EGP', 0)"></span></p>
+                            <div><strong>Exchange Rates:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.xchgRates, null, 2)"></pre></div>
+                            <div style="margin-top:10px;"><strong>Delivery Areas:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.delAreas, null, 2)"></pre></div>
+                            <div style="margin-top:10px;"><strong>Payment Details:</strong> <pre class="json-viewer" x-text="JSON.stringify(item.payDetails, null, 2)"></pre></div>
+                            <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Settings in Admin UI</a>
+                        </div>
+                    </template>
+                </div>
+                <div x-show="!loading.current && (!data.settings || data.settings?.items.length === 0)" class="no-data">No settings found.</div>
+            </section>
+        </div>
+    </div>
+</div>
+
+    
+
+IGNORE_WHEN_COPYING_START
+Use code with caution.
+IGNORE_WHEN_COPYING_END
 <script src="pocketbase.umd.js"></script>
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script>
