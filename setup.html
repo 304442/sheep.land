@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>PB Setup: SheepLand Consolidated (Fixed Relations)</title>
+    <meta charset="UTF-8"><title>PB Setup: SheepLand Consolidated (Full Content & Working Structure)</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
@@ -16,8 +16,8 @@
 </head>
 <body>
     <div class="c">
-        <h1>PB Udheya Setup (Fixed Relations)</h1>
-        <p class="warn">This script creates/updates collections and seeds data. Relations are added after collections exist.</p>
+        <h1>PB Udheya Setup (Full Content & Working Structure)</h1>
+        <p class="warn">This script creates/updates ALL collections and seeds ALL data. Relations are added after collections exist.</p>
         <button id="runFullSetup">Run Full Setup</button>
         <div id="out"></div>
     </div>
@@ -33,9 +33,9 @@
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
         const p = document.createElement('p');
         p.className = `l${type[0]}`;
-        let logMessage = timestamp + message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let logMessage = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
         if (data) {
-            logMessage += `\n<pre class="ld">${JSON.stringify(data, null, 2).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
+            logMessage += `\n<pre class="ld">${JSON.stringify(data, null, 2).replace(/</g, '<').replace(/>/g, '>')}</pre>`;
         }
         p.innerHTML = logMessage;
         outputDiv.appendChild(p);
@@ -48,17 +48,14 @@
         else console.log(consoleMessage, data || '');
     };
 
-    // Collections WITHOUT relation fields
+    // Collections WITHOUT relation fields, using direct properties for field options
     const collectionsWithoutRelations = [
         {
-            name: "app_settings", 
+            name: "app_settings",
             type: "base",
-            listRule: "", 
-            viewRule: "", 
-            createRule: "", 
-            updateRule: "", 
-            deleteRule: "",
-            fields: [
+            listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null,
+            options: { maxRecords: 1 }, // Collection-level options
+            fields: [ // Changed from 'schema' to 'fields' for import as per working example
                 { name: "exchange_rates_json", type: "json", required: true, presentable: true },
                 { name: "default_currency", type: "text", required: true, presentable: true, max: 5 },
                 { name: "whatsapp_number_raw", type: "text", required: false, presentable: true },
@@ -72,13 +69,9 @@
             ]
         },
         {
-            name: "products", 
+            name: "products",
             type: "base",
-            listRule: "", 
-            viewRule: "", 
-            createRule: "", 
-            updateRule: "", 
-            deleteRule: "",
+            listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
             fields: [
                 { name: "item_key", type: "text", required: true, unique: true, presentable: true, max: 100, pattern: "^[a-z0-9_]+$" },
                 { name: "type_key", type: "text", required: true, presentable: true, max: 50, pattern: "^[a-z0-9_]+$" },
@@ -92,32 +85,29 @@
                 { name: "weight_range_text_en", type: "text", required: true, presentable: true, max: 50 },
                 { name: "weight_range_text_ar", type: "text", required: true, presentable: true, max: 50 },
                 { name: "avg_weight_kg", type: "number", required: true, presentable: true, min: 0 },
-                { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0 },
+                { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0, noDecimal: false },
+                { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0, noDecimal: true },
                 { name: "is_active", type: "bool", required: false, presentable: true },
-                { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0 },
-                { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0 }
+                { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
+                { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true }
             ]
         },
         {
-            name: "bookings", 
+            name: "bookings",
             type: "base",
-            listRule: "", 
-            viewRule: "", 
-            createRule: "", 
-            updateRule: "", 
-            deleteRule: "",
-            fields: [
+            listRule: "", viewRule: "", createRule: "", updateRule: "", deleteRule: "",
+            fields: [ // product_id (relation) will be added later
                 { name: "booking_id_text", type: "text", required: true, unique: true, presentable: true, max: 50 },
+                // product_id is OMITTED here and added by addRelationField
                 { name: "booked_product_name_en", type: "text", required: false, presentable: true, max: 150 },
                 { name: "booked_product_name_ar", type: "text", required: false, presentable: true, max: 150 },
                 { name: "booked_weight_range_en", type: "text", required: false, presentable: true, max: 50 },
                 { name: "booked_weight_range_ar", type: "text", required: false, presentable: true, max: 50 },
-                { name: "booked_price_at_booking_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "booked_price_at_booking_egp", type: "number", required: true, presentable: true, min: 0, noDecimal: false },
                 { name: "udheya_service_option_selected", type: "text", required: true, presentable: true, max: 50 },
-                { name: "service_fee_applied_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0 },
+                { name: "service_fee_applied_egp", type: "number", required: true, presentable: true, min: 0, noDecimal: false },
+                { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, min: 0, noDecimal: false },
+                { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0, noDecimal: false },
                 { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 },
                 { name: "sacrifice_day_value", type: "text", required: true, presentable: true, max: 50 },
                 { name: "sacrifice_day_text_en", type: "text", required: false, presentable: true, max: 100 },
@@ -127,8 +117,8 @@
                 { name: "split_details_option", type: "text", required: false, presentable: true, max: 100 },
                 { name: "custom_split_details_text", type: "text", required: false, presentable: true, max: 500 },
                 { name: "niyyah_names", type: "text", required: false, presentable: true, max: 500 },
-                { name: "ordering_person_name", type: "text", required: false, presentable: true, max: 150 },
-                { name: "ordering_person_phone", type: "text", required: false, presentable: true, max: 30 },
+                { name: "ordering_person_name", type: "text", required: false, presentable: true, max: 150},
+                { name: "ordering_person_phone", type: "text", required: false, presentable: true, max: 30},
                 { name: "customer_email", type: "email", required: false, presentable: true },
                 { name: "delivery_option", type: "text", required: false, presentable: true, max: 50 },
                 { name: "delivery_name", type: "text", required: false, presentable: true, max: 150 },
@@ -156,99 +146,137 @@
             {
                 exchange_rates_json: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
                 default_currency: "EGP",
-                whatsapp_number_raw: "201117117489", 
-                whatsapp_number_display: "+20 11 1711 7489",
-                promo_end_date_iso: "2025-06-07",
+                whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
+                promo_end_date_iso: new Date("2025-06-07T00:00:00.000Z").toISOString(), // Full ISO for date type
                 promo_discount_percent: 10,
                 promo_is_active: true,
                 udheya_service_surcharge_egp: 750,
                 delivery_areas_json: [
-                    { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 } ] }
+                    { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] },
+                    { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} ] }
                 ],
-                payment_details_json: { vodafone_cash: "01076543210", bank_name: "Seed Bank Egypt" }
+                payment_details_json: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
             }
         ],
         products: [
-            { item_key: "baladi_40_50", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (40-50kg)", variant_name_ar: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 7, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
-            { item_key: "barki_40_50", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (40-50kg)", variant_name_ar: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 11475, stock_available_pb: 5, is_active: true, sort_order_type: 2, sort_order_variant: 1 }
+            { item_key: "baladi_40_50", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (40-50kg)", variant_name_ar: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 230), stock_available_pb: 7, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
+            { item_key: "baladi_50_60", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (50-60kg)", variant_name_ar: "بلدي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 230), stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
+            { item_key: "baladi_60_plus", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (60+kg)", variant_name_ar: "بلدي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 230), stock_available_pb: 1, is_active: true, sort_order_type: 1, sort_order_variant: 3 },
+            { item_key: "barki_30_40", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (30-40kg)", variant_name_ar: "برقي (٣٠-٤٠كجم)", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", avg_weight_kg: 35, base_price_egp: (35 * 255), stock_available_pb: 1, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
+            { item_key: "barki_40_50", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (40-50kg)", variant_name_ar: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 255), stock_available_pb: 5, is_active: true, sort_order_type: 2, sort_order_variant: 2 },
+            { item_key: "barki_50_60", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (50-60kg)", variant_name_ar: "برقي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 255), stock_available_pb: 3, is_active: true, sort_order_type: 2, sort_order_variant: 3 },
+            { item_key: "barki_60_plus", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (60+kg)", variant_name_ar: "برقي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 255), stock_available_pb: 2, is_active: true, sort_order_type: 2, sort_order_variant: 4 }
         ]
     };
 
-    async function addRelationField(pb, collectionName, fieldName, targetCollectionId) {
+    async function addRelationField(pb, collectionName, fieldNameToAdd, targetCollectionId) {
         try {
-            log(`Adding relation field <b>${fieldName}</b> to <b>${collectionName}</b>...`, 'i');
-            
+            log(`Adding relation field <b>${fieldNameToAdd}</b> to <b>${collectionName}</b> pointing to ID <b>${targetCollectionId}</b>...`, 'li');
+
             const collection = await pb.collections.getOne(collectionName);
-            
-            // Check if field already exists
-            const fieldExists = collection.fields.some(f => f.name === fieldName);
+
+            const fieldExists = collection.fields.some(f => f.name === fieldNameToAdd);
             if (fieldExists) {
-                log(`Field <b>${fieldName}</b> already exists in <b>${collectionName}</b>`, 'w');
-                return;
+                const existingField = collection.fields.find(f => f.name === fieldNameToAdd);
+                if (existingField.type === 'relation' && existingField.collectionId === targetCollectionId) {
+                    log(`Field <b>${fieldNameToAdd}</b> already exists in <b>${collectionName}</b> and correctly points to <b>${targetCollectionId}</b>.`, 'lw');
+                    return true; // Indicate success or no action needed
+                } else if (existingField.type === 'relation') {
+                    log(`Field <b>${fieldNameToAdd}</b> exists but points to ${existingField.collectionId}. It will be updated.`, 'lw');
+                    // Allow update logic below to proceed
+                } else {
+                     log(`Field <b>${fieldNameToAdd}</b> already exists in <b>${collectionName}</b> but is not a relation field (type: ${existingField.type}). Cannot add relation.`, 'le');
+                     return false;
+                }
             }
-            
-            // Create relation field
-            const relationField = {
-                name: fieldName,
+
+            const relationFieldDefinition = {
+                name: fieldNameToAdd,
                 type: "relation",
                 required: true,
                 presentable: true,
-                collectionId: targetCollectionId,
-                cascadeDelete: false,
-                minSelect: 1,
-                maxSelect: 1,
-                displayFields: ["item_key", "variant_name_en"]
+                collectionId: targetCollectionId, // Direct property
+                cascadeDelete: false,        // Direct property
+                minSelect: 1,                // Direct property
+                maxSelect: 1,                // Direct property
+                displayFields: ["item_key", "variant_name_en"] // Direct property
             };
-            
-            // Add field at position 1 (after booking_id_text)
-            const updatedFields = [...collection.fields];
-            updatedFields.splice(1, 0, relationField);
-            
-            await pb.collections.update(collection.id, { fields: updatedFields });
-            log(`Relation field <b>${fieldName}</b> added to <b>${collectionName}</b> successfully`, 's');
-            
-        } catch (error) {
-            log(`Error adding relation field: ${error.message}`, 'e');
-            console.error('Full error:', error);
-            if (error.response?.data) {
-                log('Validation errors:', 'e', error.response.data);
+
+            let updatedFields;
+            if (fieldExists) { // Update existing field
+                updatedFields = collection.fields.map(f => {
+                    if (f.name === fieldNameToAdd) {
+                        // Preserve original ID and system status, update the rest
+                        return { id: f.id, system: f.system, ...relationFieldDefinition };
+                    }
+                    return f;
+                });
+            } else { // Add new field
+                updatedFields = [...collection.fields];
+                // Insert after 'booking_id_text' or at the second position if 'booking_id_text' is first
+                const bookingIdTextIndex = updatedFields.findIndex(f => f.name === "booking_id_text");
+                const insertAtIndex = (bookingIdTextIndex !== -1 && updatedFields.length > bookingIdTextIndex + 1) ? bookingIdTextIndex + 1 : 1;
+                updatedFields.splice(insertAtIndex, 0, relationFieldDefinition);
             }
+            
+            log('Attempting to update collection schema with new/updated relation field:', 'd', { collectionId: collection.id, fields: updatedFields });
+            await pb.collections.update(collection.id, { fields: updatedFields });
+            log(`Relation field <b>${fieldNameToAdd}</b> successfully processed for <b>${collectionName}</b>.`, 's');
+            return true;
+
+        } catch (error) {
+            log(`<b>ERROR</b> adding/updating relation field <b>${fieldNameToAdd}</b> in <b>${collectionName}</b>: ${error.message}`, 'le');
+            console.error('Full error details (addRelationField):', error);
+            if (error.response?.data) {
+                log('Validation/Server Error Details:', 'le', error.response.data);
+                if (error.response.data.data) {
+                     log('Specific Validation Issues:', 'le', error.response.data.data);
+                }
+            }
+            return false;
         }
     }
 
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField) {
         log(`Seeding data for <b>${collectionName}</b>...`, 'i');
-        let createdCount = 0; 
-        let updatedCount = 0; 
+        let createdCount = 0;
+        let updatedCount = 0;
         let errorCount = 0;
 
         for (const item of seedItems) {
+            const actualData = { ...item }; // Use a copy
             try {
                 let existingRecord = null;
                 if (uniqueKeyField) {
-                    existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`).catch(() => null);
-                } else {
+                    existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${actualData[uniqueKeyField]}"`).catch(() => null);
+                } else { // For singleton collections like app_settings
                     const list = await pb.collection(collectionName).getList(1, 1);
                     if (list.items.length > 0) existingRecord = list.items[0];
                 }
 
                 if (existingRecord) {
-                    await pb.collection(collectionName).update(existingRecord.id, item);
+                    log(`Updating existing record in ${collectionName} (ID: ${existingRecord.id})`, 'd', actualData);
+                    await pb.collection(collectionName).update(existingRecord.id, actualData);
                     updatedCount++;
                 } else {
-                    await pb.collection(collectionName).create(item);
+                    log(`Creating new record in ${collectionName}`, 'd', actualData);
+                    await pb.collection(collectionName).create(actualData);
                     createdCount++;
                 }
             } catch (error) {
-                log(`Error processing item in ${collectionName}: ${error.message}`, 'e');
-                console.error('Full error:', error);
-                if (error.response?.data) {
-                    log('Validation errors:', 'e', error.response.data);
+                log(`<b>ERROR</b> processing item ${actualData[uniqueKeyField] || '(singleton)'} in ${collectionName}: ${error.message}`, 'le');
+                console.error('Full error details (seedCollectionData):', error);
+                 if (error.response?.data) {
+                    log('Validation/Server Error Details:', 'le', error.response.data);
+                    if (error.response.data.data) {
+                        log('Specific Validation Issues:', 'le', error.response.data.data);
+                    }
                 }
+                log('Payload attempted:', 'le', actualData);
                 errorCount++;
             }
         }
-        log(`Seeding <b>${collectionName}</b> complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, 's');
+        log(`Seeding <b>${collectionName}</b> complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, errorCount > 0 ? 'lw' : 's');
     }
 
     runFullSetupButton.onclick = async () => {
@@ -262,39 +290,52 @@
             await pb.admins.authWithPassword(ADM_E, ADM_P);
             log('Admin authentication successful', 's');
 
-            log('Step 1: Importing collections without relations...', 'i');
-            await pb.collections.import(collectionsWithoutRelations, false);
-            log('Collections imported successfully', 's');
+            log('Step 1: Importing collections without relations (deleteMissing: false)...', 'i');
+            log('Collections to import:', 'd', collectionsWithoutRelations);
+            await pb.collections.import(collectionsWithoutRelations, false /* deleteMissing */);
+            log('Collections imported/updated successfully', 's');
 
-            log('Step 2: Getting collection IDs...', 'i');
+            log('Step 2: Getting "products" collection ID...', 'i');
             const productsCollection = await pb.collections.getOne('products');
-            log(`Products collection ID: ${productsCollection.id}`, 'i');
+            if (!productsCollection || !productsCollection.id) {
+                throw new Error('Failed to retrieve "products" collection after import.');
+            }
+            log(`"products" collection ID: ${productsCollection.id}`, 'li');
 
-            log('Step 3: Adding relation field to bookings...', 'i');
-            await addRelationField(pb, 'bookings', 'product_id', productsCollection.id);
+            log('Step 3: Adding/Updating relation field "product_id" to "bookings"...', 'i');
+            const relationAdded = await addRelationField(pb, 'bookings', 'product_id', productsCollection.id);
+            if (!relationAdded) {
+                throw new Error('Failed to add/update relation field "product_id" to "bookings". Setup cannot continue reliably.');
+            }
 
             log('Step 4: Seeding data...', 'i');
+            log('Pausing for 1 second before seeding...', 'lw');
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             await seedCollectionData(pb, 'app_settings', seedData.app_settings, null);
             await seedCollectionData(pb, 'products', seedData.products, 'item_key');
 
-            log('<b>Full setup completed successfully!</b>', 's');
+            log('<b>Full setup completed successfully!</b>', 'ls');
 
         } catch (error) {
-            log(`<b>CRITICAL ERROR:</b> ${error.message}`, 'e');
-            console.error('Full error object:', error);
+            log(`<b>CRITICAL ERROR during full setup:</b> ${error.message}`, 'le');
+            console.error('Full error object (runFullSetupButton.onclick):', error);
             if (error.response?.data) {
-                log('Server error details:', 'e', error.response.data);
+                log('Server error details:', 'le', error.response.data);
+                 if (error.response.data.data) {
+                     log('Specific Validation Issues:', 'le', error.response.data.data);
+                }
             }
             if (error.stack) {
-                log('Stack trace:', 'e', error.stack);
+                log('Stack trace:', 'le', error.stack);
             }
-
         } finally {
-            if (pb.authStore.isValid) pb.authStore.clear();
+            if (pb.authStore.isValid) {
+                pb.authStore.clear();
+                log('Admin auth cleared.', 'li');
+            }
             runFullSetupButton.disabled = false;
-            log('Process finished', 'i');
+            log('Process finished.', 'i');
         }
     };
 </script>
