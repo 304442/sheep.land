@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>PB Setup: SheepLand Consolidated (Import API)</title>
+    <meta charset="UTF-8"><title>PB Setup: SheepLand Consolidated (Fixed Relations)</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
@@ -16,10 +16,9 @@
 </head>
 <body>
     <div class="c">
-        <h1>PB Udheya Setup (Consolidated Collections & Seed via Import API)</h1>
-        <p class="warn">This script creates/updates 'app_settings', 'products', and 'bookings' collections, and seeds initial data. Ensure PocketBase is running and admin credentials are correct.</p>
-        <p class="warn">API rules for non-auth collections will be set to PUBLIC by default (empty string rule usually means admin-only, use null for public). SECURE FOR PRODUCTION!</p>
-        <button id="runFullSetup">Run Full Setup (Import Collections & Seed Data)</button>
+        <h1>PB Udheya Setup (Fixed Relations)</h1>
+        <p class="warn">This script creates/updates collections and seeds data. Relations are added after collections exist.</p>
+        <button id="runFullSetup">Run Full Setup</button>
         <div id="out"></div>
     </div>
 <script>
@@ -49,7 +48,8 @@
         else console.log(consoleMessage, data || '');
     };
 
-    const collectionsImportDefinition = [
+    // Collections WITHOUT relation fields
+    const collectionsWithoutRelations = [
         {
             name: "app_settings", 
             type: "base",
@@ -109,7 +109,6 @@
             deleteRule: "",
             fields: [
                 { name: "booking_id_text", type: "text", required: true, unique: true, presentable: true, max: 50 },
-                { name: "product_id", type: "relation", required: true, presentable: true, collectionId: "", cascadeDelete: false, minSelect: 1, maxSelect: 1, displayFields: ["item_key", "variant_name_en"] },
                 { name: "booked_product_name_en", type: "text", required: false, presentable: true, max: 150 },
                 { name: "booked_product_name_ar", type: "text", required: false, presentable: true, max: 150 },
                 { name: "booked_weight_range_en", type: "text", required: false, presentable: true, max: 50 },
@@ -157,106 +156,99 @@
             {
                 exchange_rates_json: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
                 default_currency: "EGP",
-                whatsapp_number_raw: "201117117489", whatsapp_number_display: "+20 11 1711 7489",
-                promo_end_date_iso: new Date("2025-06-07T00:00:00.000Z").toISOString(),
+                whatsapp_number_raw: "201117117489", 
+                whatsapp_number_display: "+20 11 1711 7489",
+                promo_end_date_iso: "2025-06-07",
                 promo_discount_percent: 10,
                 promo_is_active: true,
                 udheya_service_surcharge_egp: 750,
                 delivery_areas_json: [
-                    { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] },
-                    { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} ] }
+                    { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 } ] }
                 ],
-                payment_details_json: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" }
+                payment_details_json: { vodafone_cash: "01076543210", bank_name: "Seed Bank Egypt" }
             }
         ],
         products: [
-            { item_key: "baladi_40_50", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (40-50kg)", variant_name_ar: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 230), stock_available_pb: 7, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
-            { item_key: "baladi_50_60", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (50-60kg)", variant_name_ar: "بلدي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 230), stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
-            { item_key: "baladi_60_plus", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (60+kg)", variant_name_ar: "بلدي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 230), stock_available_pb: 1, is_active: true, sort_order_type: 1, sort_order_variant: 3 },
-            { item_key: "barki_30_40", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (30-40kg)", variant_name_ar: "برقي (٣٠-٤٠كجم)", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", avg_weight_kg: 35, base_price_egp: (35 * 255), stock_available_pb: 1, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
-            { item_key: "barki_40_50", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (40-50kg)", variant_name_ar: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: (45 * 255), stock_available_pb: 5, is_active: true, sort_order_type: 2, sort_order_variant: 2 },
-            { item_key: "barki_50_60", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (50-60kg)", variant_name_ar: "برقي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: (55 * 255), stock_available_pb: 3, is_active: true, sort_order_type: 2, sort_order_variant: 3 },
-            { item_key: "barki_60_plus", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (60+kg)", variant_name_ar: "برقي (+٦٠كجم)", weight_range_text_en: "60+kg", weight_range_text_ar: "+٦٠ كجم", avg_weight_kg: 65, base_price_egp: (65 * 255), stock_available_pb: 2, is_active: true, sort_order_type: 2, sort_order_variant: 4 }
+            { item_key: "baladi_40_50", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (40-50kg)", variant_name_ar: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 7, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
+            { item_key: "barki_40_50", type_key: "barki", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Desert breed, lean meat.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن.", price_per_kg_egp: 255, variant_name_en: "Barki (40-50kg)", variant_name_ar: "برقي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 11475, stock_available_pb: 5, is_active: true, sort_order_type: 2, sort_order_variant: 1 }
         ]
     };
 
-    async function fixRelationField(pb, collectionName, fieldName, relatedCollectionId) {
-        log(`Fixing relation for <b>${collectionName}.${fieldName}</b> to collection ID <b>${relatedCollectionId}</b>`, 'i');
+    async function addRelationField(pb, collectionName, fieldName, targetCollectionId) {
         try {
-            const collection = await pb.collections.getOne(collectionName);
-            const fieldToUpdate = collection.fields.find(f => f.name === fieldName);
-
-            if (!fieldToUpdate) {
-                log(`Field '${fieldName}' not found in collection '${collectionName}'. Cannot fix relation.`, 'e');
-                return false;
-            }
-
-            if (fieldToUpdate.type !== 'relation') {
-                log(`Field '${fieldName}' in '${collectionName}' is not of type 'relation'. Cannot fix. Current type: ${fieldToUpdate.type}`, 'e');
-                return false;
-            }
-
-            if (fieldToUpdate.collectionId === relatedCollectionId) {
-                log(`Relation for <b>${collectionName}.${fieldName}</b> already correct.`, 'w');
-                return true;
-            }
-
-            const updatedFields = collection.fields.map(f => {
-                if (f.name === fieldName) {
-                    return { ...f, collectionId: relatedCollectionId };
-                }
-                return f;
-            });
+            log(`Adding relation field <b>${fieldName}</b> to <b>${collectionName}</b>...`, 'i');
             
-            log(`Attempting to update fields for ${collectionName} with new relation for ${fieldName}`, 'd', { id: collection.id, fields: updatedFields });
-            await pb.collections.update(collection.id, { fields: updatedFields });
-            log(`Relation for <b>${collectionName}.${fieldName}</b> updated successfully.`, 's');
-            return true;
-        } catch (error) {
-            log(`<b>ERROR</b> fixing relation <b>${collectionName}.${fieldName}</b>: ${error.message}`, 'e');
-            console.error('Full error object:', error);
-            if (error.response?.data) {
-                log('Validation/Server Error Details:', 'e', error.response.data);
+            const collection = await pb.collections.getOne(collectionName);
+            
+            // Check if field already exists
+            const fieldExists = collection.fields.some(f => f.name === fieldName);
+            if (fieldExists) {
+                log(`Field <b>${fieldName}</b> already exists in <b>${collectionName}</b>`, 'w');
+                return;
             }
-            return false;
+            
+            // Create relation field
+            const relationField = {
+                name: fieldName,
+                type: "relation",
+                required: true,
+                presentable: true,
+                collectionId: targetCollectionId,
+                cascadeDelete: false,
+                minSelect: 1,
+                maxSelect: 1,
+                displayFields: ["item_key", "variant_name_en"]
+            };
+            
+            // Add field at position 1 (after booking_id_text)
+            const updatedFields = [...collection.fields];
+            updatedFields.splice(1, 0, relationField);
+            
+            await pb.collections.update(collection.id, { fields: updatedFields });
+            log(`Relation field <b>${fieldName}</b> added to <b>${collectionName}</b> successfully`, 's');
+            
+        } catch (error) {
+            log(`Error adding relation field: ${error.message}`, 'e');
+            console.error('Full error:', error);
+            if (error.response?.data) {
+                log('Validation errors:', 'e', error.response.data);
+            }
         }
     }
 
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField) {
-        log(`Starting to seed/update data for '<b>${collectionName}</b>'...`, 'i');
-        let createdCount = 0; let updatedCount = 0; let errorCount = 0;
+        log(`Seeding data for <b>${collectionName}</b>...`, 'i');
+        let createdCount = 0; 
+        let updatedCount = 0; 
+        let errorCount = 0;
 
         for (const item of seedItems) {
-            const actualData = { ...item };
             try {
                 let existingRecord = null;
                 if (uniqueKeyField) {
-                     existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${actualData[uniqueKeyField]}"`).catch(() => null);
+                    existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`).catch(() => null);
                 } else {
-                    const list = await pb.collection(collectionName).getList(1,1);
+                    const list = await pb.collection(collectionName).getList(1, 1);
                     if (list.items.length > 0) existingRecord = list.items[0];
                 }
 
                 if (existingRecord) {
-                    log(`Updating existing record in ${collectionName} (ID: ${existingRecord.id})`, 'd', actualData);
-                    await pb.collection(collectionName).update(existingRecord.id, actualData);
+                    await pb.collection(collectionName).update(existingRecord.id, item);
                     updatedCount++;
                 } else {
-                    log(`Creating new record in ${collectionName}`, 'd', actualData);
-                    await pb.collection(collectionName).create(actualData);
+                    await pb.collection(collectionName).create(item);
                     createdCount++;
                 }
             } catch (error) {
-                log(`Error processing item ${actualData[uniqueKeyField] || '(singleton)'} for collection ${collectionName}: ${error.message}`, 'e');
-                console.error('Full error object:', error);
+                log(`Error processing item in ${collectionName}: ${error.message}`, 'e');
+                console.error('Full error:', error);
                 if (error.response?.data) {
-                    log('Validation/Server Error Details:', 'e', error.response.data);
+                    log('Validation errors:', 'e', error.response.data);
                 }
-                log('Payload attempted:', 'e', actualData);
                 errorCount++;
             }
         }
-        log(`Seeding/Updating for '<b>${collectionName}</b>' done. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}.`, 's');
+        log(`Seeding <b>${collectionName}</b> complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, 's');
     }
 
     runFullSetupButton.onclick = async () => {
@@ -268,35 +260,32 @@
         try {
             log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
             await pb.admins.authWithPassword(ADM_E, ADM_P);
-            log('Admin authentication successful.', 's');
+            log('Admin authentication successful', 's');
 
-            log('Importing collection definitions (deleteMissing: false)...', 'i');
-            log('Effective collections definition being imported:', 'd', collectionsImportDefinition);
-            await pb.collections.import(collectionsImportDefinition, false);
-            log('Collections import/update process completed.', 's');
+            log('Step 1: Importing collections without relations...', 'i');
+            await pb.collections.import(collectionsWithoutRelations, false);
+            log('Collections imported successfully', 's');
 
-            log('Fetching actual collection IDs post-import for relation fixing...', 'i');
-            const productsActual = await pb.collections.getOne('products');
-            log(`'products' actual ID: ${productsActual.id}`, 'i');
+            log('Step 2: Getting collection IDs...', 'i');
+            const productsCollection = await pb.collections.getOne('products');
+            log(`Products collection ID: ${productsCollection.id}`, 'i');
 
-            await fixRelationField(pb, 'bookings', 'product_id', productsActual.id);
+            log('Step 3: Adding relation field to bookings...', 'i');
+            await addRelationField(pb, 'bookings', 'product_id', productsCollection.id);
 
-            log('All collections and relations configured.', 's');
-
-            log('Pausing for 1 second before seeding data...', 'i');
+            log('Step 4: Seeding data...', 'i');
             await new Promise(resolve => setTimeout(resolve, 1000));
-
+            
             await seedCollectionData(pb, 'app_settings', seedData.app_settings, null);
             await seedCollectionData(pb, 'products', seedData.products, 'item_key');
 
-            log('All data seeding completed.', 's');
-            log('<b>Full setup complete. Refresh the app to see changes.</b>', 's');
+            log('<b>Full setup completed successfully!</b>', 's');
 
         } catch (error) {
-            log(`<b>CRITICAL ERROR during full setup:</b> ${error.message}`, 'e');
-            console.error('Full error object (Full Setup):', error);
+            log(`<b>CRITICAL ERROR:</b> ${error.message}`, 'e');
+            console.error('Full error object:', error);
             if (error.response?.data) {
-                log('Validation/Server Error Details:', 'e', error.response.data);
+                log('Server error details:', 'e', error.response.data);
             }
             if (error.stack) {
                 log('Stack trace:', 'e', error.stack);
@@ -305,7 +294,7 @@
         } finally {
             if (pb.authStore.isValid) pb.authStore.clear();
             runFullSetupButton.disabled = false;
-            log('Admin auth cleared. Process finished.', 'i');
+            log('Process finished', 'i');
         }
     };
 </script>
