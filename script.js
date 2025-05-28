@@ -97,7 +97,7 @@ document.addEventListener('alpine:init', () => {
                 const newStock = Math.max(0, stockRecord.current_stock - quantityToDecrement);
                 await pb.collection('stock_levels').update(stockRecord.id, { current_stock: newStock });
                 console.log(`Stock updated in PB for ${itemKey} to ${newStock}`);
-                return newStock;
+                return newStock; 
             } else {
                 console.warn(`Stock record not found in PB for item_key: ${itemKey}. Cannot update stock.`);
                 return null; 
@@ -298,7 +298,7 @@ document.addEventListener('alpine:init', () => {
             if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
             return true; 
         },
-        validateStep2(setErrors = true) { // Your Details
+        validateStep2(setErrors = true) { 
             if (setErrors) { this.clearError('orderingPersonName'); this.clearError('orderingPersonPhone'); this.clearError('customerEmail');}
             let isValid = true;
             if (!(this.orderingPersonName || "").trim()) { if (setErrors) this.setError('orderingPersonName', 'required'); isValid = false; }
@@ -306,14 +306,14 @@ document.addEventListener('alpine:init', () => {
             if ((this.customerEmail || "").trim() && !this.isValidEmail(this.customerEmail)) { if (setErrors) this.setError('customerEmail', 'email'); isValid = false; }
             return isValid;
         },
-        validateStep3(setErrors = true) { // Udheya Arrangements
+        validateStep3(setErrors = true) { 
             if (setErrors) { this.clearError('udheyaService');this.clearError('sacrificeDay'); }
             let isValid = true;
             if (!this.selectedUdheyaService) { if(setErrors) this.setError('udheyaService', 'select'); isValid = false;}
             if (!this.selectedSacrificeDay.value) { if (setErrors) this.setError('sacrificeDay', 'select'); isValid = false; }
             return isValid;
         },
-        validateStep4(setErrors = true) { // Distribution & Delivery
+        validateStep4(setErrors = true) { 
             if (setErrors) { this.clearError('distributionChoice'); this.clearError('splitDetails'); this.clearError('deliveryCity'); this.clearError('deliveryAddress'); this.clearError('timeSlot');}
             let isValid = true;
             if (!this.distributionChoice) { if(setErrors) this.setError('distributionChoice', 'select'); isValid = false; }
@@ -327,7 +327,7 @@ document.addEventListener('alpine:init', () => {
             }
             return isValid;
         },
-        validateStep5(setErrors = true) { // Review & Reserve
+        validateStep5(setErrors = true) { 
             if (setErrors) this.clearError('paymentMethod');
             if (!this.paymentMethod) { if (setErrors) this.setError('paymentMethod', 'select'); return false; }
             return true;
@@ -359,7 +359,7 @@ document.addEventListener('alpine:init', () => {
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
         updateSacrificeDayTexts() { 
-            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; // Corresponds to new Step 3
+            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; // Updated ref for new Step 3
             if (sacrificeDaySelectElement) { 
                 const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`); 
                 if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
@@ -387,7 +387,7 @@ document.addEventListener('alpine:init', () => {
                         const outOfStock = !wp.is_active || wp.current_stock <= 0;
                         const statusTextEN = this.getEnglishStockStatusText(wp.current_stock, wp.is_active);
                         const priceDisplayEN = this.getFormattedPrice(wp.basePriceEGP);
-                        opt.textContent = `${wp.weight_range_text_en} (${priceDisplayEN}) - ${statusTextEN}`.trim();
+                        opt.textContent = `${wp.nameEN_specific || wp.weight_range_text_en} (${priceDisplayEN}) - ${statusTextEN}`.trim(); // Using nameEN_specific
                         opt.disabled = outOfStock; 
                         weightSelectEl.appendChild(opt);
                         if (wp.item_key === currentVal && !outOfStock) stillValid = true;
@@ -483,13 +483,12 @@ document.addEventListener('alpine:init', () => {
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const id = (this.lookupBookingID || "").trim();
             const pb = new PocketBase('/');
             try {
-                // Fetch full record to get all details
-                const records = await pb.collection('bookings').getFullList({filter: `booking_id_text = "${pb.realtime.realtimeSubscriptions, id}"`});
+                const records = await pb.collection('bookings').getFullList({filter: `booking_id_text = "${pb.realtime.client.utils.escapeFilterValue(id)}"`}); // Used escapeFilterValue
 
                 if (records && records.length > 0) {
                     const b = records[0];
                     let distributionTextEN = b.distribution_choice;
-                    let distributionTextAR = b.distribution_choice; // Basic fallback
+                    let distributionTextAR = b.distribution_choice; 
                      const distOpt = this.distributionChoiceOptions().find(opt => opt.value === b.distribution_choice);
                      if(distOpt) {
                         distributionTextEN = distOpt.textEn;
@@ -543,7 +542,6 @@ document.addEventListener('alpine:init', () => {
             finally { this.isLoading.status = false; }
         },
         getSacrificeDayText(v) { 
-            // This now needs to use the correct select element for the new Step 3
             const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); 
             return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v}; 
         },
