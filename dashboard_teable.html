@@ -14,7 +14,7 @@
             --t1:#212529; --tm:#6c757d; --td:#FAF8F5;
             --b1:var(--td); --b2:#F0EBE3; --bc:#fff; --bs:#DDE0E3; --bs-darker: #c5c8cb;
             --rad:6px; --s0:.2rem; --s1:.4rem; --s2:.5rem; --s3:1.2rem; --s4:1.6rem;
-            --fe:'Inter',sans-serif; --fa:'Noto Kufi Arabic',sans-serif;
+            --fe:'Inter',sans-serif; --fa:'Noto+Kufi+Arabic',sans-serif;
             --lh:1.5;
 
             --bg-main: #f8f9fa; /* Lighter background for the main content area */
@@ -289,18 +289,18 @@
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script>
 document.addEventListener('alpine:init', () => {
-    const ADM_E_PLACEHOLDER = 'admin@example.com'; // For login form prefill
-    Alpine.data('adminDashboard', () => ({ // This is the component factory function
+    const ADM_E_PLACEHOLDER = 'admin@example.com'; 
+    Alpine.data('adminDashboard', () => ({ 
         pb: null,
         isAdminAuth: false,
         loading: { auth: false, pnl: true, current: true },
         loginForm: { email: ADM_E_PLACEHOLDER, password: '' },
         authError: '',
-        currentView: 'pnl', // Default view
+        currentView: 'pnl', 
         data: {
             orders: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
             expenses: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
-            sheep_log: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 }, // Mapped from 'animals' view
+            sheep_log: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 }, 
             animal_events: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
             products: { items: [], page: 1, perPage: 15, totalItems: 0, totalPages: 1 },
             settings: { items: [], page: 1, perPage: 1, totalItems: 0, totalPages: 1 } 
@@ -341,9 +341,20 @@ document.addEventListener('alpine:init', () => {
                 { key: 'animal_id', label: 'Animal Tag', type: 'expand', expandedField: 'animal_id', displayField: 'animal_tag_id', placeholder: 'N/A', headerWidth: '120px' },
                 { key: 'event_date', label: 'Event Date', type: 'date', headerWidth: '120px' },
                 { key: 'event_type', label: 'Type', type: 'text', cellMaxWidth: '150px' },
-                { key: 'description', label: 'Description', type: 'text', cellMaxWidth: '300px' },
+                { key: 'description', label: 'Description', type: 'text', cellMaxWidth: '300px' }, // This could be the source of newlines
                 { key: 'cost_associated_egp', label: 'Cost', type: 'currency', currency: 'EGP', digits:0, textAlign: 'right', headerWidth: '100px' },
-                { key: 'id', label: 'Actions', type: 'actions', identifierField: (item) => `${item.expand?.animal_id?.animal_tag_id || 'Event'} @ ${this.formatDate(item.event_date, { day:'2-digit',month:'short' })}`, headerWidth: '130px', textAlign: 'right' }
+                { key: 'id', label: 'Actions', type: 'actions', 
+                  identifierField: (item) => {
+                      const animalTag = item.expand?.animal_id?.animal_tag_id || 'Event';
+                      const eventDate = this.formatDate(item.event_date, { day:'2-digit',month:'short' });
+                      // If description is part of identifier, ensure it's short or truncated for the confirm dialog.
+                      // For now, just tag and date for simplicity if description is problematic.
+                      let descForIdentifier = item.description || '';
+                      if (descForIdentifier.length > 30) descForIdentifier = descForIdentifier.substring(0,27) + '...';
+                      return `${animalTag} - ${descForIdentifier} @ ${eventDate}`; 
+                  }, 
+                  headerWidth: '130px', textAlign: 'right' 
+                }
             ],
             products: [
                 { key: 'item_key', label: 'Key', type: 'text', cellMaxWidth: '150px' },
@@ -357,8 +368,6 @@ document.addEventListener('alpine:init', () => {
         },
 
         initDashboard() {
-            // Make component instance available on window for easier debugging if needed
-            // window.adminDashboardInstance = this; 
             this.pb = new PocketBase(window.location.origin);
             this.pbAdminUrl = window.location.origin; 
             this.loginForm.email = ADM_E_PLACEHOLDER;
@@ -601,14 +610,14 @@ document.addEventListener('alpine:init', () => {
             try { return new Intl.NumberFormat('en-US', options).format(numAmount); }
             catch (e) { return `${currency} ${numAmount.toFixed(digits)}`; }
         },
-        escapeHtml(unsafe) {
+        escapeHtml(unsafe) { // For HTML content and attributes
             if (unsafe === null || typeof unsafe === 'undefined') return '';
             return String(unsafe)
                  .replace(/&/g, "&")
                  .replace(/</g, "<")
                  .replace(/>/g, ">")
                  .replace(/"/g, """)
-                 .replace(/'/g, "'");
+                 .replace(/'/g, "'"); // Escapes single quotes for HTML attributes too
         },
 
         getColumnsForView(viewKey) {
@@ -628,6 +637,18 @@ document.addEventListener('alpine:init', () => {
             const titleAttributeValue = (typeof value === 'object' && value !== null) ? JSON.stringify(value) : value;
             const escapedTitle = this.escapeHtml(titleAttributeValue);
             const contentSpan = `<span class="${cellContentClasses.join(' ')}" ${column.cellMaxWidth ? `style="max-width:${column.cellMaxWidth};"` : ''} title="${escapedTitle}">`;
+
+            // Helper function to escape strings for inclusion in a JS single-quoted string literal
+            const escapeForJsSingleQuote = (str) => {
+                if (str === null || typeof str === 'undefined') return '';
+                return String(str)
+                    .replace(/\\/g, '\\\\')       // 1. Escape backslashes
+                    .replace(/'/g, "\\'")        // 2. Escape single quotes
+                    .replace(/\n/g, "\\n")       // 3. Escape LF newlines
+                    .replace(/\r/g, "\\r")       // 4. Escape CR newlines
+                    .replace(/\u2028/g, "\\u2028") // 5. Escape Unicode Line Separator
+                    .replace(/\u2029/g, "\\u2029"); // 6. Escape Unicode Paragraph Separator
+            };
 
             switch (column.type) {
                 case 'text':
@@ -651,23 +672,18 @@ document.addEventListener('alpine:init', () => {
                 case 'actions': 
                 case 'actions_animal': {
                     const editUrl = this.getPbAdminEditUrl(collectionName, item.id);
-                    let identifier;
+                    let identifierValue;
                     if (typeof column.identifierField === 'function') {
-                        identifier = column.identifierField(item);
+                        identifierValue = column.identifierField(item);
                     } else {
-                        identifier = item[column.identifierField] || item.id;
+                        identifierValue = item[column.identifierField] || item.id;
                     }
 
-                    // ***** THE CRITICAL FIX IS HERE *****
-                    const safeIdentifier = String(identifier)
-                        .replace(/\\/g, '\\\\') // Must be first
-                        .replace(/'/g, "\\'")
-                        .replace(/"/g, '\\"') // Also escape double quotes for robustness if used in HTML attributes
-                        .replace(/\n/g, "\\n")
-                        .replace(/\r/g, "\\r");
+                    const jsEscapedCollectionName = escapeForJsSingleQuote(collectionName);
+                    const jsEscapedItemId = escapeForJsSingleQuote(item.id);
+                    const jsEscapedIdentifier = escapeForJsSingleQuote(identifierValue);
                     
-                    // Use $el to get to the component data context for calling methods from x-html generated content
-                    const deleteAction = `$data.deleteRecord('${collectionName}', '${item.id}', '${safeIdentifier}')`;
+                    const deleteAction = `$data.deleteRecord('${jsEscapedCollectionName}', '${jsEscapedItemId}', '${jsEscapedIdentifier}')`;
                     
                     let buttonsHtml = `<a href="${editUrl}" target="_blank" class="btn bp btn-small">Edit</a> 
                                        <button @click="${deleteAction}" class="btn btn-delete btn-small">Del</button>`;
@@ -681,9 +697,6 @@ document.addEventListener('alpine:init', () => {
                     return `${contentSpan}${(value !== null && typeof value !== 'undefined' ? this.escapeHtml(value) : 'N/A')}</span>`;
             }
         }
-    // No need for the {name: 'adminDashboardRef'} store registration for this simple component usage.
-    // x-data="adminDashboard" will correctly initialize and scope this component.
-    // Methods called via @click from within x-html should use $data.methodName if 'this' context is an issue.
     })); 
 });
 </script>
