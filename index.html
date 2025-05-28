@@ -33,6 +33,9 @@
                         <li><a href="#check-booking-status" class="dropdown-link bil-parent-spread" :class="{'active-nav-link': activeNavLinkHref === '#check-booking-status'}" @click.prevent="isUdheyaDropdownOpen = false; isMobileMenuOpen = false; scrollToSection('#check-booking-status')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
                     </ul>
                 </li>
+                <li><a href="#livestock-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#livestock-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#livestock-section')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
+                <li><a href="#meat-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#meat-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#meat-section')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
+                <li><a href="#gatherings-section" class="nav-link bil-parent-spread-intrinsic" :class="{'active-nav-link': activeNavLinkHref === '#gatherings-section'}" @click.prevent="isMobileMenuOpen = false; scrollToSection('#gatherings-section')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
             </ul>
         </nav>
         <div class="header-extras desktop-extras">
@@ -606,6 +609,36 @@
         </div>
     </section>
 
+    <section id="livestock-section" class="main-page-section sec" style="background-color: var(--b2);">
+        <div class="c">
+            <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Our Livestock</span><span class="ar">أغنامنا</span></h2></div>
+            <p class="bil-row tc">
+                <span class="en" style="flex-basis: 100%;">More information about our general livestock offerings (for purposes other than Udheya) will be available here soon. Stay tuned!</span>
+                <span class="ar" style="flex-basis: 100%;">ستتوفر هنا قريبًا المزيد من المعلومات حول عروض المواشي العامة لدينا (لأغراض أخرى غير الأضحية). ترقبونا!</span>
+            </p>
+        </div>
+    </section>
+
+    <section id="meat-section" class="main-page-section sec">
+        <div class="c">
+            <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span></h2></div>
+             <p class="bil-row tc">
+                <span class="en" style="flex-basis: 100%;">Explore our range of premium, fresh meat cuts directly from our farm. Details coming soon!</span>
+                <span class="ar" style="flex-basis: 100%;">اكتشف تشكيلتنا من قطعيات اللحوم الطازجة والممتازة مباشرة من مزرعتنا. التفاصيل قريبًا!</span>
+            </p>
+        </div>
+    </section>
+
+    <section id="gatherings-section" class="main-page-section sec" style="background-color: var(--b1);">
+        <div class="c">
+            <div class="sec-head"><h2 class="bil-parent-spread" tabindex="-1"><span class="en">Gatherings & Feasts</span><span class="ar">الولائم والمناسبات</span></h2></div>
+            <p class="bil-row tc">
+                <span class="en" style="flex-basis: 100%;">Information about our special livestock and meat packages for gatherings and feasts will be available here soon. Contact us for bespoke orders!</span>
+                <span class="ar" dir="rtl" style="flex-basis: 100%;">ستتوفر هنا قريبًا معلومات حول باقات المواشي واللحوم الخاصة بنا للمناسبات والولائم. اتصل بنا للطلبات المخصصة!</span>
+            </p>
+        </div>
+    </section>
+
     <section id="check-booking-status" class="sec udheya-page-step">
         <div class="c">
         <div class="sec-head"><h2 class="bil-parent-spread" x-ref="checkStatusTitle" tabindex="-1"><span class="en">Check Udheya Booking Status</span><span class="ar">تحقق من حالة حجز أضحيتك</span></h2></div>
@@ -683,7 +716,7 @@
         </p>
     </div>
 </footer>
-<script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
+<script src="pocketbase.umd.js"></script>
 <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script src="script.js"></script>
