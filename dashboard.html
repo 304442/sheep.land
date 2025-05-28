@@ -10,68 +10,72 @@
     <style>
         :root{
             --c1:#5D4037; --c1d:#3E2723; --c2:#386641; --c2l:#A3B18A; --c3:#F28C28;
-            --t1:#212529; --tm:#6c757d; --td:#FAF8F5;
+            --t1:#212529; --tm:#6c757d; --td:#FAF8F5; --border-color: #e0e0e0;
             --b1:var(--td); --b2:#F0EBE3; --bc:#fff; --bs:#DDE0E3;
-            --rad:6px; --s0:.2rem; --s1:.4rem; --s2:.5rem; --s3:1.2rem; --s4:1.6rem;
+            --rad:4px; --s0:.25rem; --s1:.5rem; --s2:.75rem; --s3:1rem; --s4:1.5rem;
             --fe:'Inter',sans-serif; --fa:'Noto Kufi Arabic',sans-serif;
-            --lh:1.5;
+            --lh:1.4;
         }
         *,::after,::before{box-sizing:border-box;margin:0;padding:0}
-        html{font-size:15px;scroll-behavior:smooth;}
-        body { font-family: var(--fe); line-height: var(--lh); color:var(--t1); padding: 20px; background-color: #f4f6f8; }
+        html{font-size:14px;scroll-behavior:smooth;}
+        body { font-family: var(--fe); line-height: var(--lh); color:var(--t1); padding: 15px; background-color: #f7f9fc; }
         a{text-decoration:none;color:var(--c2);} a:hover{color:var(--c1d)}
-        :focus-visible{outline:2px solid var(--c3);outline-offset:2px;}
+        :focus-visible{outline:2px solid var(--c3);outline-offset:1px;}
 
-        .dash-container { max-width: 1400px; margin: 20px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .dash-header { text-align: center; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; padding-bottom:15px; border-bottom: 1px solid var(--bs);}
-        .dash-header h1 {font-size: 1.8rem; color: var(--c1); margin:0;}
-        .dash-nav { margin-bottom: 20px; border-bottom: 1px solid var(--bs); padding-bottom: 10px; display:flex; flex-wrap:wrap; gap:5px; }
+        .dash-container { max-width: 95%; margin: 15px auto; padding: 15px; background-color: #fff; border-radius: var(--rad); box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.05); }
+        .dash-header { text-align: center; margin-bottom: 15px; display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom: 1px solid var(--border-color);}
+        .dash-header h1 {font-size: 1.6rem; color: var(--c1); margin:0;}
+        .dash-nav { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; display:flex; flex-wrap:wrap; gap:6px; }
         .dash-nav button, .btn {
-            padding: 8px 12px; font-size: 0.9rem; border-radius: var(--rad); cursor:pointer;
-            background-color: var(--b2); color: var(--c1d); border:1px solid var(--bs);
-            transition: background-color .2s, color .2s;
+            padding: 7px 10px; font-size: 0.85rem; border-radius: var(--rad); cursor:pointer;
+            background-color: #f0f0f0; color: var(--t1); border:1px solid var(--border-color);
+            transition: background-color .2s, color .2s, border-color .2s;
         }
-        .dash-nav button:hover, .btn:hover { background-color: var(--c2l); color:var(--c1d); }
-        .dash-nav button.active-tab, .btn.bp { background-color: var(--c1); color: white; border-color: var(--c1); }
+        .dash-nav button:hover, .btn:hover { background-color: #e9e9e9; border-color: #ccc; }
+        .dash-nav button.active-tab, .btn.bp { background-color: var(--c1); color: white; border-color: var(--c1d); }
         .dash-nav button.active-tab:hover, .btn.bp:hover { background-color: var(--c1d); }
         .btn.bac { background-color: var(--c2); color:white; border-color: var(--c2); }
         .btn.bac:hover { background-color: #2a5031; }
         .btn-block { display: block; width: 100%; }
         .btn-small { font-size: 0.8rem; padding: 5px 10px; }
 
-        .dash-section { margin-bottom: 30px; }
-        .dash-section h2 { font-size: 1.5rem; color: var(--c1d); border-bottom: 2px solid var(--c2l); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .dash-section { margin-bottom: 25px; }
+        .dash-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .dash-section-header h2 { font-size: 1.3rem; color: var(--c1d); margin:0; padding-bottom:0; border-bottom:none; }
+        .btn-add-new { font-size: 0.8rem; padding: 6px 10px; }
         
-        .dash-filters { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .dash-filters label { font-weight: 500; margin-right: 5px;}
-        .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"], .dash-filters button { padding: 8px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.9rem; }
+        .dash-filters { margin-bottom: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px; background-color: #f9f9f9; border-radius:var(--rad); border: 1px solid var(--border-color); }
+        .dash-filters label { font-weight: 500; margin-right: 4px; font-size:0.85rem;}
+        .dash-filters input[type="date"], .dash-filters select, .dash-filters input[type="text"] { padding: 7px; border: 1px solid var(--bs); border-radius: var(--rad); font-size: 0.85rem; }
         
-        .dash-table-wrapper { max-height: 500px; overflow-y: auto; border: 1px solid var(--bs); margin-bottom:10px; border-radius: var(--rad); }
-        .dash-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .dash-table th, .dash-table td { border-bottom: 1px solid var(--bs); padding: 8px 10px; text-align: left; word-wrap: break-word; vertical-align: top;}
-        .dash-table th { background-color: var(--b2); font-weight: 600; color: var(--c1d); position: sticky; top: 0; z-index: 1; }
-        .dash-table td { background-color: var(--bc); position: relative; } /* For spinner positioning */
-        .dash-table td.editable:hover { background-color: #e9f5ff; cursor: pointer; }
-        .dash-table td input[type="text"], .dash-table td input[type="number"], .dash-table td input[type="date"], .dash-table td select {
-            width: calc(100% - 4px); padding: 6px; font-size: inherit; border: 1px solid var(--c3); border-radius: 3px;
-            background-color: white;
+        .dash-table-wrapper { max-height: 60vh; overflow: auto; border: 1px solid var(--border-color); border-radius: var(--rad); }
+        .dash-table { width: 100%; border-collapse: separate; border-spacing:0; font-size: 0.8rem; }
+        .dash-table th, .dash-table td { border-bottom: 1px solid var(--border-color); padding: 7px 9px; text-align: left; white-space: nowrap; vertical-align: middle;}
+        .dash-table td { border-right: 1px solid var(--border-color); }
+        .dash-table th:last-child, .dash-table td:last-child { border-right: none; }
+        .dash-table thead th { background-color: #f1f3f5; font-weight: 600; color: var(--t1); position: sticky; top: 0; z-index: 10; }
+        .dash-table tbody td { background-color: var(--bc); position: relative; }
+        .dash-table tbody td.editable { cursor: cell; }
+        .dash-table tbody td.editable:hover { background-color: #e6f7ff; }
+        .dash-table td input[type="text"], .dash-table td input[type="number"], .dash-table td input[type="date"], .dash-table td select, .dash-table td textarea {
+            width: calc(100% - 4px); padding: 5px; font-size: inherit; border: 1px solid var(--c3); border-radius: 3px; background-color: white;
+            box-sizing: border-box; line-height: inherit; font-family: inherit;
         }
-        .dash-table tbody tr:nth-child(even) td { background-color: #f9f9f9; }
-        .dash-table tbody tr:nth-child(even) td.editable:hover { background-color: #e2f0fb; }
-        .dash-table tbody tr:hover td:not(.editing) { background-color: #f0f4f8; }
+        .dash-table td textarea { resize: vertical; min-height: 40px; }
+        .dash-table td input[type="checkbox"] { margin: 0; vertical-align: middle; height: 1em; width: 1em; cursor:pointer; }
 
-        .actions-col { width: 80px; text-align: center;} /* Reduced width as delete is removed */
+        .actions-col { width: 80px; text-align: center; white-space: nowrap;}
         .currency { text-align: right; }
-        .status-paid { color: #2ecc71; font-weight: bold; }
-        .status-pending { color: #f39c12; }
-        .status-failed { color: #e74c3c; }
+        .status-paid { background-color: #d4edda; color: #155724; padding: 3px 6px; border-radius: var(--rad); display: inline-block; }
+        .status-pending { background-color: #fff3cd; color: #856404; padding: 3px 6px; border-radius: var(--rad); display: inline-block; }
+        .status-failed { background-color: #f8d7da; color: #721c24; padding: 3px 6px; border-radius: var(--rad); display: inline-block; }
         
-        .pnl-summary { background-color: var(--b1); padding: 15px; border-radius: var(--rad); border: 1px solid var(--bs); }
-        .pnl-summary div { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--bs); }
+        .pnl-summary { background-color: var(--b1); padding: 15px; border-radius: var(--rad); border: 1px solid var(--bs); font-size: 0.9rem; }
+        .pnl-summary div { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed #eee; }
         .pnl-summary div:last-child { border-bottom: none; }
         .pnl-summary strong { color: var(--c1d); }
-        .pnl-profit { color: var(--c2); font-size: 1.1rem; }
-        .pnl-loss { color: #e74c3c; font-size: 1.1rem; }
+        .pnl-profit { color: var(--c2); font-size: 1.05rem; }
+        .pnl-loss { color: #e74c3c; font-size: 1.05rem; }
         
         .login-form { max-width: 400px; margin: 30px auto; padding: 20px; border: 1px solid var(--bs); border-radius: var(--rad); background-color: var(--b1); }
         .login-form .fg { margin-bottom: 15px; }
@@ -82,12 +86,8 @@
         .load-text { text-align: center; color: var(--tm); padding: 20px; font-weight: bold; }
         .pagination { margin-top: 15px; text-align: center; }
         .pagination button { margin: 0 5px; }
-        .json-viewer { background-color: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: var(--rad); font-size: 0.8em; white-space: pre-wrap; max-height: 200px; overflow: auto; margin-top: 5px;}
-        .cell-saving-spinner {
-            display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,.1);
-            border-left-color: var(--c2); border-radius: 50%; animation: spin 0.6s linear infinite;
-            margin-left: 5px; vertical-align: middle;
-        }
+        .json-viewer { background-color: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: var(--rad); font-size: 0.8em; white-space: pre-wrap; max-height: 150px; overflow: auto; margin-top: 5px;}
+        .cell-saving-spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,0,0,.1); border-left-color: var(--c2); border-radius: 50%; animation: spin 0.6s linear infinite; margin-left: 5px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
         [x-cloak] { display: none !important; }
     </style>
@@ -146,61 +146,17 @@
 
             <template x-if="activeTab !== 'pnl' && activeTab !== 'settings'">
                 <section class="dash-section">
-                    <h2>
-                        <span x-text="getTabTitle(activeTab)"></span>
-                        <a :href="getPbAdminCreateUrl(getCollectionNameForTab(activeTab))" target="_blank" class="btn bp btn-small" x-show="getCollectionNameForTab(activeTab)">+ New (Admin UI)</a>
-                    </h2>
+                    <div class="dash-section-header">
+                        <h2 x-text="getTabTitle(activeTab)"></h2>
+                        <a :href="getPbAdminCreateUrl(getCollectionNameForTab(activeTab))" target="_blank" class="btn bp btn-add-new" x-show="getCollectionNameForTab(activeTab)">+ New (Admin UI)</a>
+                    </div>
                     <div x-show="loading.current" class="load-text" x-text="`Loading ${getTabTitle(activeTab).toLowerCase()}...`"></div>
                     <div class="dash-table-wrapper" x-show="!loading.current && data[getCollectionNameForTab(activeTab)]?.items.length > 0">
                         <table class="dash-table">
                             <thead> <tr x-html="getTableHeaders(activeTab)"></tr> </thead>
                             <tbody>
                                 <template x-for="(item, index) in data[getCollectionNameForTab(activeTab)]?.items" :key="item.id">
-                                    <tr>
-                                        <!-- Dynamically generated cells based on activeTab -->
-                                        <template x-if="activeTab === 'orders'">
-                                            <td @click="startInlineEdit(getCollectionNameForTab(activeTab), item.id, 'order_id_text', $event)" :class="{'editable': isEditableField(getCollectionNameForTab(activeTab), 'order_id_text')}">
-                                                <span x-show="!isEditing(item.id, 'order_id_text')" x-text="item.order_id_text"></span>
-                                                <input type="text" x-show="isEditing(item.id, 'order_id_text')" x-model="editFormData.order_id_text" 
-                                                       @blur="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'order_id_text')" 
-                                                       @keydown.enter="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'order_id_text')"
-                                                       @keydown.escape="cancelInlineEdit()" x-ref="`input-${item.id}-order_id_text`">
-                                                <span x-show="isSaving(item.id, 'order_id_text')" class="cell-saving-spinner"></span>
-                                            </td>
-                                            <td x-text="formatDate(item.created)"></td>
-                                            <td @click="startInlineEdit(getCollectionNameForTab(activeTab), item.id, 'ordering_person_name', $event)" class="editable">
-                                                <span x-show="!isEditing(item.id, 'ordering_person_name')" x-text="item.ordering_person_name"></span>
-                                                <input type="text" x-show="isEditing(item.id, 'ordering_person_name')" x-model="editFormData.ordering_person_name" @blur="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'ordering_person_name')" @keydown.enter="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'ordering_person_name')" @keydown.escape="cancelInlineEdit()" x-ref="`input-${item.id}-ordering_person_name`">
-                                                <span x-show="isSaving(item.id, 'ordering_person_name')" class="cell-saving-spinner"></span>
-                                            </td>
-                                            <td x-text="item.ordered_product_name_en || item.ordered_product_name_ar"></td>
-                                            <td class="currency" x-text="formatCurrency(item.total_amount_due_egp, 'EGP', 0)"></td>
-                                            <td><span :class="{ 'status-paid': item.payment_status === 'paid_confirmed', 'status-pending': item.payment_status.includes('pending') || item.payment_status.includes('review'), 'status-failed': item.payment_status === 'failed' }" x-text="item.payment_status?.replace(/_/g, ' ')"></span></td>
-                                            <td x-text="item.order_status?.replace(/_/g, ' ')"></td>
-                                        </template>
-                                        <template x-if="activeTab === 'expenses'">
-                                            <td x-text="formatDate(item.expense_date)"></td>
-                                            <td @click="startInlineEdit(getCollectionNameForTab(activeTab), item.id, 'category', $event)" class="editable">
-                                                <span x-show="!isEditing(item.id, 'category')" x-text="item.category"></span>
-                                                <input type="text" x-show="isEditing(item.id, 'category')" x-model="editFormData.category" @blur="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'category')" @keydown.enter="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'category')" @keydown.escape="cancelInlineEdit()" x-ref="`input-${item.id}-category`">
-                                                <span x-show="isSaving(item.id, 'category')" class="cell-saving-spinner"></span>
-                                            </td>
-                                            <td @click="startInlineEdit(getCollectionNameForTab(activeTab), item.id, 'description', $event)" class="editable">
-                                                <span x-show="!isEditing(item.id, 'description')" x-text="item.description"></span>
-                                                <input type="text" x-show="isEditing(item.id, 'description')" x-model="editFormData.description" @blur="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'description')" @keydown.enter="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'description')" @keydown.escape="cancelInlineEdit()" x-ref="`input-${item.id}-description`">
-                                                <span x-show="isSaving(item.id, 'description')" class="cell-saving-spinner"></span>
-                                            </td>
-                                            <td @click="startInlineEdit(getCollectionNameForTab(activeTab), item.id, 'amount_egp', $event)" class="currency editable">
-                                                <span x-show="!isEditing(item.id, 'amount_egp')" x-text="formatCurrency(item.amount_egp, 'EGP', 0)"></span>
-                                                <input type="number" x-show="isEditing(item.id, 'amount_egp')" x-model.number="editFormData.amount_egp" @blur="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'amount_egp')" @keydown.enter="saveInlineEdit(getCollectionNameForTab(activeTab), item.id, 'amount_egp')" @keydown.escape="cancelInlineEdit()" x-ref="`input-${item.id}-amount_egp`" step="0.01">
-                                                <span x-show="isSaving(item.id, 'amount_egp')" class="cell-saving-spinner"></span>
-                                            </td>
-                                        </template>
-                                        <!-- Add more templates for other tabs (animals, products, etc.) similarly -->
-                                        <td class="actions-col">
-                                            <a :href="getPbAdminEditUrl(getCollectionNameForTab(activeTab), item.id)" target="_blank" class="btn bp">Full Edit</a>
-                                        </td>
-                                    </tr>
+                                    <tr x-html="getTableRowHtml(activeTab, item, index)"></tr>
                                 </template>
                             </tbody>
                         </table>
@@ -216,16 +172,19 @@
 
             <div x-show="activeTab === 'settings'">
                  <section class="dash-section">
-                    <h2><span>Application Settings</span></h2>
+                    <div class="dash-section-header"><h2>Application Settings</h2> </div>
                     <div x-show="loading.current" class="load-text">Loading settings...</div>
                     <div x-show="!loading.current && data.settings?.items.length > 0">
                         <template x-for="item in data.settings.items" :key="item.id">
                             <div class="card" style="padding: 15px; font-size:0.9rem;">
-                                <!-- Display settings fields, for brevity keeping it simple. Editing via PB Admin UI. -->
-                                <p><strong>Default Currency:</strong> <span x-text="item.defCurr"></span></p>
-                                <p><strong>Promo Active:</strong> <span x-text="item.promoActive ? 'Yes' : 'No'"></span></p>
-                                <div><strong>All Settings Data:</strong> <pre class="json-viewer" x-text="JSON.stringify(item, null, 2)"></pre></div>
-                                <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Settings in Admin UI</a>
+                                <template x-for="(value, key) in item" :key="key">
+                                    <div x-show="!['id', 'collectionId', 'collectionName', 'created', 'updated', 'expand'].includes(key)" style="margin-bottom:8px; padding-bottom:8px; border-bottom: 1px solid #eee;">
+                                        <strong style="text-transform: capitalize; color: var(--c1d);" x-text="key.replace(/([A-Z])/g, ' $1').trim() + ':'"></strong>
+                                        <div x-show="typeof value === 'object'" class="json-viewer" x-text="JSON.stringify(value, null, 2)"></div>
+                                        <span x-show="typeof value !== 'object'" x-text="value"></span>
+                                    </div>
+                                </template>
+                                <a :href="getPbAdminEditUrl('settings', item.id)" target="_blank" class="btn bp" style="margin-top:15px;">Edit Full Settings in Admin UI</a>
                             </div>
                         </template>
                     </div>
@@ -239,7 +198,7 @@
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script>
 document.addEventListener('alpine:init', () => {
-    const ADM_E_PLACEHOLDER = 'admin@example.com';
+    const ADM_E_PLACEHOLDER = 'admin@example.com'; // Default for login form
     Alpine.data('adminDashboard', () => ({
         pb: null,
         isAdminAuth: false,
@@ -259,9 +218,8 @@ document.addEventListener('alpine:init', () => {
         filterStartDate: '',
         filterEndDate: '',
         pbAdminUrl: '',
-        // Inline editing state
-        editingCell: { recordId: null, field: null, collection: null, originalValue: null },
-        editFormData: {}, // Holds temporary values for the input being edited
+        editingCell: { recordId: null, field: null, collection: null, originalValue: null, type: 'text', options: [] },
+        editFormData: {}, 
         savingCell: { recordId: null, field: null },
 
         initDashboard() {
@@ -311,7 +269,7 @@ document.addEventListener('alpine:init', () => {
         
         async switchTab(tabName) {
             this.activeTab = tabName;
-            this.cancelInlineEdit(); // Cancel any ongoing edit when switching tabs
+            this.cancelInlineEdit();
             await this.refreshCurrentTabData();
         },
 
@@ -334,166 +292,289 @@ document.addEventListener('alpine:init', () => {
             return titles[tabKey] || 'Data';
         },
 
-        async fetchPnlData() { /* ... same as previous version ... */ },
-        async fetchPaginatedData(collectionName, page = 1) { /* ... same as previous version ... */ },
-        handleFetchError(error, context) { /* ... same as previous version ... */ },
-        async changePage(collectionName, newPage) { /* ... same as previous version ... */ },
-        calculatePnlSummary(ordersData, expensesData) { /* ... same as previous version ... */ },
+        async fetchPnlData() {
+            if (!this.isAdminAuth) return;
+            this.loading.pnl = true;
+            let ordersForPnl = []; let expensesForPnl = [];
+            let orderFilter = `payment_status = "paid_confirmed"`;
+            let expenseFilter = '';
+
+            if (this.filterStartDate && this.filterEndDate) {
+                const start = `${this.filterStartDate} 00:00:00.000Z`; const end = `${this.filterEndDate} 23:59:59.999Z`;
+                orderFilter += ` && created >= "${start}" && created <= "${end}"`;
+                expenseFilter = `expense_date >= "${this.filterStartDate}" && expense_date <= "${this.filterEndDate}"`;
+            }
+            
+            try {
+                ordersForPnl = await this.pb.collection('orders').getFullList({ filter: orderFilter, sort: '-created' });
+                const expenseParams = { sort: '-expense_date' };
+                if (expenseFilter) expenseParams.filter = expenseFilter;
+                expensesForPnl = await this.pb.collection('expenses').getFullList(expenseParams);
+                this.calculatePnlSummary(ordersForPnl, expensesForPnl);
+            } catch (error) { this.handleFetchError(error, 'P&L'); } 
+            finally { this.loading.pnl = false; }
+        },
         
-        // --- Inline Editing Logic ---
-        isEditableField(collectionName, fieldName) {
-            // Define which fields are editable per collection (simple fields for now)
-            const editableMap = {
-                orders: ['order_id_text', 'ordering_person_name', 'total_amount_due_egp', 'payment_status', 'order_status'], // Example
-                expenses: ['category', 'description', 'amount_egp', 'expense_date'],
-                // Add more for other collections if desired
-            };
-            return editableMap[collectionName]?.includes(fieldName) || false;
+        async fetchPaginatedData(collectionName, page = 1) {
+            if (!this.isAdminAuth) return;
+            this.loading.current = true;
+            const currentDataState = this.data[collectionName];
+            currentDataState.page = page;
+
+            const params = { page: page, perPage: currentDataState.perPage, sort: '-created' };
+            let expandFields = [];
+
+            if (collectionName === 'orders') {
+                 params.sort = '-created'; expandFields.push('animal_id');
+                 let filter = 'id != ""'; 
+                 if (this.filterStartDate && this.filterEndDate) {
+                    filter += ` && created >= "${this.filterStartDate} 00:00:00.000Z" && created <= "${this.filterEndDate} 23:59:59.999Z"`;
+                 }
+                 params.filter = filter;
+            }
+            if (collectionName === 'expenses') {
+                params.sort = '-expense_date';
+                if (this.filterStartDate && this.filterEndDate) {
+                    params.filter = `expense_date >= "${this.filterStartDate}" && expense_date <= "${this.filterEndDate}"`;
+                }
+            }
+            if (collectionName === 'sheep_log') { params.sort = '-acquisition_date'; expandFields.push('sale_order_id');}
+            if (collectionName === 'animal_events') { params.sort = '-event_date'; expandFields.push('animal_id');}
+            if (collectionName === 'products') { params.sort = 'type_key,sort_order_variant';}
+            
+            if(expandFields.length > 0) params.expand = expandFields.join(',');
+
+            try {
+                const resultList = await this.pb.collection(collectionName).getList(page, currentDataState.perPage, params);
+                currentDataState.items = resultList.items;
+                currentDataState.totalPages = resultList.totalPages;
+                currentDataState.totalItems = resultList.totalItems;
+            } catch (error) { this.handleFetchError(error, collectionName); currentDataState.items = []; }
+            finally { this.loading.current = false; }
+        },
+        
+        handleFetchError(error, context) {
+            console.error(`Error fetching ${context}:`, error);
+            this.authError = `Failed to load data for ${context}. Check console.`;
+            if (error.status === 401 || error.status === 403) {
+                this.isAdminAuth = false; this.authError = 'Session expired or unauthorized. Please login again.';
+            }
         },
 
-        isEditing(recordId, field) {
-            return this.editingCell.recordId === recordId && this.editingCell.field === field;
+        async changePage(collectionName, newPage) {
+            if (newPage >= 1 && newPage <= this.data[collectionName].totalPages) {
+                await this.fetchPaginatedData(collectionName, newPage);
+            }
         },
-        isSaving(recordId, field) {
-            return this.savingCell.recordId === recordId && this.savingCell.field === field;
+        
+        calculatePnlSummary(ordersData, expensesData) {
+            this.pnl.totalRevenue = ordersData.reduce((sum, order) => sum + (order.total_amount_due_egp || 0), 0);
+            this.pnl.totalCOGS = ordersData.reduce((sum, order) => sum + (order.cost_of_animal_egp || 0), 0);
+            this.pnl.grossProfit = this.pnl.totalRevenue - this.pnl.totalCOGS;
+            this.pnl.totalExpenses = expensesData.reduce((sum, expense) => sum + (expense.amount_egp || 0), 0);
+            this.pnl.netProfit = this.pnl.grossProfit - this.pnl.totalExpenses;
+        },
+        
+        getSelectOptionsForField(collectionName, fieldName) {
+            const schema = this.pb.getCollection(collectionName)?.schema;
+            const fieldSchema = schema?.find(f => f.name === fieldName);
+            return fieldSchema?.options?.values || [];
         },
 
-        startInlineEdit(collectionName, recordId, field, event) {
-            if (!this.isEditableField(collectionName, field)) return;
-            if (this.editingCell.recordId && (this.editingCell.recordId !== recordId || this.editingCell.field !== field)) {
-                // If already editing another cell, try to save it first or cancel
-                // For simplicity, we'll just cancel the previous edit. A more robust UX might prompt to save.
+        isFieldInlineEditable(collectionName, fieldName) {
+            const schema = this.pb.getCollection(collectionName)?.schema;
+            if (!schema) return null;
+            const fieldSchema = schema.find(f => f.name === fieldName);
+            if (!fieldSchema) return null;
+
+            // Define which specific fields are editable, and their types
+            // This is more robust than a generic map as it uses the actual schema
+            const simpleEditableTypes = ['text', 'number', 'date', 'email', 'url'];
+            if (simpleEditableTypes.includes(fieldSchema.type)) return fieldSchema.type;
+            if (fieldSchema.type === 'select' && !fieldSchema.options.maxSelect || fieldSchema.options.maxSelect === 1) return 'select';
+            if (fieldSchema.type === 'bool') return 'boolean';
+            
+            return null; // Not inline editable by default
+        },
+
+        isEditing(recordId, field) { return this.editingCell.recordId === recordId && this.editingCell.field === field; },
+        isSaving(recordId, field) { return this.savingCell.recordId === recordId && this.savingCell.field === field; },
+
+        startInlineEdit(collectionName, recordId, fieldName, event) {
+            const fieldType = this.isFieldInlineEditable(collectionName, fieldName);
+            if (!fieldType) return;
+
+            if (this.editingCell.recordId && (this.editingCell.recordId !== recordId || this.editingCell.field !== fieldName)) {
                 this.cancelInlineEdit();
             }
+            
             const record = this.data[collectionName]?.items.find(item => item.id === recordId);
             if (record) {
-                this.editingCell = { recordId, field, collection: collectionName, originalValue: record[field] };
-                this.editFormData = { ...record }; // Clone record data for editing form
+                let options = [];
+                if (fieldType === 'select') {
+                    options = this.getSelectOptionsForField(collectionName, fieldName);
+                }
+                this.editingCell = { recordId, field: fieldName, collection: collectionName, originalValue: record[fieldName], type: fieldType, options: options };
+                this.editFormData = { ...record }; 
+                
                 this.$nextTick(() => {
-                    const inputEl = this.$refs[`input-${recordId}-${field}`];
-                    if (inputEl) inputEl.focus();
+                    const targetTd = event.target.closest('td');
+                    const inputElement = targetTd ? targetTd.querySelector('input, select, textarea') : null;
+                    if (inputElement) {
+                        inputElement.focus();
+                        if (inputElement.select && typeof inputElement.select === 'function') inputElement.select();
+                    }
                 });
             }
         },
 
         cancelInlineEdit() {
-            this.editingCell = { recordId: null, field: null, collection: null, originalValue: null };
+            this.editingCell = { recordId: null, field: null, collection: null, originalValue: null, type: 'text', options: [] };
             this.editFormData = {};
         },
 
-        async saveInlineEdit(collectionName, recordId, field) {
-            if (!this.editingCell.recordId || this.editingCell.recordId !== recordId || this.editingCell.field !== field) return; // Not in edit mode for this cell
+        async saveInlineEdit(collectionName, recordId, fieldName) {
+            if (!this.editingCell.recordId || this.editingCell.recordId !== recordId || this.editingCell.field !== fieldName) return;
 
-            const newValue = this.editFormData[field];
-            if (newValue === this.editingCell.originalValue) {
-                this.cancelInlineEdit(); // No change
-                return;
+            let newValue = this.editFormData[fieldName];
+            if (this.editingCell.type === 'number' && typeof newValue === 'string') newValue = parseFloat(newValue);
+            if (this.editingCell.type === 'boolean') newValue = !!newValue; // Coerce to boolean
+
+            if (newValue === this.editingCell.originalValue && this.editingCell.type !== 'boolean') { // Boolean might change from undefined to false
+                this.cancelInlineEdit(); return;
             }
 
-            this.savingCell = { recordId, field };
+            this.savingCell = { recordId, field: fieldName };
             try {
-                const dataToUpdate = { [field]: newValue };
+                const dataToUpdate = { [fieldName]: newValue };
                 await this.pb.collection(collectionName).update(recordId, dataToUpdate);
                 
-                // Update local data
                 const recordIndex = this.data[collectionName].items.findIndex(item => item.id === recordId);
                 if (recordIndex > -1) {
-                    this.data[collectionName].items[recordIndex][field] = newValue;
+                    this.data[collectionName].items[recordIndex][fieldName] = newValue;
                 }
-                log(`Record ${recordId} in ${collectionName}, field ${field} updated to: ${newValue}`, 's');
-                if (['orders', 'expenses', 'sheep_log'].includes(collectionName)) { // If COGS or Expenses source changes
-                    await this.fetchPnlData(); // Recalculate P&L
+                console.log(`Record ${recordId} in ${collectionName}, field ${fieldName} updated to: ${newValue}`);
+                if (['orders', 'expenses', 'sheep_log'].includes(collectionName)) { 
+                    await this.fetchPnlData(); 
                 }
-
             } catch (error) {
-                console.error(`Error updating ${collectionName}.${field} for record ${recordId}:`, error);
-                alert(`Failed to save change for ${field}. Value reverted. Error: ${error.message}`);
-                // Revert UI if needed, or re-fetch record:
-                // For simplicity, we just cancel edit, user might have to re-edit.
-                // A more robust way would be to restore editFormData[field] = this.editingCell.originalValue;
+                console.error(`Error updating ${collectionName}.${fieldName} for ${recordId}:`, error);
+                alert(`Failed to save change for ${fieldName}. Error: ${error.message}`);
+                // Optionally revert in UI: this.data[collectionName].items[recordIndex][fieldName] = this.editingCell.originalValue;
             } finally {
-                this.cancelInlineEdit(); // Clears editingCell
+                this.cancelInlineEdit();
                 this.savingCell = { recordId: null, field: null };
             }
         },
-        // --- End Inline Editing Logic ---
 
-
-        formatDate(dateString) { /* ... same as previous version ... */ },
-        formatCurrency(amount, currency = 'EGP', digits = 0) { /* ... same as previous version ... */ },
+        formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try { const date = new Date(dateString); return date.toLocaleDateString('en-CA'); } 
+            catch (e) { return dateString; }
+        },
+        formatCurrency(amount, currency = 'EGP', digits = 0) {
+            if (typeof amount !== 'number' && amount !== 0) return amount === null || amount === undefined ? 'N/A' : amount;
+            const options = { style: 'currency', currency: currency, minimumFractionDigits: digits, maximumFractionDigits: digits };
+            try { return new Intl.NumberFormat('en-US', options).format(amount); }
+            catch (e) { return `${currency} ${Number(amount).toFixed(digits)}`; }
+        },
         
-        // Dynamic table rendering (updated to call isEditableField)
         getTableHeaders(tabKey) {
             const collName = this.getCollectionNameForTab(tabKey);
             let headers = '';
-            if (collName === 'orders') headers = `<th>Order ID</th><th>Date</th><th>Customer</th><th>Product</th><th class="currency">Total</th><th>Payment</th><th>Status</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'expenses') headers = `<th>Date</th><th>Category</th><th>Description</th><th class="currency">Amount</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'sheep_log') headers = `<th>Tag ID</th><th>Breed</th><th>Acq. Date</th><th class="currency">Acq. Cost</th><th>Status</th><th>Sold Order</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'animal_events') headers = `<th>Animal Tag</th><th>Event Date</th><th>Type</th><th>Description</th><th class="currency">Cost</th><th class="actions-col">Actions</th>`;
-            else if (collName === 'products') headers = `<th>Key</th><th>Variant</th><th class="currency">Price</th><th>Stock</th><th>Active</th><th class="actions-col">Actions</th>`;
-            return headers;
+            if (collName === 'orders') headers = `<th>Order ID</th><th>Date</th><th>Customer</th><th>Product</th><th class="currency">Total</th><th>Payment Status</th><th>Order Status</th><th class="actions-col">Admin Link</th>`;
+            else if (collName === 'expenses') headers = `<th>Date</th><th>Category</th><th>Description</th><th class="currency">Amount</th><th class="actions-col">Admin Link</th>`;
+            else if (collName === 'sheep_log') headers = `<th>Tag ID</th><th>Breed</th><th>Acq. Date</th><th class="currency">Acq. Cost</th><th>Status</th><th>Sold Order</th><th class="actions-col">Admin Link / Event</th>`;
+            else if (collName === 'animal_events') headers = `<th>Animal Tag</th><th>Event Date</th><th>Type</th><th>Description</th><th class="currency">Cost</th><th class="actions-col">Admin Link</th>`;
+            else if (collName === 'products') headers = `<th>Key</th><th>Variant</th><th class="currency">Price</th><th>Stock</th><th>Active</th><th class="actions-col">Admin Link</th>`;
+            return `<tr>${headers}</tr>`;
         },
-        getTableRow(tabKey, item) {
+        getTableRowHtml(tabKey, item, index) {
             const collName = this.getCollectionNameForTab(tabKey);
-            let rowHtml = '';
-            const editUrl = this.getPbAdminEditUrl(collName, item.id);
+            let cells = '';
+            const adminEditUrl = this.getPbAdminEditUrl(collName, item.id);
 
-            const simpleCell = (fieldName, displayValue, isCurrency = false, isEditableByMe = true) => {
-                const editableClass = this.isEditableField(collName, fieldName) && isEditableByMe ? 'editable' : '';
-                const clickHandler = editableClass ? `@click="startInlineEdit('${collName}', '${item.id}', '${fieldName}', $event)"` : '';
-                const currencyClass = isCurrency ? 'currency' : '';
+            const renderCell = (fieldName, displayValue, isCurrency = false, customClass = '', fieldTypeOverride = null) => {
+                const actualFieldType = fieldTypeOverride || this.isFieldInlineEditable(collName, fieldName);
+                const editableClass = actualFieldType ? 'editable' : '';
+                const clickHandler = editableClass ? ` @click="startInlineEdit('${collName}', '${item.id}', '${fieldName}', $event)"` : '';
                 
-                let valueSpan = `<span x-show="!isEditing('${item.id}', '${fieldName}')">${displayValue}</span>`;
-                let inputField = '';
-                if (editableClass) {
-                    const inputType = typeof item[fieldName] === 'number' ? 'number' : (fieldName.includes('date') ? 'date' : 'text');
-                    const step = inputType === 'number' && !Number.isInteger(item[fieldName]) ? '0.01' : (inputType === 'number' ? '1' : '');
-                    inputField = `<input type="${inputType}" ${step ? `step="${step}"` : ''} class="input" style="width:100%;" x-show="isEditing('${item.id}', '${fieldName}')" x-model${inputType === 'number' ? '.number' : ''}="editFormData.${fieldName}" 
-                                        @blur="saveInlineEdit('${collName}', '${item.id}', '${fieldName}')" 
-                                        @keydown.enter.prevent="saveInlineEdit('${collName}', '${item.id}', '${fieldName}')"
-                                        @keydown.escape.prevent="cancelInlineEdit()" x-ref="input-${item.id}-${fieldName}">`;
+                let content = `<span x-show="!isEditing('${item.id}', '${fieldName}')">${displayValue !== undefined && displayValue !== null ? this.escapeHtml(displayValue.toString()) : 'N/A'}</span>`;
+                if (actualFieldType) {
+                    let inputHtml = '';
+                    const commonInputAttrs = `x-show="isEditing('${item.id}', '${fieldName}')" x-model="editFormData.${fieldName}" 
+                                            @blur="saveInlineEdit('${collName}', '${item.id}', '${fieldName}')" 
+                                            @keydown.enter.prevent="saveInlineEdit('${collName}', '${item.id}', '${fieldName}')"
+                                            @keydown.escape.prevent="cancelInlineEdit()" x-ref="input-${item.id}-${fieldName}"
+                                            class="input" style="width:100%; padding:4px; font-size:inherit;"`;
+                    
+                    if (actualFieldType === 'select') {
+                        inputHtml = `<select ${commonInputAttrs}>`;
+                        this.editingCell.options?.forEach(opt => { // Use options from editingCell if available
+                            inputHtml += `<option value="${this.escapeHtml(opt)}" :selected="'${this.escapeHtml(opt)}' === editFormData.${fieldName}">${this.escapeHtml(opt)}</option>`;
+                        });
+                        inputHtml += `</select>`;
+                    } else if (actualFieldType === 'boolean') {
+                        inputHtml = `<input type="checkbox" ${commonInputAttrs.replace(/x-model="[^"]+"/, '')} :checked="editFormData.${fieldName}" @change="editFormData.${fieldName} = $event.target.checked; saveInlineEdit('${collName}', '${item.id}', '${fieldName}')">`;
+                    } else if (actualFieldType === 'textarea') {
+                         inputHtml = `<textarea ${commonInputAttrs} rows="2"></textarea>`;
+                    } else {
+                        const inputType = actualFieldType === 'number' ? 'number' : (actualFieldType === 'date' ? 'date' : 'text');
+                        const step = inputType === 'number' && !Number.isInteger(item[fieldName]) ? '0.01' : (inputType === 'number' ? '1' : '');
+                        inputHtml = `<input type="${inputType}" ${step ? `step="${step}"` : ''} ${commonInputAttrs}>`;
+                    }
+                    content += inputHtml;
                 }
                 const savingSpinner = `<span x-show="isSaving('${item.id}', '${fieldName}')" class="cell-saving-spinner"></span>`;
-                return `<td class="${editableClass} ${currencyClass}" ${clickHandler}>${valueSpan}${inputField}${savingSpinner}</td>`;
+                return `<td class="${editableClass} ${isCurrency ? 'currency' : ''} ${customClass}" ${clickHandler}>${content}${savingSpinner}</td>`;
             };
-            
+
             if (collName === 'orders') {
-                rowHtml = simpleCell('order_id_text', item.order_id_text) +
-                          `<td>${this.formatDate(item.created)}</td>` +
-                          simpleCell('ordering_person_name', item.ordering_person_name) +
-                          `<td>${item.ordered_product_name_en || item.ordered_product_name_ar || ''}</td>` +
-                          simpleCell('total_amount_due_egp', this.formatCurrency(item.total_amount_due_egp, 'EGP', 0), true, false) + // Total not usually inline editable
-                          `<td><span :class="{ 'status-paid': '${item.payment_status}' === 'paid_confirmed', 'status-pending': '${item.payment_status}'.includes('pending') || '${item.payment_status}'.includes('review'), 'status-failed': '${item.payment_status}' === 'failed' }">${item.payment_status?.replace(/_/g, ' ')}</span></td>` +
-                          `<td>${item.order_status?.replace(/_/g, ' ')}</td>`;
+                cells = renderCell('order_id_text', item.order_id_text) +
+                        `<td>${this.formatDate(item.created)}</td>` +
+                        renderCell('ordering_person_name', item.ordering_person_name) +
+                        `<td>${this.escapeHtml(item.ordered_product_name_en || item.ordered_product_name_ar || '')}</td>` +
+                        `<td>${this.formatCurrency(item.total_amount_due_egp, 'EGP', 0)}</td>` +
+                        renderCell('payment_status', item.payment_status?.replace(/_/g, ' '), false, '', 'select') +
+                        renderCell('order_status', item.order_status?.replace(/_/g, ' '), false, '', 'select');
             } else if (collName === 'expenses') {
-                rowHtml = simpleCell('expense_date', this.formatDate(item.expense_date), false, true) + // Making date editable too
-                          simpleCell('category', item.category) +
-                          simpleCell('description', item.description) +
-                          simpleCell('amount_egp', this.formatCurrency(item.amount_egp, 'EGP', 0), true);
+                cells = renderCell('expense_date', this.formatDate(item.expense_date), false, '', 'date') +
+                        renderCell('category', item.category) +
+                        renderCell('description', item.description, false, '', 'textarea') +
+                        renderCell('amount_egp', this.formatCurrency(item.amount_egp, 'EGP', 0), true, '', 'number');
             } else if (collName === 'sheep_log') {
-                 rowHtml = simpleCell('animal_tag_id', item.animal_tag_id) +
-                           simpleCell('breed', item.breed || 'N/A') +
+                 cells = renderCell('animal_tag_id', item.animal_tag_id) +
+                           renderCell('breed', item.breed || 'N/A') +
                            `<td>${this.formatDate(item.acquisition_date)}</td>` +
-                           simpleCell('acquisition_cost_egp', this.formatCurrency(item.acquisition_cost_egp, 'EGP', 0), true) +
-                           simpleCell('current_status', item.current_status) + // Could be a select if we build more complex inline
+                           renderCell('acquisition_cost_egp', this.formatCurrency(item.acquisition_cost_egp, 'EGP', 0), true, '', 'number') +
+                           renderCell('current_status', item.current_status, false, '', 'select') +
                            `<td>${item.expanded?.sale_order_id?.order_id_text || (item.sale_order_id ? '...' : 'N/A')}</td>`;
             } else if (collName === 'animal_events') {
-                 rowHtml = `<td>${item.expanded?.animal_id?.animal_tag_id || 'N/A'}</td>` +
+                 cells = `<td>${item.expanded?.animal_id?.animal_tag_id || 'N/A'}</td>` +
                            `<td>${this.formatDate(item.event_date)}</td>` +
-                           simpleCell('event_type', item.event_type) + // Could be a select
-                           simpleCell('description', item.description) +
-                           simpleCell('cost_associated_egp', this.formatCurrency(item.cost_associated_egp, 'EGP', 0), true);
+                           renderCell('event_type', item.event_type, false, '', 'select') +
+                           renderCell('description', item.description, false, '', 'textarea') +
+                           renderCell('cost_associated_egp', this.formatCurrency(item.cost_associated_egp, 'EGP', 0), true, '', 'number');
             } else if (collName === 'products') {
-                rowHtml = simpleCell('item_key', item.item_key, false, false) + // Item key likely not editable after creation
-                          simpleCell('variant_name_en', item.variant_name_en) +
-                          simpleCell('base_price_egp', this.formatCurrency(item.base_price_egp, 'EGP', 0), true) +
-                          simpleCell('stock_available_pb', item.stock_available_pb, false, true) + // Number editable
-                          `<td>${item.is_active ? 'Yes':'No'}</td>`; // Boolean could be checkbox
+                cells = `<td>${item.item_key}</td>` +
+                          renderCell('variant_name_en', item.variant_name_en) +
+                          renderCell('base_price_egp', this.formatCurrency(item.base_price_egp, 'EGP', 0), true, '', 'number') +
+                          renderCell('stock_available_pb', item.stock_available_pb, false, '', 'number') +
+                          renderCell('is_active', item.is_active, false, '', 'boolean');
             }
-            rowHtml += `<td class="actions-col"><a href="${editUrl}" target="_blank" class="btn bp">Details</a></td>`;
-             if(collName === 'sheep_log') rowHtml += `<td><a href="${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}" target="_blank" class="btn bp btn-small" title="Add Event">+Evt</a></td>`;
+            cells += `<td class="actions-col"><a href="${adminEditUrl}" target="_blank" class="btn bp btn-small">Details</a></td>`;
+            if(collName === 'sheep_log') {
+                 cells += `<td class="actions-col"><a href="${this.getPbAdminCreateUrl('animal_events')}?animal_id=${item.id}" target="_blank" class="btn bp btn-small" title="Add Event">+Evt</a></td>`;
+            } else if (collName !== 'animal_events' && collName !== 'products') { // Add empty cell if no second action column
+                cells += `<td></td>`;
+            }
 
-            return rowHtml;
+
+            return cells;
+        },
+        escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return unsafe;
+            return unsafe.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "'");
         }
 
     }));
