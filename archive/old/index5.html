@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Sheep Land | Udhiya Booking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles5.css">
+</head>
+<body>
+    <nav class="main-navbar">
+        <div class="c nav-container">
+            <div class="nav-brand">
+                <a href="#" class="en">Sheep Land</a>
+                <a href="#" class="ar" lang="ar">أرض الأغنام</a>
+            </div>
+            <div class="nav-actions">
+                <a href="https://wa.me/201117117489" target="_blank" class="nav-link nav-whatsapp">
+                    <svg viewBox="0 0 24 24" class="nav-whatsapp-icon"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.96 2.76 15.89 3.82 17.5L2 22L6.65 20.25C8.12 21.18 9.87 21.75 11.78 21.75H12.03C17.49 21.75 21.94 17.3 21.94 11.84C21.94 6.38 17.49 2 12.04 2M16.55 15.26C16.29 15.94 15.31 16.45 14.81 16.55C14.31 16.64 13.62 16.73 12.03 16.05C10.07 15.21 8.68 13.4 8.41 13.12C8.14 12.84 7.3 11.79 7.3 10.59C7.3 9.39 8.03 8.75 8.24 8.5C8.48 8.24 8.79 8.15 9.04 8.15C9.18 8.15 9.31 8.15 9.43 8.16C9.67 8.19 9.83 8.22 10.01 8.53C10.2 8.84 10.58 9.59 10.68 9.73C10.78 9.88 10.83 10.02 10.73 10.19C10.64 10.36 10.56 10.46 10.41 10.63C10.26 10.81 10.13 10.93 10.02 11.09C9.91 11.24 9.81 11.41 10.01 11.72C10.2 12.03 10.78 12.9 11.59 13.63C12.62 14.55 13.4 14.83 13.69 14.97C13.99 15.11 14.22 15.09 14.39 14.9C14.59 14.68 14.79 14.35 15.05 14.04C15.33 13.71 15.64 13.63 15.91 13.73C16.19 13.82 17.08 14.29 17.29 14.5C17.5 14.72 17.61 14.86 17.64 15.01C17.66 15.16 17.61 15.6 16.55 15.26Z"/></svg>
+                    <span class="en">+20 111 711 7489</span>
+                </a>
+                <a href="#faq-support-nav-target" id="navFaqLink" class="nav-link">
+                    <span class="en">Support & FAQ</span>
+                    <span class="ar" lang="ar">الدعم والأسئلة</span>
+                </a>
+                <div class="nav-booking-group">
+                    <div class="currency-selector-container">
+                        <select id="currency-selector">
+                            <option value="USD" data-symbol="$" selected>USD ($)</option>
+                            <option value="EGP" data-symbol="E£">EGP (E£)</option>
+                            <option value="GBP" data-symbol="£">GBP (£)</option>
+                        </select>
+                    </div>
+                    <a href="#livestock-selection-section" id="navBookNowBtn" class="btn bac btn-small nav-book-now">
+                        <span class="en">Start Booking</span>
+                        <span class="ar" lang="ar">ابدأ الحجز</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="c">
+            <div class="page-intro sec-head">
+                <div class="bil-row">
+                    <h1 class="en">Book Your Udhiya Online</h1>
+                    <h1 class="ar" lang="ar">احجز أضحيتك عبر الإنترنت</h1>
+                </div>
+                <div class="bil-row hero-tagline">
+                    <h3 class="en">Farm to Your Table</h3>
+                    <h3 class="ar" lang="ar">من المزرعة إلى مائدتك</h3>
+                </div>
+                <div class="bil-row">
+                    <p class="en">Select your preferred livestock and customize your Qurbani with our straightforward options. We ensure a Sharia-compliant, and transparent service. </p>
+                    <p class="ar" lang="ar">اختر ماشيتك المفضلة وخصص أضحيتك بخياراتنا الواضحة. نضمن لك خدمة متوافقة مع الشريعة، وشفافة. </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="udhiya-booking-process" class="sec">
+            <div class="c">
+
+                <div class="sec-head tc"> <div class="bil-row"> <h2 class="en">Our Livestock</h2> <h2 class="ar" lang="ar">مواشينا</h2> </div> </div>
+
+                <div id="livestock-selection-section" class="order-form-section card card-no-header">
+                    <div class="form-fields-group">
+                        <div class="animal-selector-grid grid2">
+                            <div class="animal-option" data-animal-id="baladi-sheep" data-base-price-usd="280">
+                                <input type="radio" name="udhiya_animal_main_select" value="baladi-sheep" id="animal-baladi-main" checked>
+                                <label for="animal-baladi-main" class="card card-selectable">
+                                    <div class="card-img-sm"><img src="https://placehold.co/120x80/D7CCC8/3E2723?text=Baladi" alt="Baladi Sheep"></div>
+                                    <div class="card-b-sm">
+                                        <div class="bil-row"><h4 class="en">Baladi Sheep</h4><h4 class="ar" lang="ar">خروف بلدي</h4></div>
+                                        <div class="bil-row"><p class="animal-desc en">Rich flavor, well-marbled.</p><p class="animal-desc ar" lang="ar">نكهة غنية، لحم متداخل.</p></div>
+                                        <div class="price-display animal-price-display">
+                                            <span class="price-value en">$280</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="animal-option" data-animal-id="barki-sheep" data-base-price-usd="300">
+                                <input type="radio" name="udhiya_animal_main_select" value="barki-sheep" id="animal-barki-main">
+                                <label for="animal-barki-main" class="card card-selectable">
+                                    <div class="card-img-sm"><img src="https://placehold.co/120x80/EFEBE9/4E342E?text=Barki" alt="Barki Sheep"></div>
+                                    <div class="card-b-sm">
+                                        <div class="bil-row"><h4 class="en">Barki Sheep</h4><h4 class="ar" lang="ar">خروف برقي</h4></div>
+                                        <div class="bil-row"><p class="animal-desc en">Leaner, distinct taste.</p><p class="animal-desc ar" lang="ar">لحم أقل دهناً، طعم مميز.</p></div>
+                                         <div class="price-display animal-price-display">
+                                            <span class="price-value en">$300</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="main-udhiya-order-form">
+                    <div id="form-section-weight-prep" class="order-form-section card">
+                        <div class="sec-head">
+                            <div class="bil-row">
+                                <h2 class="en">Weight &amp; Preparation</h2>
+                                <h2 class="ar" lang="ar">الوزن والتجهيز</h2>
+                            </div>
+                        </div>
+                        <div class="form-fields-group">
+                            <div class="fg">
+                                <label for="u-weight" class="bil-row">
+                                    <span class="en">Approx. Weight Range</span>
+                                    <span class="ar" lang="ar">نطاق الوزن التقريبي</span>
+                                </label>
+                                <select id="u-weight" name="u-weight">
+                                    <option value="" data-en="Select Weight">Select Weight</option>
+                                    <option value="30-40" data-en="30-40 kg">30-40 kg</option>
+                                    <option value="40-50" data-en="40-50 kg">40-50 kg</option>
+                                    <option value="50-60" data-en="50-60 kg">50-60 kg</option>
+                                </select>
+                            </div>
+                            <div class="fg">
+                                <label class="bil-row">
+                                    <span class="en">Butchering & Packaging</span>
+                                    <span class="ar" lang="ar">الجزارة والتعبئة</span>
+                                </label>
+                                <div class="grid2">
+                                    <select name="u-cutting" aria-label="Cutting Preference">
+                                        <option value="standard" data-en="Standard Cuts">Standard Cuts</option>
+                                        <option value="custom" data-en="Custom Cuts (Specify)">Custom Cuts (Specify)</option>
+                                    </select>
+                                    <select name="u-packaging" id="u-packaging" aria-label="Packaging Preference">
+                                        <option value="standard" data-en="Standard Packaging">Standard Packaging</option>
+                                        <option id="vacuum-packaging-option" value="vacuum" data-base-price-usd="10" data-en="Vacuum Sealed">
+                                            Vacuum Sealed (+ $10)
+                                        </option>
+                                    </select>
+                                </div>
+                                <textarea name="u-custom-instr" rows="2" placeholder-en="Custom cutting instructions..." placeholder-ar="تعليمات التقطيع المخصصة..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-section-schedule" class="order-form-section card">
+                         <div class="sec-head">
+                            <div class="bil-row">
+                                <h2 class="en">Scheduling</h2>
+                                <h2 class="ar" lang="ar">تحديد المواعيد</h2>
+                            </div>
+                        </div>
+                        <div class="form-fields-group">
+                            <div class="fg important-note schedule-delivery-note">
+                                <small class="en"><strong>Udhiya Delivery Note:</strong> Please select your preferred date and time for Udhiya. Delivery will be precisely scheduled accordingly.</small>
+                                <small class="ar" lang="ar"><strong>ملاحظة هامة للأضحية:</strong> يرجى اختيار التاريخ والوقت المفضلين للأضحية. سيتم جدولة التوصيل بدقة بناءً على اختيارك.</small>
+                            </div>
+                            <div class="fg">
+                                <label for="u-date" class="bil-row">
+                                    <span class="en">Preferred Sacrifice Date</span>
+                                    <span class="ar" lang="ar">تاريخ الذبح المفضل</span>
+                                </label>
+                                <input type="date" id="u-date" name="u-date">
+                            </div>
+                            <div class="fg">
+                                <label class="bil-row">
+                                    <span class="en">Preferred Time Slot</span>
+                                    <span class="ar" lang="ar">الوقت المفضل</span>
+                                </label>
+                                <div class="tslots-container">
+                                    <div class="tslots">
+                                        <button type="button" class="ts"><span class="en">8-10 AM</span></button>
+                                        <button type="button" class="ts sel"><span class="en">10AM-12PM</span></button>
+                                        <button type="button" class="ts"><span class="en">12-2 PM</span></button>
+                                        <button type="button" class="ts"><span class="en">2-4 PM</span></button>
+                                        <button type="button" class="ts"><span class="en">4-6 PM</span></button>
+                                        <button type="button" class="ts"><span class="en">6-8 PM</span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-section-distribution" class="order-form-section card">
+                        <div class="sec-head">
+                            <div class="bil-row">
+                                <h2 class="en">Distribution & Dedication</h2>
+                                <h2 class="ar" lang="ar">التوزيع والإهداء</h2>
+                            </div>
+                        </div>
+                        <div class="form-fields-group">
+                            <div class="fg">
+                                <label class="bil-row">
+                                    <span class="en">Meat Distribution</span>
+                                    <span class="ar" lang="ar">توزيع اللحوم</span>
+                                </label>
+                                <div class="rgrp">
+                                    <label>
+                                        <input type="radio" name="distribution" value="tome" checked>
+                                        <span class="bil-row radio-label-content">
+                                            <span class="en">Deliver All to Me</span><span class="ar" lang="ar">توصيل الكل لي</span>
+                                        </span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="distribution" value="charity">
+                                        <span class="bil-row radio-label-content">
+                                            <span class="en">Donate All to Charity</span><span class="ar" lang="ar">تبرع بالكل للصدقة</span>
+                                        </span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="distribution" value="split">
+                                        <span class="bil-row radio-label-content">
+                                            <span class="en">Split (Specify below)</span><span class="ar" lang="ar">تقسيم (حدد أدناه)</span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <textarea name="u-split-instr" rows="2" placeholder-en="e.g., 1/3 Self, 1/3 Gift, 1/3 Charity" placeholder-ar="مثال: 1/3 لي، 1/3 هدية، 1/3 صدقة"></textarea>
+                            </div>
+                            <div class="fg">
+                                <label for="u-niyyah" class="bil-row">
+                                    <span class="en">Names for Dedication (Niyyah - Optional)</span>
+                                    <span class="ar" lang="ar">أسماء للإهداء (النية - اختياري)</span>
+                                </label>
+                                <input type="text" id="u-niyyah" name="u-niyyah" placeholder-en="Enter names, comma separated" placeholder-ar="أدخل الأسماء، مفصولة بفواصل">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-section-delivery" class="order-form-section card">
+                        <div class="sec-head">
+                            <div class="bil-row">
+                                <h2 class="en">Delivery Details</h2>
+                                <h2 class="ar" lang="ar">تفاصيل التوصيل</h2>
+                            </div>
+                        </div>
+                        <div class="form-fields-group">
+                             <div class="fg important-note form-delivery-note">
+                                <small class="en">Please ensure all delivery details are accurate for timely arrival. Remember, Udhiya delivery is precisely scheduled.</small>
+                                <small class="ar" lang="ar">يرجى التأكد من دقة جميع تفاصيل التوصيل لضمان الوصول في الوقت المحدد. تذكر، يتم جدولة توصيل الأضحية بدقة.</small>
+                            </div>
+                            <div class="fg">
+                                <label for="u-delivery-name" class="bil-row">
+                                    <span class="en">Contact Person Name</span>
+                                    <span class="ar" lang="ar">اسم جهة الاتصال</span>
+                                </label>
+                                <input type="text" id="u-delivery-name" name="u-delivery-name" placeholder-en="Full Name" placeholder-ar="الاسم الكامل">
+                            </div>
+                            <div class="fg">
+                                <label for="u-delivery-phone" class="bil-row">
+                                    <span class="en">Contact Phone Number</span>
+                                    <span class="ar" lang="ar">رقم هاتف الاتصال</span>
+                                </label>
+                                <input type="tel" id="u-delivery-phone" name="u-delivery-phone" placeholder-en="e.g., +201234567890" placeholder-ar="مثال: +201234567890">
+                            </div>
+                            <div class="fg">
+                                <label for="u-delivery-address" class="bil-row">
+                                    <span class="en">Delivery Address</span>
+                                    <span class="ar" lang="ar">عنوان التوصيل</span>
+                                </label>
+                                <textarea id="u-delivery-address" name="u-delivery-address" rows="3" placeholder-en="Street, Building, Apartment, City, Area..." placeholder-ar="الشارع، المبنى، الشقة، المدينة، المنطقة..."></textarea>
+                            </div>
+                            <div class="fg">
+                                <label for="u-delivery-notes" class="bil-row">
+                                    <span class="en">Delivery Notes (Optional)</span>
+                                    <span class="ar" lang="ar">ملاحظات التوصيل (اختياري)</span>
+                                </label>
+                                <textarea id="u-delivery-notes" name="u-delivery-notes" rows="2" placeholder-en="e.g., Call upon arrival, leave with doorman if not available..." placeholder-ar="مثال: اتصل عند الوصول، اتركه مع البواب في حال عدم التواجد..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-section-summary" class="order-form-section card">
+                        <div class="sec-head">
+                             <div class="bil-row">
+                                <h2 class="en">Order Summary</h2>
+                                <h2 class="ar" lang="ar">ملخص الطلب</h2>
+                            </div>
+                        </div>
+                        <div class="summary-block">
+                            <div class="card-b">
+                                <div class="order-summary">
+                                    <div class="summary-item" id="summary-order-id">
+                                        <span class="en">Order ID: <em></em></span>
+                                        <span class="ar" lang="ar">رقم الطلب: <em></em></span>
+                                    </div>
+                                    <div class="summary-item" id="summary-animal"><span class="en">Animal: <em>Select animal</em></span><span class="ar" lang="ar">الحيوان: <em>اختر حيوان</em></span></div>
+                                    <div class="summary-item" id="summary-weight"><span class="en">Weight: <em>Select weight</em></span><span class="ar" lang="ar">الوزن: <em>اختر الوزن</em></span></div>
+                                    <div class="summary-item" id="summary-packaging"><span class="en">Packaging: Standard</span><span class="ar" lang="ar">التعبئة: قياسية</span></div>
+                                    <hr class="summary-hr">
+                                    <div class="summary-item total">
+                                        <span class="en">Total Due:</span>
+                                        <span class="price-val-total en"><span class="currency-symbol-total">$</span><span class="total-amount">0.00</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="form-section-payment" class="order-form-section card">
+                        <div class="sec-head">
+                            <div class="bil-row">
+                                <h2 class="en">Payment Options</h2>
+                                <h2 class="ar" lang="ar">خيارات الدفع</h2>
+                            </div>
+                        </div>
+                        <div class="form-fields-group">
+                            <div class="fg">
+                                <label>
+                                    <input type="checkbox" id="u-group" name="u-group">
+                                    <span class="en">Interested in Group Purchase? (Share cost, save up to 20%)</span>
+                                    <span class="ar" lang="ar">مهتم بالشراء الجماعي؟ (شارك التكلفة، وفر حتى 20%)</span>
+                                </label>
+                            </div>
+                            <div class="fg">
+                                <label class="bil-row">
+                                    <span class="en">Choose Payment Method</span>
+                                    <span class="ar" lang="ar">اختر طريقة الدفع</span>
+                                </label>
+                                <div class="pmeths">
+                                    <div class="pm sel"><input type="radio" id="pay-visa" name="payment" value="visa" checked><label for="pay-visa" title="Visa"><img src="your-icons-folder/visa.svg" alt="Visa"></label></div>
+                                    <div class="pm"><input type="radio" id="pay-mc" name="payment" value="mastercard"><label for="pay-mc" title="Mastercard"><img src="your-icons-folder/mastercard.svg" alt="Mastercard"></label></div>
+                                    <div class="pm"><input type="radio" id="pay-fawry" name="payment" value="fawry"><label for="pay-fawry" title="Fawry"><img src="your-icons-folder/fawry.svg" alt="Fawry"></label></div>
+                                    <div class="pm"><input type="radio" id="pay-voda" name="payment" value="vodafone"><label for="pay-voda" title="Vodafone Cash"><img src="your-icons-folder/vodafone-cash.svg" alt="Vodafone Cash"></label></div>
+                                    <div class="pm"><input type="radio" id="pay-cod" name="payment" value="cod"><label for="pay-cod" title="Cash on Delivery"><img src="your-icons-folder/cod.svg" alt="Cash on Delivery"></label></div>
+                                    <div class="pm"><input type="radio" id="pay-insta" name="payment" value="instapay"><label for="pay-insta" title="InstaPay"><img src="your-icons-folder/instapay.svg" alt="InstaPay"></label></div>
+                                </div>
+                            </div>
+                            <div class="fg payment-note"> <small class="en">Note: </small> <small class="ar" lang="ar">ملاحظة: </small> </div>
+                        </div>
+                    </div>
+
+                    <div class="form-action">
+                        <button type="submit" class="btn bac btn-lg btn-block mt1">
+                            <span class="en">Confirm & Proceed to Payment</span>
+                            <span class="ar" lang="ar">تأكيد والانتقال للدفع</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="uprocess-section">
+            <div class="c">
+                <div class="sec-head tc">
+                    <div class="bil-row">
+                        <h2 class="en">Our Udhiya Process</h2>
+                        <h2 class="ar" lang="ar">عملية الأضحية لدينا</h2>
+                    </div>
+                </div>
+                <div class="uprocess-wrap-alt">
+                    <div class="uprocess-grid">
+                        <div class="step-alt">
+                            <div class="step-icon">1</div>
+                            <div class="bil-row">
+                                <div class="en"><h4 class="step-h">Select & Book</h4><p class="step-p">Choose animal, details & confirm.</p></div>
+                                <div class="ar" lang="ar"><h4 class="step-h">اختر واحجز</h4><p class="step-p">اختر الحيوان، التفاصيل وأكد.</p></div>
+                            </div>
+                        </div>
+                        <div class="step-alt">
+                            <div class="step-icon">2</div>
+                            <div class="bil-row">
+                                <div class="en"><h4 class="step-h">Confirmation</h4><p class="step-p">Receive order confirmation & schedule.</p></div>
+                                <div class="ar" lang="ar"><h4 class="step-h">التأكيد</h4><p class="step-p">استلم تأكيد الطلب والموعد.</p></div>
+                            </div>
+                        </div>
+                        <div class="step-alt">
+                            <div class="step-icon">3</div>
+                            <div class="bil-row">
+                                <div class="en"><h4 class="step-h">Sacrifice & Prep</h4><p class="step-p">Performed by experts to your liking.</p></div>
+                                <div class="ar" lang="ar"><h4 class="step-h">الذبح والتجهيز</h4><p class="step-p">بأيدي خبراء وحسب رغبتك.</p></div>
+                            </div>
+                        </div>
+                        <div class="step-alt">
+                            <div class="step-icon">4</div>
+                            <div class="bil-row">
+                                <div class="en"><h4 class="step-h">Delivery</h4><p class="step-p">Fresh, packaged meat to your door.</p></div>
+                                <div class="ar" lang="ar"><h4 class="step-h">التوصيل</h4><p class="step-p">لحم طازج ومعبأ لباب منزلك.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq-support-nav-target" class="support-condensed seca">
+           <div class="c">
+                <div class="faq-block">
+                    <div class="sec-head">
+                        <div class="bil-row">
+                            <h2 class="en">Quick Support & FAQ</h2>
+                            <h2 class="ar" lang="ar">دعم سريع وأسئلة شائعة</h2>
+                        </div>
+                    </div>
+                    <div class="faq-grid">
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">How does the Udheya/Qurbani service work?</h5><h5 class="ar" lang="ar">كيف تعمل خدمة الأضحية/القرباني؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">You select your sheep and package. We ensure Sharia compliance, perform sacrifice, process, and deliver. Full payment is required upfront to confirm your booking. For Udhiya, delivery is precisely scheduled based on your selected Eid day and time slot.</p>
+                                    <p class="ar" lang="ar">تختار الخروف والباقة. نضمن الامتثال للشريعة، ونقوم بالذبح، والتجهيز، والتوصيل حسب اختيارك. يتطلب تأكيد حجزك دفع المبلغ كاملاً مقدماً. بالنسبة للأضحية، يتم توصيلها بدقة وفقًا ليوم العيد والوقت الذي اخترته.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">What sheep breeds do you offer?</h5><h5 class="ar" lang="ar">ما هي سلالات الأغنام التي تقدمونها؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">We offer Baladi (local taste) and Barki (leaner, distinct flavor). Choice depends on preference.</p>
+                                    <p class="ar" lang="ar">نقدم البلدي (طعم محلي ممتاز) والبرقي (لحم أقل دهونًا بنكهة مميزة). الاختيار يعتمد على الذوق.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">What are the Udhiya sheep options?</h5><h5 class="ar" lang="ar">ما هي خيارات خراف الأضحية؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">You can choose between Baladi Sheep (known for rich flavor) and Barki Sheep (leaner meat). Both are raised to meet Sharia requirements.</p>
+                                    <p class="ar" lang="ar">يمكنك الاختيار بين الأغنام البلدية (المعروفة بنكهتها الغنية) والأغنام البرقية (لحم أقل دهونًا). كلاهما يتم تربيته ليفي بمتطلبات الشريعة.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">How is my Udhiya delivered?</h5><h5 class="ar" lang="ar">كيف يتم توصيل أضحيتي؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">Your Udhiya is delivered fresh in temperature-controlled vehicles. Delivery is precisely scheduled based on your selected Eid day and time slot. Please ensure your delivery details are accurate and someone is available to receive the order at the scheduled time.</p>
+                                    <p class="ar" lang="ar">يتم توصيل أضحيتك طازجة في مركبات مبردة. يتم جدولة التوصيل بدقة بناءً على يوم العيد والوقت الذي اخترته. يرجى التأكد من دقة تفاصيل التوصيل الخاصة بك وتواجد شخص لاستلام الطلب في الوقت المحدد.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">What payment methods are accepted?</h5><h5 class="ar" lang="ar">ما هي طرق الدفع المقبولة؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">We accept Visa, Mastercard, Fawry, Vodafone Cash, InstaPay, and Cash on Delivery (for eligible orders). Bookings are confirmed upon full payment.</p>
+                                    <p class="ar" lang="ar">نقبل فيزا، ماستركارد، فوري، فودافون كاش، إنستا باي، والدفع عند الاستلام (للطلبات المؤهلة). يتم تأكيد الحجوزات عند استلام المبلغ كاملاً.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">How is meat packaged for freshness?</h5><h5 class="ar" lang="ar">كيف يتم تغليف اللحوم لضمان النضارة؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">Fresh meat is vacuum-sealed. Udheya meat is packaged hygienically based on your selected package to maintain freshness.</p>
+                                    <p class="ar" lang="ar">اللحوم الطازجة معبأة بتفريغ الهواء. لحوم الأضحية تعبأ بشكل صحي بناءً على الباقة المختارة للحفاظ على النضارة.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">How does group purchase for Udheya work?</h5><h5 class="ar" lang="ar">كيف يعمل الشراء الجماعي للأضحية؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">Opt for group purchase to share costs. We can help facilitate connections. Meat is divided equally or as agreed by the group. Full payment per share is required to confirm participation.</p>
+                                    <p class="ar" lang="ar">يمكنك اختيار الشراء الجماعي لتقاسم التكاليف. يمكننا المساعدة في تسهيل التواصل بين المشاركين. يقسم اللحم بالتساوي أو حسب اتفاق المجموعة. يتطلب تأكيد المشاركة دفع قيمة الحصة كاملة.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">Can I visit the farm to see the animals?</h5><h5 class="ar" lang="ar">هل يمكنني زيارة المزرعة لرؤية الحيوانات؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">Yes, farm visits can be arranged by appointment. Please contact customer service to schedule your visit and learn more about our farming practices.</p>
+                                    <p class="ar" lang="ar">نعم، يمكن ترتيب زيارات للمزرعة بموعد مسبق. يرجى الاتصال بخدمة العملاء لتحديد موعد زيارتك ومعرفة المزيد عن ممارساتنا في التربية.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item">
+                            <details>
+                                <summary><div class="bil-row"><h5 class="en">Is your meat always fresh, or do you sell frozen?</h5><h5 class="ar" lang="ar">هل لحومكم دائماً طازجة، أم تبيعون المجمد؟</h5></div></summary>
+                                <div class="bil-row">
+                                    <p class="en">Our primary offering is fresh, never-frozen meat for Udhiya and general orders. Some specific pre-packaged items or bulk orders might be available frozen, and this will be clearly labeled.</p>
+                                    <p class="ar" lang="ar">عرضنا الأساسي هو اللحوم الطازجة غير المجمدة للأضاحي والطلبات العامة. بعض الأصناف المعبأة مسبقًا أو الطلبات الكبيرة قد تكون متوفرة مجمدة، وسيتم توضيح ذلك بوضوح.</p>
+                                </div>
+                            </details>
+                        </div>
+                        <div class="faq-item" id="faq-delivery-policy"> <details> <summary><div class="bil-row"><h5 class="en">What are your delivery areas, charges, and policy?</h5><h5 class="ar" lang="ar">ما هي مناطق التوصيل ورسومها وسياستكم؟</h5></div></summary> <div class="bil-row"> <p class="en">We deliver fresh Udhiya to most areas within Cairo & Giza. The standard delivery fee is E£50. For areas outside our standard zones, or those requiring special arrangements (e.g., specific narrow time windows, remote locations), additional charges may apply, or delivery times might be longer. Please confirm exact fees and availability for your location by contacting us via WhatsApp before finalizing your order if you're unsure. <br><br>It is crucial that someone is available at the specified address during your selected Eid day and time slot to receive the order, as Udhiya delivery is precisely scheduled. We will make reasonable attempts to contact you upon arrival. If delivery is missed due to recipient unavailability after these attempts, Sheep Land is not responsible for any subsequent spoilage or redelivery costs. For complete details, please contact customer support.</p> <p class="ar" lang="ar">نقوم بتوصيل الأضاحي الطازجة إلى معظم المناطق داخل القاهرة والجيزة. رسوم التوصيل القياسية هي ٥٠ جنيهًا مصريًا. قد يخضع التوصيل إلى مناطق خارج نطاقاتنا القياسية، أو التي تتطلب ترتيبات خاصة (مثل فترات زمنية ضيقة محددة، أو مواقع نائية داخل المحافظات)، لرسوم إضافية أو قد يتطلب أوقات تسليم أطول. يرجى تأكيد الرسوم الدقيقة وتوافر الخدمة لموقعك المحدد عن طريق الاتصال بنا عبر الواتساب قبل إتمام طلبك إذا لم تكن متأكدًا.<br><br>من الضروري أن يكون هناك شخص متاح في العنوان المحدد خلال يوم العيد والوقت الذي اخترته لاستلام الطلب، حيث يتم جدولة توصيل الأضحية بدقة. سنقوم بمحاولات معقولة للاتصال بك عند الوصول. إذا تم تفويت التسليم بسبب عدم توفر المستلم بعد هذه المحاولات، فإن "أرض الأغنام" ليست مسؤولة عن أي تلف لاحق أو تكاليف إعادة التسليم. للحصول على التفاصيل الكاملة، يرجى الاتصال بخدمة العملاء.</p> </div> </details> </div>
+                    </div>
+                    <div class="contact-details-inline">
+                        <div class="bil-row">
+                            <div class="en">
+                                <p>
+                                    <strong>Need help?</strong><br>
+                                    Call: <a href="tel:+201117117489">+20 111 711 7489</a><br>
+                                    Email: <a href="mailto:udhiya@sheepland.com">udhiya@sheepland.com</a>
+                                </p>
+                            </div>
+                            <div class="ar" lang="ar">
+                                <p>
+                                    <strong>تحتاج مساعدة؟</strong><br>
+                                    اتصل: <a href="tel:+201117117489">+20 111 711 7489</a><br>
+                                    بريد إلكتروني: <a href="mailto:udhiya@sheepland.com">udhiya@sheepland.com</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <a href="https://wa.me/201117117489" target="_blank" class="fabw" title="WhatsApp Us">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.96 2.76 15.89 3.82 17.5L2 22L6.65 20.25C8.12 21.18 9.87 21.75 11.78 21.75H12.03C17.49 21.75 21.94 17.3 21.94 11.84C21.94 6.38 17.49 2 12.04 2M16.55 15.26C16.29 15.94 15.31 16.45 14.81 16.55C14.31 16.64 13.62 16.73 12.03 16.05C10.07 15.21 8.68 13.4 8.41 13.12C8.14 12.84 7.3 11.79 7.3 10.59C7.3 9.39 8.03 8.75 8.24 8.5C8.48 8.24 8.79 8.15 9.04 8.15C9.18 8.15 9.31 8.15 9.43 8.16C9.67 8.19 9.83 8.22 10.01 8.53C10.2 8.84 10.58 9.59 10.68 9.73C10.78 9.88 10.83 10.02 10.73 10.19C10.64 10.36 10.56 10.46 10.41 10.63C10.26 10.81 10.13 10.93 10.02 11.09C9.91 11.24 9.81 11.41 10.01 11.72C10.2 12.03 10.78 12.9 11.59 13.63C12.62 14.55 13.4 14.83 13.69 14.97C13.99 15.11 14.22 15.09 14.39 14.9C14.59 14.68 14.79 14.35 15.05 14.04C15.33 13.71 15.64 13.63 15.91 13.73C16.19 13.82 17.08 14.29 17.29 14.5C17.5 14.72 17.61 14.86 17.64 15.01C17.66 15.16 17.61 15.6 16.55 15.26Z"/></svg>
+    </a>
+<script>
+const d = document,
+    docEl = d.documentElement,
+    mainNavbar = d.querySelector(".main-navbar"),
+    udhiyaFormContainer = d.getElementById("main-udhiya-order-form"),
+    livestockSelectionSection = d.getElementById("livestock-selection-section"),
+    navFaqLink = d.getElementById("navFaqLink"),
+    summaryAnimal = d.getElementById("summary-animal"),
+    summaryWeight = d.getElementById("summary-weight"),
+    summaryPackaging = d.getElementById("summary-packaging"),
+    summaryOrderId = d.getElementById("summary-order-id"),
+    currencySelector = d.getElementById("currency-selector"),
+    packagingSelect = d.getElementById("u-packaging"),
+    navBookNowBtn = d.getElementById("navBookNowBtn"),
+    animalMainSelectRadios = d.querySelectorAll('input[name="udhiya_animal_main_select"]');
+
+if (udhiyaFormContainer) {
+    udhiyaFormContainer.querySelectorAll(':scope > .order-form-section, :scope > .form-action').forEach(section => {
+        section.style.display = 'none';
+    });
+}
+
+let mainNavbarHeight = 0;
+function calculateNavbarHeight() {
+    if (mainNavbar) {
+        mainNavbarHeight = mainNavbar.offsetHeight;
+        docEl.style.setProperty('--main-nav-height', `${mainNavbarHeight}px`);
+    }
+}
+
+const basePrices = { vacuumAddon: 10 };
+const exchangeRates = { USD: 1, EGP: 47.5, GBP: 0.79 };
+const currencySymbols = { USD: "$", EGP: "E£", GBP: "£" };
+
+function toArabicNumerals(numberStr) {
+    const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return String(numberStr).replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit)]);
+}
+
+function formatPrice(amount, currency, lang = 'en') {
+    const symbol = currencySymbols[currency];
+    const formattedAmount = amount.toFixed(2);
+    return `${symbol}${formattedAmount}`;
+}
+
+function updateDisplayedPrices() {
+    const selectedCurrency = currencySelector.value;
+    const rate = exchangeRates[selectedCurrency];
+
+    d.querySelectorAll(".animal-option[data-base-price-usd]").forEach(optionCard => {
+        const basePriceUSD = parseFloat(optionCard.dataset.basePriceUsd);
+        if (!isNaN(basePriceUSD)) {
+            const newPrice = basePriceUSD * rate;
+            const enPriceEl = optionCard.querySelector(".animal-price-display .price-value.en");
+            if (enPriceEl) enPriceEl.textContent = formatPrice(newPrice, selectedCurrency, 'en');
+        }
+    });
+
+    const vacuumOptionEl = d.getElementById("vacuum-packaging-option");
+    if (vacuumOptionEl) {
+        const baseVacuumPriceUSD = parseFloat(vacuumOptionEl.dataset.basePriceUsd);
+        const newVacuumPrice = baseVacuumPriceUSD * rate;
+        vacuumOptionEl.textContent = `${vacuumOptionEl.dataset.en} (+${formatPrice(newVacuumPrice, selectedCurrency, 'en')})`;
+    }
+    updateSummary();
+}
+
+const mockOrderId = 'SL-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+if (summaryOrderId) {
+    summaryOrderId.querySelector("em").textContent = mockOrderId;
+    const arEm = summaryOrderId.querySelector(".ar em");
+    if (arEm) arEm.textContent = mockOrderId;
+}
+
+function updateSummary() {
+    const selectedAnimalRadio = d.querySelector('input[name="udhiya_animal_main_select"]:checked');
+    const selectedAnimalOptionDiv = selectedAnimalRadio ? selectedAnimalRadio.closest('.animal-option') : null;
+    const selectedWeightValue = d.getElementById("u-weight") ? d.getElementById("u-weight").value : "";
+    const selectedPackagingValue = packagingSelect ? packagingSelect.value : "standard";
+
+    const currentCurrency = currencySelector.value;
+    const currentRate = exchangeRates[currentCurrency];
+    const currentSymbol = currencySymbols[currentCurrency];
+
+    let totalBasePriceUSD = 0;
+
+    let animalNameEn = "N/A", animalNameAr = "غير متاح";
+    if (selectedAnimalOptionDiv && selectedAnimalOptionDiv.dataset.basePriceUsd) {
+        totalBasePriceUSD += parseFloat(selectedAnimalOptionDiv.dataset.basePriceUsd);
+        animalNameEn = selectedAnimalOptionDiv.querySelector(".card-b-sm .en h4")?.textContent || "N/A";
+        animalNameAr = selectedAnimalOptionDiv.querySelector(".card-b-sm .ar h4")?.textContent || "N/A";
+    } else {
+        animalNameEn = "Select animal";
+        animalNameAr = "اختر حيوان";
+    }
+    if(summaryAnimal) summaryAnimal.innerHTML = `<span class=en>Animal: ${animalNameEn}</span><span class=ar lang=ar>الحيوان: ${animalNameAr}</span>`;
+
+    const weightOptionEl = d.querySelector(`#u-weight option[value="${selectedWeightValue}"]`);
+    let weightTextEn = "N/A";
+    if (weightOptionEl && selectedWeightValue) {
+        weightTextEn = weightOptionEl.dataset.en || weightOptionEl.textContent;
+    } else if (weightOptionEl) {
+        weightTextEn = weightOptionEl.dataset.en || "Select Weight";
+    }
+    if(summaryWeight) summaryWeight.innerHTML = `<span class=en>Weight: ${weightTextEn}</span><span class=ar lang=ar>الوزن: ${weightOptionEl ? (weightOptionEl.dataset.ar || weightTextEn) : 'اختر الوزن'}</span>`;
+
+    const packagingOptionEl = packagingSelect ? packagingSelect.querySelector(`option[value="${selectedPackagingValue}"]`) : null;
+    let packagingNameEn = "N/A";
+    if (packagingOptionEl) {
+        packagingNameEn = packagingOptionEl.dataset.en || (selectedPackagingValue === "standard" ? "Standard Packaging" : "N/A");
+        if (selectedPackagingValue === "vacuum") {
+            totalBasePriceUSD += basePrices.vacuumAddon;
+        }
+    }
+    if(summaryPackaging) summaryPackaging.innerHTML = `<span class="en">Packaging: ${packagingNameEn}</span><span class="ar" lang="ar">التعبئة: ${packagingOptionEl ? (packagingOptionEl.dataset.ar || packagingNameEn) : 'قياسية'}</span>`;
+    
+    const totalCalculatedPrice = totalBasePriceUSD * currentRate;
+    const totalAmountEnEl = d.querySelector(".summary-item.total .price-val-total.en .total-amount");
+    const currencySymbolTotalEnEl = d.querySelector(".summary-item.total .price-val-total.en .currency-symbol-total");
+    const arTotalContainer = d.querySelector(".summary-item.total .price-val-total.ar");
+    const arTotalLabel = d.querySelector(".summary-item.total > .ar[lang='ar']");
+
+
+    if(totalAmountEnEl && currencySymbolTotalEnEl) {
+        currencySymbolTotalEnEl.textContent = currentSymbol;
+        totalAmountEnEl.textContent = totalCalculatedPrice.toFixed(2);
+    }
+    if(arTotalContainer) arTotalContainer.style.display = 'none';
+    if(arTotalLabel) arTotalLabel.style.display = 'none';
+
+}
+
+function setupInteractiveElements(selector, parentSelector, selectedClass = "sel") {
+    d.querySelectorAll(selector).forEach(el => {
+        el.addEventListener("click", function(event) {
+            const parent = el.closest(parentSelector);
+            if (parent) {
+                parent.querySelectorAll(selector).forEach(sibling => sibling.classList.remove(selectedClass));
+                const radioInput = el.querySelector('input[type="radio"]');
+                if (radioInput) radioInput.checked = true;
+                else {
+                    const inputForLabel = d.getElementById(el.getAttribute("for"));
+                    if (inputForLabel && inputForLabel.type === "radio") inputForLabel.checked = true;
+                }
+                el.classList.add(selectedClass);
+                updateSummary();
+            }
+        });
+    });
+};
+
+animalMainSelectRadios.forEach(radio => {
+    radio.addEventListener("change", function() {
+        d.querySelectorAll("#livestock-selection-section .animal-option .card-selectable").forEach(label => label.classList.remove("selected"));
+        if (this.checked) {
+            this.closest(".animal-option").querySelector(".card-selectable").classList.add("selected");
+            
+            let firstFormSectionToScrollTo = null;
+            if(udhiyaFormContainer){
+                udhiyaFormContainer.querySelectorAll(':scope > .order-form-section, :scope > .form-action').forEach((section, index) => {
+                    section.style.display = 'block';
+                    if (index === 0) {
+                        firstFormSectionToScrollTo = section;
+                    }
+                });
+            }
+
+            if (firstFormSectionToScrollTo) {
+                 setTimeout(() => {
+                    const elementPosition = firstFormSectionToScrollTo.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - mainNavbarHeight - 10;
+                    window.scrollTo({ top: offsetPosition, behavior: "smooth"});
+                }, 50);
+            }
+        }
+        updateSummary();
+    });
+    if (radio.checked) {
+        radio.closest(".animal-option").querySelector(".card-selectable").classList.add("selected");
+    }
+});
+
+function smoothScrollToTarget(e) {
+    e.preventDefault();
+    const targetId = this.getAttribute("href").substring(1);
+    const targetElement = d.getElementById(targetId);
+    if (targetElement) {
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - mainNavbarHeight - 10;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+    }
+}
+
+if (navBookNowBtn) navBookNowBtn.addEventListener("click", smoothScrollToTarget);
+if (navFaqLink) navFaqLink.addEventListener("click", smoothScrollToTarget);
+
+setupInteractiveElements(".ts", ".tslots-container");
+
+d.querySelectorAll('.pm input[type="radio"]').forEach(radio => {
+    radio.addEventListener("change", function() {
+        d.querySelectorAll(".pm").forEach(pmEl => pmEl.classList.remove("sel"));
+        if (this.checked) this.closest(".pm").classList.add("sel");
+    });
+});
+
+d.querySelectorAll('textarea[placeholder-en], input[placeholder-en]').forEach(el => {
+    const placeholderEn = el.getAttribute("placeholder-en"), placeholderAr = el.getAttribute("placeholder-ar");
+    function setPlaceholder() { el.placeholder = (docEl.lang === 'ar' || docEl.dir === 'rtl') ? (placeholderAr || placeholderEn) : (placeholderEn || placeholderAr); }
+    setPlaceholder();
+    new MutationObserver(setPlaceholder).observe(docEl, { attributes: true, attributeFilter: ['lang', 'dir'] });
+});
+
+d.querySelectorAll("details").forEach(detail => {
+    detail.addEventListener("toggle", function() { this.setAttribute("aria-expanded", String(this.open)); });
+});
+
+const weightSelect = d.getElementById("u-weight");
+if(weightSelect) weightSelect.addEventListener("change", updateSummary);
+if(packagingSelect) packagingSelect.addEventListener("change", updateSummary);
+
+currencySelector.addEventListener("change", updateDisplayedPrices);
+
+calculateNavbarHeight();
+window.addEventListener('resize', calculateNavbarHeight);
+updateDisplayedPrices();
+
+if (d.querySelector('input[name="udhiya_animal_main_select"]:checked') && udhiyaFormContainer) {
+    udhiyaFormContainer.querySelectorAll(':scope > .order-form-section, :scope > .form-action').forEach(section => {
+        section.style.display = 'block';
+    });
+}
+</script>
+</body>
+</html>
