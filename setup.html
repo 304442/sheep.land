@@ -56,21 +56,19 @@
             name: "settings",
             type: "base",
             listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null,
-            // Schema items: 'fields' is the correct key for the pb.collections.import()
-            // Field-specific options (like max, min, pattern) are direct properties of the field object.
-            fields: [
+            fields: [ 
                 { name: "xchgRates", type: "json", required: true, presentable: true },
-                { name: "defCurr", type: "text", required: true, presentable: true, max: 5 }, // Max is direct
+                { name: "defCurr", type: "text", required: true, presentable: true, max: 5 }, 
                 { name: "waNumRaw", type: "text", required: false, presentable: true },
                 { name: "waNumDisp", type: "text", required: false, presentable: true },
                 { name: "promoEndISO", type: "date", required: false, presentable: true },
-                { name: "promoDiscPc", type: "number", required: false, presentable: true, min: 0, max: 100 }, // min, max direct
+                { name: "promoDiscPc", type: "number", required: false, presentable: true, min: 0, max: 100 }, 
                 { name: "promoActive", type: "bool", required: false, presentable: true },
-                { name: "servFeeEGP", type: "number", required: true, presentable: true, min: 0 }, // min direct
+                { name: "servFeeEGP", type: "number", required: true, presentable: true, min: 0 }, 
                 { name: "delAreas", type: "json", required: false, presentable: true },
                 { name: "payDetails", type: "json", required: false, presentable: true }
             ],
-            options: { // Collection-level options
+            options: { 
                 maxRecords: 1
             }
         },
@@ -101,12 +99,11 @@
         {
             name: "bookings",
             type: "base",
-            // Temporarily simplify rules for initial import
-            listRule: "", // Public for now, will be tightened
-            viewRule: "", // Public for now
-            createRule: "", // Public for now
-            updateRule: null, // Admin only for now
-            deleteRule: null, // Admin only for now
+            listRule: "", 
+            viewRule: "", 
+            createRule: "", 
+            updateRule: null, 
+            deleteRule: null, 
             fields: [
                 { name: "booking_id_text", type: "text", required: true, presentable: true, unique: true, max: 50 },
                 { name: "booked_product_name_en", type: "text", required: false, presentable: true, max: 150 },
@@ -140,8 +137,8 @@
                 { name: "delivery_instructions", type: "text", required: false, presentable: true, max: 500 },
                 { name: "time_slot", type: "text", required: false, presentable: true, max: 50 },
                 { name: "payment_method", type: "text", required: true, presentable: true, max: 50 },
-                { name: "payment_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] }, // values direct
-                { name: "booking_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] }, // values direct
+                { name: "payment_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded"] },
+                { name: "booking_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin"] },
                 { name: "terms_agreed", type: "bool", required: false, presentable: true },
                 { name: "admin_notes", type: "text", required: false, presentable: true, max: 1000 },
                 { name: "group_purchase_interest", type: "bool", required: false, presentable: true },
@@ -180,7 +177,6 @@
     };
 
     async function authenticateAdmin(pb) {
-        // ... (same as before)
         try {
             log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
             await pb.admins.authWithPassword(ADM_E, ADM_P);
@@ -197,36 +193,8 @@
     async function importCollections(pb, collectionsToImport) {
         try {
             log('Importing collections (base schema)...', 'i');
-            // Ensure field options are direct properties, not nested under 'options' for each field
-            const collectionsForActualImport = collectionsToImport.map(coll => {
-                const newColl = {...coll};
-                if (newColl.fields) { // If 'fields' exists (it should, as per our structure)
-                    newColl.schema = newColl.fields.map(field => {
-                        const newField = {...field};
-                        if (field.options && typeof field.options === 'object') {
-                            // Hoist options like max, min, pattern, values directly to the field level
-                            Object.assign(newField, field.options);
-                            delete newField.options; // Remove the nested 'options' for the field
-                        }
-                        // For select type, ensure 'values' is direct if it was under options
-                        if (field.type === 'select' && field.options && field.options.values) {
-                            newField.values = field.options.values;
-                            if (field.options.maxSelect) newField.maxSelect = field.options.maxSelect;
-                             // no need to delete newField.options if already handled above
-                        }
-                        return newField;
-                    });
-                    delete newColl.fields; // Use 'schema' for import body
-                }
-                // Collection-level options remain under 'options'
-                if (coll.options) {
-                    newColl.options = coll.options;
-                }
-                return newColl;
-            });
-
-            log('Collections transformed for import:', 'd', collectionsForActualImport);
-            await pb.collections.import(collectionsForActualImport, false /* deleteMissing */);
+            log('Collections being imported:', 'd', collectionsToImport); // Log the exact structure being sent
+            await pb.collections.import(collectionsToImport, false /* deleteMissing */);
             log('Collections (base schema) imported successfully', 's');
             return true;
         } catch (error) {
@@ -237,12 +205,11 @@
         }
     }
     
-      
-async function addRelationField(pb, collectionName, fieldName, targetCollectionId, isRequired = true, insertPosition = 1, displayFields = ["id"]) {
+    async function addRelationField(pb, collectionName, fieldName, targetCollectionId, isRequired = true, insertPosition = 1, displayFields = ["id"]) {
         try {
             log(`Processing relation field <b>${fieldName}</b> for <b>${collectionName}</b> to target <b>${targetCollectionId}</b>...`, 'li');
-            let collection = await pb.collections.getOne(collectionName); // Fetch fresh
-            const currentSchema = collection.schema || []; // Use .schema, default to empty array
+            let collection = await pb.collections.getOne(collectionName);
+            const currentSchema = collection.schema || [];
             const fieldExists = currentSchema.some(f => f.name === fieldName);
 
             const newFieldDefinition = {
@@ -265,19 +232,18 @@ async function addRelationField(pb, collectionName, fieldName, targetCollectionI
                 const existingField = currentSchema.find(f => f.name === fieldName);
                 if (existingField.type === 'relation' && existingField.options && existingField.options.collectionId === targetCollectionId) {
                     log(`Field <b>${fieldName}</b> already exists and is correctly configured in <b>${collectionName}</b>.`, 'lw');
-                    return true; // No change needed
+                    return true; 
                 }
                 log(`Field <b>${fieldName}</b> exists in <b>${collectionName}</b>, attempting to update.`, 'lw');
                 updatedSchemaArray = currentSchema.map(f => {
                     if (f.name === fieldName) {
-                        return { id: f.id, ...newFieldDefinition }; // Preserve ID when updating
+                        return { id: f.id, ...newFieldDefinition }; 
                     }
                     return f;
                 });
             } else {
                 log(`Field <b>${fieldName}</b> does not exist in <b>${collectionName}</b>, adding new.`, 'li');
                 updatedSchemaArray = [...currentSchema];
-                // Create a temporary field definition without an 'id' for new fields
                 const tempNewField = {...newFieldDefinition};
                 delete tempNewField.id; 
                 updatedSchemaArray.splice(insertPosition, 0, tempNewField);
@@ -295,7 +261,6 @@ async function addRelationField(pb, collectionName, fieldName, targetCollectionI
     }
 
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
-        // ... (same as before)
         log(`Seeding data for <b>${collectionName}</b>...`, 'i');
         let createdCount = 0, updatedCount = 0, errorCount = 0;
         
@@ -309,7 +274,6 @@ async function addRelationField(pb, collectionName, fieldName, targetCollectionI
                     const list = await pb.collection(collectionName).getList(1, 1);
                     if (list.items.length > 0) existingRecord = list.items[0];
                 }
-
 
                 if (existingRecord) {
                     log(`Updating existing record in ${collectionName}`, 'd', { id: existingRecord.id, data: actualData });
@@ -335,8 +299,8 @@ async function addRelationField(pb, collectionName, fieldName, targetCollectionI
     async function updateCollectionRules(pb, collectionName, rules) {
         try {
             log(`Updating rules for collection <b>${collectionName}</b>...`, 'i', rules);
-            const collection = await pb.collections.getOne(collectionName);
-            await pb.collections.update(collection.id, rules);
+            const collection = await pb.collections.getOne(collectionName); // Ensure collection exists
+            await pb.collections.update(collection.id, rules); // Pass only the rules object
             log(`Rules for <b>${collectionName}</b> updated successfully.`, 's');
             return true;
         } catch (error) {
@@ -347,29 +311,34 @@ async function addRelationField(pb, collectionName, fieldName, targetCollectionI
         }
     }
 
-      
-async function setupSchema(pb) {
+    async function setupSchema(pb) {
         log('=== SCHEMA SETUP PHASE ===', 'i');
         
         if (!await authenticateAdmin(pb)) return false;
         
-        const collectionsToImport = collectionsWithoutRelations.map(c => {
-            const schemaForImport = c.fields.map(field => {
+        const collectionsForImport = collectionsWithoutRelations.map(c => {
+            // The import function expects 'schema' to contain the fields.
+            // Field options (min, max, pattern, values etc.) should be direct properties of field objects.
+            const schemaForImport = (c.fields || []).map(field => {
                 const fieldCopy = {...field};
-                if (fieldCopy.options && typeof fieldCopy.options === 'object') {
+                // If field.options exists AND it's not for relation (relation options are handled later)
+                if (fieldCopy.options && typeof fieldCopy.options === 'object' && field.type !== 'relation') {
                     Object.assign(fieldCopy, fieldCopy.options); 
                     delete fieldCopy.options;
                 }
+                // For select type, ensure 'values' is direct if it was under options
+                // This was already handled if options were direct. This is a safeguard.
                 if (field.type === 'select' && field.options && field.options.values) {
                     fieldCopy.values = field.options.values;
                     if (field.options.maxSelect) fieldCopy.maxSelect = field.options.maxSelect;
                 }
                 return fieldCopy;
             });
-            return { ...c, schema: schemaForImport, fields: undefined };
+            return { ...c, schema: schemaForImport, fields: undefined }; 
         });
 
-        if (!await importCollections(pb, collectionsToImport)) return false;
+        if (!await importCollections(pb, collectionsForImport)) return false;
+
 
         log('Step 2: Adding relation fields...', 'i');
         const productsCollection = await pb.collections.getOne('products');
@@ -381,26 +350,20 @@ async function setupSchema(pb) {
         }
 
         let relSuccess;
-        // Add user relation to bookings (optional), position 0 (very first field)
         relSuccess = await addRelationField(pb, 'bookings', 'user', usersCollection.id, false, 0, ["username", "email"]); 
         if (!relSuccess) { log('Failed to add "user" relation to bookings.', 'e'); return false; }
 
-        // Add product_id relation to bookings (required)
-        // Determine insert position for product_id: after 'user' if it exists, otherwise after 'booking_id_text'
-        // Fetch the bookings collection *again* after 'user' field modification to get the updated schema
         let bookingsCollCurrent = await pb.collections.getOne('bookings');
-        let productInsertPos = 1; // Default: after the first field (likely booking_id_text if user wasn't added or is first)
+        let productInsertPos = 1; 
         
         const bookingIdTextIndex = (bookingsCollCurrent.schema || []).findIndex(f => f.name === 'booking_id_text');
         const userFieldIndex = (bookingsCollCurrent.schema || []).findIndex(f => f.name === 'user');
 
-        if (userFieldIndex !== -1) { // if user field is present
+        if (userFieldIndex !== -1) { 
             productInsertPos = userFieldIndex + 1;
-        } else if (bookingIdTextIndex !== -1) { // if user is not present, but booking_id_text is
+        } else if (bookingIdTextIndex !== -1) { 
              productInsertPos = bookingIdTextIndex + 1;
         }
-        // else, it defaults to 1, which is fine.
-
         log(`Determined insert position for 'product_id': ${productInsertPos}`, 'd');
         
         relSuccess = await addRelationField(pb, 'bookings', 'product_id', productsCollection.id, true, productInsertPos, ["item_key", "variant_name_en"]);
@@ -412,7 +375,7 @@ async function setupSchema(pb) {
             viewRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone",
             createRule: "@request.auth.id != '' || @request.data.ordering_person_phone != ''",
             updateRule: "user = @request.auth.id",
-            deleteRule: null
+            deleteRule: null 
         };
         if (!await updateCollectionRules(pb, 'bookings', finalBookingsRules)) {
              log('Failed to update "bookings" collection rules.', 'e'); return false;
@@ -422,65 +385,38 @@ async function setupSchema(pb) {
         return true;
     }
 
-    // ... (setupSeedData, validateProductionSecurity, validateSetup, and button handlers remain largely the same as your template)
-    // Minor adjustment to seedCollectionData to handle 'settings' as truly singleton for existing check
-    // Ensure validateSetup checks for the actual rules after they are applied.
-
     async function setupSeedData(pb) {
         log('=== SEED DATA PHASE ===', 'i');
-        
         if (!await authenticateAdmin(pb)) return false;
-
         log('Pausing for 1 second before seeding...', 'i');
         await new Promise(resolve => setTimeout(resolve, 1000));
-
         await seedCollectionData(pb, 'settings', seedData.settings, null); 
         await seedCollectionData(pb, 'products', seedData.products, 'item_key');
-        
         log('Seed data setup completed successfully', 's');
         return true;
     }
     
     function validateProductionSecurity() {
-        // ... (same as your template, but adjust collection names/rules if needed)
         const warnings = [];
-        // Check for public rules (simplified example)
-        const collectionsToCheck = [
-            {name: "settings", list: "", view: "", create: null, update: null, delete: null},
-            {name: "products", list: "", view: "", create: "", update: "", delete: ""},
-            // Bookings rules are now more complex, validate specific concerns
-        ];
-    
-        collectionsToCheck.forEach(collectionInfo => {
-            const currentCollDef = collectionsWithoutRelations.find(c => c.name === collectionInfo.name);
-            if (currentCollDef) { // Check initial rules, final rules checked in validateSetup
-                 if (currentCollDef.listRule === "" && currentCollDef.name !== "settings" && currentCollDef.name !== "products") warnings.push(`Collection ${currentCollDef.name} initial listRule is public.`);
-                 if (currentCollDef.createRule === "") warnings.push(`Collection ${currentCollDef.name} initial createRule is public.`);
+        collectionsWithoutRelations.forEach(collection => {
+            // Check initial rules defined in collectionsWithoutRelations for overly permissive settings
+            if (collection.name !== "settings" && collection.name !== "products") { // settings & products might be public read
+                if (collection.createRule === "") warnings.push(`Collection ${collection.name} initial createRule is public.`);
+                if (collection.updateRule === "") warnings.push(`Collection ${collection.name} initial updateRule is public.`);
+                if (collection.deleteRule === "") warnings.push(`Collection ${collection.name} initial deleteRule is public.`);
             }
+             if (collection.name === "bookings" && collection.listRule === "") { // Example check for bookings
+                 warnings.push(`Collection 'bookings' initial listRule is public. Ensure final rules are restrictive.`);
+             }
         });
-
-        const bookingsFinalRules = { // Expected secure rules for bookings
-            listRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone", 
-            viewRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone", 
-            createRule: "@request.auth.id != '' || @request.data.ordering_person_phone != ''", 
-            updateRule: "user = @request.auth.id", 
-            deleteRule: null 
-        };
-        // This check is more for awareness as rules are set programmatically.
-        // A direct fetch of current rules from PB would be better for live validation.
-        log("Intended final 'bookings' rules for security check:", "d", bookingsFinalRules);
-
-
         if (ADM_E === 'admin@example.com' && ADM_P === 'unifiedpassword') {
             warnings.push('Using default admin credentials - CHANGE FOR PRODUCTION');
         }
-        
         if (warnings.length > 0) {
             log('🚨 PRODUCTION SECURITY WARNINGS:', 'e');
             warnings.forEach(warning => log(`⚠️  ${warning}`, 'w'));
             log('🚨 SECURE THESE BEFORE PRODUCTION DEPLOYMENT', 'e');
         }
-        
         return warnings.length === 0;
     }
     
@@ -489,7 +425,6 @@ async function setupSchema(pb) {
         const issues = [];
         if (!await authenticateAdmin(pb)) {
             issues.push("✗ Admin authentication failed post-setup.");
-            // If admin auth fails, further checks might be unreliable
             log(`Found ${issues.length} critical issues during validation`, 'e');
             issues.forEach(issue => log(issue, 'e'));
             return false;
@@ -497,29 +432,30 @@ async function setupSchema(pb) {
 
         const expectedCollections = ['settings', 'products', 'bookings', 'users'];
         let productsCollId = null;
+        let usersCollId = null; // To store users collection ID
 
         for (const name of expectedCollections) {
             try {
                 const coll = await pb.collections.getOne(name);
                 log(`✓ Collection ${name} (ID: ${coll.id}) exists`, 's');
                 if (name === 'products') productsCollId = coll.id;
+                if (name === 'users') usersCollId = coll.id; // Store users collection ID
 
                 if (name === 'bookings') {
-                    const userField = coll.schema.find(f => f.name === 'user');
-                    const productField = coll.schema.find(f => f.name === 'product_id');
-                    if (userField && userField.type === 'relation' && userField.options.collectionId === 'users') {
+                    const userField = (coll.schema || []).find(f => f.name === 'user');
+                    const productField = (coll.schema || []).find(f => f.name === 'product_id');
+                    if (userField && userField.type === 'relation' && userField.options.collectionId === usersCollId) { // Compare with fetched usersCollId
                         log(`✓ Relation 'user' in 'bookings' correctly configured.`, 's');
                     } else {
-                        issues.push(`✗ Relation 'user' in 'bookings' MISCONFIGURED or MISSING.`);
-                        log(`✗ Relation 'user' in 'bookings' MISCONFIGURED or MISSING. Found: ${JSON.stringify(userField)}`, 'e');
+                        issues.push(`✗ Relation 'user' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${usersCollId}`);
+                        log(`✗ Relation 'user' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${usersCollId}, Found: ${JSON.stringify(userField?.options?.collectionId)}`, 'e');
                     }
                     if (productField && productField.type === 'relation' && productField.options.collectionId === productsCollId) {
                         log(`✓ Relation 'product_id' in 'bookings' correctly configured.`, 's');
                     } else {
                         issues.push(`✗ Relation 'product_id' in 'bookings' MISCONFIGURED or MISSING (Expected target: ${productsCollId}).`);
-                         log(`✗ Relation 'product_id' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${productsCollId}, Found: ${JSON.stringify(productField)}`, 'e');
+                         log(`✗ Relation 'product_id' in 'bookings' MISCONFIGURED or MISSING. Expected target: ${productsCollId}, Found: ${JSON.stringify(productField?.options?.collectionId)}`, 'e');
                     }
-                    // Validate rules
                     const expectedRules = {
                         listRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone",
                         viewRule: "user = @request.auth.id || ordering_person_phone = @request.data.lookup_phone",
@@ -535,7 +471,6 @@ async function setupSchema(pb) {
                              log(`✓ Rule '${ruleKey}' for 'bookings' is as expected.`, 's');
                         }
                     }
-
                 }
             } catch (error) {
                 issues.push(`✗ Collection ${name} missing or inaccessible.`);
@@ -569,8 +504,7 @@ async function setupSchema(pb) {
             return false;
         }
     }
-    // Button event handlers (runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton)
-    // are largely the same as your template, just ensure they call the corrected functions.
+
     runFullSetupButton.onclick = async () => {
         runFullSetupButton.disabled = true;
         runSchemaOnlyButton.disabled = true;
@@ -590,15 +524,14 @@ async function setupSchema(pb) {
             await new Promise(resolve => setTimeout(resolve, 500)); 
 
             seedSuccess = await setupSeedData(pb);
-            if (!seedSuccess) {
-                log('Seed data setup reported errors, but continuing to validation.', 'w');
-            }
+            // Even if seedSuccess has errors, proceed to validation.
+            // The seedCollectionData function already logs errors per item.
             await new Promise(resolve => setTimeout(resolve, 500)); 
 
             await validateSetup(pb);
             validateProductionSecurity();
 
-            log('<b>=== FULL SETUP PROCESS ATTEMPTED ===</b>', schemaSuccess ? 's' : 'w'); // Success depends mainly on schema
+            log('<b>=== FULL SETUP PROCESS ATTEMPTED ===</b>', schemaSuccess ? 's' : 'w'); 
             if (schemaSuccess) runSeedOnlyButton.disabled = false;
 
         } catch (error) {
@@ -610,6 +543,7 @@ async function setupSchema(pb) {
             if (pb.authStore.isValid) pb.authStore.clear();
             runFullSetupButton.disabled = false;
             runSchemaOnlyButton.disabled = false;
+            // runSeedOnlyButton state is handled based on schemaSuccess inside try
             log('Process finished, auth cleared', 'i');
         }
     };
@@ -664,7 +598,6 @@ async function setupSchema(pb) {
             runSeedOnlyButton.disabled = false;
         }
     };
-
 </script>
 </body>
 </html>
