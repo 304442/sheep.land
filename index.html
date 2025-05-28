@@ -232,6 +232,7 @@
                     <div id="udheya-booking-form-panel" class="card form-panel-card all-steps-panel">
                         <div class="card-b">
                             
+                            <!-- Step 1: Select Sheep -->
                             <div id="step1-content" class="form-step-content">
                                 <div class="sec-head"><h2 class="bil-parent-spread" x-ref="step1Title"><span class="en">Select Sheep</span><span class="ar">اختر الخروف</span></h2></div>
                                 <div class="livestock-sharia-note bil-row">
@@ -548,6 +549,14 @@
                                 <h4 class="form-subhead bil-parent-spread quick-recap-title"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
                                 <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selectedAnimal.nameEN"></span> (<span x-text="selectedAnimal.weight_range_en"></span>)</div><div class="ar"><strong>الحيوان:</strong> <span x-text="selectedAnimal.nameAR"></span> (<span x-text="selectedAnimal.weight_range_ar"></span>)</div></div>
                                 <div class="summary-item bil-row">
+                                    <div class="en"><strong>Booked By:</strong> <span x-text="orderingPersonName"></span></div>
+                                    <div class="ar"><strong>الحجز باسم:</strong> <span x-text="orderingPersonName"></span></div>
+                                </div>
+                                <div class="summary-item bil-row" x-show="niyyahNames.trim() !== ''">
+                                    <div class="en"><strong>Niyyah For:</strong> <span x-text="niyyahNames"></span></div>
+                                    <div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames"></span></div>
+                                </div>
+                                <div class="summary-item bil-row">
                                     <div class="en"><strong>Service:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div>
                                     <div class="ar"><strong>الخدمة:</strong> <span x-text="selectedUdheyaService === 'standard_service' ? 'خدمة قياسية' : 'الحيوان حي فقط'"></span></div>
                                 </div>
@@ -556,7 +565,19 @@
                                     <div class="en"><strong>Viewing Pref:</strong> <span x-show="slaughterViewingPreference === 'physical_inquiry'">Physical Inquiry</span><span x-show="slaughterViewingPreference === 'video_request'">Video/Photo Request</span><span x-show="slaughterViewingPreference === 'live_video_inquiry'">Live Video Inquiry</span></div>
                                     <div class="ar"><strong>مشاهدة الذبح:</strong> <span x-show="slaughterViewingPreference === 'physical_inquiry'">استفسار حضور</span><span x-show="slaughterViewingPreference === 'video_request'">طلب فيديو/صور</span><span x-show="slaughterViewingPreference === 'live_video_inquiry'">استفسار فيديو مباشر</span></div>
                                 </div>
+                                <div class="summary-item bil-row">
+                                    <div class="en"><strong>Distribution:</strong> <span x-text="summaryDistributionEN"></span></div>
+                                    <div class="ar"><strong>التوزيع:</strong> <span x-text="summaryDistributionAR"></span></div>
+                                </div>
+                                <div class="summary-item bil-row" x-show="_needsDeliveryDetails && deliveryAddress.trim() !== ''">
+                                    <div class="en"><strong>Delivery Address:</strong> <span x-text="deliveryAddress"></span>, <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_en"></span></div>
+                                    <div class="ar"><strong>عنوان التوصيل:</strong> <span x-text="deliveryAddress"></span>، <span x-text="allAvailableCities.find(c=>c.id === deliveryCity)?.name_ar"></span></div>
+                                </div>
                                 <div class="summary-item bil-row" x-show="_needsDeliveryDetails"><div class="en"><strong>Delivery Time:</strong> <span x-text="selectedTimeSlot"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="selectedTimeSlot"></span></div></div>
+                                <div class="summary-item bil-row">
+                                    <div class="en"><strong>Order Total:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div>
+                                    <div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="getFormattedPrice(totalPriceEGP)"></span></div>
+                                </div>
                             </div>
                             <div class="payment-instructions-wrapper">
                                 <h4 class="form-subhead bil-parent-spread payment-instructions-title"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
@@ -599,11 +620,24 @@
         <div id="booking-status-results" class="card form-panel-card booking-status-results-card" x-show="isLoading.status || statusResult || statusNotFound" x-transition><div class="card-b">
             <div x-show="isLoading.status" class="loading-text" aria-live="polite">Checking...</div>
             <div x-show="statusResult && !isLoading.status">
-                <h4 class="form-subhead bil-parent-spread"><span class="en">Booking Details</span><span class="ar">تفاصيل الحجز</span></h4><div id="status-content">
+                <h4 class="form-subhead bil-parent-spread"><span class="en">Booking Details</span><span class="ar">تفاصيل الحجز</span></h4>
+                <div id="status-content">
                     <div class="summary-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statusResult?.booking_id_text"></span></div><div class="ar"><strong>رقم الحجز:</strong> <span x-text="statusResult?.booking_id_text"></span></div></div>
-                    <div class="summary-item bil-row"><div class="en"><strong>Status:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div><div class="ar"><strong>الحالة:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div></div>
-                    <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statusResult?.animal_type"></span>, <span x-text="statusResult?.animal_weight_selected"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statusResult?.animal_type"></span>، <span x-text="statusResult?.animal_weight_selected"></span></div></div>
-                    <div class="summary-item bil-row"><div class="en"><strong>Scheduled Day:</strong> <span x-text="(statusResult?.sacrifice_day ? getSacrificeDayText(statusResult.sacrifice_day).en : '')"></span>, <strong>Pref. Delivery Time:</strong> <span x-text="statusResult?.time_slot"></span></div><div class="ar"><strong>اليوم المجدول:</strong> <span x-text="(statusResult?.sacrifice_day ? getSacrificeDayText(statusResult.sacrifice_day).ar : '')"></span>، <strong>وقت التوصيل المفضل:</strong> <span x-text="statusResult?.time_slot"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Booking Status:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div><div class="ar"><strong>حالة الحجز:</strong> <span class="status-highlight" x-text="statusResult?.status"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Payment Status:</strong> <span x-text="statusResult?.payment_status_text"></span></div><div class="ar"><strong>حالة الدفع:</strong> <span x-text="statusResult?.payment_status_text"></span></div></div>
+                     <div class="summary-item bil-row"><div class="en"><strong>Booked By:</strong> <span x-text="statusResult?.ordering_person_name"></span></div><div class="ar"><strong>الحجز باسم:</strong> <span x-text="statusResult?.ordering_person_name"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statusResult?.animal_type_name_en"></span>, <span x-text="statusResult?.weight_category_name_en"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statusResult?.animal_type_name_ar"></span>، <span x-text="statusResult?.weight_category_name_ar"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="statusResult?.udheya_service_option_selected === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="statusResult?.udheya_service_option_selected === 'standard_service' ? 'خدمة قياسية' : 'الحيوان حي فقط'"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="statusResult?.sacrifice_day_text_en"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="statusResult?.sacrifice_day_text_ar"></span></div></div>
+                    <div class="summary-item bil-row" x-show="statusResult?.niyyah_names"><div class="en"><strong>Niyyah For:</strong> <span x-text="statusResult?.niyyah_names"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="statusResult?.niyyah_names"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="statusResult?.distribution_choice_en"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="statusResult?.distribution_choice_ar"></span></div></div>
+                    <div class="summary-item bil-row" x-show="statusResult?._needs_delivery && statusResult?.delivery_address">
+                        <div class="en"><strong>Delivery To:</strong> <span x-text="`${statusResult.delivery_address}, ${statusResult.delivery_city_name_en || ''}`"></span></div>
+                        <div class="ar"><strong>التوصيل إلى:</strong> <span x-text="`${statusResult.delivery_address}، ${statusResult.delivery_city_name_ar || ''}`"></span></div>
+                    </div>
+                    <div class="summary-item bil-row" x-show="statusResult?._needs_delivery && statusResult?.time_slot !== 'N/A'"><div class="en"><strong>Pref. Delivery Time:</strong> <span x-text="statusResult?.time_slot"></span></div><div class="ar"><strong>وقت التوصيل المفضل:</strong> <span x-text="statusResult?.time_slot"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Total:</strong> <span x-text="getFormattedPrice(statusResult?.total_amount_due_egp)"></span></div><div class="ar"><strong>المجموع:</strong> <span x-text="getFormattedPrice(statusResult?.total_amount_due_egp)"></span></div></div>
+                    <div class="summary-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statusResult?.payment_method?.toUpperCase()"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statusResult?.payment_method?.toUpperCase()"></span></div></div>
                 </div>
             </div>
             <div id="status-no-results" class="status-no-results-text bil-row" x-show="statusNotFound && !isLoading.status"><p class="en">No booking found. Check ID or contact support.</p><p class="ar">لم يتم العثور على حجز. تحقق من الرقم أو اتصل بالدعم.</p></div>

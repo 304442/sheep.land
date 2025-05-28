@@ -71,11 +71,11 @@ document.addEventListener('alpine:init', () => {
     ];
 
     async function postBookingToPB(bookingPayload) {
-        const pb = new PocketBase('/'); // Ensure PocketBase instance is available
+        const pb = new PocketBase('/');
         const apiUrl = `/api/collections/bookings/records`;
         const options = { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(bookingPayload) };
         try {
-            const response = await fetch(apiUrl, options); // Assuming direct fetch if pb instance not used for this
+            const response = await fetch(apiUrl, options);
             if (!response.ok) {
                 let errorMessage = `API Error (POST bookings): ${response.status}`;
                 try { const errorData = await response.json(); errorMessage += ` - ${errorData?.message || JSON.stringify(errorData.data) || response.statusText}`; }
@@ -97,7 +97,7 @@ document.addEventListener('alpine:init', () => {
                 const newStock = Math.max(0, stockRecord.current_stock - quantityToDecrement);
                 await pb.collection('stock_levels').update(stockRecord.id, { current_stock: newStock });
                 console.log(`Stock updated in PB for ${itemKey} to ${newStock}`);
-                return newStock; 
+                return newStock;
             } else {
                 console.warn(`Stock record not found in PB for item_key: ${itemKey}. Cannot update stock.`);
                 return null; 
@@ -107,7 +107,6 @@ document.addEventListener('alpine:init', () => {
             throw new Error(`Failed to update stock for ${itemKey}: ${error.message}`); 
         }
     }
-
 
     Alpine.data('udheyaBooking', () => ({
         isLoading: { status: false, booking: false, init: true },
@@ -161,7 +160,7 @@ document.addEventListener('alpine:init', () => {
 
             let fetchedStockLevels = [];
             try {
-                fetchedStockLevels = await pb.collection('stock_levels').getFullList({ requestKey: null }); // requestKey: null to bypass cache for this fetch
+                fetchedStockLevels = await pb.collection('stock_levels').getFullList({ requestKey: null });
             } catch (e) {
                 console.error("Error fetching stock levels from PocketBase:", e);
                 this.apiError = "Could not load stock information. Please refresh.";
@@ -294,7 +293,7 @@ document.addEventListener('alpine:init', () => {
         updateAllStepCompletionStates() { for(let i=1;i<=this.stepSectionsMeta.length;i++)this.stepProgress[`step${i}`]=this.validateConceptualStep(i,false);},
         handleStepperNavigation(tcs) {this.clearAllErrors();let cp=true;for(let s=1;s<tcs;s++){if(!this.validateConceptualStep(s,true)){this.currentConceptualStep=s;const m=this.stepSectionsMeta[s-1];this.focusOnRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollToSection(m?.id||'#udheya-booking-start');cp=false;break;}}if(cp){this.currentConceptualStep=tcs;this.scrollToSection(this.stepSectionsMeta[tcs-1]?.id||'#udheya-booking-start');this.focusOnRef(this.stepSectionsMeta[tcs-1]?.titleRef);}},
         
-        validateStep1(setErrors = true) { // Select Sheep
+        validateStep1(setErrors = true) { 
             if (setErrors) this.clearError('animal');
             if (!this.selectedAnimal.item_key) { if (setErrors) this.setError('animal', 'select'); return false; }
             return true; 
@@ -359,8 +358,20 @@ document.addEventListener('alpine:init', () => {
             }
             this.calculateTotalPrice(); this.updateAllStepCompletionStates();
         },
-        updateSacrificeDayTexts() { const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; if (sacrificeDaySelectElement) { const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`); if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});} },
-        calculateTotalPrice() { let deliveryFeeForTotal = 0; if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) { deliveryFeeForTotal = this.deliveryFeeForDisplayEGP; } this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal;  },
+        updateSacrificeDayTexts() { 
+            const sacrificeDaySelectElement = this.$refs.sacrificeDaySelect_s3; // Corresponds to new Step 3
+            if (sacrificeDaySelectElement) { 
+                const optionElement = sacrificeDaySelectElement.querySelector(`option[value="${this.selectedSacrificeDay.value}"]`); 
+                if(optionElement) Object.assign(this.selectedSacrificeDay,{textEN:optionElement.dataset.en,textAR:optionElement.dataset.ar});
+            } 
+        },
+        calculateTotalPrice() { 
+            let deliveryFeeForTotal = 0; 
+            if(this._needsDeliveryDetails && this.deliveryFeeForDisplayEGP > 0 && !this.isDeliveryFeeVariable) { 
+                deliveryFeeForTotal = this.deliveryFeeForDisplayEGP; 
+            } 
+            this.totalPriceEGP=(this.selectedAnimal.basePriceEGP||0) + (this.currentServiceFeeEGP || 0) + deliveryFeeForTotal;  
+        },
         updateAllDisplayedPrices() {
             try {
                 (this.productOptions.livestock || []).forEach(livestockTypeConfig => { 
@@ -447,12 +458,10 @@ document.addEventListener('alpine:init', () => {
                         this.selectedAnimal.stock = newStockLevelAfterBooking; 
                         this.updateAllDisplayedPrices(); 
                     } else {
-                        // Stock record was not found in PB to update - this is an issue if it was expected
                         console.error(`CRITICAL: Booking ${this.bookingID} created, but stock record for ${stockItemConfig.item_key} was NOT FOUND in PocketBase for update.`);
                         this.userFriendlyApiError = "Booking placed, but there was an issue finding the stock record to update. Please contact support with your Booking ID.";
                     }
                 } catch (stockUpdateError) {
-                    // Stock update itself failed after booking was made
                     console.error(`CRITICAL: Booking ${this.bookingID} created, but FAILED to update stock for ${stockItemConfig.item_key} in PocketBase. Error: ${stockUpdateError.message}`);
                     this.userFriendlyApiError = "Booking placed, but the stock update failed. Please contact support with your Booking ID to ensure stock accuracy.";
                 }
@@ -462,6 +471,9 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { 
                 this.apiError=String(e.message);
                 this.userFriendlyApiError="Issue submitting your booking. Please try again or contact support.";
+                if (e.message.includes("Failed to update stock")) { 
+                    this.userFriendlyApiError = "Booking submission failed during stock update. Please try again.";
+                }
                 this.$nextTick(()=>this.scrollToSection('.global-error-indicator'));
             }
             finally { this.isLoading.booking = false; }
@@ -469,22 +481,72 @@ document.addEventListener('alpine:init', () => {
         async validateAndCheckBookingStatus() {this.clearError('lookupBookingID');if((this.lookupBookingID||"").trim())await this.checkBookingStatus();else{this.setError('lookupBookingID','required');this.focusOnRef('lookupBookingIdInput');}},
         async checkBookingStatus() { 
             this.statusResult = null; this.statusNotFound = false; this.isLoading.status = true; this.apiError = null; this.userFriendlyApiError = ""; const id = (this.lookupBookingID || "").trim();
+            const pb = new PocketBase('/');
             try {
-                const response = await fetch(`/api/collections/bookings/records?filter=(booking_id_text='${encodeURIComponent(id)}')`);
-                if (!response.ok && response.status !== 404) throw new Error(`API Error: ${response.status}`);
-                const data = await response.json();
-                if (data.items?.length > 0) {
-                    const b = data.items[0];
+                // Fetch full record to get all details
+                const records = await pb.collection('bookings').getFullList({filter: `booking_id_text = "${pb.realtime.realtimeSubscriptions, id}"`});
+
+                if (records && records.length > 0) {
+                    const b = records[0];
+                    let distributionTextEN = b.distribution_choice;
+                    let distributionTextAR = b.distribution_choice; // Basic fallback
+                     const distOpt = this.distributionChoiceOptions().find(opt => opt.value === b.distribution_choice);
+                     if(distOpt) {
+                        distributionTextEN = distOpt.textEn;
+                        distributionTextAR = distOpt.textAr;
+                     }
+
+                    if (b.distribution_choice === 'split') {
+                        let splitDetailTextEN = b.split_details_option;
+                        let splitDetailTextAR = b.split_details_option;
+                        if (b.split_details_option === 'custom') {
+                            splitDetailTextEN = b.custom_split_details_text || "Custom";
+                            splitDetailTextAR = b.custom_split_details_text || "مخصص";
+                        } else {
+                            const splitOpt = this.splitDetailOptionsList().find(opt => opt.value === b.split_details_option);
+                            if(splitOpt){
+                                splitDetailTextEN = splitOpt.textEn;
+                                splitDetailTextAR = splitOpt.textAr;
+                            }
+                        }
+                        distributionTextEN += ` (${splitDetailTextEN})`;
+                        distributionTextAR += ` (${splitDetailTextAR})`;
+                    }
+                    
                     this.statusResult = { 
-                        booking_id_text: b.booking_id_text, status: b.booking_status?.replace(/_/g," ")||"Unknown", 
-                        animal_type: b.animal_type_name_en, animal_weight_selected: b.weight_category_name_en || (b.weight_range_actual_en || "N/A"), 
-                        sacrifice_day: b.sacrifice_day_value, time_slot: b.time_slot 
+                        booking_id_text: b.booking_id_text, 
+                        status: b.booking_status?.replace(/_/g," ")||"Unknown", 
+                        payment_status_text: b.payment_status?.replace(/_/g, " ") || "N/A",
+                        animal_type_name_en: b.animal_type_name_en,
+                        animal_type_name_ar: b.animal_type_name_ar,
+                        weight_category_name_en: b.weight_category_name_en,
+                        weight_category_name_ar: b.weight_category_name_ar,
+                        udheya_service_option_selected: b.udheya_service_option_selected,
+                        sacrifice_day_value: b.sacrifice_day_value, 
+                        sacrifice_day_text_en: b.sacrifice_day_text_en,
+                        sacrifice_day_text_ar: b.sacrifice_day_text_ar,
+                        slaughter_viewing_preference: b.slaughter_viewing_preference,
+                        time_slot: b.time_slot,
+                        ordering_person_name: b.ordering_person_name,
+                        niyyah_names: b.niyyah_names,
+                        distribution_choice_en: distributionTextEN,
+                        distribution_choice_ar: distributionTextAR,
+                        delivery_address: b.delivery_address,
+                        delivery_city_name_en: b.delivery_city_name_en,
+                        delivery_city_name_ar: b.delivery_city_name_ar,
+                        total_amount_due_egp: b.total_amount_due_egp,
+                        payment_method: b.payment_method,
+                         _needs_delivery: (b.delivery_option === 'home_delivery_to_orderer' || (b.distribution_choice === 'split' && (b.split_details_option?.includes('_me_') || b.split_details_option === 'all_me_custom_distro' || (b.split_details_option === 'custom' && b.custom_split_details_text?.toLowerCase().includes('me')))))
                     };
                 } else this.statusNotFound = true;
             } catch (e) { this.apiError=String(e.message);this.userFriendlyApiError="Could not get status.";this.statusNotFound=true;}
             finally { this.isLoading.status = false; }
         },
-        getSacrificeDayText(v) { const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v}; },
+        getSacrificeDayText(v) { 
+            // This now needs to use the correct select element for the new Step 3
+            const optionElement = document.querySelector(`#sacrifice_day_select_s3 option[value="${v}"]`); 
+            return optionElement ? {en: optionElement.dataset.en, ar: optionElement.dataset.ar} : {en: v, ar: v}; 
+        },
         
         async resetAndStartOver() { 
             const currency = this.currentCurrency; const lang = this.currentLang;
@@ -493,7 +555,6 @@ document.addEventListener('alpine:init', () => {
             
             if (this.countdownTimerInterval) clearInterval(this.countdownTimerInterval);
             
-            // initApp will re-fetch stock and re-initialize productOptions based on hardcoded + PB stock
             await this.initApp(); 
              
             this.$nextTick(() => {
