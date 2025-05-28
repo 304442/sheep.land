@@ -116,7 +116,7 @@ document.addEventListener('alpine:init', () => {
             this.load.init = true; this.apiErr = null; this.usrApiErr = "";
             const pb = new PocketBase('/');
             try {
-                const remoteSettingsList = await pb.collection('app_settings').getFullList({ requestKey: null });
+                const remoteSettingsList = await pb.collection('settings').getFullList({ requestKey: null });
                 if (remoteSettingsList && remoteSettingsList.length > 0) {
                     const rs = remoteSettingsList[0];
                     this.settings.xchgRates = rs.xchgRates;

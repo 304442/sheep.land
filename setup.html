@@ -50,7 +50,7 @@
 
     const collectionsWithoutRelations = [
         {
-            name: "app_settings", type: "base", listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null,
+            name: "settings", type: "base", listRule: "", viewRule: "", createRule: null, updateRule: null, deleteRule: null,
             options: { maxRecords: 1 },
             fields: [
                 { name: "xchgRates", type: "json", required: true, presentable: true },
@@ -134,7 +134,7 @@
     ];
 
     const seedData = {
-        app_settings: [
+        settings: [
             {
                 xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
                 defCurr: "EGP",
@@ -272,7 +272,7 @@
             log('Pausing for 1 second before seeding...', 'lw');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            await seedCollectionData(pb, 'app_settings', seedData.app_settings, null);
+            await seedCollectionData(pb, 'settings', seedData.settings, null);
             await seedCollectionData(pb, 'products', seedData.products, 'item_key');
 
             log('<b>Full setup completed successfully!</b>', 'ls');
