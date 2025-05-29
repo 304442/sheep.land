@@ -53,20 +53,17 @@
         else console.log(consoleMessage, data || '');
     };
 
-    // PocketBase Field Schema definitions
-    // Note: `id` and `system` are typically not set by user for new fields.
-    // `options` for field types like text, number, select, relation need to be structured correctly.
     const collectionsDefinition = [
         {
             name: "settings", 
             type: "base", 
-            listRule: "", // Public read for settings
-            viewRule: "", // Public read for settings
-            createRule: null, // No creation via API
-            updateRule: "@request.auth.id != '' && @request.auth.verified = true", // Only verified admins
-            deleteRule: null, // No deletion via API
-            options: { "allowEmailAuth": false, "allowOAuth2Auth": false, "allowUsernameAuth": false, "exceptEmailDomains": null, "manageRule": null, "onlyEmailDomains": null, "onlyVerified": false, "requireEmail": false }, // System options for the collection
-            schema: [ // Renamed from `fields` to `schema` for PB SDK consistency
+            listRule: "", 
+            viewRule: "", 
+            createRule: null, 
+            updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            deleteRule: null,
+            options: { "allowEmailAuth": false, "allowOAuth2Auth": false, "allowUsernameAuth": false, "exceptEmailDomains": null, "manageRule": null, "onlyEmailDomains": null, "onlyVerified": false, "requireEmail": false },
+            schema: [
                 { name: "xchgRates", type: "json", required: true, presentable: true, options: {} }, 
                 { name: "defCurr", type: "text", required: true, presentable: true, options: {max: 5, min:3, pattern:""} },
                 { name: "waNumRaw", type: "text", required: false, presentable: true, options: {max: 20, pattern:""} }, 
@@ -82,8 +79,8 @@
         {
             name: "products", 
             type: "base", 
-            listRule: "", // Public read for products
-            viewRule: "", // Public read for products
+            listRule: "", 
+            viewRule: "", 
             createRule: "@request.auth.id != '' && @request.auth.verified = true", 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
@@ -130,18 +127,18 @@
                 { name: "initial_weight_kg", type: "number", required: false, presentable: true, options: {min: 0} },
                 { name: "current_status", type: "select", required: true, presentable: true, options: {maxSelect: 1, values: ["Active", "Sold", "Deceased", "Culled", "Quarantined", "Reserved"]} },
                 { name: "notes", type: "text", required: false, presentable: true, options: {max: 1000, pattern:""} },
-                { name: "product_item_key_association", type: "text", required: false, presentable: true, options: {max: 100, pattern: "^[a-z0-9_]*$"} }, // Allow empty
+                { name: "product_item_key_association", type: "text", required: false, presentable: true, options: {max: 100, pattern: "^[a-z0-9_]*$"} },
                 { 
-                    name: "sale_order_id", // Relation to the order this animal was sold in
+                    name: "sale_order_id",
                     type: "relation",
                     required: false,
                     presentable: true,
                     options: {
-                        collectionId: "orders", // Name of the target collection
-                        cascadeDelete: false,   // Do not delete animal if order is deleted
+                        collectionId: "orders", 
+                        cascadeDelete: false, 
                         minSelect: null,
                         maxSelect: 1,
-                        displayFields: ["order_id_text"] // Field from 'orders' to display in admin UI
+                        displayFields: ["order_id_text"]
                     }
                 }
             ],
@@ -157,7 +154,6 @@
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
             options: {},
             schema: [
-                // animal_id relation will be added by addRelationField, or can be defined here:
                 { 
                     name: "animal_id", type: "relation", required: true, presentable: true,
                     options: { collectionId: "sheep_log", cascadeDelete: true, minSelect: 1, maxSelect: 1, displayFields: ["animal_tag_id"] }
@@ -176,19 +172,16 @@
         { 
             name: "orders", 
             type: "base", 
-            // Rules will be updated by updateCollectionRules function later for more specific access
-            listRule: "@request.auth.id != '' && @request.auth.verified = true", // Initial restrictive rule
-            viewRule: "@request.auth.id != '' && @request.auth.verified = true", // Initial restrictive rule
-            createRule: "", // Allow creation via API hook initially
+            listRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            viewRule: "@request.auth.id != '' && @request.auth.verified = true",
+            createRule: "", 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
             options: {},
             schema: [
-                // Relation fields (user, product_id, animal_id) can be defined here or added via addRelationField
                 { name: "user", type: "relation", required: false, presentable: true, options: { collectionId: "users", maxSelect: 1, displayFields: ["email", "username"] } },
                 { name: "product_id", type: "relation", required: true, presentable: true, options: { collectionId: "products", minSelect: 1, maxSelect: 1, displayFields: ["item_key", "variant_name_en"] } },
-                { name: "animal_id", type: "relation", required: false, presentable: true, options: { collectionId: "sheep_log", maxSelect: 1, displayFields: ["animal_tag_id"] } }, // For specific animal orders
-
+                { name: "animal_id", type: "relation", required: false, presentable: true, options: { collectionId: "sheep_log", maxSelect: 1, displayFields: ["animal_tag_id"] } },
                 { name: "order_id_text", type: "text", required: true, presentable: true, options: {max: 50, min:1, pattern:""} },
                 { name: "ordered_product_name_en", type: "text", required: true, presentable: true, options: {max: 150, min:1, pattern:""} }, 
                 { name: "ordered_product_name_ar", type: "text", required: true, presentable: true, options: {max: 150, min:1, pattern:""} },
@@ -258,7 +251,7 @@
         }
     ];
 
-    const seedData = {
+    const seedData = { // Data remains same, already included sale_order_id: null in sheep_log
         settings: [ {
                 xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true } },
                 defCurr: "EGP", waNumRaw: "201117117489", waNumDisp: "+20 11 1711 7489", promoEndISO: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], promoDiscPc: 10, promoActive: true, servFeeEGP: 750,
@@ -277,7 +270,7 @@
             { animal_tag_id: "SL-B-002", species: "Sheep", breed: "Baladi", acquisition_date: new Date(new Date().setDate(new Date().getDate()-60)).toISOString().split('T')[0], acquisition_cost_egp: 6800, source: "Al-Amin Market", gender: "Male", initial_weight_kg: 18, current_status: "Active", product_item_key_association: "baladi_60_plus", sale_order_id: null},
             { animal_tag_id: "SL-K-001", species: "Sheep", breed: "Barki", acquisition_date: new Date(new Date().setDate(new Date().getDate()-45)).toISOString().split('T')[0], acquisition_cost_egp: 5500, source: "Supplier Z", gender: "Female", initial_weight_kg: 12, current_status: "Active", product_item_key_association: "barki_40_50", sale_order_id: null}
         ],
-        animal_events: [ // animal_id will be populated during seeding
+        animal_events: [
             { animal_tag_id_for_seed: "SL-B-001", event_date: new Date(new Date().setDate(new Date().getDate()-30)).toISOString().split('T')[0], event_type: "Vaccination", description: "Annual booster shots", cost_associated_egp: 50},
             { animal_tag_id_for_seed: "SL-B-001", event_date: new Date(new Date().setDate(new Date().getDate()-5)).toISOString().split('T')[0], event_type: "Weight Check", description: "Routine weight check", weight_kg_at_event: 48},
             { animal_tag_id_for_seed: "SL-K-001", event_date: new Date(new Date().setDate(new Date().getDate()-20)).toISOString().split('T')[0], event_type: "Medication", description: "Deworming", cost_associated_egp: 75, medication_details: "Ivermectin Oral Solution"}
@@ -303,9 +296,12 @@
     async function createOrUpdateCollection(pb, collectionData) {
         try {
             let existingCollection = null;
-            try { existingCollection = await pb.collections.getOne(collectionData.name); } catch (_) { /* collection doesn't exist */ }
+            try {
+                existingCollection = await pb.collections.getOne(collectionData.name);
+            } catch (_) { /* collection doesn't exist */ }
 
-            const payload = { // Common structure for create/update
+            // Payload for both create and update
+            const payload = {
                 name: collectionData.name,
                 type: collectionData.type,
                 listRule: collectionData.listRule,
@@ -313,14 +309,13 @@
                 createRule: collectionData.createRule,
                 updateRule: collectionData.updateRule,
                 deleteRule: collectionData.deleteRule,
-                schema: collectionData.schema, // Use the 'schema' key with field definitions
+                schema: collectionData.schema, // Pass the field definitions array
                 indexes: collectionData.indexes || [],
                 options: collectionData.options || {}
             };
 
             if (existingCollection) {
                 log(`Collection ${collectionData.name} exists. Updating...`, 'w');
-                // For updates, we send the full desired state. PB figures out the diff.
                 await pb.collections.update(existingCollection.id, payload);
                 log(`Collection ${collectionData.name} updated successfully.`, 's');
             } else {
@@ -330,7 +325,7 @@
             }
         } catch (error) {
             log(`Failed to create/update collection ${collectionData.name}: ${error.message}`, 'e', error.response?.data || error);
-            throw error; // Re-throw to halt setup if a critical collection fails
+            throw error;
         }
     }
     
@@ -341,27 +336,30 @@
         }
         log('All collections processed.', 's');
     }
-
-    // addRelationField is less necessary if relations are defined directly in collectionsDefinition's schema.
-    // However, keeping it for potential ad-hoc additions or if a strict order is needed.
-    async function addRelationField(pb, collectionName, fieldSchema) {
+    
+    // This function can be used if you need to add relation fields *after* initial collection creation
+    // and they are not already part of the main `collectionsDefinition[N].schema`.
+    // For this setup, relation fields are now defined directly in the `schema` array.
+    async function addRelationFieldIfNeeded(pb, collectionName, fieldSchema) {
         try {
-            log(`Checking/Adding relation field ${fieldSchema.name} to ${collectionName}...`, 'i');
             const collection = await pb.collections.getOne(collectionName);
-            
             const fieldExists = collection.schema.some(f => f.name === fieldSchema.name);
+            
             if (fieldExists) {
-                log(`Field ${fieldSchema.name} already exists in ${collectionName}, skipping.`, 'w');
+                log(`Field ${fieldSchema.name} already exists in ${collectionName}. Verifying options...`, 'd');
+                // Optional: Add logic here to update existing field options if necessary.
+                // For this script, we'll assume if it exists, it's mostly correct or handled by main schema update.
                 return true;
             }
-
+            
+            log(`Adding relation field ${fieldSchema.name} to ${collectionName}...`, 'i');
             const updatedSchema = [...collection.schema, fieldSchema];
             await pb.collections.update(collection.id, { schema: updatedSchema });
             log(`Relation field ${fieldSchema.name} added to ${collectionName} successfully.`, 's');
             return true;
         } catch (error) {
-            log(`ERROR adding relation field ${fieldSchema.name} to ${collectionName}: ${error.message}`, 'e', error.response?.data || error);
-            return false; // Don't throw, allow setup to continue if it's non-critical or handled
+            log(`ERROR handling relation field ${fieldSchema.name} for ${collectionName}: ${error.message}`, 'e', error.response?.data || error);
+            return false;
         }
     }
 
@@ -375,9 +373,9 @@
                 if (uniqueKeyField && item[uniqueKeyField] !== undefined) {
                     try { 
                         existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${pb.utils.escapeFilterValue(item[uniqueKeyField])}"`); 
-                    } catch (e) { if (e.status !== 404) { log(`Error checking for existing record: ${e.message}`, 'w', e); throw e; } /* Record not found is fine */ }
+                    } catch (e) { if (e.status !== 404) { log(`Error checking for existing record in ${collectionName}: ${e.message}`, 'w', e); } /* Record not found is fine */ }
                 } else if (!uniqueKeyField && collectionName === "settings") { 
-                    const list = await pb.collection(collectionName).getList(1, 1);
+                    const list = await pb.collection(collectionName).getList(1, 1, { requestKey: null }); // requestKey:null for fresh data
                     if (list.items.length > 0) existingRecord = list.items[0];
                 }
 
@@ -402,7 +400,7 @@
         try {
             log(`Updating rules for collection ${collectionName}...`, 'i');
             const collection = await pb.collections.getOne(collectionName); // Ensure collection exists
-            await pb.collections.update(collection.id, rules); // rules should be an object like { listRule: "...", viewRule: "..." }
+            await pb.collections.update(collection.id, rules); 
             log(`Rules for ${collectionName} updated successfully.`, 's');
             return true;
         } catch (error) {
@@ -414,11 +412,10 @@
     async function debugCollectionSchema(pb, collectionName) {
         try {
             const collection = await pb.collections.getOne(collectionName);
-            log(`=== DEBUG: ${collectionName} Collection Schema ===`, 'i');
-            log(`Collection ID: ${collection.id}`, 'd');
+            log(`=== DEBUG: ${collectionName} Collection Schema (ID: ${collection.id}) ===`, 'i');
             log(`Fields (${collection.schema.length}):`, 'd');
             collection.schema.forEach((field, index) => {
-                log(`  ${index + 1}. ${field.name} (type: ${field.type}, id: ${field.id}, req: ${field.required})${field.type === 'relation' ? ` -> ${field.options?.collectionId}` : ''}`, 'd', field.options);
+                log(`  ${index + 1}. ${field.name} (type: ${field.type}, id: ${field.id}, req: ${field.required})${field.type === 'relation' ? ` -> collId:'${field.options?.collectionId}'` : ''}`, 'd', field.options);
             });
             log(`Rules:`, 'd', { listRule: collection.listRule, viewRule: collection.viewRule, createRule: collection.createRule, updateRule: collection.updateRule, deleteRule: collection.deleteRule });
             log(`Options:`, 'd', collection.options);
@@ -431,18 +428,17 @@
         log('=== SCHEMA SETUP PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
         
-        // Create/Update collections with fields defined in collectionsDefinition
         await setupCollections(pb, collectionsDefinition);
-        // Note: Relations are now defined within collectionsDefinition.
-        // The addRelationField function is available if dynamic additions are needed post-initial setup.
+        // Relations are now defined within collectionsDefinition[N].schema.
+        // If any relations were missed or need explicit post-creation setup, use addRelationFieldIfNeeded here.
 
         log('Updating API rules for "orders" collection...', 'i');
         const finalOrdersRules = {
             listRule: "@request.auth.id = user.id || ordering_person_phone = @request.query.lookupPhone:string",
             viewRule: "@request.auth.id = user.id || ordering_person_phone = @request.query.lookupPhone:string",
-            createRule: "@request.auth.id != '' || ordering_person_phone != ''", // Allows create via hook for anonymous, or by logged-in user
-            updateRule: "@request.auth.id != '' && @request.auth.verified = true", // Only admin can update (e.g. status)
-            deleteRule: "@request.auth.id != '' && @request.auth.verified = true"  // Only admin can delete
+            createRule: "@request.auth.id != '' || ordering_person_phone != ''", 
+            updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            deleteRule: "@request.auth.id != '' && @request.auth.verified = true"
         };
         if (!await updateCollectionRules(pb, 'orders', finalOrdersRules)) return false;
 
@@ -486,16 +482,15 @@
         collectionsDefinition.forEach(collection => {
             const rulesToCheck = ['listRule', 'viewRule', 'createRule', 'updateRule', 'deleteRule'];
             rulesToCheck.forEach(ruleKey => {
-                // Check for overly permissive initial rules (empty string often means public for list/view/create)
                 if (collection[ruleKey] === "" && 
-                    !( (collection.name === "settings" || collection.name === "products") && (ruleKey === 'listRule' || ruleKey === 'viewRule') ) && // Allow public read for settings/products
-                    !( collection.name === "orders" && ruleKey === 'createRule') // Allow public create for orders (handled by hook)
+                    !( (collection.name === "settings" || collection.name === "products") && (ruleKey === 'listRule' || ruleKey === 'viewRule') ) && 
+                    !( collection.name === "orders" && ruleKey === 'createRule') 
                    ) {
                      warnings.push(`Collection ${collection.name} has a potentially public initial ${ruleKey} (empty string). Ensure final rules are restrictive or intentional.`);
                 }
             });
         });
-        if (ADM_E === 'admin@example.com' || ADM_P === 'unifiedpassword') { // Check for OR, not AND
+        if (ADM_E === 'admin@example.com' || ADM_P === 'unifiedpassword') {
             warnings.push('Using default admin credentials - CHANGE FOR PRODUCTION');
         }
         if (warnings.length > 0) {
@@ -529,25 +524,19 @@
 
         const validateRelation = (sourceCollName, fieldName, targetCollNameExpected) => {
             const sourceColl = collectionCache[sourceCollName];
-            const targetColl = collectionCache[targetCollNameExpected]; // Get expected target collection details for ID
-            if (!sourceColl) {
-                 issues.push(`✗ Cannot validate relation from ${sourceCollName}.${fieldName}: Source collection missing.`);
-                 return;
-            }
-            if (!targetColl) {
-                 issues.push(`✗ Cannot validate relation to ${targetCollNameExpected} for ${sourceCollName}.${fieldName}: Expected target collection missing.`);
-                 return;
-            }
+            const targetColl = collectionCache[targetCollNameExpected]; 
+            if (!sourceColl) { issues.push(`✗ Cannot validate relation from ${sourceCollName}.${fieldName}: Source collection missing.`); return; }
+            if (!targetColl) { issues.push(`✗ Cannot validate relation to ${targetCollNameExpected} for ${sourceCollName}.${fieldName}: Expected target collection missing.`); return; }
 
             const field = sourceColl.schema.find(f => f.name === fieldName);
             if (field?.type === 'relation' && field.options?.collectionId === targetColl.id) {
                 log(`✓ Relation '${fieldName}' in '${sourceCollName}' correctly points to ${targetCollNameExpected} collection (ID: ${targetColl.id}).`, 's'); 
             } else {
-                issues.push(`✗ Relation '${fieldName}' in '${sourceCollName}' MISCONFIGURED or MISSING. Found: ${field ? `${field.type} -> ${field.options?.collectionId}` : 'MISSING FIELD'}, Expected: relation -> ${targetColl.id} (${targetCollNameExpected})`);
+                issues.push(`✗ Relation '${fieldName}' in '${sourceCollName}' MISCONFIGURED or MISSING. Found: ${field ? `${field.type} -> collId:'${field.options?.collectionId}'` : 'FIELD MISSING'}, Expected: relation -> collId:'${targetColl.id}' (${targetCollNameExpected})`);
             }
         };
 
-        if (collectionCache['orders']) { // Only validate relations if orders collection exists
+        if (collectionCache['orders']) {
             validateRelation('orders', 'user', 'users');
             validateRelation('orders', 'product_id', 'products');
             validateRelation('orders', 'animal_id', 'sheep_log');
@@ -580,7 +569,7 @@
         for (const [collectionName, dataToSeed] of Object.entries(seedData)) {
             if (["settings", "products", "expenses", "sheep_log"].includes(collectionName) && collectionCache[collectionName]) { 
                 try {
-                    const records = await pb.collection(collectionName).getList(1, Math.max(1, dataToSeed.length));
+                    const records = await pb.collection(collectionName).getList(1, Math.max(1, dataToSeed.length), { requestKey: null });
                     const expectedMinCount = (collectionName === "settings" && dataToSeed.length > 0) ? 1 : (dataToSeed.length > 0 ? dataToSeed.length : 0);
                     if (records.items.length >= expectedMinCount ) {
                         log(`✓ Collection ${collectionName} has sufficient data (found ${records.items.length}, expected at least ${expectedMinCount}).`, 's');
@@ -610,10 +599,11 @@
             if (!await authenticateAdmin(pb)) return;
             
             log('=== DEBUGGING ALL COLLECTIONS ===', 'i');
-            const collections = ['settings', 'products', 'orders', 'users', 'expenses', 'sheep_log', 'animal_events'];
-            
-            for (const collName of collections) {
-                await debugCollectionSchema(pb, collName);
+            const collectionsList = await pb.collections.getFullList({requestKey: null}); // Get all actual collections
+            for (const coll of collectionsList) {
+                 if (['settings', 'products', 'orders', 'users', 'expenses', 'sheep_log', 'animal_events'].includes(coll.name) || !coll.system) { // Debug ours + any other non-system
+                    await debugCollectionSchema(pb, coll.name);
+                 }
             }
             
         } catch (error) {
