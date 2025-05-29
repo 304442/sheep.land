@@ -1,4 +1,4 @@
-/** /// <reference path="../pb_data/types.d.ts" /> */
+/// <reference path="../pb_data/types.d.ts" />
 
 routerAdd("POST", "/api/custom_place_order", (c) => {
     let requestData;
