@@ -292,7 +292,7 @@
                                             </div>
                                         </div>
                                     </template>
-                                     <div x-show="!prodOpts.live || prodOpts.live.length === 0 && !load.init" class="load-text bil-row">
+                                     <div x-show="(!prodOpts.live || prodOpts.live.length === 0) && !load.init" class="load-text bil-row">
                                         <span class="en">No animal options currently available. Please check back later.</span>
                                         <span class="ar">لا توجد خيارات حيوانات متاحة حاليًا. يرجى التحقق مرة أخرى لاحقًا.</span>
                                     </div>
@@ -305,17 +305,17 @@
                                 <h4 class="form-subh bil-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h4>
                                 <div class="fg">
                                     <label for="custNameInputS2" class="bil-spread lbl-req"><span class="en">Your Full Name *</span><span class="ar">اسمك الكامل *</span></label>
-                                    <input id="custNameInputS2" type="text" class="input" x-model="custName" @input="clrErr('custName')" x-ref="custNameInputS2" :aria-invalid="errs.custName ? 'true' : 'false'" aria-required="true">
+                                    <input id="custNameInputS2" type="text" class="input" x-model="custName" @input="clrErr('custName')" x-ref="custNameInputS2" :aria-invalid="errs.custName ? 'true' : 'false'" aria-required="true" autocomplete="name">
                                     <div class="err-msg" x-show="errs.custName" x-text="errs.custName ? (currLang === 'ar' ? errs.custName.ar : errs.custName.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
                                 <div class="fg">
                                     <label for="custPhoneInputS2" class="bil-spread lbl-req"><span class="en">Your Phone *</span><span class="ar">رقم هاتفك *</span></label>
-                                    <input id="custPhoneInputS2" type="tel" class="input" x-model="custPhone" @input="clrErr('custPhone')" x-ref="custPhoneInputS2" :aria-invalid="errs.custPhone ? 'true' : 'false'" aria-required="true">
+                                    <input id="custPhoneInputS2" type="tel" class="input" x-model="custPhone" @input="clrErr('custPhone')" x-ref="custPhoneInputS2" :aria-invalid="errs.custPhone ? 'true' : 'false'" aria-required="true" autocomplete="tel">
                                     <div class="err-msg" x-show="errs.custPhone" x-text="errs.custPhone ? (currLang === 'ar' ? errs.custPhone.ar : errs.custPhone.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
                                 <div class="fg">
                                     <label for="custEmailInputS2" class="bil-spread lbl-req"><span class="en">Your Email (Optional)</span><span class="ar">بريدك الإلكتروني (اختياري)</span></label>
-                                    <input id="custEmailInputS2" type="email" class="input" x-model="custEmail" @input="clrErr('custEmail')" placeholder="optional@example.com" x-ref="custEmailInputS2" :aria-invalid="errs.custEmail ? 'true' : 'false'">
+                                    <input id="custEmailInputS2" type="email" class="input" x-model="custEmail" @input="clrErr('custEmail')" placeholder="optional@example.com" x-ref="custEmailInputS2" :aria-invalid="errs.custEmail ? 'true' : 'false'" autocomplete="email">
                                     <div class="err-msg" x-show="errs.custEmail" x-text="errs.custEmail ? (currLang === 'ar' ? errs.custEmail.ar : errs.custEmail.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
 
@@ -332,8 +332,8 @@
                                 <div class="sec-head"><h2 class="bil-spread" x-ref="step3Title" tabindex="-1"><span class="en">Udheya Arrangements</span><span class="ar">ترتيبات الأضحية</span></h2></div>
                                 
                                 <div class="fg">
-                                    <label class="bil-spread lbl-req"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
-                                    <div class="rgrp" x-ref="udhServRadiosS3">
+                                    <label class="bil-spread lbl-req" id="udhServLabelS3"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
+                                    <div class="rgrp" x-ref="udhServRadiosS3" role="radiogroup" aria-labelledby="udhServLabelS3">
                                         <label class="bil-spread">
                                             <input type="radio" name="udh_serv_opt_s3" value="standard_service" x-model="selUdhServ" @change="clrErr('udhServ')">
                                             <span class="en">Standard Service (Slaughter, Cutting, Bagging) - Fee: <strong x-text="fmtPrice(settings.servFeeEGP || 0)"></strong></span>
@@ -431,7 +431,7 @@
                                     </div>
                                     <div class="fg">
                                         <label for="delAddrInputS4" class="bil-spread lbl-req"><span class="en">Full Address *</span><span class="ar">العنوان بالكامل *</span></label>
-                                        <textarea id="delAddrInputS4" class="input" rows="2" x-model="delAddr" @input="clrErr('delAddr')" x-ref="delAddrInputS4" :aria-invalid="errs.delAddr ? 'true' : 'false'" aria-required="true"></textarea>
+                                        <textarea id="delAddrInputS4" class="input" rows="2" x-model="delAddr" @input="clrErr('delAddr')" x-ref="delAddrInputS4" :aria-invalid="errs.delAddr ? 'true' : 'false'" aria-required="true" autocomplete="street-address"></textarea>
                                         <div class="err-msg" x-show="errs.delAddr" x-text="errs.delAddr ? (currLang === 'ar' ? errs.delAddr.ar : errs.delAddr.en) : ''"></div>
                                     </div>
                                     <div class="fg">
@@ -439,16 +439,16 @@
                                         <textarea id="delNotesInputS4" class="input" rows="2" x-model="delNotes" x-ref="delNotesInputS4"></textarea>
                                     </div>
                                     <div class="fg">
-                                        <label class="bil-spread lbl-req"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
-                                        <div class="tslots" x-ref="timeSlotContS4">
-                                            <div class="ts" :class="{'sel': timeSlot === '7 AM-8 AM'}" @click="timeSlot = '7 AM-8 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '7 AM-8 AM'; clrErr('timeSlot')">7-8 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '8 AM-9 AM'}" @click="timeSlot = '8 AM-9 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '8 AM-9 AM'; clrErr('timeSlot')">8-9 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '9 AM-10 AM'}" @click="timeSlot = '9 AM-10 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '9 AM-10 AM'; clrErr('timeSlot')">9-10 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '10 AM-11 AM'}" @click="timeSlot = '10 AM-11 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '10 AM-11 AM'; clrErr('timeSlot')">10-11 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '11 AM-12 PM'}" @click="timeSlot = '11 AM-12 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '11 AM-12 PM'; clrErr('timeSlot')">11-12 PM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '12 PM-1 PM'}" @click="timeSlot = '12 PM-1 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '12 PM-1 PM'; clrErr('timeSlot')">12-1 PM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '1 PM-2 PM'}" @click="timeSlot = '1 PM-2 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '1 PM-2 PM'; clrErr('timeSlot')">1-2 PM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '2 PM-3 PM'}" @click="timeSlot = '2 PM-3 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '2 PM-3 PM'; clrErr('timeSlot')">2-3 PM</div>
+                                        <label class="bil-spread lbl-req" id="timeSlotLabelS4"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
+                                        <div class="tslots" x-ref="timeSlotContS4" role="radiogroup" aria-labelledby="timeSlotLabelS4">
+                                            <div class="ts" :class="{'sel': timeSlot === '7 AM-8 AM'}" @click="timeSlot = '7 AM-8 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '7 AM-8 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '7 AM-8 AM' ? 'true' : 'false'">7-8 AM</div>
+                                            <div class="ts" :class="{'sel': timeSlot === '8 AM-9 AM'}" @click="timeSlot = '8 AM-9 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '8 AM-9 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '8 AM-9 AM' ? 'true' : 'false'">8-9 AM</div>
+                                            <div class="ts" :class="{'sel': timeSlot === '9 AM-10 AM'}" @click="timeSlot = '9 AM-10 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '9 AM-10 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '9 AM-10 AM' ? 'true' : 'false'">9-10 AM</div>
+                                            <div class="ts" :class="{'sel': timeSlot === '10 AM-11 AM'}" @click="timeSlot = '10 AM-11 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '10 AM-11 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '10 AM-11 AM' ? 'true' : 'false'">10-11 AM</div>
+                                            <div class="ts" :class="{'sel': timeSlot === '11 AM-12 PM'}" @click="timeSlot = '11 AM-12 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '11 AM-12 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '11 AM-12 PM' ? 'true' : 'false'">11-12 PM</div>
+                                            <div class="ts" :class="{'sel': timeSlot === '12 PM-1 PM'}" @click="timeSlot = '12 PM-1 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '12 PM-1 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '12 PM-1 PM' ? 'true' : 'false'">12-1 PM</div>
+                                            <div class="ts" :class="{'sel': timeSlot === '1 PM-2 PM'}" @click="timeSlot = '1 PM-2 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '1 PM-2 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '1 PM-2 PM' ? 'true' : 'false'">1-2 PM</div>
+                                            <div class="ts" :class="{'sel': timeSlot === '2 PM-3 PM'}" @click="timeSlot = '2 PM-3 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '2 PM-3 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '2 PM-3 PM' ? 'true' : 'false'">2-3 PM</div>
                                         </div>
                                         <div class="err-msg" id="timeSlotErrS4" x-show="errs.timeSlot" x-text="errs.timeSlot ? (currLang === 'ar' ? errs.timeSlot.ar : errs.timeSlot.en) : ''"></div>
                                         <div class="bil-row field-note tslot-note"><p class="f-note en">Preferred time. We will confirm exact window.</p><p class="f-note ar">هذا وقتكم المفضل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p></div>
@@ -462,11 +462,11 @@
                                     <h3 class="form-subh bil-spread rev-sum-h"><span class="en">Your Udheya Order Summary</span><span class="ar">ملخص طلب أضحيتك</span></h3>
                                     <div x-show="selAnim.itemKey">
                                         <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Sheep:</strong> <span x-text="selAnim.nameEN"></span> (<span x-text="selAnim.wtRangeEn"></span>)</div><div class="ar"><strong>الخروف:</strong> <span x-text="selAnim.nameAR"></span> (<span x-text="selAnim.wtRangeAr"></span>)</div></div></div>
+                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Sheep:</strong> <span x-text="selAnim.nameEN || ''"></span> (<span x-text="selAnim.wtRangeEn || ''"></span>)</div><div class="ar"><strong>الخروف:</strong> <span x-text="selAnim.nameAR || ''"></span> (<span x-text="selAnim.wtRangeAr || ''"></span>)</div></div></div>
                                             <button type="button" @click.prevent="navStep(1)" class="btn-edit bil-inline" aria-label="Edit Animal Selection"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Contact:</strong> <span x-text="custName"></span>, <span x-text="custPhone"></span></div><div class="ar"><strong>الاتصال:</strong> <span x-text="custName"></span>، <span x-text="custPhone"></span></div></div></div>
+                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Contact:</strong> <span x-text="custName || ''"></span>, <span x-text="custPhone || ''"></span></div><div class="ar"><strong>الاتصال:</strong> <span x-text="custName || ''"></span>، <span x-text="custPhone || ''"></span></div></div></div>
                                             <button type="button" @click.prevent="navStep(2)" class="btn-edit bil-inline" aria-label="Edit Your Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                          <div class="sum-item">
@@ -483,7 +483,7 @@
                                             <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Service Option"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR"></span></div></div></div>
+                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR || ''"></span></div></div></div>
                                             <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Sacrifice Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="sum-item" x-show="viewPref && viewPref !== 'none'">
@@ -491,16 +491,16 @@
                                             <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Viewing Preference"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="sum-item">
-                                             <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="sumDistrAr"></span></div></div></div>
+                                             <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn || ''"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="sumDistrAr || ''"></span></div></div></div>
                                             <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div x-show="needsDelDetails">
                                             <div class="sum-item">
-                                                <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery To:</strong> <span x-text="sumDelToEn"></span></div><div class="ar"><strong>التوصيل إلى:</strong> <span x-text="sumDelToAr"></span></div></div></div>
+                                                <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery To:</strong> <span x-text="sumDelToEn || ''"></span></div><div class="ar"><strong>التوصيل إلى:</strong> <span x-text="sumDelToAr || ''"></span></div></div></div>
                                                 <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="sum-item">
-                                                 <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot"></span></div></div></div>
+                                                 <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot || ''"></span></div></div></div>
                                                 <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
                                             <div class="sum-item" x-show="delFeeDispEGP > 0 && !isDelFeeVar">
@@ -535,12 +535,12 @@
                                     <h4 class="form-subh bil-spread"><span class="en">Additional Options & Payment</span><span class="ar">الخيارات النهائية والدفع</span></h4>
                                     <div class="fg"><label class="bil-inline lbl-chk"><input type="checkbox" x-model="grpBuy" x-ref="grpBuyChk"><span class="en">Group Purchase? (Save up to 20% - We'll contact)</span><span class="ar">شراء جماعي؟ (وفر حتى 20% - سنتواصل معك)</span></label></div><hr class="form-div">
                                     <div class="fg">
-                                        <label class="bil-spread lbl-req"><span class="en">Payment Method *</span><span class="ar">طريقة الدفع *</span></label>
-                                        <div class="pay-meths" x-ref="payMethRadios">
+                                        <label class="bil-spread lbl-req" id="payMethLabelS5"><span class="en">Payment Method *</span><span class="ar">طريقة الدفع *</span></label>
+                                        <div class="pay-meths" x-ref="payMethRadios" role="radiogroup" aria-labelledby="payMethLabelS5">
                                             <template x-for="pmOpt in availPayMeths" :key="pmOpt.id">
-                                                <div class="pm" :class="{'sel': payMeth === pmOpt.id}" @click="payMeth = pmOpt.id; clrErr('payMeth')" tabindex="0" @keydown.enter.space.prevent="payMeth = pmOpt.id; clrErr('payMeth')">
-                                                    <input type="radio" :id="'pm-' + pmOpt.id" :value="pmOpt.id" x-model="payMeth">
-                                                    <label :for="'pm-' + pmOpt.id" :title="pmOpt.title"><img :src="pmOpt.imgSrc" :alt="pmOpt.title" class="pay-icon"></label>
+                                                <div class="pm" :class="{'sel': payMeth === pmOpt.id}" @click="payMeth = pmOpt.id; clrErr('payMeth')" tabindex="0" @keydown.enter.space.prevent="payMeth = pmOpt.id; clrErr('payMeth')" role="radio" :aria-checked="payMeth === pmOpt.id ? 'true' : 'false'" :aria-labelledby="'pm-label-' + pmOpt.id">
+                                                    <input type="radio" :id="'pm-' + pmOpt.id" :value="pmOpt.id" x-model="payMeth" class="sr-only">
+                                                    <label :for="'pm-' + pmOpt.id" :title="pmOpt.title" :id="'pm-label-' + pmOpt.id"><img :src="pmOpt.imgSrc" :alt="pmOpt.title" class="pay-icon"></label>
                                                 </div>
                                             </template>
                                         </div>
@@ -571,33 +571,33 @@
                             </div></div>
                             <div class="quick-recap">
                                 <h4 class="form-subh bil-spread recap-h"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
-                                <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selAnim.nameEN"></span> (<span x-text="selAnim.wtRangeEn"></span>)</div><div class="ar"><strong>الحيوان:</strong> <span x-text="selAnim.nameAR"></span> (<span x-text="selAnim.wtRangeAr"></span>)</div></div>
+                                <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selAnim.nameEN || ''"></span> (<span x-text="selAnim.wtRangeEn || ''"></span>)</div><div class="ar"><strong>الحيوان:</strong> <span x-text="selAnim.nameAR || ''"></span> (<span x-text="selAnim.wtRangeAr || ''"></span>)</div></div>
                                  <div class="sum-item bil-row">
-                                    <div class="en"><strong>Ordered By:</strong> <span x-text="custName"></span> (<span x-text="custPhone"></span>)</div>
-                                    <div class="ar"><strong>الطلب باسم:</strong> <span x-text="custName"></span> (<span x-text="custPhone"></span>)</div>
+                                    <div class="en"><strong>Ordered By:</strong> <span x-text="custName || ''"></span> (<span x-text="custPhone || ''"></span>)</div>
+                                    <div class="ar"><strong>الطلب باسم:</strong> <span x-text="custName || ''"></span> (<span x-text="custPhone || ''"></span>)</div>
                                 </div>
-                                <div class="sum-item bil-row" x-show="niyyahNames.trim() !== ''">
-                                    <div class="en"><strong>Niyyah For:</strong> <span x-text="niyyahNames"></span></div>
-                                    <div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames"></span></div>
+                                <div class="sum-item bil-row" x-show="niyyahNames && niyyahNames.trim() !== ''">
+                                    <div class="en"><strong>Niyyah For:</strong> <span x-text="niyyahNames || ''"></span></div>
+                                    <div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || ''"></span></div>
                                 </div>
                                 <div class="sum-item bil-row">
                                     <div class="en"><strong>Service:</strong> <span x-text="selUdhServ === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div>
                                     <div class="ar"><strong>الخدمة:</strong> <span x-text="selUdhServ === 'standard_service' ? 'خدمة عادية' : 'الحيوان حي فقط'"></span></div>
                                 </div>
-                                <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR"></span></div></div>
+                                <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR || ''"></span></div></div>
                                 <div class="sum-item bil-row" x-show="viewPref && viewPref !== 'none'">
                                     <div class="en"><strong>Viewing Pref:</strong> <span x-show="viewPref === 'physical_inquiry'">Physical Inquiry</span><span x-show="viewPref === 'video_request'">Video/Photo Request</span><span x-show="viewPref === 'live_video_inquiry'">Live Video Inquiry</span></div>
                                     <div class="ar"><strong>مشاهدة الذبح:</strong> <span x-show="viewPref === 'physical_inquiry'">استفسار حضور</span><span x-show="viewPref === 'video_request'">طلب فيديو/صور</span><span x-show="viewPref === 'live_video_inquiry'">استفسار فيديو مباشر</span></div>
                                 </div>
                                  <div class="sum-item bil-row">
-                                    <div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn"></span></div>
-                                    <div class="ar"><strong>التوزيع:</strong> <span x-text="sumDistrAr"></span></div>
+                                    <div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn || ''"></span></div>
+                                    <div class="ar"><strong>التوزيع:</strong> <span x-text="sumDistrAr || ''"></span></div>
                                 </div>
-                                <div class="sum-item bil-row" x-show="needsDelDetails && delAddr.trim() !== ''">
-                                    <div class="en"><strong>Delivery Address:</strong> <span x-text="delAddr"></span>, <span x-text="allCities.find(c=>c.id === delCity)?.nameEn || ''"></span></div>
-                                    <div class="ar"><strong>عنوان التوصيل:</strong> <span x-text="delAddr"></span>، <span x-text="allCities.find(c=>c.id === delCity)?.nameAr || ''"></span></div>
+                                <div class="sum-item bil-row" x-show="needsDelDetails && delAddr && delAddr.trim() !== ''">
+                                    <div class="en"><strong>Delivery Address:</strong> <span x-text="delAddr || ''"></span>, <span x-text="allCities.find(c=>c.id === delCity)?.nameEn || ''"></span></div>
+                                    <div class="ar"><strong>عنوان التوصيل:</strong> <span x-text="delAddr || ''"></span>، <span x-text="allCities.find(c=>c.id === delCity)?.nameAr || ''"></span></div>
                                 </div>
-                                <div class="sum-item bil-row" x-show="needsDelDetails"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot"></span></div></div>
+                                <div class="sum-item bil-row" x-show="needsDelDetails && timeSlot"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot || ''"></span></div></div>
                                  <div class="sum-item bil-row">
                                     <div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
                                     <div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
@@ -606,18 +606,18 @@
                             <div class="pay-instr">
                                 <h4 class="form-subh bil-spread pay-instr-h"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
                                 <div x-show="payMeth === 'fa'"><div class="bil-row"><p class="en">Fawry: Use Order ID <strong class="pay-ref" x-text="orderID"></strong>. Order Total: <strong x-text="fmtPrice(totalEgp)"></strong>. Due in 24h.</p><p class="ar">فوري: استخدم رقم الطلب <strong class="pay-ref" x-text="orderID"></strong>. المجموع الكلي للطلب: <strong x-text="fmtPrice(totalEgp)"></strong>. خلال 24س.</p></div></div>
-                                <div x-show="payMeth === 'vo'"><div class="bil-row"><p class="en">Vodafone Cash: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails.vodafone_cash"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p><p class="ar">فودافون كاش: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails.vodafone_cash"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد عبر واتساب: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p></div></div>
-                                <div x-show="payMeth === 'ip'"><div class="bil-row"><p class="en">InstaPay: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails.instapay_ipn"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">إنستا باي: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails.instapay_ipn"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
-                                <div x-show="payMeth === 'revolut'"><div class="bil-row"><p class="en">Revolut: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails.revolut_details"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">ريفولوت: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails.revolut_details"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
-                                <div x-show="payMeth === 'monzo'"><div class="bil-row"><p class="en">Monzo: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails.monzo_details"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">مونزو: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails.monzo_details"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
+                                <div x-show="payMeth === 'vo'"><div class="bil-row"><p class="en">Vodafone Cash: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p><p class="ar">فودافون كاش: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد عبر واتساب: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p></div></div>
+                                <div x-show="payMeth === 'ip'"><div class="bil-row"><p class="en">InstaPay: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">إنستا باي: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
+                                <div x-show="payMeth === 'revolut'"><div class="bil-row"><p class="en">Revolut: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">ريفولوت: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
+                                <div x-show="payMeth === 'monzo'"><div class="bil-row"><p class="en">Monzo: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">مونزو: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
                                 <div x-show="payMeth === 'bank_transfer'">
                                     <div class="bil-row"><p class="en">Bank Transfer <strong x-text="fmtPrice(totalEgp)"></strong> to:</p><p class="ar">تحويل بنكي <strong x-text="fmtPrice(totalEgp)"></strong> إلى:</p></div>
                                     <ul class="bank-dets">
-                                        <li class="bil-row"><span class="en">Bank: <strong class="pay-ref" x-text="settings.payDetails.bank_name"></strong></span><span class="ar">البنك: <strong class="pay-ref" x-text="settings.payDetails.bank_name"></strong></span></li>
-                                        <li class="bil-row"><span class="en">Acc Name: <strong class="pay-ref" x-text="settings.payDetails.bank_account_name"></strong></span><span class="ar">اسم الحساب: <strong class="pay-ref" x-text="settings.payDetails.bank_account_name"></strong></span></li>
-                                        <li class="bil-row"><span class="en">Acc No: <strong class="pay-ref" x-text="settings.payDetails.bank_account_number"></strong></span><span class="ar">رقم الحساب: <strong class="pay-ref" x-text="settings.payDetails.bank_account_number"></strong></span></li>
-                                        <li class="bil-row" x-show="settings.payDetails.bank_iban"><span class="en">IBAN: <strong class="pay-ref" x-text="settings.payDetails.bank_iban"></strong></span><span class="ar">IBAN: <strong class="pay-ref" x-text="settings.payDetails.bank_iban"></strong></span></li>
-                                        <li class="bil-row" x-show="settings.payDetails.bank_swift"><span class="en">SWIFT: <strong class="pay-ref" x-text="settings.payDetails.bank_swift"></strong></span><span class="ar">SWIFT: <strong class="pay-ref" x-text="settings.payDetails.bank_swift"></strong></span></li>
+                                        <li class="bil-row"><span class="en">Bank: <strong class="pay-ref" x-text="settings.payDetails?.bank_name || 'N/A'"></strong></span><span class="ar">البنك: <strong class="pay-ref" x-text="settings.payDetails?.bank_name || 'غير متوفر'"></strong></span></li>
+                                        <li class="bil-row"><span class="en">Acc Name: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_name || 'N/A'"></strong></span><span class="ar">اسم الحساب: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_name || 'غير متوفر'"></strong></span></li>
+                                        <li class="bil-row"><span class="en">Acc No: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_number || 'N/A'"></strong></span><span class="ar">رقم الحساب: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_number || 'غير متوفر'"></strong></span></li>
+                                        <li class="bil-row" x-show="settings.payDetails?.bank_iban"><span class="en">IBAN: <strong class="pay-ref" x-text="settings.payDetails.bank_iban"></strong></span><span class="ar">IBAN: <strong class="pay-ref" x-text="settings.payDetails.bank_iban"></strong></span></li>
+                                        <li class="bil-row" x-show="settings.payDetails?.bank_swift"><span class="en">SWIFT: <strong class="pay-ref" x-text="settings.payDetails.bank_swift"></strong></span><span class="ar">SWIFT: <strong class="pay-ref" x-text="settings.payDetails.bank_swift"></strong></span></li>
                                     </ul>
                                     <div class="bil-row bank-note"><p class="en">Crucial: Ref Order ID: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">هام: مرجع الطلب: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div>
                                 </div>
@@ -673,7 +673,7 @@
                 </div>
                 <div class="fg">
                     <label for="lookup_phone" class="bil-spread lbl-req chk-stat-lbl"><span class="en">Enter Phone Number Used for Order *</span><span class="ar">أدخل رقم الهاتف المستخدم في الطلب *</span></label>
-                    <input type="tel" id="lookup_phone" class="input chk-stat-input" x-model="lookupPhone" placeholder="e.g., 01xxxxxxxxx" x-ref="lookupPhoneInput" :aria-invalid="errs.lookupPhone ? 'true' : 'false'" aria-describedby="lookupPhoneErr" @input="clrErr('lookupPhone')" aria-required="true">
+                    <input type="tel" id="lookup_phone" class="input chk-stat-input" x-model="lookupPhone" placeholder="e.g., 01xxxxxxxxx" x-ref="lookupPhoneInput" :aria-invalid="errs.lookupPhone ? 'true' : 'false'" aria-describedby="lookupPhoneErr" @input="clrErr('lookupPhone')" aria-required="true" autocomplete="tel">
                     <div class="err-msg" id="lookupPhoneErr" x-show="errs.lookupPhone" x-text="errs.lookupPhone ? (currLang === 'ar' ? errs.lookupPhone.ar : errs.lookupPhone.en) : ''" role="alert" aria-live="assertive"></div>
                 </div>
                 <div class="card-act" style="margin-top: var(--s2);">
@@ -685,29 +685,29 @@
             </form>
         </div></div>
         <div id="order-stat-res" class="card form-panel order-stat-res" x-show="load.status || statRes || statNotFound" x-transition><div class="card-b">
-            <div x-show="load.status" class="load-text" aria-live="polite">Checking...</div>
+            <div x-show="load.status && !statRes && !statNotFound" class="load-text" aria-live="polite">Checking...</div>
             <div x-show="statRes && !load.status">
                 <h4 class="form-subh bil-spread"><span class="en">Order Details</span><span class="ar">تفاصيل الطلب</span></h4>
                 <div id="stat-content">
-                    <div class="sum-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statRes?.orderIdTxt"></span></div><div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Ordered By:</strong> <span x-text="statRes?.custName"></span></div><div class="ar"><strong>الطلب باسم:</strong> <span x-text="statRes?.custName"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Order Status:</strong> <span class="stat-hl" x-text="statRes?.status"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.status"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Payment Status:</strong> <span x-text="statRes?.payStatTxt"></span></div><div class="ar"><strong>حالة الدفع:</strong> <span x-text="statRes?.payStatTxt"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statRes?.animTypeEn"></span>, <span x-text="statRes?.wtCatEn"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statRes?.animTypeAr"></span>، <span x-text="statRes?.wtCatAr"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="statRes?.udhServOpt === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="statRes?.udhServOpt === 'standard_service' ? 'خدمة عادية' : 'الحيوان حي فقط'"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="statRes?.sacDayTxtEn"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="statRes?.sacDayTxtAr"></span></div></div>
-                    <div class="sum-item bil-row" x-show="statRes?.niyyah && statRes.niyyah.trim() !== ''"><div class="en"><strong>Niyyah For:</strong> <span x-text="statRes.niyyah"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="statRes.niyyah"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="statRes?.distrChoiceEn"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="statRes?.distrChoiceAr"></span></div></div>
-                    <div class="sum-item bil-row" x-show="statRes?.needsDel && statRes?.delAddr">
-                        <div class="en"><strong>Delivery To:</strong> <span x-text="`${statRes.delAddr}, ${statRes.delCityEn || ''}`"></span></div>
-                        <div class="ar"><strong>التوصيل إلى:</strong> <span x-text="`${statRes.delAddr}، ${statRes.delCityAr || ''}`"></span></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div><div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Ordered By:</strong> <span x-text="statRes?.custName || ''"></span></div><div class="ar"><strong>الطلب باسم:</strong> <span x-text="statRes?.custName || ''"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Order Status:</strong> <span class="stat-hl" x-text="statRes?.status || ''"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.status || ''"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Payment Status:</strong> <span x-text="statRes?.payStatTxt || ''"></span></div><div class="ar"><strong>حالة الدفع:</strong> <span x-text="statRes?.payStatTxt || ''"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statRes?.animTypeEn || ''"></span>, <span x-text="statRes?.wtCatEn || ''"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statRes?.animTypeAr || ''"></span>، <span x-text="statRes?.wtCatAr || ''"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'Standard Service' : (statRes?.udhServOpt ? 'Live Animal Only' : 'N/A'))"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'خدمة عادية' : (statRes?.udhServOpt ? 'الحيوان حي فقط' : 'غير متوفر'))"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="statRes?.sacDayTxtEn || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="statRes?.sacDayTxtAr || ''"></span></div></div>
+                    <div class="sum-item bil-row" x-show="statRes && statRes.niyyah && statRes.niyyah.trim() !== ''"><div class="en"><strong>Niyyah For:</strong> <span x-text="statRes.niyyah"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="statRes.niyyah"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="statRes?.distrChoiceEn || ''"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="statRes?.distrChoiceAr || ''"></span></div></div>
+                    <div class="sum-item bil-row" x-show="statRes && statRes.needsDel && statRes.delAddr">
+                        <div class="en"><strong>Delivery To:</strong> <span x-text="`${statRes?.delAddr || ''}, ${statRes?.delCityEn || ''}`"></span></div>
+                        <div class="ar"><strong>التوصيل إلى:</strong> <span x-text="`${statRes?.delAddr || ''}، ${statRes?.delCityAr || ''}`"></span></div>
                     </div>
-                    <div class="sum-item bil-row" x-show="statRes?.needsDel && statRes?.timeSlot !== 'N/A'"><div class="en"><strong>Pref. Delivery Time:</strong> <span x-text="statRes?.timeSlot"></span></div><div class="ar"><strong>وقت التوصيل المفضل:</strong> <span x-text="statRes?.timeSlot"></span></div></div>
+                    <div class="sum-item bil-row" x-show="statRes && statRes.needsDel && statRes.timeSlot && statRes.timeSlot !== 'N/A'"><div class="en"><strong>Pref. Delivery Time:</strong> <span x-text="statRes?.timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل المفضل:</strong> <span x-text="statRes?.timeSlot || ''"></span></div></div>
                     <div class="sum-item bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div><div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statRes?.payMeth?.toUpperCase()"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statRes?.payMeth?.toUpperCase()"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div></div>
                 </div>
             </div>
-            <div id="stat-no-res" class="stat-no-res bil-row"><p class="en">No order found. Check ID and Phone or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب ورقم الهاتف أو اتصل بالدعم.</p></div>
+            <div id="stat-no-res" class="stat-no-res bil-row" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID and Phone or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب ورقم الهاتف أو اتصل بالدعم.</p></div>
         </div></div>
     </section>
 </main>
