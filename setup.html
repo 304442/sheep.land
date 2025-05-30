@@ -53,8 +53,6 @@
         else console.log(consoleMessage, data || '');
     };
 
-    // Collection definitions: `id` property from field definitions has been removed.
-    // PocketBase will auto-generate these on creation.
     const collectionsDefinition = [
         {
             name: "settings", type: "base", system: false, listRule: "", viewRule: "", createRule: null, updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: null,
@@ -250,41 +248,31 @@
     async function createOrUpdateCollection(pb, collectionDef) {
         try {
             let existingCollection = null;
-            let collectionIdToUse;
-
             try {
                 existingCollection = await pb.collections.getOne(collectionDef.name);
-                collectionIdToUse = existingCollection.id;
             } catch (e) {
                 if (e.status !== 404) {
                     log(`Error checking collection ${collectionDef.name}: ${e.message}`, 'e', e.response?.data);
-                    throw e; 
+                    throw e;
                 }
             }
 
-            // Prepare schema by removing client-side 'id' for new fields,
-            // but for existing fields, we need to ensure their existing IDs are sent for updates.
             let schemaForPayload;
             if (existingCollection) {
                 schemaForPayload = (collectionDef.schema || []).map(newFieldDef => {
                     const existingField = existingCollection.schema.find(ef => ef.name === newFieldDef.name);
-                    const fieldPayload = { ...newFieldDef }; // Start with the new definition
-                    if (existingField) { // If field exists, use its ID and system status
+                    const fieldPayload = { ...newFieldDef };
+                    if (existingField) {
                         fieldPayload.id = existingField.id;
                         fieldPayload.system = existingField.system;
-                    } else { // New field within an existing collection, remove temp client ID
-                        delete fieldPayload.id; 
+                    } else {
+                        delete fieldPayload.id;
                     }
                     return fieldPayload;
                 });
-                // Add any fields from existingCollection.schema that are NOT in collectionDef.schema
-                // to ensure they are preserved if not explicitly removed by the new definition.
-                // However, the default behavior of pb.collections.update is that fields not in the
-                // provided schema ARE DROPPED unless the collection is a system collection or `autoDeleteOldFields` is false.
-                // For simplicity, we assume collectionDef.schema is the desired complete state for custom fields.
-            } else { // New collection
+            } else {
                 schemaForPayload = (collectionDef.schema || []).map(field => {
-                    const { id, ...restOfField } = field; // Remove client-side 'id'
+                    const { id, ...restOfField } = field;
                     return restOfField;
                 });
             }
@@ -300,19 +288,17 @@
                 deleteRule: collectionDef.deleteRule,
                 options: collectionDef.options || {},
                 schema: schemaForPayload,
-                indexes: collectionDef.indexes || [] // Pass indexes directly
+                indexes: collectionDef.indexes || []
             };
 
             if (existingCollection) {
-                log(`Collection <b>${collectionDef.name}</b> exists. Updating with full definition...`, 'w');
-                // log("Update payload for " + collectionDef.name, 'd', payload);
-                await pb.collections.update(collectionIdToUse, payload);
+                log(`Collection <b>${collectionDef.name}</b> exists. Updating...`, 'w');
+                await pb.collections.update(existingCollection.id, payload);
                 log(`Collection <b>${collectionDef.name}</b> updated successfully.`, 's');
             } else {
-                log(`Creating collection: <b>${collectionDef.name}</b> with full definition...`, 'i');
-                // log("Create payload for " + collectionDef.name, 'd', payload);
-                const newCollection = await pb.collections.create(payload);
-                log(`Collection <b>${collectionDef.name}</b> created successfully. ID: ${newCollection.id}`, 's');
+                log(`Creating collection: <b>${collectionDef.name}</b>...`, 'i');
+                await pb.collections.create(payload);
+                log(`Collection <b>${collectionDef.name}</b> created successfully.`, 's');
             }
             return true;
         } catch (error) {
@@ -330,7 +316,7 @@
                 log(`Halting schema setup due to error with collection: ${collectionDef.name}`, 'e');
                 return false; 
             }
-            await new Promise(resolve => setTimeout(resolve, 200)); // Slightly increased delay
+            await new Promise(resolve => setTimeout(resolve, 250)); // Add delay after each collection op
         }
         log('All collections and their indexes processed successfully.', 's');
         return true;
@@ -411,6 +397,45 @@
         log(`Seeding <b>${collectionName}</b> complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, errorCount > 0 ? 'w' : 's');
         return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
+    
+    // Helper to find a field in a schema, case-insensitive for robustness if needed, though PB is case-sensitive
+    function findField(schema, fieldName) {
+        return schema.find(f => f.name.toLowerCase() === fieldName.toLowerCase());
+    }
+    // Cache for fetched collections to resolve relation names to IDs
+    let collectionCache = {}; // Global for validateSetup to use
+
+    // Helper to compare two option objects
+    function compareOptions(defOpts, liveOpts, fieldPath) {
+        const issues = [];
+        if (!liveOpts && Object.keys(defOpts || {}).length > 0) {
+            issues.push(`✗ ${fieldPath}: Live options are missing, but definition has options.`);
+            return issues;
+        }
+        liveOpts = liveOpts || {}; // Ensure liveOpts is an object for comparison
+
+        for (const key in (defOpts || {})) {
+            // Special handling for collectionId as it's resolved to ID on server
+            if (key === 'collectionId' && collectionCache[defOpts[key]] && liveOpts[key] !== collectionCache[defOpts[key]].id) {
+                 issues.push(`✗ ${fieldPath}: Option 'collectionId' mismatch. Expected target collection ID: ${collectionCache[defOpts[key]].id} (for name '${defOpts[key]}'), Got: ${liveOpts[key]}.`);
+            } else if (JSON.stringify(defOpts[key]) !== JSON.stringify(liveOpts[key])) {
+                 issues.push(`✗ ${fieldPath}: Option '${key}' mismatch. Defined: ${JSON.stringify(defOpts[key])}, Live: ${JSON.stringify(liveOpts[key])}.`);
+            }
+        }
+        return issues;
+    }
+    
+    function logIssuesAndReturn(issues) {
+        if (issues.length === 0) { 
+            log('<b>✓✓✓ All detailed validations passed! Setup appears correct and robust. ✓✓✓</b>', 's'); 
+            return true; 
+        } else { 
+            log(`<b>Found ${issues.length} issues during detailed validation:</b>`, 'e'); 
+            issues.forEach(issue => log(issue, 'e')); 
+            return false; 
+        }
+    }
+
 
     async function setupSchema(pb) {
         log('=== SCHEMA SETUP PHASE ===', 'i');
@@ -467,35 +492,139 @@
     }
 
     async function validateSetup(pb) {
-        log('Validating setup...', 'i');
+        log('=== GRANULAR & DETAILED SETUP VALIDATION ===', 'i');
         const issues = [];
-        try {
-            if (!await authenticateAdmin(pb)) { issues.push("✗ Admin authentication failed post-validation-check."); }
+        collectionCache = {}; // Reset cache
 
-            const expectedCollections = ['settings', 'products', 'orders', 'users', 'expenses', 'sheep_log', 'animal_events'];
-            for (const name of expectedCollections) {
-                try {
-                    await pb.collections.getOne(name);
-                    log(`✓ Collection ${name} exists`, 's');
-                } catch (error) {
-                    issues.push(`✗ Collection ${name} missing`);
-                    log(`✗ Collection ${name} missing`, 'e');
+        if (!await authenticateAdmin(pb)) {
+            issues.push("✗ CRITICAL: Admin authentication failed during validation. Cannot proceed.");
+            return logIssuesAndReturn(issues);
+        }
+
+        log('Fetching collection schemas from server for validation...', 'd');
+        const collectionsToValidate = [...new Set(collectionsDefinition.map(cd => cd.name).concat(['users']))];
+        for (const name of collectionsToValidate) {
+            try {
+                const collection = await pb.collections.getOne(name);
+                collectionCache[name] = collection;
+                log(`✓ Fetched schema for collection <b>${name}</b>.`, 'd');
+            } catch (error) {
+                const isDefined = collectionsDefinition.find(cd => cd.name === name);
+                if (isDefined || name === 'users') { 
+                    issues.push(`✗ CRITICAL: Failed to fetch collection <b>${name}</b>: ${error.message}`);
+                }
+                log(`✗ Error fetching collection <b>${name}</b>.`, 'w', error.message);
+            }
+        }
+        
+        if (issues.some(issue => issue.includes("CRITICAL: Failed to fetch collection"))) {
+            log("Critical collections could not be fetched. Aborting further validation.", "e");
+            return logIssuesAndReturn(issues);
+        }
+
+        for (const def of collectionsDefinition) {
+            log(`Validating collection: <b>${def.name}</b>...`, 'd');
+            const liveCollection = collectionCache[def.name];
+
+            if (!liveCollection) {
+                issues.push(`✗ Collection <b>${def.name}</b> was defined but not found on server.`);
+                continue; 
+            }
+
+            const propsToCompare = ['type', 'system', 'listRule', 'viewRule', 'createRule', 'updateRule', 'deleteRule'];
+            for (const prop of propsToCompare) {
+                const defValue = def[prop] === undefined ? (prop === 'system' ? false : null) : def[prop];
+                const liveValue = liveCollection[prop];
+                if (JSON.stringify(defValue) !== JSON.stringify(liveValue)) {
+                    issues.push(`✗ <b>${def.name}.${prop}</b> mismatch. Defined: ${JSON.stringify(defValue)}, Live: ${JSON.stringify(liveValue)}.`);
                 }
             }
-            
-            if (issues.length === 0) {
-                log('✓ Basic collection existence validation passed', 's');
-                return true;
+
+            const collOptionIssues = compareOptions(def.options || {}, liveCollection.options || {}, `${def.name}.options`);
+            issues.push(...collOptionIssues);
+
+            if (!liveCollection.schema) {
+                issues.push(`✗ Live collection <b>${def.name}</b> is missing 'schema' (fields) array.`);
             } else {
-                log(`Found ${issues.length} issues in basic validation`, 'w');
-                return false;
+                (def.schema || []).forEach(defField => {
+                    const fieldPath = `${def.name}.${defField.name}`;
+                    const liveField = liveCollection.schema.find(f => f.name === defField.name);
+
+                    if (!liveField) {
+                        issues.push(`✗ Field <b>${fieldPath}</b> missing in live schema.`);
+                        return; 
+                    }
+
+                    const fieldPropsToCompare = ['type', 'required', 'system', 'presentable'];
+                    for (const prop of fieldPropsToCompare) {
+                        let defValue = defField[prop];
+                        if (prop === 'system' || prop === 'presentable') { // Default these booleans to false if undefined
+                           defValue = defField[prop] === undefined ? false : defField[prop];
+                        }
+                        const liveValue = liveField[prop];
+                        if (JSON.stringify(defValue) !== JSON.stringify(liveValue)) {
+                            if ( (prop === 'system' || prop === 'presentable' || prop === 'required') && defValue === false && (liveValue === null || liveValue === false) ) {
+                                // Often acceptable (false in def vs null/false in live)
+                            } else if (defValue === undefined && liveValue === null) {
+                                // Undefined in def vs null in live - often acceptable
+                            }
+                            else {
+                                issues.push(`✗ <b>${fieldPath}.${prop}</b> mismatch. Defined: ${JSON.stringify(defValue)}, Live: ${JSON.stringify(liveValue)}.`);
+                            }
+                        }
+                    }
+                    
+                    const fieldOptionIssues = compareOptions(defField.options || {}, liveField.options || {}, `${fieldPath}.options`);
+                    issues.push(...fieldOptionIssues);
+                });
             }
-        } catch (error) {
-            log(`Validation failed: ${error.message}`, 'e');
-            return false;
-        } finally {
-             if (pb.authStore.isValid) pb.authStore.clear();
+            
+            const definedIndexesCount = (def.indexes || []).length;
+            const liveIndexesCount = (liveCollection.indexes || []).length;
+            if (definedIndexesCount !== liveIndexesCount) {
+                 issues.push(`✗ <b>${def.name}</b> indexes count mismatch. Defined: ${definedIndexesCount}, Live: ${liveIndexesCount}.`);
+                 log(`Defined Indexes for ${def.name}:`, 'd', def.indexes);
+                 log(`Live Indexes for ${def.name}:`, 'd', liveCollection.indexes);
+            } else if (definedIndexesCount > 0) {
+                log(`✓ Collection <b>${def.name}</b> has ${definedIndexesCount} index(es) defined and live count matches.`, 's');
+            }
         }
+        
+        const ordersColl = collectionCache['orders'];
+        if (ordersColl) {
+            const expectedOrdersRules = { 
+                listRule: "@request.auth.id = user.id || ordering_person_phone = @request.query.lookupPhone:string", 
+                viewRule: "@request.auth.id = user.id || ordering_person_phone = @request.query.lookupPhone:string", 
+                createRule: "@request.auth.id != '' || ordering_person_phone != ''", 
+                updateRule: "@request.auth.id != '' && @request.auth.verified = true",
+                deleteRule: "@request.auth.id != '' && @request.auth.verified = true"
+            };
+            for (const ruleKey in expectedOrdersRules) { 
+                if (ordersColl[ruleKey] !== expectedOrdersRules[ruleKey]) {
+                    issues.push(`✗ Rule '<b>${ruleKey}</b>' for 'orders' NOT as expected. Found: "${ordersColl[ruleKey]}", Expected: "${expectedOrdersRules[ruleKey]}"`); 
+                }
+            }
+        }
+
+        log('Validating seed data presence...', 'd');
+        for (const [collectionName, dataToSeed] of Object.entries(seedData)) {
+            if (collectionCache[collectionName] && dataToSeed.length > 0) { 
+                try {
+                    const records = await pb.collection(collectionName).getList(1, 1, { requestKey: null });
+                    if (records.items.length > 0 ) {
+                        log(`✓ Collection <b>${collectionName}</b> has seed data.`, 's');
+                    } else { 
+                        issues.push(`✗ Collection <b>${collectionName}</b> appears to be empty after seeding.`); 
+                        log(`✗ Collection <b>${collectionName}</b> is empty after seeding.`, 'w');
+                    }
+                } catch (error) { 
+                    issues.push(`✗ Cannot access <b>${collectionName}</b> for seed validation: ${error.message}`); 
+                    log(`✗ Cannot access <b>${collectionName}</b> for seed validation: ${error.message}`, 'e');
+                }
+            }
+        }
+
+        return logIssuesAndReturn(issues);
     }
 
     async function safeExecute(operation, operationName, pbInstanceForAuthClear = null) {
