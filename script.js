@@ -1,3 +1,5 @@
+// script.js
+
 document.addEventListener('alpine:init', () => {
     const initOrderData = {
         selAnim: { type: "", itemKey: "", varPbId: "", wtRangeEn: "", wtRangeAr: "", priceEgp: 0, nameEN: "", nameAR: "", stock: null, typeGenEn: "", typeGenAr: "", typePriceKgEgp:0 },
@@ -5,23 +7,23 @@ document.addEventListener('alpine:init', () => {
         custPhone: "",
         custEmail: "",
         niyyahNames: "",
-        selUdhServ: 'standard_service',
+        selUdhServ: 'standard_service', 
         servFee: 0,
         sacDay: { val: "day1_10_dhul_hijjah", txtEN: "Day 1 of Eid (10th Dhul Hijjah)", txtAR: "اليوم الأول (10 ذو الحجة)"},
         viewPref: "none",
-        distChoice: "me",
+        distChoice: "me", 
         splitOpt: "",
         splitCustom: "",
         delCity: "",
         allCities: [],
         delAddr: "",
         delNotes: "",
-        timeSlot: "8 AM-9 AM",
+        timeSlot: "8 AM-9 AM", 
         grpBuy: false,
-        payMeth: "fa",
+        payMeth: "fa", 
         errs: {},
         totalEgp: 0,
-        cost_of_animal_egp: null, // For P&L - not set by UI yet
+        cost_of_animal_egp: null, 
         lookupPhone: ""
     };
 
@@ -32,43 +34,16 @@ document.addEventListener('alpine:init', () => {
         { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'images/bank_transfer.svg' }
     ];
 
-    async function apiPlaceOrder(payload) {
-        const pb = new PocketBase('/');
-        try {
-            const res = await pb.send("/api/custom_place_order", {
-                method: "POST",
-                body: payload,
-            });
-            return res;
-        } catch (err) {
-            console.error("API call /api/custom_place_order err:", err);
-            let userMsg = "Failed to place order. Please try again.";
-            if (err.data && err.data.error) {
-                userMsg = err.data.error;
-            } else if (err.data && err.data.data && Object.keys(err.data.data).length > 0) {
-                userMsg = "Order failed due to validation issues: ";
-                const fieldErrs = [];
-                for (const key in err.data.data) {
-                    fieldErrs.push(`${key}: ${err.data.data[key].message}`);
-                }
-                userMsg += fieldErrs.join("; ");
-            } else if (err.message) {
-                 userMsg = err.message;
-            }
-            throw new Error(userMsg);
-        }
-    }
-
     Alpine.data('udh', () => ({
         load: { status: false, ordering: false, init: true },
-        settings: {
+        settings: { 
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
             defCurr: "EGP",
             waNumRaw: "", waNumDisp: "",
             promoEndISO: new Date().toISOString(), promoDiscPc: 0, promoActive: false,
             servFeeEGP: 0,
             delAreas: [],
-            payDetails: {}
+            payDetails: { vodafone_cash: "", instapay_ipn: "", revolut_details: "", monzo_details: "", bank_name: "", bank_account_name: "", bank_account_number: "", bank_iban: "", bank_swift: "" }
         },
         prodOpts: { live: [] },
         get availPayMeths() { return payMethOpts; },
@@ -83,7 +58,10 @@ document.addEventListener('alpine:init', () => {
         errMsgs: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }, udhServ: {en: "Please select a service option.", ar: "يرجى اختيار خيار الخدمة."}},
         navData: [
             { href: "#udh-order-start", sectId: "udh-order-start", parentMenu: "Udheya" },
-            { href: "#chk-order-stat", sectId: "chk-order-stat", parentMenu: "Udheya" }
+            { href: "#chk-order-stat", sectId: "chk-order-stat", parentMenu: "Udheya" },
+            { href: "#live-sect", sectId: "live-sect", parentMenu: null },
+            { href: "#meat-sect", sectId: "meat-sect", parentMenu: null },
+            { href: "#gath-sect", sectId: "gath-sect", parentMenu: null }
         ],
         actNavHref: "", stepMeta: [], delFeeDispEGP: 0, isDelFeeVar: false,
         orderID: "",
@@ -97,34 +75,68 @@ document.addEventListener('alpine:init', () => {
             this.load.init = true; this.apiErr = null; this.usrApiErr = "";
             const pb = new PocketBase('/');
             try {
-                const remoteSettingsList = await pb.collection('settings').getFullList({ requestKey: null });
+                const remoteSettingsList = await pb.collection('settings').getFullList({ requestKey: "settings_init" });
                 if (remoteSettingsList && remoteSettingsList.length > 0) {
-                    const rs = remoteSettingsList[0]; this.settings.xchgRates = rs.xchgRates; this.settings.defCurr = rs.defCurr; this.settings.waNumRaw = rs.waNumRaw; this.settings.waNumDisp = rs.waNumDisp; this.settings.promoEndISO = rs.promoEndISO; this.settings.promoDiscPc = rs.promoDiscPc; this.settings.promoActive = rs.promoActive; this.settings.servFeeEGP = rs.servFeeEGP; this.settings.delAreas = rs.delAreas; this.settings.payDetails = rs.payDetails;
-                } else { this.usrApiErr = "App config could not be loaded."; }
+                    const rs = remoteSettingsList[0];
+                    this.settings.xchgRates = rs.xchgRates || this.settings.xchgRates;
+                    this.settings.defCurr = rs.defCurr || this.settings.defCurr;
+                    this.settings.waNumRaw = rs.waNumRaw || "";
+                    this.settings.waNumDisp = rs.waNumDisp || "";
+                    this.settings.promoEndISO = rs.promoEndISO || new Date().toISOString();
+                    this.settings.promoDiscPc = Number(rs.promoDiscPc) || 0;
+                    this.settings.promoActive = typeof rs.promoActive === 'boolean' ? rs.promoActive : false;
+                    this.settings.servFeeEGP = Number(rs.servFeeEGP) || 0;
+                    this.settings.delAreas = Array.isArray(rs.delAreas) ? rs.delAreas : [];
+                    this.settings.payDetails = typeof rs.payDetails === 'object' && rs.payDetails !== null ? rs.payDetails : this.settings.payDetails;
+                } else { 
+                    this.usrApiErr = "App configuration could not be loaded. Using defaults."; 
+                    console.warn("Settings not found, using defaults."); 
+                }
+                
                 this.servFee = this.settings.servFeeEGP;
 
-                const fetchedProds = await pb.collection('products').getFullList({ sort: '+sort_order_type,+sort_order_variant', filter: 'is_active = true', requestKey: null });
+                const fetchedProds = await pb.collection('products').getFullList({ sort: '+sort_order_type,+sort_order_variant', filter: 'is_active = true', requestKey: "products_init" });
                 const prodGrps = {};
-                fetchedProds.forEach(p => {
+                (fetchedProds || []).forEach(p => {
                     if (!prodGrps[p.type_key]) { prodGrps[p.type_key] = { valKey: p.type_key, nameEn: p.type_name_en, nameAr: p.type_name_ar, descEn: p.type_description_en, descAr: p.type_description_ar, priceKgEgp: p.price_per_kg_egp, wps: [] }; }
                     prodGrps[p.type_key].wps.push({ itemKey: p.item_key, varIdPb: p.id, nameENSpec: p.variant_name_en, nameARSpec: p.variant_name_ar, wtRangeEn: p.weight_range_text_en, wtRangeAr: p.weight_range_text_ar, avgWtKg: p.avg_weight_kg, priceEGP: p.base_price_egp, stock: p.stock_available_pb, isActive: p.is_active });
                 });
                 this.prodOpts.live = Object.values(prodGrps);
-            } catch (e) { console.error("Error fetching initial data:", e); this.apiErr = "Could not load data from server."; this.usrApiErr = "Error loading essential data. Please try again later or contact support."; this.prodOpts.live = []; }
 
-            let cities = []; (this.settings.delAreas || []).forEach(gov => {
-                if (gov.cities && gov.cities.length > 0) { gov.cities.forEach(city => { cities.push({ id: `${gov.id}_${city.id}`, nameEn: `${gov.name_en} - ${city.name_en}`, nameAr: `${gov.name_ar} - ${city.name_ar}`, delFeeEgp: city.delivery_fee_egp, govId: gov.id, govNameEn: gov.name_en, govNameAr: gov.name_ar }); });
-                } else if (gov.delivery_fee_egp !== undefined) { cities.push({ id: gov.id, nameEn: gov.name_en, nameAr: gov.name_ar, delFeeEgp: gov.delivery_fee_egp, govId: gov.id, govNameEn: gov.name_en, govNameAr: gov.name_ar });}
+                if (this.prodOpts.live.length === 0 && !this.usrApiErr && !this.apiErr) { 
+                     this.usrApiErr = "No sheep options are currently available.";
+                }
+
+            } catch (e) {
+                console.error("Error fetching initial data:", e);
+                this.apiErr = String(e.message || "Could not load data from server."); 
+                this.usrApiErr = "Error loading essential data. Please try again later or contact support.";
+                this.prodOpts.live = []; 
+            }
+
+            let cities = [];
+            (this.settings.delAreas || []).forEach(gov => {
+                if (gov.cities && Array.isArray(gov.cities) && gov.cities.length > 0) {
+                    gov.cities.forEach(city => { cities.push({ id: `${gov.id}_${city.id}`, nameEn: `${gov.name_en} - ${city.name_en}`, nameAr: `${gov.name_ar} - ${city.name_ar}`, delFeeEgp: city.delivery_fee_egp, govId: gov.id, govNameEn: gov.name_en, govNameAr: gov.name_ar }); });
+                } else if (gov.delivery_fee_egp !== undefined) { 
+                    cities.push({ id: gov.id, nameEn: gov.name_en, nameAr: gov.name_ar, delFeeEgp: gov.delivery_fee_egp, govId: gov.id, govNameEn: gov.name_en, govNameAr: gov.name_ar });
+                }
             });
             this.allCities = cities.sort((a,b) => a.nameEn.localeCompare(b.nameEn));
-            this.updServFee(); this.curr = this.settings.defCurr; this.startCd(); this.updSacDayTxt(); this.clrAllErrs();
+            
+            this.curr = this.settings.defCurr || "EGP";
+            this.updServFee();
+            this.startCd();
+            this.updSacDayTxt();
+            this.clrAllErrs();
 
             this.$nextTick(() => {
-                if (this.prodOpts.live?.length > 0) { this.updAllPrices(); }
-                else if (!this.apiErr) { this.usrApiErr = "No sheep options are currently available."; }
-                this.updAllStepStates(); this.onScroll();
+                this.updAllPrices();
+                this.updAllStepStates();
+                this.onScroll();
                 this.focusRef(this.orderConf ? "orderConfTitle" : "body", false);
-                this.updDelFeeDisp(); this.load.init = false;
+                this.updDelFeeDisp();
+                this.load.init = false;
             });
 
             this.stepMeta = [
@@ -134,137 +146,277 @@ document.addEventListener('alpine:init', () => {
                 { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'distChoiceSelS4', validator: this.valStep4.bind(this) },
                 { id: "#step5-content", conceptualStep: 5, titleRef: "step5Title", firstFocusableErrorRef: 'payMethRadios', validator: this.valStep5.bind(this) }
             ];
-            ['selAnim.priceEgp', 'curr', 'servFee'].forEach(prop => this.$watch(prop, () => { this.calcTotal(); if(prop !== 'servFee') this.updAllPrices(); }));
-            this.$watch('settings.servFeeEGP', () => { this.updServFee(); });
-            ['sacDay.val', 'distChoice', 'splitOpt', 'splitCustom', 'custName', 'custPhone', 'custEmail', 'delAddr', 'timeSlot', 'payMeth', 'viewPref', 'delCity', 'selUdhServ', 'niyyahNames'].forEach(prop => this.$watch(prop, (nv,ov) => {
-                this.updAllStepStates();
-                if (prop === 'delCity' && nv !== ov) {this.updDelFeeDisp(); this.calcTotal();}
-                if (prop === 'selUdhServ') this.updServFee();
-                if (prop === 'distChoice') this.calcTotal();
+
+            ['selAnim.priceEgp', 'curr', 'servFee'].forEach(prop => this.$watch(prop, (newValue, oldValue) => {
+                if (newValue !== oldValue) {
+                    this.calcTotal();
+                    if (prop !== 'servFee') { 
+                        this.$nextTick(() => this.updAllPrices());
+                    }
+                }
             }));
-            window.addEventListener('scroll', () => this.onScroll(), { passive: true });
+            this.$watch('settings.servFeeEGP', (newValue, oldValue) => { if (newValue !== oldValue) this.updServFee(); });
+            
+            ['distChoice', 'splitOpt', 'splitCustom', 'custName', 'custPhone', 'custEmail', 'delAddr', 'timeSlot', 'payMeth', 'viewPref', 'delCity', 'selUdhServ', 'niyyahNames', 'sacDay.val'].forEach(prop => this.$watch(prop, (nv,ov) => {
+                if (nv !== ov || (typeof nv === 'object' && JSON.stringify(nv) !== JSON.stringify(ov))) { 
+                    this.updAllStepStates();
+                    if (prop === 'delCity') { this.updDelFeeDisp(); }
+                    else if (prop === 'selUdhServ') { this.updServFee(); }
+                    else if (['distChoice', 'splitOpt', 'splitCustom'].includes(prop)) { this.calcTotal(); this.updDelFeeDisp(); }
+                }
+            }));
+            
+            let scrollTimeout; 
+            window.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => this.onScroll(), 100); 
+            }, { passive: true });
+
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startCd(); else if (this.cdTimer) clearInterval(this.cdTimer); });
         },
-        updServFee() { if (this.selUdhServ === 'standard_service') { this.servFee = this.settings.servFeeEGP || 0; } else if (this.selUdhServ === 'live_animal_only') { this.servFee = 0; } else { this.selUdhServ = 'standard_service'; this.servFee = this.settings.servFeeEGP || 0; } this.calcTotal(); },
-        onScroll() {
-            if (!this.orderConf && this.stepMeta.some(step => { const el = document.querySelector(step.id); return el && typeof el.offsetTop === 'number'; })) {
-                const scrollMid = window.scrollY + (window.innerHeight / 2); let closestStep = 1; let minDist = Infinity;
+        updServFee() { this.servFee = (this.selUdhServ === 'standard_service') ? (this.settings.servFeeEGP || 0) : 0; this.calcTotal(); },
+        onScroll() { 
+            if (!this.orderConf && this.stepMeta.length > 0 && this.stepMeta.some(step => { const el = document.querySelector(step.id); return el && typeof el.offsetTop === 'number'; })) {
+                const scrollMid = window.scrollY + (window.innerHeight / 2); let closestStep = this.currStep; let minDist = Infinity;
                 this.stepMeta.forEach(meta => { const el = document.querySelector(meta.id); if (el) { const dist = Math.abs(scrollMid - (el.offsetTop + (el.offsetHeight / 2))); if (dist < minDist) { minDist = dist; closestStep = meta.conceptualStep; } } });
                 if (this.currStep !== closestStep) this.currStep = closestStep;
             }
             const headH = document.querySelector('.site-head')?.offsetHeight || 70; const scrollOff = headH + (window.innerHeight * 0.10); const currScrollYOff = window.scrollY + scrollOff; let newActHref = ""; let newActParent = null;
             for (const navLink of this.navData) { const sectEl = document.getElementById(navLink.sectId); if (sectEl) { const sectTop = sectEl.offsetTop; const sectBot = sectTop + sectEl.offsetHeight; if (sectTop <= currScrollYOff && sectBot > currScrollYOff) { newActHref = navLink.href; newActParent = navLink.parentMenu; break; } } }
-            const firstNavSect = document.getElementById(this.navData[0]?.sectId);
-            if (window.scrollY < (firstNavSect?.offsetTop || headH) - headH) { newActHref = ""; newActParent = null; }
-            else if ((window.innerHeight + Math.ceil(window.scrollY)) >= (document.body.offsetHeight - 2)) { const lastVisLink = this.navData.slice().reverse().find(nl => document.getElementById(nl.sectId)); if (lastVisLink) { newActHref = lastVisLink.href; newActParent = lastVisLink.parentMenu; } }
+            const firstNavSect = this.navData.length > 0 ? document.getElementById(this.navData[0].sectId) : null;
+            if (window.scrollY < ((firstNavSect?.offsetTop || headH) - headH)) { newActHref = ""; newActParent = null; }
+            else if ((window.innerHeight + Math.ceil(window.scrollY)) >= (document.body.offsetHeight - 5)) { 
+                 const lastVisLink = this.navData.slice().reverse().find(nl => { const el = document.getElementById(nl.sectId); return el && el.offsetHeight > 0; });
+                 if (lastVisLink) { newActHref = lastVisLink.href; newActParent = lastVisLink.parentMenu; }
+            }
             this.actNavHref = newActParent || newActHref;
         },
-        setErr(f, m) { this.errs[f] = (typeof m === 'string' ? this.errMsgs[m] : m) || this.errMsgs.required; },
+        setErr(f, m) { this.errs[f] = (typeof m === 'string' ? this.errMsgs[m] : m) || this.errMsgs.required; this.$nextTick(() => { const firstErrorEl = document.querySelector(`[aria-invalid="true"]`); if (firstErrorEl) firstErrorEl.focus({ preventScroll: true }); }); },
         clrErr(f) { if(this.errs[f]) delete this.errs[f]; },
         clrAllErrs() { this.errs = {}; },
-        focusRef(r, s=true) {this.$nextTick(()=>{if(this.$refs[r]){this.$refs[r].focus({preventScroll:!s});if(s)setTimeout(()=>{try{this.$refs[r].scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}catch(e){console.warn("Scroll fail",r,e);}},50);}})},
-        get needsDelDetails() { const c = (this.splitCustom || "").toLowerCase(); return this.distChoice === 'me' || (this.distChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitOpt) || (this.splitOpt === 'custom' && (c.includes("for me") || c.includes("all delivered to me") || c.includes("لي") || c.includes("توصيل لي"))))); },
+        focusRef(r, s=true) {this.$nextTick(()=>{ const target = this.$refs[r]; if(target){target.focus({preventScroll:!s});if(s)setTimeout(()=>{try{target.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});}catch(e){console.warn("ScrollIntoView failed for ref:",r,e);}},50);}})},
+        get needsDelDetails() { const c = (this.splitCustom || "").toLowerCase(); return this.distChoice === 'me' || (this.distChoice === 'split' && (["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(this.splitOpt) || (this.splitOpt === 'custom' && (c.includes("for me") || c.includes("all delivered to me") || c.includes("لي") || c.includes("توصيل لي") || c.includes("استلام"))))); },
         get splitDet() { if(this.distChoice !== 'split') return ""; if(this.splitOpt === 'custom') return (this.splitCustom || "").trim(); const o={"1/3_me_2/3_charity_sl":{en:"1/3 me, 2/3 charity (SL)",ar:"ثلث لي، ثلثان صدقة (أرض الأغنام)"},"1/2_me_1/2_charity_sl":{en:"1/2 me, 1/2 charity (SL)",ar:"نصف لي، نصف صدقة (أرض الأغنام)"},"2/3_me_1/3_charity_sl":{en:"2/3 me, 1/3 charity (SL)",ar:"ثلثان لي، ثلث صدقة (أرض الأغنام)"},"all_me_custom_distro":{en:"All for me (I distribute)",ar:"الكل لي (أنا أوزع)"}};const s=o[this.splitOpt];return s?(this.currLang==='ar'?s.ar:s.en):this.splitOpt;},
         getDelLoc(lang) { if (!this.needsDelDetails || !this.delCity) return ""; const selCityData = this.allCities.find(c => c.id === this.delCity); if (!selCityData) return ""; return lang === 'en' ? selCityData.nameEn : selCityData.nameAr; },
         get sumDelToEn() { if(this.distChoice === 'char') return "Charity Distribution by Sheep Land"; if(this.needsDelDetails) { const name = (this.custName || "").trim(); const loc = this.getDelLoc('en'); const addrShort = (this.delAddr || "").substring(0,30) + ((this.delAddr || "").length > 30 ? "..." : ""); return [name, loc, addrShort].filter(p => p?.trim()).join(", ") || "Delivery Details Incomplete"; } return "Self Pickup/Distribution (No delivery details provided)"; },
         get sumDelToAr() { if(this.distChoice === 'char') return "توزيع خيري بواسطة أرض الأغنام"; if(this.needsDelDetails) { const name = (this.custName || "").trim(); const loc = this.getDelLoc('ar'); const addrShort = (this.delAddr || "").substring(0,30) + ((this.delAddr || "").length > 30 ? "..." : ""); return [name, loc, addrShort].filter(p => p?.trim()).join("، ") || "تفاصيل التوصيل غير مكتملة"; } return "استلام ذاتي/توزيع (لم تقدم تفاصيل توصيل)"; },
         get sumDistrEn() {if(this.distChoice==='me')return"All to me";if(this.distChoice==='char')return"All to charity (by SL)";return`Split: ${(this.splitDet||"").trim()||"(Not specified)"}`;},
         get sumDistrAr() {if(this.distChoice==='me')return"الكل لي";if(this.distChoice==='char')return"تبرع بالكل للصدقة (أرض الأغنام)";return`تقسيم: ${(this.splitDet||"").trim()||"(لم يحدد)"}`;},
-        startCd() { if(this.cdTimer)clearInterval(this.cdTimer);if(!this.settings.promoActive||!this.settings.promoEndISO) {this.cd.ended=true;return;} const t=new Date(this.settings.promoEndISO).getTime();if(isNaN(t)){this.cd.ended=true;return;}this.updCdDisp(t);this.cdTimer=setInterval(()=>this.updCdDisp(t),1000);},
+        startCd() { if(this.cdTimer)clearInterval(this.cdTimer);if(!this.settings.promoActive||!this.settings.promoEndISO) {this.cd.ended=true;return;} const t=new Date(this.settings.promoEndISO).getTime();if(isNaN(t)){this.cd.ended=true;console.warn("Invalid promoEndISO date for countdown:", this.settings.promoEndISO);return;}this.updCdDisp(t);this.cdTimer=setInterval(()=>this.updCdDisp(t),1000);},
         updCdDisp(t) {const d=t-Date.now();if(d<0){if(this.cdTimer)clearInterval(this.cdTimer);Object.assign(this.cd,{days:"00",hours:"00",mins:"00",secs:"00",ended:true});return;}this.cd.ended=false;this.cd={days:String(Math.floor(d/864e5)).padStart(2,'0'),hours:String(Math.floor(d%864e5/36e5)).padStart(2,'0'),mins:String(Math.floor(d%36e5/6e4)).padStart(2,'0'),secs:String(Math.floor(d%6e4/1e3)).padStart(2,'0')};},
-        updDelFeeDisp() { this.delFeeDispEGP = 0; this.isDelFeeVar = false; if (!this.needsDelDetails || !this.delCity) { this.calcTotal(); return; } const cityData = this.allCities.find(c => c.id === this.delCity); if (cityData && typeof cityData.delFeeEgp === 'number') { this.delFeeDispEGP = cityData.delFeeEgp; this.isDelFeeVar = false; } else if (cityData && cityData.delFeeEgp === null) { this.isDelFeeVar = true; this.delFeeDispEGP = 0; } else { this.isDelFeeVar = true; this.delFeeDispEGP = 0; } this.calcTotal();  },
-        fmtPrice(p, c) { const cc=c||this.curr;const ci=this.settings?.xchgRates?.[cc];if(p==null||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'?')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
+        updDelFeeDisp() { this.delFeeDispEGP = 0; this.isDelFeeVar = false; if (!this.needsDelDetails || !this.delCity) { this.calcTotal(); return; } const cityData = this.allCities.find(c => c.id === this.delCity); if (cityData && typeof cityData.delFeeEgp === 'number') { this.delFeeDispEGP = cityData.delFeeEgp; this.isDelFeeVar = false; } else if (cityData && cityData.delFeeEgp === null) { this.isDelFeeVar = true; this.delFeeDispEGP = 0; } else { this.isDelFeeVar = true; this.delFeeDispEGP = 0; if (this.delCity) console.warn("Delivery fee not found or invalid for city:", this.delCity); } this.calcTotal();  },
+        fmtPrice(p, c) { const cc=c||this.curr; const ci=this.settings?.xchgRates?.[cc]; if(p==null||p === undefined ||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isEmailValid: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
-        isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
+        isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()), 
         scrollSect(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.site-head')?.offsetHeight||0;if(s.startsWith('#udh-order-start')||s.startsWith('#step')||s.startsWith('#udh-order-panel')){const h=document.querySelector('.step-wrap');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){console.warn("ScrollSect err:", err);}},
         valConceptStep(cs, se=true) { const m=this.stepMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProg[`step${cs}`]=v;return v;},
-        updAllStepStates() { for(let i=1;i<=this.stepMeta.length;i++)this.stepProg[`step${i}`]=this.valConceptStep(i,false);},
-        navStep(tcs) {this.clrAllErrs();let cp=true;for(let s=1;s<tcs;s++){if(!this.valConceptStep(s,true)){this.currStep=s;const m=this.stepMeta[s-1];this.focusRef(m?.firstFocusableErrorRef||m?.titleRef);this.scrollSect(m?.id||'#udh-order-start');cp=false;break;}}if(cp){this.currStep=tcs;this.scrollSect(this.stepMeta[tcs-1]?.id||'#udh-order-start');this.focusRef(this.stepMeta[tcs-1]?.titleRef);}},
+        updAllStepStates() { for(let i=1;i<=this.stepMeta.length;i++)this.stepProg[`step${i}`]=this.valConceptStep(i,false);}, 
+        navStep(tcs) {this.clrAllErrs();let canProceed=true;for(let s=1;s<tcs;s++){if(!this.valConceptStep(s,true)){this.currStep=s;const m=this.stepMeta[s-1]; if(m) {this.focusRef(m.firstFocusableErrorRef||m.titleRef);this.scrollSect(m.id||'#udh-order-start');} canProceed=false;break;}}if(canProceed){this.currStep=tcs;const currentMeta = this.stepMeta[tcs-1]; if(currentMeta) { this.scrollSect(currentMeta.id||'#udh-order-start'); this.focusRef(currentMeta.titleRef); }}},
 
         valStep1(setErrs = true) { if (setErrs) this.clrErr('animal'); if (!this.selAnim.itemKey) { if (setErrs) this.setErr('animal', 'select'); return false; } return true;  },
         valStep2(setErrs = true) { if (setErrs) { this.clrErr('custName'); this.clrErr('custPhone'); this.clrErr('custEmail');} let isValid = true; if (!(this.custName || "").trim()) { if (setErrs) this.setErr('custName', 'required'); isValid = false; } if (!this.isPhoneValid(this.custPhone)) { if (setErrs) this.setErr('custPhone', 'phone'); isValid = false; } if ((this.custEmail || "").trim() && !this.isEmailValid(this.custEmail)) { if (setErrs) this.setErr('custEmail', 'email'); isValid = false; } return isValid; },
         valStep3(setErrs = true) { if (setErrs) { this.clrErr('udhServ');this.clrErr('sacDay'); } let isValid = true; if (!this.selUdhServ) { if(setErrs) this.setErr('udhServ', 'select'); isValid = false;} if (!this.sacDay.val) { if (setErrs) this.setErr('sacDay', 'select'); isValid = false; } return isValid; },
-        valStep4(setErrs = true) { if (setErrs) { this.clrErr('distChoice'); this.clrErr('splitOpt'); this.clrErr('delCity'); this.clrErr('delAddr'); this.clrErr('timeSlot');} let isValid = true; if (!this.distChoice) { if(setErrs) this.setErr('distChoice', 'select'); isValid = false; } if (this.distChoice === 'split' && this.splitOpt === 'custom' && !(this.splitCustom || "").trim()) { if (setErrs) this.setErr('splitOpt', 'required'); isValid = false; } else if (this.distChoice === 'split' && !this.splitOpt) { if (setErrs) this.setErr('splitOpt', 'select'); isValid = false; } if (this.needsDelDetails) {  if (!this.delCity) { if (setErrs) this.setErr('delCity', 'select'); isValid = false; }  if (!(this.delAddr || "").trim()) { if (setErrs) this.setErr('delAddr', 'required'); isValid = false; } if (!this.timeSlot) { if (setErrs) this.setErr('timeSlot', 'select'); isValid = false; } } return isValid; },
+        valStep4(setErrs = true) { if (setErrs) { this.clrErr('distChoice'); this.clrErr('splitOpt'); this.clrErr('delCity'); this.clrErr('delAddr'); this.clrErr('timeSlot');} let isValid = true; if (!this.distChoice) { if(setErrs) this.setErr('distChoice', 'select'); isValid = false; } if (this.distChoice === 'split' && this.splitOpt === 'custom' && !(this.splitCustom || "").trim()) { if (setErrs) this.setErr('splitOpt', 'required'); isValid = false; } else if (this.distChoice === 'split' && !this.splitOpt) { if (setErrs) this.setErr('splitOpt', 'select'); isValid = false; } if (this.needsDelDetails) {  if (!this.delCity) { if (setErrs) this.setErr('delCity', 'select'); isValid = false; }  if (!(this.delAddr || "").trim()) { if (setErrs) this.setErr('delAddr', 'required'); isValid = false; } if (!this.timeSlot) { if (setErrs) this.setErr('timeSlot', 'timeSlot'); isValid = false; } } return isValid; },
         valStep5(setErrs = true) { if (setErrs) this.clrErr('payMeth'); if (!this.payMeth) { if (setErrs) this.setErr('payMeth', 'select'); return false; } return true; },
 
-        selAnimal(animTypeKey, wtSelEl) { const selItemKey = wtSelEl.value; this.clrErr('animal'); if (!selItemKey) { this.selAnim = { ...initOrderData.selAnim }; this.prodOpts.live.forEach(type => { if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { this.$refs[`${type.valKey}WtSel`].value = ""; } }); this.calcTotal(); this.updAllStepStates(); return; } this.prodOpts.live.forEach(type => { if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { this.$refs[`${type.valKey}WtSel`].value = ""; } }); const animTypeCfg = this.prodOpts.live.find(a => a.valKey === animTypeKey); if (!animTypeCfg) { this.selAnim = { ...initOrderData.selAnim }; this.calcTotal(); this.updAllStepStates(); return; } const selSpecItem = animTypeCfg.wps.find(wp => wp.itemKey === selItemKey); if (selSpecItem && selSpecItem.isActive && selSpecItem.stock > 0) { this.selAnim = { type: animTypeCfg.valKey, itemKey: selSpecItem.itemKey, varPbId: selSpecItem.varIdPb, wtRangeEn: selSpecItem.wtRangeEn, wtRangeAr: selSpecItem.wtRangeAr, priceEgp: selSpecItem.priceEGP, nameEN: selSpecItem.nameENSpec, nameAR: selSpecItem.nameARSpec, stock: selSpecItem.stock, typeGenEn: animTypeCfg.nameEn, typeGenAr: animTypeCfg.nameAr, typePriceKgEgp: animTypeCfg.priceKgEgp }; } else { this.selAnim = { ...initOrderData.selAnim }; this.setErr('animal', {en: 'Selected item is out of stock or inactive.', ar: 'الخيار المحدد غير متوفر أو غير نشط.'}); } this.calcTotal(); this.updAllStepStates(); },
-        updSacDayTxt() { const sacDaySelEl = this.$refs.sacDaySelS3; if (sacDaySelEl) {  const optEl = sacDaySelEl.querySelector(`option[value="${this.sacDay.val}"]`); if(optEl) Object.assign(this.sacDay,{txtEN:optEl.dataset.en,txtAR:optEl.dataset.ar}); }  },
-        calcTotal() { let delFeeTotal = 0; if(this.needsDelDetails && this.delFeeDispEGP > 0 && !this.isDelFeeVar) { delFeeTotal = this.delFeeDispEGP; } this.totalEgp=(this.selAnim.priceEgp||0) + (this.servFee || 0) + delFeeTotal;   },
-        updAllPrices() { try { (this.prodOpts.live || []).forEach(liveTypeCfg => {  const wtSelEl = this.$refs[`${liveTypeCfg.valKey}WtSel`];  const cardEl = document.getElementById(liveTypeCfg.valKey);  if (!wtSelEl || !cardEl) { console.warn(`Missing elements for ${liveTypeCfg.valKey}`); return; } const currVal = wtSelEl.value;  wtSelEl.innerHTML = `<option value="">-- Select Weight --</option>`; let stillValid = false; (liveTypeCfg.wps || []).forEach(wp => {  const opt = document.createElement('option');  opt.value = wp.itemKey;  const outOfStock = !wp.isActive || wp.stock <= 0; const statTxtEn = this.getStockEn(wp.stock, wp.isActive); const priceDispEn = this.fmtPrice(wp.priceEGP); opt.textContent = `${wp.nameENSpec || wp.wtRangeEn} (${priceDispEn}) - ${statTxtEn}`.trim(); opt.disabled = outOfStock;  wtSelEl.appendChild(opt); if (wp.itemKey === currVal && !outOfStock) stillValid = true; }); if(currVal && stillValid) { wtSelEl.value = currVal; } else if (this.selAnim.type === liveTypeCfg.valKey && this.selAnim.itemKey && liveTypeCfg.wps.find(wp => wp.itemKey === this.selAnim.itemKey && wp.isActive && (wp.stock > 0))) { wtSelEl.value = this.selAnim.itemKey; } else { wtSelEl.value = ""; } const priceKg = liveTypeCfg.priceKgEgp || 0; const priceKgTxtEn = this.fmtPrice(priceKg) + '/kg'; const priceKgTxtAr = this.fmtPrice(priceKg) + '/كجم'; const pEN_el = cardEl.querySelector('.price.bil-row .en span'); if(pEN_el) pEN_el.textContent = priceKgTxtEn; const pAR_el = cardEl.querySelector('.price.bil-row .ar span'); if(pAR_el) pAR_el.textContent = priceKgTxtAr; }); this.calcTotal();  } catch (e) { console.error("Error in updAllPrices:", e); this.usrApiErr = "Error updating prices."; } },
+        selAnimal(animTypeKey, wtSelEl) { const selItemKey = wtSelEl.value; this.clrErr('animal'); if (!selItemKey) { this.selAnim = { ...initOrderData.selAnim }; this.prodOpts.live.forEach(type => { if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { this.$refs[`${type.valKey}WtSel`].value = ""; } }); this.calcTotal(); this.updAllStepStates(); return; } this.prodOpts.live.forEach(type => { if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { this.$refs[`${type.valKey}WtSel`].value = ""; } }); const animTypeCfg = this.prodOpts.live.find(a => a.valKey === animTypeKey); if (!animTypeCfg) { this.selAnim = { ...initOrderData.selAnim }; this.calcTotal(); this.updAllStepStates(); return; } const selSpecItem = animTypeCfg.wps.find(wp => wp.itemKey === selItemKey); if (selSpecItem && selSpecItem.isActive && selSpecItem.stock > 0) { this.selAnim = { type: animTypeCfg.valKey, itemKey: selSpecItem.itemKey, varPbId: selSpecItem.varIdPb, wtRangeEn: selSpecItem.wtRangeEn, wtRangeAr: selSpecItem.wtRangeAr, priceEgp: selSpecItem.priceEGP, stock: selSpecItem.stock, typeGenEn: animTypeCfg.nameEn, typeGenAr: animTypeCfg.nameAr, typePriceKgEgp: animTypeCfg.priceKgEgp }; } else { this.selAnim = { ...initOrderData.selAnim }; this.setErr('animal', {en: 'Selected item is out of stock or inactive.', ar: 'الخيار المحدد غير متوفر أو غير نشط.'}); } this.calcTotal(); this.updAllStepStates(); },
+        updSacDayTxt() { const sacDaySelEl = this.$refs.sacDaySelS3; if (sacDaySelEl) {  const optEl = sacDaySelEl.querySelector(`option[value="${this.sacDay.val}"]`); if(optEl) Object.assign(this.sacDay,{txtEN:optEl.dataset.en || this.sacDay.val,txtAR:optEl.dataset.ar || this.sacDay.val}); }  },
+        calcTotal() { let delFeeFinal = 0; if(this.needsDelDetails && this.delFeeDispEGP > 0 && !this.isDelFeeVar) { delFeeFinal = this.delFeeDispEGP; } this.totalEgp= (this.selAnim.priceEgp||0) + (this.servFee || 0) + delFeeFinal; },
+        updAllPrices() { 
+            try { 
+                (this.prodOpts.live || []).forEach(liveTypeCfg => {  
+                    const wtSelRefName = `${liveTypeCfg.valKey}WtSel`;
+                    const wtSelEl = this.$refs[wtSelRefName];
+                    const cardEl = document.getElementById(liveTypeCfg.valKey);  
+                    
+                    if (!wtSelEl || !cardEl) { 
+                        console.warn(`Missing elements for ${liveTypeCfg.valKey} during price update. Select Ref: ${wtSelRefName}, Card ID: ${liveTypeCfg.valKey}`); 
+                        return; 
+                    } 
+                    
+                    const currVal = wtSelEl.value;  
+                    wtSelEl.innerHTML = `<option value="">-- Select Weight --</option>`; 
+                    let stillValid = false; 
+                    
+                    (liveTypeCfg.wps || []).forEach(wp => {  
+                        const opt = document.createElement('option');  
+                        opt.value = wp.itemKey;  
+                        const outOfStock = !wp.isActive || wp.stock <= 0; 
+                        const statTxtEn = this.getStockEn(wp.stock, wp.isActive); 
+                        const priceDispEn = this.fmtPrice(wp.priceEGP); 
+                        opt.textContent = `${wp.nameENSpec || wp.wtRangeEn} (${priceDispEn}) - ${statTxtEn}`.trim(); 
+                        opt.disabled = outOfStock;  
+                        wtSelEl.appendChild(opt); 
+                        if (wp.itemKey === currVal && !outOfStock) stillValid = true; 
+                    }); 
+                    
+                    if(currVal && stillValid) { 
+                        wtSelEl.value = currVal; 
+                    } else if (this.selAnim.type === liveTypeCfg.valKey && this.selAnim.itemKey && liveTypeCfg.wps.find(wp => wp.itemKey === this.selAnim.itemKey && wp.isActive && (wp.stock > 0))) { 
+                        wtSelEl.value = this.selAnim.itemKey; 
+                    } else { 
+                        wtSelEl.value = ""; 
+                    } 
+                    
+                    const priceKg = liveTypeCfg.priceKgEgp || 0; 
+                    const priceKgTxtEn = this.fmtPrice(priceKg) + '/kg'; 
+                    const priceKgTxtAr = this.fmtPrice(priceKg) + '/كجم'; 
+                    
+                    const pEN_el = cardEl.querySelector('.price.bil-row .en span'); 
+                    if(pEN_el) pEN_el.textContent = priceKgTxtEn; 
+                    const pAR_el = cardEl.querySelector('.price.bil-row .ar span'); 
+                    if(pAR_el) pAR_el.textContent = priceKgTxtAr; 
+                }); 
+                this.calcTotal();  
+            } catch (e) { 
+                console.error("Error in updAllPrices:", e); 
+                this.usrApiErr = "Error updating prices."; 
+            } 
+        },
 
-        async submitOrderValid() {
+        async submitOrderValidClientSide() {
             this.clrAllErrs(); let isValid = true;
-            for (let i = 1; i <= this.stepMeta.length; i++) { if (!this.valConceptStep(i, true)) { isValid = false; const meta = this.stepMeta[i-1]; if (meta) { this.focusRef(meta.firstFocusableErrorRef || meta.titleRef); this.scrollSect(meta.id || '#udh-order-start'); } break; }}
+            for (let i = 1; i <= this.stepMeta.length; i++) {
+                if (!this.valConceptStep(i, true)) {
+                    isValid = false;
+                    const meta = this.stepMeta[i - 1];
+                    if (meta) {
+                        this.currStep = i;
+                        this.focusRef(meta.firstFocusableErrorRef || meta.titleRef);
+                        this.scrollSect(meta.id || '#udh-order-start');
+                    }
+                    break;
+                }
+            }
             if (!isValid) return;
 
-            const animTypeCfg = this.prodOpts.live.find(lt => lt.valKey === this.selAnim.type);
-            const stockItemCfg = animTypeCfg?.wps.find(wp => wp.itemKey === this.selAnim.itemKey);
-
-            if (!stockItemCfg || !stockItemCfg.isActive || stockItemCfg.stock <= 0) {
-                this.setErr('animal', { en: `Sorry, selected item is unavailable. Please reselect.`, ar: `عذراً، المنتج المختار غير متوفر. يرجى إعادة الاختيار.` });
-                this.selAnim.priceEgp = 0; this.updAllPrices(); this.updAllStepStates();
-                this.scrollSect('#step1-content'); this.focusRef(this.stepMeta[0].firstFocusableErrorRef || this.stepMeta[0].titleRef); return;
-            }
-            this.load.ordering = true; this.apiErr = null; this.usrApiErr = ""; this.calcTotal();
-            const orderIdClient = `SL-UDHY-${new Date().getFullYear()}-${String(Math.random()).slice(2,7)}`;
-            let delOpt = "self_pickup_or_internal_distribution";
-            if (this.distChoice === 'char') delOpt = "charity_distribution_by_sl";
-            else if (this.needsDelDetails) delOpt = "home_delivery_to_orderer";
-            const selCityInfo = (this.needsDelDetails && this.delCity) ? this.allCities.find(c => c.id === this.delCity) : null;
-
-            const payload = {
-                order_id_text: orderIdClient,
-                product_item_key: this.selAnim.itemKey,
-                quantity: 1,
-                animal_type_name_en: this.selAnim.typeGenEn, animal_type_name_ar: this.selAnim.typeGenAr,
-                weight_category_name_en: this.selAnim.nameEN, weight_category_name_ar: this.selAnim.nameAR,
-                weight_range_actual_en: this.selAnim.wtRangeEn, weight_range_actual_ar: this.selAnim.wtRangeAr,
-                price_at_order_time_egp: this.selAnim.priceEgp,
-                cost_of_animal_egp: this.cost_of_animal_egp, // Send to backend
-                udheya_service_option_selected: this.selUdhServ,
-                service_fee_applied_egp: this.servFee,
-                delivery_fee_applied_egp: (this.needsDelDetails && this.delFeeDispEGP > 0 && !this.isDelFeeVar) ? this.delFeeDispEGP : 0,
-                total_amount_due_egp: this.totalEgp, selected_display_currency: this.curr,
-                sacrifice_day_value: this.sacDay.val, sacrifice_day_text_en: this.sacDay.txtEN, sacrifice_day_text_ar: this.sacDay.txtAR,
-                slaughter_viewing_preference: this.viewPref, distribution_choice: this.distChoice,
-                split_details_option: this.distChoice === 'split' ? this.splitOpt : "", custom_split_details_text: (this.distChoice === 'split' && this.splitOpt === 'custom') ? (this.splitCustom || "").trim() : "",
-                niyyah_names: (this.niyyahNames || "").trim(), ordering_person_name: (this.custName || "").trim(),
-                ordering_person_phone: (this.custPhone || "").trim(), customer_email: (this.custEmail || "").trim(),
-                delivery_option: delOpt, delivery_name: (this.custName || "").trim(), delivery_phone: (this.custPhone || "").trim(),
-                delivery_area_id: (this.needsDelDetails && selCityInfo) ? selCityInfo.id : "",
-                delivery_area_name_en: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameEn : "",
-                delivery_area_name_ar: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameAr : "",
-                delivery_address: this.needsDelDetails ? (this.delAddr || "").trim() : "",
-                delivery_instructions: this.needsDelDetails ? (this.delNotes || "").trim() : "",
-                time_slot: (this.distChoice === 'char' || !this.needsDelDetails) ? 'N/A' : this.timeSlot,
-                payment_method: this.payMeth,
-                payment_status: (this.payMeth === 'cod' && this.needsDelDetails) ? 'cod_pending_confirmation' : 'pending_payment',
-                order_status: 'confirmed_pending_payment',
-                terms_agreed: true,
-                group_purchase_interest: this.grpBuy, admin_notes: this.grpBuy ? "Group purchase interest." : ""
-                // animal_tag_id could be added here if a specific animal is selected from sheep_log by the UI
-            };
+            this.load.ordering = true;
+            this.apiErr = null;
+            this.usrApiErr = "";
+            const pb = new PocketBase('/');
+            let productRecord; 
 
             try {
-                const orderRes = await apiPlaceOrder(payload);
-                this.orderID = orderRes.order_id_text || orderIdClient;
+                try {
+                    console.log("ClientSideOrder: Fetching product details for itemKey:", this.selAnim.itemKey);
+                    productRecord = await pb.collection('products').getFirstListItem(`item_key="${this.selAnim.itemKey}" && is_active=true`);
+                    if (!productRecord) throw new Error("Selected product not found or inactive on server.");
+                    if (productRecord.stock_available_pb <= 0) throw new Error("Selected product is out of stock on server.");
+                    
+                    console.log("ClientSideOrder: Product fetched from server:", productRecord);
+                    this.selAnim.priceEgp = productRecord.base_price_egp; 
+                    this.selAnim.stock = productRecord.stock_available_pb; 
+                } catch (e) {
+                    console.error("ClientSideOrder: Error fetching product or stock check", e.response || e);
+                    this.setErr('animal', { 
+                        en: `Product check failed: ${e.data?.message || e.message || 'Unknown error'}. Please re-select.`, 
+                        ar: `فشل التحقق من المنتج: ${e.data?.message || e.message || 'خطأ غير معروف'}. يرجى إعادة الاختيار.`
+                    });
+                    this.currStep = 1; this.scrollSect('#step1-content'); this.focusRef(this.stepMeta[0].firstFocusableErrorRef || this.stepMeta[0].titleRef);
+                    this.load.ordering = false;
+                    return;
+                }
 
-                if (stockItemCfg) {
-                    const newClientStock = orderRes.new_stock_level !== undefined ? orderRes.new_stock_level : (stockItemCfg.stock -1);
-                    stockItemCfg.stock = newClientStock;
-                    this.selAnim.stock = newClientStock;
-                    this.updAllPrices();
+                this.calcTotal(); 
+
+                const orderIdClient = `SL-UDHY-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}-${String(Math.random()).slice(2,7)}`;
+                let delOpt = "self_pickup_or_internal_distribution";
+                if (this.distChoice === 'char') delOpt = "charity_distribution_by_sl";
+                else if (this.needsDelDetails) delOpt = "home_delivery_to_orderer";
+                const selCityInfo = (this.needsDelDetails && this.delCity) ? this.allCities.find(c => c.id === this.delCity) : null;
+
+                const orderPayload = {
+                    order_id_text: orderIdClient,
+                    product_id: productRecord.id, 
+                    ordered_product_name_en: productRecord.variant_name_en,
+                    ordered_product_name_ar: productRecord.variant_name_ar,
+                    ordered_weight_range_en: productRecord.weight_range_text_en,
+                    ordered_weight_range_ar: productRecord.weight_range_text_ar,
+                    price_at_order_time_egp: productRecord.base_price_egp,
+                    cost_of_animal_egp: this.cost_of_animal_egp,
+                    udheya_service_option_selected: this.selUdhServ,
+                    service_fee_applied_egp: this.selUdhServ === 'standard_service' ? (this.settings.servFeeEGP || 0) : 0,
+                    delivery_fee_applied_egp: (this.needsDelDetails && this.delFeeDispEGP > 0 && !this.isDelFeeVar) ? this.delFeeDispEGP : 0,
+                    total_amount_due_egp: this.totalEgp,
+                    selected_display_currency: this.curr,
+                    sacrifice_day_value: this.sacDay.val,
+                    sacrifice_day_text_en: this.sacDay.txtEN,
+                    sacrifice_day_text_ar: this.sacDay.txtAR,
+                    slaughter_viewing_preference: this.viewPref,
+                    distribution_choice: this.distChoice,
+                    split_details_option: this.distChoice === 'split' ? this.splitOpt : "",
+                    custom_split_details_text: (this.distChoice === 'split' && this.splitOpt === 'custom') ? (this.splitCustom || "").trim() : "",
+                    niyyah_names: (this.niyyahNames || "").trim(),
+                    ordering_person_name: (this.custName || "").trim(),
+                    ordering_person_phone: (this.custPhone || "").trim(),
+                    customer_email: (this.custEmail || "").trim(),
+                    delivery_option: delOpt,
+                    delivery_name: (this.custName || "").trim(),
+                    delivery_phone: (this.custPhone || "").trim(),
+                    delivery_area_id: (this.needsDelDetails && selCityInfo) ? selCityInfo.id : "",
+                    delivery_area_name_en: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameEn : "",
+                    delivery_area_name_ar: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameAr : "",
+                    delivery_address: this.needsDelDetails ? (this.delAddr || "").trim() : "",
+                    delivery_instructions: this.needsDelDetails ? (this.delNotes || "").trim() : "",
+                    time_slot: (this.distChoice === 'char' || !this.needsDelDetails) ? 'N/A' : this.timeSlot,
+                    payment_method: this.payMeth,
+                    payment_status: this.payMeth === 'cod' ? "cod_pending_confirmation" : "pending_payment",
+                    order_status: this.payMeth === 'cod' ? "pending_confirmation" : "confirmed_pending_payment",
+                    terms_agreed: true,
+                    group_purchase_interest: this.grpBuy,
+                    admin_notes: this.grpBuy ? "Client expressed interest in group purchase." : "",
+                };
+
+                console.log("ClientSideOrder: Attempting to create order with payload:", orderPayload);
+                const createdOrder = await pb.collection('orders').create(orderPayload);
+                this.orderID = createdOrder.order_id_text || orderIdClient;
+                console.log("ClientSideOrder: Order created successfully:", createdOrder);
+
+                try {
+                    console.log("ClientSideOrder: Attempting to update stock for product ID:", productRecord.id);
+                    await pb.collection('products').update(productRecord.id, {
+                        "stock_available_pb-": 1 
+                    });
+                    console.log("ClientSideOrder: Product stock updated for product ID:", productRecord.id);
+                    
+                    this.selAnim.stock = (this.selAnim.stock || 0) - 1;
+                    const animTypeCfg = this.prodOpts.live.find(lt => lt.valKey === this.selAnim.type);
+                    if (animTypeCfg) {
+                        const stockItemCfg = animTypeCfg.wps.find(wp => wp.itemKey === this.selAnim.itemKey);
+                        if (stockItemCfg) {
+                            stockItemCfg.stock = (stockItemCfg.stock || 0) - 1;
+                        }
+                    }
+                    this.$nextTick(() => this.updAllPrices());
+                } catch (stockError) {
+                    console.error("ClientSideOrder: FAILED to update product stock after order creation.", stockError.response || stockError);
+                    this.usrApiErr = "Order placed, but stock update failed. This is a critical issue. Please contact support with Order ID: " + this.orderID;
                 }
 
                 this.orderConf = true;
                 this.$nextTick(() => { this.scrollSect('#order-conf-sect'); this.focusRef('orderConfTitle'); });
+
             } catch (e) {
-                this.apiErr=String(e.message);
-                this.usrApiErr = e.message;
-                this.$nextTick(()=>this.scrollSect('.err-ind'));
+                console.error("ClientSideOrder: General error during order placement sequence", e.response || e);
+                this.apiErr = String(e.data?.message || e.message || "Order placement failed (client-side).");
+                this.usrApiErr = String(e.data?.message || e.message || "An unexpected error occurred during order placement (client-side).");
+                
+                if (!this.orderID && this.$refs.custNameInputS2) { 
+                     this.currStep = Math.min(this.currStep, 4); 
+                     const metaToFocus = this.stepMeta[this.currStep-1];
+                     if (metaToFocus) {
+                        this.focusRef(metaToFocus.firstFocusableErrorRef || metaToFocus.titleRef);
+                     } else {
+                        this.focusRef('orderSectTitle');
+                     }
+                } else { 
+                     this.$nextTick(() => this.scrollSect('.err-ind'));
+                }
+            } finally {
+                this.load.ordering = false;
             }
-            finally { this.load.ordering = false; }
         },
+        
         async submitStatValid() {
             this.clrErr('lookupOrderID'); this.clrErr('lookupPhone');
             let isValid = true;
@@ -278,8 +430,9 @@ document.addEventListener('alpine:init', () => {
             const id = (this.lookupOrderID || "").trim(); const phone = (this.lookupPhone || "").trim();
             const pb = new PocketBase('/');
             try {
-                const filterStr = `(order_id_text = "${pb.utils.escapeFilterValue(id)}" && ordering_person_phone = "${pb.utils.escapeFilterValue(phone)}")`;
-                const recs = await pb.collection('orders').getFullList({filter: filterStr, requestKey: null});
+                const recs = await pb.collection('orders').getFullList({
+                    filter: `order_id_text = "${pb.utils.escapeFilterValue(id)}" && ordering_person_phone = "${pb.utils.escapeFilterValue(phone)}"`,
+                });
 
                 if (recs && recs.length > 0) {
                     const o = recs[0];
@@ -307,29 +460,50 @@ document.addEventListener('alpine:init', () => {
                         udhServOpt: o.udheya_service_option_selected,
                         sacDayVal: o.sacrifice_day_value, sacDayTxtEn: o.sacrifice_day_text_en, sacDayTxtAr: o.sacrifice_day_text_ar,
                         viewPref: o.slaughter_viewing_preference, timeSlot: o.time_slot,
-                        custName: o.ordering_person_name, niyyah: o.niyyah_names,
+                        custName: o.ordering_person_name, 
+                        niyyah: typeof o.niyyah_names === 'string' ? o.niyyah_names : "", 
                         distrChoiceEn: distrTxtEn, distrChoiceAr: distrTxtAr,
                         delAddr: o.delivery_address, delCityEn: o.delivery_area_name_en, delCityAr: o.delivery_area_name_ar,
                         totalEgp: o.total_amount_due_egp, payMeth: o.payment_method,
-                         needsDel: (o.delivery_option === 'home_delivery_to_orderer' || (o.distribution_choice === 'split' && (o.split_details_option?.includes('_me_') || o.split_details_option === 'all_me_custom_distro' || (o.split_details_option === 'custom' && o.custom_split_details_text?.toLowerCase().includes('me')))))
+                        needsDel: (o.delivery_option === 'home_delivery_to_orderer')
                     };
                 } else this.statNotFound = true;
-            } catch (e) { this.apiErr=String(e.message);this.usrApiErr="Could not get order status.";this.statNotFound=true;}
+            } catch (e) { this.apiErr=String(e.message);this.usrApiErr="Could not get order status. Please check details or contact support.";this.statNotFound=true; console.error("Error fetching order status:", e.response || e)}
             finally { this.load.status = false; }
         },
-        getSacDayTxt(v) { const optEl = document.querySelector(`#sac_day_sel_s3 option[value="${v}"]`); return optEl ? {en: optEl.dataset.en, ar: optEl.dataset.ar} : {en: v, ar: v}; },
-
         async resetForm() {
-            const currency = this.curr; const lang = this.currLang;
-            Object.assign(this, JSON.parse(JSON.stringify(initOrderData)));
-            this.curr = currency; this.currLang = lang;
+            const preservedSettings = JSON.parse(JSON.stringify(this.settings));
+            const preservedProdOpts = JSON.parse(JSON.stringify(this.prodOpts));
+            const preservedAllCities = JSON.parse(JSON.stringify(this.allCities));
+            const preservedLang = this.currLang;
+            const preservedCurr = this.curr;
+
+            Object.assign(this, JSON.parse(JSON.stringify(initOrderData))); 
+
+            this.settings = preservedSettings;
+            this.prodOpts = preservedProdOpts;
+            this.allCities = preservedAllCities;
+            this.currLang = preservedLang;
+            this.curr = preservedCurr;
+            
             if (this.cdTimer) clearInterval(this.cdTimer);
-            await this.initApp();
+            
+            this.updServFee(); 
+            this.updSacDayTxt(); 
+            this.startCd(); 
+            this.clrAllErrs();
+            this.statRes = null; 
+            this.statNotFound = false;
+
             this.$nextTick(() => {
-                this.scrollSect('#udh-order-start');
-                this.focusRef('orderSectTitle');
+                this.updAllPrices(); 
+                this.updAllStepStates(); 
+                this.updDelFeeDisp(); 
+                this.currStep = 1; 
                 this.orderConf = false;
                 this.orderID = "";
+                this.scrollSect('#udh-order-start');
+                this.focusRef('orderSectTitle', false); 
             });
         }
     }));

@@ -1,0 +1,536 @@
+# PocketBase Complete Development Documentation
+
+## Table of Contents
+1. [PocketBase API Structure](#pocketbase-api-structure)
+2. [Collection Field Definitions](#collection-field-definitions)
+3. [Relation Fields](#relation-fields)
+4. [Common Issues & Solutions](#common-issues--solutions)
+5. [Setup Script Best Practices](#setup-script-best-practices)
+6. [Validation & Debugging](#validation--debugging)
+7. [Security Considerations](#security-considerations)
+8. [Complete API Reference](#complete-api-reference)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Production Deployment](#production-deployment)
+
+---
+
+## PocketBase API Structure
+
+### Core Concepts
+- **Collections**: Database tables with schema definitions
+- **Records**: Individual data entries within collections
+- **Fields**: Column definitions with types and constraints
+- **Relations**: Links between collections via foreign keys
+- **Rules**: Access control using filter expressions
+
+### SDK vs Raw API
+```javascript
+// ✅ CORRECT: Using PocketBase SDK
+const pb = new PocketBase('http://127.0.0.1:8090');
+await pb.collections.create(collectionData);
+await pb.collection('users').create(recordData);
+
+// ❌ AVOID: Direct HTTP calls (use SDK instead)
+fetch('/api/collections', { method: 'POST', ... })
+```
+
+### Authentication Flow
+```javascript
+// Admin authentication
+await pb.admins.authWithPassword('admin@example.com', 'password');
+
+// User authentication
+await pb.collection('users').authWithPassword('user@example.com', 'password');
+
+// Always clear auth when done
+pb.authStore.clear();
+```
+
+---
+
+## Collection Field Definitions
+
+### ✅ CORRECT Field Structure (Current PocketBase)
+```javascript
+{
+    name: "title",
+    type: "text",
+    required: true,
+    presentable: true,
+    max: 100,
+    min: 1,
+    pattern: "^[a-zA-Z0-9]+$"
+}
+```
+
+### ❌ INCORRECT Field Structure (Deprecated)
+```javascript
+{
+    name: "title",
+    type: "text",
+    required: true,
+    presentable: true,
+    system: false,  // ❌ Unnecessary
+    options: {      // ❌ Don't nest in options
+        max: 100,
+        min: 1,
+        pattern: "^[a-zA-Z0-9]+$"
+    }
+}
+```
+
+### Field Types & Properties
+
+#### Text Fields
+```javascript
+{
+    name: "description",
+    type: "text",
+    required: false,
+    presentable: true,
+    max: 500,           // Maximum length
+    min: 1,             // Minimum length  
+    pattern: "^[a-z]+$" // Regex pattern
+}
+```
+
+#### Number Fields
+```javascript
+{
+    name: "price",
+    type: "number",
+    required: true,
+    presentable: true,
+    min: 0,           // Minimum value
+    max: 999999,      // Maximum value
+    noDecimal: false  // Allow/disallow decimals
+}
+```
+
+#### Select Fields
+```javascript
+{
+    name: "status",
+    type: "select",
+    required: true,
+    presentable: true,
+    maxSelect: 1,                    // Single or multiple selection
+    values: ["active", "inactive"]   // Available options
+}
+```
+
+#### File Fields
+```javascript
+{
+    name: "avatar",
+    type: "file",
+    required: false,
+    presentable: true,
+    maxSelect: 1,                                    // Number of files
+    maxSize: 5242880,                               // 5MB in bytes
+    mimeTypes: ["image/jpeg", "image/png"]          // Allowed types
+}
+```
+
+#### Email Fields
+```javascript
+{
+    name: "email",
+    type: "email",
+    required: true,
+    presentable: true,
+    exceptDomains: ["tempmail.com"],  // Blocked domains
+    onlyDomains: ["company.com"]      // Allowed domains only
+}
+```
+
+#### Date Fields
+```javascript
+{
+    name: "created_date",
+    type: "date",
+    required: true,
+    presentable: true
+    // No additional options needed
+}
+```
+
+#### Boolean Fields
+```javascript
+{
+    name: "is_active",
+    type: "bool",
+    required: false,
+    presentable: true
+    // No additional options needed
+}
+```
+
+#### JSON Fields
+```javascript
+{
+    name: "metadata",
+    type: "json",
+    required: false,
+    presentable: true
+    // No additional options needed
+}
+```
+
+---
+
+## Relation Fields
+
+### ✅ CORRECT Relation Field Structure
+```javascript
+{
+    name: "user_id",
+    type: "relation",
+    required: true,
+    presentable: true,
+    collectionId: "target_collection_id",    // Direct property
+    cascadeDelete: false,                    // Direct property
+    minSelect: 1,                           // Direct property
+    maxSelect: 1,                           // Direct property
+    displayFields: ["username", "email"]    // Direct property
+}
+```
+
+### ❌ INCORRECT Relation Field Structure
+```javascript
+{
+    name: "user_id",
+    type: "relation",
+    required: true,
+    presentable: true,
+    options: {                              // ❌ Don't nest in options
+        collectionId: "target_collection_id",
+        cascadeDelete: false,
+        minSelect: 1,
+        maxSelect: 1,
+        displayFields: ["username", "email"]
+    }
+}
+```
+
+### Adding Relations Programmatically
+```javascript
+async function addRelationField(pb, collectionName, fieldName, targetCollectionName, isRequired = true, displayFields = ["id"]) {
+    const collection = await pb.collections.getOne(collectionName);
+    const targetCollection = await pb.collections.getOne(targetCollectionName);
+
+    const newRelationField = {
+        name: fieldName,
+        type: "relation",
+        required: isRequired,
+        presentable: true,
+        collectionId: targetCollection.id,  // Use actual collection ID
+        cascadeDelete: false,
+        minSelect: isRequired ? 1 : null,
+        maxSelect: 1,
+        displayFields: displayFields
+    };
+
+    const updatedFields = [...collection.fields, newRelationField];
+    await pb.collections.update(collection.id, { fields: updatedFields });
+}
+```
+
+### Relation Types
+```javascript
+// One-to-One
+{ maxSelect: 1, minSelect: 1 }
+
+// One-to-Many (optional)
+{ maxSelect: 1, minSelect: null }
+
+// Many-to-Many
+{ maxSelect: null, minSelect: null }
+
+// Required relation
+{ required: true, minSelect: 1 }
+
+// Optional relation
+{ required: false, minSelect: null }
+```
+
+---
+
+## Common Issues & Solutions
+
+### Issue 1: Nested Options Structure
+**Problem**: Using deprecated nested `options` structure
+```javascript
+// ❌ This will fail
+{ name: "title", type: "text", options: { max: 100 } }
+```
+
+**Solution**: Use direct properties
+```javascript
+// ✅ This works
+{ name: "title", type: "text", max: 100 }
+```
+
+### Issue 2: HTML Escaping in Logs
+**Problem**: Incorrect HTML escaping breaks display
+```javascript
+// ❌ Wrong escaping
+message.replace(/</g, '<').replace(/>/g, '>')
+```
+
+**Solution**: Proper HTML entity escaping
+```javascript
+// ✅ Correct escaping
+message.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+```
+
+### Issue 3: Collection vs Schema Key Confusion
+**Problem**: Using wrong key for different operations
+```javascript
+// ❌ Wrong for individual operations
+await pb.collections.create({ schema: fields })
+
+// ❌ Wrong for import operations  
+await pb.collections.import([{ fields: fields }])
+```
+
+**Solution**: Use correct keys for each operation
+```javascript
+// ✅ Individual create/update operations
+await pb.collections.create({ fields: fields })
+
+// ✅ Import operations
+await pb.collections.import([{ schema: fields }])
+```
+
+### Issue 4: Relation Field Validation
+**Problem**: Comparing against wrong values in validation
+```javascript
+// ❌ Wrong validation
+if (field.options.collectionId === expectedId)
+
+// ❌ Comparing against null
+if (field.collectionId === null)
+```
+
+**Solution**: Proper validation logic
+```javascript
+// ✅ Correct validation
+if (field.collectionId === expectedCollectionId)
+
+// ✅ Get actual collection IDs first
+const targetCollection = await pb.collections.getOne('target_name');
+if (field.collectionId === targetCollection.id)
+```
+
+### Issue 5: Field ID Handling in Updates
+**Problem**: Not preserving field IDs during updates
+```javascript
+// ❌ This will delete existing fields
+const newFields = [{ name: "new_field", type: "text" }];
+await pb.collections.update(collectionId, { fields: newFields });
+```
+
+**Solution**: Preserve existing field IDs
+```javascript
+// ✅ Preserve existing fields and their IDs
+const collection = await pb.collections.getOne(collectionName);
+const updatedFields = collection.fields.map(existingField => {
+    // Keep existing fields with their IDs
+    return { id: existingField.id, ...existingField };
+});
+// Add new fields without IDs (PB will generate)
+updatedFields.push({ name: "new_field", type: "text" });
+await pb.collections.update(collection.id, { fields: updatedFields });
+```
+
+### Issue 6: API Rule Syntax Errors
+**Problem**: Incorrect filter syntax in API rules
+```javascript
+// ❌ Common mistakes
+"auth.id != null"                    // Wrong auth reference
+"user = auth.id"                     // Missing @request
+"@request.auth.id = user"            // Wrong order
+```
+
+**Solution**: Correct API rule syntax
+```javascript
+// ✅ Correct syntax
+"@request.auth.id != ''"             // Check if authenticated
+"user = @request.auth.id"            // Check ownership
+"@request.auth.verified = true"      // Check verification
+"@request.auth.id != '' && user = @request.auth.id"  // Combined rules
+```
+
+---
+
+## Setup Script Best Practices
+
+### 1. Authentication Management
+```javascript
+async function authenticateAdmin(pb) {
+    try {
+        await pb.admins.authWithPassword(email, password);
+        return true;
+    } catch (error) {
+        console.error('Auth failed:', error);
+        return false;
+    }
+}
+
+// Always clear auth in finally block
+async function safeOperation(pb, operation) {
+    try {
+        if (!await authenticateAdmin(pb)) return false;
+        return await operation();
+    } finally {
+        if (pb.authStore.isValid) pb.authStore.clear();
+    }
+}
+```
+
+### 2. Error Handling
+```javascript
+async function safeOperation(operation, operationName) {
+    try {
+        const result = await operation();
+        log(`${operationName} completed successfully`, 'success');
+        return { success: true, result };
+    } catch (error) {
+        log(`${operationName} failed: ${error.message}`, 'error');
+        if (error.response?.data) {
+            log('Server error details:', 'error', error.response.data);
+        }
+        return { success: false, error };
+    }
+}
+```
+
+### 3. Collection Creation Order
+```javascript
+// ✅ Correct order
+const setupOrder = [
+    // 1. Base collections first (no relations)
+    'settings',
+    'categories', 
+    'products',
+    'users', // System collection (already exists)
+    
+    // 2. Collections with relations second
+    'orders',      // Can reference users, products
+    'order_items', // Can reference orders, products
+    
+    // 3. Add relation fields after all collections exist
+    // 4. Update API rules last
+];
+```
+
+### 4. Seed Data with Relations
+```javascript
+async function seedWithRelations(pb, collectionName, seedItems, relationMappings = {}) {
+    for (const item of seedItems) {
+        const processedItem = { ...item };
+        
+        // Resolve relation placeholders to actual IDs
+        for (const [placeholder, config] of Object.entries(relationMappings)) {
+            if (processedItem[placeholder]) {
+                try {
+                    const relatedRecord = await pb.collection(config.collection)
+                        .getFirstListItem(`${config.field}="${processedItem[placeholder]}"`);
+                    processedItem[config.targetField] = relatedRecord.id;
+                    delete processedItem[placeholder];
+                } catch (error) {
+                    log(`Failed to resolve relation: ${placeholder}`, 'warning');
+                    processedItem[config.targetField] = null;
+                    delete processedItem[placeholder];
+                }
+            }
+        }
+        
+        await pb.collection(collectionName).create(processedItem);
+    }
+}
+
+// Usage
+await seedWithRelations(pb, 'orders', orderData, {
+    user_email: { collection: 'users', field: 'email', targetField: 'user_id' },
+    product_sku: { collection: 'products', field: 'sku', targetField: 'product_id' }
+});
+```
+
+### 5. Logging System
+```javascript
+class Logger {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+    }
+    
+    log(message, type = 'info', data = null) {
+        const timestamp = new Date().toLocaleTimeString();
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        
+        let content = `[${timestamp}] ${this.escapeHtml(message)}`;
+        if (data) {
+            content += `\n${JSON.stringify(data, null, 2)}`;
+        }
+        
+        entry.textContent = content;
+        this.container.appendChild(entry);
+        this.container.scrollTop = this.container.scrollHeight;
+        
+        // Console logging
+        switch(type) {
+            case 'error': console.error(message, data); break;
+            case 'warning': console.warn(message, data); break;
+            case 'success': console.log(`✅ ${message}`, data); break;
+            default: console.log(message, data);
+        }
+    }
+    
+    escapeHtml(text) {
+        return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+}
+```
+
+---
+
+## Validation & Debugging
+
+### Collection Schema Validation
+```javascript
+async function validateCollectionSchema(pb, collectionName, expectedSchema) {
+    const collection = await pb.collections.getOne(collectionName);
+    const issues = [];
+    
+    for (const expectedField of expectedSchema) {
+        const actualField = collection.fields.find(f => f.name === expectedField.name);
+        
+        if (!actualField) {
+            issues.push(`Missing field: ${expectedField.name}`);
+            continue;
+        }
+        
+        // Validate field properties
+        const propsToCheck = ['type', 'required', 'max', 'min', 'pattern'];
+        for (const prop of propsToCheck) {
+            if (expectedField[prop] !== undefined && actualField[prop] !== expectedField[prop]) {
+                issues.push(`Field ${expectedField.name}.${prop}: expected ${expectedField[prop]}, got ${actualField[prop]}`);
+            }
+        }
+        
+        // Validate relation-specific properties
+        if (expectedField.type === 'relation') {
+            const relationProps = ['collectionId', 'cascadeDelete', 'maxSelect'];
+            for (const prop of relationProps) {
+                if (expectedField[prop] !== undefined && actualField[prop] !== expectedField[prop]) {
+                    issues.push(`Relation ${expectedField.name}.${prop}: expected ${expectedField[prop]}, got ${actualField[prop]}`);
+                }
+            }
+        }
+    }
+    
+    return issues;
+}
+```
