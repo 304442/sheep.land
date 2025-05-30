@@ -391,11 +391,9 @@ document.addEventListener('alpine:init', () => {
                 group_purchase_interest: this.grpBuy,
                 selected_display_currency: this.curr,
             };
-            // console.log("ClientSideOrder: Attempting to create order with payload for HOOK:", orderPayload);
 
             try {
                 const createdOrder = await pb.collection('orders').create(orderPayload);
-                // console.log("ClientSideOrder: Order created successfully BY HOOK:", createdOrder);
 
                 this.orderID = createdOrder.order_id_text || orderIdClient;
                 this.totalEgp = createdOrder.total_amount_due_egp;
@@ -440,7 +438,7 @@ document.addEventListener('alpine:init', () => {
                         const fieldErrors = Object.keys(e.data.data).map(key => `${key.replace(/_/g, ' ')}: ${e.data.data[key].message}`).join("; ");
                         userFriendlyError = `Please correct the following: ${fieldErrors}`;
                         Object.keys(e.data.data).forEach(serverFieldKey => {
-                            if(this.errs.hasOwnProperty(serverFieldKey)){ // Check if client has a mapping for this error key
+                            if(this.errs.hasOwnProperty(serverFieldKey)){
                                 this.setErr(serverFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message });
                             }
                         });
