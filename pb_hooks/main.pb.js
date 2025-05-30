@@ -10,8 +10,8 @@
  *
  * This hook handles custom order placement logic, including stock updates,
  * and server-side calculation of prices and fees.
- * /// <reference path="../pb_data/types.d.ts" />
  */
+/// <reference path="../pb_data/types.d.ts" />
 
 routerAdd("POST", "/api/custom_place_order", (c) => {
     let requestData;
@@ -48,7 +48,8 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
     const authRecord = $apis.requestInfo(c).authRecord;
 
     try {
-        $app.dao().runInTransaction(async (txDao) => {
+        // ✅ Fixed: Use proper transaction syntax
+        return $app.dao().runInTransaction((txDao) => {
             const productItemKey = String(requestData.product_item_key).trim();
             const quantityToOrder = parseInt(requestData.quantity) || 1;
 
@@ -64,7 +65,6 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                 throw new Error(`Product with item_key '${productItemKey}' not found or is inactive.`);
             }
             console.log(`[API Hook] Product found: ${productRecord.getId()}, Stock: ${productRecord.getInt("stock_available_pb")}`);
-
 
             const currentStock = productRecord.getInt("stock_available_pb");
             if (currentStock < quantityToOrder) {
@@ -177,9 +177,10 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             newOrder.set("admin_notes", String(requestData.admin_notes || ""));
             newOrder.set("group_purchase_interest", requestData.group_purchase_interest === true);
 
-            const clientIp = c.realIp();
+            // ✅ Fixed: Use proper IP and User-Agent access
+            const clientIp = c.realIP();
             if (clientIp) { newOrder.set("user_ip_address", clientIp); }
-            const userAgent = c.request().headers.get("User-Agent");
+            const userAgent = c.request().header.get("User-Agent");
             if (userAgent) { newOrder.set("user_agent_string", userAgent.substring(0,300)); }
 
             if (requestData.animal_tag_id) {
@@ -223,14 +224,15 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             console.log(`[API Hook] Product ${productItemKey} stock updated to ${finalStockLevel}.`);
 
             console.log(`[API Hook Success] Order ${newOrder.getString("order_id_text")} created. User: ${authRecord ? authRecord.id : 'Anonymous'}`);
-        });
 
-        return c.json(200, {
-            message: "Order placed successfully.",
-            order_id_text: requestData.order_id_text,
-            id: createdOrderPocketBaseId,
-            new_stock_level: finalStockLevel,
-            total_amount_due_egp: serverCalculatedTotalEGP
+            // ✅ Fixed: Return response from within transaction
+            return c.json(200, {
+                message: "Order placed successfully.",
+                order_id_text: requestData.order_id_text,
+                id: createdOrderPocketBaseId,
+                new_stock_level: finalStockLevel,
+                total_amount_due_egp: serverCalculatedTotalEGP
+            });
         });
 
     } catch (err) {
@@ -248,6 +250,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             } else if (err.message.includes("Application settings not found")) {
                 statusCode = 503; 
                 clientErrorMessage = "Order placement is temporarily unavailable due to a configuration issue. Please try again later.";
+            } else {
             } else {
                 clientErrorMessage = "An unexpected error occurred while processing your order. Please contact support if the issue persists.";
             }
