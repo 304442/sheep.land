@@ -21,20 +21,28 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             throw new Error("Request data is not a valid object.");
         }
     } catch (e) {
-        console.error("[Hook Error] Failed to parse request data for /api/custom_place_order:", e);
+        console.error("[API Hook /api/custom_place_order] Failed to parse request data:", e);
         return c.json(400, { error: "Invalid request payload. JSON object expected." });
     }
 
-    // Essential fields from client
-    if (!requestData.product_item_key) { return c.json(400, { error: "Missing 'product_item_key' in request." }); }
-    if (!requestData.order_id_text) { return c.json(400, { error: "Missing 'order_id_text' in request." }); }
-    if (!requestData.udheya_service_option_selected) { return c.json(400, { error: "Missing 'udheya_service_option_selected'." }); }
-    // ... add more checks for absolutely essential fields if needed
+    // --- Essential field validation from client ---
+    const requiredFields = [
+        "product_item_key", "order_id_text", "udheya_service_option_selected",
+        "sacrifice_day_value", "ordering_person_name", "ordering_person_phone", "payment_method"
+    ];
+    for (const field of requiredFields) {
+        if (!requestData[field]) {
+            return c.json(400, { error: `Missing essential field in request: '${field}'.` });
+        }
+    }
+    if (requestData.delivery_option === "home_delivery_to_orderer" && !requestData.delivery_area_id) {
+        return c.json(400, { error: "Missing 'delivery_area_id' for home delivery option."});
+    }
+    // --- End Essential Field Validation ---
 
     let createdOrderPocketBaseId = null;
     let finalStockLevel = null;
-    let serverCalculatedTotal = 0; // To be returned to client
-
+    let serverCalculatedTotalEGP = 0;
     const authRecord = $apis.requestInfo(c).authRecord;
 
     try {
@@ -49,24 +57,27 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                 { itemKey: productItemKey }
             );
             if (!productRecord) {
+                console.warn(`[API Hook] Product not found or inactive: ${productItemKey}`);
                 throw new Error(`Product with item_key '${productItemKey}' not found or is inactive.`);
             }
 
             const currentStock = productRecord.getInt("stock_available_pb");
             if (currentStock < quantityToOrder) {
+                console.warn(`[API Hook] Insufficient stock for ${productItemKey}. Available: ${currentStock}, Requested: ${quantityToOrder}`);
                 throw new Error(`Insufficient stock for product '${productItemKey}'. Available: ${currentStock}, Requested: ${quantityToOrder}.`);
             }
 
             // 2. Fetch Settings for fees
-            const settingsRecord = txDao.findFirstRecordByFilter("settings", "id!=''"); // Get the first (should be only) settings record
+            const settingsRecord = txDao.findFirstRecordByFilter("settings", "id!=''");
             if (!settingsRecord) {
+                console.error("[API Hook] Critical: Application settings not found.");
                 throw new Error("Application settings not found. Cannot calculate fees.");
             }
             const generalServiceFeeEGP = settingsRecord.getFloat("servFeeEGP") || 0;
-            const deliveryAreas = settingsRecord.get("delAreas"); // This is a JSON field
+            const deliveryAreasConfig = settingsRecord.get("delAreas"); // This is a JSON field
 
             // 3. Calculate Fees Server-Side
-            let animalPriceEGP = productRecord.getFloat("base_price_egp");
+            const animalPriceEGP = productRecord.getFloat("base_price_egp");
             let serviceFeeAppliedEGP = 0;
             if (requestData.udheya_service_option_selected === "standard_service") {
                 serviceFeeAppliedEGP = generalServiceFeeEGP;
@@ -75,8 +86,8 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             let deliveryFeeAppliedEGP = 0;
             if (requestData.delivery_option === "home_delivery_to_orderer" && requestData.delivery_area_id) {
                 let foundCityFee = null;
-                if (deliveryAreas && Array.isArray(deliveryAreas)) {
-                    for (const gov of deliveryAreas) {
+                if (deliveryAreasConfig && Array.isArray(deliveryAreasConfig)) {
+                    for (const gov of deliveryAreasConfig) {
                         if (gov.cities && Array.isArray(gov.cities)) {
                             const city = gov.cities.find(c => `${gov.id}_${c.id}` === requestData.delivery_area_id);
                             if (city && typeof city.delivery_fee_egp === 'number') {
@@ -84,23 +95,20 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                                 break;
                             }
                         } else if (gov.id === requestData.delivery_area_id && typeof gov.delivery_fee_egp === 'number') {
-                            // Case where delivery_area_id might be just the governorate ID if no sub-cities
                             foundCityFee = gov.delivery_fee_egp;
                             break;
                         }
                     }
                 }
                 if (foundCityFee === null) {
-                    // Either area_id not found, or fee is null (variable, to be confirmed manually)
-                    // For now, if fee is null in config, we assume 0 for auto-calc and admin will adjust
-                    console.warn(`Delivery fee for area_id '${requestData.delivery_area_id}' not found or is variable. Applying 0 for now.`);
-                    deliveryFeeAppliedEGP = 0; // Or could throw error if fee must be fixed
+                    console.warn(`[API Hook] Delivery fee for area_id '${requestData.delivery_area_id}' not found in settings or is marked as variable (null). Applying 0 for now. Admin should verify.`);
+                    deliveryFeeAppliedEGP = 0; 
                 } else {
                     deliveryFeeAppliedEGP = foundCityFee;
                 }
             }
             
-            serverCalculatedTotal = animalPriceEGP + serviceFeeAppliedEGP + deliveryFeeAppliedEGP;
+            serverCalculatedTotalEGP = animalPriceEGP + serviceFeeAppliedEGP + deliveryFeeAppliedEGP;
 
             // 4. Create the new order record
             const ordersCollection = txDao.findCollectionByNameOrId("orders");
@@ -111,20 +119,17 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             newOrder.set("order_id_text", requestData.order_id_text);
             newOrder.set("product_id", productRecord.id);
             
-            // Derived from productRecord
             newOrder.set("ordered_product_name_en", productRecord.getString("variant_name_en"));
             newOrder.set("ordered_product_name_ar", productRecord.getString("variant_name_ar"));
             newOrder.set("ordered_weight_range_en", productRecord.getString("weight_range_text_en"));
             newOrder.set("ordered_weight_range_ar", productRecord.getString("weight_range_text_ar"));
             newOrder.set("price_at_order_time_egp", animalPriceEGP);
             
-            // Fees and Total (Server Calculated)
             newOrder.set("service_fee_applied_egp", serviceFeeAppliedEGP);
             newOrder.set("delivery_fee_applied_egp", deliveryFeeAppliedEGP);
-            newOrder.set("total_amount_due_egp", serverCalculatedTotal);
+            newOrder.set("total_amount_due_egp", serverCalculatedTotalEGP);
 
-            // Cost of animal for P&L (can be from request if specific animal, or general estimate)
-            let costOfAnimalEGP = parseFloat(requestData.cost_of_animal_egp) || 0; // Default to 0 if not provided
+            let costOfAnimalEGP = parseFloat(requestData.cost_of_animal_egp) || 0;
 
             // Set other fields from requestData
             newOrder.set("udheya_service_option_selected", requestData.udheya_service_option_selected);
@@ -144,17 +149,17 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             newOrder.set("delivery_name", requestData.delivery_name);
             newOrder.set("delivery_phone", requestData.delivery_phone);
             newOrder.set("delivery_area_id", requestData.delivery_area_id);
-            newOrder.set("delivery_area_name_en", requestData.delivery_area_name_en); // Can be derived from area_id if needed
-            newOrder.set("delivery_area_name_ar", requestData.delivery_area_name_ar); // Can be derived from area_id if needed
+            // Names can be derived from settings and area_id if needed, or sent by client
+            newOrder.set("delivery_area_name_en", requestData.delivery_area_name_en || ""); 
+            newOrder.set("delivery_area_name_ar", requestData.delivery_area_name_ar || "");
             newOrder.set("delivery_address", requestData.delivery_address);
             newOrder.set("delivery_instructions", requestData.delivery_instructions);
             newOrder.set("time_slot", requestData.time_slot);
             newOrder.set("payment_method", requestData.payment_method);
             
-            // Set initial statuses (server-side decision)
             if (requestData.payment_method === 'cod') {
                 newOrder.set("payment_status", "cod_pending_confirmation");
-                newOrder.set("order_status", "pending_confirmation"); // Requires phone confirmation
+                newOrder.set("order_status", "pending_confirmation");
             } else {
                 newOrder.set("payment_status", "pending_payment");
                 newOrder.set("order_status", "confirmed_pending_payment");
@@ -169,7 +174,6 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             const userAgent = c.request().headers.get("User-Agent");
             if (userAgent) { newOrder.set("user_agent_string", userAgent.substring(0,300)); }
 
-            // If a specific animal_tag_id was part of the order request
             if (requestData.animal_tag_id) {
                 const animalRecord = txDao.findFirstRecordByFilter(
                     "sheep_log",
@@ -177,31 +181,26 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                     { tagId: requestData.animal_tag_id }
                 );
                 if (animalRecord) {
-                    newOrder.set("animal_id", animalRecord.id);
-                    // If cost_of_animal_egp wasn't provided directly in request, get it from sheep_log
-                    if (!requestData.cost_of_animal_egp) { // Only if not already set from request
+                    newOrder.set("animal_id", animalRecord.id); 
+                    if (requestData.cost_of_animal_egp === undefined || requestData.cost_of_animal_egp === null) {
                         costOfAnimalEGP = animalRecord.getFloat("acquisition_cost_egp") || 0;
                     }
-                    // animalRecord status updated after order save, see below
                 } else {
-                    console.warn(`[Hook Warn] Specific animal with tag_id ${requestData.animal_tag_id} not found or not active. Order created without specific animal link.`);
-                    // Decide if this should be an error if specific animal is mandatory for some flows
-                    // throw new Error(`Animal with tag_id '${requestData.animal_tag_id}' not found or not available.`);
+                    console.warn(`[API Hook] Specific animal tag_id ${requestData.animal_tag_id} not found or not active. Order will proceed without specific animal link.`);
                 }
             }
-            newOrder.set("cost_of_animal_egp", costOfAnimalEGP); // Set final cost
+            newOrder.set("cost_of_animal_egp", costOfAnimalEGP);
             
             txDao.saveRecord(newOrder);
             createdOrderPocketBaseId = newOrder.getId();
 
-            // If a specific animal was linked, update its sale_order_id and status now
-            if (newOrder.get("animal_id")) { // Check if animal_id was actually set
+            if (newOrder.get("animal_id")) { 
                  const animalToUpdate = txDao.findRecordById("sheep_log", newOrder.getString("animal_id"));
                  if (animalToUpdate) {
                     animalToUpdate.set("sale_order_id", createdOrderPocketBaseId); 
-                    animalToUpdate.set("current_status", "Sold");
+                    animalToUpdate.set("current_status", "Sold"); 
                     txDao.saveRecord(animalToUpdate);
-                    console.log(`[Hook Info] Animal ${animalToUpdate.getString("animal_tag_id")} status updated to Sold and linked to order ${newOrder.getString("order_id_text")}.`);
+                    console.log(`[API Hook] Animal ${animalToUpdate.getString("animal_tag_id")} status updated to Sold and linked to order ${newOrder.getString("order_id_text")}.`);
                  }
             }
 
@@ -210,36 +209,35 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             productRecord.set("stock_available_pb", finalStockLevel);
             txDao.saveRecord(productRecord);
 
-            console.log(`[Hook Success] Order ${newOrder.getString("order_id_text")} created. Product ${productItemKey} stock updated to ${finalStockLevel}. User: ${authRecord ? authRecord.id : 'Anonymous'}`);
+            console.log(`[API Hook Success] Order ${newOrder.getString("order_id_text")} created. Product ${productItemKey} stock updated to ${finalStockLevel}. Total: ${serverCalculatedTotalEGP}. User: ${authRecord ? authRecord.id : 'Anonymous'}`);
         });
 
         return c.json(200, {
             message: "Order placed successfully.",
             order_id_text: requestData.order_id_text,
-            id: createdOrderPocketBaseId, // PocketBase ID of the created order
+            id: createdOrderPocketBaseId,
             new_stock_level: finalStockLevel,
-            total_amount_due_egp: serverCalculatedTotal // Return server-calculated total
+            total_amount_due_egp: serverCalculatedTotalEGP
         });
 
     } catch (err) {
-        console.error(`[Hook Error] /api/custom_place_order transaction failed: ${err.message}`, err);
-        let statusCode = 500; // Default to Internal Server Error
-        let clientErrorMessage = "Failed to process order due to an internal error.";
+        console.error(`[API Hook /api/custom_place_order] Transaction failed: ${err.message}`, err.originalError || err);
+        let statusCode = 500;
+        let clientErrorMessage = "Failed to process order due to an internal server error.";
 
         if (err.message) {
             if (err.message.includes("not found or is inactive")) {
-                statusCode = 404; // Or 409 Conflict if preferred for "unavailable"
-                clientErrorMessage = "The selected product is not available or is inactive.";
+                statusCode = 404; 
+                clientErrorMessage = "The selected product is not available or is inactive. Please refresh and try again.";
             } else if (err.message.includes("Insufficient stock")) {
-                statusCode = 409; // Conflict - resource state prevents completion
-                clientErrorMessage = "Insufficient stock for the selected product.";
+                statusCode = 409;
+                clientErrorMessage = "Unfortunately, the selected item is now out of stock. Please select another option.";
             } else if (err.message.includes("Application settings not found")) {
-                statusCode = 503; // Service Unavailable - critical config missing
-                clientErrorMessage = "Order placement is temporarily unavailable. Please try again later.";
+                statusCode = 503; 
+                clientErrorMessage = "Order placement is temporarily unavailable due to a configuration issue. Please try again later.";
             } else {
-                // For other specific known errors, map them here.
-                // Otherwise, keep generic for unknown internal issues.
-                clientErrorMessage = "Failed to process order: " + err.message; // More detailed for dev, maybe too much for prod
+                 // Keep a somewhat generic message for other internal errors unless specific user feedback is useful
+                clientErrorMessage = "An unexpected error occurred while processing your order. " + err.message; 
             }
         }
         
@@ -247,7 +245,18 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
     }
 });
 
-// Example: Add a health check endpoint (optional)
-routerAdd("GET", "/api/health", (c) => {
-    return c.json(200, { message: "API is healthy" });
+// Optional: Health check endpoint
+routerAdd("GET", "/api/health_check", (c) => {
+    try {
+        // Perform a quick, non-intensive check, e.g., try to read settings
+        const settings = $app.dao().findFirstRecordByFilter("settings", "id!=''");
+        if (settings) {
+            return c.json(200, { status: "healthy", message: "API and DB connection appear healthy.", timestamp: new Date().toISOString() });
+        } else {
+            return c.json(503, { status: "unhealthy", message: "API is up, but settings collection is inaccessible.", timestamp: new Date().toISOString() });
+        }
+    } catch (e) {
+        console.error("[API Health Check Error]:", e);
+        return c.json(503, { status: "unhealthy", message: "API is up, but an error occurred during health check.", error: e.message, timestamp: new Date().toISOString() });
+    }
 });
