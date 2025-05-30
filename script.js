@@ -53,7 +53,7 @@ document.addEventListener('alpine:init', () => {
         lookupOrderID: "",
         currStep: 1, stepProg: { step1: false, step2: false, step3: false, step4: false, step5: false },
         isMobNavOpen: false, isUdhDropOpen: false, isUdhMobSubOpen: false,
-        cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, // Corrected: secs should update
+        cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false },
         cdTimer: null, currLang: "en", curr: "EGP",
         errMsgs: { required: { en: "This field is required.", ar: "هذا الحقل مطلوب." }, select: { en: "Please make a selection.", ar: "يرجى الاختيار." }, email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." }, phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." }, timeSlot: { en: "Please select a time slot.", ar: "يرجى اختيار وقت التوصيل." }, udhServ: {en: "Please select a service option.", ar: "يرجى اختيار خيار الخدمة."}},
         navData: [
@@ -63,8 +63,8 @@ document.addEventListener('alpine:init', () => {
             { href: "#meat-sect", sectId: "meat-sect", parentMenu: null },
             { href: "#gath-sect", sectId: "gath-sect", parentMenu: null }
         ],
-        actNavHref: "", stepMeta: [], delFeeDispEGP: 0, isDelFeeVar: false, // delFeeDispEGP for client-side estimation
-        orderID: "", // Will be set from server response
+        actNavHref: "", stepMeta: [], delFeeDispEGP: 0, isDelFeeVar: false,
+        orderID: "",
 
         getStockEn(stock, isActive) { return (!isActive) ? "Inactive" : (stock === undefined || stock === null || stock <= 0) ? "Out of Stock" : (stock > 0 && stock <= 5) ? "Limited Stock" : "Available"; },
         slViewOpts() { return [ { val: 'none', txtEn: 'No Preference / Not Required', txtAr: 'لا يوجد تفضيل / غير مطلوب' }, { val: 'physical_inquiry', txtEn: 'Inquire about Physical Attendance', txtAr: 'الاستفسار عن الحضور الشخصي' }, { val: 'video_request', txtEn: 'Request Video/Photos of Process', txtAr: 'طلب فيديو/صور للعملية' }, { val: 'live_video_inquiry', txtEn: 'Inquire about Live Video', txtAr: 'الاستفسار عن فيديو مباشر' } ]; },
@@ -85,7 +85,7 @@ document.addEventListener('alpine:init', () => {
                     this.settings.promoEndISO = rs.promoEndISO || new Date().toISOString();
                     this.settings.promoDiscPc = Number(rs.promoDiscPc) || 0;
                     this.settings.promoActive = typeof rs.promoActive === 'boolean' ? rs.promoActive : false;
-                    this.settings.servFeeEGP = Number(rs.servFeeEGP) || 0; // Store fetched service fee
+                    this.settings.servFeeEGP = Number(rs.servFeeEGP) || 0;
                     this.settings.delAreas = Array.isArray(rs.delAreas) ? rs.delAreas : [];
                     this.settings.payDetails = typeof rs.payDetails === 'object' && rs.payDetails !== null ? rs.payDetails : this.settings.payDetails;
                 } else {
@@ -93,7 +93,7 @@ document.addEventListener('alpine:init', () => {
                     console.warn("Settings not found, using defaults.");
                 }
 
-                this.updServFeeEst(); // Update client-side estimated service fee
+                this.updServFeeEst();
 
                 const fetchedProds = await pb.collection('products').getFullList({ sort: '+sort_order_type,+sort_order_variant', filter: 'is_active = true', requestKey: "products_init" });
                 const prodGrps = {};
@@ -130,12 +130,12 @@ document.addEventListener('alpine:init', () => {
             this.clrAllErrs();
 
             this.$nextTick(() => {
-                this.updAllPrices(); // Updates display prices and stock
+                this.updAllPrices();
                 this.updAllStepStates();
                 this.onScroll();
                 this.focusRef(this.orderConf ? "orderConfTitle" : "body", false);
-                this.updDelFeeDispEst(); // Update client-side estimated delivery fee
-                this.calcTotalEst();   // Calculate client-side estimated total
+                this.updDelFeeDispEst();
+                this.calcTotalEst();
                 this.load.init = false;
             });
 
@@ -149,7 +149,7 @@ document.addEventListener('alpine:init', () => {
 
             ['selAnim.priceEgp', 'curr', 'servFee', 'delFeeDispEGP'].forEach(prop => this.$watch(prop, (newValue, oldValue) => {
                 if (newValue !== oldValue) {
-                    this.calcTotalEst(); // Use estimated total calculation
+                    this.calcTotalEst();
                     if (prop !== 'servFee' && prop !== 'delFeeDispEGP') {
                         this.$nextTick(() => this.updAllPrices());
                     }
@@ -175,7 +175,7 @@ document.addEventListener('alpine:init', () => {
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startCd(); else if (this.cdTimer) clearInterval(this.cdTimer); });
         },
         updServFeeEst() { this.servFee = (this.selUdhServ === 'standard_service') ? (this.settings.servFeeEGP || 0) : 0; this.calcTotalEst(); },
-        onScroll() { /* ... (no change from original) ... */
+        onScroll() {
             if (!this.orderConf && this.stepMeta.length > 0 && this.stepMeta.some(step => { const el = document.querySelector(step.id); return el && typeof el.offsetTop === 'number'; })) {
                 const scrollMid = window.scrollY + (window.innerHeight / 2); let closestStep = this.currStep; let minDist = Infinity;
                 this.stepMeta.forEach(meta => { const el = document.querySelector(meta.id); if (el) { const dist = Math.abs(scrollMid - (el.offsetTop + (el.offsetHeight / 2))); if (dist < minDist) { minDist = dist; closestStep = meta.conceptualStep; } } });
@@ -207,7 +207,6 @@ document.addEventListener('alpine:init', () => {
             const d = t - Date.now();
             if (d < 0) {
                 if (this.cdTimer) clearInterval(this.cdTimer);
-                // FIX: Modify properties directly for reactivity
                 this.cd.days = "00";
                 this.cd.hours = "00";
                 this.cd.mins = "00";
@@ -216,7 +215,6 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             this.cd.ended = false;
-            // FIX: Modify properties directly for reactivity
             this.cd.days = String(Math.floor(d / 864e5)).padStart(2, '0');
             this.cd.hours = String(Math.floor(d % 864e5 / 36e5)).padStart(2, '0');
             this.cd.mins = String(Math.floor(d % 36e5 / 6e4)).padStart(2, '0');
@@ -258,10 +256,10 @@ document.addEventListener('alpine:init', () => {
             const selSpecItem = animTypeCfg.wps.find(wp => wp.itemKey === selItemKey);
             if (selSpecItem && selSpecItem.isActive && selSpecItem.stock > 0) {
                 this.selAnim = {
-                    type: animTypeCfg.valKey, itemKey: selSpecItem.itemKey, varPbId: selSpecItem.varIdPb, // Store varPbId
+                    type: animTypeCfg.valKey, itemKey: selSpecItem.itemKey, varPbId: selSpecItem.varIdPb,
                     wtRangeEn: selSpecItem.wtRangeEn, wtRangeAr: selSpecItem.wtRangeAr,
-                    priceEgp: selSpecItem.priceEGP, stock: selSpecItem.stock, // priceEgp for client-side est.
-                    nameEN: selSpecItem.nameENSpec, nameAR: selSpecItem.nameARSpec, // For display
+                    priceEgp: selSpecItem.priceEGP, stock: selSpecItem.stock,
+                    nameEN: selSpecItem.nameENSpec, nameAR: selSpecItem.nameARSpec,
                     typeGenEn: animTypeCfg.nameEn, typeGenAr: animTypeCfg.nameAr, typePriceKgEgp: animTypeCfg.priceKgEgp
                 };
             } else {
@@ -271,7 +269,7 @@ document.addEventListener('alpine:init', () => {
             this.calcTotalEst(); this.updAllStepStates();
         },
         updSacDayTxt() { const sacDaySelEl = this.$refs.sacDaySelS3; if (sacDaySelEl) {  const optEl = sacDaySelEl.querySelector(`option[value="${this.sacDay.val}"]`); if(optEl) Object.assign(this.sacDay,{txtEN:optEl.dataset.en || this.sacDay.val,txtAR:optEl.dataset.ar || this.sacDay.val}); }  },
-        calcTotalEst() { // Renamed to indicate it's an estimation for client display
+        calcTotalEst() {
             let delFeeFinalEst = 0;
             if(this.needsDelDetails && this.delFeeDispEGP > 0 && !this.isDelFeeVar) {
                 delFeeFinalEst = this.delFeeDispEGP;
@@ -279,15 +277,21 @@ document.addEventListener('alpine:init', () => {
             this.totalEgp = (this.selAnim.priceEgp||0) + (this.servFee || 0) + delFeeFinalEst;
         },
         updAllPrices() {
+            // FIX: Add a check for prodOpts.live to prevent errors if called too early
+            if (!this.prodOpts.live || this.prodOpts.live.length === 0) {
+                // console.log("updAllPrices called but prodOpts.live is empty. Skipping.");
+                return;
+            }
             try {
-                (this.prodOpts.live || []).forEach(liveTypeCfg => {
+                this.prodOpts.live.forEach(liveTypeCfg => { // No (|| []) needed due to check above
                     const wtSelRefName = `${liveTypeCfg.valKey}WtSel`;
                     const wtSelEl = this.$refs[wtSelRefName];
                     const cardEl = document.getElementById(liveTypeCfg.valKey);
 
                     if (!wtSelEl || !cardEl) {
-                        console.warn(`Missing elements for ${liveTypeCfg.valKey} during price update. Select Ref: ${wtSelRefName}, Card ID: ${liveTypeCfg.valKey}`);
-                        return;
+                        // This warning is good, helps debug if structure changes
+                        console.warn(`Missing elements for ${liveTypeCfg.valKey} during price update. Select Ref: ${wtSelRefName}, Card ID: ${liveTypeCfg.valKey}. This might be a timing issue if prodOpts.live was just populated.`);
+                        return; // Skip this iteration
                     }
 
                     const currVal = wtSelEl.value;
@@ -323,7 +327,7 @@ document.addEventListener('alpine:init', () => {
                     const pAR_el = cardEl.querySelector('.price.bil-row .ar span');
                     if(pAR_el) pAR_el.textContent = priceKgTxtAr;
                 });
-                this.calcTotalEst(); // Use estimated calculation
+                this.calcTotalEst();
             } catch (e) {
                 console.error("Error in updAllPrices:", e);
                 this.usrApiErr = "Error updating prices.";
@@ -353,7 +357,6 @@ document.addEventListener('alpine:init', () => {
 
             const orderIdClient = `SL-UDHY-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}-${String(Math.random()).slice(2,7)}`;
 
-            // Determine delivery_option client-side
             let delOpt = "self_pickup_or_internal_distribution";
             if (this.distChoice === 'char') {
                 delOpt = "charity_distribution_by_sl";
@@ -362,10 +365,9 @@ document.addEventListener('alpine:init', () => {
             }
             const selCityInfo = (this.needsDelDetails && this.delCity) ? this.allCities.find(c => c.id === this.delCity) : null;
 
-            // Simplified payload for server-side hook processing
             const orderPayload = {
-                order_id_text: orderIdClient, // Client can suggest an ID, server might override or use it
-                product_id: this.selAnim.varPbId, // IMPORTANT: Send the PocketBase ID of the product variant
+                order_id_text: orderIdClient,
+                product_id: this.selAnim.varPbId,
 
                 udheya_service_option_selected: this.selUdhServ,
                 sacrifice_day_value: this.sacDay.val,
@@ -379,21 +381,18 @@ document.addEventListener('alpine:init', () => {
                 ordering_person_phone: (this.custPhone || "").trim(),
                 customer_email: (this.custEmail || "").trim(),
 
-                delivery_option: delOpt, // Calculated client-side
+                delivery_option: delOpt,
                 delivery_name: this.needsDelDetails ? (this.custName || "").trim() : "",
                 delivery_phone: this.needsDelDetails ? (this.custPhone || "").trim() : "",
                 delivery_area_id: (this.needsDelDetails && selCityInfo) ? selCityInfo.id : "",
-                // For display on recap, the hook will fill these from the ID if needed
-                // delivery_area_name_en: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameEn : "",
-                // delivery_area_name_ar: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameAr : "",
                 delivery_address: this.needsDelDetails ? (this.delAddr || "").trim() : "",
                 delivery_instructions: this.needsDelDetails ? (this.delNotes || "").trim() : "",
                 time_slot: (this.distChoice === 'char' || !this.needsDelDetails) ? 'N/A' : this.timeSlot,
 
                 payment_method: this.payMeth,
-                terms_agreed: true, // Assuming implicit agreement or add a checkbox
+                terms_agreed: true,
                 group_purchase_interest: this.grpBuy,
-                selected_display_currency: this.curr, // For reference, server uses EGP for calculations
+                selected_display_currency: this.curr,
             };
             console.log("ClientSideOrder: Attempting to create order with payload for HOOK:", orderPayload);
 
@@ -401,30 +400,25 @@ document.addEventListener('alpine:init', () => {
                 const createdOrder = await pb.collection('orders').create(orderPayload);
                 console.log("ClientSideOrder: Order created successfully BY HOOK:", createdOrder);
 
-                // Update Alpine component state with authoritative data from the server response
                 this.orderID = createdOrder.order_id_text || orderIdClient;
-                this.totalEgp = createdOrder.total_amount_due_egp; // THIS IS THE AUTHORITATIVE TOTAL
+                this.totalEgp = createdOrder.total_amount_due_egp;
 
-                // Update display fields for the recap from the server's response
                 this.selAnim.nameEN = createdOrder.ordered_product_name_en;
                 this.selAnim.nameAR = createdOrder.ordered_product_name_ar;
                 this.selAnim.wtRangeEn = createdOrder.ordered_weight_range_en;
                 this.selAnim.wtRangeAr = createdOrder.ordered_weight_range_ar;
                 this.sacDay.txtEN = createdOrder.sacrifice_day_text_en;
                 this.sacDay.txtAR = createdOrder.sacrifice_day_text_ar;
-                // If delivery details were based on ID, these might also be in createdOrder:
-                // this.delCityNameEn = createdOrder.delivery_area_name_en;
-                // this.delCityNameAr = createdOrder.delivery_area_name_ar;
 
-                // Optimistic UI update for stock (server has already handled the actual decrement)
+
                 const animTypeCfg = this.prodOpts.live.find(lt => lt.valKey === this.selAnim.type);
                 if (animTypeCfg) {
                     const stockItemCfg = animTypeCfg.wps.find(wp => wp.itemKey === this.selAnim.itemKey);
                     if (stockItemCfg) {
-                        stockItemCfg.stock = Math.max(0, (stockItemCfg.stock || 1) - 1); // Ensure stock doesn't go below 0 client-side
+                        stockItemCfg.stock = Math.max(0, (stockItemCfg.stock || 1) - 1);
                     }
                 }
-                this.$nextTick(() => this.updAllPrices()); // Refresh price display and stock status
+                this.$nextTick(() => this.updAllPrices());
 
                 this.orderConf = true;
                 this.$nextTick(() => { this.scrollSect('#order-conf-sect'); this.focusRef('orderConfTitle'); });
@@ -432,9 +426,42 @@ document.addEventListener('alpine:init', () => {
             } catch (e) {
                 console.error("ClientSideOrder: Error during order placement (hook architecture):", e.response || e);
                 this.apiErr = String(e.data?.message || e.message || "Order placement failed.");
-                this.usrApiErr = String(e.data?.message || e.message || "An unexpected error occurred during order placement. Please check your selections or contact support.");
+                // Provide more specific feedback if possible, based on e.data
+                let userFriendlyError = "An unexpected error occurred. Please check your selections or contact support.";
+                if (e.data && typeof e.data === 'object') {
+                    // Check for common specific errors from the hook or PB validation
+                    if (e.data.message && e.data.message.toLowerCase().includes("out of stock")) {
+                        userFriendlyError = "The selected item is now out of stock. Please choose another.";
+                        this.setErr('animal', {en: userFriendlyError, ar: "الخيار المحدد نفذ من المخزون. يرجى اختيار آخر."});
+                        this.currStep = 1; this.scrollSect('#step1-content'); this.focusRef(this.stepMeta[0].firstFocusableErrorRef || this.stepMeta[0].titleRef);
+                        // Potentially refresh product stock from server here
+                        const selectedAnimalConfig = this.prodOpts.live.find(type => type.valKey === this.selAnim.type);
+                        if(selectedAnimalConfig){
+                            const selectedWeightPackage = selectedAnimalConfig.wps.find(wp => wp.itemKey === this.selAnim.itemKey);
+                            if(selectedWeightPackage) selectedWeightPackage.stock = 0; // Mark as 0 client side
+                        }
+                        this.$nextTick(() => this.updAllPrices());
 
-                if (!this.orderID && this.$refs.custNameInputS2) {
+                    } else if (e.data.data && Object.keys(e.data.data).length > 0) {
+                        // If PB returns specific field errors
+                        const fieldErrors = Object.keys(e.data.data).map(key => `${key}: ${e.data.data[key].message}`).join("; ");
+                        userFriendlyError = `Please correct the following: ${fieldErrors}`;
+                        // Attempt to map server field errors to client-side form fields if names match
+                        Object.keys(e.data.data).forEach(serverFieldKey => {
+                            // Simple mapping for now, can be expanded
+                            if(this.errs.hasOwnProperty(serverFieldKey)){
+                                this.setErr(serverFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message }); // Assuming message is bilingual or use a translation map
+                            }
+                        });
+
+                    } else if (e.data.message) {
+                        userFriendlyError = e.data.message; // Use server message directly
+                    }
+                }
+                this.usrApiErr = userFriendlyError;
+
+
+                if (!this.orderID && this.$refs.custNameInputS2 && !userFriendlyError.toLowerCase().includes("out of stock")) {
                      this.currStep = Math.min(this.currStep, 4);
                      const metaToFocus = this.stepMeta[this.currStep-1];
                      if (metaToFocus) {
@@ -442,7 +469,7 @@ document.addEventListener('alpine:init', () => {
                      } else {
                         this.focusRef('orderSectTitle');
                      }
-                } else if (this.apiErr && !this.orderID) { // If API error and no order ID, likely an issue before PB create
+                } else if (this.apiErr && !this.orderID && !userFriendlyError.toLowerCase().includes("out of stock")) {
                      this.$nextTick(() => this.scrollSect('.err-ind'));
                 }
             } finally {
@@ -450,7 +477,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async submitStatValid() { /* ... (no change from original) ... */
+        async submitStatValid() {
             this.clrErr('lookupOrderID'); this.clrErr('lookupPhone');
             let isValid = true;
             if (!(this.lookupOrderID || "").trim()) { this.setErr('lookupOrderID', 'required'); isValid = false; }
@@ -458,7 +485,7 @@ document.addEventListener('alpine:init', () => {
             if(isValid) { await this.chkOrderStatus(); }
             else { if(this.errs.lookupOrderID) this.focusRef('lookupOrderIdInput'); else if(this.errs.lookupPhone) this.focusRef('lookupPhoneInput');}
         },
-        async chkOrderStatus() { /* ... (no change from original other than ensuring this.statRes is populated correctly) ... */
+        async chkOrderStatus() {
             this.statRes = null; this.statNotFound = false; this.load.status = true; this.apiErr = null; this.usrApiErr = "";
             const id = (this.lookupOrderID || "").trim(); const phone = (this.lookupPhone || "").trim();
             const pb = new PocketBase('/');
@@ -504,7 +531,7 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { this.apiErr=String(e.message);this.usrApiErr="Could not get order status. Please check details or contact support.";this.statNotFound=true; console.error("Error fetching order status:", e.response || e)}
             finally { this.load.status = false; }
         },
-        async resetForm() { /* ... (no change from original) ... */
+        async resetForm() {
             const preservedSettings = JSON.parse(JSON.stringify(this.settings));
             const preservedProdOpts = JSON.parse(JSON.stringify(this.prodOpts));
             const preservedAllCities = JSON.parse(JSON.stringify(this.allCities));
