@@ -8,7 +8,7 @@ document.addEventListener('alpine:init', () => {
         custEmail: "",
         niyyahNames: "",
         selUdhServ: 'standard_service',
-        servFee: 0, // This will be for client-side display estimation, server calculates final
+        servFee: 0,
         sacDay: { val: "day1_10_dhul_hijjah", txtEN: "Day 1 of Eid (10th Dhul Hijjah)", txtAR: "اليوم الأول (10 ذو الحجة)"},
         viewPref: "none",
         distChoice: "me",
@@ -22,7 +22,7 @@ document.addEventListener('alpine:init', () => {
         grpBuy: false,
         payMeth: "fa",
         errs: {},
-        totalEgp: 0, // This will be for client-side display estimation, server calculates final
+        totalEgp: 0,
         cost_of_animal_egp: null,
         lookupPhone: ""
     };
@@ -41,8 +41,8 @@ document.addEventListener('alpine:init', () => {
             defCurr: "EGP",
             waNumRaw: "", waNumDisp: "",
             promoEndISO: new Date().toISOString(), promoDiscPc: 0, promoActive: false,
-            servFeeEGP: 0, // Fetched from server
-            delAreas: [],   // Fetched from server
+            servFeeEGP: 0,
+            delAreas: [],
             payDetails: { vodafone_cash: "", instapay_ipn: "", revolut_details: "", monzo_details: "", bank_name: "", bank_account_name: "", bank_account_number: "", bank_iban: "", bank_swift: "" }
         },
         prodOpts: { live: [] },
@@ -277,21 +277,18 @@ document.addEventListener('alpine:init', () => {
             this.totalEgp = (this.selAnim.priceEgp||0) + (this.servFee || 0) + delFeeFinalEst;
         },
         updAllPrices() {
-            // FIX: Add a check for prodOpts.live to prevent errors if called too early
             if (!this.prodOpts.live || this.prodOpts.live.length === 0) {
-                // console.log("updAllPrices called but prodOpts.live is empty. Skipping.");
                 return;
             }
             try {
-                this.prodOpts.live.forEach(liveTypeCfg => { // No (|| []) needed due to check above
+                this.prodOpts.live.forEach(liveTypeCfg => {
                     const wtSelRefName = `${liveTypeCfg.valKey}WtSel`;
                     const wtSelEl = this.$refs[wtSelRefName];
                     const cardEl = document.getElementById(liveTypeCfg.valKey);
 
                     if (!wtSelEl || !cardEl) {
-                        // This warning is good, helps debug if structure changes
-                        console.warn(`Missing elements for ${liveTypeCfg.valKey} during price update. Select Ref: ${wtSelRefName}, Card ID: ${liveTypeCfg.valKey}. This might be a timing issue if prodOpts.live was just populated.`);
-                        return; // Skip this iteration
+                        console.warn(`Missing elements for ${liveTypeCfg.valKey} during price update. Select Ref: ${wtSelRefName}, Card ID: ${liveTypeCfg.valKey}.`);
+                        return;
                     }
 
                     const currVal = wtSelEl.value;
@@ -394,11 +391,11 @@ document.addEventListener('alpine:init', () => {
                 group_purchase_interest: this.grpBuy,
                 selected_display_currency: this.curr,
             };
-            console.log("ClientSideOrder: Attempting to create order with payload for HOOK:", orderPayload);
+            // console.log("ClientSideOrder: Attempting to create order with payload for HOOK:", orderPayload);
 
             try {
                 const createdOrder = await pb.collection('orders').create(orderPayload);
-                console.log("ClientSideOrder: Order created successfully BY HOOK:", createdOrder);
+                // console.log("ClientSideOrder: Order created successfully BY HOOK:", createdOrder);
 
                 this.orderID = createdOrder.order_id_text || orderIdClient;
                 this.totalEgp = createdOrder.total_amount_due_egp;
@@ -426,40 +423,32 @@ document.addEventListener('alpine:init', () => {
             } catch (e) {
                 console.error("ClientSideOrder: Error during order placement (hook architecture):", e.response || e);
                 this.apiErr = String(e.data?.message || e.message || "Order placement failed.");
-                // Provide more specific feedback if possible, based on e.data
                 let userFriendlyError = "An unexpected error occurred. Please check your selections or contact support.";
                 if (e.data && typeof e.data === 'object') {
-                    // Check for common specific errors from the hook or PB validation
                     if (e.data.message && e.data.message.toLowerCase().includes("out of stock")) {
                         userFriendlyError = "The selected item is now out of stock. Please choose another.";
                         this.setErr('animal', {en: userFriendlyError, ar: "الخيار المحدد نفذ من المخزون. يرجى اختيار آخر."});
                         this.currStep = 1; this.scrollSect('#step1-content'); this.focusRef(this.stepMeta[0].firstFocusableErrorRef || this.stepMeta[0].titleRef);
-                        // Potentially refresh product stock from server here
                         const selectedAnimalConfig = this.prodOpts.live.find(type => type.valKey === this.selAnim.type);
                         if(selectedAnimalConfig){
                             const selectedWeightPackage = selectedAnimalConfig.wps.find(wp => wp.itemKey === this.selAnim.itemKey);
-                            if(selectedWeightPackage) selectedWeightPackage.stock = 0; // Mark as 0 client side
+                            if(selectedWeightPackage) selectedWeightPackage.stock = 0;
                         }
                         this.$nextTick(() => this.updAllPrices());
 
                     } else if (e.data.data && Object.keys(e.data.data).length > 0) {
-                        // If PB returns specific field errors
-                        const fieldErrors = Object.keys(e.data.data).map(key => `${key}: ${e.data.data[key].message}`).join("; ");
+                        const fieldErrors = Object.keys(e.data.data).map(key => `${key.replace(/_/g, ' ')}: ${e.data.data[key].message}`).join("; ");
                         userFriendlyError = `Please correct the following: ${fieldErrors}`;
-                        // Attempt to map server field errors to client-side form fields if names match
                         Object.keys(e.data.data).forEach(serverFieldKey => {
-                            // Simple mapping for now, can be expanded
-                            if(this.errs.hasOwnProperty(serverFieldKey)){
-                                this.setErr(serverFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message }); // Assuming message is bilingual or use a translation map
+                            if(this.errs.hasOwnProperty(serverFieldKey)){ // Check if client has a mapping for this error key
+                                this.setErr(serverFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message });
                             }
                         });
-
                     } else if (e.data.message) {
-                        userFriendlyError = e.data.message; // Use server message directly
+                        userFriendlyError = e.data.message;
                     }
                 }
                 this.usrApiErr = userFriendlyError;
-
 
                 if (!this.orderID && this.$refs.custNameInputS2 && !userFriendlyError.toLowerCase().includes("out of stock")) {
                      this.currStep = Math.min(this.currStep, 4);
