@@ -65,6 +65,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
             }
             console.log(`[API Hook] Product found: ${productRecord.getId()}, Stock: ${productRecord.getInt("stock_available_pb")}`);
 
+
             const currentStock = productRecord.getInt("stock_available_pb");
             if (currentStock < quantityToOrder) {
                 console.warn(`[API Hook] Insufficient stock for ${productItemKey}. Available: ${currentStock}, Requested: ${quantityToOrder}`);
