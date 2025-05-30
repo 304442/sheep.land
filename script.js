@@ -5,23 +5,23 @@ document.addEventListener('alpine:init', () => {
         custPhone: "",
         custEmail: "",
         niyyahNames: "",
-        selUdhServ: 'standard_service', // Default service
+        selUdhServ: 'standard_service', 
         servFee: 0,
         sacDay: { val: "day1_10_dhul_hijjah", txtEN: "Day 1 of Eid (10th Dhul Hijjah)", txtAR: "اليوم الأول (10 ذو الحجة)"},
         viewPref: "none",
-        distChoice: "me", // Default distribution
+        distChoice: "me", 
         splitOpt: "",
         splitCustom: "",
         delCity: "",
         allCities: [],
         delAddr: "",
         delNotes: "",
-        timeSlot: "8 AM-9 AM", // Default timeslot
+        timeSlot: "8 AM-9 AM", 
         grpBuy: false,
-        payMeth: "fa", // Default payment method
+        payMeth: "fa", 
         errs: {},
         totalEgp: 0,
-        cost_of_animal_egp: null, // For P&L - not set by UI initially
+        cost_of_animal_egp: null, 
         lookupPhone: ""
     };
 
@@ -33,29 +33,31 @@ document.addEventListener('alpine:init', () => {
     ];
 
     async function apiPlaceOrder(payload) {
-        const pb = new PocketBase('/'); // Assumes PB is at root. Adjust if PB is e.g. on a subdomain.
+        const pb = new PocketBase('/'); 
         try {
-            // For debugging, you can log the payload before sending
             // console.log("Sending order payload:", JSON.stringify(payload, null, 2));
             const res = await pb.send("/api/custom_place_order", {
                 method: "POST",
-                body: payload, // PocketBase SDK handles JSON.stringify internally
+                body: payload, 
             });
             return res;
         } catch (err) {
-            console.error("API call /api/custom_place_order error object:", err); // Log the full error object
-            console.error("API call /api/custom_place_order original error (if any):", err.originalError);
+            console.error("API call /api/custom_place_order error object:", err); 
+            if (err.originalError) console.error("API call /api/custom_place_order original error:", err.originalError);
+            
             let userMsg = "Failed to place order. Please try again.";
-            if (err.data && err.data.error) { // Custom error from hook
+            if (err.status === 404) {
+                userMsg = "Order placement service not found. Please contact support. (Error 404)";
+            } else if (err.data && err.data.error) { 
                 userMsg = err.data.error;
-            } else if (err.data && err.data.data && Object.keys(err.data.data).length > 0) { // PB validation errors
+            } else if (err.data && err.data.data && Object.keys(err.data.data).length > 0) { 
                 userMsg = "Order failed due to validation issues: ";
                 const fieldErrs = [];
                 for (const key in err.data.data) {
                     fieldErrs.push(`${key}: ${err.data.data[key].message}`);
                 }
                 userMsg += fieldErrs.join("; ");
-            } else if (err.message) { // General SDK or network error
+            } else if (err.message) { 
                  userMsg = err.message;
             }
             throw new Error(userMsg);
@@ -64,7 +66,7 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('udh', () => ({
         load: { status: false, ordering: false, init: true },
-        settings: { // Provide a more complete default structure
+        settings: { 
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
             defCurr: "EGP",
             waNumRaw: "", waNumDisp: "",
@@ -106,7 +108,6 @@ document.addEventListener('alpine:init', () => {
                 const remoteSettingsList = await pb.collection('settings').getFullList({ requestKey: "settings_init" });
                 if (remoteSettingsList && remoteSettingsList.length > 0) {
                     const rs = remoteSettingsList[0];
-                    // Merge remote settings with defaults, preferring remote values
                     this.settings.xchgRates = rs.xchgRates || this.settings.xchgRates;
                     this.settings.defCurr = rs.defCurr || this.settings.defCurr;
                     this.settings.waNumRaw = rs.waNumRaw || "";
@@ -117,7 +118,10 @@ document.addEventListener('alpine:init', () => {
                     this.settings.servFeeEGP = Number(rs.servFeeEGP) || 0;
                     this.settings.delAreas = Array.isArray(rs.delAreas) ? rs.delAreas : [];
                     this.settings.payDetails = typeof rs.payDetails === 'object' && rs.payDetails !== null ? rs.payDetails : this.settings.payDetails;
-                } else { this.usrApiErr = "App configuration could not be loaded. Using defaults."; console.warn("Settings not found, using defaults."); }
+                } else { 
+                    this.usrApiErr = "App configuration could not be loaded. Using defaults."; 
+                    console.warn("Settings not found, using defaults."); 
+                }
                 
                 this.servFee = this.settings.servFeeEGP;
 
@@ -128,20 +132,23 @@ document.addEventListener('alpine:init', () => {
                     prodGrps[p.type_key].wps.push({ itemKey: p.item_key, varIdPb: p.id, nameENSpec: p.variant_name_en, nameARSpec: p.variant_name_ar, wtRangeEn: p.weight_range_text_en, wtRangeAr: p.weight_range_text_ar, avgWtKg: p.avg_weight_kg, priceEGP: p.base_price_egp, stock: p.stock_available_pb, isActive: p.is_active });
                 });
                 this.prodOpts.live = Object.values(prodGrps);
-                if (this.prodOpts.live.length === 0 && !this.usrApiErr && !this.apiErr) { // Check if error already set
+
+                if (this.prodOpts.live.length === 0 && !this.usrApiErr && !this.apiErr) { // Only set if no other error is present
                      this.usrApiErr = "No sheep options are currently available.";
                 }
+
             } catch (e) {
                 console.error("Error fetching initial data:", e);
-                this.apiErr = "Could not load data from server."; this.usrApiErr = "Error loading essential data. Please try again later or contact support.";
-                this.prodOpts.live = [];
+                this.apiErr = String(e.message || "Could not load data from server."); 
+                this.usrApiErr = "Error loading essential data. Please try again later or contact support.";
+                this.prodOpts.live = []; // Ensure it's empty on error
             }
 
             let cities = [];
             (this.settings.delAreas || []).forEach(gov => {
                 if (gov.cities && Array.isArray(gov.cities) && gov.cities.length > 0) {
                     gov.cities.forEach(city => { cities.push({ id: `${gov.id}_${city.id}`, nameEn: `${gov.name_en} - ${city.name_en}`, nameAr: `${gov.name_ar} - ${city.name_ar}`, delFeeEgp: city.delivery_fee_egp, govId: gov.id, govNameEn: gov.name_en, govNameAr: gov.name_ar }); });
-                } else if (gov.delivery_fee_egp !== undefined) {
+                } else if (gov.delivery_fee_egp !== undefined) { // Check for direct governorate fee
                     cities.push({ id: gov.id, nameEn: gov.name_en, nameAr: gov.name_ar, delFeeEgp: gov.delivery_fee_egp, govId: gov.id, govNameEn: gov.name_en, govNameAr: gov.name_ar });
                 }
             });
@@ -173,7 +180,7 @@ document.addEventListener('alpine:init', () => {
             ['selAnim.priceEgp', 'curr', 'servFee'].forEach(prop => this.$watch(prop, (newValue, oldValue) => {
                 if (newValue !== oldValue) {
                     this.calcTotal();
-                    if (prop !== 'servFee') { // Avoid full price re-render for only service fee change
+                    if (prop !== 'servFee') { 
                         this.$nextTick(() => this.updAllPrices());
                     }
                 }
@@ -181,24 +188,24 @@ document.addEventListener('alpine:init', () => {
             this.$watch('settings.servFeeEGP', (newValue, oldValue) => { if (newValue !== oldValue) this.updServFee(); });
             
             ['distChoice', 'splitOpt', 'splitCustom', 'custName', 'custPhone', 'custEmail', 'delAddr', 'timeSlot', 'payMeth', 'viewPref', 'delCity', 'selUdhServ', 'niyyahNames', 'sacDay.val'].forEach(prop => this.$watch(prop, (nv,ov) => {
-                if (nv !== ov || (typeof nv === 'object' && JSON.stringify(nv) !== JSON.stringify(ov))) { // Check for actual change
+                if (nv !== ov || (typeof nv === 'object' && JSON.stringify(nv) !== JSON.stringify(ov))) { 
                     this.updAllStepStates();
-                    if (prop === 'delCity') { this.updDelFeeDisp(); /* calcTotal is inside updDelFeeDisp */ }
-                    else if (prop === 'selUdhServ') { this.updServFee(); /* calcTotal is inside updServFee */ }
+                    if (prop === 'delCity') { this.updDelFeeDisp(); }
+                    else if (prop === 'selUdhServ') { this.updServFee(); }
                     else if (['distChoice', 'splitOpt', 'splitCustom'].includes(prop)) { this.calcTotal(); this.updDelFeeDisp(); }
                 }
             }));
             
-            let scrollTimeout; // For debouncing scroll handler
+            let scrollTimeout; 
             window.addEventListener('scroll', () => {
                 clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => this.onScroll(), 100); // Debounce scroll for 100ms
+                scrollTimeout = setTimeout(() => this.onScroll(), 100); 
             }, { passive: true });
 
             window.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.startCd(); else if (this.cdTimer) clearInterval(this.cdTimer); });
         },
         updServFee() { this.servFee = (this.selUdhServ === 'standard_service') ? (this.settings.servFeeEGP || 0) : 0; this.calcTotal(); },
-        onScroll() { /* ... same as before, already fairly robust ... */
+        onScroll() { 
             if (!this.orderConf && this.stepMeta.length > 0 && this.stepMeta.some(step => { const el = document.querySelector(step.id); return el && typeof el.offsetTop === 'number'; })) {
                 const scrollMid = window.scrollY + (window.innerHeight / 2); let closestStep = this.currStep; let minDist = Infinity;
                 this.stepMeta.forEach(meta => { const el = document.querySelector(meta.id); if (el) { const dist = Math.abs(scrollMid - (el.offsetTop + (el.offsetHeight / 2))); if (dist < minDist) { minDist = dist; closestStep = meta.conceptualStep; } } });
@@ -208,7 +215,7 @@ document.addEventListener('alpine:init', () => {
             for (const navLink of this.navData) { const sectEl = document.getElementById(navLink.sectId); if (sectEl) { const sectTop = sectEl.offsetTop; const sectBot = sectTop + sectEl.offsetHeight; if (sectTop <= currScrollYOff && sectBot > currScrollYOff) { newActHref = navLink.href; newActParent = navLink.parentMenu; break; } } }
             const firstNavSect = this.navData.length > 0 ? document.getElementById(this.navData[0].sectId) : null;
             if (window.scrollY < ((firstNavSect?.offsetTop || headH) - headH)) { newActHref = ""; newActParent = null; }
-            else if ((window.innerHeight + Math.ceil(window.scrollY)) >= (document.body.offsetHeight - 5)) { // Added small buffer
+            else if ((window.innerHeight + Math.ceil(window.scrollY)) >= (document.body.offsetHeight - 5)) { 
                  const lastVisLink = this.navData.slice().reverse().find(nl => { const el = document.getElementById(nl.sectId); return el && el.offsetHeight > 0; });
                  if (lastVisLink) { newActHref = lastVisLink.href; newActParent = lastVisLink.parentMenu; }
             }
@@ -230,22 +237,72 @@ document.addEventListener('alpine:init', () => {
         updDelFeeDisp() { this.delFeeDispEGP = 0; this.isDelFeeVar = false; if (!this.needsDelDetails || !this.delCity) { this.calcTotal(); return; } const cityData = this.allCities.find(c => c.id === this.delCity); if (cityData && typeof cityData.delFeeEgp === 'number') { this.delFeeDispEGP = cityData.delFeeEgp; this.isDelFeeVar = false; } else if (cityData && cityData.delFeeEgp === null) { this.isDelFeeVar = true; this.delFeeDispEGP = 0; } else { this.isDelFeeVar = true; this.delFeeDispEGP = 0; if (this.delCity) console.warn("Delivery fee not found or invalid for city:", this.delCity); } this.calcTotal();  },
         fmtPrice(p, c) { const cc=c||this.curr; const ci=this.settings?.xchgRates?.[cc]; if(p==null||p === undefined ||!ci||typeof ci.rate_from_egp !=='number')return`${ci?.symbol||(cc==='EGP'?'LE':'')} ---`;const cp=p*ci.rate_from_egp;return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP')?0:2)}`;},
         isEmailValid: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
-        isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()), // Basic international phone regex
+        isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()), 
         scrollSect(s) { try{const e=document.querySelector(s);if(e){let o=document.querySelector('.site-head')?.offsetHeight||0;if(s.startsWith('#udh-order-start')||s.startsWith('#step')||s.startsWith('#udh-order-panel')){const h=document.querySelector('.step-wrap');if(h&&getComputedStyle(h).position==='sticky')o+=h.offsetHeight;}window.scrollTo({top:e.getBoundingClientRect().top+window.pageYOffset-o-10,behavior:'smooth'});}}catch(err){console.warn("ScrollSect err:", err);}},
         valConceptStep(cs, se=true) { const m=this.stepMeta[cs-1]; if(!m||!m.validator)return true; const v=m.validator(se);this.stepProg[`step${cs}`]=v;return v;},
-        updAllStepStates() { for(let i=1;i<=this.stepMeta.length;i++)this.stepProg[`step${i}`]=this.valConceptStep(i,false);}, // No error display on silent validation
+        updAllStepStates() { for(let i=1;i<=this.stepMeta.length;i++)this.stepProg[`step${i}`]=this.valConceptStep(i,false);}, 
         navStep(tcs) {this.clrAllErrs();let canProceed=true;for(let s=1;s<tcs;s++){if(!this.valConceptStep(s,true)){this.currStep=s;const m=this.stepMeta[s-1]; if(m) {this.focusRef(m.firstFocusableErrorRef||m.titleRef);this.scrollSect(m.id||'#udh-order-start');} canProceed=false;break;}}if(canProceed){this.currStep=tcs;const currentMeta = this.stepMeta[tcs-1]; if(currentMeta) { this.scrollSect(currentMeta.id||'#udh-order-start'); this.focusRef(currentMeta.titleRef); }}},
 
         valStep1(setErrs = true) { if (setErrs) this.clrErr('animal'); if (!this.selAnim.itemKey) { if (setErrs) this.setErr('animal', 'select'); return false; } return true;  },
         valStep2(setErrs = true) { if (setErrs) { this.clrErr('custName'); this.clrErr('custPhone'); this.clrErr('custEmail');} let isValid = true; if (!(this.custName || "").trim()) { if (setErrs) this.setErr('custName', 'required'); isValid = false; } if (!this.isPhoneValid(this.custPhone)) { if (setErrs) this.setErr('custPhone', 'phone'); isValid = false; } if ((this.custEmail || "").trim() && !this.isEmailValid(this.custEmail)) { if (setErrs) this.setErr('custEmail', 'email'); isValid = false; } return isValid; },
         valStep3(setErrs = true) { if (setErrs) { this.clrErr('udhServ');this.clrErr('sacDay'); } let isValid = true; if (!this.selUdhServ) { if(setErrs) this.setErr('udhServ', 'select'); isValid = false;} if (!this.sacDay.val) { if (setErrs) this.setErr('sacDay', 'select'); isValid = false; } return isValid; },
-        valStep4(setErrs = true) { if (setErrs) { this.clrErr('distChoice'); this.clrErr('splitOpt'); this.clrErr('delCity'); this.clrErr('delAddr'); this.clrErr('timeSlot');} let isValid = true; if (!this.distChoice) { if(setErrs) this.setErr('distChoice', 'select'); isValid = false; } if (this.distChoice === 'split' && this.splitOpt === 'custom' && !(this.splitCustom || "").trim()) { if (setErrs) this.setErr('splitOpt', 'required'); isValid = false; } else if (this.distChoice === 'split' && !this.splitOpt) { if (setErrs) this.setErr('splitOpt', 'select'); isValid = false; } if (this.needsDelDetails) {  if (!this.delCity) { if (setErrs) this.setErr('delCity', 'select'); isValid = false; }  if (!(this.delAddr || "").trim()) { if (setErrs) this.setErr('delAddr', 'required'); isValid = false; } if (!this.timeSlot) { if (setErrs) this.setErr('timeSlot', 'select'); isValid = false; } } return isValid; },
+        valStep4(setErrs = true) { if (setErrs) { this.clrErr('distChoice'); this.clrErr('splitOpt'); this.clrErr('delCity'); this.clrErr('delAddr'); this.clrErr('timeSlot');} let isValid = true; if (!this.distChoice) { if(setErrs) this.setErr('distChoice', 'select'); isValid = false; } if (this.distChoice === 'split' && this.splitOpt === 'custom' && !(this.splitCustom || "").trim()) { if (setErrs) this.setErr('splitOpt', 'required'); isValid = false; } else if (this.distChoice === 'split' && !this.splitOpt) { if (setErrs) this.setErr('splitOpt', 'select'); isValid = false; } if (this.needsDelDetails) {  if (!this.delCity) { if (setErrs) this.setErr('delCity', 'select'); isValid = false; }  if (!(this.delAddr || "").trim()) { if (setErrs) this.setErr('delAddr', 'required'); isValid = false; } if (!this.timeSlot) { if (setErrs) this.setErr('timeSlot', 'timeSlot'); isValid = false; } } return isValid; },
         valStep5(setErrs = true) { if (setErrs) this.clrErr('payMeth'); if (!this.payMeth) { if (setErrs) this.setErr('payMeth', 'select'); return false; } return true; },
 
         selAnimal(animTypeKey, wtSelEl) { const selItemKey = wtSelEl.value; this.clrErr('animal'); if (!selItemKey) { this.selAnim = { ...initOrderData.selAnim }; this.prodOpts.live.forEach(type => { if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { this.$refs[`${type.valKey}WtSel`].value = ""; } }); this.calcTotal(); this.updAllStepStates(); return; } this.prodOpts.live.forEach(type => { if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { this.$refs[`${type.valKey}WtSel`].value = ""; } }); const animTypeCfg = this.prodOpts.live.find(a => a.valKey === animTypeKey); if (!animTypeCfg) { this.selAnim = { ...initOrderData.selAnim }; this.calcTotal(); this.updAllStepStates(); return; } const selSpecItem = animTypeCfg.wps.find(wp => wp.itemKey === selItemKey); if (selSpecItem && selSpecItem.isActive && selSpecItem.stock > 0) { this.selAnim = { type: animTypeCfg.valKey, itemKey: selSpecItem.itemKey, varPbId: selSpecItem.varIdPb, wtRangeEn: selSpecItem.wtRangeEn, wtRangeAr: selSpecItem.wtRangeAr, priceEgp: selSpecItem.priceEGP, stock: selSpecItem.stock, typeGenEn: animTypeCfg.nameEn, typeGenAr: animTypeCfg.nameAr, typePriceKgEgp: animTypeCfg.priceKgEgp }; } else { this.selAnim = { ...initOrderData.selAnim }; this.setErr('animal', {en: 'Selected item is out of stock or inactive.', ar: 'الخيار المحدد غير متوفر أو غير نشط.'}); } this.calcTotal(); this.updAllStepStates(); },
         updSacDayTxt() { const sacDaySelEl = this.$refs.sacDaySelS3; if (sacDaySelEl) {  const optEl = sacDaySelEl.querySelector(`option[value="${this.sacDay.val}"]`); if(optEl) Object.assign(this.sacDay,{txtEN:optEl.dataset.en || this.sacDay.val,txtAR:optEl.dataset.ar || this.sacDay.val}); }  },
         calcTotal() { let delFeeFinal = 0; if(this.needsDelDetails && this.delFeeDispEGP > 0 && !this.isDelFeeVar) { delFeeFinal = this.delFeeDispEGP; } this.totalEgp= (this.selAnim.priceEgp||0) + (this.servFee || 0) + delFeeFinal; },
-        updAllPrices() { try { (this.prodOpts.live || []).forEach(liveTypeCfg => {  const wtSelEl = this.$refs[`${liveTypeCfg.valKey}WtSel`];  const cardEl = document.getElementById(liveTypeCfg.valKey);  if (!wtSelEl || !cardEl) { console.warn(`Missing elements for ${liveTypeCfg.valKey} during price update.`); return; } const currVal = wtSelEl.value;  wtSelEl.innerHTML = `<option value="">-- Select Weight --</option>`; let stillValid = false; (liveTypeCfg.wps || []).forEach(wp => {  const opt = document.createElement('option');  opt.value = wp.itemKey;  const outOfStock = !wp.isActive || wp.stock <= 0; const statTxtEn = this.getStockEn(wp.stock, wp.isActive); const priceDispEn = this.fmtPrice(wp.priceEGP); opt.textContent = `${wp.nameENSpec || wp.wtRangeEn} (${priceDispEn}) - ${statTxtEn}`.trim(); opt.disabled = outOfStock;  wtSelEl.appendChild(opt); if (wp.itemKey === currVal && !outOfStock) stillValid = true; }); if(currVal && stillValid) { wtSelEl.value = currVal; } else if (this.selAnim.type === liveTypeCfg.valKey && this.selAnim.itemKey && liveTypeCfg.wps.find(wp => wp.itemKey === this.selAnim.itemKey && wp.isActive && (wp.stock > 0))) { wtSelEl.value = this.selAnim.itemKey; } else { wtSelEl.value = ""; } const priceKg = liveTypeCfg.priceKgEgp || 0; const priceKgTxtEn = this.fmtPrice(priceKg) + '/kg'; const priceKgTxtAr = this.fmtPrice(priceKg) + '/كجم'; const pEN_el = cardEl.querySelector('.price.bil-row .en span'); if(pEN_el) pEN_el.textContent = priceKgTxtEn; const pAR_el = cardEl.querySelector('.price.bil-row .ar span'); if(pAR_el) pAR_el.textContent = priceKgTxtAr; }); this.calcTotal();  } catch (e) { console.error("Error in updAllPrices:", e); this.usrApiErr = "Error updating prices."; } },
+        updAllPrices() { 
+            try { 
+                (this.prodOpts.live || []).forEach(liveTypeCfg => {  
+                    const wtSelRefName = `${liveTypeCfg.valKey}WtSel`;
+                    const wtSelEl = this.$refs[wtSelRefName];
+                    const cardEl = document.getElementById(liveTypeCfg.valKey);  
+                    
+                    if (!wtSelEl || !cardEl) { 
+                        console.warn(`Missing elements for ${liveTypeCfg.valKey} during price update. Select Ref: ${wtSelRefName}, Card ID: ${liveTypeCfg.valKey}`); 
+                        return; 
+                    } 
+                    
+                    const currVal = wtSelEl.value;  
+                    wtSelEl.innerHTML = `<option value="">-- Select Weight --</option>`; 
+                    let stillValid = false; 
+                    
+                    (liveTypeCfg.wps || []).forEach(wp => {  
+                        const opt = document.createElement('option');  
+                        opt.value = wp.itemKey;  
+                        const outOfStock = !wp.isActive || wp.stock <= 0; 
+                        const statTxtEn = this.getStockEn(wp.stock, wp.isActive); 
+                        const priceDispEn = this.fmtPrice(wp.priceEGP); 
+                        opt.textContent = `${wp.nameENSpec || wp.wtRangeEn} (${priceDispEn}) - ${statTxtEn}`.trim(); 
+                        opt.disabled = outOfStock;  
+                        wtSelEl.appendChild(opt); 
+                        if (wp.itemKey === currVal && !outOfStock) stillValid = true; 
+                    }); 
+                    
+                    if(currVal && stillValid) { 
+                        wtSelEl.value = currVal; 
+                    } else if (this.selAnim.type === liveTypeCfg.valKey && this.selAnim.itemKey && liveTypeCfg.wps.find(wp => wp.itemKey === this.selAnim.itemKey && wp.isActive && (wp.stock > 0))) { 
+                        wtSelEl.value = this.selAnim.itemKey; 
+                    } else { 
+                        wtSelEl.value = ""; 
+                    } 
+                    
+                    const priceKg = liveTypeCfg.priceKgEgp || 0; 
+                    const priceKgTxtEn = this.fmtPrice(priceKg) + '/kg'; 
+                    const priceKgTxtAr = this.fmtPrice(priceKg) + '/كجم'; 
+                    
+                    const pEN_el = cardEl.querySelector('.price.bil-row .en span'); 
+                    if(pEN_el) pEN_el.textContent = priceKgTxtEn; 
+                    const pAR_el = cardEl.querySelector('.price.bil-row .ar span'); 
+                    if(pAR_el) pAR_el.textContent = priceKgTxtAr; 
+                }); 
+                this.calcTotal();  
+            } catch (e) { 
+                console.error("Error in updAllPrices:", e); 
+                this.usrApiErr = "Error updating prices."; 
+            } 
+        },
 
         async submitOrderValid() {
             this.clrAllErrs(); let isValid = true;
@@ -261,8 +318,7 @@ document.addEventListener('alpine:init', () => {
                 this.currStep = 1; this.scrollSect('#step1-content'); this.focusRef(this.stepMeta[0].firstFocusableErrorRef || this.stepMeta[0].titleRef); return;
             }
             this.load.ordering = true; this.apiErr = null; this.usrApiErr = ""; 
-            // Final total calculation is done server-side, client total is for display.
-            // this.calcTotal(); 
+            
             const orderIdClient = `SL-UDHY-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}-${String(Math.random()).slice(2,7)}`;
             let delOpt = "self_pickup_or_internal_distribution";
             if (this.distChoice === 'char') delOpt = "charity_distribution_by_sl";
@@ -272,8 +328,8 @@ document.addEventListener('alpine:init', () => {
             const payload = {
                 order_id_text: orderIdClient,
                 product_item_key: this.selAnim.itemKey,
-                quantity: 1, // Assuming always 1 for Udheya
-                cost_of_animal_egp: this.cost_of_animal_egp, // Optional, for P&L if specific animal cost is known
+                quantity: 1, 
+                cost_of_animal_egp: this.cost_of_animal_egp, 
                 
                 udheya_service_option_selected: this.selUdhServ,
                 selected_display_currency: this.curr,
@@ -292,6 +348,8 @@ document.addEventListener('alpine:init', () => {
                 delivery_name: (this.custName || "").trim(), 
                 delivery_phone: (this.custPhone || "").trim(),
                 delivery_area_id: (this.needsDelDetails && selCityInfo) ? selCityInfo.id : "",
+                delivery_area_name_en: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameEn : "",
+                delivery_area_name_ar: (this.needsDelDetails && selCityInfo) ? selCityInfo.nameAr : "",
                 delivery_address: this.needsDelDetails ? (this.delAddr || "").trim() : "",
                 delivery_instructions: this.needsDelDetails ? (this.delNotes || "").trim() : "",
                 time_slot: (this.distChoice === 'char' || !this.needsDelDetails) ? 'N/A' : this.timeSlot,
@@ -299,19 +357,17 @@ document.addEventListener('alpine:init', () => {
                 terms_agreed: true,
                 group_purchase_interest: this.grpBuy, 
                 admin_notes: this.grpBuy ? "Client expressed interest in group purchase." : ""
-                // animal_tag_id: if UI allows selecting specific animal, send its tag_id here
             };
 
             try {
                 const orderRes = await apiPlaceOrder(payload);
                 this.orderID = orderRes.order_id_text || orderIdClient;
-                // Update totalEgp from server response as it's the source of truth
                 this.totalEgp = orderRes.total_amount_due_egp !== undefined ? orderRes.total_amount_due_egp : this.totalEgp;
 
                 if (stockItemCfg) {
                     const newClientStock = orderRes.new_stock_level !== undefined ? orderRes.new_stock_level : (stockItemCfg.stock -1);
                     stockItemCfg.stock = newClientStock;
-                    this.selAnim.stock = newClientStock;
+                    this.selAnim.stock = newClientStock; // Update the selected animation's stock too
                     this.$nextTick(() => this.updAllPrices());
                 }
                 this.orderConf = true;
@@ -336,15 +392,10 @@ document.addEventListener('alpine:init', () => {
             const id = (this.lookupOrderID || "").trim(); const phone = (this.lookupPhone || "").trim();
             const pb = new PocketBase('/');
             try {
-                const params = { lookupPhone: phone }; // Parameter for the list rule
+                const params = { lookupPhone: phone }; 
                 const recs = await pb.collection('orders').getFullList({
                     filter: `order_id_text = "${pb.utils.escapeFilterValue(id)}"`,
-                    $autoCancel: false, // Prevent auto-cancellation if needed for longer requests
-                    // Pass phone as a query parameter that the PocketBase list rule can access
-                    // This requires the list rule on 'orders' to be like:
-                    // ordering_person_phone = @request.query.lookupPhone:string
-                    // OR (if user is authenticated and owns the order)
-                    // user = @request.auth.id
+                    $autoCancel: false, 
                 }, { query: params });
 
 
@@ -374,7 +425,8 @@ document.addEventListener('alpine:init', () => {
                         udhServOpt: o.udheya_service_option_selected,
                         sacDayVal: o.sacrifice_day_value, sacDayTxtEn: o.sacrifice_day_text_en, sacDayTxtAr: o.sacrifice_day_text_ar,
                         viewPref: o.slaughter_viewing_preference, timeSlot: o.time_slot,
-                        custName: o.ordering_person_name, niyyah: o.niyyah_names,
+                        custName: o.ordering_person_name, 
+                        niyyah: typeof o.niyyah_names === 'string' ? o.niyyah_names : "", // Ensure niyyah is a string
                         distrChoiceEn: distrTxtEn, distrChoiceAr: distrTxtAr,
                         delAddr: o.delivery_address, delCityEn: o.delivery_area_name_en, delCityAr: o.delivery_area_name_ar,
                         totalEgp: o.total_amount_due_egp, payMeth: o.payment_method,
@@ -385,35 +437,38 @@ document.addEventListener('alpine:init', () => {
             finally { this.load.status = false; }
         },
         async resetForm() {
-            const currency = this.curr; const lang = this.currLang;
-            const currentSettings = JSON.parse(JSON.stringify(this.settings)); // Preserve current settings
-            const currentProdOpts = JSON.parse(JSON.stringify(this.prodOpts)); // Preserve current product options
-            const currentAllCities = JSON.parse(JSON.stringify(this.allCities)); // Preserve current cities
+            const preservedSettings = JSON.parse(JSON.stringify(this.settings));
+            const preservedProdOpts = JSON.parse(JSON.stringify(this.prodOpts));
+            const preservedAllCities = JSON.parse(JSON.stringify(this.allCities));
+            const preservedLang = this.currLang;
+            const preservedCurr = this.curr;
 
             Object.assign(this, JSON.parse(JSON.stringify(initOrderData))); // Reset to initial form data
 
-            // Restore potentially static fetched data
-            this.settings = currentSettings;
-            this.prodOpts = currentProdOpts;
-            this.allCities = currentAllCities;
+            this.settings = preservedSettings;
+            this.prodOpts = preservedProdOpts;
+            this.allCities = preservedAllCities;
+            this.currLang = preservedLang;
+            this.curr = preservedCurr;
             
-            this.curr = currency; this.currLang = lang;
-            if (this.cdTimer) clearInterval(this.cdTimer); // Stop existing timer
+            if (this.cdTimer) clearInterval(this.cdTimer);
             
-            this.updServFee(); // Reset based on default selUdhServ
-            this.updSacDayTxt(); // Reset based on default sacDay.val
-            this.startCd(); // Restart countdown if applicable
+            this.updServFee(); 
+            this.updSacDayTxt(); 
+            this.startCd(); 
             this.clrAllErrs();
+            this.statRes = null; // Ensure statRes is cleared
+            this.statNotFound = false;
 
             this.$nextTick(() => {
-                this.updAllPrices(); // Re-render product options with correct stock/prices
-                this.updAllStepStates(); // Recalculate step completion
-                this.updDelFeeDisp(); // Reset delivery fee display
-                this.currStep = 1; // Explicitly set to first step
+                this.updAllPrices(); 
+                this.updAllStepStates(); 
+                this.updDelFeeDisp(); 
+                this.currStep = 1; 
                 this.orderConf = false;
                 this.orderID = "";
                 this.scrollSect('#udh-order-start');
-                this.focusRef('orderSectTitle');
+                this.focusRef('orderSectTitle', false); // Don't force scroll if already visible
             });
         }
     }));
