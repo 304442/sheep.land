@@ -170,15 +170,15 @@ onRecordAfterCreateRequest((e) => {
 
     // Example: Send an email notification (requires mail settings configured in PocketBase)
     /*
-    if ($app.settings().meta.smtp?.enabled) {
+    if ($app.settings().meta.smtp?.enabled && record.getString("customer_email")) {
         const message = new MailerMessage({
             from: {
                 address: $app.settings().meta.senderAddress,
                 name: $app.settings().meta.senderName,
             },
-            to: [{ address: record.getString("customer_email") }], // Assuming customer_email exists
+            to: [{ address: record.getString("customer_email") }],
             subject: `Your Sheep Land Order #${record.getString("order_id_text")} Confirmed!`,
-            html: `<p>Thank you for your order, ${record.getString("ordering_person_name")}!</p><p>Your Order ID is: <strong>${record.getString("order_id_text")}</strong></p><p>Total: ${record.getFloat("total_amount_due_egp").toFixed(2)} EGP</p>`,
+            html: `<p>Thank you for your order, ${record.getString("ordering_person_name")}!</p><p>Your Order ID is: <strong>${record.getString("order_id_text")}</strong></p><p>Total: ${record.getFloat("total_amount_due_egp").toFixed(2)} EGP</p><p>We will contact you shortly regarding payment and delivery.</p>`,
         });
         try {
             $app.newMailClient().send(message);
@@ -203,12 +203,18 @@ onRecordAfterCreateRequest((e) => {
 onRecordBeforeUpdateRequest((e) => {
     const record = e.record; // The 'orders' record being updated
     const dao = $app.dao();
-    const oldStatus = dao.findRecordById("orders", record.id)?.getString("order_status") || ""; // Get old status before update
+    let oldStatus = "";
+    try {
+      const originalRecord = dao.findRecordById("orders", record.id);
+      oldStatus = originalRecord?.getString("order_status") || "";
+    } catch (findErr) {
+        console.warn(`[OrderHook] BeforeUpdate: Could not find original record ${record.id} to get oldStatus. Proceeding with update.`);
+    }
+
 
     console.log(`[OrderHook] BeforeUpdate: Processing order ${record.id} (Client ID: ${record.getString("order_id_text")}). Old status: ${oldStatus}, New status: ${record.getString("order_status")}`);
 
-    // Example: Logic for when order status changes
-    if (record.isNew()) { // This check is usually for create, but good to be aware of
+    if (record.isNew()) {
         return;
     }
 
@@ -216,11 +222,14 @@ onRecordBeforeUpdateRequest((e) => {
     const paymentStatus = record.getString("payment_status");
 
     // If order is cancelled by admin/user and was previously stock-deducted, consider restocking.
-    // This requires careful thought about payment status (e.g., only restock if not paid or refunded).
     if ((newStatus === "cancelled_by_user" || newStatus === "cancelled_by_admin") &&
         oldStatus !== "cancelled_by_user" && oldStatus !== "cancelled_by_admin") {
         
-        if (paymentStatus !== "paid_confirmed" && paymentStatus !== "payment_under_review") { // Only restock if not paid or payment is reversible
+        // Only restock if not paid, or if it was CoD and not yet confirmed/delivered
+        if (paymentStatus !== "paid_confirmed" && 
+            paymentStatus !== "payment_under_review" &&
+            !(paymentStatus === "cod_confirmed_pending_delivery" && oldStatus === "ready_for_fulfillment") // Avoid restocking if CoD was already out for delivery
+            ) {
             const productID = record.getString("product_id");
             if (productID) {
                 try {
@@ -232,39 +241,15 @@ onRecordBeforeUpdateRequest((e) => {
                     record.set("admin_notes", (record.getString("admin_notes") + "\nStock auto-incremented on cancellation.").trim());
                 } catch (err) {
                     console.error(`[OrderHook] Failed to restock product ${productID} for cancelled order ${record.id}: ${err}`);
-                    // Don't block the update, but log the issue. Admin might need to manually adjust.
+                    record.set("admin_notes", (record.getString("admin_notes") + `\nStock auto-increment FAILED on cancellation for product ${productID}. Error: ${err.message}`).trim());
                 }
             }
         } else {
-            console.log(`[OrderHook] Order ${record.id} cancelled but was paid/under review. Stock NOT automatically incremented.`);
-             record.set("admin_notes", (record.getString("admin_notes") + "\nOrder cancelled (paid/review). Stock not auto-incremented.").trim());
+            console.log(`[OrderHook] Order ${record.id} cancelled but was paid/under review or CoD advanced. Stock NOT automatically incremented.`);
+             record.set("admin_notes", (record.getString("admin_notes") + "\nOrder cancelled (paid/review/CoD advanced). Stock not auto-incremented.").trim());
         }
     }
-
-    // Add more logic here for other status transitions if needed.
-    // e.g., when order is 'fulfilled_completed' and 'paid_confirmed',
-    // you might want to ensure 'animal_id' (relation to sheep_log) is set.
-
 }, "orders");
 
-// You can add more hooks for other collections or events as needed.
-// For example, for the 'products' collection:
-/*
-onRecordBeforeCreateRequest((e) => {
-    const record = e.record;
-    // Example: Ensure item_key is unique or generate one if not provided
-    if (!record.getString("item_key")) {
-        record.set("item_key", record.getString("type_key") + "_" + new Date().getTime()); // Simple generation
-    }
-    console.log(`[ProductHook] BeforeCreate: Processing product item_key: ${record.getString("item_key")}`);
-}, "products");
 
-onRecordBeforeUpdateRequest((e) => {
-    const record = e.record;
-    // Example: Prevent changing price_per_kg_egp if there are active, unpaid orders for this product
-    // This would be more complex and require querying orders.
-    console.log(`[ProductHook] BeforeUpdate: Processing product ${record.id}`);
-}, "products");
-*/
-
-console.log("JavaScript hooks for 'orders' (and potentially others) registered.");
+console.log("JavaScript hooks for 'orders' registered and other examples commented out.");
