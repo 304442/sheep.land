@@ -53,6 +53,9 @@
         else console.log(consoleMessage, data || '');
     };
 
+    // Collection definitions: Field `id` properties are removed from schema definitions.
+    // PocketBase will auto-generate IDs for new fields.
+    // For updates, existing field IDs are critical and handled by createOrUpdateCollection.
     const collectionsDefinition = [
         {
             name: "settings", type: "base", system: false, listRule: "", viewRule: "", createRule: null, updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: null,
@@ -259,18 +262,22 @@
 
             let fieldsForPayload;
             if (existingCollection) {
+                // UPDATE: Map definitions to existing field IDs to ensure correct update.
+                // Fields in collectionDef.schema not found in existingCollection.schema will be new.
+                // Fields in existingCollection.schema not in collectionDef.schema will be dropped by PB.
                 fieldsForPayload = (collectionDef.schema || []).map(newFieldDef => {
                     const existingField = existingCollection.schema.find(ef => ef.name === newFieldDef.name);
                     const fieldPayload = { ...newFieldDef }; 
                     if (existingField) { 
-                        fieldPayload.id = existingField.id;
-                        fieldPayload.system = existingField.system;
+                        fieldPayload.id = existingField.id; // MUST use existing ID for update
+                        fieldPayload.system = existingField.system; // Preserve system status
                     } else { 
-                        delete fieldPayload.id; 
+                        delete fieldPayload.id; // Let PB generate ID for new field in existing collection
                     }
                     return fieldPayload;
                 });
             } else { 
+                // CREATE: Remove any client-side 'id' from field definitions
                 fieldsForPayload = (collectionDef.schema || []).map(field => {
                     const { id, ...restOfField } = field; 
                     return restOfField;
@@ -287,7 +294,7 @@
                 updateRule: collectionDef.updateRule,
                 deleteRule: collectionDef.deleteRule,
                 options: collectionDef.options || {},
-                fields: fieldsForPayload, // *** CRITICAL: Use 'fields' key for SDK create/update ***
+                fields: fieldsForPayload, // Use 'fields' key for SDK create/update methods
                 indexes: collectionDef.indexes || []
             };
 
@@ -316,7 +323,7 @@
                 log(`Halting schema setup due to error with collection: ${collectionDef.name}`, 'e');
                 return false; 
             }
-            await new Promise(resolve => setTimeout(resolve, 250)); 
+            await new Promise(resolve => setTimeout(resolve, 250)); // Delay after each collection operation
         }
         log('All collections and their indexes processed successfully.', 's');
         return true;
@@ -398,7 +405,7 @@
         return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
     
-    let collectionCache = {}; // Global for validateSetup to use
+    let collectionCache = {}; 
     function findField(schema, fieldName) { return schema.find(f => f.name.toLowerCase() === fieldName.toLowerCase()); }
 
     function compareOptions(defOpts, liveOpts, fieldPath) {
@@ -558,10 +565,8 @@
                         if (JSON.stringify(defValue) !== JSON.stringify(liveValue)) {
                             if ( (prop === 'system' || prop === 'presentable' || prop === 'required') && defValue === false && (liveValue === null || liveValue === false) ) {
                                 // Often acceptable
-                            } else if (defValue === undefined && liveValue === null && prop !== 'required' && prop !== 'system' && prop !== 'presentable') { // required,system,presentable have defaults
-                                // Undefined in def vs null in live - often acceptable
+                            } else if (defValue === undefined && liveValue === null && prop !== 'required' && prop !== 'system' && prop !== 'presentable') { 
                             } else if (prop === 'required' && defValue === undefined && liveValue === false){
-                                // Undefined required in def defaults to false, which matches live.
                             }
                             else {
                                 issues.push(`✗ <b>${fieldPath}.${prop}</b> mismatch. Defined: ${JSON.stringify(defValue)}, Live: ${JSON.stringify(liveValue)}.`);
