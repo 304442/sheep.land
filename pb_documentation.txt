@@ -1,0 +1,376 @@
+# PocketBase API Documentation Snippets (Consolidated)
+
+## API Collections - List collections
+Source: https://pocketbase.io/docs/api-collections/#list-collections
+Returns a paginated Collections list. Only superusers can perform this action.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ... auth ...
+const pageResult = await pb.collections.getList(1, 100, {
+    filter: 'created >= "2022-01-01 00:00:00"',
+});
+const collections = await pb.collections.getFullList({ sort: '-created' });
+const collection = await pb.collections.getFirstListItem('type="auth"');
+
+API Details:
+- Endpoint: GET /api/collections
+- Authorization: Token (Superuser)
+- Query Parameters:
+    - page: Number (default: 1)
+    - perPage: Number (default: 30)
+    - sort: String (e.g., -created,id). Supported fields: @random, id, created, updated, name, type, system.
+    - filter: String (e.g., (name~'abc' && created>'2022-01-01')). Supports standard comparison and logical operators.
+    - fields: String (comma-separated, e.g., *,expand.relField.name). Supports :excerpt(maxLength, withEllipsis?).
+    - skipTotal: Boolean (defaults to true for getFirstListItem and getFullList).
+
+Response Example (Paginated):
+{
+  "page": 1,
+  "perPage": 2,
+  "totalItems": 10,
+  "totalPages": 5,
+  "items": [
+    {
+      "id": "_pbc_344172009",
+      "listRule": null,
+      // ... other collection properties ...
+      "name": "users",
+      "type": "auth",
+      "fields": [ /* field schema objects */ ],
+      "indexes": [ /* index strings */ ],
+      "system": false
+      // ... auth specific options ...
+    },
+    // ... more collections ...
+  ]
+}
+---
+
+## API Collections - View collection
+Source: https://pocketbase.io/docs/api-collections/#view-collection
+Returns a single Collection by its ID or name. Only superusers can perform this action.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ... auth ...
+const collection = await pb.collections.getOne('demo');
+
+API Details:
+- Endpoint: GET /api/collections/collectionIdOrName
+- Authorization: Token (Superuser)
+- Path Parameters:
+    - collectionIdOrName: String
+- Query Parameters:
+    - fields: String (comma-separated)
+
+Response Example:
+{
+  "id": "_pbc_2287844090",
+  "listRule": null,
+  // ... other collection properties ...
+  "name": "posts",
+  "type": "base",
+  "fields": [ /* field schema objects */ ],
+  "indexes": [],
+  "system": false
+}
+---
+
+## API Collections - Create collection
+Source: https://pocketbase.io/docs/api-collections/#create-collection
+Creates a new Collection. Only superusers can perform this action.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ... auth ...
+
+// create base collection
+const base = await pb.collections.create({
+    name: 'exampleBase',
+    type: 'base',
+    fields: [
+        { name: 'title', type: 'text', required: true, min: 10 },
+        { name: 'status', type: 'bool' },
+    ],
+});
+
+// create auth collection
+const auth = await pb.collections.create({
+    name: 'exampleAuth',
+    type: 'auth',
+    // ... rules, fields, auth options ...
+});
+
+// create view collection
+const view = await pb.collections.create({
+    name: 'exampleView',
+    type: 'view',
+    // ... rules, viewQuery ...
+});
+
+API Details:
+- Endpoint: POST /api/collections
+- Authorization: Token (Superuser)
+- Body Parameters (JSON or multipart/form-data):
+    - id (optional): String (15 chars)
+    - name (required): String
+    - type (optional): "base" | "view" | "auth" (default: "base")
+    - fields (required for base/auth, optional for view): Array<Field> (Field Schema Object)
+    - indexes (optional): Array<string> (SQL CREATE INDEX statements)
+    - system (optional): Boolean
+    - listRule, viewRule, createRule, updateRule, deleteRule (optional): null|string
+    - View options: viewQuery (required)
+    - Auth options: manageRule, authRule, authAlert, oauth2, passwordAuth, mfa, otp, token configs, email templates.
+
+Response Example (on successful creation):
+(Same structure as "View collection" response)
+{
+  "id": "_pbc_2287844090",
+  "name": "posts",
+  // ... full collection structure ...
+}
+---
+
+## API Collections - Update collection
+Source: https://pocketbase.io/docs/api-collections/#update-collection
+Updates an existing Collection by its ID or name. Only superusers can perform this action.
+(Note: JS SDK example for update is similar to create but uses pb.collections.update(idOrName, data))
+
+API Details:
+- Endpoint: PATCH /api/collections/collectionIdOrName
+- Authorization: Token (Superuser)
+- Path Parameters:
+    - collectionIdOrName: String
+- Body Parameters: Same as Create Collection, but properties are optional. Only provided properties will be updated.
+    - To remove/unset a rule, send null for that rule.
+    - To remove all indexes, send an empty array `[]` for `indexes`.
+    - When updating `fields` (schema):
+        - To add a new field, include its definition (name, type, options). PocketBase generates its `id`.
+        - To update an existing field, you MUST include its existing `id` AND `name` along with any changed properties.
+        - Fields present in the existing collection but NOT included in the `fields` array of the update payload will be DELETED (unless it's a system field or system collection, or if a specific `autoDeleteOldFields:false` like option is available and used, though not standard for this specific endpoint).
+
+Response Example (on successful update):
+(Same structure as "View collection" response, reflecting the updated state)
+---
+
+## API Collections - Delete collection
+Source: https://pocketbase.io/docs/api-collections/#delete-collection
+Deletes a single Collection by its ID or name. Only superusers can perform this action.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ... auth ...
+await pb.collections.delete('demo');
+
+API Details:
+- Endpoint: DELETE /api/collections/collectionIdOrName
+- Authorization: Token (Superuser)
+- Path Parameters:
+    - collectionIdOrName: String
+- Responses: null (on success, typically a 204 No Content status)
+---
+
+## API Collections - Truncate collection
+Source: https://pocketbase.io/docs/api-collections/#truncate-collection
+Deletes all the records of a single collection. Only superusers can perform this action.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ... auth ...
+await pb.collections.truncate('demo');
+
+API Details:
+- Endpoint: DELETE /api/collections/collectionIdOrName/truncate
+- Authorization: Token (Superuser)
+- Path Parameters:
+    - collectionIdOrName: String
+- Responses: null (on success, typically a 204 No Content status)
+---
+
+## API Collections - Import collections
+Source: https://pocketbase.io/docs/api-collections/#import-collections
+Bulk imports the provided Collections configuration. Only superusers can perform this action.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ... auth ...
+const importData = [
+    {
+        name: 'collection1',
+        schema: [ { name: 'status', type: 'bool' } ], // For JS SDK, 'schema' is used for fields
+    },
+    {
+        name: 'collection2',
+        schema: [ { name: 'title', type: 'text' } ],
+    },
+];
+await pb.collections.import(importData, false); // false for deleteMissing
+
+API Details:
+- Endpoint: PUT /api/collections/import
+- Authorization: Token (Superuser)
+- Body Parameters:
+    - collections (required): Array<Collection> - Each object includes name, type, schema (fields), indexes, rules, options.
+    - deleteMissing (optional): Boolean (default: false). If true, deletes existing collections/fields not in import.
+- Responses: null (on success, typically a 204 No Content status)
+---
+
+## API Collections - Get collection types and default fields (scaffolds)
+Source: https://pocketbase.io/docs/api-collections/#scaffolds
+Returns an object with all of the collection types and their default fields. Only superusers can perform this action.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ... auth ...
+const scaffolds = await pb.collections.getScaffolds();
+
+API Details:
+- Endpoint: GET /api/collections/meta/scaffolds
+- Authorization: Token (Superuser)
+- Responses: An object with keys "auth", "base", "view", each containing a template collection structure.
+    {
+        "auth": { /* default auth collection structure */ },
+        "base": { /* default base collection structure */ },
+        "view": { /* default view collection structure */ }
+    }
+---
+
+## API Records - List/Search records
+Source: https://pocketbase.io/docs/api-records/#listsearch-records
+Returns a paginated list of collection records.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ...
+// fetch a paginated list (get 1st page with 50 items per page)
+const resultList = await pb.collection('example').getList(1, 50, {
+    filter: 'created >= "2022-01-01 00:00:00" && someField="test"',
+    sort: '-created,title',
+    expand: 'rel,otherRel.subRel',
+});
+
+// you can also fetch all records at once via getFullList
+const records = await pb.collection('example').getFullList({
+    sort: '-created',
+});
+
+// or fetch only the first record that matches the specified filter
+const record = await pb.collection('example').getFirstListItem('someField="test"', {
+    expand: 'rel',
+});
+
+API Details:
+- Endpoint: GET /api/collections/collectionIdOrName/records
+- Path Parameters: collectionIdOrName
+- Query Parameters: page, perPage, sort, filter, expand, fields, skipTotal.
+---
+
+## API Records - View record
+Source: https://pocketbase.io/docs/api-records/#view-record
+Returns a single collection record by its ID.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ...
+const record1 = await pb.collection('posts').getOne('RECORD_ID', {
+    expand: 'relField1,relField2.subRelField',
+});
+
+API Details:
+- Endpoint: GET /api/collections/collectionIdOrName/records/recordId
+- Path Parameters: collectionIdOrName, recordId
+- Query Parameters: expand, fields.
+- Responses: Record object.
+---
+
+## API Records - Create record
+Source: https://pocketbase.io/docs/api-records/#create-record
+Creates a new collection Record.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ...
+const record = await pb.collection('demo').create({
+    title: 'Lorem ipsum',
+});
+
+API Details:
+- Endpoint: POST /api/collections/collectionIdOrName/records
+- Path Parameters: collectionIdOrName
+- Body Parameters:
+    - id (optional): String
+    - Schema fields
+    - Auth fields (password, passwordConfirm if auth collection)
+- Query Parameters: expand, fields.
+- Responses: Created record object.
+---
+
+## API Records - Update record
+Source: https://pocketbase.io/docs/api-records/#update-record
+Updates an existing collection Record by its ID.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ...
+const record = await pb.collection('demo').update('RECORD_ID', {
+    title: 'Lorem ipsum dolor sit amet',
+    // To unset/clear a field, set its value to null
+    // status: null,
+});
+
+API Details:
+- Endpoint: PATCH /api/collections/collectionIdOrName/records/recordId
+- Path Parameters: collectionIdOrName, recordId
+- Body Parameters: Object with fields to update. Set value to `null` to clear a field.
+- Query Parameters: expand, fields.
+- Responses: Updated record object.
+---
+
+## API Records - Delete record
+Source: https://pocketbase.io/docs/api-records/#delete-record
+Deletes a single collection Record by its ID.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ...
+await pb.collection('demo').delete('YOUR_RECORD_ID');
+
+API Details:
+- Endpoint: DELETE /api/collections/collectionIdOrName/records/recordId
+- Path Parameters: collectionIdOrName, recordId.
+- Responses: null (on success, typically 204 No Content).
+---
+
+## API Records - Batch records operations
+Source: https://pocketbase.io/docs/api-records/#batch-createupdateupsertdelete-records
+Batch and transactional create/update/upsert/delete of multiple records. Requires explicit enabling from Dashboard.
+
+JS SDK Example:
+import PocketBase from 'pocketbase';
+const pb = new PocketBase('http://127.0.0.1:8090');
+// ...
+const batch = pb.createBatch();
+batch.collection('example1').create({ ... });
+batch.collection('example2').update('RECORD_ID', { ... });
+// ...
+const result = await batch.send();
+
+API Details:
+- Endpoint: POST /api/batch
+- Body Parameters:
+    - requests: Array<Request> - Each request object has url, method, headers (optional), body.
+- Responses: Array of response objects, one for each request.
+---
