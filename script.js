@@ -34,38 +34,6 @@ document.addEventListener('alpine:init', () => {
         { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'images/bank_transfer.svg' }
     ];
 
-    // This function is NO LONGER USED for client-side logic, but kept for reference or if you revert
-    // async function apiPlaceOrder(payload) {
-    //     const pb = new PocketBase('/'); 
-    //     try {
-    //         const res = await pb.send("/api/custom_place_order", { // THIS CUSTOM ENDPOINT IS NOT USED NOW
-    //             method: "POST",
-    //             body: payload, 
-    //         });
-    //         return res;
-    //     } catch (err) {
-    //         console.error("API call /api/custom_place_order error object:", err); 
-    //         if (err.originalError) console.error("API call /api/custom_place_order original error:", err.originalError);
-            
-    //         let userMsg = "Failed to place order. Please try again.";
-    //         if (err.status === 404) {
-    //             userMsg = "Order placement service not found. Please contact support. (Error 404)";
-    //         } else if (err.data && err.data.error) { 
-    //             userMsg = err.data.error;
-    //         } else if (err.data && err.data.data && Object.keys(err.data.data).length > 0) { 
-    //             userMsg = "Order failed due to validation issues: ";
-    //             const fieldErrs = [];
-    //             for (const key in err.data.data) {
-    //                 fieldErrs.push(`${key}: ${err.data.data[key].message}`);
-    //             }
-    //             userMsg += fieldErrs.join("; ");
-    //         } else if (err.message) { 
-    //              userMsg = err.message;
-    //         }
-    //         throw new Error(userMsg);
-    //     }
-    // }
-
     Alpine.data('udh', () => ({
         load: { status: false, ordering: false, init: true },
         settings: { 
@@ -306,7 +274,6 @@ document.addEventListener('alpine:init', () => {
             } 
         },
 
-        // --- NEW: Client-side order placement ---
         async submitOrderValidClientSide() {
             this.clrAllErrs(); let isValid = true;
             for (let i = 1; i <= this.stepMeta.length; i++) {
@@ -327,11 +294,9 @@ document.addEventListener('alpine:init', () => {
             this.apiErr = null;
             this.usrApiErr = "";
             const pb = new PocketBase('/');
-
-            let productRecord; // To store fetched product details
+            let productRecord; 
 
             try {
-                // 1. Fetch Product Details (to confirm price and current stock)
                 try {
                     console.log("ClientSideOrder: Fetching product details for itemKey:", this.selAnim.itemKey);
                     productRecord = await pb.collection('products').getFirstListItem(`item_key="${this.selAnim.itemKey}" && is_active=true`);
@@ -339,8 +304,8 @@ document.addEventListener('alpine:init', () => {
                     if (productRecord.stock_available_pb <= 0) throw new Error("Selected product is out of stock on server.");
                     
                     console.log("ClientSideOrder: Product fetched from server:", productRecord);
-                    this.selAnim.priceEgp = productRecord.base_price_egp; // IMPORTANT: Use server price
-                    this.selAnim.stock = productRecord.stock_available_pb; // Update client view of stock
+                    this.selAnim.priceEgp = productRecord.base_price_egp; 
+                    this.selAnim.stock = productRecord.stock_available_pb; 
                 } catch (e) {
                     console.error("ClientSideOrder: Error fetching product or stock check", e.response || e);
                     this.setErr('animal', { 
@@ -352,8 +317,7 @@ document.addEventListener('alpine:init', () => {
                     return;
                 }
 
-                // 2. Recalculate Total Price based on fresh server data (animal price)
-                this.calcTotal(); // Uses this.selAnim.priceEgp (now from server), this.servFee, this.delFeeDispEGP
+                this.calcTotal(); 
 
                 const orderIdClient = `SL-UDHY-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}-${String(Math.random()).slice(2,7)}`;
                 let delOpt = "self_pickup_or_internal_distribution";
@@ -361,10 +325,9 @@ document.addEventListener('alpine:init', () => {
                 else if (this.needsDelDetails) delOpt = "home_delivery_to_orderer";
                 const selCityInfo = (this.needsDelDetails && this.delCity) ? this.allCities.find(c => c.id === this.delCity) : null;
 
-                // 3. Construct the Order Payload
                 const orderPayload = {
                     order_id_text: orderIdClient,
-                    product_id: productRecord.id, // Link product by ID
+                    product_id: productRecord.id, 
                     ordered_product_name_en: productRecord.variant_name_en,
                     ordered_product_name_ar: productRecord.variant_name_ar,
                     ordered_weight_range_en: productRecord.weight_range_text_en,
@@ -404,21 +367,18 @@ document.addEventListener('alpine:init', () => {
                     admin_notes: this.grpBuy ? "Client expressed interest in group purchase." : "",
                 };
 
-                // 4. Create the Order Record
                 console.log("ClientSideOrder: Attempting to create order with payload:", orderPayload);
                 const createdOrder = await pb.collection('orders').create(orderPayload);
                 this.orderID = createdOrder.order_id_text || orderIdClient;
                 console.log("ClientSideOrder: Order created successfully:", createdOrder);
 
-                // 5. Update Product Stock (BEST EFFORT - NO TRANSACTION)
                 try {
                     console.log("ClientSideOrder: Attempting to update stock for product ID:", productRecord.id);
                     await pb.collection('products').update(productRecord.id, {
-                        "stock_available_pb-": 1 // Decrement by 1
+                        "stock_available_pb-": 1 
                     });
                     console.log("ClientSideOrder: Product stock updated for product ID:", productRecord.id);
                     
-                    // Update client-side view of stock consistently
                     this.selAnim.stock = (this.selAnim.stock || 0) - 1;
                     const animTypeCfg = this.prodOpts.live.find(lt => lt.valKey === this.selAnim.type);
                     if (animTypeCfg) {
@@ -431,10 +391,8 @@ document.addEventListener('alpine:init', () => {
                 } catch (stockError) {
                     console.error("ClientSideOrder: FAILED to update product stock after order creation.", stockError.response || stockError);
                     this.usrApiErr = "Order placed, but stock update failed. This is a critical issue. Please contact support with Order ID: " + this.orderID;
-                    // Do not clear orderID, order was created. This error needs admin attention.
                 }
 
-                // 6. Show Confirmation
                 this.orderConf = true;
                 this.$nextTick(() => { this.scrollSect('#order-conf-sect'); this.focusRef('orderConfTitle'); });
 
@@ -458,8 +416,7 @@ document.addEventListener('alpine:init', () => {
                 this.load.ordering = false;
             }
         },
-        // --- END: Client-side order placement ---
-
+        
         async submitStatValid() {
             this.clrErr('lookupOrderID'); this.clrErr('lookupPhone');
             let isValid = true;
@@ -473,18 +430,9 @@ document.addEventListener('alpine:init', () => {
             const id = (this.lookupOrderID || "").trim(); const phone = (this.lookupPhone || "").trim();
             const pb = new PocketBase('/');
             try {
-                // For client-side status check without special rules, we might need to adjust
-                // if there are restrictive list/view rules on 'orders'.
-                // Assuming for now list/view is public or auth-based if user is logged in (not implemented here).
-                // A common approach for public status check is a dedicated endpoint or looser rules.
-                // If rules are "user = @request.auth.id || ordering_person_phone = @request.query.lookupPhone:string",
-                // the getFullList with query params for phone still applies.
-                const params = { lookupPhone: phone }; 
                 const recs = await pb.collection('orders').getFullList({
-                    filter: `order_id_text = "${pb.utils.escapeFilterValue(id)}" && ordering_person_phone = "${pb.utils.escapeFilterValue(phone)}"`, // More direct filter
-                    // $autoCancel: false, // This option is for pb.send, not typical for collection methods
+                    filter: `order_id_text = "${pb.utils.escapeFilterValue(id)}" && ordering_person_phone = "${pb.utils.escapeFilterValue(phone)}"`,
                 });
-
 
                 if (recs && recs.length > 0) {
                     const o = recs[0];
