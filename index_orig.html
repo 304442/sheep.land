@@ -1,752 +1,0 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="Easily place your Sharia-compliant Udheya order online with Sheep Land.">
-    <title>Sheep Land - Udheya Ordering</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <style>[x-cloak]{display:none!important}</style>
-</head>
-<body x-data="udh" x-init="initApp()" x-cloak>
-
-<div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading application data... Please wait.</div>
-<div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'An unexpected error occurred. Please try again.'" role="alert" aria-live="assertive"></div>
-
-<header class="site-head">
-    <div class="c nav-cont">
-        <a href="index.html" class="logo bil-inline" @click.prevent="isMobNavOpen = false; scrollSect('body')">
-            <span class="en">Sheep Land</span><span class="ar">أرض الأغنام</span>
-        </a>
-        <nav class="nav-main nav-desk" aria-label="Main navigation">
-            <ul class="nav-list">
-                <li class="nav-drop" @mouseenter="isUdhDropOpen = true" @mouseleave="isUdhDropOpen = false" @keydown.escape.window="isUdhDropOpen = false" x-ref="udhDrop">
-                    <a href="#" @click.prevent="isUdhDropOpen = !isUdhDropOpen" class="nav-link bil-inline drop-toggle" :class="{'active-nav': actNavHref === 'Udheya'}" aria-haspopup="true" :aria-expanded="isUdhDropOpen.toString()">
-                        <span class="en">Udheya</span><span class="ar">الأضحية</span>
-                        <svg class="drop-arr" :class="{ 'rotate-180': isUdhDropOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </a>
-                    <ul class="drop-menu" x-show="isUdhDropOpen" x-transition @click.outside="if(isUdhDropOpen) isUdhDropOpen = false">
-                        <li><a href="#udh-order-start" class="drop-link bil-spread" :class="{'active-nav': actNavHref === '#udh-order-start'}" @click.prevent="isUdhDropOpen = false; isMobNavOpen = false; scrollSect('#udh-order-start')"><span class="en">Place Order</span><span class="ar">تقديم طلب</span></a></li>
-                        <li><a href="#chk-order-stat" class="drop-link bil-spread" :class="{'active-nav': actNavHref === '#chk-order-stat'}" @click.prevent="isUdhDropOpen = false; isMobNavOpen = false; scrollSect('#chk-order-stat')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
-                    </ul>
-                </li>
-                <li><a href="#live-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#live-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#live-sect')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
-                <li><a href="#meat-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#meat-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#meat-sect')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
-                <li><a href="#gath-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#gath-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#gath-sect')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
-            </ul>
-        </nav>
-        <div class="head-extras desk-extras">
-            <div class="curr-sel">
-                <label for="curr-sel-desk" class="sr-only">Select Currency</label>
-                <select id="curr-sel-desk" x-model="curr" aria-label="Select Currency">
-                    <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
-                        <option :value="code" x-text="code" :disabled="!settings.xchgRates[code].is_active"></option>
-                    </template>
-                </select>
-            </div>
-            <div class="wa-contact">
-                <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp">
-                    <svg class="wa-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.43 16.84L2.05 22l5.26-1.39c1.44.75 3.05 1.18 4.73 1.18 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.13c-1.48 0-2.91-.38-4.15-1.08l-.34-.2-3.14.83.85-3.05-.22-.35A8.04 8.04 0 0 1 3.79 11.91c0-4.41 3.72-8.13 8.25-8.13s8.25 3.72 8.25 8.13-3.72 8.13-8.25 8.13zm5.32-5.68c-.25-.13-1.55-.76-1.79-.85s-.42-.13-.6.12c-.17.25-.67.85-.82 1.02s-.3.18-.55.06c-.25-.12-1.11-.41-2.15-1.33S10.08 13 9.91 12.74s.13-.24.26-.37c.11-.11.25-.29.39-.46s.05-.11.18-.36c.13-.25.08-.43 0-.55s-.56-1.39-.79-1.94c-.23-.55-.45-.49-.62-.49h-.17c-.16 0-.42.05-.64.3s-.85.82-.85 2.02S8.11 13.5 8.24 13.67s1.47 2.28 3.74 3.2c.5.25.93.4 1.26.51.52.15.94.12 1.27.07.38-.06 1.07-.44 1.27-.81.2-.38.2-.7.15-.82s-.15-.07-.4-.18z"/></svg>
-                    <span class="wa-num" x-text="settings.waNumDisp"></span>
-                </a>
-            </div>
-        </div>
-        <button class="menu-btn" @click="isMobNavOpen = !isMobNavOpen" aria-label="Toggle menu" :aria-expanded="isMobNavOpen.toString()" aria-controls="mob-nav-content">
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-                <path x-show="!isMobNavOpen" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
-                <path x-show="isMobNavOpen" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
-            </svg>
-        </button>
-    </div>
-    <div class="mob-nav" id="mob-nav-content" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
-        <nav aria-label="Mobile navigation">
-            <ul class="nav-list-mob">
-                <li>
-                    <button type="button" @click="isUdhMobSubOpen = !isUdhMobSubOpen" class="nav-link-mob bil-inline drop-toggle-mob" :class="{'active-nav': actNavHref === 'Udheya'}" aria-haspopup="true" :aria-expanded="isUdhMobSubOpen.toString()">
-                        <span class="en">Udheya</span><span class="ar">الأضحية</span>
-                        <svg class="drop-arr" :class="{ 'rotate-180': isUdhMobSubOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                    <ul class="mob-sub" x-show="isUdhMobSubOpen" :style="isUdhMobSubOpen ? 'max-height: 200px; padding-top: var(--s0); padding-bottom: var(--s0);' : 'max-height: 0; padding-top: 0; padding-bottom: 0;'">
-                        <li><a href="#udh-order-start" class="nav-link-mob bil-spread" :class="{'active-nav': actNavHref === '#udh-order-start'}" @click="isMobNavOpen = false; isUdhMobSubOpen = false; scrollSect('#udh-order-start')"><span class="en">Place Order</span><span class="ar">تقديم طلب</span></a></li>
-                        <li><a href="#chk-order-stat" class="nav-link-mob bil-spread" :class="{'active-nav': actNavHref === '#chk-order-stat'}" @click="isMobNavOpen = false; isUdhMobSubOpen = false; scrollSect('#chk-order-stat')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#live-sect" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#live-sect'}" @click="isMobNavOpen = false; scrollSect('#live-sect')">
-                        <span class="en">Livestock</span><span class="ar">الأغنام</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#meat-sect" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#meat-sect'}" @click="isMobNavOpen = false; scrollSect('#meat-sect')">
-                        <span class="en">Meat</span><span class="ar">اللحوم</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#gath-sect" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#gath-sect'}" @click="isMobNavOpen = false; scrollSect('#gath-sect')">
-                        <span class="en">Gatherings</span><span class="ar">الولائم</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="mob-extras">
-            <div class="curr-sel">
-                <label for="curr-sel-mob" class="sr-only">Select Currency</label>
-                <select id="curr-sel-mob" x-model="curr" aria-label="Select Currency Mobile">
-                     <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
-                        <option :value="code" x-text="code" :disabled="!settings.xchgRates[code].is_active"></option>
-                    </template>
-                </select>
-            </div>
-            <div class="wa-contact">
-                 <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp" @click="isMobNavOpen = false">
-                    <svg class="wa-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.43 16.84L2.05 22l5.26-1.39c1.44.75 3.05 1.18 4.73 1.18 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.13c-1.48 0-2.91-.38-4.15-1.08l-.34-.2-3.14.83.85-3.05-.22-.35A8.04 8.04 0 0 1 3.79 11.91c0-4.41 3.72-8.13 8.25-8.13s8.25 3.72 8.25 8.13-3.72 8.13-8.25 8.13zm5.32-5.68c-.25-.13-1.55-.76-1.79-.85s-.42-.13-.6.12c-.17.25-.67.85-.82 1.02s-.3.18-.55.06c-.25-.12-1.11-.41-2.15-1.33S10.08 13 9.91 12.74s.13-.24.26-.37c.11-.11.25-.29.39-.46s.05-.11.18-.36c.13-.25.08-.43 0-.55s-.56-1.39-.79-1.94c-.23-.55-.45-.49-.62-.49h-.17c-.16 0-.42.05-.64.3s-.85.82-.85 2.02S8.11 13.5 8.24 13.67s1.47 2.28 3.74 3.2c.5.25.93.4 1.26.51.52.15.94.12 1.27.07.38-.06 1.07-.44 1.27-.81.2-.38.2-.7.15-.82s-.15-.07-.4-.18z"/></svg>
-                    <span class="wa-num" x-text="settings.waNumDisp"></span>
-                </a>
-            </div>
-        </div>
-    </div>
-</header>
-
-<main>
-    <section class="hero sec">
-        <div class="c tc">
-            <h1 class="hero-h bil-spread bil-row-mob">
-                <span class="en">Premium Udheya Orders</span>
-                <span class="ar">طلبات الأضاحي الممتازة</span>
-            </h1>
-            <h2 class="hero-sub bil-spread bil-row-mob">
-                <span class="en">Direct from Our Farm to You, Sharia Compliant Services</span>
-                <span class="ar">من مزرعتنا إليك مباشرة، خدمات متوافقة مع الشريعة</span>
-            </h2>
-            <div class="hero-desc bil-row bil-row-mob">
-                <p class="en">Your trusted source for Sharia-compliant Udheya orders. Experience convenience and excellence with Sheep Land.</p>
-                <p class="ar">مصدرك الموثوق لطلبات الأضاحي المتوافقة مع الشريعة. اختبر الراحة والتميز مع أرض الأغنام.</p>
-            </div>
-            <div class="hero-promo">
-                <a href="#udh-order-start" @click.prevent="scrollSect('#udh-order-start')" class="hero-promo-link">
-                    <div class="pban">
-                        <div class="pban-text">
-                            <div class="bil-row">
-                                <div class="en">
-                                    <h3 class="prm-h">
-                                        Eid Al-Adha Offer!
-                                        <span x-show="settings.promoActive && !cd.ended">
-                                            Order early for <strong x-text="(settings.promoDiscPc || '0') + '% OFF'"></strong>, secure your preferred animal & delivery slot! Limited stock available.
-                                        </span>
-                                    </h3>
-                                    <h3 class="prm-h" x-show="cd.ended && settings.promoActive">The Eid Offer has ended.</h3>
-                                    <h3 class="prm-h" x-show="!settings.promoActive">Stay tuned for future offers!</h3>
-                                </div>
-                                <div class="ar">
-                                    <h3 class="prm-h">
-                                        عرض عيد الأضحى!
-                                        <span x-show="settings.promoActive && !cd.ended">
-                                            اطلب مبكرًا واحصل على <strong x-text="'خصم ' + (settings.promoDiscPc || '0') + '%'"></strong>، واضمن اختيارك المفضل للحيوان وموعد التوصيل! الكمية محدودة.
-                                        </span>
-                                    </h3>
-                                    <h3 class="prm-h" x-show="cd.ended && settings.promoActive">انتهى عرض العيد.</h3>
-                                    <h3 class="prm-h" x-show="!settings.promoActive">ترقبوا عروضنا القادمة!</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div x-show="settings.promoActive && !cd.ended" class="cd-wrap">
-                            <div class="cd en" aria-label="Offer countdown timer">
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.days"></span><span class="cd-lbl">Days</span></div>
-                                <span class="cd-sep" aria-hidden="true">:</span>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.hours"></span><span class="cd-lbl">Hours</span></div>
-                                <span class="cd-sep" aria-hidden="true">:</span>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Mins</span></div>
-                                <span class="cd-sep" aria-hidden="true">:</span>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.seconds"></span><span class="cd-lbl">Secs</span></div>
-                            </div>
-                        </div>
-                        <span class="btn bac pban-cta bil-inline" @click.stop><span class="en">Place Your Udheya Order Now</span><span class="ar">اطلب أضحيتك الآن</span></span>
-                    </div>
-                </a>
-            </div>
-            <div class="why-us hero-why">
-                <div class="sec-head tc why-us-h">
-                    <h2 class="bil-spread">
-                        <span class="en">Why Choose Sheep Land?</span><span class="ar">لماذا أرض الأغنام؟</span>
-                    </h2>
-                </div>
-                <div class="feat-grid why-us-grid">
-                    <div class="feat-item">
-                        <div class="icon-ph emoji" aria-hidden="true">✅</div>
-                        <h4 class="bil-spread"><span class="en">Sharia Compliant</span><span class="ar">متوافق مع الشريعة</span></h4>
-                        <div class="bil-row"><p class="en card-p">All our animals meet Sharia requirements for age, health, and Zabiha.</p><p class="ar card-p">جميع أغنامنا تستوفي شروط الشريعة من العمر والصحة والذبيحة.</p></div>
-                    </div>
-                    <div class="feat-item">
-                        <div class="icon-ph emoji" aria-hidden="true">⭐</div>
-                        <h4 class="bil-spread"><span class="en">Premium Quality</span><span class="ar">جودة عالية</span></h4>
-                        <div class="bil-row"><p class="en card-p">Healthy, well-cared-for livestock, ensuring finest quality meat.</p><p class="ar card-p">مواشي صحية مُعتنى بها، تضمن أجود أنواع اللحوم.</p></div>
-                    </div>
-                    <div class="feat-item">
-                        <div class="icon-ph emoji" aria-hidden="true">💻</div>
-                        <h4 class="bil-spread"><span class="en">Easy Online Platform</span><span class="ar">منصة إلكترونية سهلة</span></h4>
-                        <div class="bil-row"><p class="en card-p">Secure your Udheya conveniently via our simple online platform.</p><p class="ar card-p">اطلب أضحيتك بسهولة عبر منصتنا الإلكترونية المبسّطة.</p></div>
-                    </div>
-                     <div class="feat-item">
-                        <div class="icon-ph emoji" aria-hidden="true">🚚</div>
-                        <h4 class="bil-spread"><span class="en">Reliable Service</span><span class="ar">خدمة موثوقة</span></h4>
-                        <div class="bil-row"><p class="en card-p">Order prepared and delivered with care to your doorstep or chosen charity.</p><p class="ar card-p">يُجهز طلبكم ويُوصل بعناية لمنزلكم أو الجهة الخيرية المختارة.</p></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="order-sect main-page-sec sec" id="udh-order-start">
-        <div class="c">
-            <div x-show="!orderConf">
-                 <div class="sec-head tc order-sect-h">
-                    <h2 class="bil-spread" x-ref="orderSectTitle">
-                        <span class="en">Place Your Udheya Order</span><span class="ar">قدم طلب أضحيتك</span>
-                    </h2>
-                </div>
-            </div>
-
-            <form id="udh-order-form" @submit.prevent="submitOrderValid()" novalidate>
-                <div class="step-wrap" x-show="!orderConf">
-                    <div class="c">
-                        <div class="step-flex">
-                            <a href="#step1-content" class="step-item" :class="{ 'active': currStep === 1, 'completed': stepProg.step1 }" @click.prevent="navStep(1)">
-                                <span class="step" x-show="!stepProg.step1 || currStep === 1">1</span>
-                                <svg x-show="stepProg.step1 && currStep !== 1" class="step-chk" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-lbl en">Select Sheep & Weight</span><span class="step-lbl ar">اختر الخروف والوزن</span>
-                            </a>
-                            <div class="stepper"></div>
-                            <a href="#step2-content" class="step-item" :class="{'active': currStep === 2, 'completed': stepProg.step2, 'disabled': !stepProg.step1}" @click.prevent="navStep(2)">
-                                <span class="step" x-show="!stepProg.step2 || currStep === 2">2</span>
-                                <svg x-show="stepProg.step2 && currStep !== 2" class="step-chk" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-lbl en">Your Details</span><span class="step-lbl ar">بياناتك</span>
-                            </a>
-                            <div class="stepper"></div>
-                            <a href="#step3-content" class="step-item" :class="{'active': currStep === 3, 'completed': stepProg.step3, 'disabled': !stepProg.step2}" @click.prevent="navStep(3)">
-                                <span class="step" x-show="!stepProg.step3 || currStep === 3">3</span>
-                                 <svg x-show="stepProg.step3 && currStep !== 3" class="step-chk" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-lbl en">Arrangements</span><span class="step-lbl ar">الترتيبات</span>
-                            </a>
-                            <div class="stepper"></div>
-                            <a href="#step4-content" class="step-item" :class="{'active': currStep === 4, 'completed': stepProg.step4, 'disabled': !stepProg.step3}" @click.prevent="navStep(4)">
-                                <span class="step" x-show="!stepProg.step4 || currStep === 4">4</span>
-                                 <svg x-show="stepProg.step4 && currStep !== 4" class="step-chk" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-lbl en">Distribution</span><span class="step-lbl ar">التوزيع والتوصيل</span>
-                            </a>
-                            <div class="stepper"></div>
-                            <a href="#step5-content" class="step-item" :class="{'active': currStep === 5, 'completed': stepProg.step5, 'disabled': !stepProg.step4}" @click.prevent="navStep(5)">
-                                <span class="step" x-show="!stepProg.step5 || currStep === 5">5</span>
-                                 <svg x-show="stepProg.step5 && currStep !== 5" class="step-chk" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
-                                <span class="step-lbl en">Review & Place Order</span><span class="step-lbl ar">المراجعة وتقديم الطلب</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="!orderConf">
-                    <div id="udh-order-panel" class="card form-panel">
-                        <div class="card-b">
-                            
-                            <div id="step1-content" class="form-step">
-                                <div class="sec-head"><h2 class="bil-spread" x-ref="step1Title"><span class="en">Select Sheep & Weight</span><span class="ar">اختر الخروف والوزن</span></h2></div>
-                                <div class="live-note bil-row">
-                                    <p class="en">All animals meet Sharia age/health requirements for Udheya. Price is based on type and estimated weight category. Price per kilo is shown for transparency.</p>
-                                    <p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية. يعتمد السعر على النوع وفئة الوزن التقديرية. يتم عرض السعر للكيلو للشفافية.</p>
-                                </div>
-                                <div class="prod-grid grid2">
-                                    <template x-for="animType in prodOpts.live" :key="animType.valKey">
-                                        <div :id="animType.valKey" class="card card-live" :class="{'card-sel': selAnim.type === animType.valKey && selAnim.itemKey}">
-                                            <div class="card-img">
-                                                <img :src="'images/' + animType.valKey + '-sheep.jpg'" :alt="animType.nameEn + ' Sheep'">
-                                                <div class="badge bil-inline"><span class="en" x-text="animType.valKey.toUpperCase()"></span><span class="ar" x-text="animType.nameAr.split(' ')[0]"></span></div>
-                                            </div>
-                                            <div class="card-b">
-                                                <div class="card-content">
-                                                    <h3 class="card-h bil-spread"><span x-text="animType.nameEn"></span><span x-text="animType.nameAr"></span></h3>
-                                                    <div class="bil-row card-p-row">
-                                                        <p class="en card-p" x-text="animType.descEn"></p>
-                                                        <p class="ar card-p" x-text="animType.descAr"></p>
-                                                    </div>
-                                                </div>
-                                                <div class="card-foot">
-                                                    <div class="price bil-row">
-                                                        <span class="en"><span x-text="fmtPrice(animType.priceKgEgp || 0) + '/kg'"></span></span>
-                                                        <span class="ar"><span x-text="fmtPrice(animType.priceKgEgp || 0) + '/كجم'"></span></span>
-                                                    </div>
-                                                    <div class="card-act">
-                                                        <label :for="animType.valKey + 'WtSel'" class="sr-only" x-text="'Select ' + animType.nameEn + ' Weight Category'"></label>
-                                                        <select :id="animType.valKey + 'WtSel'" class="input" :x-ref="animType.valKey + 'WtSel'" @change="selAnimal(animType.valKey, $el)" :aria-invalid="errs.animal ? 'true' : 'false'">
-                                                            <option value="">-- Select Weight --</option>
-                                                            <template x-for="wpItem in animType.wps" :key="wpItem.itemKey">
-                                                                <option :value="wpItem.itemKey"
-                                                                        :disabled="!wpItem.isActive || wpItem.stock <= 0"
-                                                                        x-text="`${wpItem.nameENSpec} (${fmtPrice(wpItem.priceEGP)}) - ${getStockEn(wpItem.stock, wpItem.isActive)}`.trim()">
-                                                                </option>
-                                                            </template>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </template>
-                                     <div x-show="(!prodOpts.live || prodOpts.live.length === 0) && !load.init" class="load-text bil-row">
-                                        <span class="en">No animal options currently available. Please check back later.</span>
-                                        <span class="ar">لا توجد خيارات حيوانات متاحة حاليًا. يرجى التحقق مرة أخرى لاحقًا.</span>
-                                    </div>
-                                </div>
-                                <div class="err-msg" x-show="errs.animal" x-text="errs.animal ? (currLang === 'ar' ? errs.animal.ar : errs.animal.en) : ''" role="alert" aria-live="assertive"></div>
-                            </div>
-
-                            <div id="step2-content" class="form-step">
-                                <div class="sec-head"><h2 class="bil-spread" x-ref="step2Title" tabindex="-1"><span class="en">Your Details</span><span class="ar">بياناتك</span></h2></div>
-                                <h4 class="form-subh bil-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h4>
-                                <div class="fg">
-                                    <label for="custNameInputS2" class="bil-spread lbl-req"><span class="en">Your Full Name *</span><span class="ar">اسمك الكامل *</span></label>
-                                    <input id="custNameInputS2" type="text" class="input" x-model="custName" @input="clrErr('custName')" x-ref="custNameInputS2" :aria-invalid="errs.custName ? 'true' : 'false'" aria-required="true" autocomplete="name">
-                                    <div class="err-msg" x-show="errs.custName" x-text="errs.custName ? (currLang === 'ar' ? errs.custName.ar : errs.custName.en) : ''" role="alert" aria-live="assertive"></div>
-                                </div>
-                                <div class="fg">
-                                    <label for="custPhoneInputS2" class="bil-spread lbl-req"><span class="en">Your Phone *</span><span class="ar">رقم هاتفك *</span></label>
-                                    <input id="custPhoneInputS2" type="tel" class="input" x-model="custPhone" @input="clrErr('custPhone')" x-ref="custPhoneInputS2" :aria-invalid="errs.custPhone ? 'true' : 'false'" aria-required="true" autocomplete="tel">
-                                    <div class="err-msg" x-show="errs.custPhone" x-text="errs.custPhone ? (currLang === 'ar' ? errs.custPhone.ar : errs.custPhone.en) : ''" role="alert" aria-live="assertive"></div>
-                                </div>
-                                <div class="fg">
-                                    <label for="custEmailInputS2" class="bil-spread lbl-req"><span class="en">Your Email (Optional)</span><span class="ar">بريدك الإلكتروني (اختياري)</span></label>
-                                    <input id="custEmailInputS2" type="email" class="input" x-model="custEmail" @input="clrErr('custEmail')" placeholder="optional@example.com" x-ref="custEmailInputS2" :aria-invalid="errs.custEmail ? 'true' : 'false'" autocomplete="email">
-                                    <div class="err-msg" x-show="errs.custEmail" x-text="errs.custEmail ? (currLang === 'ar' ? errs.custEmail.ar : errs.custEmail.en) : ''" role="alert" aria-live="assertive"></div>
-                                </div>
-
-                                <hr class="form-div">
-                                <h4 class="form-subh bil-spread"><span class="en">Niyyah (Intention)</span><span class="ar">النية</span></h4>
-                                <div class="fg niyyah-wrap">
-                                    <label for="niyyahInputS2" class="bil-spread lbl-req"><span class="en">Names for Niyyah (Optional)</span><span class="ar">أسماء النية (اختياري)</span></label>
-                                    <input id="niyyahInputS2" type="text" class="input" x-model="niyyahNames" x-ref="niyyahInputS2">
-                                    <div class="bil-row field-note niyyah-note"><p class="f-note en">Niyyah is core. List names for whom sacrifice is made.</p><p class="f-note ar">النية أساسية. اذكر أسماء من تضحى عنهم.</p></div>
-                                </div>
-                            </div>
-
-                            <div id="step3-content" class="form-step">
-                                <div class="sec-head"><h2 class="bil-spread" x-ref="step3Title" tabindex="-1"><span class="en">Udheya Arrangements</span><span class="ar">ترتيبات الأضحية</span></h2></div>
-                                
-                                <div class="fg">
-                                    <label class="bil-spread lbl-req" id="udhServLabelS3"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
-                                    <div class="rgrp" x-ref="udhServRadiosS3" role="radiogroup" aria-labelledby="udhServLabelS3">
-                                        <label class="bil-spread">
-                                            <input type="radio" name="udh_serv_opt_s3" value="standard_service" x-model="selUdhServ" @change="clrErr('udhServ')">
-                                            <span class="en">Standard Service (Slaughter, Cutting, Bagging) - Fee: <strong x-text="fmtPrice(settings.servFeeEGP || 0)"></strong></span>
-                                            <span class="ar">خدمة عادية (ذبح، تقطيع، تغليف) - رسوم: <strong x-text="fmtPrice(settings.servFeeEGP || 0)"></strong></span>
-                                        </label>
-                                        <label class="bil-spread">
-                                            <input type="radio" name="udh_serv_opt_s3" value="live_animal_only" x-model="selUdhServ" @change="clrErr('udhServ')">
-                                            <span class="en">Live Animal Only (No processing service)</span>
-                                            <span class="ar">الحيوان حي فقط (بدون خدمة تجهيز)</span>
-                                        </label>
-                                    </div>
-                                    <div class="err-msg" x-show="errs.udhServ" x-text="errs.udhServ ? (currLang === 'ar' ? errs.udhServ.ar : errs.udhServ.en) : ''" role="alert" aria-live="assertive"></div>
-                                </div>
-                                <div class="fg">
-                                    <label for="sac_day_sel_s3" class="bil-spread lbl-req"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
-                                    <select id="sac_day_sel_s3" class="input" x-model="sacDay.val" @change="updSacDayTxt(); clrErr('sacDay')" x-ref="sacDaySelS3" :aria-invalid="errs.sacDay ? 'true' : 'false'" aria-describedby="sacDayErrS3" aria-required="true">
-                                        <option value="day1_10_dhul_hijjah" data-en="Day 1 of Eid (10th Dhul Hijjah)" data-ar="اليوم الأول (10 ذو الحجة)" x-text="`Day 1 of Eid (10th Dhul Hijjah) / اليوم الأول (10 ذو الحجة)`"></option>
-                                        <option value="day2_11_dhul_hijjah" data-en="Day 2 of Eid (11th Dhul Hijjah)" data-ar="اليوم الثاني (11 ذو الحجة)" x-text="`Day 2 of Eid (11th Dhul Hijjah) / اليوم الثاني (11 ذو الحجة)`"></option>
-                                        <option value="day3_12_dhul_hijjah" data-en="Day 3 of Eid (12th Dhul Hijjah)" data-ar="اليوم الثالث (12 ذو الحجة)" x-text="`Day 3 of Eid (12th Dhul Hijjah) / اليوم الثالث (12 ذو الحجة)`"></option>
-                                        <option value="day4_13_dhul_hijjah" data-en="Day 4 of Eid (13th Dhul Hijjah)" data-ar="اليوم الرابع (13 ذو الحجة)" x-text="`Day 4 of Eid (13th Dhul Hijjah) / اليوم الرابع (13 ذو الحجة)`"></option>
-                                    </select>
-                                    <div class="err-msg" id="sacDayErrS3" x-show="errs.sacDay" x-text="errs.sacDay ? (currLang === 'ar' ? errs.sacDay.ar : errs.sacDay.en) : ''" role="alert" aria-live="assertive"></div>
-                                    <div class="bil-row field-note sac-day-note">
-                                        <p class="f-note en">Sacrifice occurs per Sharia timings on selected Eid day.</p>
-                                        <p class="f-note ar">يتم الذبح وفقًا للتوقيتات الشرعية في يوم العيد المختار.</p>
-                                    </div>
-                                </div>
-                                <div class="fg">
-                                    <label for="view_pref_sel_s3" class="bil-spread lbl-req"><span class="en">Slaughter Viewing Preference (Optional)</span><span class="ar">تفضيل مشاهدة الذبح (اختياري)</span></label>
-                                    <select id="view_pref_sel_s3" class="input" x-model="viewPref" x-ref="viewPrefSelS3">
-                                        <template x-for="opt in slViewOpts()" :key="opt.val">
-                                            <option :value="opt.val" x-text="`${opt.txtEn} / ${opt.txtAr}`"></option>
-                                        </template>
-                                    </select>
-                                    <div class="bil-row field-note view-note">
-                                        <p class="f-note en">Physical attendance is subject to availability and prior arrangement. We will contact you if selected. Video/Photos shared post-process if requested.</p>
-                                        <p class="f-note ar">الحضور الشخصي يخضع للتوافر والترتيب المسبق. سنتواصل معكم. سيتم مشاركة الفيديو/الصور بعد العملية في حال الطلب.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="step4-content" class="form-step">
-                                <div class="sec-head"><h2 class="bil-spread" x-ref="step4Title" tabindex="-1"><span class="en">Distribution & Delivery</span><span class="ar">التوزيع والتوصيل</span></h2></div>
-                                <div class="fg">
-                                    <label class="bil-spread lbl-req"><span class="en">Udheya Distribution? *</span><span class="ar">كيف تود توزيع أضحيتك؟ *</span></label>
-                                    <select id="dist_choice_sel_s4" class="input" x-model="distChoice" @change="clrErr('distChoice')" x-ref="distChoiceSelS4">
-                                        <template x-for="opt in distrOpts()" :key="opt.val">
-                                            <option :value="opt.val" x-text="`${opt.txtEn} / ${opt.txtAr}`"></option>
-                                        </template>
-                                    </select>
-                                    
-                                    <div class="rgrp split-opts" x-show="distChoice === 'split'" x-transition>
-                                        <label for="split_detail_sel_s4" class="bil-spread lbl-req"><span class="en">Split Options *</span><span class="ar">خيارات التقسيم *</span></label>
-                                        <select id="split_detail_sel_s4" class="input" x-model="splitOpt" @change="clrErr('splitOpt')" x-ref="splitDetSelS4">
-                                            <option value="">-- Select Split -- / -- اختر التقسيم --</option>
-                                            <template x-for="opt in splitOptsList()" :key="opt.val">
-                                                 <option :value="opt.val" x-text="`${opt.txtEn} / ${opt.txtAr}`"></option>
-                                            </template>
-                                        </select>
-                                        <textarea class="input custom-split-ta" x-show="distChoice === 'split' && splitOpt === 'custom'" x-model="splitCustom" @input="clrErr('splitOpt')" placeholder="e.g., 1/4 me, 3/4 relative (all delivered to me)" rows="2" x-ref="customSplitTaS4" :aria-invalid="errs.splitOpt && splitOpt === 'custom' ? 'true' : 'false'" aria-describedby="splitOptErrS4" :aria-required="distChoice === 'split' && splitOpt === 'custom'"></textarea>
-                                    </div>
-                                    <div class="err-msg" id="splitOptErrS4" x-show="errs.splitOpt" x-text="errs.splitOpt ? (currLang === 'ar' ? errs.splitOpt.ar : errs.splitOpt.en) : ''" role="alert" aria-live="assertive"></div>
-                                    <div class="bil-row field-note distr-note"><p class="f-note en">Delivery details required below if any portion for you. "Charity (SL)" means we handle distribution.</p><p class="f-note ar">تفاصيل التوصيل مطلوبة أدناه إذا كان جزء لك. "صدقة (أرض الأغنام)" تعني أننا نتولى التوزيع.</p></div>
-                                </div>
-                                <div class="bil-row field-note wakeel-note"><p class="f-note en">If Sheep Land distributes to charity, we act as your Wakeel.</p><p class="f-note ar">إذا وزعت "أرض الأغنام" للجمعيات، فنحن وكيلك.</p></div>
-
-                                <div x-show="needsDelDetails" x-transition>
-                                    <hr class="form-div">
-                                    <h4 class="form-subh bil-spread del-det-h">
-                                        <span class="en">Delivery Information</span><span class="ar">معلومات التوصيل</span>
-                                    </h4>
-                                    <div class="bil-row field-note" style="margin-bottom: var(--s1);">
-                                        <p class="f-note en">Required because you've chosen to receive a portion or all of the Udheya.</p>
-                                        <p class="f-note ar">مطلوب لأنك اخترت استلام جزء أو كل الأضحية.</p>
-                                    </div>
-                                    <div class="fg">
-                                        <label for="delCitySelS4" class="bil-spread lbl-req"><span class="en">City *</span><span class="ar">المدينة *</span></label>
-                                        <select id="delCitySelS4" class="input" x-model="delCity" @change="clrErr('delCity'); updDelFeeDisp()" x-ref="delCitySelS4" :aria-invalid="errs.delCity ? 'true' : 'false'" aria-required="true">
-                                            <option value="">-- Select City -- / -- اختر المدينة --</option>
-                                            <template x-for="city in allCities" :key="city.id">
-                                                <option :value="city.id" x-text="`${city.nameEn} / ${city.nameAr}`"></option>
-                                            </template>
-                                        </select>
-                                        <div class="err-msg" x-show="errs.delCity" x-text="errs.delCity ? (currLang === 'ar' ? errs.delCity.ar : errs.delCity.en) : ''"></div>
-                                    </div>
-                                    <div x-show="delFeeDispEGP > 0 || isDelFeeVar" class="card form-panel info-box">
-                                        <div class="card-b">
-                                            <div class="bil-row">
-                                                <p class="en" x-show="delFeeDispEGP > 0 && !isDelFeeVar">Delivery Fee: <strong x-text="fmtPrice(delFeeDispEGP)"></strong>. <small>(Will be added to total).</small></p>
-                                                <p class="ar" x-show="delFeeDispEGP > 0 && !isDelFeeVar">رسوم التوصيل: <strong x-text="fmtPrice(delFeeDispEGP)"></strong>. <small>(ستضاف للمجموع).</small></p>
-                                                <p class="en" x-show="isDelFeeVar && delCity">Delivery fee for <span x-text="allCities.find(c=>c.id === delCity)?.nameEn || 'selected area'"></span> will be confirmed.</p>
-                                                <p class="ar" x-show="isDelFeeVar && delCity">سيتم تأكيد رسوم التوصيل لـ <span x-text="allCities.find(c=>c.id === delCity)?.nameAr || 'المنطقة المختارة'"></span>.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="fg">
-                                        <label for="delAddrInputS4" class="bil-spread lbl-req"><span class="en">Full Address *</span><span class="ar">العنوان بالكامل *</span></label>
-                                        <textarea id="delAddrInputS4" class="input" rows="2" x-model="delAddr" @input="clrErr('delAddr')" x-ref="delAddrInputS4" :aria-invalid="errs.delAddr ? 'true' : 'false'" aria-required="true" autocomplete="street-address"></textarea>
-                                        <div class="err-msg" x-show="errs.delAddr" x-text="errs.delAddr ? (currLang === 'ar' ? errs.delAddr.ar : errs.delAddr.en) : ''"></div>
-                                    </div>
-                                    <div class="fg">
-                                        <label for="delNotesInputS4" class="bil-spread lbl-req"><span class="en">Special Instructions (Optional)</span><span class="ar">تعليمات خاصة (اختياري)</span></label>
-                                        <textarea id="delNotesInputS4" class="input" rows="2" x-model="delNotes" x-ref="delNotesInputS4"></textarea>
-                                    </div>
-                                    <div class="fg">
-                                        <label class="bil-spread lbl-req" id="timeSlotLabelS4"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
-                                        <div class="tslots" x-ref="timeSlotContS4" role="radiogroup" aria-labelledby="timeSlotLabelS4">
-                                            <div class="ts" :class="{'sel': timeSlot === '7 AM-8 AM'}" @click="timeSlot = '7 AM-8 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '7 AM-8 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '7 AM-8 AM' ? 'true' : 'false'">7-8 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '8 AM-9 AM'}" @click="timeSlot = '8 AM-9 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '8 AM-9 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '8 AM-9 AM' ? 'true' : 'false'">8-9 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '9 AM-10 AM'}" @click="timeSlot = '9 AM-10 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '9 AM-10 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '9 AM-10 AM' ? 'true' : 'false'">9-10 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '10 AM-11 AM'}" @click="timeSlot = '10 AM-11 AM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '10 AM-11 AM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '10 AM-11 AM' ? 'true' : 'false'">10-11 AM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '11 AM-12 PM'}" @click="timeSlot = '11 AM-12 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '11 AM-12 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '11 AM-12 PM' ? 'true' : 'false'">11-12 PM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '12 PM-1 PM'}" @click="timeSlot = '12 PM-1 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '12 PM-1 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '12 PM-1 PM' ? 'true' : 'false'">12-1 PM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '1 PM-2 PM'}" @click="timeSlot = '1 PM-2 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '1 PM-2 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '1 PM-2 PM' ? 'true' : 'false'">1-2 PM</div>
-                                            <div class="ts" :class="{'sel': timeSlot === '2 PM-3 PM'}" @click="timeSlot = '2 PM-3 PM'; clrErr('timeSlot')" tabindex="0" @keydown.enter.space.prevent="timeSlot = '2 PM-3 PM'; clrErr('timeSlot')" role="radio" :aria-checked="timeSlot === '2 PM-3 PM' ? 'true' : 'false'">2-3 PM</div>
-                                        </div>
-                                        <div class="err-msg" id="timeSlotErrS4" x-show="errs.timeSlot" x-text="errs.timeSlot ? (currLang === 'ar' ? errs.timeSlot.ar : errs.timeSlot.en) : ''"></div>
-                                        <div class="bil-row field-note tslot-note"><p class="f-note en">Preferred time. We will confirm exact window.</p><p class="f-note ar">هذا وقتكم المفضل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="step5-content" class="form-step">
-                                <div class="sec-head"><h2 class="bil-spread" x-ref="step5Title" tabindex="-1"><span class="en">Review & Place Order</span><span class="ar">المراجعة وتقديم الطلب</span></h2></div>
-                                <div class="rev-sum">
-                                    <h3 class="form-subh bil-spread rev-sum-h"><span class="en">Your Udheya Order Summary</span><span class="ar">ملخص طلب أضحيتك</span></h3>
-                                    <div x-show="selAnim.itemKey">
-                                        <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Sheep:</strong> <span x-text="selAnim.nameEN || ''"></span> (<span x-text="selAnim.wtRangeEn || ''"></span>)</div><div class="ar"><strong>الخروف:</strong> <span x-text="selAnim.nameAR || ''"></span> (<span x-text="selAnim.wtRangeAr || ''"></span>)</div></div></div>
-                                            <button type="button" @click.prevent="navStep(1)" class="btn-edit bil-inline" aria-label="Edit Animal Selection"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Contact:</strong> <span x-text="custName || ''"></span>, <span x-text="custPhone || ''"></span></div><div class="ar"><strong>الاتصال:</strong> <span x-text="custName || ''"></span>، <span x-text="custPhone || ''"></span></div></div></div>
-                                            <button type="button" @click.prevent="navStep(2)" class="btn-edit bil-inline" aria-label="Edit Your Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                         <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Niyyah:</strong> <span x-text="niyyahNames || (currLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || (currLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div></div></div>
-                                            <button type="button" @click.prevent="navStep(2)" class="btn-edit bil-inline" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="sum-item">
-                                            <div class="sum-item-content">
-                                                <div class="bil-row">
-                                                    <div class="en"><strong>Service:</strong> <span x-text="selUdhServ === 'standard_service' ? ('Standard (Fee: ' + fmtPrice(settings.servFeeEGP || 0) + ')') : 'Live Animal Only'"></span></div>
-                                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selUdhServ === 'standard_service' ? ('عادية (رسوم: ' + fmtPrice(settings.servFeeEGP || 0) + ')') : 'الحيوان حي فقط'"></span></div>
-                                                </div>
-                                            </div>
-                                            <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Service Option"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR || ''"></span></div></div></div>
-                                            <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Sacrifice Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="sum-item" x-show="viewPref && viewPref !== 'none'">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Viewing Pref:</strong> <span x-show="viewPref==='physical_inquiry'">Physical Inquiry</span><span x-show="viewPref==='video_request'">Video/Photo Request</span><span x-show="viewPref==='live_video_inquiry'">Live Video Inquiry</span></div><div class="ar"><strong>مشاهدة الذبح:</strong> <span x-show="viewPref==='physical_inquiry'">استفسار حضور</span><span x-show="viewPref==='video_request'">طلب فيديو/صور</span><span x-show="viewPref==='live_video_inquiry'">استفسار فيديو مباشر</span></div></div></div>
-                                            <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Viewing Preference"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="sum-item">
-                                             <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn || ''"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="sumDistrAr || ''"></span></div></div></div>
-                                            <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Distribution"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div x-show="needsDelDetails">
-                                            <div class="sum-item">
-                                                <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery To:</strong> <span x-text="sumDelToEn || ''"></span></div><div class="ar"><strong>التوصيل إلى:</strong> <span x-text="sumDelToAr || ''"></span></div></div></div>
-                                                <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                            </div>
-                                            <div class="sum-item">
-                                                 <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot || ''"></span></div></div></div>
-                                                <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                            </div>
-                                            <div class="sum-item" x-show="delFeeDispEGP > 0 && !isDelFeeVar">
-                                                <div class="sum-item-content">
-                                                    <div class="bil-row">
-                                                        <div class="en"><strong>Delivery Fee:</strong> <span x-text="fmtPrice(delFeeDispEGP)"></span></div>
-                                                        <div class="ar"><strong>رسوم التوصيل:</strong> <span x-text="fmtPrice(delFeeDispEGP)"></span></div>
-                                                    </div>
-                                                </div>
-                                                <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery City/Fee"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                            </div>
-                                            <div class="sum-item" x-show="isDelFeeVar && delCity">
-                                                 <div class="sum-item-content">
-                                                     <div class="bil-row">
-                                                         <div class="en"><strong>Est. Delivery Fee:</strong> To be confirmed</div>
-                                                         <div class="ar"><strong>رسوم التوصيل المقدرة:</strong> سيتم التأكيد</div>
-                                                     </div>
-                                                 </div>
-                                                 <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery City"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                            </div>
-                                        </div>
-                                        <div class="sum-item" x-show="distChoice === 'char'">
-                                             <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery:</strong> Handled by Sheep Land for charity</div><div class="ar"><strong>التوصيل:</strong> تتولاه أرض الأغنام للجمعيات الخيرية</div></div></div>
-                                        </div>
-
-                                        <hr class="sum-hr"><div class="sum-total bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(totalEgp)"></span></div><div class="ar"><strong>المجموع الكلي للطلب:</strong> <span x-text="fmtPrice(totalEgp)"></span></div></div>
-                                    </div>
-                                    <div x-show="!selAnim.itemKey" class="tc rev-no-sel bil-row"><p class="en">Selections will appear here.</p><p class="ar">ستظهر اختياراتك هنا.</p></div>
-                                    <div class="bil-row tc rev-care-note"><p class="en rev-care-txt">Review carefully before confirming.</p><p class="ar rev-care-txt">راجع اختياراتك بعناية قبل التأكيد.</p></div>
-                                </div>
-                                <div class="xtra-opts-pay">
-                                    <h4 class="form-subh bil-spread"><span class="en">Additional Options & Payment</span><span class="ar">الخيارات النهائية والدفع</span></h4>
-                                    <div class="fg"><label class="bil-inline lbl-chk"><input type="checkbox" x-model="grpBuy" x-ref="grpBuyChk"><span class="en">Group Purchase? (Save up to 20% - We'll contact)</span><span class="ar">شراء جماعي؟ (وفر حتى 20% - سنتواصل معك)</span></label></div><hr class="form-div">
-                                    <div class="fg">
-                                        <label class="bil-spread lbl-req" id="payMethLabelS5"><span class="en">Payment Method *</span><span class="ar">طريقة الدفع *</span></label>
-                                        <div class="pay-meths" x-ref="payMethRadios" role="radiogroup" aria-labelledby="payMethLabelS5">
-                                            <template x-for="pmOpt in availPayMeths" :key="pmOpt.id">
-                                                <div class="pm" :class="{'sel': payMeth === pmOpt.id}" @click="payMeth = pmOpt.id; clrErr('payMeth')" tabindex="0" @keydown.enter.space.prevent="payMeth = pmOpt.id; clrErr('payMeth')" role="radio" :aria-checked="payMeth === pmOpt.id ? 'true' : 'false'" :aria-labelledby="'pm-label-' + pmOpt.id">
-                                                    <input type="radio" :id="'pm-' + pmOpt.id" :value="pmOpt.id" x-model="payMeth" class="sr-only">
-                                                    <label :for="'pm-' + pmOpt.id" :title="pmOpt.title" :id="'pm-label-' + pmOpt.id"><img :src="pmOpt.imgSrc" :alt="pmOpt.title" class="pay-icon"></label>
-                                                </div>
-                                            </template>
-                                        </div>
-                                        <div class="err-msg" id="payMethErr" x-show="errs.payMeth" x-text="errs.payMeth ? (currLang === 'ar' ? errs.payMeth.ar : errs.payMeth.en) : ''" role="alert" aria-live="assertive"></div>
-                                    </div>
-                                </div>
-                                <div class="form-act tc page-act final-submit">
-                                    <button type="submit" class="btn bac btn-lg btn-block mt1 bil-inline" :disabled="load.ordering" :class="{'disabled-btn': load.ordering}">
-                                        <span x-show="!load.ordering"><span class="en">Confirm & Place Udheya Order</span><span class="ar">تأكيد وإرسال طلب الأضحية</span></span>
-                                        <span x-show="load.ordering" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري المعالجة...</span></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <section id="order-conf-sect" class="sec udh-page-step" x-show="orderConf" x-transition.opacity.duration.300ms>
-                    <div class="c tc">
-                        <div class="sec-head conf-h"><h2 class="bil-spread" x-ref="orderConfTitle" tabindex="-1"><span class="en">Order Confirmed! JazakAllah Khairan.</span><span class="ar">تم تأكيد الطلب! جزاكم الله خيرًا.</span></h2></div>
-                        <div class="conf-msg">
-                            <div class="bil-row conf-intro"><p class="en">Thank you for choosing Sheep Land. May Allah accept it.</p><p class="ar">نشكركم على اختيار أرض الأغنام. تقبل الله منا ومنكم.</p></div>
-                            <div class="card form-panel order-id-box"><div class="card-b order-id-box-body">
-                                <div class="bil-spread"><p class="en order-id-box-imp"><strong>Important: Your Order Details</strong></p><p class="ar order-id-box-imp"><strong>هام: تفاصيل طلبكم</strong></p></div>
-                                <div class="bil-spread"><p class="en order-id-box-lbl">Order ID:</p><p class="ar order-id-box-lbl">رقم طلبكم:</p></div>
-                                <p class="order-id-disp" x-text="orderID"></p>
-                                <div class="bil-row"><p class="en order-id-box-note">Save ID and Phone for status check. You will NOT receive an email confirmation.</p><p class="ar order-id-box-note">احفظ الرقم والهاتف للتحقق من حالة الطلب. لن يتم إرسال تأكيد عبر البريد الإلكتروني.</p></div>
-                            </div></div>
-                            <div class="quick-recap">
-                                <h4 class="form-subh bil-spread recap-h"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
-                                <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selAnim.nameEN || ''"></span> (<span x-text="selAnim.wtRangeEn || ''"></span>)</div><div class="ar"><strong>الحيوان:</strong> <span x-text="selAnim.nameAR || ''"></span> (<span x-text="selAnim.wtRangeAr || ''"></span>)</div></div>
-                                 <div class="sum-item bil-row">
-                                    <div class="en"><strong>Ordered By:</strong> <span x-text="custName || ''"></span> (<span x-text="custPhone || ''"></span>)</div>
-                                    <div class="ar"><strong>الطلب باسم:</strong> <span x-text="custName || ''"></span> (<span x-text="custPhone || ''"></span>)</div>
-                                </div>
-                                <div class="sum-item bil-row" x-show="niyyahNames && niyyahNames.trim() !== ''">
-                                    <div class="en"><strong>Niyyah For:</strong> <span x-text="niyyahNames || ''"></span></div>
-                                    <div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || ''"></span></div>
-                                </div>
-                                <div class="sum-item bil-row">
-                                    <div class="en"><strong>Service:</strong> <span x-text="selUdhServ === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div>
-                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selUdhServ === 'standard_service' ? 'خدمة عادية' : 'الحيوان حي فقط'"></span></div>
-                                </div>
-                                <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR || ''"></span></div></div>
-                                <div class="sum-item bil-row" x-show="viewPref && viewPref !== 'none'">
-                                    <div class="en"><strong>Viewing Pref:</strong> <span x-show="viewPref === 'physical_inquiry'">Physical Inquiry</span><span x-show="viewPref === 'video_request'">Video/Photo Request</span><span x-show="viewPref === 'live_video_inquiry'">Live Video Inquiry</span></div>
-                                    <div class="ar"><strong>مشاهدة الذبح:</strong> <span x-show="viewPref === 'physical_inquiry'">استفسار حضور</span><span x-show="viewPref === 'video_request'">طلب فيديو/صور</span><span x-show="viewPref === 'live_video_inquiry'">استفسار فيديو مباشر</span></div>
-                                </div>
-                                 <div class="sum-item bil-row">
-                                    <div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn || ''"></span></div>
-                                    <div class="ar"><strong>التوزيع:</strong> <span x-text="sumDistrAr || ''"></span></div>
-                                </div>
-                                <div class="sum-item bil-row" x-show="needsDelDetails && delAddr && delAddr.trim() !== ''">
-                                    <div class="en"><strong>Delivery Address:</strong> <span x-text="delAddr || ''"></span>, <span x-text="allCities.find(c=>c.id === delCity)?.nameEn || ''"></span></div>
-                                    <div class="ar"><strong>عنوان التوصيل:</strong> <span x-text="delAddr || ''"></span>، <span x-text="allCities.find(c=>c.id === delCity)?.nameAr || ''"></span></div>
-                                </div>
-                                <div class="sum-item bil-row" x-show="needsDelDetails && timeSlot"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot || ''"></span></div></div>
-                                 <div class="sum-item bil-row">
-                                    <div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
-                                    <div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
-                                </div>
-                            </div>
-                            <div class="pay-instr">
-                                <h4 class="form-subh bil-spread pay-instr-h"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
-                                <div x-show="payMeth === 'fa'"><div class="bil-row"><p class="en">Fawry: Use Order ID <strong class="pay-ref" x-text="orderID"></strong>. Order Total: <strong x-text="fmtPrice(totalEgp)"></strong>. Due in 24h.</p><p class="ar">فوري: استخدم رقم الطلب <strong class="pay-ref" x-text="orderID"></strong>. المجموع الكلي للطلب: <strong x-text="fmtPrice(totalEgp)"></strong>. خلال 24س.</p></div></div>
-                                <div x-show="payMeth === 'vo'"><div class="bil-row"><p class="en">Vodafone Cash: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p><p class="ar">فودافون كاش: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد عبر واتساب: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p></div></div>
-                                <div x-show="payMeth === 'ip'"><div class="bil-row"><p class="en">InstaPay: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">إنستا باي: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
-                                <div x-show="payMeth === 'revolut'"><div class="bil-row"><p class="en">Revolut: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">ريفولوت: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
-                                <div x-show="payMeth === 'monzo'"><div class="bil-row"><p class="en">Monzo: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">مونزو: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
-                                <div x-show="payMeth === 'bank_transfer'">
-                                    <div class="bil-row"><p class="en">Bank Transfer <strong x-text="fmtPrice(totalEgp)"></strong> to:</p><p class="ar">تحويل بنكي <strong x-text="fmtPrice(totalEgp)"></strong> إلى:</p></div>
-                                    <ul class="bank-dets">
-                                        <li class="bil-row"><span class="en">Bank: <strong class="pay-ref" x-text="settings.payDetails?.bank_name || 'N/A'"></strong></span><span class="ar">البنك: <strong class="pay-ref" x-text="settings.payDetails?.bank_name || 'غير متوفر'"></strong></span></li>
-                                        <li class="bil-row"><span class="en">Acc Name: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_name || 'N/A'"></strong></span><span class="ar">اسم الحساب: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_name || 'غير متوفر'"></strong></span></li>
-                                        <li class="bil-row"><span class="en">Acc No: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_number || 'N/A'"></strong></span><span class="ar">رقم الحساب: <strong class="pay-ref" x-text="settings.payDetails?.bank_account_number || 'غير متوفر'"></strong></span></li>
-                                        <li class="bil-row" x-show="settings.payDetails?.bank_iban"><span class="en">IBAN: <strong class="pay-ref" x-text="settings.payDetails.bank_iban"></strong></span><span class="ar">IBAN: <strong class="pay-ref" x-text="settings.payDetails.bank_iban"></strong></span></li>
-                                        <li class="bil-row" x-show="settings.payDetails?.bank_swift"><span class="en">SWIFT: <strong class="pay-ref" x-text="settings.payDetails.bank_swift"></strong></span><span class="ar">SWIFT: <strong class="pay-ref" x-text="settings.payDetails.bank_swift"></strong></span></li>
-                                    </ul>
-                                    <div class="bil-row bank-note"><p class="en">Crucial: Ref Order ID: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">هام: مرجع الطلب: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div>
-                                </div>
-                                <div x-show="payMeth === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="custPhone"></strong>. Total Amount Due <strong x-text="fmtPrice(totalEgp)"></strong>. ID: <strong x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="custPhone"></strong>. المجموع الكلي للطلب <strong x-text="fmtPrice(totalEgp)"></strong>. رقم الطلب: <strong x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span></p></div></div>
-                            </div>
-                        </div>
-                        <div class="form-act tc page-act"><a href="#udh-order-start" class="btn bp btn-lg btn-block bil-inline" @click.prevent="resetForm()"><span class="en">Place Another Udheya Order</span><span class="ar">تقديم طلب أضحية أخرى</span></a></div>
-                    </div>
-                </section>
-            </form>
-        </div>
-    </section>
-
-    <section id="live-sect" class="main-page-sec sec" style="background-color: var(--b2);">
-        <div class="c">
-            <div class="sec-head"><h2 class="bil-spread" tabindex="-1"><span class="en">Our Livestock</span><span class="ar">أغنامنا</span></h2></div>
-            <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">More information about our general livestock offerings (for purposes other than Udheya) will be available here soon. Stay tuned!</span>
-                <span class="ar" style="flex-basis: 100%;">ستتوفر هنا قريبًا المزيد من المعلومات حول عروض المواشي العامة لدينا (لأغراض أخرى غير الأضحية). ترقبونا!</span>
-            </p>
-        </div>
-    </section>
-
-    <section id="meat-sect" class="main-page-sec sec">
-        <div class="c">
-            <div class="sec-head"><h2 class="bil-spread" tabindex="-1"><span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span></h2></div>
-             <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">Explore our range of premium, fresh meat cuts directly from our farm. Details coming soon!</span>
-                <span class="ar" style="flex-basis: 100%;">اكتشف تشكيلتنا من قطعيات اللحوم الطازجة والممتازة مباشرة من مزرعتنا. التفاصيل قريبًا!</span>
-            </p>
-        </div>
-    </section>
-
-    <section id="gath-sect" class="main-page-sec sec" style="background-color: var(--b1);">
-        <div class="c">
-            <div class="sec-head"><h2 class="bil-spread" tabindex="-1"><span class="en">Gatherings & Feasts</span><span class="ar">الولائم والمناسبات</span></h2></div>
-            <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">Information about our special livestock and meat packages for gatherings and feasts will be available here soon. Contact us for bespoke orders!</span>
-                <span class="ar" dir="rtl" style="flex-basis: 100%;">ستتوفر هنا قريبًا معلومات حول باقات المواشي واللحوم الخاصة بنا للمناسبات والولائم. اتصل بنا للطلبات المخصصة!</span>
-            </p>
-        </div>
-    </section>
-
-    <section id="chk-order-stat" class="sec udh-page-step">
-        <div class="c">
-        <div class="sec-head"><h2 class="bil-spread" x-ref="chkStatTitle" tabindex="-1"><span class="en">Check Udheya Order Status</span><span class="ar">تحقق من حالة طلب أضحيتك</span></h2></div>
-        <div class="card form-panel chk-stat-card"><div class="card-b">
-            <form id="chk-stat-form" @submit.prevent="submitStatValid()" novalidate>
-                <div class="fg">
-                    <label for="order_id_lookup" class="bil-spread lbl-req chk-stat-lbl"><span class="en">Enter Order ID *</span><span class="ar">أدخل رقم الطلب *</span></label>
-                    <input type="text" id="order_id_lookup" class="input chk-stat-input" x-model="lookupOrderID" placeholder="e.g., SL-UDHY-YYYY-XXXXX" x-ref="lookupOrderIdInput" :aria-invalid="errs.lookupOrderID ? 'true' : 'false'" aria-describedby="lookupOrderIdErr" @input="clrErr('lookupOrderID')" aria-required="true">
-                    <div class="err-msg" id="lookupOrderIdErr" x-show="errs.lookupOrderID" x-text="errs.lookupOrderID ? (currLang === 'ar' ? errs.lookupOrderID.ar : errs.lookupOrderID.en) : ''" role="alert" aria-live="assertive"></div>
-                </div>
-                <div class="fg">
-                    <label for="lookup_phone" class="bil-spread lbl-req chk-stat-lbl"><span class="en">Enter Phone Number Used for Order *</span><span class="ar">أدخل رقم الهاتف المستخدم في الطلب *</span></label>
-                    <input type="tel" id="lookup_phone" class="input chk-stat-input" x-model="lookupPhone" placeholder="e.g., 01xxxxxxxxx" x-ref="lookupPhoneInput" :aria-invalid="errs.lookupPhone ? 'true' : 'false'" aria-describedby="lookupPhoneErr" @input="clrErr('lookupPhone')" aria-required="true" autocomplete="tel">
-                    <div class="err-msg" id="lookupPhoneErr" x-show="errs.lookupPhone" x-text="errs.lookupPhone ? (currLang === 'ar' ? errs.lookupPhone.ar : errs.lookupPhone.en) : ''" role="alert" aria-live="assertive"></div>
-                </div>
-                <div class="card-act" style="margin-top: var(--s2);">
-                    <button type="submit" id="btn-chk-stat" class="btn bp chk-stat-btn bil-inline btn-block" :disabled="load.status">
-                        <span x-show="!load.status"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></span>
-                        <span x-show="load.status" aria-live="polite"><span class="en">Checking...</span><span class="ar">جاري...</span></span>
-                    </button>
-                </div>
-            </form>
-        </div></div>
-        <div id="order-stat-res" class="card form-panel order-stat-res" x-show="load.status || statRes || statNotFound" x-transition><div class="card-b">
-            <div x-show="load.status && !statRes && !statNotFound" class="load-text" aria-live="polite">Checking...</div>
-            <div x-show="statRes && !load.status">
-                <h4 class="form-subh bil-spread"><span class="en">Order Details</span><span class="ar">تفاصيل الطلب</span></h4>
-                <div id="stat-content">
-                    <div class="sum-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div><div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Ordered By:</strong> <span x-text="statRes?.custName || ''"></span></div><div class="ar"><strong>الطلب باسم:</strong> <span x-text="statRes?.custName || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Order Status:</strong> <span class="stat-hl" x-text="statRes?.status || ''"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.status || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Payment Status:</strong> <span x-text="statRes?.payStatTxt || ''"></span></div><div class="ar"><strong>حالة الدفع:</strong> <span x-text="statRes?.payStatTxt || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statRes?.animTypeEn || ''"></span>, <span x-text="statRes?.wtCatEn || ''"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statRes?.animTypeAr || ''"></span>، <span x-text="statRes?.wtCatAr || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'Standard Service' : (statRes?.udhServOpt ? 'Live Animal Only' : 'N/A'))"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'خدمة عادية' : (statRes?.udhServOpt ? 'الحيوان حي فقط' : 'غير متوفر'))"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="statRes?.sacDayTxtEn || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="statRes?.sacDayTxtAr || ''"></span></div></div>
-                    <!-- ***** ALPINE ERROR FIX: More robust x-show and x-text for niyyah ***** -->
-                    <div class="sum-item bil-row" x-show="statRes && typeof statRes.niyyah === 'string' && statRes.niyyah.trim() !== ''">
-                        <div class="en"><strong>Niyyah For:</strong> <span x-text="statRes?.niyyah || ''"></span></div>
-                        <div class="ar"><strong>النية لـ:</strong> <span x-text="statRes?.niyyah || ''"></span></div>
-                    </div>
-                    <!-- ***** END FIX ***** -->
-                    <div class="sum-item bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="statRes?.distrChoiceEn || ''"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="statRes?.distrChoiceAr || ''"></span></div></div>
-                    <div class="sum-item bil-row" x-show="statRes && statRes.needsDel && statRes.delAddr">
-                        <div class="en"><strong>Delivery To:</strong> <span x-text="`${statRes?.delAddr || ''}, ${statRes?.delCityEn || ''}`"></span></div>
-                        <div class="ar"><strong>التوصيل إلى:</strong> <span x-text="`${statRes?.delAddr || ''}، ${statRes?.delCityAr || ''}`"></span></div>
-                    </div>
-                    <div class="sum-item bil-row" x-show="statRes && statRes.needsDel && statRes.timeSlot && statRes.timeSlot !== 'N/A'"><div class="en"><strong>Pref. Delivery Time:</strong> <span x-text="statRes?.timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل المفضل:</strong> <span x-text="statRes?.timeSlot || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div><div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div></div>
-                </div>
-            </div>
-            <div id="stat-no-res" class="stat-no-res bil-row" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID and Phone or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب ورقم الهاتف أو اتصل بالدعم.</p></div>
-        </div></div>
-    </section>
-</main>
-
-<footer class="foot main-page-sec">
-    <div class="c">
-        <div class="foot-grid">
-            <div class="bil-row foot-brand-desc">
-                <p class="en">Your full-service Egyptian team, committed to meeting your needs with speed and quality, sparing you market visits.</p>
-                <p class="ar">فريق متكامل لتلبية احتياجاتك بأسرع وقت وأفضل جودة، ونكفيك عناء الذهاب للسوق.</p>
-            </div>
-        </div>
-        <div class="foot-pay tc">
-            <h5 class="bil-spread">
-                <span class="en">We Accept</span><span class="ar">نقبل الدفع عبر</span>
-            </h5>
-            <div class="pay-icons-grid">
-                <template x-for="pmOpt in availPayMeths" :key="pmOpt.id">
-                    <img :src="pmOpt.imgSrc" :alt="pmOpt.title" :title="pmOpt.title" class="foot-pay-icon">
-                </template>
-            </div>
-        </div>
-        <hr class="foot-div">
-        <p class="foot-copy">© <span x-text="new Date().getFullYear()"></span> Sheep Land.
-            <span class="bil-copy">
-                <span class="en">All rights reserved.</span><span class="ar">جميع الحقوق محفوظة.</span>
-            </span>
-        </p>
-    </div>
-</footer>
-<script src="pocketbase.umd.js"></script>
-<script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script src="script.js"></script>
-
-</body>
-</html>
