@@ -160,7 +160,7 @@
                                 <span class="cd-sep" aria-hidden="true">:</span>
                                 <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Mins</span></div>
                                 <span class="cd-sep" aria-hidden="true">:</span>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.seconds"></span><span class="cd-lbl">Secs</span></div>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.secs"></span><span class="cd-lbl">Secs</span></div>
                             </div>
                         </div>
                         <span class="btn bac pban-cta bil-inline" @click.stop><span class="en">Place Your Udheya Order Now</span><span class="ar">اطلب أضحيتك الآن</span></span>
@@ -209,9 +209,7 @@
                 </div>
             </div>
 
-            <!-- ***** THE ONLY CHANGE IN INDEX.HTML IS HERE ***** -->
             <form id="udh-order-form" @submit.prevent="submitOrderValidClientSide()" novalidate>
-            <!-- ***** END OF CHANGE ***** -->
 
                 <div class="step-wrap" x-show="!orderConf">
                     <div class="c">
@@ -414,7 +412,7 @@
                                     </div>
                                     <div class="fg">
                                         <label for="delCitySelS4" class="bil-spread lbl-req"><span class="en">City *</span><span class="ar">المدينة *</span></label>
-                                        <select id="delCitySelS4" class="input" x-model="delCity" @change="clrErr('delCity'); updDelFeeDisp()" x-ref="delCitySelS4" :aria-invalid="errs.delCity ? 'true' : 'false'" aria-required="true">
+                                        <select id="delCitySelS4" class="input" x-model="delCity" @change="clrErr('delCity'); updDelFeeDispEst()" x-ref="delCitySelS4" :aria-invalid="errs.delCity ? 'true' : 'false'" aria-required="true">
                                             <option value="">-- Select City -- / -- اختر المدينة --</option>
                                             <template x-for="city in allCities" :key="city.id">
                                                 <option :value="city.id" x-text="`${city.nameEn} / ${city.nameAr}`"></option>
