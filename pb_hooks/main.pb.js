@@ -31,9 +31,9 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
         "sacrifice_day_value", "ordering_person_name", "ordering_person_phone", "payment_method"
     ];
     for (const field of requiredFields) {
-        if (requestData[field] === undefined || requestData[field] === null || requestData[field] === "") { // More robust check
-            console.warn(`[API Hook Validation] Missing essential field: '${field}'`);
-            return c.json(400, { error: `Missing essential field in request: '${field}'.` });
+        if (requestData[field] === undefined || requestData[field] === null || String(requestData[field]).trim() === "") {
+            console.warn(`[API Hook Validation] Missing or empty essential field: '${field}'`);
+            return c.json(400, { error: `Missing or empty essential field in request: '${field}'.` });
         }
     }
     if (requestData.delivery_option === "home_delivery_to_orderer" && !requestData.delivery_area_id) {
@@ -44,12 +44,12 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
 
     let createdOrderPocketBaseId = null;
     let finalStockLevel = null;
-    let serverCalculatedTotalEGP = 0; // To be returned to client
+    let serverCalculatedTotalEGP = 0;
     const authRecord = $apis.requestInfo(c).authRecord;
 
     try {
         $app.dao().runInTransaction(async (txDao) => {
-            const productItemKey = requestData.product_item_key;
+            const productItemKey = String(requestData.product_item_key).trim();
             const quantityToOrder = parseInt(requestData.quantity) || 1;
 
             // 1. Fetch Product
@@ -64,7 +64,6 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                 throw new Error(`Product with item_key '${productItemKey}' not found or is inactive.`);
             }
             console.log(`[API Hook] Product found: ${productRecord.getId()}, Stock: ${productRecord.getInt("stock_available_pb")}`);
-
 
             const currentStock = productRecord.getInt("stock_available_pb");
             if (currentStock < quantityToOrder) {
@@ -109,7 +108,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                     }
                 }
                 if (foundCityFee === null) {
-                    console.warn(`[API Hook] Delivery fee for area_id '${requestData.delivery_area_id}' not found or is variable (null). Applying 0 for now. Admin should verify.`);
+                    console.warn(`[API Hook] Delivery fee for area_id '${requestData.delivery_area_id}' not found in settings or is marked as variable (null). Applying 0 for now. Admin should verify.`);
                     deliveryFeeAppliedEGP = 0; 
                 } else {
                     deliveryFeeAppliedEGP = foundCityFee;
@@ -126,7 +125,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
 
             if (authRecord) { newOrder.set("user", authRecord.id); }
 
-            newOrder.set("order_id_text", requestData.order_id_text);
+            newOrder.set("order_id_text", String(requestData.order_id_text).trim());
             newOrder.set("product_id", productRecord.id);
             
             newOrder.set("ordered_product_name_en", productRecord.getString("variant_name_en"));
@@ -141,29 +140,29 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
 
             let costOfAnimalEGP = parseFloat(requestData.cost_of_animal_egp) || 0;
 
-            newOrder.set("udheya_service_option_selected", requestData.udheya_service_option_selected);
-            newOrder.set("selected_display_currency", requestData.selected_display_currency || "EGP");
-            newOrder.set("sacrifice_day_value", requestData.sacrifice_day_value);
-            newOrder.set("sacrifice_day_text_en", requestData.sacrifice_day_text_en || "");
-            newOrder.set("sacrifice_day_text_ar", requestData.sacrifice_day_text_ar || "");
-            newOrder.set("slaughter_viewing_preference", requestData.slaughter_viewing_preference || "none");
-            newOrder.set("distribution_choice", requestData.distribution_choice || "me");
-            newOrder.set("split_details_option", requestData.split_details_option || "");
-            newOrder.set("custom_split_details_text", requestData.custom_split_details_text || "");
-            newOrder.set("niyyah_names", requestData.niyyah_names || "");
-            newOrder.set("ordering_person_name", requestData.ordering_person_name);
-            newOrder.set("ordering_person_phone", requestData.ordering_person_phone);
-            newOrder.set("customer_email", requestData.customer_email || "");
-            newOrder.set("delivery_option", requestData.delivery_option || "self_pickup_or_internal_distribution");
-            newOrder.set("delivery_name", requestData.delivery_name || requestData.ordering_person_name);
-            newOrder.set("delivery_phone", requestData.delivery_phone || requestData.ordering_person_phone);
-            newOrder.set("delivery_area_id", requestData.delivery_area_id || "");
-            newOrder.set("delivery_area_name_en", requestData.delivery_area_name_en || ""); 
-            newOrder.set("delivery_area_name_ar", requestData.delivery_area_name_ar || "");
-            newOrder.set("delivery_address", requestData.delivery_address || "");
-            newOrder.set("delivery_instructions", requestData.delivery_instructions || "");
-            newOrder.set("time_slot", requestData.time_slot || "N/A");
-            newOrder.set("payment_method", requestData.payment_method);
+            newOrder.set("udheya_service_option_selected", String(requestData.udheya_service_option_selected));
+            newOrder.set("selected_display_currency", String(requestData.selected_display_currency || "EGP"));
+            newOrder.set("sacrifice_day_value", String(requestData.sacrifice_day_value));
+            newOrder.set("sacrifice_day_text_en", String(requestData.sacrifice_day_text_en || ""));
+            newOrder.set("sacrifice_day_text_ar", String(requestData.sacrifice_day_text_ar || ""));
+            newOrder.set("slaughter_viewing_preference", String(requestData.slaughter_viewing_preference || "none"));
+            newOrder.set("distribution_choice", String(requestData.distribution_choice || "me"));
+            newOrder.set("split_details_option", String(requestData.split_details_option || ""));
+            newOrder.set("custom_split_details_text", String(requestData.custom_split_details_text || ""));
+            newOrder.set("niyyah_names", String(requestData.niyyah_names || ""));
+            newOrder.set("ordering_person_name", String(requestData.ordering_person_name).trim());
+            newOrder.set("ordering_person_phone", String(requestData.ordering_person_phone).trim());
+            newOrder.set("customer_email", String(requestData.customer_email || "").trim());
+            newOrder.set("delivery_option", String(requestData.delivery_option || "self_pickup_or_internal_distribution"));
+            newOrder.set("delivery_name", String(requestData.delivery_name || requestData.ordering_person_name).trim());
+            newOrder.set("delivery_phone", String(requestData.delivery_phone || requestData.ordering_person_phone).trim());
+            newOrder.set("delivery_area_id", String(requestData.delivery_area_id || ""));
+            newOrder.set("delivery_area_name_en", String(requestData.delivery_area_name_en || "")); 
+            newOrder.set("delivery_area_name_ar", String(requestData.delivery_area_name_ar || ""));
+            newOrder.set("delivery_address", String(requestData.delivery_address || "").trim());
+            newOrder.set("delivery_instructions", String(requestData.delivery_instructions || "").trim());
+            newOrder.set("time_slot", String(requestData.time_slot || "N/A"));
+            newOrder.set("payment_method", String(requestData.payment_method));
             
             if (requestData.payment_method === 'cod') {
                 newOrder.set("payment_status", "cod_pending_confirmation");
@@ -173,9 +172,9 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                 newOrder.set("order_status", "confirmed_pending_payment");
             }
 
-            newOrder.set("terms_agreed", requestData.terms_agreed === true); // Default to false if not explicitly true
-            newOrder.set("admin_notes", requestData.admin_notes || "");
-            newOrder.set("group_purchase_interest", requestData.group_purchase_interest === true); // Default to false
+            newOrder.set("terms_agreed", requestData.terms_agreed === true);
+            newOrder.set("admin_notes", String(requestData.admin_notes || ""));
+            newOrder.set("group_purchase_interest", requestData.group_purchase_interest === true);
 
             const clientIp = c.realIp();
             if (clientIp) { newOrder.set("user_ip_address", clientIp); }
@@ -186,14 +185,13 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                 const animalRecord = txDao.findFirstRecordByFilter(
                     "sheep_log",
                     "animal_tag_id = {:tagId} && current_status = 'Active'",
-                    { tagId: requestData.animal_tag_id }
+                    { tagId: String(requestData.animal_tag_id).trim() }
                 );
                 if (animalRecord) {
                     newOrder.set("animal_id", animalRecord.id); 
                     if (requestData.cost_of_animal_egp === undefined || requestData.cost_of_animal_egp === null) {
                         costOfAnimalEGP = animalRecord.getFloat("acquisition_cost_egp") || 0;
                     }
-                    // Animal record status will be updated after order is saved
                 } else {
                     console.warn(`[API Hook] Specific animal tag_id ${requestData.animal_tag_id} not found or not active. Order will proceed without specific animal link.`);
                 }
@@ -250,9 +248,7 @@ routerAdd("POST", "/api/custom_place_order", (c) => {
                 statusCode = 503; 
                 clientErrorMessage = "Order placement is temporarily unavailable due to a configuration issue. Please try again later.";
             } else {
-                clientErrorMessage = "An unexpected error occurred while processing your order. Please contact support if the issue persists."; // More user-friendly generic
-                // For development, you might want to return more detail:
-                // clientErrorMessage = "Failed to process order: " + err.message; 
+                clientErrorMessage = "An unexpected error occurred while processing your order. Please contact support if the issue persists.";
             }
         }
         
