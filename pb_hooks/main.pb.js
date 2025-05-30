@@ -39,7 +39,7 @@ onRecordBeforeCreateRequest((e) => {
     const orderedWeightRangeAr = product.getString("weight_range_text_ar");
     const priceAtOrderTimeEGP = product.getFloat("base_price_egp");
 
-    console.log(`[OrderHook] Values from product -> nameEn: "${orderedProductNameEn}", priceEGP: ${priceAtOrderTimeEGP}`);
+    console.log(`[OrderHook] Values from product -> nameEn: "${orderedProductNameEn}", nameAr: "${orderedProductNameAr}", wtEn: "${orderedWeightRangeEn}", wtAr: "${orderedWeightRangeAr}", priceEGP: ${priceAtOrderTimeEGP}`);
     record.set("ordered_product_name_en", orderedProductNameEn);
     record.set("ordered_product_name_ar", orderedProductNameAr);
     record.set("ordered_weight_range_en", orderedWeightRangeEn);
@@ -103,10 +103,9 @@ onRecordBeforeCreateRequest((e) => {
     record.set("delivery_fee_applied_egp", deliveryFeeAppliedEGP);
     console.log(`[OrderHook] Fees -> service: ${serviceFeeAppliedEGP}, delivery: ${deliveryFeeAppliedEGP}`);
 
-
     const totalAmountDueEGP = priceAtOrderTimeEGP + serviceFeeAppliedEGP + deliveryFeeAppliedEGP;
     console.log(`[OrderHook] Calculated totalAmountDueEGP: ${totalAmountDueEGP}`);
-    if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) { // Added check for negative total
+    if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) {
         console.error("[OrderHook] CRITICAL: totalAmountDueEGP is NaN or negative. Individual components -> Animal Price:", priceAtOrderTimeEGP, "Service Fee:", serviceFeeAppliedEGP, "Delivery Fee:", deliveryFeeAppliedEGP);
         throw new Error("Internal error calculating total order amount. Please contact support.");
     }
