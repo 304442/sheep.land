@@ -53,9 +53,8 @@
         else console.log(consoleMessage, data || '');
     };
 
-    // Field IDs (like "set_xchgr") are removed from schema definitions.
-    // PocketBase will auto-generate IDs for new fields.
-    // For existing fields during an update, PB matches them by their server-side ID or name.
+    // Collection definitions: `id` property from field definitions has been removed.
+    // PocketBase will auto-generate these on creation.
     const collectionsDefinition = [
         {
             name: "settings", type: "base", system: false, listRule: "", viewRule: "", createRule: null, updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: null,
@@ -263,7 +262,34 @@
                 }
             }
 
-            const payloadForCreate = { // For new collections, field IDs are not sent
+            // Prepare schema by removing client-side 'id' for new fields,
+            // but for existing fields, we need to ensure their existing IDs are sent for updates.
+            let schemaForPayload;
+            if (existingCollection) {
+                schemaForPayload = (collectionDef.schema || []).map(newFieldDef => {
+                    const existingField = existingCollection.schema.find(ef => ef.name === newFieldDef.name);
+                    const fieldPayload = { ...newFieldDef }; // Start with the new definition
+                    if (existingField) { // If field exists, use its ID and system status
+                        fieldPayload.id = existingField.id;
+                        fieldPayload.system = existingField.system;
+                    } else { // New field within an existing collection, remove temp client ID
+                        delete fieldPayload.id; 
+                    }
+                    return fieldPayload;
+                });
+                // Add any fields from existingCollection.schema that are NOT in collectionDef.schema
+                // to ensure they are preserved if not explicitly removed by the new definition.
+                // However, the default behavior of pb.collections.update is that fields not in the
+                // provided schema ARE DROPPED unless the collection is a system collection or `autoDeleteOldFields` is false.
+                // For simplicity, we assume collectionDef.schema is the desired complete state for custom fields.
+            } else { // New collection
+                schemaForPayload = (collectionDef.schema || []).map(field => {
+                    const { id, ...restOfField } = field; // Remove client-side 'id'
+                    return restOfField;
+                });
+            }
+            
+            const payload = {
                 name: collectionDef.name,
                 type: collectionDef.type,
                 system: collectionDef.system || false,
@@ -273,50 +299,21 @@
                 updateRule: collectionDef.updateRule,
                 deleteRule: collectionDef.deleteRule,
                 options: collectionDef.options || {},
-                schema: (collectionDef.schema || []).map(field => {
-                    const { id, ...restOfField } = field; // Remove 'id' if present for creation
-                    return restOfField;
-                }),
-                indexes: collectionDef.indexes || []
+                schema: schemaForPayload,
+                indexes: collectionDef.indexes || [] // Pass indexes directly
             };
-            
-            let payloadForUpdate;
-            if (existingCollection) {
-                 payloadForUpdate = { // For existing, we MUST send existing field IDs to preserve them
-                    name: collectionDef.name, // Name shouldn't change for update usually, but API allows it
-                    type: collectionDef.type,
-                    system: collectionDef.system || false,
-                    listRule: collectionDef.listRule,
-                    viewRule: collectionDef.viewRule,
-                    createRule: collectionDef.createRule,
-                    updateRule: collectionDef.updateRule,
-                    deleteRule: collectionDef.deleteRule,
-                    options: collectionDef.options || {},
-                    schema: (collectionDef.schema || []).map(newFieldDef => {
-                        const existingField = existingCollection.schema.find(ef => ef.name === newFieldDef.name);
-                        return {
-                            // If field exists, use its ID and system status, otherwise let PB generate ID for new field within existing collection
-                            id: existingField ? existingField.id : `new_${newFieldDef.name}_${Math.random().toString(36).substr(2,5)}`, 
-                            system: existingField ? existingField.system : (newFieldDef.system || false),
-                            ...newFieldDef, // Apply new/updated definitions (name, type, options, etc.)
-                        };
-                    }),
-                    indexes: collectionDef.indexes || []
-                };
-            }
-
 
             if (existingCollection) {
-                log(`Collection <b>${collectionDef.name}</b> exists. Updating...`, 'w');
-                await pb.collections.update(collectionIdToUse, payloadForUpdate);
-                log(`Collection <b>${collectionDef.name}</b> updated.`, 's');
+                log(`Collection <b>${collectionDef.name}</b> exists. Updating with full definition...`, 'w');
+                // log("Update payload for " + collectionDef.name, 'd', payload);
+                await pb.collections.update(collectionIdToUse, payload);
+                log(`Collection <b>${collectionDef.name}</b> updated successfully.`, 's');
             } else {
-                log(`Creating collection: <b>${collectionDef.name}</b>...`, 'i');
-                const newCollection = await pb.collections.create(payloadForCreate);
-                collectionIdToUse = newCollection.id;
-                log(`Collection <b>${collectionDef.name}</b> created. ID: ${collectionIdToUse}`, 's');
+                log(`Creating collection: <b>${collectionDef.name}</b> with full definition...`, 'i');
+                // log("Create payload for " + collectionDef.name, 'd', payload);
+                const newCollection = await pb.collections.create(payload);
+                log(`Collection <b>${collectionDef.name}</b> created successfully. ID: ${newCollection.id}`, 's');
             }
-            
             return true;
         } catch (error) {
             log(`Failed to create/update collection <b>${collectionDef.name}</b>: ${error.message}`, 'e');
@@ -326,7 +323,6 @@
         }
     }
 
-
     async function setupCollections(pb) {
         log('Processing all collections (Schema + Indexes)...', 'i');
         for (const collectionDef of collectionsDefinition) {
@@ -334,8 +330,7 @@
                 log(`Halting schema setup due to error with collection: ${collectionDef.name}`, 'e');
                 return false; 
             }
-            // Adding a delay *after* each collection operation, including index attempts.
-            await new Promise(resolve => setTimeout(resolve, 250)); 
+            await new Promise(resolve => setTimeout(resolve, 200)); // Slightly increased delay
         }
         log('All collections and their indexes processed successfully.', 's');
         return true;
@@ -422,7 +417,7 @@
         if (!await authenticateAdmin(pb)) return false;
 
         if (!await setupCollections(pb)) return false; 
-        await new Promise(resolve => setTimeout(resolve, 250)); // Increased delay
+        await new Promise(resolve => setTimeout(resolve, 250)); 
 
         if(!await updateOrderCollectionRules(pb)) return false;
 
