@@ -696,7 +696,12 @@
                     <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statRes?.animTypeEn || ''"></span>, <span x-text="statRes?.wtCatEn || ''"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statRes?.animTypeAr || ''"></span>، <span x-text="statRes?.wtCatAr || ''"></span></div></div>
                     <div class="sum-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'Standard Service' : (statRes?.udhServOpt ? 'Live Animal Only' : 'N/A'))"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'خدمة عادية' : (statRes?.udhServOpt ? 'الحيوان حي فقط' : 'غير متوفر'))"></span></div></div>
                     <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="statRes?.sacDayTxtEn || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="statRes?.sacDayTxtAr || ''"></span></div></div>
-                    <div class="sum-item bil-row" x-show="statRes && statRes.niyyah && statRes.niyyah.trim() !== ''"><div class="en"><strong>Niyyah For:</strong> <span x-text="statRes.niyyah"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="statRes.niyyah"></span></div></div>
+                    <!-- ***** ALPINE ERROR FIX: More robust x-show and x-text for niyyah ***** -->
+                    <div class="sum-item bil-row" x-show="statRes && typeof statRes.niyyah === 'string' && statRes.niyyah.trim() !== ''">
+                        <div class="en"><strong>Niyyah For:</strong> <span x-text="statRes?.niyyah || ''"></span></div>
+                        <div class="ar"><strong>النية لـ:</strong> <span x-text="statRes?.niyyah || ''"></span></div>
+                    </div>
+                    <!-- ***** END FIX ***** -->
                     <div class="sum-item bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="statRes?.distrChoiceEn || ''"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="statRes?.distrChoiceAr || ''"></span></div></div>
                     <div class="sum-item bil-row" x-show="statRes && statRes.needsDel && statRes.delAddr">
                         <div class="en"><strong>Delivery To:</strong> <span x-text="`${statRes?.delAddr || ''}, ${statRes?.delCityEn || ''}`"></span></div>
