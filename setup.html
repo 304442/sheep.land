@@ -311,6 +311,7 @@
     }
     
     async function createOrUpdateCollection(pb, collectionDef) {
+        try {
             let existingCollection = null;
             try {
                 existingCollection = await pb.collections.getOne(collectionDef.name);
