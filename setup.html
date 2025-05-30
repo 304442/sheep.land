@@ -253,26 +253,26 @@
             } catch (e) {
                 if (e.status !== 404) {
                     log(`Error checking collection ${collectionDef.name}: ${e.message}`, 'e', e.response?.data);
-                    throw e;
+                    throw e; 
                 }
             }
 
-            let schemaForPayload;
+            let fieldsForPayload;
             if (existingCollection) {
-                schemaForPayload = (collectionDef.schema || []).map(newFieldDef => {
+                fieldsForPayload = (collectionDef.schema || []).map(newFieldDef => {
                     const existingField = existingCollection.schema.find(ef => ef.name === newFieldDef.name);
-                    const fieldPayload = { ...newFieldDef };
-                    if (existingField) {
+                    const fieldPayload = { ...newFieldDef }; 
+                    if (existingField) { 
                         fieldPayload.id = existingField.id;
                         fieldPayload.system = existingField.system;
-                    } else {
-                        delete fieldPayload.id;
+                    } else { 
+                        delete fieldPayload.id; 
                     }
                     return fieldPayload;
                 });
-            } else {
-                schemaForPayload = (collectionDef.schema || []).map(field => {
-                    const { id, ...restOfField } = field;
+            } else { 
+                fieldsForPayload = (collectionDef.schema || []).map(field => {
+                    const { id, ...restOfField } = field; 
                     return restOfField;
                 });
             }
@@ -287,7 +287,7 @@
                 updateRule: collectionDef.updateRule,
                 deleteRule: collectionDef.deleteRule,
                 options: collectionDef.options || {},
-                schema: schemaForPayload,
+                fields: fieldsForPayload, // *** CRITICAL: Use 'fields' key for SDK create/update ***
                 indexes: collectionDef.indexes || []
             };
 
@@ -316,7 +316,7 @@
                 log(`Halting schema setup due to error with collection: ${collectionDef.name}`, 'e');
                 return false; 
             }
-            await new Promise(resolve => setTimeout(resolve, 250)); // Add delay after each collection op
+            await new Promise(resolve => setTimeout(resolve, 250)); 
         }
         log('All collections and their indexes processed successfully.', 's');
         return true;
@@ -398,26 +398,20 @@
         return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
     
-    // Helper to find a field in a schema, case-insensitive for robustness if needed, though PB is case-sensitive
-    function findField(schema, fieldName) {
-        return schema.find(f => f.name.toLowerCase() === fieldName.toLowerCase());
-    }
-    // Cache for fetched collections to resolve relation names to IDs
     let collectionCache = {}; // Global for validateSetup to use
+    function findField(schema, fieldName) { return schema.find(f => f.name.toLowerCase() === fieldName.toLowerCase()); }
 
-    // Helper to compare two option objects
     function compareOptions(defOpts, liveOpts, fieldPath) {
         const issues = [];
         if (!liveOpts && Object.keys(defOpts || {}).length > 0) {
             issues.push(`✗ ${fieldPath}: Live options are missing, but definition has options.`);
             return issues;
         }
-        liveOpts = liveOpts || {}; // Ensure liveOpts is an object for comparison
+        liveOpts = liveOpts || {}; 
 
         for (const key in (defOpts || {})) {
-            // Special handling for collectionId as it's resolved to ID on server
             if (key === 'collectionId' && collectionCache[defOpts[key]] && liveOpts[key] !== collectionCache[defOpts[key]].id) {
-                 issues.push(`✗ ${fieldPath}: Option 'collectionId' mismatch. Expected target collection ID: ${collectionCache[defOpts[key]].id} (for name '${defOpts[key]}'), Got: ${liveOpts[key]}.`);
+                 issues.push(`✗ ${fieldPath}: Option 'collectionId' mismatch. Expected target ID for '${defOpts[key]}': ${collectionCache[defOpts[key]].id}, Got: ${liveOpts[key]}.`);
             } else if (JSON.stringify(defOpts[key]) !== JSON.stringify(liveOpts[key])) {
                  issues.push(`✗ ${fieldPath}: Option '${key}' mismatch. Defined: ${JSON.stringify(defOpts[key])}, Live: ${JSON.stringify(liveOpts[key])}.`);
             }
@@ -435,7 +429,6 @@
             return false; 
         }
     }
-
 
     async function setupSchema(pb) {
         log('=== SCHEMA SETUP PHASE ===', 'i');
@@ -494,7 +487,7 @@
     async function validateSetup(pb) {
         log('=== GRANULAR & DETAILED SETUP VALIDATION ===', 'i');
         const issues = [];
-        collectionCache = {}; // Reset cache
+        collectionCache = {}; 
 
         if (!await authenticateAdmin(pb)) {
             issues.push("✗ CRITICAL: Admin authentication failed during validation. Cannot proceed.");
@@ -558,15 +551,17 @@
                     const fieldPropsToCompare = ['type', 'required', 'system', 'presentable'];
                     for (const prop of fieldPropsToCompare) {
                         let defValue = defField[prop];
-                        if (prop === 'system' || prop === 'presentable') { // Default these booleans to false if undefined
+                        if (prop === 'system' || prop === 'presentable') { 
                            defValue = defField[prop] === undefined ? false : defField[prop];
                         }
                         const liveValue = liveField[prop];
                         if (JSON.stringify(defValue) !== JSON.stringify(liveValue)) {
                             if ( (prop === 'system' || prop === 'presentable' || prop === 'required') && defValue === false && (liveValue === null || liveValue === false) ) {
-                                // Often acceptable (false in def vs null/false in live)
-                            } else if (defValue === undefined && liveValue === null) {
+                                // Often acceptable
+                            } else if (defValue === undefined && liveValue === null && prop !== 'required' && prop !== 'system' && prop !== 'presentable') { // required,system,presentable have defaults
                                 // Undefined in def vs null in live - often acceptable
+                            } else if (prop === 'required' && defValue === undefined && liveValue === false){
+                                // Undefined required in def defaults to false, which matches live.
                             }
                             else {
                                 issues.push(`✗ <b>${fieldPath}.${prop}</b> mismatch. Defined: ${JSON.stringify(defValue)}, Live: ${JSON.stringify(liveValue)}.`);
@@ -583,8 +578,6 @@
             const liveIndexesCount = (liveCollection.indexes || []).length;
             if (definedIndexesCount !== liveIndexesCount) {
                  issues.push(`✗ <b>${def.name}</b> indexes count mismatch. Defined: ${definedIndexesCount}, Live: ${liveIndexesCount}.`);
-                 log(`Defined Indexes for ${def.name}:`, 'd', def.indexes);
-                 log(`Live Indexes for ${def.name}:`, 'd', liveCollection.indexes);
             } else if (definedIndexesCount > 0) {
                 log(`✓ Collection <b>${def.name}</b> has ${definedIndexesCount} index(es) defined and live count matches.`, 's');
             }
@@ -717,7 +710,7 @@
                  }
             }
             log('=== DEBUGGING SYSTEM COLLECTIONS (users) ===', 'i');
-            await debugCollectionSchema(pb, "users");
+            await debugCollectionSchema(pb, "users"); // Specifically debug users
             
         } catch (error) {
             log(`Debug error: ${error.message}`, 'e');
