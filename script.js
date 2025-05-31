@@ -75,6 +75,7 @@ document.addEventListener('alpine:init', () => {
         ],
         actNavHref: "", stepMeta: [], delFeeDispEGP: 0, isDelFeeVar: false,
         orderID: "",
+        elementsReady: false,
 
         getStockEn(stock, isActive) { 
             return (!isActive) ? "Inactive" : (stock === undefined || stock === null || stock <= 0) ? "Out of Stock" : (stock > 0 && stock <= 5) ? "Limited Stock" : "Available"; 
@@ -220,23 +221,16 @@ document.addEventListener('alpine:init', () => {
 
             // Wait for DOM to be ready before accessing elements
             this.$nextTick(() => {
-                // Add a small delay to ensure all elements are rendered
-                setTimeout(() => {
-                    console.log("🔧 Setting up DOM elements...");
-                    this.debugProductElements();
-                    this.updAllPrices();
-                    this.updAllStepStates();
-                    this.onScroll();
-                    this.focusRef(this.orderConf ? "orderConfTitle" : "body", false);
-                    this.updDelFeeDispEst();
-                    this.calcTotalEst();
-                    this.load.init = false;
-                    console.log("✅ App initialization complete");
-                }, 100);
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        console.log("🔧 Setting up DOM elements...");
+                        this.waitForElementsAndInitialize();
+                    }, 200);
+                });
             });
 
             this.stepMeta = [
-                { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: (this.prodOpts.live[0]?.valKey + 'WtSel') || 'step1Title', validator: this.valStep1.bind(this) },
+                { id: "#step1-content", conceptualStep: 1, titleRef: "step1Title", firstFocusableErrorRef: this.getFirstProductSelectId() || 'step1Title', validator: this.valStep1.bind(this) },
                 { id: "#step2-content", conceptualStep: 2, titleRef: "step2Title", firstFocusableErrorRef: 'custNameInputS2', validator: this.valStep2.bind(this) },
                 { id: "#step3-content", conceptualStep: 3, titleRef: "step3Title", firstFocusableErrorRef: 'udhServRadiosS3', validator: this.valStep3.bind(this) },
                 { id: "#step4-content", conceptualStep: 4, titleRef: "step4Title", firstFocusableErrorRef: 'distChoiceSelS4', validator: this.valStep4.bind(this) },
@@ -248,7 +242,11 @@ document.addEventListener('alpine:init', () => {
                 if (newValue !== oldValue) {
                     this.calcTotalEst();
                     if (prop !== 'servFee' && prop !== 'delFeeDispEGP') {
-                        this.$nextTick(() => this.updAllPrices());
+                        this.$nextTick(() => {
+                            if (this.elementsReady) {
+                                this.updAllPrices();
+                            }
+                        });
                     }
                 }
             }));
@@ -279,43 +277,71 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        // Enhanced debug function with retry mechanism
-        debugProductElements() {
-            console.log("=== DEBUGGING PRODUCT ELEMENTS ===");
-            console.log("prodOpts.live:", this.prodOpts.live);
+        getFirstProductSelectId() {
+            if (this.prodOpts.live && this.prodOpts.live.length > 0) {
+                return `${this.prodOpts.live[0].valKey}WtSel`;
+            }
+            return null;
+        },
+
+        waitForElementsAndInitialize(retryCount = 0) {
+            const maxRetries = 10;
+            const retryDelay = 500;
+
+            console.log(`🔍 Checking for DOM elements (attempt ${retryCount + 1}/${maxRetries})...`);
             
-            let missingElements = 0;
-            
+            let allElementsFound = true;
+            let missingElements = [];
+
+            // Check for product elements
             this.prodOpts.live.forEach(type => {
-                console.log(`🔍 Checking type: ${type.valKey}`);
-                const refName = `${type.valKey}WtSel`;
+                const selectId = `${type.valKey}WtSel`;
                 const cardId = type.valKey;
                 
-                const refEl = this.$refs[refName];
+                const selectEl = document.getElementById(selectId);
                 const cardEl = document.getElementById(cardId);
                 
-                console.log(`  - Ref element (${refName}):`, !!refEl);
-                console.log(`  - Card element (${cardId}):`, !!cardEl);
-                
-                if (!refEl) {
-                    console.error(`❌ Missing ref: ${refName}`);
-                    missingElements++;
+                if (!selectEl) {
+                    allElementsFound = false;
+                    missingElements.push(`select#${selectId}`);
                 }
                 if (!cardEl) {
-                    console.error(`❌ Missing card: ${cardId}`);
-                    missingElements++;
+                    allElementsFound = false;
+                    missingElements.push(`card#${cardId}`);
                 }
             });
-            
-            if (missingElements > 0) {
-                console.warn(`⚠️ Found ${missingElements} missing elements. Will retry in 500ms...`);
+
+            if (allElementsFound) {
+                console.log("✅ All DOM elements found successfully");
+                this.elementsReady = true;
+                this.finalizeInitialization();
+            } else if (retryCount < maxRetries) {
+                console.warn(`⚠️ Missing elements: ${missingElements.join(', ')}. Retrying in ${retryDelay}ms...`);
                 setTimeout(() => {
-                    console.log("🔄 Retrying element detection...");
-                    this.updAllPrices();
-                }, 500);
+                    this.waitForElementsAndInitialize(retryCount + 1);
+                }, retryDelay);
             } else {
-                console.log("✅ All product elements found successfully");
+                console.error(`❌ Failed to find all elements after ${maxRetries} attempts. Missing: ${missingElements.join(', ')}`);
+                this.elementsReady = false;
+                this.finalizeInitialization(); // Continue anyway
             }
+        },
+
+        finalizeInitialization() {
+            console.log("🎯 Finalizing initialization...");
+            
+            if (this.elementsReady) {
+                this.updAllPrices();
+            }
+            
+            this.updAllStepStates();
+            this.onScroll();
+            this.focusRef(this.orderConf ? "orderConfTitle" : "body", false);
+            this.updDelFeeDispEst();
+            this.calcTotalEst();
+            this.load.init = false;
+            
+            console.log("✅ App initialization complete");
         },
 
         updServFeeEst() { 
@@ -693,9 +719,13 @@ document.addEventListener('alpine:init', () => {
             
             if (!selItemKey) {
                 this.selAnim = { ...initOrderData.selAnim };
+                // Clear other selections using direct DOM queries
                 this.prodOpts.live.forEach(type => { 
-                    if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { 
-                        this.$refs[`${type.valKey}WtSel`].value = ""; 
+                    if (type.valKey !== animTypeKey) {
+                        const otherSelectEl = document.getElementById(`${type.valKey}WtSel`);
+                        if (otherSelectEl) {
+                            otherSelectEl.value = ""; 
+                        }
                     } 
                 });
                 this.calcTotalEst(); 
@@ -703,9 +733,13 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             
+            // Clear other selections using direct DOM queries
             this.prodOpts.live.forEach(type => { 
-                if (type.valKey !== animTypeKey && this.$refs[`${type.valKey}WtSel`]) { 
-                    this.$refs[`${type.valKey}WtSel`].value = ""; 
+                if (type.valKey !== animTypeKey) {
+                    const otherSelectEl = document.getElementById(`${type.valKey}WtSel`);
+                    if (otherSelectEl) {
+                        otherSelectEl.value = ""; 
+                    }
                 } 
             });
             
@@ -770,17 +804,22 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             
+            if (!this.elementsReady) {
+                console.warn("Elements not ready for price update, skipping...");
+                return;
+            }
+            
             try {
                 let successCount = 0;
                 let errorCount = 0;
                 
                 this.prodOpts.live.forEach(liveTypeCfg => {
-                    const wtSelRefName = `${liveTypeCfg.valKey}WtSel`;
-                    const wtSelEl = this.$refs[wtSelRefName];
+                    const wtSelId = `${liveTypeCfg.valKey}WtSel`;
+                    const wtSelEl = document.getElementById(wtSelId); // Use direct DOM query
                     const cardEl = document.getElementById(liveTypeCfg.valKey);
 
                     if (!wtSelEl || !cardEl) {
-                        console.warn(`⚠️ Missing elements for ${liveTypeCfg.valKey} during price update. Select Ref: ${wtSelRefName}, Card ID: ${liveTypeCfg.valKey}.`);
+                        console.warn(`⚠️ Missing elements for ${liveTypeCfg.valKey} during price update. Select ID: ${wtSelId}, Card ID: ${liveTypeCfg.valKey}.`);
                         errorCount++;
                         return;
                     }
@@ -951,7 +990,11 @@ document.addEventListener('alpine:init', () => {
                         console.log(`📉 Updated local stock for ${stockItemCfg.itemKey}: ${stockItemCfg.stock}`);
                     }
                 }
-                this.$nextTick(() => this.updAllPrices());
+                this.$nextTick(() => {
+                    if (this.elementsReady) {
+                        this.updAllPrices();
+                    }
+                });
 
                 this.orderConf = true;
                 this.$nextTick(() => { 
@@ -981,7 +1024,11 @@ document.addEventListener('alpine:init', () => {
                             const selectedWeightPackage = selectedAnimalConfig.wps.find(wp => wp.itemKey === this.selAnim.itemKey);
                             if(selectedWeightPackage) selectedWeightPackage.stock = 0;
                         }
-                        this.$nextTick(() => this.updAllPrices());
+                        this.$nextTick(() => {
+                            if (this.elementsReady) {
+                                this.updAllPrices();
+                            }
+                        });
 
                     } else if (e.data.data && Object.keys(e.data.data).length > 0) {
                         const fieldErrors = Object.keys(e.data.data).map(key => `${key.replace(/_/g, ' ')}: ${e.data.data[key].message}`).join("; ");
@@ -1146,7 +1193,9 @@ document.addEventListener('alpine:init', () => {
             this.statNotFound = false;
 
             this.$nextTick(() => {
-                this.updAllPrices();
+                if (this.elementsReady) {
+                    this.updAllPrices();
+                }
                 this.updAllStepStates();
                 this.updDelFeeDispEst();
                 this.calcTotalEst();
