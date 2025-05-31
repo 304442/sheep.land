@@ -1,8 +1,42 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-console.log("=== HOOK FILE LOADING ===");
+console.log("=== SHEEP LAND HOOKS LOADING ===");
 
-$app.onRecordBeforeCreateRequest("orders", (e) => {
+// Universal hook registration that works with both old and new PocketBase versions
+const registerHook = (collection, event, handler) => {
+    try {
+        // Try new syntax first
+        if (typeof onRecordBeforeCreateRequest !== 'undefined' && event === 'beforeCreate') {
+            onRecordBeforeCreateRequest(handler, collection);
+            console.log(`✅ Registered ${event} hook for ${collection} (new syntax)`);
+        } else if (typeof onRecordAfterCreateRequest !== 'undefined' && event === 'afterCreate') {
+            onRecordAfterCreateRequest(handler, collection);
+            console.log(`✅ Registered ${event} hook for ${collection} (new syntax)`);
+        } else if (typeof onRecordBeforeUpdateRequest !== 'undefined' && event === 'beforeUpdate') {
+            onRecordBeforeUpdateRequest(handler, collection);
+            console.log(`✅ Registered ${event} hook for ${collection} (new syntax)`);
+        } else {
+            // Fall back to old syntax
+            if (typeof $app !== 'undefined') {
+                if (event === 'beforeCreate') {
+                    $app.onRecordBeforeCreateRequest(collection, handler);
+                } else if (event === 'afterCreate') {
+                    $app.onRecordAfterCreateRequest(collection, handler);
+                } else if (event === 'beforeUpdate') {
+                    $app.onRecordBeforeUpdateRequest(collection, handler);
+                }
+                console.log(`✅ Registered ${event} hook for ${collection} (old syntax)`);
+            } else {
+                console.error(`❌ Cannot register ${event} hook for ${collection} - no hook functions available`);
+            }
+        }
+    } catch (error) {
+        console.error(`❌ Failed to register ${event} hook for ${collection}:`, error);
+    }
+};
+
+// Before Create Hook
+registerHook("orders", "beforeCreate", (e) => {
     console.log("=== ORDER HOOK TRIGGERED ===");
     const record = e.record;
     const dao = $app.dao();
@@ -178,12 +212,14 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
     console.log(`[OrderHook END] Order processing complete.`);
 });
 
-$app.onRecordAfterCreateRequest("orders", (e) => {
+// After Create Hook
+registerHook("orders", "afterCreate", (e) => {
     const record = e.record;
     console.log(`[OrderHook AfterCreate]: Order ${record.id} (Client ID: ${record.getString("order_id_text")}) created successfully.`);
 });
 
-$app.onRecordBeforeUpdateRequest("orders", (e) => {
+// Before Update Hook
+registerHook("orders", "beforeUpdate", (e) => {
     const record = e.record;
     const dao = $app.dao();
     let oldStatus = "";
@@ -228,4 +264,4 @@ $app.onRecordBeforeUpdateRequest("orders", (e) => {
     }
 });
 
-console.log("=== JavaScript hooks for 'orders' registered successfully ===");
+console.log("=== SHEEP LAND HOOKS REGISTERED SUCCESSFULLY ===");
