@@ -1,6 +1,9 @@
 /// <reference path="../pb_data/types.d.ts" />
 
+console.log("=== HOOK FILE LOADING ===");
+
 $app.onRecordBeforeCreateRequest("orders", (e) => {
+    console.log("=== ORDER HOOK TRIGGERED ===");
     const record = e.record;
     const dao = $app.dao();
 
@@ -15,6 +18,7 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
     let product;
     try {
         product = dao.findRecordById("products", productID);
+        console.log(`[OrderHook] Found product: ${product.getString("item_key")}`);
     } catch (err) {
         console.error(`[OrderHook] CRITICAL: Product with ID ${productID} not found: ${err}`);
         throw new Error(`Product with ID ${productID} not found. Ensure it's a valid product variant ID.`);
@@ -51,6 +55,7 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
     let appSettings;
     try {
         appSettings = dao.findFirstRecordByFilter("settings", "id!=''");
+        console.log(`[OrderHook] Found settings record`);
     } catch (err) {
         console.error(`[OrderHook] CRITICAL: Failed to fetch settings: ${err}`);
         throw new Error("Failed to fetch application settings. Cannot process order.");
@@ -62,12 +67,15 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
         serviceFeeAppliedEGP = defaultServiceFeeEGP;
     }
     record.set("service_fee_applied_egp", serviceFeeAppliedEGP);
+    console.log(`[OrderHook] Service fee applied: ${serviceFeeAppliedEGP}`);
 
     // Calculate delivery fee
     let deliveryFeeAppliedEGP = 0.0;
     const deliveryOption = record.getString("delivery_option");
     const deliveryAreaID = record.getString("delivery_area_id");
     const deliveryAreasJSON = appSettings.get("delAreas");
+
+    console.log(`[OrderHook] Delivery option: ${deliveryOption}, Area ID: ${deliveryAreaID}`);
 
     if (deliveryOption === "home_delivery_to_orderer" && deliveryAreaID) {
         if (deliveryAreasJSON && Array.isArray(deliveryAreasJSON)) {
@@ -81,6 +89,7 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
                                 if (currentCityID === deliveryAreaID) {
                                     if (typeof city.delivery_fee_egp === 'number') {
                                         deliveryFeeAppliedEGP = city.delivery_fee_egp;
+                                        console.log(`[OrderHook] Found delivery fee: ${deliveryFeeAppliedEGP} for city ${currentCityID}`);
                                         break;
                                     }
                                 }
@@ -89,6 +98,7 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
                     } else if (govID === deliveryAreaID) {
                         if (typeof govArea.delivery_fee_egp === 'number') {
                             deliveryFeeAppliedEGP = govArea.delivery_fee_egp;
+                            console.log(`[OrderHook] Found delivery fee: ${deliveryFeeAppliedEGP} for gov ${govID}`);
                             break;
                         }
                     }
@@ -101,7 +111,12 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
 
     // Calculate total
     const totalAmountDueEGP = priceAtOrderTimeEGP + serviceFeeAppliedEGP + deliveryFeeAppliedEGP;
-    console.log(`[OrderHook] Calculated total: ${totalAmountDueEGP}`);
+    console.log(`[OrderHook] Calculated total: ${totalAmountDueEGP} (${priceAtOrderTimeEGP} + ${serviceFeeAppliedEGP} + ${deliveryFeeAppliedEGP})`);
+    
+    if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) {
+        console.error("[OrderHook] CRITICAL: totalAmountDueEGP is NaN or negative");
+        throw new Error("Internal error calculating total order amount. Please contact support.");
+    }
     record.set("total_amount_due_egp", totalAmountDueEGP);
 
     // Set sacrifice day text
@@ -115,9 +130,11 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
     if (sacrificeDayMap[sacDayVal]) {
         record.set("sacrifice_day_text_en", sacrificeDayMap[sacDayVal].en);
         record.set("sacrifice_day_text_ar", sacrificeDayMap[sacDayVal].ar);
+        console.log(`[OrderHook] Set sacrifice day texts for: ${sacDayVal}`);
     } else {
         record.set("sacrifice_day_text_en", sacDayVal);
         record.set("sacrifice_day_text_ar", sacDayVal);
+        console.log(`[OrderHook] Used raw sacrifice day value: ${sacDayVal}`);
     }
 
     // Set payment and order status
@@ -137,18 +154,22 @@ $app.onRecordBeforeCreateRequest("orders", (e) => {
     console.log(`[OrderHook] Set statuses -> payment: "${paymentStatusToSet}", order: "${orderStatusToSet}"`);
 
     // Set IP and User Agent if fields exist
-    if (record.has("user_ip_address")) {
-        record.set("user_ip_address", e.httpContext.realIp());
-    }
-    if (record.has("user_agent_string")) {
-        record.set("user_agent_string", e.httpContext.request().header.get("User-Agent"));
+    try {
+        if (record.has("user_ip_address")) {
+            record.set("user_ip_address", e.httpContext.realIp());
+        }
+        if (record.has("user_agent_string")) {
+            record.set("user_agent_string", e.httpContext.request().header.get("User-Agent"));
+        }
+    } catch (ipErr) {
+        console.warn(`[OrderHook] Could not set IP/UserAgent: ${ipErr}`);
     }
 
     // Update stock
     product.set("stock_available_pb", currentStock - 1);
     try {
         dao.saveRecord(product);
-        console.log(`[OrderHook] Stock updated for ${product.getString("item_key")}`);
+        console.log(`[OrderHook] Stock updated for ${product.getString("item_key")} from ${currentStock} to ${currentStock - 1}`);
     } catch (err) {
         console.error(`[OrderHook] CRITICAL: Failed to update stock: ${err}`);
         throw new Error(`Failed to update product stock. Order not created.`);
@@ -207,4 +228,4 @@ $app.onRecordBeforeUpdateRequest("orders", (e) => {
     }
 });
 
-console.log("JavaScript hooks for 'orders' registered with older syntax.");
+console.log("=== JavaScript hooks for 'orders' registered successfully ===");
