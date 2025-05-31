@@ -279,7 +279,7 @@
                                                     </div>
                                                     <div class="card-act">
                                                         <label :for="animType.valKey + 'WtSel'" class="sr-only" x-text="'Select ' + animType.nameEn + ' Weight Category'"></label>
-                                                        <select :id="animType.valKey + 'WtSel'" class="input" :x-ref="animType.valKey + 'WtSel'" @change="selAnimal(animType.valKey, $el)" :aria-invalid="errs.animal ? 'true' : 'false'">
+                                                        <select :id="animType.valKey + 'WtSel'" class="input" @change="selAnimal(animType.valKey, $el)" :aria-invalid="errs.animal ? 'true' : 'false'">
                                                             <option value="">-- Select Weight --</option>
                                                             <template x-for="wpItem in animType.wps" :key="wpItem.itemKey">
                                                                 <option :value="wpItem.itemKey"
@@ -293,7 +293,7 @@
                                             </div>
                                         </div>
                                     </template>
-                                     <div x-show="(!prodOpts.live || prodOpts.live.length === 0) && !load.init" class="load-text bil-row">
+                                    <div x-show="(!prodOpts.live || prodOpts.live.length === 0) && !load.init" class="load-text bil-row">
                                         <span class="en">No animal options currently available. Please check back later.</span>
                                         <span class="ar">لا توجد خيارات حيوانات متاحة حاليًا. يرجى التحقق مرة أخرى لاحقًا.</span>
                                     </div>
