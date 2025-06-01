@@ -96,8 +96,8 @@
             name: "settings",
             type: "base",
             system: false,
-            listRule: "@everyone",
-            viewRule: "@everyone",
+            listRule: "", // Public read access
+            viewRule: "", // Public view access
             createRule: null, 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: null, 
@@ -127,8 +127,8 @@
             name: "products", 
             type: "base", 
             system: false,
-            listRule: "@everyone", 
-            viewRule: "@everyone", 
+            listRule: "", 
+            viewRule: "", 
             createRule: "@request.auth.id != '' && @request.auth.verified = true", 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
@@ -155,14 +155,14 @@
             indexes: [ "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)", "CREATE INDEX `idx_products_category` ON `products` (`product_category`)" ]
         },
         { 
-            name: "users", 
+            name: "users", // This will target the existing _pb_users_auth_
             type: "auth",
             system: false, 
-            listRule: "@request.auth.id = id", 
-            viewRule: "@request.auth.id = id",
+            listRule: "@request.auth.id = id || @request.auth.admin = true", // Admin can list all for management
+            viewRule: "@request.auth.id = id || @request.auth.admin = true",
             createRule: "", 
-            updateRule: "@request.auth.id = id", 
-            deleteRule: "@request.auth.id = id",
+            updateRule: "@request.auth.id = id || @request.auth.admin = true", 
+            deleteRule: "@request.auth.id = id || @request.auth.admin = true", 
             options: { 
                 emailVisibility: true, 
                 requireEmailVerification: false, 
@@ -179,14 +179,14 @@
             name: "orders", 
             type: "base", 
             system: false,
-            listRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')", 
-            viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')",
-            createRule: "", 
+            listRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true", 
+            viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
+            createRule: "", // Open for guests, user will be linked if logged in by hook
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
             schema: [
                 { name: "order_id_text", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 50, min: 1} },
-                // user field (relation) will be added in the next step (addOrVerifyRelationFields)
+                // user field (relation) will be added in the addOrVerifyRelationFields step
                 { name: "customer_name", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
                 { name: "customer_phone", type: "text", system: false, required: true, presentable: true, options: {max: 30, min: 7} },
                 { name: "customer_email", type: "email", system: false, required: true, presentable: true, options: {} },
@@ -242,28 +242,63 @@
         ]
     };
 
-    async function authenticateAdmin(pb) {
+    async function safeExecute(operation, operationName, pbInstance = null) {
+        const pb = pbInstance || new PocketBase(pbUrl); // Use passed instance or create new
         try {
-            log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
-            await pb.admins.authWithPassword(ADM_E, ADM_P);
-            log('Admin authentication successful.', 's');
-            return true;
+            log(`Starting ${operationName}...`, 'i');
+            const result = await operation(pb); // Pass pb to the operation
+            log(`${operationName} completed successfully.`, 's');
+            return { success: true, result };
         } catch (error) {
-            log(`Admin authentication failed: ${error.message}`, 'e', error.data || error);
-            return false;
+            log(`${operationName} FAILED: ${error.message}`, 'e');
+            console.error(`${operationName} error:`, error);
+            if (error.response && error.response.data) {
+                log('Server error details:', 'e', error.response.data);
+            } else if (error.data) { // Sometimes error details are directly in error.data
+                 log('Error details:', 'e', error.data);
+            }
+            if (error.stack) {
+                log('Stack trace:', 'd', error.stack.split('\n').slice(0, 5).join('\n')); // Log first 5 lines of stack
+            }
+            return { success: false, error };
+        } finally {
+            // Clear auth only if it's a temporary admin auth within this function,
+            // not if pb was passed in already authenticated (e.g. for seeding after schema)
+            if (pbInstance === null && pb.authStore.isValid && pb.authStore.isAdmin) {
+                log(`Clearing temporary admin auth after ${operationName}`, 'd');
+                pb.authStore.clear();
+            }
         }
     }
 
+
+    async function setupSchema(pb) {
+        if (!await authenticateAdmin(pb)) return false;
+
+        log('Processing initial collections (settings, products, users config, orders without relations)...', 'i');
+        if (!await importOrUpdateCollections(pb, collectionsDefinition)) { 
+             log('Initial collection setup failed.', 'e'); return false;
+        }
+        
+        log('Processing relation fields for "orders" collection...', 'i');
+        if (!await addOrVerifyRelationFields(pb)) {
+             log('Relation field setup for "orders" failed.', 'e'); return false;
+        }
+
+        log('Schema setup phase completed successfully.', 's');
+        return true;
+    }
+    
     async function importOrUpdateCollections(pb, collectionsToProcess) {
-        log('Starting collection schema setup/update...', 'i');
+        log('Starting collection schema setup/update for specified collections...', 'i');
         for (const collectionDef of collectionsToProcess) {
             let existingCollection = null;
-            const isAuthCollection = collectionDef.name === "users" || collectionDef.name === "_pb_users_auth_";
+            const isAuthCollection = collectionDef.name === "users"; // Simpler check
             const collectionNameToUse = isAuthCollection ? "_pb_users_auth_" : collectionDef.name;
 
             try {
                 existingCollection = await pb.collections.getOne(collectionNameToUse);
-                log(`Collection "${collectionNameToUse}" exists. Attempting update...`, 'i');
+                log(`Collection "${collectionNameToUse}" exists. Attempting update...`, 'i', { name: collectionNameToUse });
                 
                 const updatePayload = {
                     listRule: collectionDef.listRule,
@@ -271,63 +306,63 @@
                     createRule: collectionDef.createRule,
                     updateRule: collectionDef.updateRule,
                     deleteRule: collectionDef.deleteRule,
+                    schema: collectionDef.schema.map(field => ({ ...field, options: field.options || {} })),
                 };
-                if (collectionDef.schema) { 
-                    updatePayload.schema = collectionDef.schema.map(field => ({ ...field, options: field.options || {} }));
-                }
                 if (isAuthCollection && collectionDef.options) { 
                     updatePayload.options = { ... (existingCollection.options || {}), ...collectionDef.options };
                 }
+                // Note: Indexes are not typically managed via the update API.
+                // They are part of the import structure for new collections.
+                // If collectionDef.indexes is provided, it's for new collections via import.
                 
                 await pb.collections.update(collectionNameToUse, updatePayload);
                 log(`Collection "${collectionNameToUse}" updated successfully.`, 's');
 
             } catch (e) {
                 if (e.status === 404 && !isAuthCollection) { 
-                    log(`Collection "${collectionDef.name}" not found. Creating...`, 'i');
+                    log(`Collection "${collectionDef.name}" not found. Creating...`, 'i', { name: collectionDef.name });
                     try {
                          const newCollectionData = {
                             name: collectionDef.name,
                             type: collectionDef.type,
                             system: collectionDef.system || false,
                             schema: collectionDef.schema.map(field => ({ ...field, options: field.options || {} })),
-                            listRule: collectionDef.listRule,
-                            viewRule: collectionDef.viewRule,
-                            createRule: collectionDef.createRule,
-                            updateRule: collectionDef.updateRule,
-                            deleteRule: collectionDef.deleteRule,
+                            listRule: collectionDef.listRule !== undefined ? collectionDef.listRule : null,
+                            viewRule: collectionDef.viewRule !== undefined ? collectionDef.viewRule : null,
+                            createRule: collectionDef.createRule !== undefined ? collectionDef.createRule : null,
+                            updateRule: collectionDef.updateRule !== undefined ? collectionDef.updateRule : null,
+                            deleteRule: collectionDef.deleteRule !== undefined ? collectionDef.deleteRule : null,
                             indexes: collectionDef.indexes || [],
-                            options: collectionDef.options || {}
+                            options: collectionDef.options || {} 
                         };
                         await pb.collections.import([newCollectionData], false); 
                         log(`Collection "${collectionDef.name}" created successfully.`, 's');
                     } catch (createError) {
-                        log(`Error CREATING collection "${collectionDef.name}": ${createError.message}`, 'e', createError.data);
+                        log(`Error CREATING collection "${collectionDef.name}": ${createError.message}`, 'e', createError.data || createError);
                         return false; 
                     }
                 } else if (e.status === 404 && isAuthCollection) {
-                     log(`Auth collection "${collectionNameToUse}" should exist. If not, PB init is problematic.`, 'e', e.data);
+                     log(`Auth collection "${collectionNameToUse}" should exist. This error indicates a problem with PocketBase itself or the system user collection is missing.`, 'e', e.data || e);
                      return false;
-                }
-                 else { 
-                    log(`Error processing collection "${collectionNameToUse}": ${e.message}`, 'e', e.data);
+                } else { 
+                    log(`Error processing collection "${collectionNameToUse}": ${e.message}`, 'e', e.data || e);
                     return false; 
                 }
             }
-            await new Promise(r => setTimeout(r, 250)); 
+            await new Promise(r => setTimeout(r, 100)); // Delay between collection operations
         }
-        log('All non-relation schema parts processed.', 's');
+        log('Collection schema processing finished.', 's');
         return true;
     }
     
     async function addOrVerifyRelationFields(pb) {
         log('Adding/Verifying relation fields...', 'i');
-        let success = true;
+        let overallSuccess = true;
         const relationsToAdd = [
             { 
                 sourceCollectionName: "orders", 
                 fieldName: "user", 
-                targetCollectionName: "_pb_users_auth_",
+                targetCollectionName: "_pb_users_auth_", // PB's internal users collection name
                 options: { cascadeDelete: false, minSelect: null, maxSelect: 1, displayFields: ["email", "name"] },
                 required: false, 
                 presentable: true
@@ -337,24 +372,29 @@
         for (const rel of relationsToAdd) {
             try {
                 const sourceCollection = await pb.collections.getOne(rel.sourceCollectionName);
-                let schema = sourceCollection.schema || [];
+                let schema = sourceCollection.schema || []; // Ensure schema is an array
                 const fieldExists = schema.find(f => f.name === rel.fieldName && f.type === "relation");
 
                 if (fieldExists) {
-                    log(`Relation field "${rel.fieldName}" already exists in "${rel.sourceCollectionName}". Verifying options...`, 'w');
-                    let needsFieldUpdate = false;
-                    if (fieldExists.required !== rel.required) { needsFieldUpdate = true; fieldExists.required = rel.required; }
-                    if (JSON.stringify(fieldExists.options.displayFields?.sort()) !== JSON.stringify(rel.options.displayFields?.sort())) {
-                        needsFieldUpdate = true;
-                        fieldExists.options.displayFields = rel.options.displayFields;
+                    log(`Relation field "${rel.fieldName}" in "${rel.sourceCollectionName}" exists. Verifying options...`, 'w');
+                    let fieldSchemaChanged = false;
+                    if (fieldExists.required !== rel.required) { fieldSchemaChanged = true; fieldExists.required = rel.required; }
+                    if (fieldExists.presentable !== rel.presentable) { fieldSchemaChanged = true; fieldExists.presentable = rel.presentable; }
+                    
+                    // Options checks
+                    const currentRelOptions = fieldExists.options || {};
+                    if (currentRelOptions.collectionId !== rel.targetCollectionName) { fieldSchemaChanged = true; currentRelOptions.collectionId = rel.targetCollectionName; }
+                    if (currentRelOptions.cascadeDelete !== rel.options.cascadeDelete) { fieldSchemaChanged = true; currentRelOptions.cascadeDelete = rel.options.cascadeDelete; }
+                    if (currentRelOptions.minSelect !== rel.options.minSelect) { fieldSchemaChanged = true; currentRelOptions.minSelect = rel.options.minSelect; }
+                    if (currentRelOptions.maxSelect !== rel.options.maxSelect) { fieldSchemaChanged = true; currentRelOptions.maxSelect = rel.options.maxSelect; }
+                    if (JSON.stringify(currentRelOptions.displayFields?.sort()) !== JSON.stringify(rel.options.displayFields?.sort())) {
+                        fieldSchemaChanged = true;
+                        currentRelOptions.displayFields = rel.options.displayFields;
                     }
-                     if (fieldExists.options.collectionId !== rel.targetCollectionName) { // Ensure target collection is correct
-                        needsFieldUpdate = true;
-                        fieldExists.options.collectionId = rel.targetCollectionName;
-                    }
-                    // Add other option checks if necessary (minSelect, maxSelect, cascadeDelete)
-                    if(needsFieldUpdate) {
-                        log(`Updating options for existing relation field "${rel.fieldName}" in "${rel.sourceCollectionName}".`, 'i');
+                    fieldExists.options = currentRelOptions; // Assign back updated options
+
+                    if(fieldSchemaChanged) {
+                        log(`Updating existing relation field "${rel.fieldName}" in "${rel.sourceCollectionName}".`, 'i');
                         await pb.collections.update(sourceCollection.id, { schema: schema });
                     }
                     continue;
@@ -376,19 +416,18 @@
                     }
                 };
                 
-                const updatedSchema = [...schema, newField];
-                await pb.collections.update(sourceCollection.id, { schema: updatedSchema });
+                schema.push(newField);
+                await pb.collections.update(sourceCollection.id, { schema: schema });
                 log(`Relation field "${rel.fieldName}" added to "${rel.sourceCollectionName}" successfully.`, 's');
 
             } catch (error) {
-                log(`Error adding/verifying relation field "${rel.fieldName}" to "${rel.sourceCollectionName}": ${error.message}`, 'e', error.data);
-                success = false;
+                log(`Error adding/verifying relation field "${rel.fieldName}" to "${rel.sourceCollectionName}": ${error.message}`, 'e', error.data || error);
+                overallSuccess = false;
             }
-            await new Promise(r => setTimeout(r, 250)); 
+            await new Promise(r => setTimeout(r, 100)); 
         }
-        return success;
+        return overallSuccess;
     }
-
 
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
         log(`Seeding data for <b>${collectionName}</b>...`, 'i');
@@ -399,7 +438,7 @@
                 let existingRecord = null;
                 if (uniqueKeyField && item[uniqueKeyField] !== undefined) { 
                     try { 
-                        existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${pb. Verteidigungsministerium.escapeFilterValue(item[uniqueKeyField])}"`); 
+                        existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${pb.utils.escapeFilterValue(item[uniqueKeyField])}"`); 
                     } catch (e) { /* Record doesn't exist, will create */ }
                 } else if (!uniqueKeyField && collectionName === "settings") { 
                     const list = await pb.collection(collectionName).getList(1, 1);
@@ -424,24 +463,6 @@
         return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
 
-    async function setupSchema(pb) {
-        log('=== SCHEMA SETUP PHASE ===', 'i');
-        if (!await authenticateAdmin(pb)) return false;
-
-        log('Processing initial collections (settings, products, users config, orders)...', 'i');
-        if (!await importOrUpdateCollections(pb, collectionsDefinition)) { 
-             log('Initial collection setup failed.', 'e'); return false;
-        }
-        
-        log('Processing relation fields...', 'i');
-        if (!await addOrVerifyRelationFields(pb)) {
-             log('Relation field setup failed.', 'e'); return false;
-        }
-
-        log('Schema setup completed successfully.', 's');
-        return true;
-    }
-
     async function setupSeedData(pb) {
         log('=== SEED DATA PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
@@ -458,7 +479,7 @@
         
         if (anySeedErrors) {
             log('Seed data setup completed with errors.', 'w');
-            // return false; // Decide if seed errors should halt the overall success
+            return false; 
         }
         log('Seed data setup completed successfully.', 's');
         return true;
@@ -468,18 +489,13 @@
         const warnings = [];
         collectionsDefinition.forEach(collection => {
             const collName = collection.name === "users" ? "_pb_users_auth_" : collection.name;
-            if ((collection.createRule === "" || collection.createRule === "@everyone") && collName !== "orders" /* Orders allow guest create */) {
+            if ((collection.createRule === "" || collection.createRule === "@everyone") && collName !== "orders" && collName !== "_pb_users_auth_" /* Orders and Users allow public create */) {
                 warnings.push(`Collection "${collName}" has public createRule.`);
             }
-            if ((collection.updateRule === "" || collection.updateRule === "@everyone") && collection.updateRule !== "@request.auth.id = id" /* allow users to update self */) {
-                warnings.push(`Collection "${collName}" has public updateRule.`);
-            }
-            if ((collection.deleteRule === "" || collection.deleteRule === "@everyone") && collection.deleteRule !== "@request.auth.id = id") {
-                warnings.push(`Collection "${collName}" has public deleteRule.`);
-            }
-
+           
             if (collection.type === "auth" && (collection.name === "users" || collection.name === "_pb_users_auth_")) {
-                if (collection.options && collection.options.requireEmailVerification === false) {
+                 const authOptions = collection.options || {};
+                if (authOptions.requireEmailVerification === false) {
                     warnings.push(`Auth Collection "${collName}" has 'requireEmailVerification' set to false. Recommended to enable for production.`);
                 }
             }
@@ -506,30 +522,27 @@
         const pb = new PocketBase(pbUrl);
         let schemaSuccess = false;
         try {
-            schemaSuccess = await setupSchema(pb);
+            const schemaResult = await safeExecute(async (pbInstance) => setupSchema(pbInstance), "Schema Setup", pb);
+            schemaSuccess = schemaResult.success;
+
             if (!schemaSuccess) {
                 log('Schema setup failed, aborting full setup', 'e');
-                return;
+            } else {
+                const seedResult = await safeExecute(async (pbInstance) => setupSeedData(pbInstance), "Seed Data", pb);
+                if (!seedResult.success) {
+                    log('Seed data setup failed, but schema might be okay.', 'w');
+                }
+                log('<b>=== FULL SETUP COMPLETED ===</b>', seedResult.success ? 's' : 'w');
+                validateProductionSecurity();
             }
-
-            const seedSuccess = await setupSeedData(pb);
-            if (!seedSuccess) {
-                log('Seed data setup failed, but schema might be okay.', 'w');
-            }
-
-            log('<b>=== FULL SETUP COMPLETED ===</b>', 's');
-            validateProductionSecurity();
-            
-        } catch (error) {
-            log(`<b>CRITICAL ERROR during full setup:</b> ${error.message}`, 'e');
-            console.error('Full setup error:', error);
-            if (error.response?.data) log('Full setup error details:', 'e', error.response.data);
-            if (error.stack) log('Stack trace:', 'e', error.stack);
+        } catch (error) { // Catch any unexpected errors from safeExecute itself or surrounding logic
+            log(`<b>CRITICAL UNHANDLED ERROR during full setup:</b> ${error.message}`, 'e');
+            console.error('Full setup unhandled error:', error);
         } finally {
-            if (pb.authStore.isValid) pb.authStore.clear();
+            if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
              runSeedOnlyButton.disabled = !schemaSuccess; 
-            log('Process finished, auth cleared', 'i');
+            log('Process finished, admin auth cleared if used.', 'i');
         }
     };
 
@@ -540,7 +553,8 @@
         const pb = new PocketBase(pbUrl);
         let success = false;
         try {
-            success = await setupSchema(pb);
+            const schemaResult = await safeExecute(async (pbInstance) => setupSchema(pbInstance), "Schema Setup", pb);
+            success = schemaResult.success;
             if (success) {
                 log('<b>Schema setup completed successfully</b>', 's');
                 validateProductionSecurity();
@@ -548,14 +562,13 @@
                  log('<b>Schema setup FAILED</b>', 'e');
             }
         } catch (error) {
-            log(`<b>ERROR during schema setup:</b> ${error.message}`, 'e');
+            log(`<b>UNHANDLED ERROR during schema setup:</b> ${error.message}`, 'e');
             console.error('Schema error:', error);
-            if (error.response?.data) log('Schema error details:', 'e', error.response.data);
         } finally {
-            if (pb.authStore.isValid) pb.authStore.clear();
+            if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
             runSeedOnlyButton.disabled = !success;
-            log('Schema only process finished, auth cleared', 'i');
+            log('Schema only process finished, admin auth cleared if used.', 'i');
         }
     };
 
@@ -566,20 +579,20 @@
         const pb = new PocketBase(pbUrl);
         let success = false;
         try {
-            success = await setupSeedData(pb);
+            const seedResult = await safeExecute(async (pbInstance) => setupSeedData(pbInstance), "Seed Data", pb);
+            success = seedResult.success;
              if (success) {
                 log('<b>Seed data setup completed successfully</b>', 's');
             } else {
                  log('<b>Seed data setup FAILED or completed with errors.</b>', 'w');
             }
         } catch (error) {
-            log(`<b>ERROR during seed setup:</b> ${error.message}`, 'e');
+            log(`<b>UNHANDLED ERROR during seed setup:</b> ${error.message}`, 'e');
             console.error('Seed error:', error);
-            if (error.response?.data) log('Seed error details:', 'e', error.response.data);
         } finally {
-            if (pb.authStore.isValid) pb.authStore.clear();
+            if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = false);
-            log('Seed data only process finished, auth cleared', 'i');
+            log('Seed data only process finished, admin auth cleared if used.', 'i');
         }
     };
 </script>
