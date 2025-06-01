@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PB Setup: SheepLand Udheya</title>
+    <title>PB Setup: Sheep Land</title>
     <script src="https://unpkg.com/pocketbase@latest/dist/pocketbase.umd.js"></script>
     <style>
         body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
@@ -13,29 +13,51 @@
         button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em;margin-bottom:5px;}
         button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
         #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:70vh;overflow-y:auto;}
+        .ls{color:lime;font-weight:bold;} /* success */
+        .le{color:salmon;font-weight:bold;} /* error */
+        .li{color:cyan;} /* info */
+        .lw{color:yellow;} /* warning */
+        .ld{color:gray;} /* debug / data */
     </style>
 </head>
 <body>
     <div class="c">
-        <h1>PB SheepLand Udheya Setup</h1>
-        <p class="warn">WARNING: This script uses default admin credentials (admin@example.com / unifiedpassword). CHANGE THESE IMMEDIATELY in a production environment. This script will create/update collections and data. Backup your existing data if necessary.</p>
-        <button id="runFullSetup">Run Full Setup (Schema & Seed)</button>
+        <h1>PB Sheep Land Setup</h1>
+        <p class="warn">WARNING: This script uses default admin credentials (admin@example.com / unifiedpassword). CHANGE THESE IMMEDIATELY in a production environment. This script will create/update collections and data. Backup your existing data if necessary before running.</p>
+        <button id="runFullSetup">Run Full Setup</button>
         <button id="runSchemaOnly">Schema Only</button>
         <button id="runSeedOnly" disabled>Seed Data Only</button>
         <div id="out"></div>
     </div>
 <script>
-    const pbUrl = '/'; 
+    const pbUrl = '/';
     const outputDiv = document.getElementById('out');
     const runFullSetupButton = document.getElementById('runFullSetup');
     const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
     const runSeedOnlyButton = document.getElementById('runSeedOnly');
-    const ADM_E = 'admin@example.com'; 
-    const ADM_P = 'unifiedpassword';   
+    const ADM_E = 'admin@example.com';
+    const ADM_P = 'unifiedpassword';
 
-    const log = (message) => { outputDiv.innerHTML += `<p>${message.replace(/</g, '<').replace(/>/g, '>')}</p>`; outputDiv.scrollTop = outputDiv.scrollHeight; };
-
-    const defaultRefundPolicyHTML = `
+    const log = (message, type = 'i', data = null) => {
+        const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
+        const p = document.createElement('p');
+        p.className = `l${type[0].toLowerCase()}`; // Ensure lowercase for class
+        let logMessage = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
+        if (data) {
+            logMessage += `\n<pre class="ld">${JSON.stringify(data, null, 2).replace(/</g, '<').replace(/>/g, '>')}</pre>`;
+        }
+        p.innerHTML = logMessage;
+        outputDiv.appendChild(p);
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+        
+        const consoleMessage = timestamp + message.replace(/<[^>]*>?/gm, ''); // Strip HTML for console
+        if (type === 'e') console.error(consoleMessage, data || '');
+        else if (type === 'w') console.warn(consoleMessage, data || '');
+        else if (type === 'd') console.debug(consoleMessage, data || '');
+        else console.log(consoleMessage, data || '');
+    };
+    
+    const defaultRefundPolicyHTMLForSeed = `
         <div class="bil-row">
             <p class="en">Welcome to Sheep Land. We strive to provide the best quality Udheya and livestock services. Please read our policy carefully.</p>
             <p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام. نسعى جاهدين لتقديم أفضل جودة في خدمات الأضاحي والمواشي. يرجى قراءة سياستنا بعناية.</p>
@@ -65,18 +87,32 @@
         <div class="bil-row"><p class="en">If you have any questions regarding our Refund & Cancellation Policy, please do not hesitate to contact us through the contact details provided on our website *before* placing your order.</p><p class="ar" dir="rtl">إذا كانت لديك أي أسئلة بخصوص سياسة الاسترداد والإلغاء الخاصة بنا، فيرجى عدم التردد في الاتصال بنا عبر تفاصيل الاتصال المتوفرة على موقعنا *قبل* تقديم طلبك.</p></div>
     `;
 
-
-    const collectionsDefinition = [
+    // Collections WITHOUT relations (step 1 for schema creation)
+    const collectionsWithoutRelations = [
         {
-            name: "settings", type: "base", listRule: "@everyone", viewRule: "@everyone", createRule: null, updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: null,
+            name: "settings",
+            type: "base",
+            system: false,
+            listRule: "@everyone",
+            viewRule: "@everyone",
+            createRule: null,
+            updateRule: "@request.auth.id != '' && @request.auth.verified = true",
+            deleteRule: null,
             schema: [ 
-                { name: "xchgRates", type: "json", required: true, presentable: true, options: {} }, { name: "defCurr", type: "text", required: true, presentable: true, options: {max: 5, min: 3} },
-                { name: "waNumRaw", type: "text", required: false, presentable: true, options: {max: 20} }, { name: "waNumDisp", type: "text", required: false, presentable: true, options: {max: 30} },
-                { name: "promoEndISO", type: "date", required: false, presentable: true, options: {} }, { name: "promoDiscPc", type: "number", required: false, presentable: true, options: {min: 0, max: 100} },
-                { name: "promoActive", type: "bool", required: false, presentable: true, options: {default: false} }, { name: "servFeeEGP", type: "number", required: true, presentable: true, options: {min: 0} },
-                { name: "delAreas", type: "json", required: false, presentable: true, options: {} }, { name: "payDetails", type: "json", required: false, presentable: true, options: {} },
-                { name: "enable_udheya_section", type: "bool", required: false, presentable: true, options: {default: true}}, { name: "enable_livestock_section", type: "bool", required: false, presentable: true, options: {default: true} },
-                { name: "enable_meat_section", type: "bool", required: false, presentable: true, options: {default: true} }, { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, options: {default: true} },
+                { name: "xchgRates", type: "json", required: true, presentable: true, options: {} }, 
+                { name: "defCurr", type: "text", required: true, presentable: true, options: {max: 5, min: 3} },
+                { name: "waNumRaw", type: "text", required: false, presentable: true, options: {max: 20} }, 
+                { name: "waNumDisp", type: "text", required: false, presentable: true, options: {max: 30} },
+                { name: "promoEndISO", type: "date", required: false, presentable: true, options: {} }, 
+                { name: "promoDiscPc", type: "number", required: false, presentable: true, options: {min: 0, max: 100} },
+                { name: "promoActive", type: "bool", required: false, presentable: true, options: {default: false} }, 
+                { name: "servFeeEGP", type: "number", required: true, presentable: true, options: {min: 0} },
+                { name: "delAreas", type: "json", required: false, presentable: true, options: {} }, 
+                { name: "payDetails", type: "json", required: false, presentable: true, options: {} },
+                { name: "enable_udheya_section", type: "bool", required: false, presentable: true, options: {default: true}}, 
+                { name: "enable_livestock_section", type: "bool", required: false, presentable: true, options: {default: true} },
+                { name: "enable_meat_section", type: "bool", required: false, presentable: true, options: {default: true} }, 
+                { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, options: {default: true} },
                 { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true, options: {} },
                 { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, options: {min: 0} },
                 { name: "refund_policy_html", type: "text", required: false, presentable: false, options: { editor: true } },
@@ -85,7 +121,14 @@
             ]
         },
         {
-            name: "products", type: "base", listRule: "@everyone", viewRule: "@everyone", createRule: "@request.auth.id != '' && @request.auth.verified = true", updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
+            name: "products", 
+            type: "base", 
+            system: false,
+            listRule: "@everyone", 
+            viewRule: "@everyone", 
+            createRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
             schema: [
                 { name: "item_key", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 100, min: 1, pattern: "^[a-z0-9_]+$"} },
                 { name: "product_category", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"]} },
@@ -108,8 +151,33 @@
             ],
             indexes: [ "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)", "CREATE INDEX `idx_products_category` ON `products` (`product_category`)" ]
         },
-        {
-            name: "orders", type: "base",
+        { // Auth collection (users) - define custom fields, system fields auto-added
+            name: "users", // This will target the existing _pb_users_auth_
+            type: "auth",
+            system: false, // This is a user-defined representation, PB handles the system nature
+            listRule: "@request.auth.id = id", // Users can list/view their own, admin can view all
+            viewRule: "@request.auth.id = id",
+            createRule: "", // Public registration
+            updateRule: "@request.auth.id = id", // Users can update their own
+            deleteRule: "@request.auth.id = id", // Users can delete their own (or null for admin only)
+            options: { // These are options for the auth collection itself
+                emailVisibility: true, // Admin can see emails
+                requireEmailVerification: false, // Set to false for easier testing initially
+                allowOAuth2Auth: false,
+                allowUsernameAuth: false, // Only email/pass
+                allowPasswordAuth: true,
+                onlyVerified: false // Allow unverified users to log in initially
+            },
+            schema: [ // Only custom fields here
+                { name: "name", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
+                // Add other custom user fields like phone, address if needed later
+                // Example: { name: "phone", type: "text", system: false, required: false, presentable: true, options: {max: 30} }
+            ]
+        },
+        { // Orders collection (no relation fields in this initial step)
+            name: "orders", 
+            type: "base", 
+            system: false,
             listRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')", 
             viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')",
             createRule: "", 
@@ -117,7 +185,7 @@
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
             schema: [
                 { name: "order_id_text", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 50, min: 1} },
-                { name: "user", type: "relation", system: false, required: false, presentable: true, options: {collectionId: "_pb_users_auth_", cascadeDelete: false, minSelect: null, maxSelect: 1, displayFields: ["email", "name"]} },
+                // user field will be added as relation later
                 { name: "customer_name", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
                 { name: "customer_phone", type: "text", system: false, required: true, presentable: true, options: {max: 30, min: 7} },
                 { name: "customer_email", type: "email", system: false, required: true, presentable: true, options: {} },
@@ -143,7 +211,7 @@
                 { name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, options: {min: 0} },
                 { name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, options: {max: 5} }
             ],
-            indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)", "CREATE INDEX `idx_orders_user` ON `orders` (`user`)" ]
+            indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)"] // user index will be added with relation
         }
     ];
 
@@ -157,7 +225,7 @@
             payDetails: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" },
             enable_udheya_section: true, enable_livestock_section: true, enable_meat_section: true, enable_gatherings_section: true,
             slaughter_location_gmaps_url: "https://maps.app.goo.gl/GmWajZfqzPh4ZAey7", online_payment_fee_egp: 35,
-            refund_policy_html: defaultRefundPolicyHTML, app_email_sender_address: "noreply@sheepland.example.com", app_email_sender_name: "Sheep Land Orders"
+            refund_policy_html: defaultRefundPolicyHTMLForSeed, app_email_sender_address: "noreply@sheepland.example.com", app_email_sender_name: "Sheep Land Orders"
         }],
         products: [
             { item_key: "baladi_udheya_45kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Local breed, excellent for Udheya, known for its marbling and taste.", type_description_ar: "سلالة محلية، ممتازة للأضحية، معروفة بدهونها المتداخلة وطعمها الغني.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 45kg)", variant_name_ar: "أضحية بلدي (تقريباً ٤٥ كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 10, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
@@ -173,59 +241,147 @@
         ]
     };
 
-    async function authenticateAdmin(pb) { try { await pb.admins.authWithPassword(ADM_E, ADM_P); log('Admin authenticated.'); return true; } catch(e) { log('Admin auth FAILED: ' + e.message + '. Ensure admin exists with these credentials.'); return false; } }
-
-    async function createOrUpdateCollection(pb, collectionDef) {
-        let existingCollection = null;
-        try { existingCollection = await pb.collections.getOne(collectionDef.name); }
-        catch (e) { if (e.status !== 404) { log(`Error checking collection ${collectionDef.name}: ${e.message}`); throw e;} }
-        
-        const schemaToApply = collectionDef.schema.map(fieldDef => {
-            return {
-                name: fieldDef.name,
-                type: fieldDef.type,
-                system: fieldDef.system || false,
-                required: fieldDef.required || false,
-                presentable: fieldDef.presentable !== undefined ? fieldDef.presentable : (fieldDef.type !== 'json' && fieldDef.type !== 'file' && fieldDef.type !== 'relation'),
-                unique: fieldDef.unique || false,
-                options: fieldDef.options || {}   
-            };
-        });
-        
-        if (existingCollection) {
-            log(`Updating ${collectionDef.name}...`);
-            const updatePayload = {
-                schema: schemaToApply, 
-                listRule: collectionDef.listRule, viewRule: collectionDef.viewRule,
-                createRule: collectionDef.createRule, updateRule: collectionDef.updateRule,
-                deleteRule: collectionDef.deleteRule
-            };
-            await pb.collections.update(existingCollection.id, updatePayload);
-        } else {
-            log(`Creating ${collectionDef.name}...`);
-            const collectionDataForImport = {
-                name: collectionDef.name,
-                type: collectionDef.type,
-                listRule: collectionDef.listRule,
-                viewRule: collectionDef.viewRule,
-                createRule: collectionDef.createRule,
-                updateRule: collectionDef.updateRule,
-                deleteRule: collectionDef.deleteRule,
-                schema: schemaToApply, 
-                indexes: collectionDef.indexes || [] 
-            };
-            await pb.collections.import([collectionDataForImport], false); 
-            log(`Collection ${collectionDef.name} created. Indexes specified: ${JSON.stringify(collectionDef.indexes || [])}. You might need to verify/apply indexes manually if they are complex or weren't applied.`);
+    async function authenticateAdmin(pb) {
+        try {
+            log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
+            await pb.admins.authWithPassword(ADM_E, ADM_P);
+            log('Admin authentication successful', 's');
+            return true;
+        } catch (error) {
+            log(`Authentication failed: ${error.message}`, 'e');
+            console.error('Auth error:', error);
+            if (error.response?.data) log('Auth error details:', 'e', error.response.data);
+            return false;
         }
     }
+
+    async function importOrUpdateCollections(pb, collections) {
+        log('Starting collection schema setup/update...', 'i');
+        for (const collectionDef of collections) {
+            let existingCollection = null;
+            try {
+                existingCollection = await pb.collections.getOne(collectionDef.name);
+                log(`Collection "${collectionDef.name}" exists. Attempting update...`, 'i');
+                const updatePayload = { // Construct payload for update
+                    schema: collectionDef.schema,
+                    listRule: collectionDef.listRule,
+                    viewRule: collectionDef.viewRule,
+                    createRule: collectionDef.createRule,
+                    updateRule: collectionDef.updateRule,
+                    deleteRule: collectionDef.deleteRule,
+                    // Indexes are tricky to update via API, usually done via migrations
+                    // For initial setup, this might work for some simple index cases if PB API supports it in import.
+                    // For updates, it's safer to manage indexes manually or through migrations.
+                };
+                 if (collectionDef.indexes) { // Only add if defined to avoid errors
+                    updatePayload.indexes = collectionDef.indexes;
+                }
+                await pb.collections.update(collectionDef.name, updatePayload);
+                log(`Collection "${collectionDef.name}" updated successfully.`, 's');
+
+            } catch (e) {
+                if (e.status === 404) { // Collection does not exist, create it
+                    log(`Collection "${collectionDef.name}" not found. Creating...`, 'i');
+                    try {
+                         const newCollectionData = {
+                            name: collectionDef.name,
+                            type: collectionDef.type,
+                            system: collectionDef.system || false,
+                            schema: collectionDef.schema,
+                            listRule: collectionDef.listRule,
+                            viewRule: collectionDef.viewRule,
+                            createRule: collectionDef.createRule,
+                            updateRule: collectionDef.updateRule,
+                            deleteRule: collectionDef.deleteRule,
+                            indexes: collectionDef.indexes || [],
+                            options: collectionDef.options || {} // For auth collections
+                        };
+                        await pb.collections.import([newCollectionData], false); // Import expects an array
+                        log(`Collection "${collectionDef.name}" created successfully.`, 's');
+                    } catch (createError) {
+                        log(`Error CREATING collection "${collectionDef.name}": ${createError.message}`, 'e', createError.data);
+                        return false; // Stop if a collection creation fails
+                    }
+                } else { // Other error during getOne or update
+                    log(`Error processing collection "${collectionDef.name}": ${e.message}`, 'e', e.data);
+                    return false; // Stop if any other error occurs
+                }
+            }
+            await new Promise(r => setTimeout(r, 100)); // Small delay
+        }
+        log('All collections processed.', 's');
+        return true;
+    }
     
+    async function addRelationFields(pb) {
+        log('Adding/Verifying relation fields...', 'i');
+        let success = true;
+        const relationsToAdd = [
+            { 
+                sourceCollectionName: "orders", 
+                fieldName: "user", 
+                targetCollectionName: "_pb_users_auth_", // This is the system name for users
+                options: { cascadeDelete: false, minSelect: null, maxSelect: 1, displayFields: ["email", "name"] },
+                required: false, // Orders can be by guests
+                presentable: true
+            }
+            // Add more relations here if needed in the future
+        ];
+
+        for (const rel of relationsToAdd) {
+            try {
+                const sourceCollection = await pb.collections.getOne(rel.sourceCollectionName);
+                const fieldExists = sourceCollection.schema.find(f => f.name === rel.fieldName);
+
+                if (fieldExists) {
+                    log(`Relation field "${rel.fieldName}" already exists in "${rel.sourceCollectionName}". Skipping.`, 'w');
+                    continue;
+                }
+                
+                // Fetch target collection to get its ID for the relation options
+                // For "_pb_users_auth_", its ID is literally "users" for older PB versions, or its actual system ID for newer.
+                // The SDK handles "_pb_users_auth_" directly in options.collectionId
+                const newField = {
+                    name: rel.fieldName,
+                    type: "relation",
+                    required: rel.required,
+                    presentable: rel.presentable,
+                    system: false,
+                    unique: false,
+                    options: {
+                        collectionId: rel.targetCollectionName, // Use the name, SDK resolves it
+                        cascadeDelete: rel.options.cascadeDelete,
+                        minSelect: rel.options.minSelect,
+                        maxSelect: rel.options.maxSelect,
+                        displayFields: rel.options.displayFields
+                    }
+                };
+                
+                const updatedSchema = [...sourceCollection.schema, newField];
+                await pb.collections.update(sourceCollection.id, { schema: updatedSchema });
+                log(`Relation field "${rel.fieldName}" added to "${rel.sourceCollectionName}" successfully.`, 's');
+
+            } catch (error) {
+                log(`Error adding relation field "${rel.fieldName}" to "${rel.sourceCollectionName}": ${error.message}`, 'e', error.data);
+                success = false;
+            }
+            await new Promise(r => setTimeout(r, 100)); // Small delay
+        }
+        return success;
+    }
+
+
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
-        log(`Seeding ${collectionName}...`);
+        log(`Seeding data for <b>${collectionName}</b>...`, 'i');
+        let createdCount = 0, updatedCount = 0, errorCount = 0;
+        
         for (const item of seedItems) {
             try {
                 let existingRecord = null;
-                if (uniqueKeyField && item[uniqueKeyField] !== undefined) {
-                    try { existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`); } catch (e) { /* Record doesn't exist, will create */ }
+                if (uniqueKeyField && item[uniqueKeyField] !== undefined) { // Check if uniqueKeyField actually exists on item
+                    try { 
+                        existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`); 
+                    } catch (e) { /* Record doesn't exist, will create */ }
                 } else if (!uniqueKeyField && collectionName === "settings") { 
                     const list = await pb.collection(collectionName).getList(1, 1);
                     if (list.items.length > 0) existingRecord = list.items[0];
@@ -233,125 +389,188 @@
 
                 if (existingRecord) {
                     await pb.collection(collectionName).update(existingRecord.id, item);
-                     log(`Updated item in ${collectionName} (ID: ${existingRecord.id})`);
+                    updatedCount++;
                 } else {
-                    const created = await pb.collection(collectionName).create(item);
-                    log(`Created item in ${collectionName} (ID: ${created.id})`);
+                    await pb.collection(collectionName).create(item);
+                    createdCount++;
                 }
-            } catch (e) { log (`Error seeding item in ${collectionName} (${JSON.stringify(item[uniqueKeyField] || item)}): ${e.message} - ${JSON.stringify(e.data)}`); }
+            } catch (error) {
+                log(`Error processing item in ${collectionName} (${item[uniqueKeyField] || 'new item'}): ${error.message}`, 'e');
+                console.error('Seed error:', error);
+                if (error.response?.data) log('Seed error details:', 'e', error.response.data);
+                errorCount++;
+            }
         }
-        log(`${collectionName} seeded.`);
+        log(`Seeding <b>${collectionName}</b> complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, errorCount > 0 ? 'w' : 's');
+        return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
 
     async function setupSchema(pb) {
-        log('SCHEMA SETUP...');
+        log('=== SCHEMA SETUP PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
 
-        try { 
-            const usersCollection = await pb.collections.getOne("_pb_users_auth_");
-            if (usersCollection) {
-                let needsUpdate = false;
-                const currentOptions = usersCollection.options || {};
-                if(currentOptions.emailVisibility !== true) {
-                    currentOptions.emailVisibility = true; 
-                    needsUpdate = true;
-                }
-                if(currentOptions.requireEmailVerification !== false) { 
-                    currentOptions.requireEmailVerification = false;
-                    needsUpdate = true;
-                }
-                let currentUpdateRule = usersCollection.updateRule || "";
-                if(currentUpdateRule !== "@request.auth.id = id") {
-                    currentUpdateRule = "@request.auth.id = id"; 
-                    needsUpdate = true;
-                }
-                if (needsUpdate) {
-                    await pb.collections.update("_pb_users_auth_", { options: currentOptions, updateRule: currentUpdateRule });
-                    log("Updated users collection: emailVisibility=true, requireEmailVerification=false, updateRule set.");
-                } else {
-                    log("Users collection options/rules already up to date.");
-                }
-            }
-        } catch (e) { log(`Could not update users collection: ${e.message} - ${JSON.stringify(e.data)}`); }
-
-
-        for (const collectionDef of collectionsDefinition) {
-            try {
-                await createOrUpdateCollection(pb, collectionDef);
-                await new Promise(r => setTimeout(r, 200)); 
-            } catch (e) {
-                log(`Failed on ${collectionDef.name}: ${e.message} - ${JSON.stringify(e.data)}`);
-                return false;
-            }
+        // Step 1: Create/Update collections without relations first (or ensure 'users' is configured)
+        log('Processing initial collections (settings, products, users config)...', 'i');
+        if (!await importOrUpdateCollections(pb, collectionsWithoutRelations.filter(c => c.name !== 'orders'))) { // Exclude orders for now
+             log('Initial collection setup failed.', 'e'); return false;
         }
-        log('Schema setup done.');
+        
+        // Step 2: Create/Update 'orders' collection (which might have relations to be added later)
+        log('Processing "orders" collection schema...', 'i');
+        const ordersDef = collectionsWithoutRelations.find(c => c.name === 'orders');
+        if (ordersDef) {
+            if (!await importOrUpdateCollections(pb, [ordersDef])) {
+                log('"orders" collection setup failed.', 'e'); return false;
+            }
+        } else {
+            log('Definition for "orders" collection not found. Skipping.', 'w');
+        }
+
+        // Step 3: Add relation fields
+        log('Processing relation fields...', 'i');
+        if (!await addRelationFields(pb)) {
+             log('Relation field setup failed.', 'e'); return false;
+        }
+
+        log('Schema setup completed successfully', 's');
         return true;
     }
 
     async function setupSeedData(pb) {
-        log('SEED DATA...');
+        log('=== SEED DATA PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
-        await new Promise(r => setTimeout(r, 200)); 
 
-        await seedCollectionData(pb, 'settings', seedData.settings);
-        await seedCollectionData(pb, 'products', seedData.products, 'item_key');
+        log('Pausing for 1 second before seeding...', 'i');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        let anySeedErrors = false;
+        const settingsResult = await seedCollectionData(pb, 'settings', seedData.settings);
+        if(settingsResult.errors > 0) anySeedErrors = true;
+
+        const productsResult = await seedCollectionData(pb, 'products', seedData.products, 'item_key');
+        if(productsResult.errors > 0) anySeedErrors = true;
         
-        log('Seed data done.');
+        if (anySeedErrors) {
+            log('Seed data setup completed with errors.', 'w');
+            return false;
+        }
+        log('Seed data setup completed successfully', 's');
         return true;
     }
+    
+    function validateProductionSecurity() {
+        const warnings = [];
+        collectionsDefinition.forEach(collection => {
+            if (collection.listRule === "" || collection.createRule === "" || 
+                collection.updateRule === "" || collection.deleteRule === "") {
+                if (collection.name !== "settings" && collection.name !== "products") { // Allow public read for settings and products
+                     if(!(collection.listRule === "@everyone" && collection.viewRule === "@everyone" && collection.createRule === null && collection.updateRule === null && collection.deleteRule === null) &&
+                        !(collection.listRule === "" && collection.viewRule === "" && collection.createRule === null && collection.updateRule === null && collection.deleteRule === null) ) {
+                           // This logic needs refinement based on which collections are truly public vs. which need auth for some operations.
+                           // For now, let's focus on a simpler warning.
+                     }
+                }
+            }
+            if (collection.type === "auth" && collection.name === "users") { // Specifically for users collection
+                if (collection.createRule === "") warnings.push(`Auth Collection '${collection.name}' has public createRule (open registration). Ensure this is intended.`);
+                if (collection.options && collection.options.requireEmailVerification === false) {
+                    warnings.push(`Auth Collection '${collection.name}' has 'requireEmailVerification' set to false. Recommended to enable for production.`);
+                }
+            }
+        });
+        
+        if (ADM_E === 'admin@example.com' && ADM_P === 'unifiedpassword') {
+            warnings.push('Using default admin credentials (admin@example.com / unifiedpassword) - CHANGE FOR PRODUCTION!');
+        }
+        
+        if (warnings.length > 0) {
+            log('🚨 PRODUCTION SECURITY WARNINGS:', 'e');
+            warnings.forEach(warning => log(`⚠️  ${warning}`, 'w'));
+            log('🚨 REVIEW AND SECURE THESE BEFORE PRODUCTION DEPLOYMENT', 'e');
+        } else {
+            log('✓ Production security preliminary checks passed (review rules manually).', 's');
+        }
+        return warnings.length === 0;
+    }
+
 
     runFullSetupButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
-        outputDiv.innerHTML = ''; log('FULL SETUP...');
+        outputDiv.innerHTML = ''; log('=== FULL SETUP PROCESS STARTED ===', 'i');
         const pb = new PocketBase(pbUrl);
         let schemaSuccess = false;
         try {
             schemaSuccess = await setupSchema(pb);
             if (!schemaSuccess) {
-                log('Schema setup failed, aborting seed data.');
-            } else {
-                await new Promise(r => setTimeout(r, 200));
-                await setupSeedData(pb);
-                log('FULL SETUP COMPLETED.');
+                log('Schema setup failed, aborting full setup', 'e');
+                return;
             }
-        }
-        catch (e) { log(`FULL SETUP ERROR: ${e.message} - ${JSON.stringify(e.data)}`); }
-        finally {
+
+            const seedSuccess = await setupSeedData(pb);
+            if (!seedSuccess) {
+                log('Seed data setup failed, but schema might be okay.', 'w');
+            }
+
+            log('<b>=== FULL SETUP COMPLETED ===</b>', 's');
+            validateProductionSecurity();
+            runSeedOnlyButton.disabled = !schemaSuccess; 
+        } catch (error) {
+            log(`<b>CRITICAL ERROR during full setup:</b> ${error.message}`, 'e');
+            console.error('Full setup error:', error);
+            if (error.response?.data) log('Full setup error details:', 'e', error.response.data);
+            if (error.stack) log('Stack trace:', 'e', error.stack);
+        } finally {
             if (pb.authStore.isValid) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
-            if(schemaSuccess) runSeedOnlyButton.disabled = false; 
-            log('Process finished.');
+            log('Process finished, auth cleared', 'i');
         }
     };
+
     runSchemaOnlyButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
-        outputDiv.innerHTML = ''; const pb = new PocketBase(pbUrl);
+        outputDiv.innerHTML = ''; 
+        log('=== SCHEMA ONLY SETUP STARTED ===', 'i');
+        const pb = new PocketBase(pbUrl);
         try {
             const success = await setupSchema(pb);
             if (success) {
                 runSeedOnlyButton.disabled = false;
-                log('Schema setup completed.');
+                log('<b>Schema setup completed successfully</b>', 's');
+                validateProductionSecurity();
             } else {
-                log('Schema setup failed.');
+                 log('<b>Schema setup FAILED</b>', 'e');
             }
-        }
-        catch (e) { log(`SCHEMA SETUP ERROR: ${e.message} - ${JSON.stringify(e.data)}`); }
-        finally {
+        } catch (error) {
+            log(`<b>ERROR during schema setup:</b> ${error.message}`, 'e');
+            console.error('Schema error:', error);
+            if (error.response?.data) log('Schema error details:', 'e', error.response.data);
+        } finally {
             if (pb.authStore.isValid) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
+             log('Schema only process finished, auth cleared', 'i');
         }
     };
+
     runSeedOnlyButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
-        outputDiv.innerHTML = ''; const pb = new PocketBase(pbUrl);
+        outputDiv.innerHTML = ''; 
+        log('=== SEED DATA ONLY STARTED ===', 'i');
+        const pb = new PocketBase(pbUrl);
         try {
-            await setupSeedData(pb);
-            log('Seed data setup completed.');
-        }
-        catch (e) { log(`SEED DATA ERROR: ${e.message} - ${JSON.stringify(e.data)}`); }
-        finally {
+            const success = await setupSeedData(pb);
+             if (success) {
+                log('<b>Seed data setup completed successfully</b>', 's');
+            } else {
+                 log('<b>Seed data setup FAILED or completed with errors.</b>', 'w');
+            }
+        } catch (error) {
+            log(`<b>ERROR during seed setup:</b> ${error.message}`, 'e');
+            console.error('Seed error:', error);
+            if (error.response?.data) log('Seed error details:', 'e', error.response.data);
+        } finally {
             if (pb.authStore.isValid) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = false);
+            log('Seed data only process finished, auth cleared', 'i');
         }
     };
 </script>
