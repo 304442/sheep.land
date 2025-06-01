@@ -6,37 +6,47 @@
  */
 const registerHook = (collection, event, handler) => {
     try {
-        if (typeofโครงสร้าง !== 'undefined' && typeofโครงสร้าง.onRecordBeforeCreateRequest === 'function' && event === 'beforeCreate') { // Cloudflare Workers
+        // Check for Cloudflare Workers environment (specific structure)
+        if (typeofโครงสร้าง !== 'undefined' && typeofโครงสร้าง.onRecordBeforeCreateRequest === 'function' && event === 'beforeCreate') {
             โครงสร้าง.onRecordBeforeCreateRequest(collection, handler);
         } else if (typeofโครงสร้าง !== 'undefined' && typeofโครงสร้าง.onRecordAfterCreateRequest === 'function' && event === 'afterCreate') {
             โครงสร้าง.onRecordAfterCreateRequest(collection, handler);
         } else if (typeofโครงสร้าง !== 'undefined' && typeofโครงสร้าง.onRecordBeforeUpdateRequest === 'function' && event === 'beforeUpdate') {
             โครงสร้าง.onRecordBeforeUpdateRequest(collection, handler);
-        } else if (typeof $app !== 'undefined') { // Standard PocketBase environment
+        // Check for standard PocketBase environment
+        } else if (typeof $app !== 'undefined') { 
             if (event === 'beforeCreate') $app.onRecordBeforeCreateRequest(collection, handler);
             else if (event === 'afterCreate') $app.onRecordAfterCreateRequest(collection, handler);
             else if (event === 'beforeUpdate') $app.onRecordBeforeUpdateRequest(collection, handler);
         } else {
-            console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: Unknown environment.`);
+            console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: Unknown environment or $app not available.`);
         }
     } catch (error) {
         console.error(`HOOK REGISTRATION FAILED for ${collection} - ${event}: ${error}`);
     }
 };
 
+const sacrificeDayMapInternalHook = { 
+    "day1_10_dhul_hijjah": { "en": "Day 1 of Eid (10th Dhul Hijjah)", "ar": "اليوم الأول (10 ذو الحجة)" },
+    "day2_11_dhul_hijjah": { "en": "Day 2 of Eid (11th Dhul Hijjah)", "ar": "اليوم الثاني (11 ذو الحجة)" },
+    "day3_12_dhul_hijjah": { "en": "Day 3 of Eid (12th Dhul Hijjah)", "ar": "اليوم الثالث (12 ذو الحجة)" },
+    "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" },
+};
+
 
 registerHook("orders", "beforeCreate", (e) => {
     const record = e.record;
     const dao = $app.dao();
-    const lineItems = record.get("line_items"); 
+    const lineItemsData = JSON.parse(JSON.stringify(record.get("line_items"))); 
 
-    if (!Array.isArray(lineItems) || lineItems.length === 0) {
+    if (!Array.isArray(lineItemsData) || lineItemsData.length === 0) {
         throw new Error("Order must contain at least one item (line_items array is empty or not an array).");
     }
 
     let calculatedSubtotalEGP = 0;
     let calculatedTotalServiceFeeEGP = 0;
     const productStockUpdates = []; 
+    const processedLineItems = []; 
 
     let appSettings;
     try {
@@ -48,19 +58,19 @@ registerHook("orders", "beforeCreate", (e) => {
     }
     const defaultServiceFeeEGP = appSettings.getFloat("servFeeEGP") || 0;
 
-    for (let i = 0; i < lineItems.length; i++) {
-        const lineItem = lineItems[i]; // Iterate over a copy if modifying in place, but here we read then set.
+    for (let i = 0; i < lineItemsData.length; i++) {
+        const clientLineItem = lineItemsData[i]; 
 
-        if (!lineItem.item_key_pb || typeof lineItem.quantity !== 'number' || lineItem.quantity <= 0) {
-            throw new Error(`Invalid line item data at index ${i}: ${lineItem.name_en || 'Unknown item'}. Ensure product ID (item_key_pb) and quantity are correct.`);
+        if (!clientLineItem.item_key_pb || typeof clientLineItem.quantity !== 'number' || clientLineItem.quantity <= 0) {
+            throw new Error(`Invalid line item data at index ${i}: ${clientLineItem.name_en || 'Unknown item'}. Ensure product ID (item_key_pb) and quantity are correct.`);
         }
 
         let product;
         try {
-            product = dao.findRecordById("products", lineItem.item_key_pb);
+            product = dao.findRecordById("products", clientLineItem.item_key_pb);
         } catch (err) {
-            console.error(`[OrderHook-BeforeCreate] Product lookup failed for ID: ${lineItem.item_key_pb} from line item ${i}. Error: ${err}`);
-            throw new Error(`Product "${lineItem.name_en || lineItem.item_key_pb}" could not be found or is invalid.`);
+            console.error(`[OrderHook-BeforeCreate] Product lookup failed for ID: ${clientLineItem.item_key_pb} from line item ${i}. Error: ${err}`);
+            throw new Error(`Product "${clientLineItem.name_en || clientLineItem.item_key_pb}" could not be found or is invalid.`);
         }
 
         if (!product.getBool("is_active")) {
@@ -68,40 +78,52 @@ registerHook("orders", "beforeCreate", (e) => {
         }
 
         const currentStock = product.getInt("stock_available_pb");
-        if (currentStock < lineItem.quantity) {
-            throw new Error(`Not enough stock for "${product.getString("variant_name_en")}" (item ${i+1}). Available: ${currentStock}, Requested: ${lineItem.quantity}.`);
+        if (currentStock < clientLineItem.quantity) {
+            throw new Error(`Not enough stock for "${product.getString("variant_name_en")}" (item ${i+1}). Available: ${currentStock}, Requested: ${clientLineItem.quantity}.`);
         }
         
-        productStockUpdates.push({ productRecord: product, newStock: currentStock - lineItem.quantity });
+        productStockUpdates.push({ productRecord: product, newStock: currentStock - clientLineItem.quantity });
 
         const pricePerItemEGP = product.getFloat("base_price_egp");
-        lineItem.price_egp_each = pricePerItemEGP; 
-        calculatedSubtotalEGP += pricePerItemEGP * lineItem.quantity;
+        
+        const processedItem = {
+            item_key_pb: product.id, 
+            product_category: product.getString("product_category"),
+            name_en: product.getString("variant_name_en"),
+            name_ar: product.getString("variant_name_ar"),
+            quantity: clientLineItem.quantity,
+            price_egp_each: pricePerItemEGP, 
+            udheya_details: null 
+        };
 
-        if (lineItem.product_category === "udheya" && lineItem.udheya_details) {
-            if (lineItem.udheya_details.serviceOption === "standard_service") {
+        calculatedSubtotalEGP += pricePerItemEGP * clientLineItem.quantity;
+
+        if (processedItem.product_category === "udheya" && clientLineItem.udheya_details) {
+            processedItem.udheya_details = clientLineItem.udheya_details; 
+            if (clientLineItem.udheya_details.serviceOption === "standard_service") {
                 calculatedTotalServiceFeeEGP += defaultServiceFeeEGP;
             }
-            // Ensure essential Udheya details are present if it's an Udheya item
-            if (!lineItem.udheya_details.sacrificeDay || !lineItem.udheya_details.distribution?.choice) {
-                 throw new Error(`Missing essential Udheya details (sacrifice day or distribution) for "${lineItem.name_en}".`);
+            if (!clientLineItem.udheya_details.sacrificeDay || !clientLineItem.udheya_details.distribution?.choice) {
+                 throw new Error(`Missing essential Udheya details (sacrifice day or distribution) for "${processedItem.name_en}".`);
             }
         }
-        // Update the lineItem in the array if you modified it (e.g., added price_egp_each)
-        lineItems[i] = lineItem;
+        processedLineItems.push(processedItem);
     }
     
-    record.set("line_items", lineItems); 
+    record.set("line_items", processedLineItems); 
     record.set("subtotal_amount_egp", calculatedSubtotalEGP);
     record.set("total_udheya_service_fee_egp", calculatedTotalServiceFeeEGP);
 
-    let deliveryFeeAppliedEGP = record.getFloat("delivery_fee_applied_egp") || 0; // Get from client if provided
+    let deliveryFeeAppliedEGP = record.getFloat("delivery_fee_applied_egp") || 0; 
     const deliveryOption = record.getString("delivery_option");
+    let areaNameEnToSet = record.getString("delivery_area_name_en") || ""; 
+    let areaNameArToSet = record.getString("delivery_area_name_ar") || "";
 
     if (deliveryOption === "home_delivery") {
         const deliveryAreaID = record.getString("delivery_city_id");
         const deliveryAreasJSON = appSettings.get("delAreas");
         let foundFee = false;
+        
         if (deliveryAreaID && Array.isArray(deliveryAreasJSON)) {
             for (const govArea of deliveryAreasJSON) {
                 if (typeof govArea === 'object' && govArea !== null) {
@@ -110,31 +132,29 @@ registerHook("orders", "beforeCreate", (e) => {
                         for (const city of govArea.cities) {
                             if (typeof city === 'object' && city !== null) {
                                 const currentCityID = `${govID}_${city.id || ""}`;
-                                if (currentCityID === deliveryAreaID && typeof city.delivery_fee_egp === 'number') {
-                                    deliveryFeeAppliedEGP = city.delivery_fee_egp; foundFee = true; 
-                                    record.set("delivery_area_name_en", `${govArea.name_en || ''} - ${city.name_en || ''}`);
-                                    record.set("delivery_area_name_ar", `${govArea.name_ar || ''} - ${city.name_ar || ''}`);
+                                if (currentCityID === deliveryAreaID) {
+                                    if (typeof city.delivery_fee_egp === 'number') deliveryFeeAppliedEGP = city.delivery_fee_egp;
+                                    foundFee = true; 
+                                    areaNameEnToSet = `${govArea.name_en || ''} - ${city.name_en || ''}`;
+                                    areaNameArToSet = `${govArea.name_ar || ''} - ${city.name_ar || ''}`;
                                     break;
                                 }
                             }
                         }
-                    } else if (govID === deliveryAreaID && typeof govArea.delivery_fee_egp === 'number') {
-                        deliveryFeeAppliedEGP = govArea.delivery_fee_egp; foundFee = true; 
-                        record.set("delivery_area_name_en", govArea.name_en || '');
-                        record.set("delivery_area_name_ar", govArea.name_ar || '');
+                    } else if (govID === deliveryAreaID) {
+                        if (typeof govArea.delivery_fee_egp === 'number') deliveryFeeAppliedEGP = govArea.delivery_fee_egp;
+                        foundFee = true; 
+                        areaNameEnToSet = govArea.name_en || '';
+                        areaNameArToSet = govArea.name_ar || '';
                         break;
                     }
                 }
                 if (foundFee) break;
             }
-            // If no specific fee found, and client sent 0, it might be a variable fee zone or error.
-            // For now, we trust client's calculation if it was > 0, or use server found one.
-            if (!foundFee && deliveryFeeAppliedEGP === 0 && deliveryAreaID) {
-                 console.warn(`[OrderHook-BeforeCreate] Delivery fee for ${deliveryAreaID} not found in settings, client sent 0. Assuming variable or no fee.`);
-                 // deliveryFeeAppliedEGP remains 0 or what client sent.
-            }
         }
         record.set("delivery_fee_applied_egp", deliveryFeeAppliedEGP);
+        record.set("delivery_area_name_en", areaNameEnToSet);
+        record.set("delivery_area_name_ar", areaNameArToSet);
     } else { 
         record.set("delivery_fee_applied_egp", 0);
         record.set("delivery_city_id", null); record.set("delivery_address", null);
@@ -167,9 +187,20 @@ registerHook("orders", "beforeCreate", (e) => {
         record.set("order_status", "confirmed_pending_payment");
     }
 
+    // Link to user if @request.auth.id is available (user is logged in)
+    // The client-side script.js should set record.user to @request.auth.id if available.
+    // If not, it means it's a guest checkout.
+    if (e.httpContext?.get("authRecord") && e.httpContext.get("authRecord").id) {
+        record.set("user", e.httpContext.get("authRecord").id);
+    } else if (record.get("user")) {
+        // User ID was already set by client (e.g., from a logged-in session on client)
+        // No action needed here, just ensure it's a valid ID if strict checks are desired.
+    }
+
+
     try {
-        if (record.has("user_ip_address") && e.httpContext) record.set("user_ip_address", e.httpContext.realIp());
-        if (record.has("user_agent_string") && e.httpContext) record.set("user_agent_string", e.httpContext.request().header.get("User-Agent"));
+        if (record.has("user_ip_address") && e.httpContext && e.httpContext.realIp) record.set("user_ip_address", e.httpContext.realIp());
+        if (record.has("user_agent_string") && e.httpContext && e.httpContext.request) record.set("user_agent_string", e.httpContext.request().header.get("User-Agent"));
     } catch (ipErr) { console.warn(`[OrderHook-BeforeCreate] Could not set IP/UserAgent: ${ipErr}`); }
 
     for (const update of productStockUpdates) {
@@ -188,7 +219,7 @@ registerHook("orders", "afterCreate", (e) => {
     const record = e.record;
     const customerEmail = record.getString("customer_email");
     
-    let senderAddress = "noreply@sheepland.com"; 
+    let senderAddress = "noreply@sheepland.example.com"; 
     let senderName = "Sheep Land"; 
     let appSettings;
     try {
@@ -214,18 +245,23 @@ registerHook("orders", "afterCreate", (e) => {
             
             const lineItems = record.get("line_items") || [];
             let itemsListHTML = "<ul>";
+            
             for (const item of lineItems) {
-                let itemPrice = item.price_egp_each * item.quantity;
-                let serviceFeeText = "";
+                let itemPriceForDisplay = item.price_egp_each * item.quantity;
+                let serviceFeeTextForEmail = "";
                 if (item.product_category === 'udheya' && item.udheya_details && item.udheya_details.serviceOption === 'standard_service' && appSettings) {
                     const udheyaServiceFee = appSettings.getFloat("servFeeEGP") || 0;
-                    itemPrice += udheyaServiceFee;
-                    serviceFeeText = ` (incl. ${udheyaServiceFee} EGP service)`;
+                    serviceFeeTextForEmail = ` (+ ${udheyaServiceFee} EGP service)`; // Service fee added to total, not per item display here
                 }
-                itemsListHTML += `<li>${item.name_en} (x${item.quantity}) - ${itemPrice} EGP${serviceFeeText}`;
+                itemsListHTML += `<li>${item.name_en} (x${item.quantity}) - ${item.price_egp_each * item.quantity} EGP${serviceFeeTextForEmail}`;
                 if (item.product_category === 'udheya' && item.udheya_details) {
-                    const sacrificeDayText = item.udheya_details.sacrificeDay ? (sacrificeDayMapInternal[item.udheya_details.sacrificeDay]?.en || item.udheya_details.sacrificeDay) : 'N/A';
+                    const sacrificeDayValue = item.udheya_details.sacrificeDay;
+                    const sacrificeDayInfo = sacrificeDayMapInternalHook[sacrificeDayValue] || {en: sacrificeDayValue, ar: sacrificeDayValue}; 
+                    const sacrificeDayText = sacrificeDayInfo.en; // Using English for email consistency for now
                     itemsListHTML += `<br><small>Service: ${item.udheya_details.serviceOption || 'N/A'}, Day: ${sacrificeDayText}</small>`;
+                     if (item.udheya_details.niyyahNames && item.udheya_details.niyyahNames.trim() !== "") {
+                        itemsListHTML += `<br><small>Niyyah for: ${item.udheya_details.niyyahNames}</small>`;
+                    }
                 }
                 itemsListHTML += "</li>";
             }
@@ -235,6 +271,9 @@ registerHook("orders", "afterCreate", (e) => {
             emailBody += `<p>JazakAllah Khairan for choosing Sheep Land. Your Order ID is: <strong>${record.getString("order_id_text")}</strong></p>`;
             emailBody += `<h2>Order Summary:</h2>`;
             emailBody += itemsListHTML;
+            if (record.getFloat("total_udheya_service_fee_egp") > 0) {
+                 emailBody += `<p>Total Udheya Service Fee(s) (Included in line items above if applicable): ${record.getFloat("total_udheya_service_fee_egp")} EGP</p>`;
+            }
             if (record.getFloat("delivery_fee_applied_egp") > 0) {
                 emailBody += `<p>Delivery Fee: ${record.getFloat("delivery_fee_applied_egp")} EGP</p>`;
             }
@@ -257,15 +296,15 @@ registerHook("orders", "afterCreate", (e) => {
             } else if (paymentMethod === "cod") {
                 emailBody += `<p>Our team will contact you on ${record.getString("customer_phone")} to confirm delivery and collect payment of ${totalAmount} EGP. Order ID: ${orderId}.</p>`;
             } else if (paymentMethod === "fa") {
-                emailBody += `<p>Fawry: Pay ${totalAmount} EGP. Use Order ID ${orderId}. Payment due within 24 hours. Confirm payment on <a href="${waConfirmationLink}" target="_blank">WhatsApp</a>.</p>`;
+                emailBody += `<p>Fawry: Pay ${totalAmount} EGP. Use Order ID ${orderId}. Payment due within 24 hours. Confirm payment on <a href="${waConfirmationLink}" target="_blank" rel="noopener noreferrer">${waNumDisp}</a>.</p>`;
             } else if (paymentMethod === "vo") {
-                emailBody += `<p>Vodafone Cash: Pay ${totalAmount} EGP to ${payDetails.vodafone_cash || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">WhatsApp</a>.</p>`;
+                emailBody += `<p>Vodafone Cash: Pay ${totalAmount} EGP to ${payDetails.vodafone_cash || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank" rel="noopener noreferrer">${waNumDisp}</a>.</p>`;
             } else if (paymentMethod === "ip") {
-                emailBody += `<p>InstaPay: Pay ${totalAmount} EGP to ${payDetails.instapay_ipn || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">WhatsApp</a>.</p>`;
+                emailBody += `<p>InstaPay: Pay ${totalAmount} EGP to ${payDetails.instapay_ipn || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank" rel="noopener noreferrer">${waNumDisp}</a>.</p>`;
             } else if (paymentMethod === "revolut") {
-                emailBody += `<p>Revolut: Pay ${totalAmount} EGP to ${payDetails.revolut_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">WhatsApp</a>.</p>`;
+                emailBody += `<p>Revolut: Pay ${totalAmount} EGP to ${payDetails.revolut_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank" rel="noopener noreferrer">${waNumDisp}</a>.</p>`;
             } else if (paymentMethod === "monzo") {
-                emailBody += `<p>Monzo: Pay ${totalAmount} EGP to ${payDetails.monzo_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">WhatsApp</a>.</p>`;
+                emailBody += `<p>Monzo: Pay ${totalAmount} EGP to ${payDetails.monzo_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank" rel="noopener noreferrer">${waNumDisp}</a>.</p>`;
             } else if (paymentMethod === "bank_transfer") {
                 emailBody += `<p>Bank Transfer ${totalAmount} EGP to:</p><ul>
                     <li>Bank: ${payDetails.bank_name || 'N/A'}</li>
@@ -273,7 +312,7 @@ registerHook("orders", "afterCreate", (e) => {
                     <li>Account Number: ${payDetails.bank_account_number || 'N/A'}</li>
                     ${payDetails.bank_iban ? `<li>IBAN: ${payDetails.bank_iban}</li>` : ''}
                     ${payDetails.bank_swift ? `<li>SWIFT: ${payDetails.bank_swift}</li>` : ''}
-                </ul><p>Crucial: Reference Order ID: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">WhatsApp</a>.</p>`;
+                </ul><p>Crucial: Reference Order ID: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank" rel="noopener noreferrer">${waNumDisp}</a>.</p>`;
             }
 
             if (record.getString("delivery_option") === "home_delivery" && record.getString("delivery_address")) {
@@ -319,12 +358,12 @@ registerHook("orders", "beforeUpdate", (e) => {
         const cancellableStates = ["pending_confirmation", "confirmed_pending_payment", "awaiting_payment_gateway", "payment_confirmed_processing"];
         let shouldRestock = true;
 
-        if (paymentStatus === "paid_confirmed" || paymentStatus.startsWith("cod_confirmed")) { // If paid or COD confirmed, might be too late for auto-restock
+        if (paymentStatus === "paid_confirmed" || paymentStatus.startsWith("cod_confirmed")) { 
             if (oldStatus === "fulfilled_completed" || oldStatus === "out_for_delivery" || oldStatus === "ready_for_fulfillment") {
-                 shouldRestock = false; // Already processed significantly
+                 shouldRestock = false; 
             }
         }
-        // Only restock if it was in a state where stock was logically held and not yet irreversibly processed.
+        
         if (cancellableStates.includes(oldStatus) && shouldRestock) {
             const lineItems = record.get("line_items") || []; 
             let stockUpdateNotes = "";
