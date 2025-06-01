@@ -1,3 +1,4 @@
+<!-- Filename: /setup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,221 +19,328 @@
     <div class="c">
         <h1>PB SheepLand Udheya Setup</h1>
         <p class="warn">WARNING: This script uses default admin credentials (admin@example.com / unifiedpassword). CHANGE THESE IMMEDIATELY in a production environment. This script will create/update collections and data. Backup your existing data if necessary.</p>
-        <button id="runFullSetup">Run Full Setup</button>
+        <button id="runFullSetup">Run Full Setup (Schema & Seed)</button>
         <button id="runSchemaOnly">Schema Only</button>
         <button id="runSeedOnly" disabled>Seed Data Only</button>
         <div id="out"></div>
     </div>
 <script>
-    const pbUrl = '/';
+    const pbUrl = '/'; // Assuming PocketBase is served from the root
     const outputDiv = document.getElementById('out');
     const runFullSetupButton = document.getElementById('runFullSetup');
     const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
     const runSeedOnlyButton = document.getElementById('runSeedOnly');
-    const ADM_E = 'admin@example.com';
-    const ADM_P = 'unifiedpassword';
+    const ADM_E = 'admin@example.com'; // CHANGE THIS
+    const ADM_P = 'unifiedpassword';   // CHANGE THIS
 
     const log = (message) => { outputDiv.innerHTML += `<p>${message.replace(/</g, '<').replace(/>/g, '>')}</p>`; outputDiv.scrollTop = outputDiv.scrollHeight; };
 
+    const defaultRefundPolicyHTML = `
+        <div class="bil-row">
+            <p class="en">Welcome to Sheep Land. We strive to provide the best quality Udheya and livestock services. Please read our policy carefully.</p>
+            <p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام. نسعى جاهدين لتقديم أفضل جودة في خدمات الأضاحي والمواشي. يرجى قراءة سياستنا بعناية.</p>
+        </div>
+        <h3 class="bil-spread modal-section-title">
+            <span class="en">Udheya Orders</span><span class="ar" dir="rtl">طلبات الأضاحي</span>
+        </h3>
+        <div class="bil-row">
+            <p class="en">Due to the nature of Udheya (Qurbani/Sacrifice), which is a time-sensitive religious observance, our refund and cancellation policy is as follows:</p>
+            <p class="ar" dir="rtl">نظرًا لطبيعة الأضحية، وهي شعيرة دينية مرتبطة بوقت محدد، فإن سياسة الاسترداد والإلغاء لدينا هي كما يلي:</p>
+        </div>
+        <ul class="modal-list">
+            <li><div class="bil-row"><p class="en"><strong>Cancellations Before [Specify Your Cut-off Date/Time, e.g., 3 days before Eid Al-Adha]:</strong> If you wish to cancel your Udheya order before this specified cut-off, you may be eligible for a full refund, minus any transaction fees already incurred by payment processors. Please contact us immediately via WhatsApp or email as provided on our website.</p><p class="ar" dir="rtl"><strong>الإلغاء قبل [حدد تاريخ/وقت القطع الخاص بك، مثلاً، 3 أيام قبل عيد الأضحى]:</strong> إذا كنت ترغب في إلغاء طلب الأضحية الخاص بك قبل هذا الموعد النهائي المحدد، فقد تكون مؤهلاً لاسترداد كامل المبلغ، مخصومًا منه أي رسوم معاملات تكبدتها معالجات الدفع بالفعل. يرجى الاتصال بنا فورًا عبر واتساب أو البريد الإلكتروني كما هو موضح على موقعنا.</p></div></li>
+            <li><div class="bil-row"><p class="en"><strong>Cancellations After [Specify Your Cut-off Date/Time]:</strong> Once an animal has been specifically allocated for your Udheya and preparations are underway, or after the specified cut-off date/time, cancellations will generally not be possible, and refunds cannot be guaranteed. This is because the animal is committed on your behalf for the sacrifice. We encourage you to be certain of your order before this deadline.</p><p class="ar" dir="rtl"><strong>الإلغاء بعد [حدد تاريخ/وقت القطع الخاص بك]:</strong> بمجرد تخصيص حيوان معين لأضحيتك وبدء الاستعدادات، أو بعد تاريخ/وقت القطع المحدد، لن يكون الإلغاء ممكنًا بشكل عام، ولا يمكن ضمان المبالغ المستردة. وذلك لأن الحيوان قد تم تخصيصه نيابة عنك للذبح. نشجعك على التأكد من طلبك قبل هذا الموعد النهائي.</p></div></li>
+            <li><div class="bil-row"><p class="en"><strong>Non-Fulfilment by Sheep Land:</strong> In the very unlikely event that Sheep Land is unable to fulfil your confirmed and paid Udheya order due to unforeseen circumstances (e.g., illness of an allocated animal with no suitable Sharia-compliant replacement available), a full refund of the amount paid will be issued promptly.</p><p class="ar" dir="rtl"><strong>عدم التنفيذ من قبل أرض الأغنام:</strong> في الحالة غير المحتملة للغاية التي يتعذر فيها على أرض الأغنام تلبية طلب الأضحية المؤكد والمدفوع بسبب ظروف غير متوقعة (مثل مرض الحيوان المخصص مع عدم توفر بديل مناسب متوافق مع الشريعة)، سيتم إصدار استرداد كامل للمبلغ المدفوع على الفور.</p></div></li>
+        </ul>
+        <h3 class="bil-spread modal-section-title"><span class="en">Other Livestock / Meat Cuts / Gathering Packages</span><span class="ar" dir="rtl">المواشي الأخرى / قطعيات اللحوم / باقات الولائم</span></h3>
+        <div class="bil-row"><p class="en">For non-Udheya products:</p><p class="ar" dir="rtl">بالنسبة للمنتجات غير المخصصة للأضاحي:</p></div>
+        <ul class="modal-list">
+            <li><div class="bil-row"><p class="en"><strong>Cancellations:</strong> Orders can typically be cancelled up to [e.g., 48 hours] before the scheduled delivery/pickup time for a full refund, minus any non-recoverable costs already incurred (e.g., custom cutting for meat orders). Cancellations made with less notice may be subject to a cancellation fee or may not be refundable, depending on the nature of the product and preparations made.</p><p class="ar" dir="rtl"><strong>الإلغاءات:</strong> يمكن عادةً إلغاء الطلبات حتى [مثلاً، 48 ساعة] قبل وقت التسليم/الاستلام المقرر لاسترداد كامل المبلغ، مخصومًا منه أي تكاليف غير قابلة للاسترداد تم تكبدها بالفعل (مثل التقطيع المخصص لطلبات اللحوم). قد تخضع الإلغاءات التي تتم بإشعار أقل لرسوم إلغاء أو قد لا تكون قابلة للاسترداد، اعتمادًا على طبيعة المنتج والاستعدادات التي تم إجراؤها.</p></div></li>
+            <li><div class="bil-row"><p class="en"><strong>Quality Issues:</strong> We take great care in ensuring the quality of our products. If you receive a product that does not meet our quality standards, please contact us within [e.g., 12 hours for fresh meat, 24 hours for live animals] of receipt with clear photographic evidence and a description of the issue. We will assess the situation on a case-by-case basis and may offer a replacement, partial refund, or full refund at our discretion.</p><p class="ar" dir="rtl"><strong>مشاكل الجودة:</strong> نحن نحرص بشدة على ضمان جودة منتجاتنا. إذا استلمت منتجًا لا يفي بمعايير الجودة لدينا، فيرجى الاتصال بنا في غضون [مثلاً، 12 ساعة للحوم الطازجة، 24 ساعة للحيوانات الحية] من الاستلام مع تقديم دليل فوتوغرافي واضح ووصف للمشكلة. سنقوم بتقييم الموقف على أساس كل حالة على حدة وقد نقدم بديلاً أو استردادًا جزئيًا أو كاملاً وفقًا لتقديرنا.</p></div></li>
+        </ul>
+        <h3 class="bil-spread modal-section-title"><span class="en">General Terms for Refunds</span><span class="ar" dir="rtl">الشروط العامة للاسترداد</span></h3>
+        <div class="bil-row"><p class="en">All approved refund requests will be processed within [e.g., 7-14 business days]. Refunds will typically be made to the original method of payment if possible. If not, an alternative method will be arranged with you.</p><p class="ar" dir="rtl">ستتم معالجة جميع طلبات الاسترداد المعتمدة في غضون [مثلاً، 7-14 يوم عمل]. سيتم رد المبالغ عادةً إلى طريقة الدفع الأصلية إذا أمكن ذلك. إذا لم يكن ذلك ممكنًا، فسيتم ترتيب طريقة بديلة معك.</p></div>
+        <div class="bil-row"><p class="en">Please note that any bank charges or transaction fees incurred during the payment process are generally non-refundable.</p><p class="ar" dir="rtl">يرجى ملاحظة أن أي رسوم بنكية أو رسوم معاملات يتم تكبدها أثناء عملية الدفع غير قابلة للاسترداد بشكل عام.</p></div>
+        <div class="bil-row"><p class="en">Sheep Land reserves the right to modify this Refund & Cancellation Policy at any time. Any changes will be effective immediately upon posting on our website. Please check this page periodically for updates.</p><p class="ar" dir="rtl">تحتفظ أرض الأغنام بالحق في تعديل سياسة الاسترداد والإلغاء هذه في أي وقت. ستكون أي تغييرات سارية المفعول فور نشرها على موقعنا. يرجى مراجعة هذه الصفحة بشكل دوري للاطلاع على التحديثات.</p></div>
+        <div class="bil-row"><p class="en">If you have any questions regarding our Refund & Cancellation Policy, please do not hesitate to contact us through the contact details provided on our website *before* placing your order.</p><p class="ar" dir="rtl">إذا كانت لديك أي أسئلة بخصوص سياسة الاسترداد والإلغاء الخاصة بنا، فيرجى عدم التردد في الاتصال بنا عبر تفاصيل الاتصال المتوفرة على موقعنا *قبل* تقديم طلبك.</p></div>
+    `;
+
+
     const collectionsDefinition = [
         {
-            name: "settings", type: "base", listRule: "", viewRule: "", createRule: null, updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: null,
-            fields: [
-                { name: "xchgRates", type: "json", required: true, presentable: true }, { name: "defCurr", type: "text", required: true, presentable: true, max: 5, min: 3 },
-                { name: "waNumRaw", type: "text", required: false, presentable: true, max: 20 }, { name: "waNumDisp", type: "text", required: false, presentable: true, max: 30 },
-                { name: "promoEndISO", type: "date", required: false, presentable: true }, { name: "promoDiscPc", type: "number", required: false, presentable: true, min: 0, max: 100 },
-                { name: "promoActive", type: "bool", required: false, presentable: true }, { name: "servFeeEGP", type: "number", required: true, presentable: true, min: 0 },
-                { name: "delAreas", type: "json", required: false, presentable: true }, { name: "payDetails", type: "json", required: false, presentable: true },
-                { name: "enable_udheya_section", type: "bool", required: false, presentable: true }, { name: "enable_livestock_section", type: "bool", required: false, presentable: true },
-                { name: "enable_meat_section", type: "bool", required: false, presentable: true }, { name: "enable_gatherings_section", type: "bool", required: false, presentable: true },
-                { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true },
-                { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, min: 0 }
+            name: "settings", type: "base", listRule: "@everyone", viewRule: "@everyone", createRule: null, updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: null,
+            schema: [ 
+                { name: "xchgRates", type: "json", required: true, presentable: true, options: {} }, { name: "defCurr", type: "text", required: true, presentable: true, options: {max: 5, min: 3} },
+                { name: "waNumRaw", type: "text", required: false, presentable: true, options: {max: 20} }, { name: "waNumDisp", type: "text", required: false, presentable: true, options: {max: 30} },
+                { name: "promoEndISO", type: "date", required: false, presentable: true, options: {} }, { name: "promoDiscPc", type: "number", required: false, presentable: true, options: {min: 0, max: 100} },
+                { name: "promoActive", type: "bool", required: false, presentable: true, options: {} }, { name: "servFeeEGP", type: "number", required: true, presentable: true, options: {min: 0} },
+                { name: "delAreas", type: "json", required: false, presentable: true, options: {} }, { name: "payDetails", type: "json", required: false, presentable: true, options: {} },
+                { name: "enable_udheya_section", type: "bool", required: false, presentable: true, options: {default: true}}, { name: "enable_livestock_section", type: "bool", required: false, presentable: true, options: {default: true} },
+                { name: "enable_meat_section", type: "bool", required: false, presentable: true, options: {default: true} }, { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, options: {default: true} },
+                { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true, options: {} },
+                { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, options: {min: 0} },
+                { name: "refund_policy_html", type: "text", required: false, presentable: false, options: { editor: true } },
+                { name: "app_email_sender_address", type: "email", required: false, presentable: false, options: {} },
+                { name: "app_email_sender_name", type: "text", required: false, presentable: false, options: {max: 100} }
             ]
         },
         {
-            name: "products", type: "base", listRule: "", viewRule: "", createRule: "@request.auth.id != '' && @request.auth.verified = true", updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
-            fields: [
-                { name: "item_key", type: "text", required: true, presentable: true, max: 100, min: 1, pattern: "^[a-z0-9_]+$" },
-                { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"] },
-                { name: "type_key", type: "text", required: true, presentable: true, max: 50, min: 1, pattern: "^[a-z0-9_]+$" },
-                { name: "type_name_en", type: "text", required: true, presentable: true, max: 100, min: 1 }, { name: "type_name_ar", type: "text", required: true, presentable: true, max: 100, min: 1 },
-                { name: "type_description_en", type: "text", required: false, presentable: true, max: 200 }, { name: "type_description_ar", type: "text", required: false, presentable: true, max: 200 },
-                { name: "price_per_kg_egp", type: "number", required: true, presentable: true, min: 0 }, { name: "variant_name_en", type: "text", required: true, presentable: true, max: 150, min: 1 },
-                { name: "variant_name_ar", type: "text", required: true, presentable: true, max: 150, min: 1 }, { name: "weight_range_text_en", type: "text", required: true, presentable: true, max: 50, min: 1 },
-                { name: "weight_range_text_ar", type: "text", required: true, presentable: true, max: 50, min: 1 }, { name: "avg_weight_kg", type: "number", required: true, presentable: true, min: 0 },
-                { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 }, { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0, noDecimal: true },
-                { name: "is_active", type: "bool", required: false, presentable: true }, { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
-                { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true }
+            name: "products", type: "base", listRule: "@everyone", viewRule: "@everyone", createRule: "@request.auth.id != '' && @request.auth.verified = true", updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
+            schema: [
+                { name: "item_key", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 100, min: 1, pattern: "^[a-z0-9_]+$"} },
+                { name: "product_category", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"]} },
+                { name: "type_key", type: "text", system: false, required: true, presentable: true, options: {max: 50, min: 1, pattern: "^[a-z0-9_]+$"} },
+                { name: "type_name_en", type: "text", system: false, required: true, presentable: true, options: {max: 100, min: 1} }, 
+                { name: "type_name_ar", type: "text", system: false, required: true, presentable: true, options: {max: 100, min: 1} },
+                { name: "type_description_en", type: "text", system: false, required: false, presentable: true, options: {max: 300} }, 
+                { name: "type_description_ar", type: "text", system: false, required: false, presentable: true, options: {max: 300} },
+                { name: "price_per_kg_egp", type: "number", system: false, required: false, presentable: true, options: {min: 0} },
+                { name: "variant_name_en", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
+                { name: "variant_name_ar", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} }, 
+                { name: "weight_range_text_en", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
+                { name: "weight_range_text_ar", type: "text", system: false, required: false, presentable: true, options: {max: 50} }, 
+                { name: "avg_weight_kg", type: "number", system: false, required: false, presentable: true, options: {min: 0} },
+                { name: "base_price_egp", type: "number", system: false, required: true, presentable: true, options: {min: 0} }, 
+                { name: "stock_available_pb", type: "number", system: false, required: true, presentable: true, options: {min: 0, noDecimal: true} },
+                { name: "is_active", type: "bool", system: false, required: false, presentable: true, options: {default: true} }, 
+                { name: "sort_order_type", type: "number", system: false, required: false, presentable: true, options: {min: 0, noDecimal: true} },
+                { name: "sort_order_variant", type: "number", system: false, required: false, presentable: true, options: {min: 0, noDecimal: true} }
             ],
             indexes: [ "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)", "CREATE INDEX `idx_products_category` ON `products` (`product_category`)" ]
         },
         {
-            name: "sheep_log", type: "base", listRule: "@request.auth.id != '' && @request.auth.verified = true", viewRule: "@request.auth.id != '' && @request.auth.verified = true", createRule: "@request.auth.id != '' && @request.auth.verified = true", updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
-            fields: [
-                { name: "animal_tag_id", type: "text", required: true, presentable: true, max: 50, min: 1, pattern: "^[a-zA-Z0-9_-]+$" }, { name: "species", type: "text", required: true, presentable: true, max: 50, min: 1 },
-                { name: "breed", type: "text", required: false, presentable: true, max: 100 }, { name: "date_of_birth", type: "date", required: false, presentable: true },
-                { name: "acquisition_date", type: "date", required: true, presentable: true }, { name: "acquisition_cost_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "source", type: "text", required: false, presentable: true, max: 150 }, { name: "gender", type: "select", required: false, presentable: true, maxSelect: 1, values: ["Male", "Female", "Unknown"] },
-                { name: "initial_weight_kg", type: "number", required: false, presentable: true, min: 0 }, { name: "current_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["Active", "Sold", "Deceased", "Culled", "Quarantined", "Reserved"] },
-                { name: "notes", type: "text", required: false, presentable: true, max: 1000 }, { name: "product_item_key_association", type: "text", required: false, presentable: true, max: 100, pattern: "^[a-z0-9_]*$" }
+            name: "orders", type: "base",
+            listRule: "@request.auth.id = user || order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != ''", 
+            viewRule: "@request.auth.id = user || order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != ''",
+            createRule: "", 
+            updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            schema: [
+                { name: "order_id_text", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 50, min: 1} },
+                { name: "user", type: "relation", system: false, required: false, presentable: true, options: {collectionId: "_pb_users_auth_", cascadeDelete: false, minSelect: null, maxSelect: 1, displayFields: ["email", "name"]} },
+                { name: "customer_name", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
+                { name: "customer_phone", type: "text", system: false, required: true, presentable: true, options: {max: 30, min: 7} },
+                { name: "customer_email", type: "email", system: false, required: true, presentable: true, options: {} },
+                { name: "line_items", type: "json", system: false, required: true, presentable: true, options: {} }, 
+                { name: "delivery_option", type: "select", system: false, required: true, presentable: true, options: {maxSelect:1, values:["home_delivery", "self_pickup_or_internal_distribution"]} },
+                { name: "delivery_city_id", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
+                { name: "delivery_area_name_en", type: "text", system: false, required: false, presentable: true, options: {max:100} },
+                { name: "delivery_area_name_ar", type: "text", system: false, required: false, presentable: true, options: {max:100} },
+                { name: "delivery_address", type: "text", system: false, required: false, presentable: true, options: {max: 500} },
+                { name: "delivery_instructions", type: "text", system: false, required: false, presentable: true, options: {max: 500} },
+                { name: "delivery_time_slot", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
+                { name: "payment_method", type: "text", system: false, required: true, presentable: true, options: {max: 50, min: 1} },
+                { name: "payment_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded", "partially_refunded", "pending_gateway_redirect"]} },
+                { name: "order_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_confirmation", "confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "out_for_delivery", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin", "on_hold", "awaiting_payment_gateway"]} },
+                { name: "terms_agreed", type: "bool", system: false, required: true, presentable: true, options: {} },
+                { name: "admin_notes", type: "text", system: false, required: false, presentable: false, options: {max: 1000} },
+                { name: "user_ip_address", type: "text", system: false, required: false, presentable: false, options: {max: 50} },
+                { name: "user_agent_string", type: "text", system: false, required: false, presentable: false, options: {max: 300} },
+                { name: "subtotal_amount_egp", type: "number", system: false, required: true, presentable: true, options: {min:0} },
+                { name: "total_udheya_service_fee_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
+                { name: "delivery_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
+                { name: "online_payment_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
+                { name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, options: {min: 0} },
+                { name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, options: {max: 5} }
             ],
-            indexes: [ "CREATE UNIQUE INDEX `idx_sheep_log_animal_tag_id` ON `sheep_log` (`animal_tag_id`)" ]
-        },
-        {
-            name: "animal_events", type: "base", listRule: "@request.auth.id != '' && @request.auth.verified = true", viewRule: "@request.auth.id != '' && @request.auth.verified = true", createRule: "@request.auth.id != '' && @request.auth.verified = true", updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
-            fields: [
-                { name: "event_date", type: "date", required: true, presentable: true }, { name: "event_type", type: "select", required: true, presentable: true, maxSelect: 1, values: ["Vaccination", "Medication", "Feeding Change", "Weight Check", "Breeding", "Birth (Offspring)", "Injury", "Illness", "Relocation", "Status Change", "Other"] },
-                { name: "description", type: "text", required: true, presentable: true, max: 500, min: 1 }, { name: "cost_associated_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "vet_involved", type: "text", required: false, presentable: true, max: 100 }, { name: "medication_details", type: "text", required: false, presentable: true, max: 200 },
-                { name: "weight_kg_at_event", type: "number", required: false, presentable: true, min: 0 }, { name: "notes", type: "text", required: false, presentable: true, max: 1000 }
-            ],
-            indexes: [ "CREATE INDEX `idx_animal_events_event_date` ON `animal_events` (`event_date`)" ]
-        },
-        {
-            name: "orders", type: "base", listRule: "", viewRule: "", createRule: "", updateRule: null, deleteRule: null,
-            fields: [
-                { name: "order_id_text", type: "text", required: true, presentable: true, max: 50, min: 1 }, { name: "ordered_product_name_en", type: "text", required: true, presentable: true, max: 150, min: 1 },
-                { name: "ordered_product_name_ar", type: "text", required: true, presentable: true, max: 150, min: 1 }, { name: "ordered_weight_range_en", type: "text", required: true, presentable: true, max: 50, min: 1 },
-                { name: "ordered_weight_range_ar", type: "text", required: true, presentable: true, max: 50, min: 1 }, { name: "price_at_order_time_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "cost_of_animal_egp", type: "number", required: false, presentable: false, min: 0 }, { name: "udheya_service_option_selected", type: "text", required: true, presentable: true, max: 50, min: 1 },
-                { name: "service_fee_applied_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "online_payment_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0 }, { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 },
-                { name: "sacrifice_day_value", type: "text", required: true, presentable: true, max: 50, min: 1 }, { name: "sacrifice_day_text_en", type: "text", required: false, presentable: true, max: 100 },
-                { name: "sacrifice_day_text_ar", type: "text", required: false, presentable: true, max: 100 }, { name: "slaughter_viewing_preference", type: "text", required: false, presentable: true, max: 50 },
-                { name: "distribution_choice", type: "text", required: false, presentable: true, max: 50 }, { name: "split_details_option", type: "text", required: false, presentable: true, max: 100 },
-                { name: "custom_split_details_text", type: "text", required: false, presentable: true, max: 500 }, { name: "niyyah_names", type: "text", required: false, presentable: true, max: 500 },
-                { name: "ordering_person_name", type: "text", required: true, presentable: true, max: 150, min: 1 }, { name: "ordering_person_phone", type: "text", required: true, presentable: true, max: 30, min: 7 },
-                { name: "customer_email", type: "email", required: false, presentable: true }, { name: "delivery_option", type: "text", required: false, presentable: true, max: 50 },
-                { name: "delivery_name", type: "text", required: false, presentable: true, max: 150 }, { name: "delivery_phone", type: "text", required: false, presentable: true, max: 30 },
-                { name: "delivery_area_id", type: "text", required: false, presentable: true, max: 50 }, { name: "delivery_area_name_en", type: "text", required: false, presentable: true, max: 100 },
-                { name: "delivery_area_name_ar", type: "text", required: false, presentable: true, max: 100 }, { name: "delivery_address", type: "text", required: false, presentable: true, max: 500 },
-                { name: "delivery_instructions", type: "text", required: false, presentable: true, max: 500 }, { name: "time_slot", type: "text", required: false, presentable: true, max: 50 },
-                { name: "payment_method", type: "text", required: true, presentable: true, max: 50, min: 1 }, { name: "payment_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded", "partially_refunded", "pending_gateway_redirect"] },
-                { name: "order_status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["pending_confirmation", "confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "out_for_delivery", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin", "on_hold", "awaiting_payment_gateway"] },
-                { name: "terms_agreed", type: "bool", required: false, presentable: true }, { name: "admin_notes", type: "text", required: false, presentable: false, max: 1000 },
-                { name: "group_purchase_interest", type: "bool", required: false, presentable: true }, { name: "user_ip_address", type: "text", required: false, presentable: false, max: 50 },
-                { name: "user_agent_string", type: "text", required: false, presentable: false, max: 300 }
-            ],
-            indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)" ]
-        },
-        {
-            name: "expenses", type: "base", listRule: "@request.auth.id != '' && @request.auth.verified = true", viewRule: "@request.auth.id != '' && @request.auth.verified = true", createRule: "@request.auth.id != '' && @request.auth.verified = true", updateRule: "@request.auth.id != '' && @request.auth.verified = true", deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
-            fields: [
-                { name: "expense_date", type: "date", required: true, presentable: true }, { name: "category", type: "text", required: true, presentable: true, max: 100, min: 1 },
-                { name: "description", type: "text", required: true, presentable: true, max: 500, min: 1 }, { name: "amount_egp", type: "number", required: true, presentable: true, min: 0 },
-                { name: "vendor", type: "text", required: false, presentable: true, max: 150 }, { name: "payment_method", type: "text", required: false, presentable: true, max: 50 },
-                { name: "receipt", type: "file", required: false, presentable: true, maxSelect: 1, maxSize: 5242880, mimeTypes: ["image/jpeg", "image/png", "image/gif", "application/pdf"] },
-                { name: "notes", type: "text", required: false, presentable: true, max: 1000 }
-            ],
-            indexes: [ "CREATE INDEX `idx_expenses_date` ON `expenses` (`expense_date`)", "CREATE INDEX `idx_expenses_category` ON `expenses` (`category`)" ]
+            indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)", "CREATE INDEX `idx_orders_user` ON `orders` (`user`)" ]
         }
     ];
 
     const seedData = {
         settings: [{
-            xchgRates: {
-                EGP: { rate_from_egp: 1, symbol: "LE", is_active: true },
-                USD: { rate_from_egp: 0.020, symbol: "$", is_active: true },
-                GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true },
-                EUR: { rate_from_egp: 0.018, symbol: "€", is_active: true }
-            },
-            defCurr: "EGP", waNumRaw: "201117117489", waNumDisp: "+20 11 1711 7489", promoEndISO: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], promoDiscPc: 10, promoActive: true, servFeeEGP: 750,
-            delAreas: [ { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "euro_reef", name_en: "European Reef", name_ar: "الريف الأوروبى", delivery_fee_egp: 150 } ] }, { id:"cairo", name_en:"Cairo", name_ar:"القاهرة", cities:[ {id:"nasr_city", name_en:"Nasr City", name_ar:"مدينة نصر", delivery_fee_egp: 250 }, {id:"maadi", name_en:"Maadi", name_ar:"المعادي", delivery_fee_egp: 250 }, {id:"heliopolis", name_en:"Heliopolis", name_ar:"مصر الجديدة", delivery_fee_egp: 250} ] } ],
+            xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true }, EUR: { rate_from_egp: 0.018, symbol: "€", is_active: true } },
+            defCurr: "EGP", waNumRaw: "201117117489", waNumDisp: "+20 11 1711 7489", 
+            promoEndISO: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + "T23:59:59.000Z", 
+            promoDiscPc: 10, promoActive: true, servFeeEGP: 750,
+            delAreas: [ { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "hadayek_october", name_en: "Hadayek October", name_ar: "حدائق أكتوبر", delivery_fee_egp: 120 } ] }, { id:"cairo_east", name_en:"Cairo East", name_ar:"شرق القاهرة", cities:[ {id:"tagamoa", name_en:"New Cairo (Tagamoa)", name_ar:"التجمع (القاهرة الجديدة)", delivery_fee_egp: 250 }, {id:"madinaty", name_en:"Madinaty", name_ar:"مدينتي", delivery_fee_egp: 300 }, {id:"shorouk", name_en:"El Shorouk", name_ar:"الشروق", delivery_fee_egp: 300} ] } ],
             payDetails: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" },
             enable_udheya_section: true, enable_livestock_section: true, enable_meat_section: true, enable_gatherings_section: true,
-            slaughter_location_gmaps_url: "https://maps.app.goo.gl/GmWajZfqzPh4ZAey7",
-            online_payment_fee_egp: 35
+            slaughter_location_gmaps_url: "https://maps.app.goo.gl/GmWajZfqzPh4ZAey7", online_payment_fee_egp: 35,
+            refund_policy_html: defaultRefundPolicyHTML, app_email_sender_address: "noreply@sheepland.example.com", app_email_sender_name: "Sheep Land Orders"
         }],
         products: [
-            { item_key: "baladi_40_50", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (40-50kg)", variant_name_ar: "بلدي (٤٠-٥٠كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 7, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
-            { item_key: "baladi_50_60", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Local breed, rich flavor.", type_description_ar: "سلالة محلية، نكهة غنية.", price_per_kg_egp: 230, variant_name_en: "Baladi (50-60kg)", variant_name_ar: "بلدي (٥٠-٦٠كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: 12650, stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
-            { item_key: "live_ram_large", product_category: "livestock_general", type_key: "live_ram", type_name_en: "Live Ram", type_name_ar: "كبش حي", type_description_en: "Large healthy ram for breeding or other purposes.", type_description_ar: "كبش كبير صحي للتربية أو أغراض أخرى.", price_per_kg_egp: 200, variant_name_en: "Large Ram (70-80kg)", variant_name_ar: "كبش كبير (٧٠-٨٠كجم)", weight_range_text_en: "70-80kg", weight_range_text_ar: "٧٠-٨٠ كجم", avg_weight_kg: 75, base_price_egp: 15000, stock_available_pb: 2, is_active: true, sort_order_type: 3, sort_order_variant: 1 },
-            { item_key: "lamb_chops_kg", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Fresh premium lamb cuts.", type_description_ar: "قطعيات ضأن طازجة ممتازة.", price_per_kg_egp: 350, variant_name_en: "Lamb Chops (per kg)", variant_name_ar: "ريش ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", avg_weight_kg: 1, base_price_egp: 350, stock_available_pb: 10, is_active: true, sort_order_type: 4, sort_order_variant: 1 },
-            { item_key: "gathering_feast_medium", product_category: "gathering_package", type_key: "feast_pack", type_name_en: "Feast Package", type_name_ar: "باقة وليمة", type_description_en: "Complete package for a medium gathering.", type_description_ar: "باقة متكاملة لوليمة متوسطة.", price_per_kg_egp: 0, variant_name_en: "Medium Feast (serves 15-20)", variant_name_ar: "وليمة متوسطة (تكفي ١٥-٢٠ فرد)", weight_range_text_en: "Approx. 1 whole sheep processed", weight_range_text_ar: "خروف كامل مجهز تقريباً", avg_weight_kg: 50, base_price_egp: 14000, stock_available_pb: 5, is_active: true, sort_order_type: 5, sort_order_variant: 1 }
-        ],
-        sheep_log: [ { animal_tag_id: "SL-B-001", species: "Sheep", breed: "Baladi", acquisition_date: new Date(new Date().setDate(new Date().getDate()-60)).toISOString().split('T')[0], acquisition_cost_egp: 6500, source: "Farm Born", gender: "Male", initial_weight_kg: 15, current_status: "Active", product_item_key_association: "baladi_50_60"}, { animal_tag_id: "SL-B-002", species: "Sheep", breed: "Baladi", acquisition_date: new Date(new Date().setDate(new Date().getDate()-60)).toISOString().split('T')[0], acquisition_cost_egp: 6800, source: "Al-Amin Market", gender: "Male", initial_weight_kg: 18, current_status: "Active", product_item_key_association: "baladi_60_plus"}, { animal_tag_id: "SL-K-001", species: "Sheep", breed: "Barki", acquisition_date: new Date(new Date().setDate(new Date().getDate()-45)).toISOString().split('T')[0], acquisition_cost_egp: 5500, source: "Supplier Z", gender: "Female", initial_weight_kg: 12, current_status: "Active", product_item_key_association: "barki_40_50"} ],
-        animal_events: [ { animal_id_for_seed: "SL-B-001", event_date: new Date(new Date().setDate(new Date().getDate()-30)).toISOString().split('T')[0], event_type: "Vaccination", description: "Annual booster shots", cost_associated_egp: 50}, { animal_id_for_seed: "SL-B-001", event_date: new Date(new Date().setDate(new Date().getDate()-5)).toISOString().split('T')[0], event_type: "Weight Check", description: "Routine weight check", weight_kg_at_event: 48}, { animal_id_for_seed: "SL-K-001", event_date: new Date(new Date().setDate(new Date().getDate()-20)).toISOString().split('T')[0], event_type: "Medication", description: "Deworming", cost_associated_egp: 75, medication_details: "Ivermectin Oral Solution"} ],
-        expenses: [ { expense_date: new Date(new Date().setDate(new Date().getDate()-15)).toISOString().split('T')[0], category: "Animal Feed", description: "Initial stock of hay and grains", amount_egp: 5000, vendor: "Al-Baraka Feeds", payment_method: "Bank Transfer"}, { expense_date: new Date(new Date().setDate(new Date().getDate()-10)).toISOString().split('T')[0], category: "Vet Services", description: "Health checkup for new arrivals", amount_egp: 1200, vendor: "Dr. Saleh Vet Clinic", payment_method: "Cash"} ]
+            { item_key: "baladi_udheya_45kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Local breed, excellent for Udheya, known for its marbling and taste.", type_description_ar: "سلالة محلية، ممتازة للأضحية، معروفة بدهونها المتداخلة وطعمها الغني.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 45kg)", variant_name_ar: "أضحية بلدي (تقريباً ٤٥ كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 10, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
+            { item_key: "baladi_udheya_55kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Larger local breed, excellent for Udheya.", type_description_ar: "سلالة محلية أكبر حجمًا، ممتازة للأضحية.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 55kg)", variant_name_ar: "أضحية بلدي (تقريباً ٥٥ كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: 12650, stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
+            { item_key: "barki_udheya_50kg", product_category: "udheya", type_key: "barki", type_name_en: "Barki Udheya Sheep", type_name_ar: "خروف برقي للأضحية", type_description_en: "Desert breed, lean and flavorful meat, popular for Udheya.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن وذو نكهة مميزة، شائع للأضحية.", price_per_kg_egp: 250, variant_name_en: "Barki Udheya (Approx. 50kg)", variant_name_ar: "أضحية برقي (تقريباً ٥٠ كجم)", weight_range_text_en: "45-55kg", weight_range_text_ar: "٤٥-٥٥ كجم", avg_weight_kg: 50, base_price_egp: 12500, stock_available_pb: 12, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
+            { item_key: "live_ram_baladi_large", product_category: "livestock_general", type_key: "live_ram", type_name_en: "Live Baladi Ram", type_name_ar: "كبش بلدي حي", type_description_en: "Large healthy Baladi ram for breeding or other purposes.", type_description_ar: "كبش بلدي كبير صحي للتربية أو أغراض أخرى.", variant_name_en: "Large Baladi Ram (70-80kg)", variant_name_ar: "كبش بلدي كبير (٧٠-٨٠كجم)", base_price_egp: 15000, stock_available_pb: 3, is_active: true, sort_order_type: 3, sort_order_variant: 1 },
+            { item_key: "live_ewe_barki_medium", product_category: "livestock_general", type_key: "live_ewe", type_name_en: "Live Barki Ewe", type_name_ar: "نعجة برقي حية", type_description_en: "Healthy Barki ewe, excellent for breeding programs.", type_description_ar: "نعجة برقي صحية، ممتازة لبرامج التربية.", variant_name_en: "Medium Barki Ewe (50-60kg)", variant_name_ar: "نعجة برقي متوسطة (٥٠-٦٠كجم)", base_price_egp: 9500, stock_available_pb: 5, is_active: true, sort_order_type: 3, sort_order_variant: 2 },
+            { item_key: "lamb_chops_kg", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Fresh premium lamb chops, tender and juicy.", type_description_ar: "ريش ضأن طازجة فاخرة، طرية وغنية بالعصارة.", variant_name_en: "Lamb Chops (per kg)", variant_name_ar: "ريش ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 450, stock_available_pb: 15, is_active: true, sort_order_type: 4, sort_order_variant: 1 },
+            { item_key: "lamb_leg_whole", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Whole lamb leg, perfect for roasting or special meals.", type_description_ar: "فخذة ضأن كاملة، مثالية للتحمير أو الوجبات الخاصة.", variant_name_en: "Whole Lamb Leg (Approx. 2-3kg)", variant_name_ar: "فخذة ضاني كاملة (تقريباً ٢-٣ كجم)", avg_weight_kg: 2.5, base_price_egp: 1100, stock_available_pb: 7, is_active: true, sort_order_type: 4, sort_order_variant: 2 },
+            { item_key: "beef_mince_kg", product_category: "meat_cuts", type_key: "beef_cuts", type_name_en: "Beef Cuts", type_name_ar: "قطعيات بقري", type_description_en: "Freshly ground local beef, versatile for many dishes.", type_description_ar: "لحم بقري محلي مفروم طازج، متعدد الاستخدامات للعديد من الأطباق.", variant_name_en: "Beef Mince (per kg)", variant_name_ar: "لحم بقري مفروم (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 380, stock_available_pb: 20, is_active: true, sort_order_type: 4, sort_order_variant: 3 },
+            { item_key: "gathering_feast_medium", product_category: "gathering_package", type_key: "feast_pack", type_name_en: "Medium Feast Package", type_name_ar: "باقة وليمة متوسطة", type_description_en: "Complete package for a medium gathering. Includes one processed sheep (approx 50kg live weight), rice, and salads.", type_description_ar: "باقة متكاملة لوليمة متوسطة. تشمل خروف مجهز (وزن حي تقريباً ٥٠ كجم)، أرز، وسلطات.", variant_name_en: "Medium Feast (serves 15-20)", variant_name_ar: "وليمة متوسطة (تكفي ١٥-٢٠ فرد)", base_price_egp: 14500, stock_available_pb: 5, is_active: true, sort_order_type: 5, sort_order_variant: 1 },
+            { item_key: "gathering_bbq_large", product_category: "gathering_package", type_key: "bbq_pack", type_name_en: "Large BBQ Package", type_name_ar: "باقة شواء كبيرة", type_description_en: "Generous assortment of marinated meats, skewers, and sides for a large BBQ event.", type_description_ar: "تشكيلة وفيرة من اللحوم المتبلة، الأسياخ، والأطباق الجانبية لحفل شواء كبير.", variant_name_en: "Large BBQ Pack (serves 20-25)", variant_name_ar: "باقة شواء كبيرة (تكفي ٢٠-٢٥ فردًا)", base_price_egp: 4500, stock_available_pb: 8, is_active: true, sort_order_type: 5, sort_order_variant: 2 }
+        ]
     };
 
-    async function authenticateAdmin(pb) { try { await pb.admins.authWithPassword(ADM_E, ADM_P); log('Admin authenticated.'); return true; } catch(e) { log('Admin auth FAILED: ' + e.message); return false; } }
+    async function authenticateAdmin(pb) { try { await pb.admins.authWithPassword(ADM_E, ADM_P); log('Admin authenticated.'); return true; } catch(e) { log('Admin auth FAILED: ' + e.message + '. Ensure admin exists with these credentials.'); return false; } }
 
     async function createOrUpdateCollection(pb, collectionDef) {
-        let existingCollection = null; try { existingCollection = await pb.collections.getOne(collectionDef.name); } catch (e) { if (e.status !== 404) { log(`Error checking collection ${collectionDef.name}: ${e.message}`); throw e;} }
-        if (existingCollection) { log(`Updating ${collectionDef.name}...`); await pb.collections.update(existingCollection.id, { fields: collectionDef.fields, listRule: collectionDef.listRule, viewRule: collectionDef.viewRule, createRule: collectionDef.createRule, updateRule: collectionDef.updateRule, deleteRule: collectionDef.deleteRule }); }
-        else { log(`Creating ${collectionDef.name}...`); await pb.collections.create(collectionDef); }
-    }
+        let existingCollection = null;
+        try { existingCollection = await pb.collections.getOne(collectionDef.name); }
+        catch (e) { if (e.status !== 404) { log(`Error checking collection ${collectionDef.name}: ${e.message}`); throw e;} }
+        
+        if (existingCollection) {
+            log(`Updating ${collectionDef.name}...`);
+            const updatePayload = {
+                schema: collectionDef.schema, 
+                listRule: collectionDef.listRule, viewRule: collectionDef.viewRule,
+                createRule: collectionDef.createRule, updateRule: collectionDef.updateRule,
+                deleteRule: collectionDef.deleteRule
+            };
+            if (collectionDef.indexes) updatePayload.indexes = collectionDef.indexes;
 
-    async function addRelationField(pb, collName, fName, targetCollName, isReq = true, dispFields = ["id"]) {
-        const coll = await pb.collections.getOne(collName); const targetColl = await pb.collections.getOne(targetCollName);
-        if (coll.fields.some(f => f.name === fName)) { log(`Field ${fName} exists in ${collName}, skipping.`); return; }
-        const newField = { name: fName, type: "relation", required: isReq, presentable: true, collectionId: targetColl.id, cascadeDelete: false, minSelect: isReq ? 1 : null, maxSelect: 1, displayFields: dispFields };
-        await pb.collections.update(coll.id, { fields: [...coll.fields, newField] }); log(`Added ${fName} to ${collName}.`);
+            await pb.collections.update(existingCollection.id, updatePayload);
+        } else {
+            log(`Creating ${collectionDef.name}...`);
+            const newCollection = new PocketBase.models.Collection(); // Use the SDK's Collection model
+            newCollection.name = collectionDef.name;
+            newCollection.type = collectionDef.type;
+            newCollection.listRule = collectionDef.listRule;
+            newCollection.viewRule = collectionDef.viewRule;
+            newCollection.createRule = collectionDef.createRule;
+            newCollection.updateRule = collectionDef.updateRule;
+            newCollection.deleteRule = collectionDef.deleteRule;
+            newCollection.schema = collectionDef.schema; 
+            newCollection.indexes = collectionDef.indexes || [];
+            
+            await pb.collections.import([newCollection.export()], false); // import expects raw collection data
+        }
     }
-
-    async function updateOrderCollectionRules(pb) {
-        const finalRules = { listRule: "order_id_text = @request.query.lookupOrderID:string", viewRule: "order_id_text = @request.query.lookupOrderID:string", createRule: "@request.auth.id != '' || ordering_person_phone != ''", updateRule: "user = @request.auth.id", deleteRule: null };
-        const coll = await pb.collections.getOne("orders"); await pb.collections.update(coll.id, finalRules); log('Updated "orders" rules.');
-    }
-
+    
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
         log(`Seeding ${collectionName}...`);
         for (const item of seedItems) {
             try {
                 let existingRecord = null;
-                if (uniqueKeyField && item[uniqueKeyField] !== undefined) { try { existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`); } catch (e) {} }
-                else if (!uniqueKeyField && collectionName === "settings") { const list = await pb.collection(collectionName).getList(1, 1); if (list.items.length > 0) existingRecord = list.items[0]; }
-                if (existingRecord) { await pb.collection(collectionName).update(existingRecord.id, item); }
-                else { await pb.collection(collectionName).create(item); }
-            } catch (e) { log (`Error seeding item in ${collectionName}: ${e.message}`); }
+                if (uniqueKeyField && item[uniqueKeyField] !== undefined) {
+                    try { existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`); } catch (e) { /* Record doesn't exist, will create */ }
+                } else if (!uniqueKeyField && collectionName === "settings") { 
+                    const list = await pb.collection(collectionName).getList(1, 1);
+                    if (list.items.length > 0) existingRecord = list.items[0];
+                }
+
+                if (existingRecord) {
+                    await pb.collection(collectionName).update(existingRecord.id, item);
+                     log(`Updated item in ${collectionName} (ID: ${existingRecord.id})`);
+                } else {
+                    const created = await pb.collection(collectionName).create(item);
+                    log(`Created item in ${collectionName} (ID: ${created.id})`);
+                }
+            } catch (e) { log (`Error seeding item in ${collectionName} (${JSON.stringify(item[uniqueKeyField] || item)}): ${e.message} - ${JSON.stringify(e.data)}`); }
         }
         log(`${collectionName} seeded.`);
     }
 
     async function setupSchema(pb) {
-        log('SCHEMA SETUP...'); if (!await authenticateAdmin(pb)) return false;
-        for (const collectionDef of collectionsDefinition) { try { await createOrUpdateCollection(pb, collectionDef); await new Promise(r => setTimeout(r, 100)); } catch (e) { log(`Failed on ${collectionDef.name}: ${e.message}`); return false; } }
-        try {
-            await addRelationField(pb, 'orders', 'user', 'users', false, ["username", "email"]); await addRelationField(pb, 'orders', 'product_id', 'products', true, ["item_key", "variant_name_en"]);
-            await addRelationField(pb, 'orders', 'animal_id', 'sheep_log', false, ["animal_tag_id"]); await addRelationField(pb, 'sheep_log', 'sale_order_id', 'orders', false, ["order_id_text"]);
-            await addRelationField(pb, 'animal_events', 'animal_id', 'sheep_log', true, ["animal_tag_id"]);
-            await updateOrderCollectionRules(pb); log('Schema setup done.'); return true;
-        } catch (e) { log(`Relation/Rule setup failed: ${e.message}`); return false;}
+        log('SCHEMA SETUP...');
+        if (!await authenticateAdmin(pb)) return false;
+
+        try { // Update users collection for email verification (optional but good)
+            const usersCollection = await pb.collections.getOne("_pb_users_auth_");
+            if (usersCollection) {
+                let needsUpdate = false;
+                if(usersCollection.options.emailVisibility !== true) {
+                    usersCollection.options.emailVisibility = true; // Allow admin to see emails
+                    needsUpdate = true;
+                }
+                // You might want to enable "Require Email Verification" here if desired
+                // if(usersCollection.options.requireEmailVerification !== true) {
+                //     usersCollection.options.requireEmailVerification = true;
+                //     needsUpdate = true;
+                // }
+                if(usersCollection.updateRule !== "@request.auth.id = id") {
+                    usersCollection.updateRule = "@request.auth.id = id"; // Users can update their own
+                    needsUpdate = true;
+                }
+                if (needsUpdate) {
+                    await pb.collections.update("_pb_users_auth_", { options: usersCollection.options, updateRule: usersCollection.updateRule });
+                    log("Updated users collection options/rules.");
+                } else {
+                    log("Users collection options/rules already up to date.");
+                }
+            }
+        } catch (e) { log(`Could not update users collection: ${e.message}`); }
+
+
+        for (const collectionDef of collectionsDefinition) {
+            try {
+                await createOrUpdateCollection(pb, collectionDef);
+                await new Promise(r => setTimeout(r, 200)); 
+            } catch (e) {
+                log(`Failed on ${collectionDef.name}: ${e.message} - ${JSON.stringify(e.data)}`);
+                return false;
+            }
+        }
+        log('Schema setup done.');
+        return true;
     }
 
     async function setupSeedData(pb) {
-        log('SEED DATA...'); if (!await authenticateAdmin(pb)) return false; await new Promise(r => setTimeout(r, 200));
-        await seedCollectionData(pb, 'settings', seedData.settings); await seedCollectionData(pb, 'products', seedData.products, 'item_key');
-        await seedCollectionData(pb, 'sheep_log', seedData.sheep_log, 'animal_tag_id');
-        for (const eventData of seedData.animal_events) {
-            try {
-                const animal = await pb.collection('sheep_log').getFirstListItem(`animal_tag_id="${eventData.animal_id_for_seed}"`);
-                if (animal) { const dataToCreate = {...eventData, animal_id: animal.id}; delete dataToCreate.animal_id_for_seed; await pb.collection('animal_events').create(dataToCreate); }
-            } catch (e) { log(`Error seeding animal event for ${eventData.animal_id_for_seed}: ${e.message}`);}
-        }
-        await seedCollectionData(pb, 'expenses', seedData.expenses); log('Seed data done.'); return true;
+        log('SEED DATA...');
+        if (!await authenticateAdmin(pb)) return false;
+        await new Promise(r => setTimeout(r, 200)); 
+
+        await seedCollectionData(pb, 'settings', seedData.settings);
+        await seedCollectionData(pb, 'products', seedData.products, 'item_key');
+        
+        log('Seed data done.');
+        return true;
     }
 
     runFullSetupButton.onclick = async () => {
-        [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true); outputDiv.innerHTML = ''; log('FULL SETUP...');
-        const pb = new PocketBase(pbUrl); let schemaSuccess = false;
-        try { schemaSuccess = await setupSchema(pb); if (!schemaSuccess) { log('Schema failed, aborting.'); return; } await new Promise(r => setTimeout(r, 200)); await setupSeedData(pb); log('FULL SETUP COMPLETED.'); if (schemaSuccess) runSeedOnlyButton.disabled = false; }
-        catch (e) { log(`FULL SETUP ERROR: ${e.message}`); }
-        finally { if (pb.authStore.isValid) pb.authStore.clear(); [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false); log('Process finished.'); }
+        [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
+        outputDiv.innerHTML = ''; log('FULL SETUP...');
+        const pb = new PocketBase(pbUrl);
+        let schemaSuccess = false;
+        try {
+            schemaSuccess = await setupSchema(pb);
+            if (!schemaSuccess) {
+                log('Schema setup failed, aborting seed data.');
+            } else {
+                await new Promise(r => setTimeout(r, 200));
+                await setupSeedData(pb);
+                log('FULL SETUP COMPLETED.');
+            }
+        }
+        catch (e) { log(`FULL SETUP ERROR: ${e.message} - ${JSON.stringify(e.data)}`); }
+        finally {
+            if (pb.authStore.isValid) pb.authStore.clear();
+            [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
+            if(schemaSuccess) runSeedOnlyButton.disabled = false; 
+            log('Process finished.');
+        }
     };
     runSchemaOnlyButton.onclick = async () => {
-        [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true); outputDiv.innerHTML = ''; const pb = new PocketBase(pbUrl);
-        try { const success = await setupSchema(pb); if (success) { runSeedOnlyButton.disabled = false; log('Schema setup completed.'); } else { log('Schema setup failed.'); } }
-        catch (e) { log(`SCHEMA SETUP ERROR: ${e.message}`); }
-        finally { if (pb.authStore.isValid) pb.authStore.clear(); [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false); }
+        [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
+        outputDiv.innerHTML = ''; const pb = new PocketBase(pbUrl);
+        try {
+            const success = await setupSchema(pb);
+            if (success) {
+                runSeedOnlyButton.disabled = false;
+                log('Schema setup completed.');
+            } else {
+                log('Schema setup failed.');
+            }
+        }
+        catch (e) { log(`SCHEMA SETUP ERROR: ${e.message} - ${JSON.stringify(e.data)}`); }
+        finally {
+            if (pb.authStore.isValid) pb.authStore.clear();
+            [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
+        }
     };
     runSeedOnlyButton.onclick = async () => {
-        [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true); outputDiv.innerHTML = ''; const pb = new PocketBase(pbUrl);
-        try { await setupSeedData(pb); log('Seed data setup completed.'); }
-        catch (e) { log(`SEED DATA ERROR: ${e.message}`); }
-        finally { if (pb.authStore.isValid) pb.authStore.clear(); [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = false); }
+        [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
+        outputDiv.innerHTML = ''; const pb = new PocketBase(pbUrl);
+        try {
+            await setupSeedData(pb);
+            log('Seed data setup completed.');
+        }
+        catch (e) { log(`SEED DATA ERROR: ${e.message} - ${JSON.stringify(e.data)}`); }
+        finally {
+            if (pb.authStore.isValid) pb.authStore.clear();
+            [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = false);
+        }
     };
 </script>
 </body>
