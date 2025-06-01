@@ -110,10 +110,9 @@
         },
         {
             name: "orders", type: "base",
-            // Allow list by order_id_text for anonymous status check modal, or by user for their own orders
             listRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')", 
             viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')",
-            createRule: "", // Open for now, hook will validate. Can be restricted if all orders must be from logged-in users.
+            createRule: "", 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
             schema: [
@@ -201,26 +200,22 @@
                 createRule: collectionDef.createRule, updateRule: collectionDef.updateRule,
                 deleteRule: collectionDef.deleteRule
             };
-            // Indexes are not updated via this API in older PB, and are tricky.
-            // It's best to manage them via migrations or ensure they are set correctly on first creation.
-            // if (collectionDef.indexes) updatePayload.indexes = collectionDef.indexes;
-            
             await pb.collections.update(existingCollection.id, updatePayload);
         } else {
             log(`Creating ${collectionDef.name}...`);
-            const newCollection = new PocketBase.models.Collection();
-            newCollection.name = collectionDef.name;
-            newCollection.type = collectionDef.type;
-            newCollection.listRule = collectionDef.listRule;
-            newCollection.viewRule = collectionDef.viewRule;
-            newCollection.createRule = collectionDef.createRule;
-            newCollection.updateRule = collectionDef.updateRule;
-            newCollection.deleteRule = collectionDef.deleteRule;
-            newCollection.schema = schemaToApply; 
-            newCollection.indexes = collectionDef.indexes || []; // For export/import structure
-            
-            await pb.collections.import([newCollection.export()], false); 
-            log(`Collection ${collectionDef.name} created. Indexes: ${JSON.stringify(collectionDef.indexes || [])}. You might need to verify/apply indexes manually if they are complex or weren't applied.`);
+            const collectionDataForImport = {
+                name: collectionDef.name,
+                type: collectionDef.type,
+                listRule: collectionDef.listRule,
+                viewRule: collectionDef.viewRule,
+                createRule: collectionDef.createRule,
+                updateRule: collectionDef.updateRule,
+                deleteRule: collectionDef.deleteRule,
+                schema: schemaToApply, 
+                indexes: collectionDef.indexes || [] 
+            };
+            await pb.collections.import([collectionDataForImport], false); 
+            log(`Collection ${collectionDef.name} created. Indexes specified: ${JSON.stringify(collectionDef.indexes || [])}. You might need to verify/apply indexes manually if they are complex or weren't applied.`);
         }
     }
     
@@ -261,7 +256,7 @@
                     currentOptions.emailVisibility = true; 
                     needsUpdate = true;
                 }
-                if(currentOptions.requireEmailVerification !== false) { // Set to false for easier testing
+                if(currentOptions.requireEmailVerification !== false) { 
                     currentOptions.requireEmailVerification = false;
                     needsUpdate = true;
                 }
