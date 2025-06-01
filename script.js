@@ -13,11 +13,12 @@ document.addEventListener('alpine:init', () => {
     const initialTempUdheyaConfig = {
         itemKey: null, niyyahNames: "", serviceOption: "standard_service",
         sacrificeDay: "day1_10_dhul_hijjah", viewingPreference: "none",
-        distribution: { choice: "me", splitOption: "", customSplitText: "" }
+        distribution: { choice: "me", splitOption: "", customSplitText: "" },
+        isBuyNowIntent: false // Added for Buy Now flow
     };
 
     const payMethOptsList = [
-        { id: 'online_card', title: 'Online Payment (Card)', imgSrc: 'card_payment.svg', requiresServerAction: true }, // Example if online payment needs server setup
+        { id: 'online_card', title: 'Online Payment (Card)', imgSrc: 'card_payment.svg', requiresServerAction: true },
         { id: 'revolut', title: 'Revolut', imgSrc: 'revolut.svg' },
         { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg' },
         { id: 'ip', title: 'InstaPay', imgSrc: 'instapay.svg' },
@@ -35,7 +36,6 @@ document.addEventListener('alpine:init', () => {
     };
 
     Alpine.data('udh', () => ({
-        // Core State
         load: { init: true, status: false, checkout: false, auth: false, orders: false, addingToCart: null, configuringUdheya: null },
         settings: {
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
@@ -51,7 +51,6 @@ document.addEventListener('alpine:init', () => {
         apiErr: null, usrApiErr: "",
         get availPayMeths() { return payMethOptsList; },
         
-        // UI State
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, isOrderStatusModalOpen: false,
         isUdheyaConfigModalOpen: false,
         currentPage: '', currentProductPage: '', 
@@ -59,24 +58,21 @@ document.addEventListener('alpine:init', () => {
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false },
         cdTimer: null,
         
-        // Forms & Selections
         checkoutForm: JSON.parse(JSON.stringify(initialCheckoutForm)),
         tempUdheyaConfig: JSON.parse(JSON.stringify(initialTempUdheyaConfig)), 
         configuringUdheyaItem: null, 
         addedToCartMsg: { text: null, isError: false, pageContext: '' },
         
-        // Order Status
         statRes: null, statNotFound: false, lookupOrderID: "",
         orderConf: { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "" },
         
-        // User Auth
         currentUser: null, 
         auth: { email: "", password: "", passwordConfirm: "", name: "" , view: 'login' }, 
         userOrders: [], 
         redirectAfterLogin: null,
 
         errs: {}, 
-        errMsgs: { /* ... Full list of error messages ... */ 
+        errMsgs: { 
             required: { en: "This field is required.", ar: "هذا الحقل مطلوب." },
             select: { en: "Please make a selection.", ar: "يرجى الاختيار." },
             email: { en: "Please enter a valid email address.", ar: "يرجى إدخال بريد إلكتروني صحيح." },
@@ -91,6 +87,10 @@ document.addEventListener('alpine:init', () => {
             udheya_split_option_config: { en: "Please specify split details or choose an option.", ar: "يرجى تحديد تفاصيل التقسيم أو اختيار خيار."},
             auth_login: { en: 'Login failed. Please check credentials.', ar: 'فشل الدخول. تحقق من البيانات.'},
             auth_register: { en: 'Registration failed. Please try again.', ar: 'فشل التسجيل. حاول مرة أخرى.'},
+            auth_name: {en: 'Name is required for registration.', ar: 'الاسم مطلوب للتسجيل.'},
+            auth_email: {en: 'A valid email is required.', ar: 'البريد الإلكتروني مطلوب وصحيح.'},
+            auth_password: {en: 'Password is required.', ar: 'كلمة المرور مطلوبة.'},
+            auth_passwordConfirm: {en: 'Password confirmation is required.', ar: 'تأكيد كلمة المرور مطلوب.'},
             orders_fetch: { en: 'Could not fetch your orders.', ar: 'تعذر جلب طلباتك.'}
         },
         allCities: [], isDelFeeVar: false, 
@@ -100,16 +100,16 @@ document.addEventListener('alpine:init', () => {
         async initApp() {
             this.load.init = true; this.apiErr = null; this.usrApiErr = "";
             this.setCurrentPage();
-            this.loadCartFromStorage();
-
+            
             const pb = new PocketBase('/'); this.pb = pb;
             
             if (pb.authStore.isValid && pb.authStore.model) {
                 this.currentUser = pb.authStore.model;
             } else {
-                pb.authStore.clear(); // Ensure clean state if invalid
+                pb.authStore.clear(); 
                 this.currentUser = null;
             }
+            this.loadCartFromStorage(); 
 
             try {
                 const rs = await pb.collection('settings').getFirstListItem('id!=""', { requestKey: "settings_init_global" });
@@ -140,7 +140,7 @@ document.addEventListener('alpine:init', () => {
                     const grouped = {};
                     categoryProducts.forEach(p => {
                         if (!grouped[p.type_key]) { grouped[p.type_key] = { valKey: p.type_key, nameEn: p.type_name_en, nameAr: p.type_name_ar, descEn: p.type_description_en, descAr: p.type_description_ar, priceKgEgp: p.price_per_kg_egp || 0, wps: [] }; }
-                        grouped[p.type_key].wps.push({ itemKey: p.item_key, varIdPb: p.id, nameENSpec: p.variant_name_en, nameARSpec: p.variant_name_ar, wtRangeEn: p.weight_range_text_en, wtRangeAr: p.weight_range_text_ar, avgWtKg: p.avg_weight_kg, priceEGP: p.base_price_egp, stock: p.stock_available_pb, isActive: p.is_active, product_category: p.product_category, type_key: p.type_key, type_name_en: p.type_name_en, type_name_ar: p.type_name_ar });
+                        grouped[p.type_key].wps.push({ itemKey: p.item_key, varIdPb: p.id, nameENSpec: p.variant_name_en, nameARSpec: p.variant_name_ar, wtRangeEn: p.weight_range_text_en, wtRangeAr: p.weight_range_text_ar, avgWtKg: p.avg_weight_kg, priceEGP: p.base_price_egp, stock: p.stock_available_pb, isActive: p.is_active, product_category: p.product_category, type_key: p.type_key, type_name_en: p.type_name_en, type_name_ar: p.type_name_ar, descEn: p.type_description_en, descAr: p.type_description_ar });
                     });
                     return Object.values(grouped);
                 };
@@ -148,8 +148,6 @@ document.addEventListener('alpine:init', () => {
                 this.prodOpts.livestock_general = categorizeAndGroupProducts(allProducts, 'livestock_general');
                 this.prodOpts.meat_cuts = categorizeAndGroupProducts(allProducts, 'meat_cuts');
                 this.prodOpts.gathering_package = categorizeAndGroupProducts(allProducts, 'gathering_package');
-
-                if (this.settings.enable_udheya_section && this.prodOpts.udheya.length === 0 && !this.load.init) { this.usrApiErr = (this.usrApiErr ? this.usrApiErr + " " : "") + "No Udheya options currently available."; }
             
                 let cities = []; (this.settings.delAreas || []).forEach(gov => { 
                     if (gov.cities && Array.isArray(gov.cities) && gov.cities.length > 0) { gov.cities.forEach(city => { cities.push({ id: `${gov.id}_${city.id}`, nameEn: `${gov.name_en} - ${city.name_en}`, nameAr: `${gov.name_ar} - ${city.name_ar}`, delFeeEgp: city.delivery_fee_egp, govId: gov.id }); });
@@ -157,39 +155,27 @@ document.addEventListener('alpine:init', () => {
                 });
                 this.allCities = cities.sort((a,b) => a.nameEn.localeCompare(b.nameEn));
                 
-            } catch (e) { this.apiErr = String(e.message || "Could not load initial application data."); this.usrApiErr = "Error loading essential data. Please try refreshing the page or contact support if the issue persists."; }
+            } catch (e) { this.apiErr = String(e.message || "Could not load initial application data."); this.usrApiErr = "Error loading essential data. Please try refreshing the page or contact support if the issue persists."; console.error("Init App Error:", e); }
             
             this.curr = this.settings.defCurr || "EGP"; this.startCd(); this.clrAllErrs();
             this.calculateFinalTotal();
             this.load.init = false;
         },
-
         generateDefaultRefundPolicyHTML() {
-            return `
-                <div class="bil-row"><p class="en">Welcome to Sheep Land. We strive to provide the best quality Udheya and livestock services. Please read our policy carefully.</p><p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام. نسعى جاهدين لتقديم أفضل جودة في خدمات الأضاحي والمواشي. يرجى قراءة سياستنا بعناية.</p></div>
-                <h3 class="bil-spread modal-section-title"><span class="en">Udheya Orders</span><span class="ar" dir="rtl">طلبات الأضاحي</span></h3>
-                <div class="bil-row"><p class="en">Due to the nature of Udheya (Qurbani/Sacrifice), which is a time-sensitive religious observance, our refund and cancellation policy is as follows:</p><p class="ar" dir="rtl">نظرًا لطبيعة الأضحية، وهي شعيرة دينية مرتبطة بوقت محدد، فإن سياسة الاسترداد والإلغاء لدينا هي كما يلي:</p></div>
-                <ul class="modal-list"><li><div class="bil-row"><p class="en"><strong>Cancellations Before [Specify Cut-off Date, e.g., 72 hours before Eid Day 1]:</strong> Full refund, less any payment processing fees.</p><p class="ar" dir="rtl"><strong>الإلغاء قبل [تحديد تاريخ القطع، مثلاً، ٧٢ ساعة قبل أول أيام العيد]:</strong> استرداد كامل، مخصومًا منه رسوم معالجة الدفع.</p></div></li><li><div class="bil-row"><p class="en"><strong>Cancellations After Cut-off:</strong> Non-refundable as animal is committed.</p><p class="ar" dir="rtl"><strong>الإلغاء بعد تاريخ القطع:</strong> غير قابل للاسترداد لالتزام الحيوان.</p></div></li><li><div class="bil-row"><p class="en"><strong>Non-Fulfilment by Us:</strong> Full refund if we cannot fulfill order.</p><p class="ar" dir="rtl"><strong>عدم التنفيذ من طرفنا:</strong> استرداد كامل إذا لم نتمكن من تنفيذ الطلب.</p></div></li></ul>
-                <h3 class="bil-spread modal-section-title"><span class="en">Other Products</span><span class="ar" dir="rtl">المنتجات الأخرى</span></h3>
-                <ul class="modal-list"><li><div class="bil-row"><p class="en"><strong>Cancellations:</strong> Up to [e.g., 24 hours] before delivery for full refund (minus processing/customization costs).</p><p class="ar" dir="rtl"><strong>الإلغاء:</strong> حتى [مثلاً، ٢٤ ساعة] قبل التوصيل لاسترداد كامل (ناقص تكاليف المعالجة/التخصيص).</p></div></li><li><div class="bil-row"><p class="en"><strong>Quality Issues:</strong> Contact within [e.g., 6 hours] of receipt with evidence for review.</p><p class="ar" dir="rtl"><strong>مشاكل الجودة:</strong> تواصل خلال [مثلاً، ٦ ساعات] من الاستلام مع إثبات للمراجعة.</p></div></li></ul>
-                <h3 class="bil-spread modal-section-title"><span class="en">General</span><span class="ar" dir="rtl">عام</span></h3>
-                <div class="bil-row"><p class="en">Refunds processed within [e.g., 7-14] business days. Policy subject to change.</p><p class="ar" dir="rtl">تتم معالجة المبالغ المستردة خلال [مثلاً، ٧-١٤] يوم عمل. السياسة قابلة للتغيير.</p></div>`;
+            return `<div class="bil-row"><p class="en">Welcome to Sheep Land. We strive to provide the best quality Udheya and livestock services. Please read our policy carefully.</p><p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام. نسعى جاهدين لتقديم أفضل جودة في خدمات الأضاحي والمواشي. يرجى قراءة سياستنا بعناية.</p></div> <h3 class="bil-spread modal-section-title"><span class="en">Udheya Orders</span><span class="ar" dir="rtl">طلبات الأضاحي</span></h3> <div class="bil-row"><p class="en">Due to the nature of Udheya (Qurbani/Sacrifice), which is a time-sensitive religious observance, our refund and cancellation policy is as follows:</p><p class="ar" dir="rtl">نظرًا لطبيعة الأضحية، وهي شعيرة دينية مرتبطة بوقت محدد، فإن سياسة الاسترداد والإلغاء لدينا هي كما يلي:</p></div> <ul class="modal-list"><li><div class="bil-row"><p class="en"><strong>Cancellations Before [Specify Cut-off Date, e.g., 72 hours before Eid Day 1]:</strong> Full refund, less any payment processing fees.</p><p class="ar" dir="rtl"><strong>الإلغاء قبل [تحديد تاريخ القطع، مثلاً، ٧٢ ساعة قبل أول أيام العيد]:</strong> استرداد كامل، مخصومًا منه رسوم معالجة الدفع.</p></div></li><li><div class="bil-row"><p class="en"><strong>Cancellations After Cut-off:</strong> Non-refundable as animal is committed.</p><p class="ar" dir="rtl"><strong>الإلغاء بعد تاريخ القطع:</strong> غير قابل للاسترداد لالتزام الحيوان.</p></div></li><li><div class="bil-row"><p class="en"><strong>Non-Fulfilment by Us:</strong> Full refund if we cannot fulfill order.</p><p class="ar" dir="rtl"><strong>عدم التنفيذ من طرفنا:</strong> استرداد كامل إذا لم نتمكن من تنفيذ الطلب.</p></div></li></ul> <h3 class="bil-spread modal-section-title"><span class="en">Other Products</span><span class="ar" dir="rtl">المنتجات الأخرى</span></h3> <ul class="modal-list"><li><div class="bil-row"><p class="en"><strong>Cancellations:</strong> Up to [e.g., 24 hours] before delivery for full refund (minus processing/customization costs).</p><p class="ar" dir="rtl"><strong>الإلغاء:</strong> حتى [مثلاً، ٢٤ ساعة] قبل التوصيل لاسترداد كامل (ناقص تكاليف المعالجة/التخصيص).</p></div></li><li><div class="bil-row"><p class="en"><strong>Quality Issues:</strong> Contact within [e.g., 6 hours] of receipt with evidence for review.</p><p class="ar" dir="rtl"><strong>مشاكل الجودة:</strong> تواصل خلال [مثلاً، ٦ ساعات] من الاستلام مع إثبات للمراجعة.</p></div></li></ul> <h3 class="bil-spread modal-section-title"><span class="en">General</span><span class="ar" dir="rtl">عام</span></h3> <div class="bil-row"><p class="en">Refunds processed within [e.g., 7-14] business days. Policy subject to change.</p><p class="ar" dir="rtl">تتم معالجة المبالغ المستردة خلال [مثلاً، ٧-١٤] يوم عمل. السياسة قابلة للتغيير.</p></div>`;
         },
-
         setCurrentPage() { const path = window.location.pathname.split("/").pop(); this.currentPage = path || 'index.html'; this.currentProductPage = ''; if (['udheya.html', 'livestock.html', 'meat.html', 'gatherings.html'].includes(this.currentPage)) { this.currentProductPage = this.currentPage.split('.')[0]; } },
         isCurrentPage(pageName) { return this.currentPage === pageName; },
         navigateToOrScroll(target) { const targetPage = target.split('#')[0]; const targetAnchor = target.split('#')[1]; if (targetPage && this.isCurrentPage(targetPage) && targetAnchor) { const element = document.getElementById(targetAnchor); if (element) { let offset = document.querySelector('.site-head')?.offsetHeight || 0; window.scrollTo({ top: element.getBoundingClientRect().top + window.pageYOffset - offset - 10, behavior: 'smooth' }); } } else if (targetPage) { window.location.href = target; } else if (target.startsWith('#')) { const element = document.getElementById(target.substring(1)); if (element) { let offset = document.querySelector('.site-head')?.offsetHeight || 0; window.scrollTo({ top: element.getBoundingClientRect().top + window.pageYOffset - offset - 10, behavior: 'smooth' }); } } },
 
-        // Cart
         openCart() { this.isCartOpen = true; document.body.classList.add('overflow-hidden'); },
         closeCart() { this.isCartOpen = false; document.body.classList.remove('overflow-hidden'); },
         addItemToCart(productVariant, udheyaConfigDetails = null) {
             this.load.addingToCart = productVariant.itemKey;
             this.addedToCartMsg = { text: null, isError: false, pageContext: this.currentProductPage };
-            this.clrErr('udheya_animal');
-
+            
             if (!productVariant || !productVariant.itemKey || productVariant.stock <= 0) {
-                this.addedToCartMsg = { text: { en: 'This item is currently out of stock.', ar: 'هذا المنتج غير متوفر حالياً.' }, isError: true, pageContext: this.currentProductPage };
+                this.addedToCartMsg = { text: { en: 'This item is out of stock.', ar: 'هذا المنتج غير متوفر.' }, isError: true, pageContext: this.currentProductPage };
                 this.load.addingToCart = null; setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000); return;
             }
             const isUdheya = productVariant.product_category === 'udheya';
@@ -207,21 +193,61 @@ document.addEventListener('alpine:init', () => {
                 if (isUdheya && udheyaConfigDetails) { newItem.udheya_details = { ...udheyaConfigDetails }; }
                 this.cartItems.push(newItem);
             }
-            this.saveCartToStorage(); this.calculateFinalTotal(); // Recalculate checkout total
+            this.saveCartToStorage(); this.calculateFinalTotal(); 
             this.addedToCartMsg = { text: { en: `${productVariant.nameENSpec} added to cart.`, ar: `تمت إضافة ${productVariant.nameARSpec} إلى السلة.` }, isError: false, pageContext: this.currentProductPage };
             this.load.addingToCart = null;
-            if (this.isUdheyaConfigModalOpen) this.closeUdheyaConfiguration();
+            if (this.isUdheyaConfigModalOpen && !udheyaConfigDetails?.isBuyNowIntent) this.closeUdheyaConfiguration(); // Only close if not buy now flow from modal
             setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000);
         },
-        removeFromCart(uniqueIdInCart) { this.cartItems = this.cartItems.filter(item => item.uniqueIdInCart !== uniqueIdInCart); this.saveCartToStorage(); this.calculateFinalTotal(); },
+        async buyNow(productVariant, udheyaConfigDetails = null) {
+            this.load.addingToCart = productVariant.itemKey; 
+            this.addedToCartMsg = { text: null, isError: false, pageContext: this.currentProductPage }; 
+            this.clrAllErrs();
+
+            if (!productVariant || !productVariant.itemKey || productVariant.stock <= 0) {
+                this.addedToCartMsg = { text: { en: 'This item is out of stock.', ar: 'هذا المنتج غير متوفر.' }, isError: true, pageContext: this.currentProductPage };
+                this.load.addingToCart = null;
+                setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000);
+                return;
+            }
+
+            const buyNowItem = {
+                ...productVariant,
+                quantity: 1, 
+                uniqueIdInCart: Date.now().toString(36) + Math.random().toString(36).substring(2)
+            };
+
+            if (productVariant.product_category === 'udheya') {
+                if (!udheyaConfigDetails) {
+                    this.openUdheyaConfiguration(productVariant, true); 
+                    this.load.addingToCart = null;
+                    return;
+                }
+                buyNowItem.udheya_details = { ...udheyaConfigDetails };
+            }
+            
+            try {
+                localStorage.setItem('sheepLandBuyNowItem', JSON.stringify(buyNowItem));
+            } catch(e) {
+                console.error("Error saving Buy Now item to localStorage", e);
+                this.usrApiErr = "Could not proceed with Buy Now. Please try adding to cart.";
+                this.load.addingToCart = null;
+                return;
+            }
+            
+            this.load.addingToCart = null;
+            if (this.isUdheyaConfigModalOpen) this.closeUdheyaConfiguration();
+            this.navigateToOrScroll('checkout.html?buyNow=true');
+        },
+        removeFromCart(uniqueIdInCart) { this.cartItems = this.cartItems.filter(item => item.uniqueIdInCart !== uniqueIdInCart); this.saveCartToStorage(); this.calculateFinalTotal();},
         updateCartQuantity(uniqueIdInCart, newQuantity) { 
             const itemIndex = this.cartItems.findIndex(i => i.uniqueIdInCart === uniqueIdInCart);
             if (itemIndex > -1) { 
                 const item = this.cartItems[itemIndex];
                 const qty = Math.max(1, parseInt(newQuantity) || 1);
-                if (item.product_category === 'udheya' && qty > 1) { this.addedToCartMsg = { text: { en: 'Only one of each Udheya can be added.', ar: 'يمكن إضافة أضحية واحدة فقط من كل نوع.'}, isError: true, pageContext: 'cart' }; item.quantity = 1; } 
+                if (item.product_category === 'udheya' && qty > 1) { this.addedToCartMsg = { text: { en: 'Only one of each Udheya can be added.', ar: 'يمكن إضافة أضحية واحدة فقط من كل نوع.'}, isError: true, pageContext: 'cart' }; item.quantity = 1; setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000); } 
                 else if (qty <= item.stock) { item.quantity = qty; this.addedToCartMsg = { text: null, isError: false, pageContext: '' }; } 
-                else { item.quantity = item.stock; this.addedToCartMsg = { text: { en: 'Requested quantity exceeds available stock.', ar: 'الكمية المطلوبة تتجاوز المخزون المتاح.'}, isError: true, pageContext: 'cart' }; }
+                else { item.quantity = item.stock; this.addedToCartMsg = { text: { en: 'Requested quantity exceeds available stock.', ar: 'الكمية المطلوبة تتجاوز المخزون المتاح.'}, isError: true, pageContext: 'cart' }; setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000);}
             } this.saveCartToStorage(); this.calculateFinalTotal();
         },
         getSubtotalForItem(cartItem) { let itemTotal = cartItem.priceEGP * cartItem.quantity; if (cartItem.product_category === 'udheya' && cartItem.udheya_details?.serviceOption === 'standard_service') { itemTotal += (this.settings.servFeeEGP || 0); } return itemTotal;},
@@ -232,12 +258,12 @@ document.addEventListener('alpine:init', () => {
         loadCartFromStorage() { try { const storedCart = localStorage.getItem('sheepLandCart-' + (this.currentUser?.id || 'guest')); if (storedCart) { this.cartItems = JSON.parse(storedCart); } else { this.cartItems = [];} } catch(e){ console.error("Error loading/parsing cart from localStorage", e); this.cartItems = []; localStorage.removeItem('sheepLandCart-' + (this.currentUser?.id || 'guest'));} this.calculateFinalTotal(); },
         clearCart() { this.cartItems = []; this.saveCartToStorage(); this.calculateFinalTotal(); },
 
-        // Udheya Page & Config Modal
-        openUdheyaConfiguration(item) { 
+        openUdheyaConfiguration(item, isBuyNowIntent = false) { 
             if (!item.isActive || item.stock <= 0) { this.addedToCartMsg = { text: { en: 'This Udheya is out of stock.', ar: 'هذه الأضحية غير متوفرة حالياً.' }, isError: true, pageContext: 'udheya' }; setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext:'' }, 3000); return; }
-            this.configuringUdheyaItem = {...item}; // Clone item
+            this.configuringUdheyaItem = {...item}; 
             this.tempUdheyaConfig = JSON.parse(JSON.stringify(initialTempUdheyaConfig)); 
             this.tempUdheyaConfig.itemKey = item.itemKey; 
+            this.tempUdheyaConfig.isBuyNowIntent = isBuyNowIntent; 
             this.isUdheyaConfigModalOpen = true; document.body.classList.add('overflow-hidden');
         },
         closeUdheyaConfiguration() { 
@@ -246,7 +272,7 @@ document.addEventListener('alpine:init', () => {
             errorKeys.forEach(key => this.clrErr(key));
             document.body.classList.remove('overflow-hidden');
         },
-        addConfiguredUdheyaToCart() { 
+        confirmUdheyaConfigurationAndProceed() { 
             if (!this.configuringUdheyaItem) return; let isValid = true; 
             const errorKeys = ['udheya_service_config', 'udheya_sacrifice_day_config', 'udheya_distribution_choice_config', 'udheya_split_option_config'];
             errorKeys.forEach(key => this.clrErr(key));
@@ -257,20 +283,23 @@ document.addEventListener('alpine:init', () => {
             if (this.tempUdheyaConfig.distribution.choice === 'split' && !this.tempUdheyaConfig.distribution.splitOption) { this.setErr('udheya_split_option_config', 'select'); isValid = false; }
             if (this.tempUdheyaConfig.distribution.choice === 'split' && this.tempUdheyaConfig.distribution.splitOption === 'custom' && !this.tempUdheyaConfig.distribution.customSplitText.trim()) { this.setErr('udheya_split_option_config', {en: 'Please specify custom split details.', ar: 'يرجى تحديد تفاصيل التقسيم المخصصة.'}); isValid = false; }
             if (!isValid) return;
-            this.addItemToCart(this.configuringUdheyaItem, this.tempUdheyaConfig);
+
+            if (this.tempUdheyaConfig.isBuyNowIntent) {
+                this.buyNow(this.configuringUdheyaItem, this.tempUdheyaConfig);
+            } else {
+                this.addItemToCart(this.configuringUdheyaItem, this.tempUdheyaConfig);
+            }
         },
         getUdheyaConfigErrorText() {
             const errorKeys = ['udheya_service_config', 'udheya_sacrifice_day_config', 'udheya_distribution_choice_config', 'udheya_split_option_config'];
             for (const key of errorKeys) { if (this.errs[key]) return this.currLang === 'ar' ? this.errs[key].ar : this.errs[key].en; } return '';
         },
 
-        // Other Modals
         openRefundModal() { this.isRefundModalOpen = true; document.body.classList.add('overflow-hidden'); },
         closeRefundModal() { this.isRefundModalOpen = false; document.body.classList.remove('overflow-hidden'); },
         openOrderStatusModal() { this.isOrderStatusModalOpen = true; document.body.classList.add('overflow-hidden'); this.$nextTick(() => this.$refs.lookupOrderIdInputModal?.focus()); },
         closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderID = ''; this.statRes = null; this.statNotFound = false; this.clrErr('lookupOrderID');},
 
-        // Countdown, Pricing, Formatters
         startCd() { if(this.cdTimer)clearInterval(this.cdTimer); if(!this.settings.promoActive||!this.settings.promoEndISO) {this.cd.ended=true; return;} const t=new Date(this.settings.promoEndISO).getTime(); if(isNaN(t)){this.cd.ended=true; return;} this.updCdDisp(t); this.cdTimer=setInterval(()=>this.updCdDisp(t),1000); },
         updCdDisp(t) { const d = t - Date.now(); if (d < 0) { if (this.cdTimer) clearInterval(this.cdTimer); this.cd.days = "00"; this.cd.hours = "00"; this.cd.mins = "00"; this.cd.secs = "00"; this.cd.ended = true; return; } this.cd.ended = false; this.cd.days = String(Math.floor(d / 864e5)).padStart(2, '0'); this.cd.hours = String(Math.floor(d % 864e5 / 36e5)).padStart(2, '0'); this.cd.mins = String(Math.floor(d % 36e5 / 6e4)).padStart(2, '0'); this.cd.secs = String(Math.floor(d % 6e4 / 1e3)).padStart(2, '0'); },
         fmtPrice(p, c) { const cc=c||this.curr; const ci=this.settings?.xchgRates?.[cc]; if(p==null||p === undefined ||!ci||typeof ci.rate_from_egp !=='number') return`${ci?.symbol||(cc==='EGP'?'LE':'')} ---`; const cp=p*ci.rate_from_egp; return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP'||ci.symbol==="€")?0:2)}`; },
@@ -281,51 +310,97 @@ document.addEventListener('alpine:init', () => {
         },
         getSacrificeDayText(dayValue, lang) { const dayInfo = sacrificeDayMapInternal[dayValue]; return dayInfo ? (lang === 'ar' ? dayInfo.ar : dayInfo.en) : dayValue; },
 
-        // Form Validation Helpers
         isEmailValid: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
-        setErr(f, m, isUserErr = true) { this.errs[f] = (typeof m === 'string' ? this.errMsgs[m] : m) || this.errMsgs.required; if (isUserErr && typeof this.errs[f] === 'object') { this.usrApiErr = this.currLang === 'ar' ? this.errs[f].ar : this.errs[f].en; } else if (isUserErr) { this.usrApiErr = String(this.errs[f]); } this.$nextTick(() => { const firstErrorEl = document.querySelector(`[aria-invalid="true"]`); if (firstErrorEl) firstErrorEl.focus({ preventScroll: false }); else if (this.usrApiErr && !this.isCartOpen && !this.isOrderStatusModalOpen && !this.isRefundModalOpen && !this.isUdheyaConfigModalOpen) { const errInd = document.querySelector('.err-ind'); if(errInd) errInd.focus(); } }); },
-        clrErr(f) { if(this.errs[f]) delete this.errs[f]; if (Object.keys(this.errs).length === 0) { this.usrApiErr = ""; this.apiErr = null;} },
+        setErr(f, m, isUserErr = true) { 
+            this.errs[f] = (typeof m === 'string' ? this.errMsgs[m] || {en:m, ar:m} : m) || this.errMsgs.required; 
+            if (isUserErr && typeof this.errs[f] === 'object') { this.usrApiErr = this.currLang === 'ar' ? this.errs[f].ar : this.errs[f].en; } 
+            else if (isUserErr) { this.usrApiErr = String(this.errs[f]); } 
+            this.$nextTick(() => { const firstErrorEl = document.querySelector(`[aria-invalid="true"]`); if (firstErrorEl) firstErrorEl.focus({ preventScroll: false }); else if (this.usrApiErr && !this.isCartOpen && !this.isOrderStatusModalOpen && !this.isRefundModalOpen && !this.isUdheyaConfigModalOpen) { const errInd = document.querySelector('.err-ind'); if(errInd) errInd.focus(); } }); 
+        },
+        clrErr(f) { if(this.errs[f]) delete this.errs[f]; let hasVisibleErrors = Object.keys(this.errs).some(key => this.errs[key]); if (!hasVisibleErrors) { this.usrApiErr = ""; this.apiErr = null;} },
         clrAllErrs() { this.errs = {}; this.usrApiErr = ""; this.apiErr = null; },
-        focusRef(r, s=true) { this.$nextTick(()=>{ const target = this.$refs[r]; if(target){ target.focus({preventScroll:!s}); if(s) setTimeout(()=>{ try{ target.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}); }catch(e){} },50); } }) },
+        focusRef(r, s=true) { this.$nextTick(()=>{ const target = this.$refs[r]; if(target){ target.focus({preventScroll:!s}); if(s) setTimeout(()=>{ try{ target.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}); }catch(e){ console.warn("ScrollIntoView failed for:", r, e); } },50); } }) },
         
         slViewOpts() { return [ { val: 'none', txtEn: 'No Preference / Not Required', txtAr: 'لا يوجد تفضيل / غير مطلوب' }, { val: 'physical_inquiry', txtEn: 'Inquire about Physical Attendance', txtAr: 'الاستفسار عن الحضور الشخصي' }, { val: 'video_request', txtEn: 'Request Video/Photos of Process', txtAr: 'طلب فيديو/صور للعملية' }, { val: 'live_video_inquiry', txtEn: 'Inquire about Live Video', txtAr: 'الاستفسار عن فيديو مباشر' } ]; },
         distrOpts() { return [ { val: 'me', txtEn: 'Deliver All to Me', txtAr: 'توصيل الكل لي' }, { val: 'char', txtEn: 'Donate All (Sheep Land distributes)', txtAr: 'تبرع بالكل (أرض الأغنام توزع)' }, { val: 'split', txtEn: 'Split Portions', txtAr: 'تقسيم الحصص' } ]; },
         splitOptsList() { return [ { val: '1/3_me_2/3_charity_sl', txtEn: '1/3 me, 2/3 charity (SL)', txtAr: 'ثلث لي، ثلثان صدقة (أرض الأغنام)' }, { val: '1/2_me_1/2_charity_sl', txtEn: '1/2 me, 1/2 charity (SL)', txtAr: 'نصف لي، نصف صدقة (أرض الأغنام)' }, { val: '2/3_me_1/3_charity_sl', txtEn: '2/3 me, 1/3 charity (SL)', txtAr: 'ثلثان لي، ثلث صدقة (أرض الأغنام)' }, { val: 'all_me_custom_distro', txtEn: 'All for me (I distribute)', txtAr: 'الكل لي (أنا أوزع)' }, { val: 'custom', txtEn: 'Other (Specify) *', txtAr: 'أخرى (حدد) *' } ]; },
         deliveryTimeSlots: [ { value: "9AM-11AM", label: "9 AM - 11 AM" }, { value: "11AM-1PM", label: "11 AM - 1 PM" }, { value: "1PM-3PM", label: "1 PM - 3 PM" }, { value: "3PM-5PM", label: "3 PM - 5 PM" }, { value: "5PM-7PM", label: "5 PM - 7 PM"} ],
 
-        // User Authentication
         initAuthPage() { if (this.currentUser) { this.navigateToOrScroll('account.html'); return; } this.auth.view = 'login'; this.clrAllErrs(); },
         async loginUser() { 
             this.clrAllErrs(); this.load.auth = true;
-            try { const authData = await this.pb.collection('users').authWithPassword(this.auth.email, this.auth.password); this.currentUser = authData.record; this.loadCartFromStorage(); this.load.auth = false; this.checkoutForm.user_id = this.currentUser.id; this.navigateToOrScroll(this.redirectAfterLogin || 'account.html'); this.redirectAfterLogin = null; } 
-            catch (e) { this.load.auth = false; this.setErr('auth_login', { en: e.data?.message || 'Login failed. Please check your credentials.', ar: e.data?.message || 'فشل تسجيل الدخول. يرجى التحقق من بياناتك.' }); }
+            try { const authData = await this.pb.collection('users').authWithPassword(this.auth.email, this.auth.password); 
+                this.currentUser = authData.record; 
+                this.checkoutForm.user_id = this.currentUser.id; 
+                this.loadCartFromStorage(); 
+                this.load.auth = false; 
+                this.navigateToOrScroll(this.redirectAfterLogin || 'account.html'); 
+                this.redirectAfterLogin = null; 
+            } 
+            catch (e) { this.load.auth = false; this.setErr('auth_login', this.errMsgs.auth_login); console.error("Login Error:", e.data || e); }
         },
         async registerUser() { 
             this.clrAllErrs(); this.load.auth = true;
-            if (this.auth.password !== this.auth.passwordConfirm) { this.setErr('auth_passwordConfirm', 'password_mismatch'); this.load.auth = false; return; }
-            if (this.auth.password.length < 8) { this.setErr('auth_password', 'password_short'); this.load.auth = false; return; }
-            try { const data = {email: this.auth.email, password: this.auth.password, passwordConfirm: this.auth.passwordConfirm, name: this.auth.name, emailVisibility: true }; await this.pb.collection('users').create(data); this.load.auth = false; this.setErr('auth_form_success', {en: 'Registration successful! Please login.', ar: 'تم التسجيل بنجاح! يرجى تسجيل الدخول.'}); this.auth.view = 'login'; this.auth.password = ""; this.auth.passwordConfirm = "";} 
-            catch (e) { this.load.auth = false; if (e.data?.data) { Object.keys(e.data.data).forEach(key => { this.setErr(`auth_${key}`, {en: e.data.data[key].message, ar: e.data.data[key].message}); }); } else { this.setErr('auth_register', { en: e.data?.message || 'Registration failed.', ar: e.data?.message || 'فشل التسجيل.' }); } }
-        },
-        logoutUser() { this.pb.authStore.clear(); this.currentUser = null; this.userOrders = []; this.checkoutForm.user_id = null; this.loadCartFromStorage(); /* Load guest cart */ this.navigateToOrScroll('index.html'); },
+            let regValid = true;
+            if (!this.auth.name.trim()) { this.setErr('auth_name', this.errMsgs.auth_name); regValid = false; }
+            if (!this.isEmailValid(this.auth.email)) { this.setErr('auth_email', this.errMsgs.email); regValid = false; }
+            if (this.auth.password.length < 8) { this.setErr('auth_password', this.errMsgs.password_short); regValid = false; }
+            if (this.auth.password !== this.auth.passwordConfirm) { this.setErr('auth_passwordConfirm', this.errMsgs.password_mismatch); regValid = false; }
+            if (!regValid) { this.load.auth = false; return;}
 
-        // Account Page
-        async initAccountPage() { if (!this.pb.authStore.isValid) { this.redirectAfterLogin = 'account.html'; this.navigateToOrScroll('auth.html'); return; } this.currentUser = this.pb.authStore.model; await this.fetchUserOrders(); },
+            try { const data = {email: this.auth.email, password: this.auth.password, passwordConfirm: this.auth.passwordConfirm, name: this.auth.name, emailVisibility: true }; 
+                await this.pb.collection('users').create(data); 
+                this.load.auth = false; 
+                this.errs.auth_form_success = {en: 'Registration successful! Please login.', ar: 'تم التسجيل بنجاح! يرجى تسجيل الدخول.'};
+                this.auth.view = 'login'; this.auth.password = ""; this.auth.passwordConfirm = "";
+            } 
+            catch (e) { this.load.auth = false; if (e.data?.data) { Object.keys(e.data.data).forEach(key => { this.setErr(`auth_${key}`, {en: e.data.data[key].message, ar: e.data.data[key].message}); }); } else { this.setErr('auth_register', { en: e.data?.message || 'Registration failed. This email might already be in use.', ar: e.data?.message || 'فشل التسجيل. قد يكون هذا البريد الإلكتروني مستخدمًا بالفعل.' }); } console.error("Register Error:", e.data || e); }
+        },
+        logoutUser() { this.pb.authStore.clear(); this.currentUser = null; this.userOrders = []; this.checkoutForm = JSON.parse(JSON.stringify(initialCheckoutForm)); this.loadCartFromStorage(); this.navigateToOrScroll('index.html'); },
+
+        async initAccountPage() { 
+            if (!this.pb.authStore.isValid) { this.redirectAfterLogin = 'account.html'; this.navigateToOrScroll('auth.html'); return; } 
+            if (!this.currentUser && this.pb.authStore.model) this.currentUser = this.pb.authStore.model; 
+            if (this.currentUser) await this.fetchUserOrders(); 
+        },
         async fetchUserOrders() { 
             if (!this.currentUser) return; this.load.orders = true; this.clrErr('orders_fetch');
             try { const resultList = await this.pb.collection('orders').getFullList({ filter: `user = "${this.currentUser.id}"`, sort: '-created' });
                 this.userOrders = resultList.map(order => ({ ...order, order_status: order.order_status?.replace(/_/g, " ") || "N/A", payment_status: order.payment_status?.replace(/_/g, " ") || "N/A"}));
-            } catch (e) { this.setErr('orders_fetch', {en: 'Could not fetch your orders.', ar: 'تعذر جلب طلباتك.'}); } 
+            } catch (e) { this.setErr('orders_fetch', this.errMsgs.orders_fetch); console.error("Fetch Orders Error:", e.data || e); } 
             finally { this.load.orders = false; }
         },
 
-        // Checkout Page
         initCheckoutPage() { 
-            if (this.cartItems.length === 0 && !this.orderConf.show) { this.navigateToOrScroll('udheya.html'); return; }
+            const urlParams = new URLSearchParams(window.location.search);
+            const isBuyNow = urlParams.get('buyNow') === 'true';
+            let buyNowItem = null;
+
+            if (isBuyNow) {
+                try {
+                    const storedItem = localStorage.getItem('sheepLandBuyNowItem');
+                    if (storedItem) {
+                        buyNowItem = JSON.parse(storedItem);
+                        this.cartItems = [buyNowItem]; 
+                    }
+                    localStorage.removeItem('sheepLandBuyNowItem'); 
+                } catch (e) { console.error("Error loading Buy Now item from localStorage", e); }
+            }
+            // if not buyNow, cartItems is already loaded by initApp
+
+            if (this.cartItems.length === 0 && !this.orderConf.show) { 
+                this.navigateToOrScroll('udheya.html'); 
+                return; 
+            }
             this.checkoutForm = JSON.parse(JSON.stringify(initialCheckoutForm)); 
-            if (this.currentUser) { this.checkoutForm.customer_name = this.currentUser.name || ""; this.checkoutForm.customer_email = this.currentUser.email || ""; this.checkoutForm.user_id = this.currentUser.id; }
-            this.updateDeliveryFeeForCheckout(); this.calculateFinalTotal();
+            if (this.currentUser) { 
+                this.checkoutForm.customer_name = this.currentUser.name || ""; 
+                this.checkoutForm.customer_email = this.currentUser.email || ""; 
+                this.checkoutForm.user_id = this.currentUser.id; 
+            } else { this.checkoutForm.user_id = null; }
+            this.updateDeliveryFeeForCheckout(); 
+            this.calculateFinalTotal();
         },
         deliveryNeededForCart() { 
             return this.cartItems.some(item => {
@@ -351,12 +426,12 @@ document.addEventListener('alpine:init', () => {
             const lineItems = this.cartItems.map(item => { let lineItem = { item_key_pb: item.varIdPb, product_category: item.product_category, name_en: item.nameENSpec, name_ar: item.nameARSpec, quantity: item.quantity, price_egp_each: item.priceEGP, udheya_details: null }; if (item.product_category === 'udheya' && item.udheya_details) { lineItem.udheya_details = item.udheya_details; } return lineItem; });
             let deliveryOpt = "self_pickup_or_internal_distribution"; if (this.deliveryNeededForCart()) { deliveryOpt = "home_delivery"; } else { this.checkoutForm.delivery_city_id = ""; this.checkoutForm.delivery_address = ""; this.checkoutForm.delivery_instructions = ""; this.checkoutForm.delivery_time_slot = ""; this.checkoutForm.delivery_fee_egp = 0; } this.calculateFinalTotal();
             const orderPayload = { order_id_text: `${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`, user: this.checkoutForm.user_id || null, customer_name: this.checkoutForm.customer_name, customer_phone: this.checkoutForm.customer_phone, customer_email: this.checkoutForm.customer_email, line_items: lineItems, delivery_option: deliveryOpt, delivery_city_id: this.checkoutForm.delivery_city_id, delivery_address: this.checkoutForm.delivery_address, delivery_instructions: this.checkoutForm.delivery_instructions, delivery_time_slot: this.checkoutForm.delivery_time_slot, payment_method: this.checkoutForm.payment_method, terms_agreed: this.checkoutForm.terms_agreed, selected_display_currency: this.curr, subtotal_amount_egp: this.calculateCartSubtotal(), total_udheya_service_fee_egp: this.checkoutForm.total_service_fee_egp, delivery_fee_applied_egp: this.checkoutForm.delivery_fee_egp, online_payment_fee_applied_egp: this.checkoutForm.online_payment_fee_applied_egp, total_amount_due_egp: this.checkoutForm.final_total_egp, };
-            try { const createdOrder = await this.pb.collection('orders').create(orderPayload); this.orderConf.orderID = createdOrder.order_id_text; this.orderConf.totalEgp = createdOrder.total_amount_due_egp; this.orderConf.items = createdOrder.line_items.map(li => ({...li})); this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); this.orderConf.show = true; this.clearCart(); this.checkoutForm = JSON.parse(JSON.stringify(initialCheckoutForm)); this.$nextTick(() => { this.navigateToOrScroll('#order-conf-sect'); this.focusRef('orderConfTitle'); }); } 
-            catch (e) { this.apiErr = String(e.data?.message || e.message || "Order placement failed."); let userFriendlyError = "An unexpected error occurred. Please check your selections or contact support."; if (e.data && typeof e.data === 'object') { if (e.data.message && e.data.message.toLowerCase().includes("out of stock")) { userFriendlyError = "One or more items in your cart are now out of stock. Please review your cart."; this.usrApiErr = userFriendlyError; await this.initApp(); this.openCart(); } else if (e.data.data && Object.keys(e.data.data).length > 0) { Object.keys(e.data.data).forEach(serverFieldKey => { const clientFieldKey = serverFieldKey; if(this.checkoutForm.hasOwnProperty(clientFieldKey) || clientFieldKey.startsWith('line_items')) { this.setErr(clientFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message }, false); }}); userFriendlyError = "Please correct the highlighted errors."; this.usrApiErr = userFriendlyError; } else if (e.data.message) { this.usrApiErr = e.data.message; } } else { this.usrApiErr = userFriendlyError; } if (this.apiErr && !this.orderConf.show && document.querySelector('.err-ind')) { this.$nextTick(() => this.navigateToOrScroll('.err-ind')); }} 
+            try { const createdOrder = await this.pb.collection('orders').create(orderPayload); this.orderConf.orderID = createdOrder.order_id_text; this.orderConf.totalEgp = createdOrder.total_amount_due_egp; this.orderConf.items = createdOrder.line_items.map(li => ({...li})); this.orderConf.customerEmail = createdOrder.customer_email; this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); this.orderConf.show = true; this.clearCart(); this.checkoutForm = JSON.parse(JSON.stringify(initialCheckoutForm)); this.$nextTick(() => { if(this.$refs.orderConfTitle) this.navigateToOrScroll('#order-conf-sect'); else console.warn("Order conf title ref not found for scroll"); this.focusRef('orderConfTitle'); }); } 
+            catch (e) { this.apiErr = String(e.data?.message || e.message || "Order placement failed."); let userFriendlyError = "An unexpected error occurred. Please check your selections or contact support."; if (e.data && typeof e.data === 'object') { if (e.data.message && e.data.message.toLowerCase().includes("out of stock")) { userFriendlyError = "One or more items in your cart are now out of stock. Please review your cart."; this.usrApiErr = userFriendlyError; await this.initApp(); this.openCart(); } else if (e.data.data && Object.keys(e.data.data).length > 0) { Object.keys(e.data.data).forEach(serverFieldKey => { const clientFieldKey = serverFieldKey; if(this.checkoutForm.hasOwnProperty(clientFieldKey) || clientFieldKey.startsWith('line_items.')) { this.setErr(clientFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message }, false); }}); userFriendlyError = "Please correct the highlighted errors."; this.usrApiErr = userFriendlyError; } else if (e.data.message) { this.usrApiErr = e.data.message; } } else { this.usrApiErr = userFriendlyError; } if (this.apiErr && !this.orderConf.show && document.querySelector('.err-ind')) { this.$nextTick(() => this.navigateToOrScroll('.err-ind')); }} 
             finally { this.load.checkout = false; }
         },
         getPaymentInstructionsHTML(payMeth, totalEgp, orderID) { 
-            let instructions = ""; const priceText = this.fmtPrice(totalEgp); const waLink = `https://wa.me/${this.settings.waNumRaw}?text=Order%20Confirmation%3A%20${orderID}`;
+            let instructions = ""; const priceText = this.fmtPrice(totalEgp); const waLink = `https://wa.me/${this.settings.waNumRaw}?text=Order%20Payment%20Confirmation%3A%20${orderID}`;
             const confirmWALink = `<a href="${waLink}" target="_blank" rel="noopener noreferrer" class="link-style">${this.settings.waNumDisp || 'WhatsApp'}</a>`;
             if (payMeth === 'online_card') { instructions = `<div class="bil-row"><p class="en">Your order total is <strong>${priceText}</strong>. To complete your payment via our secure online gateway, you will be contacted shortly with instructions or redirected. If you are not redirected or contacted within a few minutes, please contact us referencing Order ID: <strong class="pay-ref">${orderID}</strong>.</p><p class="ar">إجمالي طلبك هو <strong>${priceText}</strong>. لإتمام الدفع عبر بوابتنا الآمنة عبر الإنترنت، سنتصل بك قريبًاพร้อมًا بالتعليمات أو سيتم إعادة توجيهك. إذا لم يتم إعادة توجيهك أو الاتصال بك في غضون دقائق قليلة، فيرجى الاتصال بنا مع ذكر رقم الطلب: <strong class="pay-ref">${orderID}</strong>.</p></div>`; } 
             else if (payMeth === 'fa') { instructions = `<div class="bil-row"><p class="en">Fawry: Pay <strong>${priceText}</strong>. Use Order ID <strong class="pay-ref">${orderID}</strong>. Due in 24h.</p><p class="ar">فوري: ادفع <strong>${priceText}</strong>. استخدم رقم الطلب <strong class="pay-ref">${orderID}</strong>. خلال 24س.</p></div>`; } 
@@ -368,39 +443,27 @@ document.addEventListener('alpine:init', () => {
             else if (payMeth === 'cod') { let codNote = this.isDelFeeVar && this.deliveryNeededForCart() ? `<br><span class="en">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span><span class="ar">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span>` : ""; instructions = `<div class="bil-row"><p class="en">COD: Our team will call <strong>${this.checkoutForm.customer_phone}</strong> to confirm. Total Amount Due <strong>${priceText}</strong>. Order ID: <strong class="pay-ref">${orderID}</strong>.${codNote}</p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong>${this.checkoutForm.customer_phone}</strong> للتأكيد. المجموع الكلي للطلب <strong>${priceText}</strong>. رقم الطلب: <strong class="pay-ref">${orderID}</strong>.${codNote}</p></div>`; } return instructions;
         },
 
-        // Order Status Modal
         async submitStatValid() { this.clrErr('lookupOrderID'); if (!(this.lookupOrderID || "").trim()) { this.setErr('lookupOrderID', 'required'); this.$refs.lookupOrderIdInputModal?.focus(); return; } await this.chkOrderStatus(); },
         async chkOrderStatus() { 
             this.statRes = null; this.statNotFound = false; this.load.status = true; this.apiErr = null; this.usrApiErr = ""; const id = (this.lookupOrderID || "").trim();
             try { 
-                // For public lookup, we use the query param method if rule is set that way
-                // OR if rule is open, client-side filter works.
-                // Assuming the rule `order_id_text = @request.query.lookupOrderID:string` might still be in place for public lookups
-                // or listRule is "" for client-side filtering.
                 const result = await this.pb.collection('orders').getList(1, 1, {
                     filter: `order_id_text = "${this.pb.utils.escapeFieldValue(id)}"`,
-                     // If your LIST rule for anonymous users is "order_id_text = @request.query.lookupOrderID"
-                     // then you MUST pass it like this:
-                     // queryParams: { lookupOrderID: id } 
                 });
-
                 if (result.items && result.items.length > 0) { 
                     const o = result.items[0]; 
                     this.statRes = { 
-                        orderIdTxt: o.order_id_text, 
-                        customer_name: o.customer_name, 
+                        orderIdTxt: o.order_id_text, customer_name: o.customer_name, 
                         order_status: o.order_status?.replace(/_/g," ")||"N/A", 
                         payment_status: o.payment_status?.replace(/_/g, " ") || "N/A", 
-                        line_items: o.line_items || [], 
-                        total_amount_due_egp: o.total_amount_due_egp, 
-                        payment_method: o.payment_method, 
-                        delivery_option: o.delivery_option, 
+                        line_items: o.line_items || [], total_amount_due_egp: o.total_amount_due_egp, 
+                        payment_method: o.payment_method, delivery_option: o.delivery_option, 
                         delivery_address: o.delivery_address, 
                         delivery_area_name_en: o.delivery_area_name_en, 
                         delivery_area_name_ar: o.delivery_area_name_ar 
                     }; 
                 } else { this.statNotFound = true; this.usrApiErr = "No order found with that ID."; }
-            } catch (e) { this.apiErr=String(e.message); this.usrApiErr="Could not get order status. Please check details or contact support."; this.statNotFound=true; }
+            } catch (e) { this.apiErr=String(e.message); this.usrApiErr="Could not get order status. Please check details or contact support."; this.statNotFound=true; console.error("Check Status Error:", e.data || e); }
             finally { this.load.status = false; }
         },
     }));
