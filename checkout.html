@@ -133,7 +133,7 @@
                     
                     <template x-if="statRes?.line_items && statRes.line_items.length > 0">
                         <h5 class="bil-spread modal-section-title" style="margin-top:var(--s1);"><span class="en">Items Ordered</span><span class="ar">العناصر المطلوبة</span></h5>
-                        <template x-for="item in statRes.line_items" :key="item.item_key_pb"> 
+                        <template x-for="item in statRes.line_items" :key="item.item_key_pb + '-status'"> 
                              <div class="sum-item bil-row">
                                 <div class="en"><span x-text="item.name_en + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '')"></span></div>
                                 <div class="ar"><span x-text="item.name_ar + (item.quantity > 1 ? ' (×' + item.quantity + ')' : '')"></span></div>
@@ -482,7 +482,7 @@
                         </div></div>
                         <div class="quick-recap">
                             <h4 class="form-subh bil-spread recap-h"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
-                            <template x-for="item in orderConf.items" :key="item.item_key_pb + '-conf'">
+                            <template x-for="item in orderConf.items" :key="item.item_key_pb + '-conf'"> <!-- Ensure key is unique -->
                                  <div class="sum-item bil-row">
                                      <div class="en"><strong x-text="item.name_en"></strong> <span x-text="item.quantity > 1 ? '(x' + item.quantity + ')' : ''"></span></div>
                                      <div class="ar"><strong x-text="item.name_ar"></strong> <span x-text="item.quantity > 1 ? '(×' + item.quantity + ')' : ''"></span></div>
