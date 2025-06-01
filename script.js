@@ -1,5 +1,3 @@
-// script.js
-
 document.addEventListener('alpine:init', () => {
     const initOrderData = {
         selAnim: { type: "", itemKey: "", varPbId: "", wtRangeEn: "", wtRangeAr: "", priceEgp: 0, nameEN: "", nameAR: "", stock: null, typeGenEn: "", typeGenAr: "", typePriceKgEgp:0 },
