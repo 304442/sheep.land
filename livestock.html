@@ -133,7 +133,7 @@
                     
                     <template x-if="statRes?.line_items && statRes.line_items.length > 0">
                         <h5 class="bil-spread modal-section-title" style="margin-top:var(--s1);"><span class="en">Items Ordered</span><span class="ar">العناصر المطلوبة</span></h5>
-                        <template x-for="item in statRes.line_items" :key="item.item_key_pb"> 
+                        <template x-for="item in statRes.line_items" :key="item.item_key_pb + '-status'"> 
                              <div class="sum-item bil-row">
                                 <div class="en"><span x-text="item.name_en + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '')"></span></div>
                                 <div class="ar"><span x-text="item.name_ar + (item.quantity > 1 ? ' (×' + item.quantity + ')' : '')"></span></div>
@@ -330,7 +330,11 @@
                                     <div class="card-act">
                                         <button type="button" @click="addItemToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
                                             <span x-show="load.addingToCart !== item.itemKey"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
-                                            <span x-show="load.addingToCart === item.itemKey" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
+                                            <span x-show="load.addingToCart === item.itemKey && !tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
+                                        </button>
+                                        <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
+                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
+                                            <span x-show="load.addingToCart === item.itemKey && tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
                                         </button>
                                         <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
                                             <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
@@ -364,8 +368,8 @@
     <div class="c">
         <div class="foot-grid">
             <div class="bil-row foot-brand-desc">
-                <p class="en">Your full-service Egyptian team, committed to meeting your needs with speed and quality, sparing you market visits.</p>
-                <p class="ar">فريق متكامل لتلبية احتياجاتك بأسرع وقت وأفضل جودة، ونكفيك عناء الذهاب للسوق.</p>
+                <p class="en">Your trusted partner for premium, Sharia-compliant livestock and meat, delivered with care and tradition.</p>
+                <p class="ar">شريكك الموثوق للمواشي واللحوم الفاخرة المتوافقة مع الشريعة، نوصلها بعناية وأصالة.</p>
             </div>
         </div>
         <div class="foot-pay tc">
