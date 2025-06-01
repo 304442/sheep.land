@@ -1,3 +1,5 @@
+// index.html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +16,7 @@
 <body x-data="udh" x-init="initApp()" x-cloak>
 
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading application data... Please wait.</div>
-<div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'An unexpected error occurred. Please try again.'" role="alert" aria-live="assertive"></div>
+<div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'An unexpected error occurred. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
 
 <header class="site-head">
     <div class="c nav-cont">
@@ -23,19 +25,39 @@
         </a>
         <nav class="nav-main nav-desk" aria-label="Main navigation">
             <ul class="nav-list">
-                <li class="nav-drop" @mouseenter="isUdhDropOpen = true" @mouseleave="isUdhDropOpen = false" @keydown.escape.window="isUdhDropOpen = false" x-ref="udhDrop">
-                    <a href="#" @click.prevent="isUdhDropOpen = !isUdhDropOpen" class="nav-link bil-inline drop-toggle" :class="{'active-nav': actNavHref === 'Udheya'}" aria-haspopup="true" :aria-expanded="isUdhDropOpen.toString()">
-                        <span class="en">Udheya</span><span class="ar">الأضحية</span>
-                        <svg class="drop-arr" :class="{ 'rotate-180': isUdhDropOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                <template x-if="settings.enable_udheya_section">
+                    <li class="nav-drop" @mouseenter="isUdhDropOpen = true" @mouseleave="isUdhDropOpen = false" @keydown.escape.window="isUdhDropOpen = false" x-ref="udhDrop">
+                        <a href="#" @click.prevent="isUdhDropOpen = !isUdhDropOpen" class="nav-link bil-inline drop-toggle" :class="{'active-nav': actNavHref === 'Udheya' || actNavHref === '#udh-order-start'}" aria-haspopup="true" :aria-expanded="isUdhDropOpen.toString()">
+                            <span class="en">Udheya</span><span class="ar">الأضحية</span>
+                            <svg class="drop-arr" :class="{ 'rotate-180': isUdhDropOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </a>
+                        <ul class="drop-menu" x-show="isUdhDropOpen" x-transition @click.outside="if(isUdhDropOpen) isUdhDropOpen = false">
+                            <li><a href="#udh-order-start" class="drop-link bil-spread" :class="{'active-nav': actNavHref === '#udh-order-start'}" @click.prevent="isUdhDropOpen = false; isMobNavOpen = false; scrollSect('#udh-order-start')"><span class="en">Place Order</span><span class="ar">تقديم طلب</span></a></li>
+                        </ul>
+                    </li>
+                </template>
+                <li>
+                    <a href="#chk-order-stat" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#chk-order-stat'}" @click.prevent="isMobNavOpen = false; scrollSect('#chk-order-stat')">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3h-3V2zM15 20H9v-2h6v2zm0-4H9v-2h6v2zm-4.5-4L9 10.5l1.5-1.5L12 10.5l1.5-1.5L15 10.5V5h1.5v15H18V5h1.5v15H21V2l-1.5 1.5z"/></svg>
+                        <span class="en">Order Status</span><span class="ar">حالة الطلب</span>
                     </a>
-                    <ul class="drop-menu" x-show="isUdhDropOpen" x-transition @click.outside="if(isUdhDropOpen) isUdhDropOpen = false">
-                        <li><a href="#udh-order-start" class="drop-link bil-spread" :class="{'active-nav': actNavHref === '#udh-order-start'}" @click.prevent="isUdhDropOpen = false; isMobNavOpen = false; scrollSect('#udh-order-start')"><span class="en">Place Order</span><span class="ar">تقديم طلب</span></a></li>
-                        <li><a href="#chk-order-stat" class="drop-link bil-spread" :class="{'active-nav': actNavHref === '#chk-order-stat'}" @click.prevent="isUdhDropOpen = false; isMobNavOpen = false; scrollSect('#chk-order-stat')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
-                    </ul>
                 </li>
-                <li><a href="#live-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#live-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#live-sect')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
-                <li><a href="#meat-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#meat-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#meat-sect')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
-                <li><a href="#gath-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#gath-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#gath-sect')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
+                <template x-if="settings.enable_livestock_section">
+                    <li><a href="#live-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#live-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#live-sect')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
+                </template>
+                <template x-if="settings.enable_meat_section">
+                    <li><a href="#meat-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#meat-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#meat-sect')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
+                </template>
+                <template x-if="settings.enable_gatherings_section">
+                    <li><a href="#gath-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#gath-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#gath-sect')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
+                </template>
+                 <li>
+                    <a href="#cart-sect" class="nav-link bil-inline" :class="{'active-nav': actNavHref === '#cart-sect'}" @click.prevent="isMobNavOpen = false; scrollSect('#cart-sect')">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0020.01 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6z"/></svg>
+                        <span class="en">Cart</span><span class="ar">السلة</span>
+                        <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItems.reduce((sum, item) => sum + item.quantity, 0)"></span>
+                    </a>
+                </li>
             </ul>
         </nav>
         <div class="head-extras desk-extras">
@@ -64,29 +86,49 @@
     <div class="mob-nav" id="mob-nav-content" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
         <nav aria-label="Mobile navigation">
             <ul class="nav-list-mob">
-                <li>
-                    <button type="button" @click="isUdhMobSubOpen = !isUdhMobSubOpen" class="nav-link-mob bil-inline drop-toggle-mob" :class="{'active-nav': actNavHref === 'Udheya'}" aria-haspopup="true" :aria-expanded="isUdhMobSubOpen.toString()">
-                        <span class="en">Udheya</span><span class="ar">الأضحية</span>
-                        <svg class="drop-arr" :class="{ 'rotate-180': isUdhMobSubOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                    </button>
-                    <ul class="mob-sub" x-show="isUdhMobSubOpen" :style="isUdhMobSubOpen ? 'max-height: 200px; padding-top: var(--s0); padding-bottom: var(--s0);' : 'max-height: 0; padding-top: 0; padding-bottom: 0;'">
-                        <li><a href="#udh-order-start" class="nav-link-mob bil-spread" :class="{'active-nav': actNavHref === '#udh-order-start'}" @click="isMobNavOpen = false; isUdhMobSubOpen = false; scrollSect('#udh-order-start')"><span class="en">Place Order</span><span class="ar">تقديم طلب</span></a></li>
-                        <li><a href="#chk-order-stat" class="nav-link-mob bil-spread" :class="{'active-nav': actNavHref === '#chk-order-stat'}" @click="isMobNavOpen = false; isUdhMobSubOpen = false; scrollSect('#chk-order-stat')"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></a></li>
-                    </ul>
+                <template x-if="settings.enable_udheya_section">
+                    <li>
+                        <button type="button" @click="isUdhMobSubOpen = !isUdhMobSubOpen" class="nav-link-mob bil-inline drop-toggle-mob" :class="{'active-nav': actNavHref === 'Udheya' || actNavHref === '#udh-order-start'}" aria-haspopup="true" :aria-expanded="isUdhMobSubOpen.toString()">
+                            <span class="en">Udheya</span><span class="ar">الأضحية</span>
+                            <svg class="drop-arr" :class="{ 'rotate-180': isUdhMobSubOpen }" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <ul class="mob-sub" x-show="isUdhMobSubOpen" :style="isUdhMobSubOpen ? 'max-height: 200px; padding-top: var(--s0); padding-bottom: var(--s0);' : 'max-height: 0; padding-top: 0; padding-bottom: 0;'">
+                            <li><a href="#udh-order-start" class="nav-link-mob bil-spread" :class="{'active-nav': actNavHref === '#udh-order-start'}" @click="isMobNavOpen = false; isUdhMobSubOpen = false; scrollSect('#udh-order-start')"><span class="en">Place Order</span><span class="ar">تقديم طلب</span></a></li>
+                        </ul>
+                    </li>
+                </template>
+                 <li>
+                    <a href="#chk-order-stat" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#chk-order-stat'}" @click="isMobNavOpen = false; scrollSect('#chk-order-stat')">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3h-3V2zM15 20H9v-2h6v2zm0-4H9v-2h6v2zm-4.5-4L9 10.5l1.5-1.5L12 10.5l1.5-1.5L15 10.5V5h1.5v15H18V5h1.5v15H21V2l-1.5 1.5z"/></svg>
+                        <span class="en">Order Status</span><span class="ar">حالة الطلب</span>
+                    </a>
                 </li>
+                <template x-if="settings.enable_livestock_section">
                 <li>
                     <a href="#live-sect" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#live-sect'}" @click="isMobNavOpen = false; scrollSect('#live-sect')">
                         <span class="en">Livestock</span><span class="ar">الأغنام</span>
                     </a>
                 </li>
+                </template>
+                <template x-if="settings.enable_meat_section">
                 <li>
                     <a href="#meat-sect" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#meat-sect'}" @click="isMobNavOpen = false; scrollSect('#meat-sect')">
                         <span class="en">Meat</span><span class="ar">اللحوم</span>
                     </a>
                 </li>
+                </template>
+                <template x-if="settings.enable_gatherings_section">
                 <li>
                     <a href="#gath-sect" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#gath-sect'}" @click="isMobNavOpen = false; scrollSect('#gath-sect')">
                         <span class="en">Gatherings</span><span class="ar">الولائم</span>
+                    </a>
+                </li>
+                </template>
+                <li>
+                    <a href="#cart-sect" class="nav-link-mob bil-inline" :class="{'active-nav': actNavHref === '#cart-sect'}" @click="isMobNavOpen = false; scrollSect('#cart-sect')">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0020.01 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6z"/></svg>
+                        <span class="en">Cart</span><span class="ar">السلة</span>
+                        <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItems.reduce((sum, item) => sum + item.quantity, 0)"></span>
                     </a>
                 </li>
             </ul>
@@ -199,7 +241,7 @@
         </div>
     </section>
 
-    <section class="order-sect main-page-sec sec" id="udh-order-start">
+    <section class="order-sect main-page-sec sec" id="udh-order-start" x-show="settings.enable_udheya_section">
         <div class="c">
             <div x-show="!orderConf">
                  <div class="sec-head tc order-sect-h">
@@ -250,15 +292,15 @@
                 <div x-show="!orderConf">
                     <div id="udh-order-panel" class="card form-panel">
                         <div class="card-b">
-                            
+
                             <div id="step1-content" class="form-step">
                                 <div class="sec-head"><h2 class="bil-spread" x-ref="step1Title"><span class="en">Select Sheep & Weight</span><span class="ar">اختر الخروف والوزن</span></h2></div>
                                 <div class="live-note bil-row">
-                                    <p class="en">All animals meet Sharia age/health requirements for Udheya. Price is based on type and estimated weight category. Price per kilo is shown for transparency.</p>
-                                    <p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية. يعتمد السعر على النوع وفئة الوزن التقديرية. يتم عرض السعر للكيلو للشفافية.</p>
+                                    <p class="en">All animals meet Sharia age/health requirements for Udheya. Price is fixed for the selected weight category. Price per kilo shown is indicative.</p>
+                                    <p class="ar">جميع الحيوانات تستوفي متطلبات الشريعة للعمر والصحة للأضحية. السعر ثابت لفئة الوزن المختارة. سعر الكيلو المعروض هو استرشادي.</p>
                                 </div>
                                 <div class="prod-grid grid2">
-                                    <template x-for="animType in prodOpts.live" :key="animType.valKey">
+                                    <template x-for="animType in prodOpts.udheya" :key="animType.valKey">
                                         <div :id="animType.valKey" class="card card-live" :class="{'card-sel': selAnim.type === animType.valKey && selAnim.itemKey}">
                                             <div class="card-img">
                                                 <img :src="'images/' + animType.valKey + '-sheep.jpg'" :alt="animType.nameEn + ' Sheep'">
@@ -274,8 +316,8 @@
                                                 </div>
                                                 <div class="card-foot">
                                                     <div class="price bil-row">
-                                                        <span class="en"><span x-text="fmtPrice(animType.priceKgEgp || 0) + '/kg'"></span></span>
-                                                        <span class="ar"><span x-text="fmtPrice(animType.priceKgEgp || 0) + '/كجم'"></span></span>
+                                                        <span class="en"><span x-text="fmtPrice(animType.priceKgEgp || 0) + '/kg (indicative)'"></span></span>
+                                                        <span class="ar"><span x-text="fmtPrice(animType.priceKgEgp || 0) + '/كجم (استرشادي)'"></span></span>
                                                     </div>
                                                     <div class="card-act">
                                                         <label :for="animType.valKey + 'WtSel'" class="sr-only" x-text="'Select ' + animType.nameEn + ' Weight Category'"></label>
@@ -293,9 +335,9 @@
                                             </div>
                                         </div>
                                     </template>
-                                    <div x-show="(!prodOpts.live || prodOpts.live.length === 0) && !load.init" class="load-text bil-row">
-                                        <span class="en">No animal options currently available. Please check back later.</span>
-                                        <span class="ar">لا توجد خيارات حيوانات متاحة حاليًا. يرجى التحقق مرة أخرى لاحقًا.</span>
+                                    <div x-show="(!prodOpts.udheya || prodOpts.udheya.length === 0)" class="load-text bil-row">
+                                        <span class="en">No Udheya options currently available. Please check back later.</span>
+                                        <span class="ar">لا توجد خيارات أضاحي متاحة حاليًا. يرجى التحقق مرة أخرى لاحقًا.</span>
                                     </div>
                                 </div>
                                 <div class="err-msg" x-show="errs.animal" x-text="errs.animal ? (currLang === 'ar' ? errs.animal.ar : errs.animal.en) : ''" role="alert" aria-live="assertive"></div>
@@ -315,8 +357,8 @@
                                     <div class="err-msg" x-show="errs.custPhone" x-text="errs.custPhone ? (currLang === 'ar' ? errs.custPhone.ar : errs.custPhone.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
                                 <div class="fg">
-                                    <label for="custEmailInputS2" class="bil-spread lbl-req"><span class="en">Your Email (Optional)</span><span class="ar">بريدك الإلكتروني (اختياري)</span></label>
-                                    <input id="custEmailInputS2" type="email" class="input" x-model="custEmail" @input="clrErr('custEmail')" placeholder="optional@example.com" x-ref="custEmailInputS2" :aria-invalid="errs.custEmail ? 'true' : 'false'" autocomplete="email">
+                                    <label for="custEmailInputS2" class="bil-spread lbl-req"><span class="en">Your Email (For Confirmation)</span><span class="ar">بريدك الإلكتروني (للتأكيد)</span></label>
+                                    <input id="custEmailInputS2" type="email" class="input" x-model="custEmail" @input="clrErr('custEmail')" placeholder="confirmation@example.com" x-ref="custEmailInputS2" :aria-invalid="errs.custEmail ? 'true' : 'false'" autocomplete="email">
                                     <div class="err-msg" x-show="errs.custEmail" x-text="errs.custEmail ? (currLang === 'ar' ? errs.custEmail.ar : errs.custEmail.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
 
@@ -331,7 +373,7 @@
 
                             <div id="step3-content" class="form-step">
                                 <div class="sec-head"><h2 class="bil-spread" x-ref="step3Title" tabindex="-1"><span class="en">Udheya Arrangements</span><span class="ar">ترتيبات الأضحية</span></h2></div>
-                                
+
                                 <div class="fg">
                                     <label class="bil-spread lbl-req" id="udhServLabelS3"><span class="en">Udheya Service Option *</span><span class="ar">خيار خدمة الأضحية *</span></label>
                                     <div class="rgrp" x-ref="udhServRadiosS3" role="radiogroup" aria-labelledby="udhServLabelS3">
@@ -348,6 +390,13 @@
                                     </div>
                                     <div class="err-msg" x-show="errs.udhServ" x-text="errs.udhServ ? (currLang === 'ar' ? errs.udhServ.ar : errs.udhServ.en) : ''" role="alert" aria-live="assertive"></div>
                                 </div>
+
+                                <div x-show="selUdhServ === 'standard_service' && settings.slaughter_location_gmaps_url" class="field-note bil-row" style="margin-top: var(--s0); margin-bottom: var(--s1);">
+                                    <p class="en">Our slaughter facility is located here: <a :href="settings.slaughter_location_gmaps_url" target="_blank" rel="noopener noreferrer" class="gmaps-link">View on Google Maps</a>. This is relevant if you are inquiring about physical attendance.</p>
+                                    <p class="ar">موقع المسلخ الخاص بنا: <a :href="settings.slaughter_location_gmaps_url" target="_blank" rel="noopener noreferrer" class="gmaps-link">عرض على خرائط جوجل</a>. هذا الموقع مهم إذا كنت تستفسر عن الحضور الشخصي.</p>
+                                </div>
+
+
                                 <div class="fg">
                                     <label for="sac_day_sel_s3" class="bil-spread lbl-req"><span class="en">Preferred Sacrifice Day *</span><span class="ar">يوم الذبح المفضل *</span></label>
                                     <select id="sac_day_sel_s3" class="input" x-model="sacDay.val" @change="updSacDayTxt(); clrErr('sacDay')" x-ref="sacDaySelS3" :aria-invalid="errs.sacDay ? 'true' : 'false'" aria-describedby="sacDayErrS3" aria-required="true">
@@ -375,7 +424,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div id="step4-content" class="form-step">
                                 <div class="sec-head"><h2 class="bil-spread" x-ref="step4Title" tabindex="-1"><span class="en">Distribution & Delivery</span><span class="ar">التوزيع والتوصيل</span></h2></div>
                                 <div class="fg">
@@ -385,7 +434,7 @@
                                             <option :value="opt.val" x-text="`${opt.txtEn} / ${opt.txtAr}`"></option>
                                         </template>
                                     </select>
-                                    
+
                                     <div class="rgrp split-opts" x-show="distChoice === 'split'" x-transition>
                                         <label for="split_detail_sel_s4" class="bil-spread lbl-req"><span class="en">Split Options *</span><span class="ar">خيارات التقسيم *</span></label>
                                         <select id="split_detail_sel_s4" class="input" x-model="splitOpt" @change="clrErr('splitOpt')" x-ref="splitDetSelS4">
@@ -406,6 +455,10 @@
                                     <h4 class="form-subh bil-spread del-det-h">
                                         <span class="en">Delivery Information</span><span class="ar">معلومات التوصيل</span>
                                     </h4>
+                                    <div class="bil-row field-note delivery-scope-note">
+                                        <p class="en"><strong>Important:</strong> Delivery is ONLY available within Egypt to the selected cities. If ordering from abroad for local delivery, please provide an Egyptian phone number and address for the recipient.</p>
+                                        <p class="ar"><strong>هام:</strong> التوصيل متاح فقط داخل مصر للمدن المختارة. إذا كنت تطلب من خارج مصر للتوصيل المحلي، يرجى تقديم رقم هاتف وعنوان مصري للمستلم.</p>
+                                    </div>
                                     <div class="bil-row field-note" style="margin-bottom: var(--s1);">
                                         <p class="f-note en">Required because you've chosen to receive a portion or all of the Udheya.</p>
                                         <p class="f-note ar">مطلوب لأنك اخترت استلام جزء أو كل الأضحية.</p>
@@ -470,15 +523,15 @@
                                             <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Contact:</strong> <span x-text="custName || ''"></span>, <span x-text="custPhone || ''"></span></div><div class="ar"><strong>الاتصال:</strong> <span x-text="custName || ''"></span>، <span x-text="custPhone || ''"></span></div></div></div>
                                             <button type="button" @click.prevent="navStep(2)" class="btn-edit bil-inline" aria-label="Edit Your Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
-                                         <div class="sum-item">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Niyyah:</strong> <span x-text="niyyahNames || (currLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || (currLang === 'ar' ? 'لم يحدد' : 'Not specified')"></span></div></div></div>
+                                         <div class="sum-item" x-show="niyyahNames && niyyahNames.trim() !== ''">
+                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Niyyah:</strong> <span x-text="niyyahNames"></span></div><div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames"></span></div></div></div>
                                             <button type="button" @click.prevent="navStep(2)" class="btn-edit bil-inline" aria-label="Edit Niyyah Names"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
-                                        <div class="sum-item">
+                                        <div class="sum-item" x-show="selUdhServ === 'standard_service'">
                                             <div class="sum-item-content">
                                                 <div class="bil-row">
-                                                    <div class="en"><strong>Service:</strong> <span x-text="selUdhServ === 'standard_service' ? ('Standard (Fee: ' + fmtPrice(settings.servFeeEGP || 0) + ')') : 'Live Animal Only'"></span></div>
-                                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selUdhServ === 'standard_service' ? ('عادية (رسوم: ' + fmtPrice(settings.servFeeEGP || 0) + ')') : 'الحيوان حي فقط'"></span></div>
+                                                    <div class="en"><strong>Service:</strong> Standard (Fee: <span x-text="fmtPrice(settings.servFeeEGP || 0)"></span>)</div>
+                                                    <div class="ar"><strong>الخدمة:</strong> عادية (رسوم: <span x-text="fmtPrice(settings.servFeeEGP || 0)"></span>)</div>
                                                 </div>
                                             </div>
                                             <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Service Option"><span class="en">Edit</span><span class="ar">تعديل</span></button>
@@ -486,10 +539,6 @@
                                         <div class="sum-item">
                                             <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR || ''"></span></div></div></div>
                                             <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Sacrifice Day"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                        </div>
-                                        <div class="sum-item" x-show="viewPref && viewPref !== 'none'">
-                                            <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Viewing Pref:</strong> <span x-show="viewPref==='physical_inquiry'">Physical Inquiry</span><span x-show="viewPref==='video_request'">Video/Photo Request</span><span x-show="viewPref==='live_video_inquiry'">Live Video Inquiry</span></div><div class="ar"><strong>مشاهدة الذبح:</strong> <span x-show="viewPref==='physical_inquiry'">استفسار حضور</span><span x-show="viewPref==='video_request'">طلب فيديو/صور</span><span x-show="viewPref==='live_video_inquiry'">استفسار فيديو مباشر</span></div></div></div>
-                                            <button type="button" @click.prevent="navStep(3)" class="btn-edit bil-inline" aria-label="Edit Viewing Preference"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                         </div>
                                         <div class="sum-item">
                                              <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn || ''"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="sumDistrAr || ''"></span></div></div></div>
@@ -500,34 +549,21 @@
                                                 <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery To:</strong> <span x-text="sumDelToEn || ''"></span></div><div class="ar"><strong>التوصيل إلى:</strong> <span x-text="sumDelToAr || ''"></span></div></div></div>
                                                 <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery Details"><span class="en">Edit</span><span class="ar">تعديل</span></button>
                                             </div>
-                                            <div class="sum-item">
-                                                 <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot || ''"></span></div></div></div>
-                                                <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery Time Slot"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                            </div>
-                                            <div class="sum-item" x-show="delFeeDispEGP > 0 && !isDelFeeVar">
-                                                <div class="sum-item-content">
-                                                    <div class="bil-row">
-                                                        <div class="en"><strong>Delivery Fee:</strong> <span x-text="fmtPrice(delFeeDispEGP)"></span></div>
-                                                        <div class="ar"><strong>رسوم التوصيل:</strong> <span x-text="fmtPrice(delFeeDispEGP)"></span></div>
-                                                    </div>
-                                                </div>
-                                                <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery City/Fee"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                            </div>
-                                            <div class="sum-item" x-show="isDelFeeVar && delCity">
-                                                 <div class="sum-item-content">
-                                                     <div class="bil-row">
-                                                         <div class="en"><strong>Est. Delivery Fee:</strong> To be confirmed</div>
-                                                         <div class="ar"><strong>رسوم التوصيل المقدرة:</strong> سيتم التأكيد</div>
-                                                     </div>
-                                                 </div>
-                                                 <button type="button" @click.prevent="navStep(4)" class="btn-edit bil-inline" aria-label="Edit Delivery City"><span class="en">Edit</span><span class="ar">تعديل</span></button>
-                                            </div>
                                         </div>
-                                        <div class="sum-item" x-show="distChoice === 'char'">
-                                             <div class="sum-item-content"><div class="bil-row"><div class="en"><strong>Delivery:</strong> Handled by Sheep Land for charity</div><div class="ar"><strong>التوصيل:</strong> تتولاه أرض الأغنام للجمعيات الخيرية</div></div></div>
+                                        <div class="sum-item" x-show="payMeth === 'online_card' && settings.online_payment_fee_egp > 0">
+                                            <div class="sum-item-content">
+                                                <div class="bil-row">
+                                                    <div class="en"><strong>Online Payment Fee:</strong> <span x-text="fmtPrice(settings.online_payment_fee_egp)"></span></div>
+                                                    <div class="ar"><strong>رسوم الدفع الإلكتروني:</strong> <span x-text="fmtPrice(settings.online_payment_fee_egp)"></span></div>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <hr class="sum-hr"><div class="sum-total bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(totalEgp)"></span></div><div class="ar"><strong>المجموع الكلي للطلب:</strong> <span x-text="fmtPrice(totalEgp)"></span></div></div>
+                                        <hr class="sum-hr">
+                                        <div class="sum-total bil-row">
+                                            <div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
+                                            <div class="ar"><strong>المجموع الكلي للطلب:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
+                                        </div>
                                     </div>
                                     <div x-show="!selAnim.itemKey" class="tc rev-no-sel bil-row"><p class="en">Selections will appear here.</p><p class="ar">ستظهر اختياراتك هنا.</p></div>
                                     <div class="bil-row tc rev-care-note"><p class="en rev-care-txt">Review carefully before confirming.</p><p class="ar rev-care-txt">راجع اختياراتك بعناية قبل التأكيد.</p></div>
@@ -559,7 +595,7 @@
                     </div>
                 </div>
 
-                <section id="order-conf-sect" class="sec udh-page-step" x-show="orderConf" x-transition.opacity.duration.300ms>
+                <section id="order-conf-sect" class="sec udh-page-step conf-sect-wide" x-show="orderConf" x-transition.opacity.duration.300ms>
                     <div class="c tc">
                         <div class="sec-head conf-h"><h2 class="bil-spread" x-ref="orderConfTitle" tabindex="-1"><span class="en">Order Confirmed! JazakAllah Khairan.</span><span class="ar">تم تأكيد الطلب! جزاكم الله خيرًا.</span></h2></div>
                         <div class="conf-msg">
@@ -568,27 +604,21 @@
                                 <div class="bil-spread"><p class="en order-id-box-imp"><strong>Important: Your Order Details</strong></p><p class="ar order-id-box-imp"><strong>هام: تفاصيل طلبكم</strong></p></div>
                                 <div class="bil-spread"><p class="en order-id-box-lbl">Order ID:</p><p class="ar order-id-box-lbl">رقم طلبكم:</p></div>
                                 <p class="order-id-disp" x-text="orderID"></p>
-                                <div class="bil-row"><p class="en order-id-box-note">Save ID and Phone for status check. You will NOT receive an email confirmation.</p><p class="ar order-id-box-note">احفظ الرقم والهاتف للتحقق من حالة الطلب. لن يتم إرسال تأكيد عبر البريد الإلكتروني.</p></div>
+                                <div class="bil-row">
+                                    <p class="en order-id-box-note">Save your Order ID for status checking. An email confirmation <strong x-text="custEmail ? 'has been sent to ' + custEmail : 'could not be sent as no email was provided'"></strong>. Please check your spam/junk folder if not received. (Note: Email sending requires server configuration).</p>
+                                    <p class="ar order-id-box-note">احفظ رقم طلبك للتحقق من الحالة. <strong x-text="custEmail ? 'تم إرسال تأكيد إلى ' + custEmail : 'تعذر إرسال تأكيد لعدم تقديم بريد إلكتروني'"></strong>. يرجى التحقق من مجلد الرسائل غير المرغوب فيها/البريد العشوائي إذا لم تستلمه. (ملاحظة: إرسال البريد الإلكتروني يتطلب إعدادات الخادم).</p>
+                                </div>
                             </div></div>
                             <div class="quick-recap">
                                 <h4 class="form-subh bil-spread recap-h"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
                                 <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="selAnim.nameEN || ''"></span> (<span x-text="selAnim.wtRangeEn || ''"></span>)</div><div class="ar"><strong>الحيوان:</strong> <span x-text="selAnim.nameAR || ''"></span> (<span x-text="selAnim.wtRangeAr || ''"></span>)</div></div>
                                  <div class="sum-item bil-row">
-                                    <div class="en"><strong>Ordered By:</strong> <span x-text="custName || ''"></span> (<span x-text="custPhone || ''"></span>)</div>
-                                    <div class="ar"><strong>الطلب باسم:</strong> <span x-text="custName || ''"></span> (<span x-text="custPhone || ''"></span>)</div>
+                                    <div class="en"><strong>Ordered By:</strong> <span x-text="custName || ''"></span></div>
+                                    <div class="ar"><strong>الطلب باسم:</strong> <span x-text="custName || ''"></span></div>
                                 </div>
                                 <div class="sum-item bil-row" x-show="niyyahNames && niyyahNames.trim() !== ''">
                                     <div class="en"><strong>Niyyah For:</strong> <span x-text="niyyahNames || ''"></span></div>
                                     <div class="ar"><strong>النية لـ:</strong> <span x-text="niyyahNames || ''"></span></div>
-                                </div>
-                                <div class="sum-item bil-row">
-                                    <div class="en"><strong>Service:</strong> <span x-text="selUdhServ === 'standard_service' ? 'Standard Service' : 'Live Animal Only'"></span></div>
-                                    <div class="ar"><strong>الخدمة:</strong> <span x-text="selUdhServ === 'standard_service' ? 'خدمة عادية' : 'الحيوان حي فقط'"></span></div>
-                                </div>
-                                <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="sacDay.txtEN || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="sacDay.txtAR || ''"></span></div></div>
-                                <div class="sum-item bil-row" x-show="viewPref && viewPref !== 'none'">
-                                    <div class="en"><strong>Viewing Pref:</strong> <span x-show="viewPref === 'physical_inquiry'">Physical Inquiry</span><span x-show="viewPref === 'video_request'">Video/Photo Request</span><span x-show="viewPref === 'live_video_inquiry'">Live Video Inquiry</span></div>
-                                    <div class="ar"><strong>مشاهدة الذبح:</strong> <span x-show="viewPref === 'physical_inquiry'">استفسار حضور</span><span x-show="viewPref === 'video_request'">طلب فيديو/صور</span><span x-show="viewPref === 'live_video_inquiry'">استفسار فيديو مباشر</span></div>
                                 </div>
                                  <div class="sum-item bil-row">
                                     <div class="en"><strong>Distribution:</strong> <span x-text="sumDistrEn || ''"></span></div>
@@ -598,19 +628,61 @@
                                     <div class="en"><strong>Delivery Address:</strong> <span x-text="delAddr || ''"></span>, <span x-text="allCities.find(c=>c.id === delCity)?.nameEn || ''"></span></div>
                                     <div class="ar"><strong>عنوان التوصيل:</strong> <span x-text="delAddr || ''"></span>، <span x-text="allCities.find(c=>c.id === delCity)?.nameAr || ''"></span></div>
                                 </div>
-                                <div class="sum-item bil-row" x-show="needsDelDetails && timeSlot"><div class="en"><strong>Delivery Time:</strong> <span x-text="timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل:</strong> <span x-text="timeSlot || ''"></span></div></div>
+                                <div class="sum-item bil-row" x-show="gatewayFeeEgp > 0 && payMeth === 'online_card'">
+                                    <div class="en"><strong>Online Payment Fee:</strong> <span x-text="fmtPrice(gatewayFeeEgp)"></span></div>
+                                    <div class="ar"><strong>رسوم الدفع الإلكتروني:</strong> <span x-text="fmtPrice(gatewayFeeEgp)"></span></div>
+                                </div>
                                  <div class="sum-item bil-row">
                                     <div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
                                     <div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(totalEgp)"></span></div>
                                 </div>
+                                <div class="sum-item bil-row" x-show="selUdhServ === 'standard_service' && settings.slaughter_location_gmaps_url">
+                                    <div class="en"><strong>Slaughter Location:</strong> <a :href="settings.slaughter_location_gmaps_url" target="_blank" rel="noopener noreferrer" class="gmaps-link">View Map</a></div>
+                                    <div class="ar"><strong>موقع الذبح:</strong> <a :href="settings.slaughter_location_gmaps_url" target="_blank" rel="noopener noreferrer" class="gmaps-link">عرض الخريطة</a></div>
+                                </div>
                             </div>
                             <div class="pay-instr">
                                 <h4 class="form-subh bil-spread pay-instr-h"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
-                                <div x-show="payMeth === 'fa'"><div class="bil-row"><p class="en">Fawry: Use Order ID <strong class="pay-ref" x-text="orderID"></strong>. Order Total: <strong x-text="fmtPrice(totalEgp)"></strong>. Due in 24h.</p><p class="ar">فوري: استخدم رقم الطلب <strong class="pay-ref" x-text="orderID"></strong>. المجموع الكلي للطلب: <strong x-text="fmtPrice(totalEgp)"></strong>. خلال 24س.</p></div></div>
-                                <div x-show="payMeth === 'vo'"><div class="bil-row"><p class="en">Vodafone Cash: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p><p class="ar">فودافون كاش: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد عبر واتساب: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a></p></div></div>
-                                <div x-show="payMeth === 'ip'"><div class="bil-row"><p class="en">InstaPay: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">إنستا باي: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
-                                <div x-show="payMeth === 'revolut'"><div class="bil-row"><p class="en">Revolut: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">ريفولوت: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
-                                <div x-show="payMeth === 'monzo'"><div class="bil-row"><p class="en">Monzo: <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">مونزو: <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div></div>
+                                <div x-show="payMeth === 'online_card'">
+                                    <div class="bil-row">
+                                        <p class="en">Your order total is <strong x-text="fmtPrice(totalEgp)"></strong>. To complete your payment via our secure online gateway, you will be contacted shortly with instructions or redirected. If you are not redirected or contacted within a few minutes, please contact us referencing Order ID: <strong class="pay-ref" x-text="orderID"></strong>.</p>
+                                        <p class="ar">إجمالي طلبك هو <strong x-text="fmtPrice(totalEgp)"></strong>. لإتمام الدفع عبر بوابتنا الآمنة عبر الإنترنت، سنتصل بك قريبًاพร้อมًا بالتعليمات أو سيتم إعادة توجيهك. إذا لم يتم إعادة توجيهك أو الاتصال بك في غضون دقائق قليلة، فيرجى الاتصال بنا مع ذكر رقم الطلب: <strong class="pay-ref" x-text="orderID"></strong>.</p>
+                                    </div>
+                                     <!-- Conceptual Paddle Button - In a real integration, Paddle.js would handle this. -->
+                                    <!-- <div style="margin-top:1rem; text-align:center;">
+                                        <button @click="initiateOnlinePayment(orderID, totalEgp)" class="btn bac">Proceed to Secure Payment</button>
+                                    </div> -->
+                                </div>
+                                <div x-show="payMeth === 'fa'">
+                                    <div class="bil-row">
+                                        <p class="en">Fawry: Pay <strong x-text="fmtPrice(totalEgp)"></strong>. Use Order ID <strong class="pay-ref" x-text="orderID"></strong>. Due in 24h.</p>
+                                        <p class="ar">فوري: ادفع <strong x-text="fmtPrice(totalEgp)"></strong>. استخدم رقم الطلب <strong class="pay-ref" x-text="orderID"></strong>. خلال 24س.</p>
+                                    </div>
+                                </div>
+                                <div x-show="payMeth === 'vo'">
+                                    <div class="bil-row">
+                                        <p class="en">Vodafone Cash: Pay <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a>.</p>
+                                        <p class="ar">فودافون كاش: ادفع <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.vodafone_cash || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد عبر واتساب: <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" x-text="settings.waNumDisp"></a>.</p>
+                                    </div>
+                                </div>
+                                <div x-show="payMeth === 'ip'">
+                                    <div class="bil-row">
+                                        <p class="en">InstaPay: Pay <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p>
+                                        <p class="ar">إنستا باي: ادفع <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.instapay_ipn || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p>
+                                    </div>
+                                </div>
+                                <div x-show="payMeth === 'revolut'">
+                                    <div class="bil-row">
+                                        <p class="en">Revolut: Pay <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p>
+                                        <p class="ar">ريفولوت: ادفع <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.revolut_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p>
+                                    </div>
+                                </div>
+                                <div x-show="payMeth === 'monzo'">
+                                    <div class="bil-row">
+                                        <p class="en">Monzo: Pay <strong x-text="fmtPrice(totalEgp)"></strong> to <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'N/A'"></strong>. Ref: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p>
+                                        <p class="ar">مونزو: ادفع <strong x-text="fmtPrice(totalEgp)"></strong> إلى <strong class="pay-ref" x-text="settings.payDetails?.monzo_details || 'غير متوفر'"></strong>. مرجع: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p>
+                                    </div>
+                                </div>
                                 <div x-show="payMeth === 'bank_transfer'">
                                     <div class="bil-row"><p class="en">Bank Transfer <strong x-text="fmtPrice(totalEgp)"></strong> to:</p><p class="ar">تحويل بنكي <strong x-text="fmtPrice(totalEgp)"></strong> إلى:</p></div>
                                     <ul class="bank-dets">
@@ -622,7 +694,7 @@
                                     </ul>
                                     <div class="bil-row bank-note"><p class="en">Crucial: Ref Order ID: <strong class="pay-ref" x-text="orderID"></strong>. Confirm WA.</p><p class="ar">هام: مرجع الطلب: <strong class="pay-ref" x-text="orderID"></strong>. أكد واتساب.</p></div>
                                 </div>
-                                <div x-show="payMeth === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="custPhone"></strong>. Total Amount Due <strong x-text="fmtPrice(totalEgp)"></strong>. ID: <strong x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="custPhone"></strong>. المجموع الكلي للطلب <strong x-text="fmtPrice(totalEgp)"></strong>. رقم الطلب: <strong x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span></p></div></div>
+                                <div x-show="payMeth === 'cod'"><div class="bil-row"><p class="en">COD: Team will call <strong x-text="custPhone"></strong>. Total Amount Due <strong x-text="fmtPrice(totalEgp)"></strong>. ID: <strong x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">Note: Delivery fee for your area will be confirmed by phone and paid separately.</span></p><p class="ar">الدفع عند الاستلام: سيتصل بك الفريق على <strong x-text="custPhone"></strong>. المجموع الكلي للطلب <strong x-text="fmtPrice(totalEgp)"></strong>. رقم الطلب: <strong class="pay-ref" x-text="orderID"></strong>. <span x-show="isDelFeeVar && needsDelDetails">ملاحظة: سيتم تأكيد رسوم التوصيل لمنطقتكم عبر الهاتف وتدفع بشكل منفصل.</span></p></div></div>
                             </div>
                         </div>
                         <div class="form-act tc page-act"><a href="#udh-order-start" class="btn bp btn-lg btn-block bil-inline" @click.prevent="resetForm()"><span class="en">Place Another Udheya Order</span><span class="ar">تقديم طلب أضحية أخرى</span></a></div>
@@ -632,50 +704,187 @@
         </div>
     </section>
 
-    <section id="live-sect" class="main-page-sec sec" style="background-color: var(--b2);">
+    <section id="live-sect" class="main-page-sec sec" style="background-color: var(--b2);" x-show="settings.enable_livestock_section">
         <div class="c">
             <div class="sec-head"><h2 class="bil-spread" tabindex="-1"><span class="en">Our Livestock</span><span class="ar">أغنامنا</span></h2></div>
-            <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">More information about our general livestock offerings (for purposes other than Udheya) will be available here soon. Stay tuned!</span>
-                <span class="ar" style="flex-basis: 100%;">ستتوفر هنا قريبًا المزيد من المعلومات حول عروض المواشي العامة لدينا (لأغراض أخرى غير الأضحية). ترقبونا!</span>
+            <div x-show="prodOpts.livestock_general && prodOpts.livestock_general.length > 0" class="prod-grid grid2">
+                <template x-for="productType in prodOpts.livestock_general" :key="productType.valKey + '-ls'">
+                    <template x-for="item in productType.wps" :key="item.itemKey + '-ls-item'">
+                        <div class="card card-live">
+                            <div class="card-img">
+                                <img :src="'images/' + productType.valKey + '-sheep.jpg'" :alt="productType.nameEn">
+                                <div class="badge bil-inline"><span class="en" x-text="productType.valKey.toUpperCase()"></span><span class="ar" x-text="productType.nameAr.split(' ')[0]"></span></div>
+                            </div>
+                            <div class="card-b">
+                                <div class="card-content">
+                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
+                                    <div class="bil-row card-p-row">
+                                        <p class="en card-p" x-text="productType.descEn"></p>
+                                        <p class="ar card-p" x-text="productType.descAr"></p>
+                                    </div>
+                                </div>
+                                <div class="card-foot">
+                                    <div class="price bil-row">
+                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
+                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
+                                    </div>
+                                    <div class="card-act">
+                                        <button type="button" @click="addToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0">
+                                            <span class="en">Add to Cart</span><span class="ar">أضف للسلة</span>
+                                        </button>
+                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}"><span class="en" x-text="getStockEn(item.stock, item.isActive)"></span><span class="ar" x-text="getStockEn(item.stock, item.isActive)"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+            </div>
+             <p class="bil-row tc" x-show="!prodOpts.livestock_general || prodOpts.livestock_general.length === 0">
+                <span class="en" style="flex-basis: 100%;">Livestock offerings will be available here soon. Stay tuned!</span>
+                <span class="ar" style="flex-basis: 100%;">ستتوفر هنا قريبًا عروض المواشي العامة. ترقبونا!</span>
             </p>
         </div>
     </section>
 
-    <section id="meat-sect" class="main-page-sec sec">
+    <section id="meat-sect" class="main-page-sec sec" x-show="settings.enable_meat_section">
         <div class="c">
             <div class="sec-head"><h2 class="bil-spread" tabindex="-1"><span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span></h2></div>
-             <p class="bil-row tc">
-                <span class="en" style="flex-basis: 100%;">Explore our range of premium, fresh meat cuts directly from our farm. Details coming soon!</span>
-                <span class="ar" style="flex-basis: 100%;">اكتشف تشكيلتنا من قطعيات اللحوم الطازجة والممتازة مباشرة من مزرعتنا. التفاصيل قريبًا!</span>
+             <div x-show="prodOpts.meat_cuts && prodOpts.meat_cuts.length > 0" class="prod-grid grid2">
+                 <template x-for="productType in prodOpts.meat_cuts" :key="productType.valKey + '-mc'">
+                    <template x-for="item in productType.wps" :key="item.itemKey + '-mc-item'">
+                        <div class="card card-live">
+                            <div class="card-img">
+                                <img :src="'images/' + (productType.valKey.includes('lamb') ? 'lamb' : productType.valKey) + '-cuts.jpg'" :alt="productType.nameEn">
+                                <div class="badge bil-inline"><span class="en">MEAT</span><span class="ar">لحوم</span></div>
+                            </div>
+                            <div class="card-b">
+                                <div class="card-content">
+                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
+                                    <div class="bil-row card-p-row">
+                                        <p class="en card-p" x-text="productType.descEn"></p>
+                                        <p class="ar card-p" x-text="productType.descAr"></p>
+                                    </div>
+                                </div>
+                                <div class="card-foot">
+                                    <div class="price bil-row">
+                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP) + (item.weight_range_text_en.toLowerCase().includes('kg') ? '/kg' : '')"></strong></span>
+                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP) + (item.weight_range_text_ar.toLowerCase().includes('كجم') ? '/كجم' : '')"></strong></span>
+                                    </div>
+                                     <div class="card-act">
+                                        <button type="button" @click="addToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0">
+                                            <span class="en">Add to Cart</span><span class="ar">أضف للسلة</span>
+                                        </button>
+                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}"><span class="en" x-text="getStockEn(item.stock, item.isActive)"></span><span class="ar" x-text="getStockEn(item.stock, item.isActive)"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                 </template>
+            </div>
+             <p class="bil-row tc" x-show="!prodOpts.meat_cuts || prodOpts.meat_cuts.length === 0">
+                <span class="en" style="flex-basis: 100%;">Fresh meat cut offerings will be available here soon. Stay tuned!</span>
+                <span class="ar" style="flex-basis: 100%;">ستتوفر هنا قريبًا تشكيلة قطعيات اللحوم الطازجة. ترقبونا!</span>
             </p>
         </div>
     </section>
 
-    <section id="gath-sect" class="main-page-sec sec" style="background-color: var(--b1);">
+    <section id="gath-sect" class="main-page-sec sec" style="background-color: var(--b1);" x-show="settings.enable_gatherings_section">
         <div class="c">
             <div class="sec-head"><h2 class="bil-spread" tabindex="-1"><span class="en">Gatherings & Feasts</span><span class="ar">الولائم والمناسبات</span></h2></div>
-            <p class="bil-row tc">
+            <div x-show="prodOpts.gathering_package && prodOpts.gathering_package.length > 0" class="prod-grid grid2">
+                 <template x-for="productType in prodOpts.gathering_package" :key="productType.valKey + '-gp'">
+                    <template x-for="item in productType.wps" :key="item.itemKey + '-gp-item'">
+                        <div class="card card-live">
+                            <div class="card-img">
+                                <img :src="'images/' + productType.valKey + '-gathering.jpg'" :alt="productType.nameEn">
+                                <div class="badge bil-inline"><span class="en">FEAST</span><span class="ar">وليمة</span></div>
+                            </div>
+                            <div class="card-b">
+                                <div class="card-content">
+                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
+                                    <div class="bil-row card-p-row">
+                                        <p class="en card-p" x-text="productType.descEn"></p>
+                                        <p class="ar card-p" x-text="productType.descAr"></p>
+                                    </div>
+                                </div>
+                                <div class="card-foot">
+                                    <div class="price bil-row">
+                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
+                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
+                                    </div>
+                                     <div class="card-act">
+                                        <button type="button" @click="addToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0">
+                                            <span class="en">Add to Cart</span><span class="ar">أضف للسلة</span>
+                                        </button>
+                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}"><span class="en" x-text="getStockEn(item.stock, item.isActive)"></span><span class="ar" x-text="getStockEn(item.stock, item.isActive)"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                 </template>
+            </div>
+            <p class="bil-row tc" x-show="!prodOpts.gathering_package || prodOpts.gathering_package.length === 0">
                 <span class="en" style="flex-basis: 100%;">Information about our special livestock and meat packages for gatherings and feasts will be available here soon. Contact us for bespoke orders!</span>
                 <span class="ar" dir="rtl" style="flex-basis: 100%;">ستتوفر هنا قريبًا معلومات حول باقات المواشي واللحوم الخاصة بنا للمناسبات والولائم. اتصل بنا للطلبات المخصصة!</span>
             </p>
         </div>
     </section>
 
-    <section id="chk-order-stat" class="sec udh-page-step">
+    <section id="cart-sect" class="main-page-sec sec cart-section">
+        <div class="c">
+            <div class="sec-head"><h2 class="bil-spread" x-ref="cartTitle" tabindex="-1"><span class="en">Your Shopping Cart</span><span class="ar">سلة مشترياتك</span></h2></div>
+            <div x-show="cartItems.length === 0" class="tc">
+                <p class="bil-row"><span class="en">Your cart is currently empty.</span><span class="ar">سلتك فارغة حاليًا.</span></p>
+            </div>
+            <div x-show="cartItems.length > 0">
+                <template x-for="(cartItem, index) in cartItems" :key="cartItem.itemKey + '-' + index">
+                    <div class="cart-item bil-row">
+                        <div class="cart-item-details">
+                            <p class="cart-item-name bil-spread"><span x-text="cartItem.nameENSpec"></span><span x-text="cartItem.nameARSpec"></span></p>
+                            <p class="cart-item-price bil-row"><span class="en" x-text="fmtPrice(cartItem.priceEGP) + ' x ' + cartItem.quantity"></span><span class="ar" x-text="fmtPrice(cartItem.priceEGP) + ' × ' + cartItem.quantity"></span></p>
+                        </div>
+                        <div class="cart-item-quantity bil-inline">
+                            <button type="button" @click="updateCartQuantity(cartItem.itemKey, cartItem.quantity - 1)" class="btn btn-sm" :disabled="cartItem.quantity <= 1">-</button>
+                            <input type="number" class="input cart-qty-input" :value="cartItem.quantity" @change="updateCartQuantity(cartItem.itemKey, parseInt($event.target.value))" min="1" :aria-label="'Quantity for ' + cartItem.nameENSpec">
+                            <button type="button" @click="updateCartQuantity(cartItem.itemKey, cartItem.quantity + 1)" class="btn btn-sm" :disabled="cartItem.quantity >= cartItem.stock">+</button>
+                        </div>
+                        <div class="cart-item-subtotal bil-row">
+                             <span class="en" x-text="fmtPrice(cartItem.priceEGP * cartItem.quantity)"></span>
+                             <span class="ar" x-text="fmtPrice(cartItem.priceEGP * cartItem.quantity)"></span>
+                        </div>
+                        <button @click="removeFromCart(cartItem.itemKey)" class="cart-item-remove" aria-label="Remove item">&times;</button>
+                    </div>
+                </template>
+                <hr class="sum-hr">
+                <div class="cart-total bil-row">
+                    <span class="en"><strong>Total:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
+                    <span class="ar"><strong>الإجمالي:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
+                </div>
+                <div class="form-act tc cart-checkout-btn">
+                    <button type="button" @click="proceedToCartCheckout()" class="btn bac btn-lg btn-block bil-inline">
+                        <span class="en">Proceed to Checkout (Cart)</span><span class="ar">المتابعة للدفع (السلة)</span>
+                    </button>
+                     <p class="f-note bil-row" style="margin-top:var(--s1);">
+                        <span class="en">Note: This cart is for non-Udheya items. Udheya orders are placed through the form above.</span>
+                        <span class="ar">ملاحظة: هذه السلة للعناصر غير المخصصة للأضاحي. طلبات الأضاحي تتم عبر النموذج أعلاه.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="chk-order-stat" class="sec udh-page-step status-sect-wide">
         <div class="c">
         <div class="sec-head"><h2 class="bil-spread" x-ref="chkStatTitle" tabindex="-1"><span class="en">Check Udheya Order Status</span><span class="ar">تحقق من حالة طلب أضحيتك</span></h2></div>
         <div class="card form-panel chk-stat-card"><div class="card-b">
             <form id="chk-stat-form" @submit.prevent="submitStatValid()" novalidate>
                 <div class="fg">
                     <label for="order_id_lookup" class="bil-spread lbl-req chk-stat-lbl"><span class="en">Enter Order ID *</span><span class="ar">أدخل رقم الطلب *</span></label>
-                    <input type="text" id="order_id_lookup" class="input chk-stat-input" x-model="lookupOrderID" placeholder="e.g., SL-UDHY-YYYY-XXXXX" x-ref="lookupOrderIdInput" :aria-invalid="errs.lookupOrderID ? 'true' : 'false'" aria-describedby="lookupOrderIdErr" @input="clrErr('lookupOrderID')" aria-required="true">
+                    <input type="text" id="order_id_lookup" class="input chk-stat-input" x-model="lookupOrderID" placeholder="e.g., A1B2C3D4E5" x-ref="lookupOrderIdInput" :aria-invalid="errs.lookupOrderID ? 'true' : 'false'" aria-describedby="lookupOrderIdErr" @input="clrErr('lookupOrderID')" aria-required="true">
                     <div class="err-msg" id="lookupOrderIdErr" x-show="errs.lookupOrderID" x-text="errs.lookupOrderID ? (currLang === 'ar' ? errs.lookupOrderID.ar : errs.lookupOrderID.en) : ''" role="alert" aria-live="assertive"></div>
-                </div>
-                <div class="fg">
-                    <label for="lookup_phone" class="bil-spread lbl-req chk-stat-lbl"><span class="en">Enter Phone Number Used for Order *</span><span class="ar">أدخل رقم الهاتف المستخدم في الطلب *</span></label>
-                    <input type="tel" id="lookup_phone" class="input chk-stat-input" x-model="lookupPhone" placeholder="e.g., 01xxxxxxxxx" x-ref="lookupPhoneInput" :aria-invalid="errs.lookupPhone ? 'true' : 'false'" aria-describedby="lookupPhoneErr" @input="clrErr('lookupPhone')" aria-required="true" autocomplete="tel">
-                    <div class="err-msg" id="lookupPhoneErr" x-show="errs.lookupPhone" x-text="errs.lookupPhone ? (currLang === 'ar' ? errs.lookupPhone.ar : errs.lookupPhone.en) : ''" role="alert" aria-live="assertive"></div>
                 </div>
                 <div class="card-act" style="margin-top: var(--s2);">
                     <button type="submit" id="btn-chk-stat" class="btn bp chk-stat-btn bil-inline btn-block" :disabled="load.status">
@@ -695,23 +904,19 @@
                     <div class="sum-item bil-row"><div class="en"><strong>Order Status:</strong> <span class="stat-hl" x-text="statRes?.status || ''"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.status || ''"></span></div></div>
                     <div class="sum-item bil-row"><div class="en"><strong>Payment Status:</strong> <span x-text="statRes?.payStatTxt || ''"></span></div><div class="ar"><strong>حالة الدفع:</strong> <span x-text="statRes?.payStatTxt || ''"></span></div></div>
                     <div class="sum-item bil-row"><div class="en"><strong>Animal:</strong> <span x-text="statRes?.animTypeEn || ''"></span>, <span x-text="statRes?.wtCatEn || ''"></span></div><div class="ar"><strong>الحيوان:</strong> <span x-text="statRes?.animTypeAr || ''"></span>، <span x-text="statRes?.wtCatAr || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Service:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'Standard Service' : (statRes?.udhServOpt ? 'Live Animal Only' : 'N/A'))"></span></div><div class="ar"><strong>الخدمة:</strong> <span x-text="(statRes?.udhServOpt === 'standard_service' ? 'خدمة عادية' : (statRes?.udhServOpt ? 'الحيوان حي فقط' : 'غير متوفر'))"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Sacrifice Day:</strong> <span x-text="statRes?.sacDayTxtEn || ''"></span></div><div class="ar"><strong>يوم الذبح:</strong> <span x-text="statRes?.sacDayTxtAr || ''"></span></div></div>
-                    <div class="sum-item bil-row" x-show="statRes && typeof statRes.niyyah === 'string' && statRes.niyyah.trim() !== ''">
-                        <div class="en"><strong>Niyyah For:</strong> <span x-text="statRes?.niyyah || ''"></span></div>
-                        <div class="ar"><strong>النية لـ:</strong> <span x-text="statRes?.niyyah || ''"></span></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div><div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div></div>
+                    <div class="sum-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div></div>
+                     <div class="sum-item bil-row" x-show="statRes?.distrChoiceEn">
+                        <div class="en"><strong>Distribution:</strong> <span x-text="statRes?.distrChoiceEn || ''"></span></div>
+                        <div class="ar"><strong>التوزيع:</strong> <span x-text="statRes?.distrChoiceAr || ''"></span></div>
                     </div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Distribution:</strong> <span x-text="statRes?.distrChoiceEn || ''"></span></div><div class="ar"><strong>التوزيع:</strong> <span x-text="statRes?.distrChoiceAr || ''"></span></div></div>
                     <div class="sum-item bil-row" x-show="statRes && statRes.needsDel && statRes.delAddr">
                         <div class="en"><strong>Delivery To:</strong> <span x-text="`${statRes?.delAddr || ''}, ${statRes?.delCityEn || ''}`"></span></div>
                         <div class="ar"><strong>التوصيل إلى:</strong> <span x-text="`${statRes?.delAddr || ''}، ${statRes?.delCityAr || ''}`"></span></div>
                     </div>
-                    <div class="sum-item bil-row" x-show="statRes && statRes.needsDel && statRes.timeSlot && statRes.timeSlot !== 'N/A'"><div class="en"><strong>Pref. Delivery Time:</strong> <span x-text="statRes?.timeSlot || ''"></span></div><div class="ar"><strong>وقت التوصيل المفضل:</strong> <span x-text="statRes?.timeSlot || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div><div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(statRes?.totalEgp)"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statRes?.payMeth?.toUpperCase() || ''"></span></div></div>
                 </div>
             </div>
-            <div id="stat-no-res" class="stat-no-res bil-row" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID and Phone or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب ورقم الهاتف أو اتصل بالدعم.</p></div>
+            <div id="stat-no-res" class="stat-no-res bil-row" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب أو اتصل بالدعم.</p></div>
         </div></div>
     </section>
 </main>
@@ -739,6 +944,7 @@
             <span class="bil-copy">
                 <span class="en">All rights reserved.</span><span class="ar">جميع الحقوق محفوظة.</span>
             </span>
+             | <a href="refund-policy.html" class="footer-link bil-inline"><span class="en">Refund Policy</span><span class="ar">سياسة الاسترداد</span></a>
         </p>
     </div>
 </footer>
