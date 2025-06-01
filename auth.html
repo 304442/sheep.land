@@ -133,7 +133,7 @@
                     
                     <template x-if="statRes?.line_items && statRes.line_items.length > 0">
                         <h5 class="bil-spread modal-section-title" style="margin-top:var(--s1);"><span class="en">Items Ordered</span><span class="ar">العناصر المطلوبة</span></h5>
-                        <template x-for="item in statRes.line_items" :key="item.item_key_pb">
+                        <template x-for="item in statRes.line_items" :key="item.item_key_pb"> 
                              <div class="sum-item bil-row">
                                 <div class="en"><span x-text="item.name_en + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '')"></span></div>
                                 <div class="ar"><span x-text="item.name_ar + (item.quantity > 1 ? ' (×' + item.quantity + ')' : '')"></span></div>
@@ -308,7 +308,11 @@
                 <div class="card-b">
                     <!-- Login Form -->
                     <form id="login-form" @submit.prevent="loginUser()" x-show="auth.view === 'login'" novalidate>
-                        <div class="err-msg tc" x-show="errs.auth_login" x-text="errs.auth_login ? (currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en) : ''"></div>
+                        <div class="err-msg tc" x-show="errs.auth_login" x-text="errs.auth_login ? (currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en) : ''" role="alert" aria-live="assertive"></div>
+                         <div class="succ-msg tc" x-show="errs.auth_form_success && auth.view === 'login'"> 
+                            <span class="en" x-text="errs.auth_form_success ? errs.auth_form_success.en : ''"></span>
+                            <span class="ar" x-text="errs.auth_form_success ? errs.auth_form_success.ar : ''"></span>
+                        </div>
                         <div class="fg">
                             <label for="loginEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
                             <input id="loginEmail" type="email" class="input" x-model="auth.email" @input="clrErr('auth_login'); clrErr('auth_email');" :aria-invalid="errs.auth_email ? 'true' : 'false'" required autocomplete="email">
@@ -326,18 +330,14 @@
                             </button>
                         </div>
                         <p class="auth-toggle-link bil-row">
-                            <span class="en">Don't have an account? <button type="button" @click="auth.view = 'register'; clrAllErrs();" class="link-style">Register here</button>.</span>
-                            <span class="ar">ليس لديك حساب؟ <button type="button" @click="auth.view = 'register'; clrAllErrs();" class="link-style">سجل هنا</button>.</span>
-                        </p>
-                         <p class="f-note bil-row tc" x-show="errs.auth_form_success && auth.view === 'login'" :class="errs.auth_form_success ? 'succ-msg' : ''">
-                            <span class="en" x-text="errs.auth_form_success ? errs.auth_form_success.en : ''"></span>
-                            <span class="ar" x-text="errs.auth_form_success ? errs.auth_form_success.ar : ''"></span>
+                            <span class="en">Don't have an account? <button type="button" @click="auth.view = 'register'; clrAllErrs(); auth.email=''; auth.password='';" class="link-style">Register here</button>.</span>
+                            <span class="ar">ليس لديك حساب؟ <button type="button" @click="auth.view = 'register'; clrAllErrs(); auth.email=''; auth.password='';" class="link-style">سجل هنا</button>.</span>
                         </p>
                     </form>
 
                     <!-- Registration Form -->
                     <form id="register-form" @submit.prevent="registerUser()" x-show="auth.view === 'register'" novalidate>
-                        <div class="err-msg tc" x-show="errs.auth_register" x-text="errs.auth_register ? (currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en) : ''"></div>
+                        <div class="err-msg tc" x-show="errs.auth_register" x-text="errs.auth_register ? (currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en) : ''" role="alert" aria-live="assertive"></div>
                          <div class="fg">
                             <label for="registerName" class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
                             <input id="registerName" type="text" class="input" x-model="auth.name" @input="clrErr('auth_name')" :aria-invalid="errs.auth_name ? 'true' : 'false'" required autocomplete="name">
@@ -365,8 +365,8 @@
                             </button>
                         </div>
                         <p class="auth-toggle-link bil-row">
-                            <span class="en">Already have an account? <button type="button" @click="auth.view = 'login'; clrAllErrs();" class="link-style">Login here</button>.</span>
-                            <span class="ar">لديك حساب بالفعل؟ <button type="button" @click="auth.view = 'login'; clrAllErrs();" class="link-style">سجل الدخول هنا</button>.</span>
+                            <span class="en">Already have an account? <button type="button" @click="auth.view = 'login'; clrAllErrs(); auth.password=''; auth.passwordConfirm='';" class="link-style">Login here</button>.</span>
+                            <span class="ar">لديك حساب بالفعل؟ <button type="button" @click="auth.view = 'login'; clrAllErrs(); auth.password=''; auth.passwordConfirm='';" class="link-style">سجل الدخول هنا</button>.</span>
                         </p>
                     </form>
                 </div>
@@ -379,15 +379,14 @@
     <div class="c">
         <div class="foot-grid">
             <div class="bil-row foot-brand-desc">
-                <p class="en">Your full-service Egyptian team, committed to meeting your needs with speed and quality, sparing you market visits.</p>
-                <p class="ar">فريق متكامل لتلبية احتياجاتك بأسرع وقت وأفضل جودة، ونكفيك عناء الذهاب للسوق.</p>
+                <p class="en">Your trusted partner for premium, Sharia-compliant livestock and meat, delivered with care and tradition.</p>
+                <p class="ar">شريكك الموثوق للمواشي واللحوم الفاخرة المتوافقة مع الشريعة، نوصلها بعناية وأصالة.</p>
             </div>
         </div>
         <div class="foot-pay tc">
             <h5 class="bil-spread">
                 <span class="en">Secure Payment Options Available</span><span class="ar">تتوفر خيارات دفع آمنة</span>
             </h5>
-            <!-- Payment icons removed -->
         </div>
         <hr class="foot-div">
         <p class="foot-copy">© <span x-text="new Date().getFullYear()"></span> Sheep Land.
