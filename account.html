@@ -133,7 +133,7 @@
                     
                     <template x-if="statRes?.line_items && statRes.line_items.length > 0">
                         <h5 class="bil-spread modal-section-title" style="margin-top:var(--s1);"><span class="en">Items Ordered</span><span class="ar">العناصر المطلوبة</span></h5>
-                        <template x-for="item in statRes.line_items" :key="item.item_key_pb"> 
+                        <template x-for="item in statRes.line_items" :key="item.item_key_pb + '-status'"> 
                              <div class="sum-item bil-row">
                                 <div class="en"><span x-text="item.name_en + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '')"></span></div>
                                 <div class="ar"><span x-text="item.name_ar + (item.quantity > 1 ? ' (×' + item.quantity + ')' : '')"></span></div>
@@ -295,85 +295,71 @@
 </header>
 
 <main>
-    <section class="sec main-page-sec" id="account-page">
+    <section class="sec main-page-sec" id="meat-page">
         <div class="c">
             <div class="sec-head">
-                <h1 class="bil-spread" x-ref="accountTitle" tabindex="-1">
-                    <span class="en">My Account</span>
-                    <span class="ar">حسابي</span>
+                <h1 class="bil-spread" tabindex="-1">
+                    <span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span>
                 </h1>
             </div>
-
-            <div x-show="!currentUser && !load.auth" class="empty-state tc">
-                <p class="bil-row section-intro"><span class="en">Please <a href="auth.html" @click.prevent="navigateToOrScroll('auth.html')" class="link-style">login or register</a> to view your account details and order history.</span><span class="ar">يرجى <a href="auth.html" @click.prevent="navigateToOrScroll('auth.html')" class="link-style">تسجيل الدخول أو إنشاء حساب</a> لعرض تفاصيل حسابك وسجل الطلبات.</span></p>
-            </div>
-            
-            <div x-show="currentUser">
-                <div class="card form-panel">
-                    <div class="card-b">
-                        <h2 class="form-subh bil-spread"><span class="en">Account Information</span><span class="ar">معلومات الحساب</span></h2>
-                        <div class="sum-item bil-row"><span class="en"><strong>Email:</strong></span><span class="ar"><strong>البريد الإلكتروني:</strong></span> <span x-text="currentUser.email"></span></div>
-                        <div class="sum-item bil-row"><span class="en"><strong>Name:</strong></span><span class="ar"><strong>الاسم:</strong></span> <span x-text="currentUser.name || 'Not set'"></span></div>
-                        <!-- Add more user profile fields if needed in future, e.g., phone, saved addresses -->
-                        <button @click="logoutUser()" class="btn bp-alt" style="margin-top: var(--s2);"><span class="en">Logout</span><span class="ar">تسجيل الخروج</span></button>
-                    </div>
-                </div>
-
-                <div class="card form-panel" style="margin-top: var(--s3);">
-                    <div class="card-b">
-                        <h2 class="form-subh bil-spread"><span class="en">Order History</span><span class="ar">سجل الطلبات</span></h2>
-                        <div x-show="load.orders" class="load-text tc" aria-live="polite"><span class="en">Loading your orders...</span><span class="ar">جاري تحميل طلباتك...</span></div>
-                        
-                        <div x-show="!load.orders && userOrders.length === 0" class="empty-state tc">
-                            <p class="bil-row section-intro"><span class="en">You have not placed any orders yet.</span><span class="ar">لم تقم بأي طلبات بعد.</span></p>
-                            <button @click="navigateToOrScroll('udheya.html')" class="btn bp" style="margin-top: var(--s1);">
-                                <span class="en">Start Shopping</span><span class="ar">ابدأ التسوق</span>
-                            </button>
-                        </div>
-
-                        <div x-show="!load.orders && userOrders.length > 0" class="order-history-list">
-                            <template x-for="order in userOrders" :key="order.id">
-                                <div class="order-history-item card">
-                                    <div class="card-b">
-                                        <div class="sum-item bil-row">
-                                            <div><strong class="en">Order ID:</strong><strong class="ar">رقم الطلب:</strong></div>
-                                            <div><span x-text="order.order_id_text"></span></div>
-                                        </div>
-                                        <div class="sum-item bil-row">
-                                            <div><strong class="en">Date:</strong><strong class="ar">التاريخ:</strong></div>
-                                            <div><span class="en" x-text="new Date(order.created).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })"></span><span class="ar" x-text="new Date(order.created).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' })"></span></div>
-                                        </div>
-                                        <div class="sum-item bil-row">
-                                             <div><strong class="en">Total:</strong><strong class="ar">الإجمالي:</strong></div>
-                                             <div><span x-text="fmtPrice(order.total_amount_due_egp)"></span></div>
-                                        </div>
-                                        <div class="sum-item bil-row">
-                                            <div><strong class="en">Status:</strong><strong class="ar">الحالة:</strong></div>
-                                            <div><span class="stat-hl" x-text="order.order_status"></span></div>
-                                        </div>
-                                        <div class="sum-item bil-row">
-                                            <div><strong class="en">Payment:</strong><strong class="ar">الدفع:</strong></div>
-                                            <div><span x-text="order.payment_status"></span></div>
-                                        </div>
-                                        <details class="order-details-toggle">
-                                            <summary class="bil-spread"><span class="en">View Items</span><span class="ar">عرض العناصر</span></summary>
-                                            <ul class="order-items-list">
-                                                <template x-for="item in order.line_items" :key="item.item_key_pb + '-' + order.id"> <!-- Ensure unique key if item_key_pb can repeat across orders -->
-                                                    <li class="bil-row">
-                                                        <span class="en" x-text="item.name_en + (item.quantity > 1 ? ` (x${item.quantity})` : '')"></span>
-                                                        <span class="ar" x-text="item.name_ar + (item.quantity > 1 ? ` (×${item.quantity})` : '')"></span>
-                                                    </li>
-                                                </template>
-                                            </ul>
-                                        </details>
+            <p class="bil-row section-intro">
+                <span class="en">Choose from our selection of fresh, high-quality meat cuts, expertly prepared from our farm-raised livestock. Perfect for your daily meals and special occasions.</span>
+                <span class="ar">اختر من مجموعتنا المختارة من قطعيات اللحوم الطازجة عالية الجودة، والمعدة بخبرة من مواشينا المرباة في المزرعة. مثالية لوجباتك اليومية ومناسباتك الخاصة.</span>
+            </p>
+            <div x-show="prodOpts.meat_cuts && prodOpts.meat_cuts.length > 0" class="prod-grid grid2">
+                 <template x-for="productType in prodOpts.meat_cuts" :key="productType.valKey + '-mc'">
+                    <template x-for="item in productType.wps" :key="item.itemKey + '-mc-item'">
+                        <div class="card card-live">
+                            <div class="card-img">
+                                <img :src="'images/' + (productType.valKey.includes('lamb') ? 'lamb' : (productType.valKey.includes('beef') ? 'beef' : productType.valKey)) + '-cuts.jpg'" :alt="item.nameENSpec" loading="lazy">
+                                <div class="badge bil-inline"><span class="en">MEAT</span><span class="ar">لحوم</span></div>
+                            </div>
+                            <div class="card-b">
+                                <div class="card-content">
+                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
+                                    <div class="bil-row card-p-row">
+                                        <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
+                                        <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
                                     </div>
                                 </div>
-                            </template>
+                                <div class="card-foot">
+                                    <div class="price bil-row">
+                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP) + (item.weight_range_text_en && item.weight_range_text_en.toLowerCase().includes('kg') && !item.weight_range_text_en.toLowerCase().includes('per') ? '/kg' : '')"></strong></span>
+                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP) + (item.weight_range_text_ar && item.weight_range_text_ar.toLowerCase().includes('كجم') && !item.weight_range_text_ar.toLowerCase().includes('لكل') ? '/كجم' : '')"></strong></span>
+                                    </div>
+                                     <div class="card-act">
+                                        <button type="button" @click="addItemToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
+                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
+                                            <span x-show="load.addingToCart === item.itemKey && !tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
+                                        </button>
+                                        <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
+                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
+                                            <span x-show="load.addingToCart === item.itemKey && tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
+                                        </button>
+                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
+                                            <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
+                                            <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                         <div class="err-msg tc" x-show="errs.orders_fetch" x-text="errs.orders_fetch ? (currLang === 'ar' ? errs.orders_fetch.ar : errs.orders_fetch.en) : ''"></div>
-                    </div>
-                </div>
+                    </template>
+                 </template>
             </div>
+            <div class="empty-state tc" x-show="(!prodOpts.meat_cuts || prodOpts.meat_cuts.length === 0) && !load.init">
+                <p class="bil-row">
+                    <span class="en" style="flex-basis: 100%;">Our fresh meat selection is currently being updated. Please check back shortly for delicious options!</span>
+                    <span class="ar" style="flex-basis: 100%;">يتم تحديث تشكيلة اللحوم الطازجة لدينا حاليًا. يرجى التحقق مرة أخرى قريبًا للحصول على خيارات لذيذة!</span>
+                </p>
+                 <button @click="navigateToOrScroll('index.html')" class="btn bp btn-sm bil-inline" style="margin-top: var(--s1);">
+                    <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
+                </button>
+            </div>
+            <p class="f-note bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === 'meat'" :class="addedToCartMsg.isError ? 'err-msg' : 'succ-msg'" style="margin-top:var(--s2); justify-content: center;">
+                <span class="en" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].en : (addedToCartMsg.text.en || addedToCartMsg.text) ) : (addedToCartMsg.text.en || addedToCartMsg.text)"></span>
+                <span class="ar" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].ar : (addedToCartMsg.text.ar || addedToCartMsg.text) ) : (addedToCartMsg.text.ar || addedToCartMsg.text)"></span>
+            </p>
         </div>
     </section>
 </main>
