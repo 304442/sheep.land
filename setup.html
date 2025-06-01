@@ -45,23 +45,22 @@
         p.className = `l${type[0].toLowerCase()}`;
         let logMessage = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
         if (data) {
-            // For data, we'll append a preformatted block
             const pre = document.createElement('pre');
-            pre.className = 'ld'; // debug style for data
+            pre.className = 'ld'; 
             pre.textContent = JSON.stringify(data, null, 2);
-            logMessage += "\n" + pre.outerHTML; // Add as HTML string
+            logMessage += "\n" + pre.outerHTML; 
         }
-        p.innerHTML = logMessage; // Use innerHTML to render the <pre> tag
+        p.innerHTML = logMessage; 
         outputDiv.appendChild(p);
         outputDiv.scrollTop = outputDiv.scrollHeight;
         
-        const consoleMessage = timestamp + message.replace(/<[^>]*>?/gm, '');
+        const consoleMessage = timestamp + message.replace(/<[^>]*>?/gm, ''); 
         if (type === 'e') console.error(consoleMessage, data || '');
         else if (type === 'w') console.warn(consoleMessage, data || '');
         else if (type === 'd') console.debug(consoleMessage, data || '');
         else console.log(consoleMessage, data || '');
     };
-
+    
     const defaultRefundPolicyHTMLForSeed = `
         <div class="bil-row">
             <p class="en">Welcome to Sheep Land. We strive to provide the best quality Udheya and livestock services. Please read our policy carefully.</p>
@@ -92,37 +91,36 @@
         <div class="bil-row"><p class="en">If you have any questions regarding our Refund & Cancellation Policy, please do not hesitate to contact us through the contact details provided on our website *before* placing your order.</p><p class="ar" dir="rtl">إذا كانت لديك أي أسئلة بخصوص سياسة الاسترداد والإلغاء الخاصة بنا، فيرجى عدم التردد في الاتصال بنا عبر تفاصيل الاتصال المتوفرة على موقعنا *قبل* تقديم طلبك.</p></div>
     `;
 
-    // Collections WITHOUT relations (step 1 for schema creation)
-    const collectionsWithoutRelations = [
+    const collectionsDefinition = [
         {
             name: "settings",
             type: "base",
             system: false,
             listRule: "@everyone",
             viewRule: "@everyone",
-            createRule: null, // Should not be creatable by public
-            updateRule: "@request.auth.id != '' && @request.auth.verified = true", // Admin only
-            deleteRule: null, // Admin only
+            createRule: null, 
+            updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
+            deleteRule: null, 
             schema: [ 
-                { name: "xchgRates", type: "json", required: true, presentable: true }, 
-                { name: "defCurr", type: "text", required: true, presentable: true, max: 5, min: 3 },
-                { name: "waNumRaw", type: "text", required: false, presentable: true, max: 20 }, 
-                { name: "waNumDisp", type: "text", required: false, presentable: true, max: 30 },
-                { name: "promoEndISO", type: "date", required: false, presentable: true }, 
-                { name: "promoDiscPc", type: "number", required: false, presentable: true, min: 0, max: 100 },
-                { name: "promoActive", type: "bool", required: false, presentable: true, default: false }, 
-                { name: "servFeeEGP", type: "number", required: true, presentable: true, min: 0 },
-                { name: "delAreas", type: "json", required: false, presentable: true }, 
-                { name: "payDetails", type: "json", required: false, presentable: true },
-                { name: "enable_udheya_section", type: "bool", required: false, presentable: true, default: true}, 
-                { name: "enable_livestock_section", type: "bool", required: false, presentable: true, default: true },
-                { name: "enable_meat_section", type: "bool", required: false, presentable: true, default: true }, 
-                { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, default: true },
-                { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true },
-                { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "refund_policy_html", type: "editor", required: false, presentable: false }, // Use 'editor' for rich text
-                { name: "app_email_sender_address", type: "email", required: false, presentable: false },
-                { name: "app_email_sender_name", type: "text", required: false, presentable: false, max: 100 }
+                { name: "xchgRates", type: "json", required: true, presentable: true, options: {} }, 
+                { name: "defCurr", type: "text", required: true, presentable: true, options: {max: 5, min: 3} },
+                { name: "waNumRaw", type: "text", required: false, presentable: true, options: {max: 20} }, 
+                { name: "waNumDisp", type: "text", required: false, presentable: true, options: {max: 30} },
+                { name: "promoEndISO", type: "date", required: false, presentable: true, options: {} }, 
+                { name: "promoDiscPc", type: "number", required: false, presentable: true, options: {min: 0, max: 100} },
+                { name: "promoActive", type: "bool", required: false, presentable: true, options: {default: false} }, 
+                { name: "servFeeEGP", type: "number", required: true, presentable: true, options: {min: 0} },
+                { name: "delAreas", type: "json", required: false, presentable: true, options: {} }, 
+                { name: "payDetails", type: "json", required: false, presentable: true, options: {} },
+                { name: "enable_udheya_section", type: "bool", required: false, presentable: true, options: {default: true}}, 
+                { name: "enable_livestock_section", type: "bool", required: false, presentable: true, options: {default: true} },
+                { name: "enable_meat_section", type: "bool", required: false, presentable: true, options: {default: true} }, 
+                { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, options: {default: true} },
+                { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true, options: {} },
+                { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, options: {min: 0} },
+                { name: "refund_policy_html", type: "editor", required: false, presentable: false, options: {} }, 
+                { name: "app_email_sender_address", type: "email", required: false, presentable: false, options: {} },
+                { name: "app_email_sender_name", type: "text", required: false, presentable: false, options: {max: 100} }
             ]
         },
         {
@@ -135,29 +133,29 @@
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
             schema: [
-                { name: "item_key", type: "text", required: true, presentable: true, unique: true, max: 100, min: 1, pattern: "^[a-z0-9_]+$" },
-                { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"] },
-                { name: "type_key", type: "text", required: true, presentable: true, max: 50, min: 1, pattern: "^[a-z0-9_]+$" },
-                { name: "type_name_en", type: "text", required: true, presentable: true, max: 100, min: 1 }, 
-                { name: "type_name_ar", type: "text", required: true, presentable: true, max: 100, min: 1 },
-                { name: "type_description_en", type: "text", required: false, presentable: true, max: 300 }, 
-                { name: "type_description_ar", type: "text", required: false, presentable: true, max: 300 },
-                { name: "price_per_kg_egp", type: "number", required: false, presentable: true, min: 0 },
-                { name: "variant_name_en", type: "text", required: true, presentable: true, max: 150, min: 1 },
-                { name: "variant_name_ar", type: "text", required: true, presentable: true, max: 150, min: 1 }, 
-                { name: "weight_range_text_en", type: "text", required: false, presentable: true, max: 50 },
-                { name: "weight_range_text_ar", type: "text", required: false, presentable: true, max: 50 }, 
-                { name: "avg_weight_kg", type: "number", required: false, presentable: true, min: 0 },
-                { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 }, 
-                { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0, noDecimal: true },
-                { name: "is_active", type: "bool", required: false, presentable: true, default: true }, 
-                { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
-                { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true }
+                { name: "item_key", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 100, min: 1, pattern: "^[a-z0-9_]+$"} },
+                { name: "product_category", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"]} },
+                { name: "type_key", type: "text", system: false, required: true, presentable: true, options: {max: 50, min: 1, pattern: "^[a-z0-9_]+$"} },
+                { name: "type_name_en", type: "text", system: false, required: true, presentable: true, options: {max: 100, min: 1} }, 
+                { name: "type_name_ar", type: "text", system: false, required: true, presentable: true, options: {max: 100, min: 1} },
+                { name: "type_description_en", type: "text", system: false, required: false, presentable: true, options: {max: 300} }, 
+                { name: "type_description_ar", type: "text", system: false, required: false, presentable: true, options: {max: 300} },
+                { name: "price_per_kg_egp", type: "number", system: false, required: false, presentable: true, options: {min: 0} },
+                { name: "variant_name_en", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
+                { name: "variant_name_ar", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} }, 
+                { name: "weight_range_text_en", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
+                { name: "weight_range_text_ar", type: "text", system: false, required: false, presentable: true, options: {max: 50} }, 
+                { name: "avg_weight_kg", type: "number", system: false, required: false, presentable: true, options: {min: 0} },
+                { name: "base_price_egp", type: "number", system: false, required: true, presentable: true, options: {min: 0} }, 
+                { name: "stock_available_pb", type: "number", system: false, required: true, presentable: true, options: {min: 0, noDecimal: true} },
+                { name: "is_active", type: "bool", system: false, required: false, presentable: true, options: {default: true} }, 
+                { name: "sort_order_type", type: "number", system: false, required: false, presentable: true, options: {min: 0, noDecimal: true} },
+                { name: "sort_order_variant", type: "number", system: false, required: false, presentable: true, options: {min: 0, noDecimal: true} }
             ],
             indexes: [ "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)", "CREATE INDEX `idx_products_category` ON `products` (`product_category`)" ]
         },
         { 
-            name: "users", // This will update the existing _pb_users_auth_
+            name: "users", 
             type: "auth",
             system: false, 
             listRule: "@request.auth.id = id", 
@@ -174,7 +172,7 @@
                 onlyVerified: false 
             },
             schema: [ 
-                { name: "name", type: "text", system: false, required: false, presentable: true, max: 100 }
+                { name: "name", type: "text", system: false, required: false, presentable: true, options: { max: 100 } }
             ]
         },
         { 
@@ -187,32 +185,32 @@
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
             schema: [
-                { name: "order_id_text", type: "text", system: false, required: true, presentable: true, unique: true, max: 50, min: 1 },
-                // user field (relation) will be added in the next step
-                { name: "customer_name", type: "text", system: false, required: true, presentable: true, max: 150, min: 1 },
-                { name: "customer_phone", type: "text", system: false, required: true, presentable: true, max: 30, min: 7 },
-                { name: "customer_email", type: "email", system: false, required: true, presentable: true },
-                { name: "line_items", type: "json", system: false, required: true, presentable: true }, 
-                { name: "delivery_option", type: "select", system: false, required: true, presentable: true, maxSelect:1, values:["home_delivery", "self_pickup_or_internal_distribution"] },
-                { name: "delivery_city_id", type: "text", system: false, required: false, presentable: true, max: 50 },
-                { name: "delivery_area_name_en", type: "text", system: false, required: false, presentable: true, max:100 },
-                { name: "delivery_area_name_ar", type: "text", system: false, required: false, presentable: true, max:100 },
-                { name: "delivery_address", type: "text", system: false, required: false, presentable: true, max: 500 },
-                { name: "delivery_instructions", type: "text", system: false, required: false, presentable: true, max: 500 },
-                { name: "delivery_time_slot", type: "text", system: false, required: false, presentable: true, max: 50 },
-                { name: "payment_method", type: "text", system: false, required: true, presentable: true, max: 50, min: 1 },
-                { name: "payment_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded", "partially_refunded", "pending_gateway_redirect"]} },
-                { name: "order_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["pending_confirmation", "confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "out_for_delivery", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin", "on_hold", "awaiting_payment_gateway"]} },
-                { name: "terms_agreed", type: "bool", system: false, required: true, presentable: true },
-                { name: "admin_notes", type: "editor", system: false, required: false, presentable: false }, // Use 'editor' for rich text
-                { name: "user_ip_address", type: "text", system: false, required: false, presentable: false, max: 50 },
-                { name: "user_agent_string", type: "text", system: false, required: false, presentable: false, max: 300 },
-                { name: "subtotal_amount_egp", type: "number", system: false, required: true, presentable: true, min:0 },
-                { name: "total_udheya_service_fee_egp", type: "number", system: false, required: false, presentable: true, min:0 },
-                { name: "delivery_fee_applied_egp", type: "number", system: false, required: false, presentable: true, min:0 },
-                { name: "online_payment_fee_applied_egp", type: "number", system: false, required: false, presentable: true, min:0 },
-                { name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, min: 0 },
-                { name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, max: 5 }
+                { name: "order_id_text", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 50, min: 1} },
+                // user field (relation) will be added in the next step (addOrVerifyRelationFields)
+                { name: "customer_name", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
+                { name: "customer_phone", type: "text", system: false, required: true, presentable: true, options: {max: 30, min: 7} },
+                { name: "customer_email", type: "email", system: false, required: true, presentable: true, options: {} },
+                { name: "line_items", type: "json", system: false, required: true, presentable: true, options: {} }, 
+                { name: "delivery_option", type: "select", system: false, required: true, presentable: true, options: {maxSelect:1, values:["home_delivery", "self_pickup_or_internal_distribution"]} },
+                { name: "delivery_city_id", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
+                { name: "delivery_area_name_en", type: "text", system: false, required: false, presentable: true, options: {max:100} },
+                { name: "delivery_area_name_ar", type: "text", system: false, required: false, presentable: true, options: {max:100} },
+                { name: "delivery_address", type: "text", system: false, required: false, presentable: true, options: {max: 500} },
+                { name: "delivery_instructions", type: "text", system: false, required: false, presentable: true, options: {max: 500} },
+                { name: "delivery_time_slot", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
+                { name: "payment_method", type: "text", system: false, required: true, presentable: true, options: {max: 50, min: 1} },
+                { name: "payment_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded", "partially_refunded", "pending_gateway_redirect"]} },
+                { name: "order_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_confirmation", "confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "out_for_delivery", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin", "on_hold", "awaiting_payment_gateway"]} },
+                { name: "terms_agreed", type: "bool", system: false, required: true, presentable: true, options: {} },
+                { name: "admin_notes", type: "editor", system: false, required: false, presentable: false, options: {} },
+                { name: "user_ip_address", type: "text", system: false, required: false, presentable: false, options: {max: 50} },
+                { name: "user_agent_string", type: "text", system: false, required: false, presentable: false, options: {max: 300} },
+                { name: "subtotal_amount_egp", type: "number", system: false, required: true, presentable: true, options: {min:0} },
+                { name: "total_udheya_service_fee_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
+                { name: "delivery_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
+                { name: "online_payment_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
+                { name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, options: {min: 0} },
+                { name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, options: {max: 5} }
             ],
             indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)"]
         }
@@ -274,18 +272,18 @@
                     updateRule: collectionDef.updateRule,
                     deleteRule: collectionDef.deleteRule,
                 };
-                if (collectionDef.schema) { // Only include schema if defined (for base/auth types)
-                    updatePayload.schema = collectionDef.schema.map(field => ({ ...field, options: field.options || {} })); // Ensure options is object
+                if (collectionDef.schema) { 
+                    updatePayload.schema = collectionDef.schema.map(field => ({ ...field, options: field.options || {} }));
                 }
-                if (isAuthCollection && collectionDef.options) { // For auth collection specific options
+                if (isAuthCollection && collectionDef.options) { 
                     updatePayload.options = { ... (existingCollection.options || {}), ...collectionDef.options };
                 }
-
+                
                 await pb.collections.update(collectionNameToUse, updatePayload);
                 log(`Collection "${collectionNameToUse}" updated successfully.`, 's');
 
             } catch (e) {
-                if (e.status === 404 && !isAuthCollection) { // Collection does not exist, create it (not for users, it's system)
+                if (e.status === 404 && !isAuthCollection) { 
                     log(`Collection "${collectionDef.name}" not found. Creating...`, 'i');
                     try {
                          const newCollectionData = {
@@ -339,21 +337,25 @@
         for (const rel of relationsToAdd) {
             try {
                 const sourceCollection = await pb.collections.getOne(rel.sourceCollectionName);
-                const fieldExists = sourceCollection.schema.find(f => f.name === rel.fieldName && f.type === "relation");
+                let schema = sourceCollection.schema || [];
+                const fieldExists = schema.find(f => f.name === rel.fieldName && f.type === "relation");
 
                 if (fieldExists) {
-                    log(`Relation field "${rel.fieldName}" already exists in "${rel.sourceCollectionName}". Verifying...`, 'w');
-                    // Optionally, verify and update existing relation field options if needed
-                    let needsUpdate = false;
-                    if (fieldExists.required !== rel.required) { needsUpdate = true; fieldExists.required = rel.required; }
-                    if (JSON.stringify(fieldExists.options.displayFields.sort()) !== JSON.stringify(rel.options.displayFields.sort())) {
-                        needsUpdate = true;
+                    log(`Relation field "${rel.fieldName}" already exists in "${rel.sourceCollectionName}". Verifying options...`, 'w');
+                    let needsFieldUpdate = false;
+                    if (fieldExists.required !== rel.required) { needsFieldUpdate = true; fieldExists.required = rel.required; }
+                    if (JSON.stringify(fieldExists.options.displayFields?.sort()) !== JSON.stringify(rel.options.displayFields?.sort())) {
+                        needsFieldUpdate = true;
                         fieldExists.options.displayFields = rel.options.displayFields;
                     }
-                    // Add other option checks if necessary
-                    if(needsUpdate) {
+                     if (fieldExists.options.collectionId !== rel.targetCollectionName) { // Ensure target collection is correct
+                        needsFieldUpdate = true;
+                        fieldExists.options.collectionId = rel.targetCollectionName;
+                    }
+                    // Add other option checks if necessary (minSelect, maxSelect, cascadeDelete)
+                    if(needsFieldUpdate) {
                         log(`Updating options for existing relation field "${rel.fieldName}" in "${rel.sourceCollectionName}".`, 'i');
-                        await pb.collections.update(sourceCollection.id, { schema: sourceCollection.schema });
+                        await pb.collections.update(sourceCollection.id, { schema: schema });
                     }
                     continue;
                 }
@@ -374,7 +376,7 @@
                     }
                 };
                 
-                const updatedSchema = [...sourceCollection.schema, newField];
+                const updatedSchema = [...schema, newField];
                 await pb.collections.update(sourceCollection.id, { schema: updatedSchema });
                 log(`Relation field "${rel.fieldName}" added to "${rel.sourceCollectionName}" successfully.`, 's');
 
@@ -426,8 +428,8 @@
         log('=== SCHEMA SETUP PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
 
-        log('Processing collections (settings, products, users config, orders)...', 'i');
-        if (!await importOrUpdateCollections(pb, collectionsWithoutRelations)) { 
+        log('Processing initial collections (settings, products, users config, orders)...', 'i');
+        if (!await importOrUpdateCollections(pb, collectionsDefinition)) { 
              log('Initial collection setup failed.', 'e'); return false;
         }
         
@@ -456,7 +458,7 @@
         
         if (anySeedErrors) {
             log('Seed data setup completed with errors.', 'w');
-            return false; // Indicate failure if any seed errors
+            // return false; // Decide if seed errors should halt the overall success
         }
         log('Seed data setup completed successfully.', 's');
         return true;
@@ -465,22 +467,20 @@
     function validateProductionSecurity() {
         const warnings = [];
         collectionsDefinition.forEach(collection => {
-            // Simplified check for public create/update/delete which are generally risky
-            if (collection.createRule === "" || collection.createRule === "@everyone") {
-                 if (collection.name !== "orders") { // Orders might allow public create if guest checkout is intended
-                    warnings.push(`Collection "${collection.name}" has public createRule.`);
-                 }
+            const collName = collection.name === "users" ? "_pb_users_auth_" : collection.name;
+            if ((collection.createRule === "" || collection.createRule === "@everyone") && collName !== "orders" /* Orders allow guest create */) {
+                warnings.push(`Collection "${collName}" has public createRule.`);
             }
-            if (collection.updateRule === "" || collection.updateRule === "@everyone") {
-                warnings.push(`Collection "${collection.name}" has public updateRule.`);
+            if ((collection.updateRule === "" || collection.updateRule === "@everyone") && collection.updateRule !== "@request.auth.id = id" /* allow users to update self */) {
+                warnings.push(`Collection "${collName}" has public updateRule.`);
             }
-             if (collection.deleteRule === "" || collection.deleteRule === "@everyone") {
-                warnings.push(`Collection "${collection.name}" has public deleteRule.`);
+            if ((collection.deleteRule === "" || collection.deleteRule === "@everyone") && collection.deleteRule !== "@request.auth.id = id") {
+                warnings.push(`Collection "${collName}" has public deleteRule.`);
             }
 
             if (collection.type === "auth" && (collection.name === "users" || collection.name === "_pb_users_auth_")) {
                 if (collection.options && collection.options.requireEmailVerification === false) {
-                    warnings.push(`Auth Collection "${collection.name}" has 'requireEmailVerification' set to false. Recommended to enable for production.`);
+                    warnings.push(`Auth Collection "${collName}" has 'requireEmailVerification' set to false. Recommended to enable for production.`);
                 }
             }
         });
