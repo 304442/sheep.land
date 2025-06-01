@@ -332,6 +332,10 @@
                                             <span x-show="load.addingToCart !== item.itemKey"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
                                             <span x-show="load.addingToCart === item.itemKey" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
                                         </button>
+                                        <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
+                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
+                                            <span x-show="load.addingToCart === item.itemKey" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
+                                        </button>
                                         <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
                                             <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
                                             <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
