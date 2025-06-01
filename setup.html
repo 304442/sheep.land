@@ -25,13 +25,13 @@
         <div id="out"></div>
     </div>
 <script>
-    const pbUrl = '/'; // Assuming PocketBase is served from the root
+    const pbUrl = '/'; 
     const outputDiv = document.getElementById('out');
     const runFullSetupButton = document.getElementById('runFullSetup');
     const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
     const runSeedOnlyButton = document.getElementById('runSeedOnly');
-    const ADM_E = 'admin@example.com'; // CHANGE THIS
-    const ADM_P = 'unifiedpassword';   // CHANGE THIS
+    const ADM_E = 'admin@example.com'; 
+    const ADM_P = 'unifiedpassword';   
 
     const log = (message) => { outputDiv.innerHTML += `<p>${message.replace(/</g, '<').replace(/>/g, '>')}</p>`; outputDiv.scrollTop = outputDiv.scrollHeight; };
 
@@ -73,7 +73,7 @@
                 { name: "xchgRates", type: "json", required: true, presentable: true, options: {} }, { name: "defCurr", type: "text", required: true, presentable: true, options: {max: 5, min: 3} },
                 { name: "waNumRaw", type: "text", required: false, presentable: true, options: {max: 20} }, { name: "waNumDisp", type: "text", required: false, presentable: true, options: {max: 30} },
                 { name: "promoEndISO", type: "date", required: false, presentable: true, options: {} }, { name: "promoDiscPc", type: "number", required: false, presentable: true, options: {min: 0, max: 100} },
-                { name: "promoActive", type: "bool", required: false, presentable: true, options: {} }, { name: "servFeeEGP", type: "number", required: true, presentable: true, options: {min: 0} },
+                { name: "promoActive", type: "bool", required: false, presentable: true, options: {default: false} }, { name: "servFeeEGP", type: "number", required: true, presentable: true, options: {min: 0} },
                 { name: "delAreas", type: "json", required: false, presentable: true, options: {} }, { name: "payDetails", type: "json", required: false, presentable: true, options: {} },
                 { name: "enable_udheya_section", type: "bool", required: false, presentable: true, options: {default: true}}, { name: "enable_livestock_section", type: "bool", required: false, presentable: true, options: {default: true} },
                 { name: "enable_meat_section", type: "bool", required: false, presentable: true, options: {default: true} }, { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, options: {default: true} },
@@ -110,9 +110,10 @@
         },
         {
             name: "orders", type: "base",
-            listRule: "@request.auth.id = user || order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != ''", 
-            viewRule: "@request.auth.id = user || order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != ''",
-            createRule: "", 
+            // Allow list by order_id_text for anonymous status check modal, or by user for their own orders
+            listRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')", 
+            viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (order_id_text = @request.query.lookupOrderID && @request.query.lookupOrderID != '')",
+            createRule: "", // Open for now, hook will validate. Can be restricted if all orders must be from logged-in users.
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
             schema: [
@@ -133,7 +134,7 @@
                 { name: "payment_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded", "partially_refunded", "pending_gateway_redirect"]} },
                 { name: "order_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_confirmation", "confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "out_for_delivery", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin", "on_hold", "awaiting_payment_gateway"]} },
                 { name: "terms_agreed", type: "bool", system: false, required: true, presentable: true, options: {} },
-                { name: "admin_notes", type: "text", system: false, required: false, presentable: false, options: {max: 1000} },
+                { name: "admin_notes", type: "text", system: false, required: false, presentable: false, options: {max: 1000, editor: true} },
                 { name: "user_ip_address", type: "text", system: false, required: false, presentable: false, options: {max: 50} },
                 { name: "user_agent_string", type: "text", system: false, required: false, presentable: false, options: {max: 300} },
                 { name: "subtotal_amount_egp", type: "number", system: false, required: true, presentable: true, options: {min:0} },
@@ -151,7 +152,7 @@
         settings: [{
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true }, EUR: { rate_from_egp: 0.018, symbol: "€", is_active: true } },
             defCurr: "EGP", waNumRaw: "201117117489", waNumDisp: "+20 11 1711 7489", 
-            promoEndISO: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + "T23:59:59.000Z", 
+            promoEndISO: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), 
             promoDiscPc: 10, promoActive: true, servFeeEGP: 750,
             delAreas: [ { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, { id: "hadayek_october", name_en: "Hadayek October", name_ar: "حدائق أكتوبر", delivery_fee_egp: 120 } ] }, { id:"cairo_east", name_en:"Cairo East", name_ar:"شرق القاهرة", cities:[ {id:"tagamoa", name_en:"New Cairo (Tagamoa)", name_ar:"التجمع (القاهرة الجديدة)", delivery_fee_egp: 250 }, {id:"madinaty", name_en:"Madinaty", name_ar:"مدينتي", delivery_fee_egp: 300 }, {id:"shorouk", name_en:"El Shorouk", name_ar:"الشروق", delivery_fee_egp: 300} ] } ],
             payDetails: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" },
@@ -180,20 +181,34 @@
         try { existingCollection = await pb.collections.getOne(collectionDef.name); }
         catch (e) { if (e.status !== 404) { log(`Error checking collection ${collectionDef.name}: ${e.message}`); throw e;} }
         
+        const schemaToApply = collectionDef.schema.map(fieldDef => {
+            return {
+                name: fieldDef.name,
+                type: fieldDef.type,
+                system: fieldDef.system || false,
+                required: fieldDef.required || false,
+                presentable: fieldDef.presentable !== undefined ? fieldDef.presentable : (fieldDef.type !== 'json' && fieldDef.type !== 'file' && fieldDef.type !== 'relation'),
+                unique: fieldDef.unique || false,
+                options: fieldDef.options || {}   
+            };
+        });
+        
         if (existingCollection) {
             log(`Updating ${collectionDef.name}...`);
             const updatePayload = {
-                schema: collectionDef.schema, 
+                schema: schemaToApply, 
                 listRule: collectionDef.listRule, viewRule: collectionDef.viewRule,
                 createRule: collectionDef.createRule, updateRule: collectionDef.updateRule,
                 deleteRule: collectionDef.deleteRule
             };
-            if (collectionDef.indexes) updatePayload.indexes = collectionDef.indexes;
-
+            // Indexes are not updated via this API in older PB, and are tricky.
+            // It's best to manage them via migrations or ensure they are set correctly on first creation.
+            // if (collectionDef.indexes) updatePayload.indexes = collectionDef.indexes;
+            
             await pb.collections.update(existingCollection.id, updatePayload);
         } else {
             log(`Creating ${collectionDef.name}...`);
-            const newCollection = new PocketBase.models.Collection(); // Use the SDK's Collection model
+            const newCollection = new PocketBase.models.Collection();
             newCollection.name = collectionDef.name;
             newCollection.type = collectionDef.type;
             newCollection.listRule = collectionDef.listRule;
@@ -201,10 +216,11 @@
             newCollection.createRule = collectionDef.createRule;
             newCollection.updateRule = collectionDef.updateRule;
             newCollection.deleteRule = collectionDef.deleteRule;
-            newCollection.schema = collectionDef.schema; 
-            newCollection.indexes = collectionDef.indexes || [];
+            newCollection.schema = schemaToApply; 
+            newCollection.indexes = collectionDef.indexes || []; // For export/import structure
             
-            await pb.collections.import([newCollection.export()], false); // import expects raw collection data
+            await pb.collections.import([newCollection.export()], false); 
+            log(`Collection ${collectionDef.name} created. Indexes: ${JSON.stringify(collectionDef.indexes || [])}. You might need to verify/apply indexes manually if they are complex or weren't applied.`);
         }
     }
     
@@ -236,31 +252,32 @@
         log('SCHEMA SETUP...');
         if (!await authenticateAdmin(pb)) return false;
 
-        try { // Update users collection for email verification (optional but good)
+        try { 
             const usersCollection = await pb.collections.getOne("_pb_users_auth_");
             if (usersCollection) {
                 let needsUpdate = false;
-                if(usersCollection.options.emailVisibility !== true) {
-                    usersCollection.options.emailVisibility = true; // Allow admin to see emails
+                const currentOptions = usersCollection.options || {};
+                if(currentOptions.emailVisibility !== true) {
+                    currentOptions.emailVisibility = true; 
                     needsUpdate = true;
                 }
-                // You might want to enable "Require Email Verification" here if desired
-                // if(usersCollection.options.requireEmailVerification !== true) {
-                //     usersCollection.options.requireEmailVerification = true;
-                //     needsUpdate = true;
-                // }
-                if(usersCollection.updateRule !== "@request.auth.id = id") {
-                    usersCollection.updateRule = "@request.auth.id = id"; // Users can update their own
+                if(currentOptions.requireEmailVerification !== false) { // Set to false for easier testing
+                    currentOptions.requireEmailVerification = false;
+                    needsUpdate = true;
+                }
+                let currentUpdateRule = usersCollection.updateRule || "";
+                if(currentUpdateRule !== "@request.auth.id = id") {
+                    currentUpdateRule = "@request.auth.id = id"; 
                     needsUpdate = true;
                 }
                 if (needsUpdate) {
-                    await pb.collections.update("_pb_users_auth_", { options: usersCollection.options, updateRule: usersCollection.updateRule });
-                    log("Updated users collection options/rules.");
+                    await pb.collections.update("_pb_users_auth_", { options: currentOptions, updateRule: currentUpdateRule });
+                    log("Updated users collection: emailVisibility=true, requireEmailVerification=false, updateRule set.");
                 } else {
                     log("Users collection options/rules already up to date.");
                 }
             }
-        } catch (e) { log(`Could not update users collection: ${e.message}`); }
+        } catch (e) { log(`Could not update users collection: ${e.message} - ${JSON.stringify(e.data)}`); }
 
 
         for (const collectionDef of collectionsDefinition) {
