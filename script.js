@@ -352,7 +352,7 @@ document.addEventListener('alpine:init', () => {
             try { const data = {email: this.auth.email, password: this.auth.password, passwordConfirm: this.auth.passwordConfirm, name: this.auth.name, emailVisibility: true }; 
                 const newUser = await this.pb.collection('users').create(data); 
                 
-                const usersCollection = await this.pb.collections.getOne("_pb_users_auth_"); // Re-fetch to be sure
+                const usersCollection = await this.pb.collections.getOne("_pb_users_auth_");
                 if (usersCollection && usersCollection.options && usersCollection.options.requireEmailVerification) {
                     await this.pb.collection('users').requestVerification(this.auth.email);
                      this.errs.auth_form_success = {en: 'Registration successful! Please check your email to verify your account, then login.', ar: 'تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل حسابك، ثم تسجيل الدخول.'};
@@ -394,7 +394,6 @@ document.addEventListener('alpine:init', () => {
                     localStorage.removeItem('sheepLandBuyNowItem'); 
                 } catch (e) { console.error("Error loading Buy Now item from localStorage", e); }
             } else {
-                // If not buyNow, ensure cart is loaded from storage (might have been cleared by a previous buyNow flow if user navigated back)
                 this.loadCartFromStorage();
             }
             
@@ -438,12 +437,10 @@ document.addEventListener('alpine:init', () => {
             try { const createdOrder = await this.pb.collection('orders').create(orderPayload); this.orderConf.orderID = createdOrder.order_id_text; this.orderConf.totalEgp = createdOrder.total_amount_due_egp; this.orderConf.items = createdOrder.line_items.map(li => ({...li})); this.orderConf.customerEmail = createdOrder.customer_email; this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); this.orderConf.show = true; 
                 const urlParams = new URLSearchParams(window.location.search);
                 const isBuyNow = urlParams.get('buyNow') === 'true';
-                // If it was a Buy Now flow, the cartItems array was temporary.
-                // The actual persistent cart (guest or user) should be cleared if not Buy Now.
                 if (!isBuyNow) { 
                     this.clearCart(); 
                 }
-                localStorage.removeItem('sheepLandBuyNowItem'); // Always clear this, regardless of flow.
+                localStorage.removeItem('sheepLandBuyNowItem'); 
                 this.checkoutForm = JSON.parse(JSON.stringify(initialCheckoutForm)); 
                 this.$nextTick(() => { if(this.$refs.orderConfTitle) this.navigateToOrScroll('#order-conf-sect'); else console.warn("Order conf title ref not found for scroll"); this.focusRef('orderConfTitle'); }); } 
             catch (e) { this.apiErr = String(e.data?.message || e.message || "Order placement failed."); let userFriendlyError = "An unexpected error occurred. Please check your selections or contact support."; if (e.data && typeof e.data === 'object') { if (e.data.message && e.data.message.toLowerCase().includes("out of stock")) { userFriendlyError = "One or more items in your cart are now out of stock. Please review your cart."; this.usrApiErr = userFriendlyError; await this.initApp(); this.openCart(); } else if (e.data.data && Object.keys(e.data.data).length > 0) { Object.keys(e.data.data).forEach(serverFieldKey => { const clientFieldKey = serverFieldKey; if(this.checkoutForm.hasOwnProperty(clientFieldKey) || clientFieldKey.startsWith('line_items.')) { this.setErr(clientFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message }, false); }}); userFriendlyError = "Please correct the highlighted errors."; this.usrApiErr = userFriendlyError; } else if (e.data.message) { this.usrApiErr = e.data.message; } } else { this.usrApiErr = userFriendlyError; } if (this.apiErr && !this.orderConf.show && document.querySelector('.err-ind')) { this.$nextTick(() => this.navigateToOrScroll('.err-ind')); }} 
