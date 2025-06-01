@@ -2,24 +2,17 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 /**
- * Helper to register PocketBase hooks safely, checking for environment.
+ * Helper to register PocketBase hooks safely.
  */
 const registerHook = (collection, event, handler) => {
     try {
-        // Check for Cloudflare Workers environment (specific structure)
-        if (typeofโครงสร้าง !== 'undefined' && typeofโครงสร้าง.onRecordBeforeCreateRequest === 'function' && event === 'beforeCreate') {
-            โครงสร้าง.onRecordBeforeCreateRequest(collection, handler);
-        } else if (typeofโครงสร้าง !== 'undefined' && typeofโครงสร้าง.onRecordAfterCreateRequest === 'function' && event === 'afterCreate') {
-            โครงสร้าง.onRecordAfterCreateRequest(collection, handler);
-        } else if (typeofโครงสร้าง !== 'undefined' && typeofโครงสร้าง.onRecordBeforeUpdateRequest === 'function' && event === 'beforeUpdate') {
-            โครงสร้าง.onRecordBeforeUpdateRequest(collection, handler);
-        // Check for standard PocketBase environment
-        } else if (typeof $app !== 'undefined') { 
+        if (typeof $app !== 'undefined') { // Standard PocketBase environment
             if (event === 'beforeCreate') $app.onRecordBeforeCreateRequest(collection, handler);
             else if (event === 'afterCreate') $app.onRecordAfterCreateRequest(collection, handler);
             else if (event === 'beforeUpdate') $app.onRecordBeforeUpdateRequest(collection, handler);
+            // Add other event types here if needed, like onRecordBeforeDeleteRequest, etc.
         } else {
-            console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: Unknown environment or $app not available.`);
+            console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: $app not available (not in PocketBase JSVM?).`);
         }
     } catch (error) {
         console.error(`HOOK REGISTRATION FAILED for ${collection} - ${event}: ${error}`);
@@ -187,14 +180,11 @@ registerHook("orders", "beforeCreate", (e) => {
         record.set("order_status", "confirmed_pending_payment");
     }
 
-    // Link to user if @request.auth.id is available (user is logged in)
-    // The client-side script.js should set record.user to @request.auth.id if available.
-    // If not, it means it's a guest checkout.
     if (e.httpContext?.get("authRecord") && e.httpContext.get("authRecord").id) {
         record.set("user", e.httpContext.get("authRecord").id);
     } else if (record.get("user")) {
-        // User ID was already set by client (e.g., from a logged-in session on client)
-        // No action needed here, just ensure it's a valid ID if strict checks are desired.
+        // User ID already set by client (e.g. from client-side auth state)
+        // Ensure it's a valid ID if stricter checks are desired, or clear if guest checkout intended
     }
 
 
@@ -247,17 +237,17 @@ registerHook("orders", "afterCreate", (e) => {
             let itemsListHTML = "<ul>";
             
             for (const item of lineItems) {
-                let itemPriceForDisplay = item.price_egp_each * item.quantity;
+                let itemDisplayPrice = item.price_egp_each * item.quantity;
                 let serviceFeeTextForEmail = "";
                 if (item.product_category === 'udheya' && item.udheya_details && item.udheya_details.serviceOption === 'standard_service' && appSettings) {
                     const udheyaServiceFee = appSettings.getFloat("servFeeEGP") || 0;
-                    serviceFeeTextForEmail = ` (+ ${udheyaServiceFee} EGP service)`; // Service fee added to total, not per item display here
+                    serviceFeeTextForEmail = ` (+ ${udheyaServiceFee} EGP service)`; 
                 }
                 itemsListHTML += `<li>${item.name_en} (x${item.quantity}) - ${item.price_egp_each * item.quantity} EGP${serviceFeeTextForEmail}`;
                 if (item.product_category === 'udheya' && item.udheya_details) {
                     const sacrificeDayValue = item.udheya_details.sacrificeDay;
                     const sacrificeDayInfo = sacrificeDayMapInternalHook[sacrificeDayValue] || {en: sacrificeDayValue, ar: sacrificeDayValue}; 
-                    const sacrificeDayText = sacrificeDayInfo.en; // Using English for email consistency for now
+                    const sacrificeDayText = sacrificeDayInfo.en;
                     itemsListHTML += `<br><small>Service: ${item.udheya_details.serviceOption || 'N/A'}, Day: ${sacrificeDayText}</small>`;
                      if (item.udheya_details.niyyahNames && item.udheya_details.niyyahNames.trim() !== "") {
                         itemsListHTML += `<br><small>Niyyah for: ${item.udheya_details.niyyahNames}</small>`;
@@ -271,8 +261,9 @@ registerHook("orders", "afterCreate", (e) => {
             emailBody += `<p>JazakAllah Khairan for choosing Sheep Land. Your Order ID is: <strong>${record.getString("order_id_text")}</strong></p>`;
             emailBody += `<h2>Order Summary:</h2>`;
             emailBody += itemsListHTML;
-            if (record.getFloat("total_udheya_service_fee_egp") > 0) {
-                 emailBody += `<p>Total Udheya Service Fee(s) (Included in line items above if applicable): ${record.getFloat("total_udheya_service_fee_egp")} EGP</p>`;
+            if (record.getFloat("total_udheya_service_fee_egp") > 0 && !lineItems.some(item => item.product_category === 'udheya' && item.udheya_details?.serviceOption === 'standard_service' && (appSettings.getFloat("servFeeEGP") || 0) > 0 )) {
+                 // This condition is a bit complex; the idea is to show total service fee if not already implied per line item
+                 emailBody += `<p>Total Udheya Service Fee(s): ${record.getFloat("total_udheya_service_fee_egp")} EGP</p>`;
             }
             if (record.getFloat("delivery_fee_applied_egp") > 0) {
                 emailBody += `<p>Delivery Fee: ${record.getFloat("delivery_fee_applied_egp")} EGP</p>`;
