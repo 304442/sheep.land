@@ -87,17 +87,17 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 .card-p{font-size:.85rem;color:var(--tm);margin:0;line-height:1.4}
 .card-foot{margin-top:auto;padding-top:var(--s1);border-top:1px solid var(--b2)}
 .card-foot .price{font-size:1rem;font-weight:700;color:var(--c1);margin-bottom:var(--s0);line-height:1}
-.card-act{display:flex;gap:var(--s0);align-items:center}
+.card-act{display:flex;gap:var(--s0);align-items:center; flex-wrap: wrap;} /* Allow buttons to wrap */
 .card-live .card-act{flex-direction:column;align-items:stretch;gap:var(--s0)}
 .card-live .card-act select{width:100%}
-.card-act select,.card-act .btn{border:1px solid var(--bs);border-radius:4px;font-size:.75rem;background-color:var(--b1);height:34px}
+.card-act select,.card-act .btn{border:1px solid var(--bs);border-radius:4px;font-size:.75rem;background-color:var(--b1);height:34px; flex: 1 1 auto;} /* Allow buttons to take space */
 .card-act select{padding:var(--s0) var(--s1);flex-grow:1}
 .card-act .btn{flex-shrink:0;padding:var(--s0) .6rem}
 .badge{position:absolute;top:var(--s0);left:var(--s0);font-size:.65rem;font-weight:600;padding:2px var(--s0);border-radius:var(--rad);color:var(--td);z-index:1;text-transform:uppercase;line-height:1; background-color: var(--c2);}
 .badge.udheya-badge { background-color: var(--c3); color: var(--c1d);}
 .badge .en{margin-right:.2em}.badge .ar{margin-left:.2em;font-size:.9em}
-.stock-display { font-size: 0.75rem; color: var(--tm); margin-top: 2px; display: block; }
-.stock-display.bil-inline { display: inline-flex; }
+.stock-display { font-size: 0.75rem; color: var(--tm); margin-top: 2px; display: block; width: 100%; text-align: center;}
+.stock-display.bil-inline { display: inline-flex; width: auto; text-align: left; }
 .stock-display.out-of-stock { color: #dc3545; font-weight: bold; }
 
 .grid2,.prod-grid,.content-grid,.feat-grid{display:grid;gap:var(--s3)}
@@ -115,7 +115,7 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 .logo:hover .en,.logo:hover .ar{color:var(--c2)}
 .nav-main.nav-desk{margin:0 auto}.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0); align-items: center;}
 .nav-main.nav-desk .nav-link{font-size:.9rem;color:var(--tm);font-weight:500;padding:var(--s0) var(--s1);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em}
-.nav-main.nav-desk .nav-link.as-button { background: none; border: none; cursor: pointer; padding: var(--s0); height: 36px; /* Match other links approx */}
+.nav-main.nav-desk .nav-link.as-button { background: none; border: none; cursor: pointer; padding: var(--s0); height: 36px; }
 .nav-main.nav-desk .nav-link:hover,.nav-main.nav-desk .nav-link.active-nav{color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700}
 .nav-main.nav-desk .nav-link.active-nav :is(.en,.ar){color:var(--c1d)}
 .head-extras.desk-extras{display:flex;align-items:center;gap:var(--s1);margin-left:var(--s2)}
@@ -135,9 +135,9 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 .mob-extras{margin-top:var(--s3);padding-top:var(--s2);border-top:1px solid var(--bs);display:flex;flex-direction:column;align-items:center;gap:var(--s2)}
 .mob-extras .curr-sel select{font-size:.9rem;padding:var(--s0) var(--s1)}
 .mob-extras .wa-contact a{font-size:1rem}
-.nav-icon { vertical-align: middle; } /* General for icons */
-.nav-main.nav-desk .nav-link.as-button .nav-icon { margin-right: 0; } /* Icon only for desktop */
-.nav-link-mob.as-button .nav-icon { margin-right: 0.5em; } /* Icon with space if text were present, but fine for icon-only too */
+.nav-icon { vertical-align: middle; } 
+.nav-main.nav-desk .nav-link.as-button .nav-icon { margin-right: 0; } 
+.nav-link-mob.as-button .nav-icon { margin-right: 0.5em; } 
 .cart-count-badge { position: absolute; top: -5px; right: -8px; background-color: var(--c3); color: white; font-size: 0.65rem; font-weight: bold; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; line-height: 1; }
 .nav-link.as-button, .nav-link-mob.as-button { position: relative; }
 
@@ -296,7 +296,6 @@ html[dir=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right;
 .foot-brand-desc p.ar{font-family:var(--fa);direction:rtl;text-align:right;flex-basis:48%}
 .foot-pay{margin-top:var(--s3);padding-bottom:var(--s2)}
 .foot-pay h5{margin-bottom:var(--s1); color: var(--b2);}
-/* .pay-icons-grid removed */
 .foot-div{border-color:rgba(255,255,255,.2);margin:var(--s2) 0 var(--s1)}
 .foot-copy{font-size:.8em;text-align:center;color:var(--b2);opacity:.7;margin-bottom:0}
 .bil-copy{display:inline-flex;justify-content:space-between;align-items:baseline;width:auto;margin-left:var(--s0)}
@@ -364,11 +363,11 @@ html[dir="rtl"] .policy-container ul.modal-list { padding-left: 0; padding-right
 /* Account Page Specifics */
 .order-history-list .card { margin-bottom: var(--s2); }
 .order-history-item .card-b { padding: var(--s2); }
-.order-details-toggle summary { cursor: pointer; padding: var(--s0) 0; font-weight: 500; color: var(--c2); display: list-item; /* Ensures arrow shows */ }
+.order-details-toggle summary { cursor: pointer; padding: var(--s0) 0; font-weight: 500; color: var(--c2); display: list-item; }
 .order-details-toggle summary::marker { content: "▶ "; font-size: 0.8em; }
 .order-details-toggle[open] summary::marker { content: "▼ "; }
 html[dir="rtl"] .order-details-toggle summary::marker { content: "◀ ";}
-html[dir="rtl"] .order-details-toggle[open] summary::marker { content: "▼ ";} /* Check RTL arrow direction logic */
+html[dir="rtl"] .order-details-toggle[open] summary::marker { content: "▼ ";}
 .order-details-toggle summary:hover { color: var(--c1d); }
 .order-items-list { padding-left: var(--s2); margin-top: var(--s0); font-size: 0.9em; }
 html[dir="rtl"] .order-items-list { padding-left: 0; padding-right: var(--s2); }
@@ -486,7 +485,7 @@ html[dir="rtl"] .order-items-list { padding-left: 0; padding-right: var(--s2); }
     .cart-item-subtotal { margin-left: auto; flex-basis: auto; min-width: 80px; }
     .cart-item-remove { margin-left: var(--s1); }
 
-    .modal { width: 95vw; max-width: var(--modal-max-width); } 
+    .modal { width: 95vw; max-width: calc(var(--modal-max-width) - 40px); } 
     .udheya-config-modal { max-width: var(--udheya-config-modal-width); }
     .modal-content { padding: var(--s2); }
 
