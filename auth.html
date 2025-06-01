@@ -133,7 +133,7 @@
                     
                     <template x-if="statRes?.line_items && statRes.line_items.length > 0">
                         <h5 class="bil-spread modal-section-title" style="margin-top:var(--s1);"><span class="en">Items Ordered</span><span class="ar">العناصر المطلوبة</span></h5>
-                        <template x-for="item in statRes.line_items" :key="item.item_key_pb"> 
+                        <template x-for="item in statRes.line_items" :key="item.item_key_pb + '-status'"> 
                              <div class="sum-item bil-row">
                                 <div class="en"><span x-text="item.name_en + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '')"></span></div>
                                 <div class="ar"><span x-text="item.name_ar + (item.quantity > 1 ? ' (×' + item.quantity + ')' : '')"></span></div>
@@ -295,80 +295,82 @@
 </header>
 
 <main>
-    <section class="sec main-page-sec" id="auth-page">
+    <section class="sec main-page-sec" id="account-page">
         <div class="c">
-            <div class="sec-head tc">
-                <h1 class="bil-spread" x-ref="authTitle" tabindex="-1">
-                    <span class="en" x-text="auth.view === 'login' ? 'Login to Your Account' : 'Create New Account'"></span>
-                    <span class="ar" x-text="auth.view === 'login' ? 'تسجيل الدخول إلى حسابك' : 'إنشاء حساب جديد'"></span>
+            <div class="sec-head">
+                <h1 class="bil-spread" x-ref="accountTitle" tabindex="-1">
+                    <span class="en">My Account</span>
+                    <span class="ar">حسابي</span>
                 </h1>
             </div>
 
-            <div class="auth-form-container card form-panel">
-                <div class="card-b">
-                    <!-- Login Form -->
-                    <form id="login-form" @submit.prevent="loginUser()" x-show="auth.view === 'login'" novalidate>
-                        <div class="err-msg tc" x-show="errs.auth_login" x-text="errs.auth_login ? (currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en) : ''" role="alert" aria-live="assertive"></div>
-                         <div class="succ-msg tc" x-show="errs.auth_form_success && auth.view === 'login'"> 
-                            <span class="en" x-text="errs.auth_form_success ? errs.auth_form_success.en : ''"></span>
-                            <span class="ar" x-text="errs.auth_form_success ? errs.auth_form_success.ar : ''"></span>
-                        </div>
-                        <div class="fg">
-                            <label for="loginEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
-                            <input id="loginEmail" type="email" class="input" x-model="auth.email" @input="clrErr('auth_login'); clrErr('auth_email');" :aria-invalid="errs.auth_email ? 'true' : 'false'" required autocomplete="email">
-                            <div class="err-msg" x-show="errs.auth_email" x-text="errs.auth_email ? (currLang === 'ar' ? errs.auth_email.ar : errs.auth_email.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="loginPassword" class="bil-spread lbl-req"><span class="en">Password *</span><span class="ar">كلمة المرور *</span></label>
-                            <input id="loginPassword" type="password" class="input" x-model="auth.password" @input="clrErr('auth_login'); clrErr('auth_password');" :aria-invalid="errs.auth_password ? 'true' : 'false'" required autocomplete="current-password">
-                             <div class="err-msg" x-show="errs.auth_password" x-text="errs.auth_password ? (currLang === 'ar' ? errs.auth_password.ar : errs.auth_password.en) : ''"></div>
-                        </div>
-                        <div class="form-act">
-                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.auth">
-                                <span x-show="!load.auth"><span class="en">Login</span><span class="ar">دخول</span></span>
-                                <span x-show="load.auth" aria-live="polite"><span class="en">Logging in...</span><span class="ar">جاري الدخول...</span></span>
-                            </button>
-                        </div>
-                        <p class="auth-toggle-link bil-row">
-                            <span class="en">Don't have an account? <button type="button" @click="auth.view = 'register'; clrAllErrs(); auth.email=''; auth.password='';" class="link-style">Register here</button>.</span>
-                            <span class="ar">ليس لديك حساب؟ <button type="button" @click="auth.view = 'register'; clrAllErrs(); auth.email=''; auth.password='';" class="link-style">سجل هنا</button>.</span>
-                        </p>
-                    </form>
+            <div x-show="!currentUser && !load.auth" class="empty-state tc">
+                <p class="bil-row section-intro"><span class="en">Please <a href="auth.html" @click.prevent="navigateToOrScroll('auth.html')" class="link-style">login or register</a> to view your account details and order history.</span><span class="ar">يرجى <a href="auth.html" @click.prevent="navigateToOrScroll('auth.html')" class="link-style">تسجيل الدخول أو إنشاء حساب</a> لعرض تفاصيل حسابك وسجل الطلبات.</span></p>
+            </div>
+            
+            <div x-show="currentUser">
+                <div class="card form-panel">
+                    <div class="card-b">
+                        <h2 class="form-subh bil-spread"><span class="en">Account Information</span><span class="ar">معلومات الحساب</span></h2>
+                        <div class="sum-item bil-row"><span class="en"><strong>Email:</strong></span><span class="ar"><strong>البريد الإلكتروني:</strong></span> <span x-text="currentUser.email"></span></div>
+                        <div class="sum-item bil-row"><span class="en"><strong>Name:</strong></span><span class="ar"><strong>الاسم:</strong></span> <span x-text="currentUser.name || 'Not set'"></span></div>
+                        <button @click="logoutUser()" class="btn bp-alt" style="margin-top: var(--s2);"><span class="en">Logout</span><span class="ar">تسجيل الخروج</span></button>
+                    </div>
+                </div>
 
-                    <!-- Registration Form -->
-                    <form id="register-form" @submit.prevent="registerUser()" x-show="auth.view === 'register'" novalidate>
-                        <div class="err-msg tc" x-show="errs.auth_register" x-text="errs.auth_register ? (currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en) : ''" role="alert" aria-live="assertive"></div>
-                         <div class="fg">
-                            <label for="registerName" class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
-                            <input id="registerName" type="text" class="input" x-model="auth.name" @input="clrErr('auth_name')" :aria-invalid="errs.auth_name ? 'true' : 'false'" required autocomplete="name">
-                            <div class="err-msg" x-show="errs.auth_name" x-text="errs.auth_name ? (currLang === 'ar' ? errs.auth_name.ar : errs.auth_name.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="registerEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
-                            <input id="registerEmail" type="email" class="input" x-model="auth.email" @input="clrErr('auth_email')" :aria-invalid="errs.auth_email ? 'true' : 'false'" required autocomplete="email">
-                            <div class="err-msg" x-show="errs.auth_email" x-text="errs.auth_email ? (currLang === 'ar' ? errs.auth_email.ar : errs.auth_email.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="registerPassword" class="bil-spread lbl-req"><span class="en">Password (min 8 characters) *</span><span class="ar">كلمة المرور (٨ أحرف على الأقل) *</span></label>
-                            <input id="registerPassword" type="password" class="input" x-model="auth.password" @input="clrErr('auth_password')" :aria-invalid="errs.auth_password ? 'true' : 'false'" required autocomplete="new-password">
-                            <div class="err-msg" x-show="errs.auth_password" x-text="errs.auth_password ? (currLang === 'ar' ? errs.auth_password.ar : errs.auth_password.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="registerPasswordConfirm" class="bil-spread lbl-req"><span class="en">Confirm Password *</span><span class="ar">تأكيد كلمة المرور *</span></label>
-                            <input id="registerPasswordConfirm" type="password" class="input" x-model="auth.passwordConfirm" @input="clrErr('auth_passwordConfirm')" :aria-invalid="errs.auth_passwordConfirm ? 'true' : 'false'" required autocomplete="new-password">
-                            <div class="err-msg" x-show="errs.auth_passwordConfirm" x-text="errs.auth_passwordConfirm ? (currLang === 'ar' ? errs.auth_passwordConfirm.ar : errs.auth_passwordConfirm.en) : ''"></div>
-                        </div>
-                        <div class="form-act">
-                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.auth">
-                                <span x-show="!load.auth"><span class="en">Register</span><span class="ar">تسجيل</span></span>
-                                <span x-show="load.auth" aria-live="polite"><span class="en">Registering...</span><span class="ar">جاري التسجيل...</span></span>
+                <div class="card form-panel" style="margin-top: var(--s3);">
+                    <div class="card-b">
+                        <h2 class="form-subh bil-spread"><span class="en">Order History</span><span class="ar">سجل الطلبات</span></h2>
+                        <div x-show="load.orders" class="load-text tc" aria-live="polite"><span class="en">Loading your orders...</span><span class="ar">جاري تحميل طلباتك...</span></div>
+                        
+                        <div x-show="!load.orders && userOrders.length === 0" class="empty-state tc">
+                            <p class="bil-row section-intro"><span class="en">You have not placed any orders yet.</span><span class="ar">لم تقم بأي طلبات بعد.</span></p>
+                            <button @click="navigateToOrScroll('udheya.html')" class="btn bp" style="margin-top: var(--s1);">
+                                <span class="en">Start Shopping</span><span class="ar">ابدأ التسوق</span>
                             </button>
                         </div>
-                        <p class="auth-toggle-link bil-row">
-                            <span class="en">Already have an account? <button type="button" @click="auth.view = 'login'; clrAllErrs(); auth.password=''; auth.passwordConfirm='';" class="link-style">Login here</button>.</span>
-                            <span class="ar">لديك حساب بالفعل؟ <button type="button" @click="auth.view = 'login'; clrAllErrs(); auth.password=''; auth.passwordConfirm='';" class="link-style">سجل الدخول هنا</button>.</span>
-                        </p>
-                    </form>
+
+                        <div x-show="!load.orders && userOrders.length > 0" class="order-history-list">
+                            <template x-for="order in userOrders" :key="order.id">
+                                <div class="order-history-item card">
+                                    <div class="card-b">
+                                        <div class="sum-item bil-row">
+                                            <div><strong class="en">Order ID:</strong><strong class="ar">رقم الطلب:</strong></div>
+                                            <div><span x-text="order.order_id_text"></span></div>
+                                        </div>
+                                        <div class="sum-item bil-row">
+                                            <div><strong class="en">Date:</strong><strong class="ar">التاريخ:</strong></div>
+                                            <div><span class="en" x-text="new Date(order.created).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })"></span><span class="ar" x-text="new Date(order.created).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' })"></span></div>
+                                        </div>
+                                        <div class="sum-item bil-row">
+                                             <div><strong class="en">Total:</strong><strong class="ar">الإجمالي:</strong></div>
+                                             <div><span x-text="fmtPrice(order.total_amount_due_egp)"></span></div>
+                                        </div>
+                                        <div class="sum-item bil-row">
+                                            <div><strong class="en">Status:</strong><strong class="ar">الحالة:</strong></div>
+                                            <div><span class="stat-hl" x-text="order.order_status"></span></div>
+                                        </div>
+                                        <div class="sum-item bil-row">
+                                            <div><strong class="en">Payment:</strong><strong class="ar">الدفع:</strong></div>
+                                            <div><span x-text="order.payment_status"></span></div>
+                                        </div>
+                                        <details class="order-details-toggle">
+                                            <summary class="bil-spread"><span class="en">View Items</span><span class="ar">عرض العناصر</span></summary>
+                                            <ul class="order-items-list">
+                                                <template x-for="item in order.line_items" :key="item.item_key_pb + '-' + order.id"> 
+                                                    <li class="bil-row">
+                                                        <span class="en" x-text="item.name_en + (item.quantity > 1 ? ` (x${item.quantity})` : '')"></span>
+                                                        <span class="ar" x-text="item.name_ar + (item.quantity > 1 ? ` (×${item.quantity})` : '')"></span>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </details>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                         <div class="err-msg tc" x-show="errs.orders_fetch" x-text="errs.orders_fetch ? (currLang === 'ar' ? errs.orders_fetch.ar : errs.orders_fetch.en) : ''"></div>
+                    </div>
                 </div>
             </div>
         </div>
