@@ -14,7 +14,7 @@ document.addEventListener('alpine:init', () => {
         itemKey: null, niyyahNames: "", serviceOption: "standard_service",
         sacrificeDay: "day1_10_dhul_hijjah", viewingPreference: "none",
         distribution: { choice: "me", splitOption: "", customSplitText: "" },
-        isBuyNowIntent: false // Added for Buy Now flow
+        isBuyNowIntent: false 
     };
 
     const payMethOptsList = [
@@ -64,7 +64,7 @@ document.addEventListener('alpine:init', () => {
         addedToCartMsg: { text: null, isError: false, pageContext: '' },
         
         statRes: null, statNotFound: false, lookupOrderID: "",
-        orderConf: { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "" },
+        orderConf: { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "", customerEmail: "" },
         
         currentUser: null, 
         auth: { email: "", password: "", passwordConfirm: "", name: "" , view: 'login' }, 
@@ -196,13 +196,13 @@ document.addEventListener('alpine:init', () => {
             this.saveCartToStorage(); this.calculateFinalTotal(); 
             this.addedToCartMsg = { text: { en: `${productVariant.nameENSpec} added to cart.`, ar: `تمت إضافة ${productVariant.nameARSpec} إلى السلة.` }, isError: false, pageContext: this.currentProductPage };
             this.load.addingToCart = null;
-            if (this.isUdheyaConfigModalOpen && !udheyaConfigDetails?.isBuyNowIntent) this.closeUdheyaConfiguration(); // Only close if not buy now flow from modal
+            if (this.isUdheyaConfigModalOpen && udheyaConfigDetails && !udheyaConfigDetails.isBuyNowIntent) this.closeUdheyaConfiguration(); 
             setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000);
         },
         async buyNow(productVariant, udheyaConfigDetails = null) {
             this.load.addingToCart = productVariant.itemKey; 
             this.addedToCartMsg = { text: null, isError: false, pageContext: this.currentProductPage }; 
-            this.clrAllErrs();
+            this.clrAllErrs(); 
 
             if (!productVariant || !productVariant.itemKey || productVariant.stock <= 0) {
                 this.addedToCartMsg = { text: { en: 'This item is out of stock.', ar: 'هذا المنتج غير متوفر.' }, isError: true, pageContext: this.currentProductPage };
@@ -350,9 +350,16 @@ document.addEventListener('alpine:init', () => {
             if (!regValid) { this.load.auth = false; return;}
 
             try { const data = {email: this.auth.email, password: this.auth.password, passwordConfirm: this.auth.passwordConfirm, name: this.auth.name, emailVisibility: true }; 
-                await this.pb.collection('users').create(data); 
+                const newUser = await this.pb.collection('users').create(data); 
+                
+                const usersCollection = await this.pb.collections.getOne("_pb_users_auth_"); // Re-fetch to be sure
+                if (usersCollection && usersCollection.options && usersCollection.options.requireEmailVerification) {
+                    await this.pb.collection('users').requestVerification(this.auth.email);
+                     this.errs.auth_form_success = {en: 'Registration successful! Please check your email to verify your account, then login.', ar: 'تم التسجيل بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل حسابك، ثم تسجيل الدخول.'};
+                } else {
+                    this.errs.auth_form_success = {en: 'Registration successful! Please login.', ar: 'تم التسجيل بنجاح! يرجى تسجيل الدخول.'};
+                }
                 this.load.auth = false; 
-                this.errs.auth_form_success = {en: 'Registration successful! Please login.', ar: 'تم التسجيل بنجاح! يرجى تسجيل الدخول.'};
                 this.auth.view = 'login'; this.auth.password = ""; this.auth.passwordConfirm = "";
             } 
             catch (e) { this.load.auth = false; if (e.data?.data) { Object.keys(e.data.data).forEach(key => { this.setErr(`auth_${key}`, {en: e.data.data[key].message, ar: e.data.data[key].message}); }); } else { this.setErr('auth_register', { en: e.data?.message || 'Registration failed. This email might already be in use.', ar: e.data?.message || 'فشل التسجيل. قد يكون هذا البريد الإلكتروني مستخدمًا بالفعل.' }); } console.error("Register Error:", e.data || e); }
@@ -386,9 +393,11 @@ document.addEventListener('alpine:init', () => {
                     }
                     localStorage.removeItem('sheepLandBuyNowItem'); 
                 } catch (e) { console.error("Error loading Buy Now item from localStorage", e); }
+            } else {
+                // If not buyNow, ensure cart is loaded from storage (might have been cleared by a previous buyNow flow if user navigated back)
+                this.loadCartFromStorage();
             }
-            // if not buyNow, cartItems is already loaded by initApp
-
+            
             if (this.cartItems.length === 0 && !this.orderConf.show) { 
                 this.navigateToOrScroll('udheya.html'); 
                 return; 
@@ -423,10 +432,20 @@ document.addEventListener('alpine:init', () => {
         },
         async processOrder() { 
             if (!this.validateCheckoutForm()) return; this.load.checkout = true; this.usrApiErr = ""; this.apiErr = "";
-            const lineItems = this.cartItems.map(item => { let lineItem = { item_key_pb: item.varIdPb, product_category: item.product_category, name_en: item.nameENSpec, name_ar: item.nameARSpec, quantity: item.quantity, price_egp_each: item.priceEGP, udheya_details: null }; if (item.product_category === 'udheya' && item.udheya_details) { lineItem.udheya_details = item.udheya_details; } return lineItem; });
+            const lineItemsForOrder = this.cartItems.map(item => { let lineItem = { item_key_pb: item.varIdPb, product_category: item.product_category, name_en: item.nameENSpec, name_ar: item.nameARSpec, quantity: item.quantity, price_egp_each: item.priceEGP, udheya_details: null }; if (item.product_category === 'udheya' && item.udheya_details) { lineItem.udheya_details = item.udheya_details; } return lineItem; });
             let deliveryOpt = "self_pickup_or_internal_distribution"; if (this.deliveryNeededForCart()) { deliveryOpt = "home_delivery"; } else { this.checkoutForm.delivery_city_id = ""; this.checkoutForm.delivery_address = ""; this.checkoutForm.delivery_instructions = ""; this.checkoutForm.delivery_time_slot = ""; this.checkoutForm.delivery_fee_egp = 0; } this.calculateFinalTotal();
-            const orderPayload = { order_id_text: `${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`, user: this.checkoutForm.user_id || null, customer_name: this.checkoutForm.customer_name, customer_phone: this.checkoutForm.customer_phone, customer_email: this.checkoutForm.customer_email, line_items: lineItems, delivery_option: deliveryOpt, delivery_city_id: this.checkoutForm.delivery_city_id, delivery_address: this.checkoutForm.delivery_address, delivery_instructions: this.checkoutForm.delivery_instructions, delivery_time_slot: this.checkoutForm.delivery_time_slot, payment_method: this.checkoutForm.payment_method, terms_agreed: this.checkoutForm.terms_agreed, selected_display_currency: this.curr, subtotal_amount_egp: this.calculateCartSubtotal(), total_udheya_service_fee_egp: this.checkoutForm.total_service_fee_egp, delivery_fee_applied_egp: this.checkoutForm.delivery_fee_egp, online_payment_fee_applied_egp: this.checkoutForm.online_payment_fee_applied_egp, total_amount_due_egp: this.checkoutForm.final_total_egp, };
-            try { const createdOrder = await this.pb.collection('orders').create(orderPayload); this.orderConf.orderID = createdOrder.order_id_text; this.orderConf.totalEgp = createdOrder.total_amount_due_egp; this.orderConf.items = createdOrder.line_items.map(li => ({...li})); this.orderConf.customerEmail = createdOrder.customer_email; this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); this.orderConf.show = true; this.clearCart(); this.checkoutForm = JSON.parse(JSON.stringify(initialCheckoutForm)); this.$nextTick(() => { if(this.$refs.orderConfTitle) this.navigateToOrScroll('#order-conf-sect'); else console.warn("Order conf title ref not found for scroll"); this.focusRef('orderConfTitle'); }); } 
+            const orderPayload = { order_id_text: `${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`, user: this.checkoutForm.user_id || null, customer_name: this.checkoutForm.customer_name, customer_phone: this.checkoutForm.customer_phone, customer_email: this.checkoutForm.customer_email, line_items: lineItemsForOrder, delivery_option: deliveryOpt, delivery_city_id: this.checkoutForm.delivery_city_id, delivery_address: this.checkoutForm.delivery_address, delivery_instructions: this.checkoutForm.delivery_instructions, delivery_time_slot: this.checkoutForm.delivery_time_slot, payment_method: this.checkoutForm.payment_method, terms_agreed: this.checkoutForm.terms_agreed, selected_display_currency: this.curr, subtotal_amount_egp: this.calculateCartSubtotal(), total_udheya_service_fee_egp: this.checkoutForm.total_service_fee_egp, delivery_fee_applied_egp: this.checkoutForm.delivery_fee_egp, online_payment_fee_applied_egp: this.checkoutForm.online_payment_fee_applied_egp, total_amount_due_egp: this.checkoutForm.final_total_egp, };
+            try { const createdOrder = await this.pb.collection('orders').create(orderPayload); this.orderConf.orderID = createdOrder.order_id_text; this.orderConf.totalEgp = createdOrder.total_amount_due_egp; this.orderConf.items = createdOrder.line_items.map(li => ({...li})); this.orderConf.customerEmail = createdOrder.customer_email; this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); this.orderConf.show = true; 
+                const urlParams = new URLSearchParams(window.location.search);
+                const isBuyNow = urlParams.get('buyNow') === 'true';
+                // If it was a Buy Now flow, the cartItems array was temporary.
+                // The actual persistent cart (guest or user) should be cleared if not Buy Now.
+                if (!isBuyNow) { 
+                    this.clearCart(); 
+                }
+                localStorage.removeItem('sheepLandBuyNowItem'); // Always clear this, regardless of flow.
+                this.checkoutForm = JSON.parse(JSON.stringify(initialCheckoutForm)); 
+                this.$nextTick(() => { if(this.$refs.orderConfTitle) this.navigateToOrScroll('#order-conf-sect'); else console.warn("Order conf title ref not found for scroll"); this.focusRef('orderConfTitle'); }); } 
             catch (e) { this.apiErr = String(e.data?.message || e.message || "Order placement failed."); let userFriendlyError = "An unexpected error occurred. Please check your selections or contact support."; if (e.data && typeof e.data === 'object') { if (e.data.message && e.data.message.toLowerCase().includes("out of stock")) { userFriendlyError = "One or more items in your cart are now out of stock. Please review your cart."; this.usrApiErr = userFriendlyError; await this.initApp(); this.openCart(); } else if (e.data.data && Object.keys(e.data.data).length > 0) { Object.keys(e.data.data).forEach(serverFieldKey => { const clientFieldKey = serverFieldKey; if(this.checkoutForm.hasOwnProperty(clientFieldKey) || clientFieldKey.startsWith('line_items.')) { this.setErr(clientFieldKey, {en: e.data.data[serverFieldKey].message, ar: e.data.data[serverFieldKey].message }, false); }}); userFriendlyError = "Please correct the highlighted errors."; this.usrApiErr = userFriendlyError; } else if (e.data.message) { this.usrApiErr = e.data.message; } } else { this.usrApiErr = userFriendlyError; } if (this.apiErr && !this.orderConf.show && document.querySelector('.err-ind')) { this.$nextTick(() => this.navigateToOrScroll('.err-ind')); }} 
             finally { this.load.checkout = false; }
         },
