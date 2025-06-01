@@ -343,6 +343,7 @@
                 <li>
                     <button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button" title="Order Status" aria-label="Order Status">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3h-3V2zM15 20H9v-2h6v2zm0-4H9v-2h6v2zm-4.5-4L9 10.5l1.5-1.5L12 10.5l1.5-1.5L15 10.5V5h1.5v15H18V5h1.5v15H21V2l-1.5 1.5z"/></svg>
+                         <span class="bil-inline"><span class="en">Order Status</span><span class="ar">حالة الطلب</span></span>
                     </button>
                 </li>
                  <template x-if="!currentUser">
@@ -363,6 +364,7 @@
                     <button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button" title="Shopping Cart" aria-label="Shopping Cart">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0020.01 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6z"/></svg>
                         <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
+                         <span class="bil-inline"><span class="en">Cart</span><span class="ar">السلة</span></span>
                     </button>
                 </li>
             </ul>
