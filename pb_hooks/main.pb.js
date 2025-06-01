@@ -1,5 +1,3 @@
-// main.pb.js
-
 /// <reference path="../pb_data/types.d.ts" />
 
 const registerHook = (collection, event, handler) => {
