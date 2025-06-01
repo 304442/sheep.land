@@ -133,7 +133,7 @@
                     
                     <template x-if="statRes?.line_items && statRes.line_items.length > 0">
                         <h5 class="bil-spread modal-section-title" style="margin-top:var(--s1);"><span class="en">Items Ordered</span><span class="ar">العناصر المطلوبة</span></h5>
-                        <template x-for="item in statRes.line_items" :key="item.item_key_pb"> 
+                        <template x-for="item in statRes.line_items" :key="item.item_key_pb + '-status'"> 
                              <div class="sum-item bil-row">
                                 <div class="en"><span x-text="item.name_en + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '')"></span></div>
                                 <div class="ar"><span x-text="item.name_ar + (item.quantity > 1 ? ' (×' + item.quantity + ')' : '')"></span></div>
@@ -157,6 +157,7 @@
     </div>
 </div>
 <!-- End Order Status Modal -->
+
 
 <header class="site-head">
     <div class="c nav-cont">
@@ -295,82 +296,71 @@
 </header>
 
 <main>
-    <section class="sec main-page-sec" id="auth-page">
+    <section class="sec main-page-sec" id="meat-page">
         <div class="c">
-            <div class="sec-head tc">
-                <h1 class="bil-spread" x-ref="authTitle" tabindex="-1">
-                    <span class="en" x-text="auth.view === 'login' ? 'Login to Your Account' : 'Create New Account'"></span>
-                    <span class="ar" x-text="auth.view === 'login' ? 'تسجيل الدخول إلى حسابك' : 'إنشاء حساب جديد'"></span>
+            <div class="sec-head">
+                <h1 class="bil-spread" tabindex="-1">
+                    <span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span>
                 </h1>
             </div>
-
-            <div class="auth-form-container card form-panel">
-                <div class="card-b">
-                    <!-- Login Form -->
-                    <form id="login-form" @submit.prevent="loginUser()" x-show="auth.view === 'login'" novalidate>
-                        <div class="err-msg tc" x-show="errs.auth_login" x-text="errs.auth_login ? (currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en) : ''" role="alert" aria-live="assertive"></div>
-                         <div class="succ-msg tc" x-show="errs.auth_form_success && auth.view === 'login'"> <!-- For showing success after registration -->
-                            <span class="en" x-text="errs.auth_form_success ? errs.auth_form_success.en : ''"></span>
-                            <span class="ar" x-text="errs.auth_form_success ? errs.auth_form_success.ar : ''"></span>
+            <p class="bil-row section-intro">
+                <span class="en">Choose from our selection of fresh, high-quality meat cuts, expertly prepared from our farm-raised livestock. Perfect for your daily meals and special occasions.</span>
+                <span class="ar">اختر من مجموعتنا المختارة من قطعيات اللحوم الطازجة عالية الجودة، والمعدة بخبرة من مواشينا المرباة في المزرعة. مثالية لوجباتك اليومية ومناسباتك الخاصة.</span>
+            </p>
+            <div x-show="prodOpts.meat_cuts && prodOpts.meat_cuts.length > 0" class="prod-grid grid2">
+                 <template x-for="productType in prodOpts.meat_cuts" :key="productType.valKey + '-mc'">
+                    <template x-for="item in productType.wps" :key="item.itemKey + '-mc-item'">
+                        <div class="card card-live">
+                            <div class="card-img">
+                                <img :src="'images/' + (productType.valKey.includes('lamb') ? 'lamb' : (productType.valKey.includes('beef') ? 'beef' : productType.valKey)) + '-cuts.jpg'" :alt="item.nameENSpec" loading="lazy">
+                                <div class="badge bil-inline"><span class="en">MEAT</span><span class="ar">لحوم</span></div>
+                            </div>
+                            <div class="card-b">
+                                <div class="card-content">
+                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
+                                    <div class="bil-row card-p-row">
+                                        <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
+                                        <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
+                                    </div>
+                                </div>
+                                <div class="card-foot">
+                                    <div class="price bil-row">
+                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP) + (item.weight_range_text_en && item.weight_range_text_en.toLowerCase().includes('kg') && !item.weight_range_text_en.toLowerCase().includes('per') ? '/kg' : '')"></strong></span>
+                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP) + (item.weight_range_text_ar && item.weight_range_text_ar.toLowerCase().includes('كجم') && !item.weight_range_text_ar.toLowerCase().includes('لكل') ? '/كجم' : '')"></strong></span>
+                                    </div>
+                                     <div class="card-act">
+                                        <button type="button" @click="addItemToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
+                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
+                                            <span x-show="load.addingToCart === item.itemKey && !tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
+                                        </button>
+                                        <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
+                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
+                                            <span x-show="load.addingToCart === item.itemKey && tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
+                                        </button>
+                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
+                                            <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
+                                            <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="fg">
-                            <label for="loginEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
-                            <input id="loginEmail" type="email" class="input" x-model="auth.email" @input="clrErr('auth_login'); clrErr('auth_email');" :aria-invalid="errs.auth_email ? 'true' : 'false'" required autocomplete="email">
-                            <div class="err-msg" x-show="errs.auth_email" x-text="errs.auth_email ? (currLang === 'ar' ? errs.auth_email.ar : errs.auth_email.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="loginPassword" class="bil-spread lbl-req"><span class="en">Password *</span><span class="ar">كلمة المرور *</span></label>
-                            <input id="loginPassword" type="password" class="input" x-model="auth.password" @input="clrErr('auth_login'); clrErr('auth_password');" :aria-invalid="errs.auth_password ? 'true' : 'false'" required autocomplete="current-password">
-                             <div class="err-msg" x-show="errs.auth_password" x-text="errs.auth_password ? (currLang === 'ar' ? errs.auth_password.ar : errs.auth_password.en) : ''"></div>
-                        </div>
-                        <div class="form-act">
-                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.auth">
-                                <span x-show="!load.auth"><span class="en">Login</span><span class="ar">دخول</span></span>
-                                <span x-show="load.auth" aria-live="polite"><span class="en">Logging in...</span><span class="ar">جاري الدخول...</span></span>
-                            </button>
-                        </div>
-                        <p class="auth-toggle-link bil-row">
-                            <span class="en">Don't have an account? <button type="button" @click="auth.view = 'register'; clrAllErrs(); auth.email=''; auth.password='';" class="link-style">Register here</button>.</span>
-                            <span class="ar">ليس لديك حساب؟ <button type="button" @click="auth.view = 'register'; clrAllErrs(); auth.email=''; auth.password='';" class="link-style">سجل هنا</button>.</span>
-                        </p>
-                    </form>
-
-                    <!-- Registration Form -->
-                    <form id="register-form" @submit.prevent="registerUser()" x-show="auth.view === 'register'" novalidate>
-                        <div class="err-msg tc" x-show="errs.auth_register" x-text="errs.auth_register ? (currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en) : ''" role="alert" aria-live="assertive"></div>
-                         <div class="fg">
-                            <label for="registerName" class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
-                            <input id="registerName" type="text" class="input" x-model="auth.name" @input="clrErr('auth_name')" :aria-invalid="errs.auth_name ? 'true' : 'false'" required autocomplete="name">
-                            <div class="err-msg" x-show="errs.auth_name" x-text="errs.auth_name ? (currLang === 'ar' ? errs.auth_name.ar : errs.auth_name.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="registerEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
-                            <input id="registerEmail" type="email" class="input" x-model="auth.email" @input="clrErr('auth_email')" :aria-invalid="errs.auth_email ? 'true' : 'false'" required autocomplete="email">
-                            <div class="err-msg" x-show="errs.auth_email" x-text="errs.auth_email ? (currLang === 'ar' ? errs.auth_email.ar : errs.auth_email.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="registerPassword" class="bil-spread lbl-req"><span class="en">Password (min 8 characters) *</span><span class="ar">كلمة المرور (٨ أحرف على الأقل) *</span></label>
-                            <input id="registerPassword" type="password" class="input" x-model="auth.password" @input="clrErr('auth_password')" :aria-invalid="errs.auth_password ? 'true' : 'false'" required autocomplete="new-password">
-                            <div class="err-msg" x-show="errs.auth_password" x-text="errs.auth_password ? (currLang === 'ar' ? errs.auth_password.ar : errs.auth_password.en) : ''"></div>
-                        </div>
-                        <div class="fg">
-                            <label for="registerPasswordConfirm" class="bil-spread lbl-req"><span class="en">Confirm Password *</span><span class="ar">تأكيد كلمة المرور *</span></label>
-                            <input id="registerPasswordConfirm" type="password" class="input" x-model="auth.passwordConfirm" @input="clrErr('auth_passwordConfirm')" :aria-invalid="errs.auth_passwordConfirm ? 'true' : 'false'" required autocomplete="new-password">
-                            <div class="err-msg" x-show="errs.auth_passwordConfirm" x-text="errs.auth_passwordConfirm ? (currLang === 'ar' ? errs.auth_passwordConfirm.ar : errs.auth_passwordConfirm.en) : ''"></div>
-                        </div>
-                        <div class="form-act">
-                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.auth">
-                                <span x-show="!load.auth"><span class="en">Register</span><span class="ar">تسجيل</span></span>
-                                <span x-show="load.auth" aria-live="polite"><span class="en">Registering...</span><span class="ar">جاري التسجيل...</span></span>
-                            </button>
-                        </div>
-                        <p class="auth-toggle-link bil-row">
-                            <span class="en">Already have an account? <button type="button" @click="auth.view = 'login'; clrAllErrs(); auth.password=''; auth.passwordConfirm='';" class="link-style">Login here</button>.</span>
-                            <span class="ar">لديك حساب بالفعل؟ <button type="button" @click="auth.view = 'login'; clrAllErrs(); auth.password=''; auth.passwordConfirm='';" class="link-style">سجل الدخول هنا</button>.</span>
-                        </p>
-                    </form>
-                </div>
+                    </template>
+                 </template>
             </div>
+            <div class="empty-state tc" x-show="(!prodOpts.meat_cuts || prodOpts.meat_cuts.length === 0) && !load.init">
+                <p class="bil-row">
+                    <span class="en" style="flex-basis: 100%;">Our fresh meat selection is currently being updated. Please check back shortly for delicious options!</span>
+                    <span class="ar" style="flex-basis: 100%;">يتم تحديث تشكيلة اللحوم الطازجة لدينا حاليًا. يرجى التحقق مرة أخرى قريبًا للحصول على خيارات لذيذة!</span>
+                </p>
+                 <button @click="navigateToOrScroll('index.html')" class="btn bp btn-sm bil-inline" style="margin-top: var(--s1);">
+                    <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
+                </button>
+            </div>
+            <p class="f-note bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === 'meat'" :class="addedToCartMsg.isError ? 'err-msg' : 'succ-msg'" style="margin-top:var(--s2); justify-content: center;">
+                <span class="en" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].en : (addedToCartMsg.text.en || addedToCartMsg.text) ) : (addedToCartMsg.text.en || addedToCartMsg.text)"></span>
+                <span class="ar" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].ar : (addedToCartMsg.text.ar || addedToCartMsg.text) ) : (addedToCartMsg.text.ar || addedToCartMsg.text)"></span>
+            </p>
         </div>
     </section>
 </main>
@@ -379,8 +369,8 @@
     <div class="c">
         <div class="foot-grid">
             <div class="bil-row foot-brand-desc">
-                <p class="en">Your full-service Egyptian team, committed to meeting your needs with speed and quality, sparing you market visits.</p>
-                <p class="ar">فريق متكامل لتلبية احتياجاتك بأسرع وقت وأفضل جودة، ونكفيك عناء الذهاب للسوق.</p>
+                <p class="en">Your trusted partner for premium, Sharia-compliant livestock and meat, delivered with care and tradition.</p>
+                <p class="ar">شريكك الموثوق للمواشي واللحوم الفاخرة المتوافقة مع الشريعة، نوصلها بعناية وأصالة.</p>
             </div>
         </div>
         <div class="foot-pay tc">
