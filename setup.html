@@ -18,6 +18,7 @@
         .li{color:cyan;} /* info */
         .lw{color:yellow;} /* warning */
         .ld{color:gray;} /* debug / data */
+        #out pre { margin-top: 5px; padding: 5px; background-color: #333; border-radius: 3px; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -41,22 +42,26 @@
     const log = (message, type = 'i', data = null) => {
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
         const p = document.createElement('p');
-        p.className = `l${type[0].toLowerCase()}`; // Ensure lowercase for class
+        p.className = `l${type[0].toLowerCase()}`;
         let logMessage = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
         if (data) {
-            logMessage += `\n<pre class="ld">${JSON.stringify(data, null, 2).replace(/</g, '<').replace(/>/g, '>')}</pre>`;
+            // For data, we'll append a preformatted block
+            const pre = document.createElement('pre');
+            pre.className = 'ld'; // debug style for data
+            pre.textContent = JSON.stringify(data, null, 2);
+            logMessage += "\n" + pre.outerHTML; // Add as HTML string
         }
-        p.innerHTML = logMessage;
+        p.innerHTML = logMessage; // Use innerHTML to render the <pre> tag
         outputDiv.appendChild(p);
         outputDiv.scrollTop = outputDiv.scrollHeight;
         
-        const consoleMessage = timestamp + message.replace(/<[^>]*>?/gm, ''); // Strip HTML for console
+        const consoleMessage = timestamp + message.replace(/<[^>]*>?/gm, '');
         if (type === 'e') console.error(consoleMessage, data || '');
         else if (type === 'w') console.warn(consoleMessage, data || '');
         else if (type === 'd') console.debug(consoleMessage, data || '');
         else console.log(consoleMessage, data || '');
     };
-    
+
     const defaultRefundPolicyHTMLForSeed = `
         <div class="bil-row">
             <p class="en">Welcome to Sheep Land. We strive to provide the best quality Udheya and livestock services. Please read our policy carefully.</p>
@@ -95,29 +100,29 @@
             system: false,
             listRule: "@everyone",
             viewRule: "@everyone",
-            createRule: null,
-            updateRule: "@request.auth.id != '' && @request.auth.verified = true",
-            deleteRule: null,
+            createRule: null, // Should not be creatable by public
+            updateRule: "@request.auth.id != '' && @request.auth.verified = true", // Admin only
+            deleteRule: null, // Admin only
             schema: [ 
-                { name: "xchgRates", type: "json", required: true, presentable: true, options: {} }, 
-                { name: "defCurr", type: "text", required: true, presentable: true, options: {max: 5, min: 3} },
-                { name: "waNumRaw", type: "text", required: false, presentable: true, options: {max: 20} }, 
-                { name: "waNumDisp", type: "text", required: false, presentable: true, options: {max: 30} },
-                { name: "promoEndISO", type: "date", required: false, presentable: true, options: {} }, 
-                { name: "promoDiscPc", type: "number", required: false, presentable: true, options: {min: 0, max: 100} },
-                { name: "promoActive", type: "bool", required: false, presentable: true, options: {default: false} }, 
-                { name: "servFeeEGP", type: "number", required: true, presentable: true, options: {min: 0} },
-                { name: "delAreas", type: "json", required: false, presentable: true, options: {} }, 
-                { name: "payDetails", type: "json", required: false, presentable: true, options: {} },
-                { name: "enable_udheya_section", type: "bool", required: false, presentable: true, options: {default: true}}, 
-                { name: "enable_livestock_section", type: "bool", required: false, presentable: true, options: {default: true} },
-                { name: "enable_meat_section", type: "bool", required: false, presentable: true, options: {default: true} }, 
-                { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, options: {default: true} },
-                { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true, options: {} },
-                { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, options: {min: 0} },
-                { name: "refund_policy_html", type: "text", required: false, presentable: false, options: { editor: true } },
-                { name: "app_email_sender_address", type: "email", required: false, presentable: false, options: {} },
-                { name: "app_email_sender_name", type: "text", required: false, presentable: false, options: {max: 100} }
+                { name: "xchgRates", type: "json", required: true, presentable: true }, 
+                { name: "defCurr", type: "text", required: true, presentable: true, max: 5, min: 3 },
+                { name: "waNumRaw", type: "text", required: false, presentable: true, max: 20 }, 
+                { name: "waNumDisp", type: "text", required: false, presentable: true, max: 30 },
+                { name: "promoEndISO", type: "date", required: false, presentable: true }, 
+                { name: "promoDiscPc", type: "number", required: false, presentable: true, min: 0, max: 100 },
+                { name: "promoActive", type: "bool", required: false, presentable: true, default: false }, 
+                { name: "servFeeEGP", type: "number", required: true, presentable: true, min: 0 },
+                { name: "delAreas", type: "json", required: false, presentable: true }, 
+                { name: "payDetails", type: "json", required: false, presentable: true },
+                { name: "enable_udheya_section", type: "bool", required: false, presentable: true, default: true}, 
+                { name: "enable_livestock_section", type: "bool", required: false, presentable: true, default: true },
+                { name: "enable_meat_section", type: "bool", required: false, presentable: true, default: true }, 
+                { name: "enable_gatherings_section", type: "bool", required: false, presentable: true, default: true },
+                { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true },
+                { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, min: 0 },
+                { name: "refund_policy_html", type: "editor", required: false, presentable: false }, // Use 'editor' for rich text
+                { name: "app_email_sender_address", type: "email", required: false, presentable: false },
+                { name: "app_email_sender_name", type: "text", required: false, presentable: false, max: 100 }
             ]
         },
         {
@@ -130,51 +135,49 @@
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
             schema: [
-                { name: "item_key", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 100, min: 1, pattern: "^[a-z0-9_]+$"} },
-                { name: "product_category", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"]} },
-                { name: "type_key", type: "text", system: false, required: true, presentable: true, options: {max: 50, min: 1, pattern: "^[a-z0-9_]+$"} },
-                { name: "type_name_en", type: "text", system: false, required: true, presentable: true, options: {max: 100, min: 1} }, 
-                { name: "type_name_ar", type: "text", system: false, required: true, presentable: true, options: {max: 100, min: 1} },
-                { name: "type_description_en", type: "text", system: false, required: false, presentable: true, options: {max: 300} }, 
-                { name: "type_description_ar", type: "text", system: false, required: false, presentable: true, options: {max: 300} },
-                { name: "price_per_kg_egp", type: "number", system: false, required: false, presentable: true, options: {min: 0} },
-                { name: "variant_name_en", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
-                { name: "variant_name_ar", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} }, 
-                { name: "weight_range_text_en", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
-                { name: "weight_range_text_ar", type: "text", system: false, required: false, presentable: true, options: {max: 50} }, 
-                { name: "avg_weight_kg", type: "number", system: false, required: false, presentable: true, options: {min: 0} },
-                { name: "base_price_egp", type: "number", system: false, required: true, presentable: true, options: {min: 0} }, 
-                { name: "stock_available_pb", type: "number", system: false, required: true, presentable: true, options: {min: 0, noDecimal: true} },
-                { name: "is_active", type: "bool", system: false, required: false, presentable: true, options: {default: true} }, 
-                { name: "sort_order_type", type: "number", system: false, required: false, presentable: true, options: {min: 0, noDecimal: true} },
-                { name: "sort_order_variant", type: "number", system: false, required: false, presentable: true, options: {min: 0, noDecimal: true} }
+                { name: "item_key", type: "text", required: true, presentable: true, unique: true, max: 100, min: 1, pattern: "^[a-z0-9_]+$" },
+                { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"] },
+                { name: "type_key", type: "text", required: true, presentable: true, max: 50, min: 1, pattern: "^[a-z0-9_]+$" },
+                { name: "type_name_en", type: "text", required: true, presentable: true, max: 100, min: 1 }, 
+                { name: "type_name_ar", type: "text", required: true, presentable: true, max: 100, min: 1 },
+                { name: "type_description_en", type: "text", required: false, presentable: true, max: 300 }, 
+                { name: "type_description_ar", type: "text", required: false, presentable: true, max: 300 },
+                { name: "price_per_kg_egp", type: "number", required: false, presentable: true, min: 0 },
+                { name: "variant_name_en", type: "text", required: true, presentable: true, max: 150, min: 1 },
+                { name: "variant_name_ar", type: "text", required: true, presentable: true, max: 150, min: 1 }, 
+                { name: "weight_range_text_en", type: "text", required: false, presentable: true, max: 50 },
+                { name: "weight_range_text_ar", type: "text", required: false, presentable: true, max: 50 }, 
+                { name: "avg_weight_kg", type: "number", required: false, presentable: true, min: 0 },
+                { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 }, 
+                { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0, noDecimal: true },
+                { name: "is_active", type: "bool", required: false, presentable: true, default: true }, 
+                { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
+                { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true }
             ],
             indexes: [ "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)", "CREATE INDEX `idx_products_category` ON `products` (`product_category`)" ]
         },
-        { // Auth collection (users) - define custom fields, system fields auto-added
-            name: "users", // This will target the existing _pb_users_auth_
+        { 
+            name: "users", // This will update the existing _pb_users_auth_
             type: "auth",
-            system: false, // This is a user-defined representation, PB handles the system nature
-            listRule: "@request.auth.id = id", // Users can list/view their own, admin can view all
+            system: false, 
+            listRule: "@request.auth.id = id", 
             viewRule: "@request.auth.id = id",
-            createRule: "", // Public registration
-            updateRule: "@request.auth.id = id", // Users can update their own
-            deleteRule: "@request.auth.id = id", // Users can delete their own (or null for admin only)
-            options: { // These are options for the auth collection itself
-                emailVisibility: true, // Admin can see emails
-                requireEmailVerification: false, // Set to false for easier testing initially
+            createRule: "", 
+            updateRule: "@request.auth.id = id", 
+            deleteRule: "@request.auth.id = id",
+            options: { 
+                emailVisibility: true, 
+                requireEmailVerification: false, 
                 allowOAuth2Auth: false,
-                allowUsernameAuth: false, // Only email/pass
+                allowUsernameAuth: false, 
                 allowPasswordAuth: true,
-                onlyVerified: false // Allow unverified users to log in initially
+                onlyVerified: false 
             },
-            schema: [ // Only custom fields here
-                { name: "name", type: "text", system: false, required: false, presentable: true, options: { max: 100 } },
-                // Add other custom user fields like phone, address if needed later
-                // Example: { name: "phone", type: "text", system: false, required: false, presentable: true, options: {max: 30} }
+            schema: [ 
+                { name: "name", type: "text", system: false, required: false, presentable: true, max: 100 }
             ]
         },
-        { // Orders collection (no relation fields in this initial step)
+        { 
             name: "orders", 
             type: "base", 
             system: false,
@@ -184,34 +187,34 @@
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
             schema: [
-                { name: "order_id_text", type: "text", system: false, required: true, presentable: true, unique: true, options: {max: 50, min: 1} },
-                // user field will be added as relation later
-                { name: "customer_name", type: "text", system: false, required: true, presentable: true, options: {max: 150, min: 1} },
-                { name: "customer_phone", type: "text", system: false, required: true, presentable: true, options: {max: 30, min: 7} },
-                { name: "customer_email", type: "email", system: false, required: true, presentable: true, options: {} },
-                { name: "line_items", type: "json", system: false, required: true, presentable: true, options: {} }, 
-                { name: "delivery_option", type: "select", system: false, required: true, presentable: true, options: {maxSelect:1, values:["home_delivery", "self_pickup_or_internal_distribution"]} },
-                { name: "delivery_city_id", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
-                { name: "delivery_area_name_en", type: "text", system: false, required: false, presentable: true, options: {max:100} },
-                { name: "delivery_area_name_ar", type: "text", system: false, required: false, presentable: true, options: {max:100} },
-                { name: "delivery_address", type: "text", system: false, required: false, presentable: true, options: {max: 500} },
-                { name: "delivery_instructions", type: "text", system: false, required: false, presentable: true, options: {max: 500} },
-                { name: "delivery_time_slot", type: "text", system: false, required: false, presentable: true, options: {max: 50} },
-                { name: "payment_method", type: "text", system: false, required: true, presentable: true, options: {max: 50, min: 1} },
-                { name: "payment_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded", "partially_refunded", "pending_gateway_redirect"]} },
-                { name: "order_status", type: "select", system: false, required: true, presentable: true, options: {maxSelect: 1, values: ["pending_confirmation", "confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "out_for_delivery", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin", "on_hold", "awaiting_payment_gateway"]} },
-                { name: "terms_agreed", type: "bool", system: false, required: true, presentable: true, options: {} },
-                { name: "admin_notes", type: "text", system: false, required: false, presentable: false, options: {max: 1000, editor: true} },
-                { name: "user_ip_address", type: "text", system: false, required: false, presentable: false, options: {max: 50} },
-                { name: "user_agent_string", type: "text", system: false, required: false, presentable: false, options: {max: 300} },
-                { name: "subtotal_amount_egp", type: "number", system: false, required: true, presentable: true, options: {min:0} },
-                { name: "total_udheya_service_fee_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
-                { name: "delivery_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
-                { name: "online_payment_fee_applied_egp", type: "number", system: false, required: false, presentable: true, options: {min:0} },
-                { name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, options: {min: 0} },
-                { name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, options: {max: 5} }
+                { name: "order_id_text", type: "text", system: false, required: true, presentable: true, unique: true, max: 50, min: 1 },
+                // user field (relation) will be added in the next step
+                { name: "customer_name", type: "text", system: false, required: true, presentable: true, max: 150, min: 1 },
+                { name: "customer_phone", type: "text", system: false, required: true, presentable: true, max: 30, min: 7 },
+                { name: "customer_email", type: "email", system: false, required: true, presentable: true },
+                { name: "line_items", type: "json", system: false, required: true, presentable: true }, 
+                { name: "delivery_option", type: "select", system: false, required: true, presentable: true, maxSelect:1, values:["home_delivery", "self_pickup_or_internal_distribution"] },
+                { name: "delivery_city_id", type: "text", system: false, required: false, presentable: true, max: 50 },
+                { name: "delivery_area_name_en", type: "text", system: false, required: false, presentable: true, max:100 },
+                { name: "delivery_area_name_ar", type: "text", system: false, required: false, presentable: true, max:100 },
+                { name: "delivery_address", type: "text", system: false, required: false, presentable: true, max: 500 },
+                { name: "delivery_instructions", type: "text", system: false, required: false, presentable: true, max: 500 },
+                { name: "delivery_time_slot", type: "text", system: false, required: false, presentable: true, max: 50 },
+                { name: "payment_method", type: "text", system: false, required: true, presentable: true, max: 50, min: 1 },
+                { name: "payment_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["pending_payment", "payment_under_review", "paid_confirmed", "cod_pending_confirmation", "cod_confirmed_pending_delivery", "failed", "refunded", "partially_refunded", "pending_gateway_redirect"]} },
+                { name: "order_status", type: "select", system: false, required: true, presentable: true, maxSelect: 1, values: ["pending_confirmation", "confirmed_pending_payment", "payment_confirmed_processing", "ready_for_fulfillment", "out_for_delivery", "fulfilled_completed", "cancelled_by_user", "cancelled_by_admin", "on_hold", "awaiting_payment_gateway"]} },
+                { name: "terms_agreed", type: "bool", system: false, required: true, presentable: true },
+                { name: "admin_notes", type: "editor", system: false, required: false, presentable: false }, // Use 'editor' for rich text
+                { name: "user_ip_address", type: "text", system: false, required: false, presentable: false, max: 50 },
+                { name: "user_agent_string", type: "text", system: false, required: false, presentable: false, max: 300 },
+                { name: "subtotal_amount_egp", type: "number", system: false, required: true, presentable: true, min:0 },
+                { name: "total_udheya_service_fee_egp", type: "number", system: false, required: false, presentable: true, min:0 },
+                { name: "delivery_fee_applied_egp", type: "number", system: false, required: false, presentable: true, min:0 },
+                { name: "online_payment_fee_applied_egp", type: "number", system: false, required: false, presentable: true, min:0 },
+                { name: "total_amount_due_egp", type: "number", system: false, required: true, presentable: true, min: 0 },
+                { name: "selected_display_currency", type: "text", system: false, required: false, presentable: true, max: 5 }
             ],
-            indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)"] // user index will be added with relation
+            indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)"]
         }
     ];
 
@@ -245,102 +248,116 @@
         try {
             log(`Attempting admin authentication with: ${ADM_E}...`, 'i');
             await pb.admins.authWithPassword(ADM_E, ADM_P);
-            log('Admin authentication successful', 's');
+            log('Admin authentication successful.', 's');
             return true;
         } catch (error) {
-            log(`Authentication failed: ${error.message}`, 'e');
-            console.error('Auth error:', error);
-            if (error.response?.data) log('Auth error details:', 'e', error.response.data);
+            log(`Admin authentication failed: ${error.message}`, 'e', error.data || error);
             return false;
         }
     }
 
-    async function importOrUpdateCollections(pb, collections) {
+    async function importOrUpdateCollections(pb, collectionsToProcess) {
         log('Starting collection schema setup/update...', 'i');
-        for (const collectionDef of collections) {
+        for (const collectionDef of collectionsToProcess) {
             let existingCollection = null;
+            const isAuthCollection = collectionDef.name === "users" || collectionDef.name === "_pb_users_auth_";
+            const collectionNameToUse = isAuthCollection ? "_pb_users_auth_" : collectionDef.name;
+
             try {
-                existingCollection = await pb.collections.getOne(collectionDef.name);
-                log(`Collection "${collectionDef.name}" exists. Attempting update...`, 'i');
-                const updatePayload = { // Construct payload for update
-                    schema: collectionDef.schema,
+                existingCollection = await pb.collections.getOne(collectionNameToUse);
+                log(`Collection "${collectionNameToUse}" exists. Attempting update...`, 'i');
+                
+                const updatePayload = {
                     listRule: collectionDef.listRule,
                     viewRule: collectionDef.viewRule,
                     createRule: collectionDef.createRule,
                     updateRule: collectionDef.updateRule,
                     deleteRule: collectionDef.deleteRule,
-                    // Indexes are tricky to update via API, usually done via migrations
-                    // For initial setup, this might work for some simple index cases if PB API supports it in import.
-                    // For updates, it's safer to manage indexes manually or through migrations.
                 };
-                 if (collectionDef.indexes) { // Only add if defined to avoid errors
-                    updatePayload.indexes = collectionDef.indexes;
+                if (collectionDef.schema) { // Only include schema if defined (for base/auth types)
+                    updatePayload.schema = collectionDef.schema.map(field => ({ ...field, options: field.options || {} })); // Ensure options is object
                 }
-                await pb.collections.update(collectionDef.name, updatePayload);
-                log(`Collection "${collectionDef.name}" updated successfully.`, 's');
+                if (isAuthCollection && collectionDef.options) { // For auth collection specific options
+                    updatePayload.options = { ... (existingCollection.options || {}), ...collectionDef.options };
+                }
+
+                await pb.collections.update(collectionNameToUse, updatePayload);
+                log(`Collection "${collectionNameToUse}" updated successfully.`, 's');
 
             } catch (e) {
-                if (e.status === 404) { // Collection does not exist, create it
+                if (e.status === 404 && !isAuthCollection) { // Collection does not exist, create it (not for users, it's system)
                     log(`Collection "${collectionDef.name}" not found. Creating...`, 'i');
                     try {
                          const newCollectionData = {
                             name: collectionDef.name,
                             type: collectionDef.type,
                             system: collectionDef.system || false,
-                            schema: collectionDef.schema,
+                            schema: collectionDef.schema.map(field => ({ ...field, options: field.options || {} })),
                             listRule: collectionDef.listRule,
                             viewRule: collectionDef.viewRule,
                             createRule: collectionDef.createRule,
                             updateRule: collectionDef.updateRule,
                             deleteRule: collectionDef.deleteRule,
                             indexes: collectionDef.indexes || [],
-                            options: collectionDef.options || {} // For auth collections
+                            options: collectionDef.options || {}
                         };
-                        await pb.collections.import([newCollectionData], false); // Import expects an array
+                        await pb.collections.import([newCollectionData], false); 
                         log(`Collection "${collectionDef.name}" created successfully.`, 's');
                     } catch (createError) {
                         log(`Error CREATING collection "${collectionDef.name}": ${createError.message}`, 'e', createError.data);
-                        return false; // Stop if a collection creation fails
+                        return false; 
                     }
-                } else { // Other error during getOne or update
-                    log(`Error processing collection "${collectionDef.name}": ${e.message}`, 'e', e.data);
-                    return false; // Stop if any other error occurs
+                } else if (e.status === 404 && isAuthCollection) {
+                     log(`Auth collection "${collectionNameToUse}" should exist. If not, PB init is problematic.`, 'e', e.data);
+                     return false;
+                }
+                 else { 
+                    log(`Error processing collection "${collectionNameToUse}": ${e.message}`, 'e', e.data);
+                    return false; 
                 }
             }
-            await new Promise(r => setTimeout(r, 100)); // Small delay
+            await new Promise(r => setTimeout(r, 250)); 
         }
-        log('All collections processed.', 's');
+        log('All non-relation schema parts processed.', 's');
         return true;
     }
     
-    async function addRelationFields(pb) {
+    async function addOrVerifyRelationFields(pb) {
         log('Adding/Verifying relation fields...', 'i');
         let success = true;
         const relationsToAdd = [
             { 
                 sourceCollectionName: "orders", 
                 fieldName: "user", 
-                targetCollectionName: "_pb_users_auth_", // This is the system name for users
+                targetCollectionName: "_pb_users_auth_",
                 options: { cascadeDelete: false, minSelect: null, maxSelect: 1, displayFields: ["email", "name"] },
-                required: false, // Orders can be by guests
+                required: false, 
                 presentable: true
             }
-            // Add more relations here if needed in the future
         ];
 
         for (const rel of relationsToAdd) {
             try {
                 const sourceCollection = await pb.collections.getOne(rel.sourceCollectionName);
-                const fieldExists = sourceCollection.schema.find(f => f.name === rel.fieldName);
+                const fieldExists = sourceCollection.schema.find(f => f.name === rel.fieldName && f.type === "relation");
 
                 if (fieldExists) {
-                    log(`Relation field "${rel.fieldName}" already exists in "${rel.sourceCollectionName}". Skipping.`, 'w');
+                    log(`Relation field "${rel.fieldName}" already exists in "${rel.sourceCollectionName}". Verifying...`, 'w');
+                    // Optionally, verify and update existing relation field options if needed
+                    let needsUpdate = false;
+                    if (fieldExists.required !== rel.required) { needsUpdate = true; fieldExists.required = rel.required; }
+                    if (JSON.stringify(fieldExists.options.displayFields.sort()) !== JSON.stringify(rel.options.displayFields.sort())) {
+                        needsUpdate = true;
+                        fieldExists.options.displayFields = rel.options.displayFields;
+                    }
+                    // Add other option checks if necessary
+                    if(needsUpdate) {
+                        log(`Updating options for existing relation field "${rel.fieldName}" in "${rel.sourceCollectionName}".`, 'i');
+                        await pb.collections.update(sourceCollection.id, { schema: sourceCollection.schema });
+                    }
                     continue;
                 }
                 
-                // Fetch target collection to get its ID for the relation options
-                // For "_pb_users_auth_", its ID is literally "users" for older PB versions, or its actual system ID for newer.
-                // The SDK handles "_pb_users_auth_" directly in options.collectionId
                 const newField = {
                     name: rel.fieldName,
                     type: "relation",
@@ -349,7 +366,7 @@
                     system: false,
                     unique: false,
                     options: {
-                        collectionId: rel.targetCollectionName, // Use the name, SDK resolves it
+                        collectionId: rel.targetCollectionName, 
                         cascadeDelete: rel.options.cascadeDelete,
                         minSelect: rel.options.minSelect,
                         maxSelect: rel.options.maxSelect,
@@ -362,10 +379,10 @@
                 log(`Relation field "${rel.fieldName}" added to "${rel.sourceCollectionName}" successfully.`, 's');
 
             } catch (error) {
-                log(`Error adding relation field "${rel.fieldName}" to "${rel.sourceCollectionName}": ${error.message}`, 'e', error.data);
+                log(`Error adding/verifying relation field "${rel.fieldName}" to "${rel.sourceCollectionName}": ${error.message}`, 'e', error.data);
                 success = false;
             }
-            await new Promise(r => setTimeout(r, 100)); // Small delay
+            await new Promise(r => setTimeout(r, 250)); 
         }
         return success;
     }
@@ -378,9 +395,9 @@
         for (const item of seedItems) {
             try {
                 let existingRecord = null;
-                if (uniqueKeyField && item[uniqueKeyField] !== undefined) { // Check if uniqueKeyField actually exists on item
+                if (uniqueKeyField && item[uniqueKeyField] !== undefined) { 
                     try { 
-                        existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${item[uniqueKeyField]}"`); 
+                        existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${pb. Verteidigungsministerium.escapeFilterValue(item[uniqueKeyField])}"`); 
                     } catch (e) { /* Record doesn't exist, will create */ }
                 } else if (!uniqueKeyField && collectionName === "settings") { 
                     const list = await pb.collection(collectionName).getList(1, 1);
@@ -409,30 +426,17 @@
         log('=== SCHEMA SETUP PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
 
-        // Step 1: Create/Update collections without relations first (or ensure 'users' is configured)
-        log('Processing initial collections (settings, products, users config)...', 'i');
-        if (!await importOrUpdateCollections(pb, collectionsWithoutRelations.filter(c => c.name !== 'orders'))) { // Exclude orders for now
+        log('Processing collections (settings, products, users config, orders)...', 'i');
+        if (!await importOrUpdateCollections(pb, collectionsWithoutRelations)) { 
              log('Initial collection setup failed.', 'e'); return false;
         }
         
-        // Step 2: Create/Update 'orders' collection (which might have relations to be added later)
-        log('Processing "orders" collection schema...', 'i');
-        const ordersDef = collectionsWithoutRelations.find(c => c.name === 'orders');
-        if (ordersDef) {
-            if (!await importOrUpdateCollections(pb, [ordersDef])) {
-                log('"orders" collection setup failed.', 'e'); return false;
-            }
-        } else {
-            log('Definition for "orders" collection not found. Skipping.', 'w');
-        }
-
-        // Step 3: Add relation fields
         log('Processing relation fields...', 'i');
-        if (!await addRelationFields(pb)) {
+        if (!await addOrVerifyRelationFields(pb)) {
              log('Relation field setup failed.', 'e'); return false;
         }
 
-        log('Schema setup completed successfully', 's');
+        log('Schema setup completed successfully.', 's');
         return true;
     }
 
@@ -452,29 +456,31 @@
         
         if (anySeedErrors) {
             log('Seed data setup completed with errors.', 'w');
-            return false;
+            return false; // Indicate failure if any seed errors
         }
-        log('Seed data setup completed successfully', 's');
+        log('Seed data setup completed successfully.', 's');
         return true;
     }
     
     function validateProductionSecurity() {
         const warnings = [];
         collectionsDefinition.forEach(collection => {
-            if (collection.listRule === "" || collection.createRule === "" || 
-                collection.updateRule === "" || collection.deleteRule === "") {
-                if (collection.name !== "settings" && collection.name !== "products") { // Allow public read for settings and products
-                     if(!(collection.listRule === "@everyone" && collection.viewRule === "@everyone" && collection.createRule === null && collection.updateRule === null && collection.deleteRule === null) &&
-                        !(collection.listRule === "" && collection.viewRule === "" && collection.createRule === null && collection.updateRule === null && collection.deleteRule === null) ) {
-                           // This logic needs refinement based on which collections are truly public vs. which need auth for some operations.
-                           // For now, let's focus on a simpler warning.
-                     }
-                }
+            // Simplified check for public create/update/delete which are generally risky
+            if (collection.createRule === "" || collection.createRule === "@everyone") {
+                 if (collection.name !== "orders") { // Orders might allow public create if guest checkout is intended
+                    warnings.push(`Collection "${collection.name}" has public createRule.`);
+                 }
             }
-            if (collection.type === "auth" && collection.name === "users") { // Specifically for users collection
-                if (collection.createRule === "") warnings.push(`Auth Collection '${collection.name}' has public createRule (open registration). Ensure this is intended.`);
+            if (collection.updateRule === "" || collection.updateRule === "@everyone") {
+                warnings.push(`Collection "${collection.name}" has public updateRule.`);
+            }
+             if (collection.deleteRule === "" || collection.deleteRule === "@everyone") {
+                warnings.push(`Collection "${collection.name}" has public deleteRule.`);
+            }
+
+            if (collection.type === "auth" && (collection.name === "users" || collection.name === "_pb_users_auth_")) {
                 if (collection.options && collection.options.requireEmailVerification === false) {
-                    warnings.push(`Auth Collection '${collection.name}' has 'requireEmailVerification' set to false. Recommended to enable for production.`);
+                    warnings.push(`Auth Collection "${collection.name}" has 'requireEmailVerification' set to false. Recommended to enable for production.`);
                 }
             }
         });
@@ -488,7 +494,7 @@
             warnings.forEach(warning => log(`⚠️  ${warning}`, 'w'));
             log('🚨 REVIEW AND SECURE THESE BEFORE PRODUCTION DEPLOYMENT', 'e');
         } else {
-            log('✓ Production security preliminary checks passed (review rules manually).', 's');
+            log('✓ Production security preliminary checks passed (always review rules manually for production).', 's');
         }
         return warnings.length === 0;
     }
@@ -513,7 +519,7 @@
 
             log('<b>=== FULL SETUP COMPLETED ===</b>', 's');
             validateProductionSecurity();
-            runSeedOnlyButton.disabled = !schemaSuccess; 
+            
         } catch (error) {
             log(`<b>CRITICAL ERROR during full setup:</b> ${error.message}`, 'e');
             console.error('Full setup error:', error);
@@ -522,6 +528,7 @@
         } finally {
             if (pb.authStore.isValid) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
+             runSeedOnlyButton.disabled = !schemaSuccess; 
             log('Process finished, auth cleared', 'i');
         }
     };
@@ -531,10 +538,10 @@
         outputDiv.innerHTML = ''; 
         log('=== SCHEMA ONLY SETUP STARTED ===', 'i');
         const pb = new PocketBase(pbUrl);
+        let success = false;
         try {
-            const success = await setupSchema(pb);
+            success = await setupSchema(pb);
             if (success) {
-                runSeedOnlyButton.disabled = false;
                 log('<b>Schema setup completed successfully</b>', 's');
                 validateProductionSecurity();
             } else {
@@ -547,7 +554,8 @@
         } finally {
             if (pb.authStore.isValid) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
-             log('Schema only process finished, auth cleared', 'i');
+            runSeedOnlyButton.disabled = !success;
+            log('Schema only process finished, auth cleared', 'i');
         }
     };
 
@@ -556,8 +564,9 @@
         outputDiv.innerHTML = ''; 
         log('=== SEED DATA ONLY STARTED ===', 'i');
         const pb = new PocketBase(pbUrl);
+        let success = false;
         try {
-            const success = await setupSeedData(pb);
+            success = await setupSeedData(pb);
              if (success) {
                 log('<b>Seed data setup completed successfully</b>', 's');
             } else {
