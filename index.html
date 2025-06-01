@@ -265,7 +265,14 @@
                     </button>
                 </li>
                 <template x-if="!currentUser">
-                    <li><a href="#auth" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'auth'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('auth')"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></a></li>
+                    <li>
+                        <button @click="isMobNavOpen = false; navigateToOrScroll('auth')" class="nav-link as-button" :class="{'active-nav': currentPage === 'auth'}" title="Login or Register" aria-label="Login or Register">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            <span class="sr-only bil-inline"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></span>
+                        </button>
+                    </li>
                 </template>
                 <template x-if="currentUser">
                     <li><a href="#account" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
@@ -339,7 +346,14 @@
                     </button>
                 </li>
                  <template x-if="!currentUser">
-                    <li><a href="#auth" class="nav-link-mob bil-inline" :class="{'active-nav': currentPage === 'auth'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('auth')"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></a></li>
+                    <li>
+                        <button @click="isMobNavOpen = false; navigateToOrScroll('auth')" class="nav-link-mob as-button" :class="{'active-nav': currentPage === 'auth'}" title="Login or Register" aria-label="Login or Register">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                             <span class="bil-inline"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></span>
+                        </button>
+                    </li>
                 </template>
                 <template x-if="currentUser">
                     <li><a href="#account" class="nav-link-mob bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
@@ -696,7 +710,7 @@
                 </button>
             </div>
             
-            <div x-show="(cartItems.length > 0 || (new URLSearchParams(window.location.search).get('buyNow') === 'true')) && !orderConf.show && currentPage === 'checkout'" class="checkout-layout">
+            <div x-show="(cartItems.length > 0 || (new URLSearchParams(window.location.hash.split('?')[1] || '').get('buyNow') === 'true')) && !orderConf.show && currentPage === 'checkout'" class="checkout-layout">
                 <div class="checkout-form-col">
                     <form id="checkout-form" @submit.prevent="processOrder()" novalidate>
                         <div class="card form-panel">
