@@ -392,97 +392,275 @@ html[dir="rtl"] .order-items-list { padding-left: 0; padding-right: var(--s2); }
 .link-style:hover { color: var(--c1d); }
 
 
+/* MODIFIED MOBILE RESPONSIVE STYLES - MAINTAINS SIDE-BY-SIDE BILINGUAL LAYOUT */
 @media(max-width:768px){
-    .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .bil-row):not(.sum-total):not(.bank-dets li.bil-row):not(.bil-row-mob):not(.hero-desc):not(.live-note):not(.info-box .bil-row):not(.field-note):not(.delivery-scope-note):not(.cart-item):not(.cart-total) { flex-wrap:wrap; }
-    .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .bil-row):not(.sum-total):not(.bank-dets li.bil-row):not(.bil-row-mob):not(.hero-desc):not(.live-note):not(.info-box .bil-row):not(.field-note):not(.delivery-scope-note):not(.cart-item):not(.cart-total)>:is(.en,p.en){ flex-basis:100%!important; text-align:center!important; margin-bottom:var(--s0); }
-    .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .bil-row):not(.sum-total):not(.bank-dets li.bil-row):not(.bil-row-mob):not(.hero-desc):not(.live-note):not(.info-box .bil-row):not(.field-note):not(.delivery-scope-note):not(.cart-item):not(.cart-total)>:is(.ar,p.ar){ flex-basis:100%!important; text-align:center!important; }
-    .bil-row:not(.foot-brand-desc):not(.pban-text .bil-row):not(.chk-stat-lbl):not(.sum-item .bil-row):not(.sum-total):not(.bank-dets li.bil-row):not(.bil-row-mob):not(.hero-desc):not(.live-note):not(.info-box .bil-row):not(.field-note):not(.delivery-scope-note):not(.cart-item):not(.cart-total)>:last-child{ margin-bottom:0; }
-
-    .field-note > .en, .field-note > .ar { flex-basis: 100% !important; text-align: center !important; }
-    .field-note > .en { margin-bottom: var(--s0); }
-
-    .delivery-scope-note.bil-row > .en, .delivery-scope-note.bil-row > .ar { text-align: center !important; }
-
-    .bil-spread:not(.bil-inline):not(.bil-row-mob):not(.lbl-req):not(.form-subh):not(.sec-head > h1):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay > h5):not(.order-id-box > .bil-spread):not(.hero-h):not(.hero-sub):not(.rgrp > label.bil-spread):not(.modal-title){
-        flex-direction:column; align-items:center; text-align:center;
+    /* KEEP bil-row elements as flex with side-by-side layout - NO STACKING */
+    .bil-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: baseline !important;
+        gap: var(--s1) !important;
+        flex-wrap: nowrap !important;
     }
-    .bil-spread:not(.bil-inline):not(.bil-row-mob):not(.lbl-req):not(.form-subh):not(.sec-head > h1):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay > h5):not(.order-id-box > .bil-spread):not(.hero-h):not(.hero-sub):not(.rgrp > label.bil-spread):not(.modal-title)>:is(.en,.ar){
-        margin:0 auto var(--s0)!important; text-align:center!important; padding:0!important;
+    
+    /* Force English to always be left-aligned and take left space */
+    .bil-row > .en, .bil-row > p.en { 
+        flex: 1 1 48% !important; 
+        text-align: left !important; 
+        margin-bottom: 0 !important;
+        padding-right: var(--s0) !important;
     }
-    .bil-spread:not(.bil-inline):not(.bil-row-mob):not(.lbl-req):not(.form-subh):not(.sec-head > h1):not(.sec-head > h2):not(.sec-head > h3):not(.foot-pay > h5):not(.order-id-box > .bil-spread):not(.hero-h):not(.hero-sub):not(.rgrp > label.bil-spread):not(.modal-title)>:last-child{
-        margin-bottom:0!important;
+    
+    /* Force Arabic to always be right-aligned and take right space */
+    .bil-row > .ar, .bil-row > p.ar { 
+        flex: 1 1 48% !important; 
+        text-align: right !important; 
+        margin-bottom: 0 !important;
+        font-family: var(--fa) !important;
+        direction: rtl !important;
+        padding-left: var(--s0) !important;
     }
-    .nav-link-mob.bil-inline { flex-direction: row !important; justify-content: center; align-items: baseline; }
-    .nav-link-mob.bil-inline > .en, .nav-link-mob.bil-inline > .ar { margin: 0 var(--s0) !important; padding: 0 !important; text-align: inherit !important; }
 
-    .sec-head:not(.form-step .sec-head):not(.compact-how-it-works-head) :is(h1,h2,h3).bil-spread :is(.en,.ar)::after,
-    .hero .why-us-h h2.bil-spread :is(.en,.ar)::after{ left:50%; transform:translateX(-50%); right:auto; }
+    /* Keep bil-spread elements side-by-side instead of stacking */
+    .bil-spread {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: baseline !important;
+        flex-direction: row !important;
+        text-align: left !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .bil-spread > .en {
+        flex: 1 1 48% !important;
+        text-align: left !important;
+        margin-right: auto !important;
+        margin-bottom: 0 !important;
+        padding-right: var(--s0) !important;
+    }
+    
+    .bil-spread > .ar {
+        flex: 1 1 48% !important;
+        text-align: right !important;
+        font-family: var(--fa) !important;
+        direction: rtl !important;
+        margin-left: auto !important;
+        margin-bottom: 0 !important;
+        padding-left: var(--s0) !important;
+    }
 
-    .pban-text .bil-row{ flex-direction:column; align-items:center; }
-    .pban-text .bil-row>:is(.en,.ar){ text-align:center!important; }
-    .pban-text .bil-row>.en{ margin-bottom:var(--s1); }
+    /* Fix specific elements that might need special handling */
+    .field-note > .en, .field-note > .ar { 
+        flex-basis: 48% !important; 
+        margin-bottom: 0 !important;
+    }
+    
+    .field-note > .en { 
+        text-align: left !important; 
+        padding-right: var(--s0) !important;
+    }
+    
+    .field-note > .ar { 
+        text-align: right !important; 
+        padding-left: var(--s0) !important;
+    }
 
-    html{font-size:14px}
-    body{padding-top:var(--head-h-mob)}
-    .c{padding:0 var(--s1)}
-    .sec{padding:var(--s3) 0}
-    #udh-selection-panel{scroll-margin-top:calc(var(--head-h-mob) + 10px)}
-    .form-step .sec-head{padding:var(--s1)}
-    .form-step{padding:var(--s2) var(--s1)}
-    .grid2:not(.prod-grid):not(.feat-grid):not(.why-us-grid){grid-template-columns:1fr}
-    .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))} 
-    :is(.why-us-grid){grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s2)}
+    .delivery-scope-note.bil-row > .en { 
+        text-align: left !important; 
+    }
     
-    .sum-item .bil-row,.sum-total.bil-row,.bank-dets li.bil-row, .cart-total .bil-row {flex-direction:row;align-items:baseline;flex-wrap:nowrap}
-    .sum-item .bil-row > div,.sum-total.bil-row > div, .bank-dets li.bil-row > span, .cart-total .bil-row > span {flex-basis:auto}
-    
-    #chk-stat-form-modal .chk-stat-input{flex-grow:1;min-width:0; margin-bottom:var(--s1);}
-    #chk-stat-form-modal .card-act{flex-wrap: wrap; justify-content: center;}
-    #chk-stat-form-modal .chk-stat-btn{flex:1 1 100%;}
-    
-    .card-content .bil-row:not(.bil-row-mob){ flex-direction:column; align-items:flex-start; gap:2px; }
-    .card-content .bil-spread:not(.bil-row-mob){ text-align:left; }
-    .card-h.bil-spread { flex-direction: row !important; justify-content: space-between !important; }
-    .card-h.bil-spread > .en { text-align: left !important; margin-right: auto !important; }
-    .card-h.bil-spread > .ar { text-align: right !important; margin-left: auto !important; }
-    .card-content .bil-row.card-p-row > .en { text-align: left !important; margin-bottom: var(--s0); }
-    .card-content .bil-row.card-p-row > .ar { text-align: right !important; }
-    
-    .conf-msg .bil-row:not(.recap-h):not(.pay-instr-h):not(.order-id-box .bil-spread):not(.bil-row-mob)>:is(.en,.ar){ text-align:center; }
-    .order-id-box .bil-spread>p.en{text-align:left!important}
-    .order-id-box .bil-spread>p.ar{text-align:right!important}
-    
-    .tslots{justify-content:center}
-    .ts{font-size:.75rem;padding:var(--s0) calc(var(--s1) - 1px);min-width:80px}
-    .pban .btn{width:auto;padding:var(--s0) var(--s2)}
-    .card-b{padding:var(--s1)}.card-content{margin-bottom:var(--s0)}.card-foot{padding-top:var(--s0)}
-    .card-act select,.card-act .btn{height:30px;font-size:.7rem}
-    .btn{font-size:.8rem}
-    .btn-lg{font-size:.85rem}
-    
-    .site-head{height:var(--head-h-mob)}
-    .mob-nav{top:var(--head-h-mob)}
-    
-    .nav-cont{flex-direction:row;align-items:center;justify-content:space-between}
-    .logo{margin-right:0;margin-bottom:0;text-align:left;justify-content:flex-start; font-size: 1rem;}
-    .nav-main.nav-desk,.head-extras.desk-extras{display:none}
-    .menu-btn{display:inline-flex;align-items:center;justify-content:center}
-    .menu-btn svg{width:24px;height:24px}
-    .hero h1{font-size:1.4rem}
-    .hero h2{font-size:1rem}
-    .pay-meths {grid-template-columns:repeat(auto-fit,minmax(80px,1fr));}
-    
-    .foot-pay-icon{height:35px}
-    .foot-brand-desc{ flex-direction:column; align-items:center; }
-    .foot-brand-desc p.en,.foot-brand-desc p.ar{ width:100%; text-align:center!important; flex-basis:auto; }
-    .foot-copy{text-align:center}
-    .bil-copy{display:block;width:100%;text-align:center;margin-left:0;margin-top:var(--s0)}
-    .bil-copy :is(.en,.ar){display:block;width:100%;text-align:center!important}
+    .delivery-scope-note.bil-row > .ar { 
+        text-align: right !important; 
+    }
 
-    .cd-wrap{font-size:.8em;gap:2px;}
-    .cd-seg{min-width:28px; padding: 2px 1px;}
-    .cd-val{font-size:1em;}
-    .cd-lbl{font-size:.6em;}
+    /* Ensure section headers with underlines work properly */
+    .sec-head:not(.form-step .sec-head):not(.compact-how-it-works-head) :is(h1,h2,h3).bil-spread .en::after { 
+        left: 0 !important; 
+        transform: none !important; 
+        right: auto !important; 
+    }
+    
+    .sec-head:not(.form-step .sec-head):not(.compact-how-it-works-head) :is(h1,h2,h3).bil-spread .ar::after,
+    .hero .why-us-h h2.bil-spread :is(.en,.ar)::after { 
+        right: 0 !important; 
+        transform: none !important; 
+        left: auto !important; 
+    }
+
+    /* Handle promotional banner text */
+    .pban-text .bil-row { 
+        flex-direction: row !important; 
+        align-items: baseline !important; 
+        justify-content: space-between !important;
+    }
+    
+    .pban-text .bil-row > .en { 
+        text-align: left !important; 
+        flex: 1 1 48% !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .pban-text .bil-row > .ar { 
+        text-align: right !important; 
+        flex: 1 1 48% !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Maintain side-by-side for summary items, totals, and bank details */
+    .sum-item .bil-row, .sum-total.bil-row, .bank-dets li.bil-row, .cart-total .bil-row {
+        flex-direction: row !important;
+        align-items: baseline !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+    }
+    
+    .sum-item .bil-row > div, .sum-total.bil-row > div, .bank-dets li.bil-row > span, .cart-total .bil-row > span {
+        flex-basis: auto !important;
+    }
+    
+    /* Fix navigation links on mobile to stay inline */
+    .nav-link-mob.bil-inline { 
+        flex-direction: row !important; 
+        justify-content: center !important; 
+        align-items: baseline !important; 
+    }
+    
+    .nav-link-mob.bil-inline > .en, .nav-link-mob.bil-inline > .ar { 
+        margin: 0 var(--s0) !important; 
+        padding: 0 !important; 
+        text-align: inherit !important; 
+    }
+
+    /* Keep card titles side-by-side */
+    .card-h.bil-spread { 
+        flex-direction: row !important; 
+        justify-content: space-between !important; 
+    }
+    
+    .card-h.bil-spread > .en { 
+        text-align: left !important; 
+        margin-right: auto !important; 
+    }
+    
+    .card-h.bil-spread > .ar { 
+        text-align: right !important; 
+        margin-left: auto !important; 
+    }
+
+    .card-content .bil-row:not(.bil-row-mob) { 
+        flex-direction: row !important; 
+        align-items: baseline !important; 
+        gap: var(--s1) !important; 
+        justify-content: space-between !important;
+    }
+    
+    .card-content .bil-spread:not(.bil-row-mob) { 
+        text-align: left !important; 
+        flex-direction: row !important;
+        justify-content: space-between !important;
+    }
+    
+    .card-content .bil-row.card-p-row > .en { 
+        text-align: left !important; 
+        margin-bottom: 0 !important; 
+    }
+    
+    .card-content .bil-row.card-p-row > .ar { 
+        text-align: right !important; 
+        margin-bottom: 0 !important;
+    }
+    
+    /* Keep order confirmation elements side-by-side */
+    .conf-msg .bil-row:not(.recap-h):not(.pay-instr-h):not(.order-id-box .bil-spread):not(.bil-row-mob) > .en { 
+        text-align: left !important; 
+    }
+    
+    .conf-msg .bil-row:not(.recap-h):not(.pay-instr-h):not(.order-id-box .bil-spread):not(.bil-row-mob) > .ar { 
+        text-align: right !important; 
+    }
+    
+    .order-id-box .bil-spread > p.en { text-align: left !important; }
+    .order-id-box .bil-spread > p.ar { text-align: right !important; }
+    
+    /* Keep footer elements side-by-side */
+    .foot-brand-desc { 
+        flex-direction: row !important; 
+        align-items: baseline !important; 
+        justify-content: space-between !important;
+    }
+    
+    .foot-brand-desc p.en, .foot-brand-desc p.ar { 
+        width: 48% !important; 
+        flex-basis: 48% !important; 
+    }
+    
+    .foot-brand-desc p.en {
+        text-align: left !important;
+    }
+    
+    .foot-brand-desc p.ar {
+        text-align: right !important;
+    }
+    
+    .foot-copy { text-align: center; }
+    .bil-copy { 
+        display: inline-flex !important; 
+        width: auto !important; 
+        text-align: center !important; 
+        margin-left: 0 !important; 
+        margin-top: var(--s0); 
+        justify-content: center !important;
+        gap: var(--s0) !important;
+    }
+    
+    .bil-copy .en, .bil-copy .ar { 
+        display: inline !important; 
+        width: auto !important; 
+        text-align: center !important; 
+    }
+
+    /* Adjust other mobile-specific sizes */
+    html { font-size: 14px; }
+    body { padding-top: var(--head-h-mob); }
+    .c { padding: 0 var(--s1); }
+    .sec { padding: var(--s3) 0; }
+    #udh-selection-panel { scroll-margin-top: calc(var(--head-h-mob) + 10px); }
+    .form-step .sec-head { padding: var(--s1); }
+    .form-step { padding: var(--s2) var(--s1); }
+    .grid2:not(.prod-grid):not(.feat-grid):not(.why-us-grid) { grid-template-columns: 1fr; }
+    .prod-grid.grid2 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } 
+    :is(.why-us-grid) { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--s2); }
+    
+    #chk-stat-form-modal .chk-stat-input { flex-grow: 1; min-width: 0; margin-bottom: var(--s1); }
+    #chk-stat-form-modal .card-act { flex-wrap: wrap; justify-content: center; }
+    #chk-stat-form-modal .chk-stat-btn { flex: 1 1 100%; }
+    
+    .tslots { justify-content: center; }
+    .ts { font-size: .75rem; padding: var(--s0) calc(var(--s1) - 1px); min-width: 80px; }
+    .pban .btn { width: auto; padding: var(--s0) var(--s2); }
+    .card-b { padding: var(--s1); }
+    .card-content { margin-bottom: var(--s0); }
+    .card-foot { padding-top: var(--s0); }
+    .card-act select, .card-act .btn { height: 30px; font-size: .7rem; }
+    .btn { font-size: .8rem; }
+    .btn-lg { font-size: .85rem; }
+    
+    .site-head { height: var(--head-h-mob); }
+    .mob-nav { top: var(--head-h-mob); }
+    
+    .nav-cont { flex-direction: row; align-items: center; justify-content: space-between; }
+    .logo { margin-right: 0; margin-bottom: 0; text-align: left; justify-content: flex-start; font-size: 1rem; }
+    .nav-main.nav-desk, .head-extras.desk-extras { display: none; }
+    .menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+    .menu-btn svg { width: 24px; height: 24px; }
+    .hero h1 { font-size: 1.4rem; }
+    .hero h2 { font-size: 1rem; }
+    .pay-meths { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
+
+    .cd-wrap { font-size: .8em; gap: 2px; }
+    .cd-seg { min-width: 28px; padding: 2px 1px; }
+    .cd-val { font-size: 1em; }
+    .cd-lbl { font-size: .6em; }
     .live-note { font-size: 0.8em; }
     .info-box p, .info-box h4.form-subh { font-size: 0.8em; }
     .sum-item .sum-item-content > .bil-row > div, .sum-item-price { font-size: 0.85rem; }
