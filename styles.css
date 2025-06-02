@@ -11,8 +11,8 @@
     --udheya-config-modal-width: 600px;
 }
 *,::after,::before{box-sizing:border-box;margin:0;padding:0}
-html{font-size:15px;scroll-behavior:smooth;overflow-x:clip}
-body{font-family:var(--fe);line-height:var(--lh);color:var(--t1);background:var(--b1);padding-top:var(--head-h);overflow-x:clip; position: relative;}
+html{font-size:15px;scroll-behavior:smooth;overflow-x:clip;height:100%}
+body{font-family:var(--fe);line-height:var(--lh);color:var(--t1);background:var(--b1);padding-top:var(--head-h);overflow-x:clip;position:relative;display:flex;flex-direction:column;min-height:100vh}
 body.overflow-hidden { overflow: hidden; }
 
 img{max-width:100%;display:block;height:auto;}
@@ -24,6 +24,9 @@ h1,h2,h3,h4,h5{font-weight:700;line-height:1.25;color:var(--c1d);margin-bottom:v
 h1{font-size:1.9rem} h2{font-size:1.1rem} h3{font-size:1.1rem} h4{font-size:1rem;color:var(--c1d)} h5{font-size:.9rem}
 p{margin:0 0 var(--s1)} p:last-child{margin-bottom:0}
 ul,ol{list-style:none}
+
+/* Main content area - expands to push footer down */
+main{flex:1 0 auto;display:flex;flex-direction:column}
 
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
 .load-ind,.err-ind{position:fixed;top:45%;left:50%;transform:translateX(-50%);z-index:2000;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.2);border-radius:var(--rad);max-width:400px; margin: 0 auto; font-weight:500}
@@ -300,7 +303,7 @@ html[dir=ar] .err-msg,body:has([dir=rtl]) .err-msg,.err-msg.ar{text-align:right;
 .stat-no-res{text-align:center}
 #stat-no-res-modal p{color:var(--c3);font-weight:700;padding:var(--s1)}
 
-.foot{background-color:var(--c1d);color:var(--b2);padding:var(--s3) 0}
+.foot{background-color:var(--c1d);color:var(--b2);padding:var(--s3) 0;margin-top:auto;flex-shrink:0}
 .foot-grid{text-align:left;gap:var(--s4)}
 .foot-brand-desc p.en{text-align:left;flex-basis:48%}
 .foot-brand-desc p.ar{font-family:var(--fa);direction:rtl;text-align:right;flex-basis:48%}
@@ -621,7 +624,7 @@ html[dir="rtl"] .order-items-list { padding-left: 0; padding-right: var(--s2); }
 
     /* Adjust other mobile-specific sizes */
     html { font-size: 14px; }
-    body { padding-top: var(--head-h-mob); }
+    body { padding-top: var(--head-h-mob); min-height: 100vh; }
     .c { padding: 0 var(--s1); }
     .sec { padding: var(--s3) 0; }
     #udh-selection-panel { scroll-margin-top: calc(var(--head-h-mob) + 10px); }
