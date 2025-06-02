@@ -117,16 +117,17 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 .nav-cont{display:flex;justify-content:space-between;align-items:center;height:100%;padding-right:0}
 .logo{font-size:1.1rem;font-weight:700;color:var(--c1d);display:inline-flex;align-items:baseline;margin-right:var(--s2);gap:.5em}
 .logo:hover .en,.logo:hover .ar{color:var(--c2)}
-.nav-main.nav-desk{margin:0 auto}.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0); align-items: center;}
+.nav-main.nav-desk{margin:0;flex:1;display:flex;justify-content:space-between;align-items:center;padding-right:0}
+.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center;justify-content:flex-end;width:100%;padding-right:0}
 .nav-main.nav-desk .nav-link{font-size:.9rem;color:var(--tm);font-weight:500;padding:var(--s0) var(--s1);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em; line-height: 1;}
-.nav-main.nav-desk .nav-link.as-button { background: none; border: none; cursor: pointer; padding: var(--s0); height: 36px; color: var(--tm); fill: var(--tm); }
+.nav-main.nav-desk .nav-link.as-button { background: none; border: none; cursor: pointer; padding: var(--s0); height: 36px; color: var(--tm); fill: var(--tm); margin-right:0}
 .nav-main.nav-desk .nav-link:hover,.nav-main.nav-desk .nav-link.active-nav,
 .nav-main.nav-desk .nav-link.as-button:hover, .nav-main.nav-desk .nav-link.as-button.active-nav {
     color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700; fill: var(--c1d);
 }
 .nav-main.nav-desk .nav-link.active-nav :is(.en,.ar){color:var(--c1d)}
 
-.head-extras.desk-extras{display:flex;align-items:center;gap:var(--s1);margin-left:var(--s2);margin-right:0;padding-right:0}
+.head-extras.desk-extras{display:none} /* Hide the currency/whatsapp section to make room for icons */
 .curr-sel select{padding:var(--s0) calc(var(--s1)/2);font-size:.8rem;border:1px solid var(--bs);border-radius:var(--rad);background-color:var(--bc);height:30px;color:var(--tm)}
 .wa-contact a{display:flex;align-items:center;gap:.5em;color:var(--c1);text-decoration:none;padding:var(--s0) var(--s1);border-radius:var(--rad);font-size:.9rem}
 .wa-contact a:hover{color:var(--c1d);background-color:rgba(0,0,0,.03)}
