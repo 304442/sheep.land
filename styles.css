@@ -113,7 +113,8 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 .icon-ph.emoji { font-size: 2.5rem; width: auto; height: auto; background-color: transparent; }
 
 .site-head{background-color:var(--b2);padding:var(--s1) 0;box-shadow:0 2px 4px rgba(0,0,0,.05);position:fixed;top:0;left:0;width:100%;z-index:1000;height:var(--head-h); color: var(--c1d);}
-.nav-cont{display:flex;justify-content:space-between;align-items:center;height:100%}
+.site-head .c{padding-right:0} /* Remove right padding so icons are hard right */
+.nav-cont{display:flex;justify-content:space-between;align-items:center;height:100%;padding-right:0}
 .logo{font-size:1.1rem;font-weight:700;color:var(--c1d);display:inline-flex;align-items:baseline;margin-right:var(--s2);gap:.5em}
 .logo:hover .en,.logo:hover .ar{color:var(--c2)}
 .nav-main.nav-desk{margin:0 auto}.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0); align-items: center;}
@@ -125,7 +126,7 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 }
 .nav-main.nav-desk .nav-link.active-nav :is(.en,.ar){color:var(--c1d)}
 
-.head-extras.desk-extras{display:flex;align-items:center;gap:var(--s1);margin-left:var(--s2)}
+.head-extras.desk-extras{display:flex;align-items:center;gap:var(--s1);margin-left:var(--s2);margin-right:0;padding-right:0}
 .curr-sel select{padding:var(--s0) calc(var(--s1)/2);font-size:.8rem;border:1px solid var(--bs);border-radius:var(--rad);background-color:var(--bc);height:30px;color:var(--tm)}
 .wa-contact a{display:flex;align-items:center;gap:.5em;color:var(--c1);text-decoration:none;padding:var(--s0) var(--s1);border-radius:var(--rad);font-size:.9rem}
 .wa-contact a:hover{color:var(--c1d);background-color:rgba(0,0,0,.03)}
@@ -625,7 +626,8 @@ html[dir="rtl"] .order-items-list { padding-left: 0; padding-right: var(--s2); }
     /* Adjust other mobile-specific sizes */
     html { font-size: 14px; }
     body { padding-top: var(--head-h-mob); min-height: 100vh; }
-    .c { padding: 0 var(--s1); }
+    .c { padding-left: var(--s1); padding-right: var(--s1); }
+    .site-head .c { padding-right: 0; } /* Keep icons hard right on mobile too */
     .sec { padding: var(--s3) 0; }
     #udh-selection-panel { scroll-margin-top: calc(var(--head-h-mob) + 10px); }
     .form-step .sec-head { padding: var(--s1); }
@@ -651,10 +653,10 @@ html[dir="rtl"] .order-items-list { padding-left: 0; padding-right: var(--s2); }
     .site-head { height: var(--head-h-mob); }
     .mob-nav { top: var(--head-h-mob); }
     
-    .nav-cont { flex-direction: row; align-items: center; justify-content: space-between; }
+    .nav-cont { flex-direction: row; align-items: center; justify-content: space-between; padding-right: 0; }
     .logo { margin-right: 0; margin-bottom: 0; text-align: left; justify-content: flex-start; font-size: 1rem; }
     .nav-main.nav-desk, .head-extras.desk-extras { display: none; }
-    .menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+    .menu-btn { display: inline-flex; align-items: center; justify-content: center; margin-right: 0; padding-right: 0; }
     .menu-btn svg { width: 24px; height: 24px; }
     .hero h1 { font-size: 1.4rem; }
     .hero h2 { font-size: 1rem; }
