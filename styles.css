@@ -117,10 +117,10 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 .nav-cont{display:flex;justify-content:space-between;align-items:center;height:100%;padding-right:0;position:relative}
 .logo{font-size:1.1rem;font-weight:700;color:var(--c1d);display:inline-flex;align-items:baseline;margin-right:var(--s2);gap:.5em}
 .logo:hover .en,.logo:hover .ar{color:var(--c2)}
-.nav-main.nav-desk{margin:0;flex:1;display:flex;justify-content:space-between;align-items:center;position:relative;padding-right:160px} /* Reduced padding since only WhatsApp is shown */
+.nav-main.nav-desk{margin:0;flex:1;display:flex;justify-content:space-between;align-items:center;position:relative;padding-right:0} /* Remove right padding */
 .nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center;justify-content:center}
-/* Position the icon buttons to the right, but leave space for WhatsApp */
-.nav-icons-absolute{position:absolute;right:0;display:flex;gap:var(--s0);align-items:center;z-index:10;padding-right:0;margin-right:0}
+/* Position the icon buttons absolutely to the far right edge - HARD RIGHT */
+.nav-icons-absolute{position:absolute;right:0;display:flex;gap:var(--s0);align-items:center;z-index:15;padding-right:0;margin-right:0}
 .nav-main.nav-desk .nav-link{font-size:.9rem;color:var(--tm);font-weight:500;padding:var(--s0) var(--s1);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em; line-height: 1;}
 .nav-main.nav-desk .nav-link.as-button { background: none; border: none; cursor: pointer; padding: var(--s0); height: 36px; color: var(--tm); fill: var(--tm); margin-right:0}
 .nav-main.nav-desk .nav-link:hover,.nav-main.nav-desk .nav-link.active-nav,
@@ -129,7 +129,8 @@ html[lang=ar] .lbl-chk input[type=checkbox],:root:lang(ar) .lbl-chk input[type=c
 }
 .nav-main.nav-desk .nav-link.active-nav :is(.en,.ar){color:var(--c1d)}
 
-.head-extras.desk-extras{display:flex;align-items:center;gap:var(--s1);margin-left:var(--s1);padding-right:0;position:absolute;right:0;z-index:15} /* Show WhatsApp on desktop as rightmost element */
+/* Move WhatsApp to left side, next to logo */
+.head-extras.desk-extras{display:flex;align-items:center;gap:var(--s1);margin-left:var(--s2);padding-right:0;position:static;z-index:5}
 .head-extras.desk-extras .curr-sel{display:none} /* Hide currency selector on desktop for cleaner look */
 /* Ensure mobile keeps currency selector */
 .mob-extras .curr-sel{display:block}
