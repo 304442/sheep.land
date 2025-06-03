@@ -1,4 +1,3 @@
-<!-- Filename: /public/setup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,11 +12,11 @@
         button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em;margin-bottom:5px;}
         button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
         #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:70vh;overflow-y:auto;}
-        .ls{color:lime;font-weight:bold;} /* success */
-        .le{color:salmon;font-weight:bold;} /* error */
-        .li{color:cyan;} /* info */
-        .lw{color:yellow;} /* warning */
-        .ld{color:gray;} /* debug / data */
+        .ls{color:lime;font-weight:bold;}
+        .le{color:salmon;font-weight:bold;}
+        .li{color:cyan;}
+        .lw{color:yellow;}
+        .ld{color:gray;}
         #out pre { margin-top: 5px; padding: 5px; background-color: #333; border-radius: 3px; font-size: 0.9em; }
     </style>
 </head>
@@ -93,14 +92,13 @@
         <div class="bil-row"><p class="en">For livestock, meat cuts, and gathering packages: cancellations typically allowed up to 48 hours before delivery. Quality issues should be reported within 12-24 hours with photographic evidence.</p><p class="ar" dir="rtl">للمواشي وقطعيات اللحوم وباقات الولائم: يُسمح بالإلغاء عادةً حتى 48 ساعة قبل التوصيل. يجب الإبلاغ عن مشاكل الجودة خلال 12-24 ساعة مع دليل فوتوغرافي.</p></div>
     `;
 
-    // Following PB dev doc guidelines: use correct field structure with direct properties
     const collectionsDefinition = [
         {
             name: "settings",
             type: "base",
             system: false,
-            listRule: "", // Public read access
-            viewRule: "", // Public view access
+            listRule: "", 
+            viewRule: "", 
             createRule: null, 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: null, 
@@ -158,7 +156,7 @@
             indexes: [ "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)", "CREATE INDEX `idx_products_category` ON `products` (`product_category`)" ]
         },
         { 
-            name: "users", // This will target the existing _pb_users_auth_
+            name: "users",
             type: "auth",
             system: false, 
             listRule: "@request.auth.id = id || @request.auth.admin = true",
@@ -234,9 +232,7 @@
             { item_key: "baladi_udheya_45kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Local breed, excellent for Udheya, known for its marbling and taste.", type_description_ar: "سلالة محلية، ممتازة للأضحية، معروفة بدهونها المتداخلة وطعمها الغني.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 45kg)", variant_name_ar: "أضحية بلدي (تقريباً ٤٥ كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 10, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
             { item_key: "baladi_udheya_55kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Larger local breed, excellent for Udheya.", type_description_ar: "سلالة محلية أكبر حجمًا، ممتازة للأضحية.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 55kg)", variant_name_ar: "أضحية بلدي (تقريباً ٥٥ كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: 12650, stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
             { item_key: "barki_udheya_50kg", product_category: "udheya", type_key: "barki", type_name_en: "Barki Udheya Sheep", type_name_ar: "خروف برقي للأضحية", type_description_en: "Desert breed, lean and flavorful meat, popular for Udheya.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن وذو نكهة مميزة، شائع للأضحية.", price_per_kg_egp: 250, variant_name_en: "Barki Udheya (Approx. 50kg)", variant_name_ar: "أضحية برقي (تقريباً ٥٠ كجم)", weight_range_text_en: "45-55kg", weight_range_text_ar: "٤٥-٥٥ كجم", avg_weight_kg: 50, base_price_egp: 12500, stock_available_pb: 12, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
-            // CORRECTED type_key for Live Baladi Ram to use existing baladi-sheep.jpg
             { item_key: "live_ram_baladi_large", product_category: "livestock_general", type_key: "baladi", type_name_en: "Live Baladi Ram", type_name_ar: "كبش بلدي حي", type_description_en: "Large healthy Baladi ram for breeding or other purposes.", type_description_ar: "كبش بلدي كبير صحي للتربية أو أغراض أخرى.", variant_name_en: "Large Baladi Ram (70-80kg)", variant_name_ar: "كبش بلدي كبير (٧٠-٨٠كجم)", base_price_egp: 15000, stock_available_pb: 3, is_active: true, sort_order_type: 3, sort_order_variant: 1 },
-            // CORRECTED type_key for Live Barki Ewe to use existing barki-sheep.jpg
             { item_key: "live_ewe_barki_medium", product_category: "livestock_general", type_key: "barki", type_name_en: "Live Barki Ewe", type_name_ar: "نعجة برقي حية", type_description_en: "Healthy Barki ewe, excellent for breeding programs.", type_description_ar: "نعجة برقي صحية، ممتازة لبرامج التربية.", variant_name_en: "Medium Barki Ewe (50-60kg)", variant_name_ar: "نعجة برقي متوسطة (٥٠-٦٠كجم)", base_price_egp: 9500, stock_available_pb: 5, is_active: true, sort_order_type: 3, sort_order_variant: 2 },
             { item_key: "lamb_chops_kg", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Fresh premium lamb chops, tender and juicy.", type_description_ar: "ريش ضأن طازجة فاخرة، طرية وغنية بالعصارة.", variant_name_en: "Lamb Chops (per kg)", variant_name_ar: "ريش ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 450, stock_available_pb: 15, is_active: true, sort_order_type: 4, sort_order_variant: 1 },
             { item_key: "lamb_leg_whole", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Whole lamb leg, perfect for roasting or special meals.", type_description_ar: "فخذة ضأن كاملة، مثالية للتحمير أو الوجبات الخاصة.", variant_name_en: "Whole Lamb Leg (Approx. 2-3kg)", variant_name_ar: "فخذة ضاني كاملة (تقريباً ٢-٣ كجم)", avg_weight_kg: 2.5, base_price_egp: 1100, stock_available_pb: 7, is_active: true, sort_order_type: 4, sort_order_variant: 2 },

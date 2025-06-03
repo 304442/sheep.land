@@ -1,4 +1,3 @@
-// Filename: /script.js
 document.addEventListener('alpine:init', () => {
     const initialCheckoutForm = {
         customer_name: "", customer_phone: "", customer_email: "",
@@ -64,8 +63,8 @@ document.addEventListener('alpine:init', () => {
         
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, isOrderStatusModalOpen: false,
         isUdheyaConfigModalOpen: false,
-        currentPage: 'home', // Default page
-        currentProductPage: '', // For specific product list messages
+        currentPage: 'home', 
+        currentProductPage: '',
         currLang: "en", curr: "EGP",
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false },
         cdTimer: null,
@@ -112,7 +111,6 @@ document.addEventListener('alpine:init', () => {
             return this.currLang === 'ar' ? this.translatePageTitle(title) : title;
         },
         translatePageTitle(englishTitle) {
-            // Basic translation for titles, can be expanded
             const translations = {
                 "Premium Udheya, Livestock & Meats": "أضاحي ومواشي ولحوم فاخرة",
                 "Udheya Ordering": "طلب الأضحية",
@@ -130,7 +128,7 @@ document.addEventListener('alpine:init', () => {
 
         async initApp() {
             this.load.init = true; this.apiErr = null; this.usrApiErr = "";
-            this.determineCurrentPageFromURL(); // Sets initial currentPage
+            this.determineCurrentPageFromURL();
             
             const pb = new PocketBase('/'); this.pb = pb;
             
@@ -190,11 +188,10 @@ document.addEventListener('alpine:init', () => {
             
             this.curr = this.settings.defCurr || "EGP"; this.startCd(); this.clrAllErrs();
             
-            // Call page-specific initializers based on current page
             if (this.currentPage === 'checkout') this.initCheckoutPage();
             else if (this.currentPage === 'auth') this.initAuthPage();
             else if (this.currentPage === 'account') this.initAccountPage();
-            else this.calculateFinalTotal(); // For cart updates on other pages
+            else this.calculateFinalTotal();
             
             this.load.init = false;
             window.addEventListener('hashchange', () => this.determineCurrentPageFromURL());
@@ -205,30 +202,25 @@ document.addEventListener('alpine:init', () => {
             if (hash && validPages.includes(hash.split('?')[0])) {
                 this.currentPage = hash.split('?')[0];
             } else {
-                this.currentPage = 'home'; // Default page
+                this.currentPage = 'home';
             }
             this.updatePageSpecifics();
         },
         updatePageSpecifics() {
-            // This function is called when currentPage changes.
-            // Reset orderConf if not on checkout page
             if (this.currentPage !== 'checkout' && this.orderConf.show) {
                 this.orderConf = { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "", customerEmail: "" };
             }
 
-            // Run page-specific initializers
             if (this.currentPage === 'checkout') this.initCheckoutPage();
             else if (this.currentPage === 'auth') this.initAuthPage();
             else if (this.currentPage === 'account') this.initAccountPage();
 
-            // Set currentProductPage context for messages
             if (['udheya', 'livestock', 'meat', 'gatherings'].includes(this.currentPage)) {
                 this.currentProductPage = this.currentPage;
             } else {
                 this.currentProductPage = '';
             }
 
-            // Scroll to top of new content
             this.$nextTick(() => {
                 const mainContentArea = document.querySelector(`main > section[x-show="currentPage === '${this.currentPage}']`);
                 if (mainContentArea) {
@@ -240,18 +232,17 @@ document.addEventListener('alpine:init', () => {
             });
         },
         navigateToOrScroll(targetPage, targetAnchor = null) {
-            if (targetPage.startsWith('#')) { // Internal anchor link on the same conceptual page
+            if (targetPage.startsWith('#')) {
                 targetAnchor = targetPage.substring(1);
-                targetPage = this.currentPage; // Stay on current page view
+                targetPage = this.currentPage;
             }
             
-            const pageName = targetPage.split('?')[0]; // Remove query params for page name
+            const pageName = targetPage.split('?')[0];
             
             if (this.currentPage !== pageName) {
                 this.currentPage = pageName;
-                window.location.hash = targetPage; // Update hash for deep linking and history
+                window.location.hash = targetPage; 
             } else {
-                // If already on the page, just scroll to anchor if provided
                 if (targetAnchor) {
                     const element = document.getElementById(targetAnchor);
                     if (element) {
@@ -259,7 +250,6 @@ document.addEventListener('alpine:init', () => {
                         window.scrollTo({ top: element.getBoundingClientRect().top + window.pageYOffset - offset - 10, behavior: 'smooth' });
                     }
                 } else {
-                    // Scroll to top of current section if no anchor
                      const mainContentArea = document.querySelector(`main > section[x-show="currentPage === '${this.currentPage}']`);
                      if (mainContentArea) {
                          let offset = document.querySelector('.site-head')?.offsetHeight || 0;
@@ -269,7 +259,6 @@ document.addEventListener('alpine:init', () => {
                      }
                 }
             }
-            // updatePageSpecifics will be called by hashchange listener or directly if needed
         },
 
         generateDefaultRefundPolicyHTML() {
@@ -344,7 +333,7 @@ document.addEventListener('alpine:init', () => {
             
             this.load.addingToCart = null;
             if (this.isUdheyaConfigModalOpen) this.closeUdheyaConfiguration();
-            this.navigateToOrScroll('checkout?buyNow=true'); // Will update hash and trigger page change
+            this.navigateToOrScroll('checkout?buyNow=true');
         },
         removeFromCart(uniqueIdInCart) { this.cartItems = this.cartItems.filter(item => item.uniqueIdInCart !== uniqueIdInCart); this.saveCartToStorage(); this.calculateFinalTotal();},
         updateCartQuantity(uniqueIdInCart, newQuantity) { 

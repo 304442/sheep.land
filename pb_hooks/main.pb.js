@@ -1,16 +1,11 @@
-// Filename: /pb_hooks/main.pb.js
 /// <reference path="../pb_data/types.d.ts" />
 
-/**
- * Helper to register PocketBase hooks safely.
- */
 const registerHook = (collection, event, handler) => {
     try {
-        if (typeof $app !== 'undefined') { // Standard PocketBase environment
+        if (typeof $app !== 'undefined') {
             if (event === 'beforeCreate') $app.onRecordBeforeCreateRequest(collection, handler);
             else if (event === 'afterCreate') $app.onRecordAfterCreateRequest(collection, handler);
             else if (event === 'beforeUpdate') $app.onRecordBeforeUpdateRequest(collection, handler);
-            // Add other event types here if needed, like onRecordBeforeDeleteRequest, etc.
         } else {
             console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: $app not available (not in PocketBase JSVM?).`);
         }
@@ -183,10 +178,8 @@ registerHook("orders", "beforeCreate", (e) => {
     if (e.httpContext?.get("authRecord") && e.httpContext.get("authRecord").id) {
         record.set("user", e.httpContext.get("authRecord").id);
     } else if (record.get("user")) {
-        // User ID already set by client (e.g. from client-side auth state)
-        // Ensure it's a valid ID if stricter checks are desired, or clear if guest checkout intended
+        // User ID already set by client
     }
-
 
     try {
         if (record.has("user_ip_address") && e.httpContext && e.httpContext.realIp) record.set("user_ip_address", e.httpContext.realIp());
@@ -262,7 +255,6 @@ registerHook("orders", "afterCreate", (e) => {
             emailBody += `<h2>Order Summary:</h2>`;
             emailBody += itemsListHTML;
             if (record.getFloat("total_udheya_service_fee_egp") > 0 && !lineItems.some(item => item.product_category === 'udheya' && item.udheya_details?.serviceOption === 'standard_service' && (appSettings.getFloat("servFeeEGP") || 0) > 0 )) {
-                 // This condition is a bit complex; the idea is to show total service fee if not already implied per line item
                  emailBody += `<p>Total Udheya Service Fee(s): ${record.getFloat("total_udheya_service_fee_egp")} EGP</p>`;
             }
             if (record.getFloat("delivery_fee_applied_egp") > 0) {

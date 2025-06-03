@@ -1,4 +1,3 @@
-<!-- Filename: /index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +16,6 @@
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading application data... Please wait.</div>
 <div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'An unexpected error occurred. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
 
-<!-- Cart Sidebar -->
 <div x-show="isCartOpen" class="cart-sidebar-overlay" @click="closeCart()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
 <aside x-show="isCartOpen" class="cart-sidebar" x-transition:enter="transition ease-in-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
         role="dialog" aria-modal="true" aria-labelledby="cart-sidebar-title" @keydown.escape.window="closeCart()">
@@ -74,7 +72,6 @@
     </div>
 </aside>
 
-<!-- Refund Policy Modal -->
 <div x-show="isRefundModalOpen" class="modal-overlay" @click="closeRefundModal()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
 <div x-show="isRefundModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title" @keydown.escape.window="closeRefundModal()">
     <div class="modal-header">
@@ -94,7 +91,6 @@
     </div>
 </div>
 
-<!-- Order Status Modal -->
 <div x-show="isOrderStatusModalOpen" class="modal-overlay" @click="closeOrderStatusModal()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
 <div x-show="isOrderStatusModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="order-status-modal-title" @keydown.escape.window="closeOrderStatusModal()">
     <div class="modal-header">
@@ -155,7 +151,6 @@
     </div>
 </div>
 
-<!-- Udheya Configuration Modal -->
 <div x-show="isUdheyaConfigModalOpen" class="modal-overlay" @click="closeUdheyaConfiguration()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
 <div x-show="isUdheyaConfigModalOpen" class="modal udheya-config-modal" role="dialog" aria-modal="true" aria-labelledby="udheya-config-modal-title" @keydown.escape.window="closeUdheyaConfiguration()">
     <div class="modal-header">
@@ -235,12 +230,12 @@
     </div>
 </div>
 
-
 <header class="site-head">
     <div class="c nav-cont">
         <a href="#home" class="logo bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('home')">
             <span class="en">Sheep Land</span><span class="ar">أرض الأغنام</span>
         </a>
+
         <nav class="nav-main nav-desk" aria-label="Main navigation">
             <ul class="nav-list">
                 <template x-if="settings.enable_udheya_section">
@@ -259,34 +254,38 @@
                 <template x-if="settings.enable_gatherings_section">
                     <li><a href="#gatherings" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'gatherings'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                 </template>
-                 <li>
-                    <button @click="openOrderStatusModal()" class="nav-link as-button" title="Order Status" aria-label="Order Status">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3h-3V2zM15 20H9v-2h6v2zm0-4H9v-2h6v2zm-4.5-4L9 10.5l1.5-1.5L12 10.5l1.5-1.5L15 10.5V5h1.5v15H18V5h1.5v15H21V2l-1.5 1.5z"/></svg>
-                    </button>
-                </li>
-                <template x-if="!currentUser">
-                    <li>
-                        <button @click="isMobNavOpen = false; navigateToOrScroll('auth')" class="nav-link as-button" :class="{'active-nav': currentPage === 'auth'}" title="Login or Register" aria-label="Login or Register">
-                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                            </svg>
-                            <span class="sr-only bil-inline"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></span>
-                        </button>
-                    </li>
-                </template>
                 <template x-if="currentUser">
                     <li><a href="#account" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
                     <li><button @click="logoutUser()" class="nav-link bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
                 </template>
-                 <li>
-                    <button @click="openCart()" class="nav-link as-button" title="Shopping Cart" aria-label="Shopping Cart">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0020.01 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6z"/></svg>
-                        <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
-                    </button>
-                </li>
             </ul>
         </nav>
+
         <div class="head-extras desk-extras">
+            <button @click="openOrderStatusModal()" class="header-action-btn" title="Order Status" aria-label="Order Status">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3h-3V2zM15 20H9v-2h6v2zm0-4H9v-2h6v2zm-4.5-4L9 10.5l1.5-1.5L12 10.5l1.5-1.5L15 10.5V5h1.5v15H18V5h1.5v15H21V2l-1.5 1.5z"/></svg>
+            </button>
+
+            <template x-if="!currentUser">
+                <button @click="isMobNavOpen = false; navigateToOrScroll('auth')" class="header-action-btn" :class="{'active-nav': currentPage === 'auth'}" title="Login or Register" aria-label="Login or Register">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </button>
+            </template>
+            <template x-if="currentUser">
+                <button @click="isMobNavOpen = false; navigateToOrScroll('account')" class="header-action-btn" :class="{'active-nav': currentPage === 'account'}" title="My Account" aria-label="My Account">
+                     <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </button>
+            </template>
+
+            <button @click="openCart()" class="header-action-btn" title="Shopping Cart" aria-label="Shopping Cart">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0020.01 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6z"/></svg>
+                <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
+            </button>
+            
             <div class="curr-sel">
                 <label for="curr-sel-desk" class="sr-only">Select Currency</label>
                 <select id="curr-sel-desk" x-model="curr" aria-label="Select Currency">
@@ -302,6 +301,7 @@
                 </a>
             </div>
         </div>
+
         <button class="menu-btn" @click="isMobNavOpen = !isMobNavOpen" aria-label="Toggle menu" :aria-expanded="isMobNavOpen.toString()" aria-controls="mob-nav-content">
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
                 <path x-show="!isMobNavOpen" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
@@ -309,6 +309,7 @@
             </svg>
         </button>
     </div>
+
     <div class="mob-nav" id="mob-nav-content" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
         <nav aria-label="Mobile navigation">
             <ul class="nav-list-mob">
@@ -389,7 +390,6 @@
 </header>
 
 <main>
-    <!-- Home Section -->
     <section id="home-sect" class="hero main-page-sec" x-show="currentPage === 'home'" style="background-color: var(--b2); padding-top: 0; padding-bottom: 0;" x-transition>
         <div class="c tc">
             <h1 class="bil-spread hero-h"><span class="en">Premium Udheya & Livestock</span><span class="ar">أضاحي ومواشي فاخرة</span></h1>
@@ -421,7 +421,6 @@
         </div>
     </section>
 
-    <!-- Udheya Section -->
     <section id="udheya-sect" class="main-page-sec sec order-sect" x-show="currentPage === 'udheya' && settings.enable_udheya_section" x-transition>
         <div class="c">
             <div class="sec-head order-sect-h">
@@ -488,7 +487,6 @@
         </div>
     </section>
 
-    <!-- Livestock Section -->
     <section id="live-sect" class="main-page-sec sec" style="background-color: var(--b2);" x-show="currentPage === 'livestock' && settings.enable_livestock_section" x-transition>
         <div class="c">
             <div class="sec-head">
@@ -557,7 +555,6 @@
         </div>
     </section>
 
-    <!-- Meat Section -->
     <section id="meat-sect" class="main-page-sec sec" x-show="currentPage === 'meat' && settings.enable_meat_section" x-transition>
         <div class="c">
             <div class="sec-head">
@@ -626,7 +623,6 @@
         </div>
     </section>
 
-    <!-- Gatherings Section -->
     <section id="gath-sect" class="main-page-sec sec" style="background-color: var(--b1);" x-show="currentPage === 'gatherings' && settings.enable_gatherings_section" x-transition>
         <div class="c">
             <div class="sec-head">
@@ -695,7 +691,6 @@
         </div>
     </section>
 
-    <!-- Checkout Section -->
     <section class="sec main-page-sec" id="checkout-page" x-show="currentPage === 'checkout'" x-transition>
         <div class="c">
             <div class="sec-head">
@@ -866,7 +861,6 @@
                 </div>
             </div>
 
-            <!-- Order Confirmation Section -->
             <section id="order-conf-sect" class="sec conf-sect-wide" x-show="orderConf.show && currentPage === 'checkout'" x-transition.opacity.duration.300ms>
                 <div class="c tc">
                     <div class="sec-head conf-h"><h2 class="bil-spread" x-ref="orderConfTitle" tabindex="-1"><span class="en">Order Confirmed! JazakAllah Khairan.</span><span class="ar">تم تأكيد الطلب! جزاكم الله خيرًا.</span></h2></div>
@@ -915,7 +909,6 @@
         </div>
     </section>
     
-    <!-- Auth Section -->
     <section class="sec main-page-sec" id="auth-page" x-show="currentPage === 'auth'" x-transition>
         <div class="c">
             <div class="sec-head">
@@ -928,7 +921,6 @@
             <div class="auth-form-container">
                 <div class="card form-panel">
                     <div class="card-b">
-                        <!-- Login Form -->
                         <form id="login-form" @submit.prevent="loginUser()" novalidate x-show="auth.view === 'login'">
                             <div class="fg">
                                 <label for="loginEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
@@ -953,7 +945,6 @@
                             </p>
                         </form>
 
-                        <!-- Registration Form -->
                         <form id="register-form" @submit.prevent="registerUser()" novalidate x-show="auth.view === 'register'">
                             <div class="fg">
                                 <label for="registerName" class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
@@ -994,7 +985,6 @@
         </div>
     </section>
     
-    <!-- Account Section -->
     <section class="sec main-page-sec" id="account-page" x-show="currentPage === 'account'" x-transition>
         <div class="c">
             <div class="sec-head">
