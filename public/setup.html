@@ -1,4 +1,4 @@
-<!-- Filename: /setup.html -->
+<!-- Filename: /public/setup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +43,7 @@
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
         const p = document.createElement('p');
         p.className = `l${type[0].toLowerCase()}`;
-        let logMessage = timestamp + message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let logMessage = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
         if (data) {
             const pre = document.createElement('pre');
             pre.className = 'ld'; 
@@ -182,8 +182,6 @@
             name: "orders", 
             type: "base", 
             system: false,
-            // NOTE: Initial rules without user field reference - will be updated after relation is added
-            // This prevents "unknown field 'user'" error during collection creation
             listRule: "@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID", 
             viewRule: "@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID",
             createRule: "", 
@@ -191,7 +189,6 @@
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
             fields: [
                 { name: "order_id_text", type: "text", required: true, presentable: true, unique: true, max: 50, min: 1 },
-                // user relation field will be added in the addOrVerifyRelationFields step
                 { name: "customer_name", type: "text", required: true, presentable: true, max: 150, min: 1 },
                 { name: "customer_phone", type: "text", required: true, presentable: true, max: 30, min: 7 },
                 { name: "customer_email", type: "email", required: true, presentable: true },
@@ -237,8 +234,10 @@
             { item_key: "baladi_udheya_45kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Local breed, excellent for Udheya, known for its marbling and taste.", type_description_ar: "سلالة محلية، ممتازة للأضحية، معروفة بدهونها المتداخلة وطعمها الغني.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 45kg)", variant_name_ar: "أضحية بلدي (تقريباً ٤٥ كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 10, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
             { item_key: "baladi_udheya_55kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Larger local breed, excellent for Udheya.", type_description_ar: "سلالة محلية أكبر حجمًا، ممتازة للأضحية.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 55kg)", variant_name_ar: "أضحية بلدي (تقريباً ٥٥ كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: 12650, stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
             { item_key: "barki_udheya_50kg", product_category: "udheya", type_key: "barki", type_name_en: "Barki Udheya Sheep", type_name_ar: "خروف برقي للأضحية", type_description_en: "Desert breed, lean and flavorful meat, popular for Udheya.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن وذو نكهة مميزة، شائع للأضحية.", price_per_kg_egp: 250, variant_name_en: "Barki Udheya (Approx. 50kg)", variant_name_ar: "أضحية برقي (تقريباً ٥٠ كجم)", weight_range_text_en: "45-55kg", weight_range_text_ar: "٤٥-٥٥ كجم", avg_weight_kg: 50, base_price_egp: 12500, stock_available_pb: 12, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
-            { item_key: "live_ram_baladi_large", product_category: "livestock_general", type_key: "live_ram", type_name_en: "Live Baladi Ram", type_name_ar: "كبش بلدي حي", type_description_en: "Large healthy Baladi ram for breeding or other purposes.", type_description_ar: "كبش بلدي كبير صحي للتربية أو أغراض أخرى.", variant_name_en: "Large Baladi Ram (70-80kg)", variant_name_ar: "كبش بلدي كبير (٧٠-٨٠كجم)", base_price_egp: 15000, stock_available_pb: 3, is_active: true, sort_order_type: 3, sort_order_variant: 1 },
-            { item_key: "live_ewe_barki_medium", product_category: "livestock_general", type_key: "live_ewe", type_name_en: "Live Barki Ewe", type_name_ar: "نعجة برقي حية", type_description_en: "Healthy Barki ewe, excellent for breeding programs.", type_description_ar: "نعجة برقي صحية، ممتازة لبرامج التربية.", variant_name_en: "Medium Barki Ewe (50-60kg)", variant_name_ar: "نعجة برقي متوسطة (٥٠-٦٠كجم)", base_price_egp: 9500, stock_available_pb: 5, is_active: true, sort_order_type: 3, sort_order_variant: 2 },
+            // CORRECTED type_key for Live Baladi Ram to use existing baladi-sheep.jpg
+            { item_key: "live_ram_baladi_large", product_category: "livestock_general", type_key: "baladi", type_name_en: "Live Baladi Ram", type_name_ar: "كبش بلدي حي", type_description_en: "Large healthy Baladi ram for breeding or other purposes.", type_description_ar: "كبش بلدي كبير صحي للتربية أو أغراض أخرى.", variant_name_en: "Large Baladi Ram (70-80kg)", variant_name_ar: "كبش بلدي كبير (٧٠-٨٠كجم)", base_price_egp: 15000, stock_available_pb: 3, is_active: true, sort_order_type: 3, sort_order_variant: 1 },
+            // CORRECTED type_key for Live Barki Ewe to use existing barki-sheep.jpg
+            { item_key: "live_ewe_barki_medium", product_category: "livestock_general", type_key: "barki", type_name_en: "Live Barki Ewe", type_name_ar: "نعجة برقي حية", type_description_en: "Healthy Barki ewe, excellent for breeding programs.", type_description_ar: "نعجة برقي صحية، ممتازة لبرامج التربية.", variant_name_en: "Medium Barki Ewe (50-60kg)", variant_name_ar: "نعجة برقي متوسطة (٥٠-٦٠كجم)", base_price_egp: 9500, stock_available_pb: 5, is_active: true, sort_order_type: 3, sort_order_variant: 2 },
             { item_key: "lamb_chops_kg", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Fresh premium lamb chops, tender and juicy.", type_description_ar: "ريش ضأن طازجة فاخرة، طرية وغنية بالعصارة.", variant_name_en: "Lamb Chops (per kg)", variant_name_ar: "ريش ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 450, stock_available_pb: 15, is_active: true, sort_order_type: 4, sort_order_variant: 1 },
             { item_key: "lamb_leg_whole", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Whole lamb leg, perfect for roasting or special meals.", type_description_ar: "فخذة ضأن كاملة، مثالية للتحمير أو الوجبات الخاصة.", variant_name_en: "Whole Lamb Leg (Approx. 2-3kg)", variant_name_ar: "فخذة ضاني كاملة (تقريباً ٢-٣ كجم)", avg_weight_kg: 2.5, base_price_egp: 1100, stock_available_pb: 7, is_active: true, sort_order_type: 4, sort_order_variant: 2 },
             { item_key: "beef_mince_kg", product_category: "meat_cuts", type_key: "beef_cuts", type_name_en: "Beef Cuts", type_name_ar: "قطعيات بقري", type_description_en: "Freshly ground local beef, versatile for many dishes.", type_description_ar: "لحم بقري محلي مفروم طازج، متعدد الاستخدامات للعديد من الأطباق.", variant_name_en: "Beef Mince (per kg)", variant_name_ar: "لحم بقري مفروم (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 380, stock_available_pb: 20, is_active: true, sort_order_type: 4, sort_order_variant: 3 },
@@ -302,7 +301,6 @@
                 existingCollection = await pb.collections.getOne(collectionNameToUse);
                 log(`Collection "${collectionNameToUse}" exists. Attempting update...`, 'i');
                 
-                // Follow dev doc: use 'fields' for individual operations
                 const updatePayload = {
                     listRule: collectionDef.listRule,
                     viewRule: collectionDef.viewRule,
@@ -327,7 +325,7 @@
                             name: collectionDef.name,
                             type: collectionDef.type,
                             system: collectionDef.system || false,
-                            fields: collectionDef.fields, // Use 'fields' for individual operations
+                            fields: collectionDef.fields, 
                             listRule: collectionDef.listRule !== undefined ? collectionDef.listRule : null,
                             viewRule: collectionDef.viewRule !== undefined ? collectionDef.viewRule : null,
                             createRule: collectionDef.createRule !== undefined ? collectionDef.createRule : null,
@@ -356,12 +354,10 @@
         return true;
     }
     
-    // Following dev doc guidelines for relation fields
     async function addOrVerifyRelationFields(pb) {
         log('Adding/Verifying relation fields...', 'i');
         let overallSuccess = true;
         
-        // Get the actual users collection ID first
         let usersCollectionId;
         try {
             const usersCollection = await pb.collections.getOne("_pb_users_auth_");
@@ -376,7 +372,7 @@
             { 
                 sourceCollectionName: "orders", 
                 fieldName: "user", 
-                targetCollectionId: usersCollectionId, // Use actual collection ID
+                targetCollectionId: usersCollectionId,
                 cascadeDelete: false, 
                 minSelect: null, 
                 maxSelect: 1, 
@@ -396,7 +392,6 @@
                     log(`Relation field "${rel.fieldName}" in "${rel.sourceCollectionName}" exists. Verifying...`, 'w');
                     let fieldChanged = false;
                     
-                    // Follow dev doc: use direct properties, not nested options
                     if (fieldExists.required !== rel.required) { fieldChanged = true; fieldExists.required = rel.required; }
                     if (fieldExists.presentable !== rel.presentable) { fieldChanged = true; fieldExists.presentable = rel.presentable; }
                     if (fieldExists.collectionId !== rel.targetCollectionId) { fieldChanged = true; fieldExists.collectionId = rel.targetCollectionId; }
@@ -413,7 +408,6 @@
                         await pb.collections.update(sourceCollection.id, { fields: fields });
                     }
                     
-                    // Ensure API rules are correct for orders collection
                     if (rel.sourceCollectionName === "orders") {
                         const currentCollection = await pb.collections.getOne(rel.sourceCollectionName);
                         const expectedListRule = "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true";
@@ -431,24 +425,22 @@
                     continue;
                 }
                 
-                // Follow dev doc: use direct properties for relation fields
                 const newField = {
                     name: rel.fieldName,
                     type: "relation",
                     required: rel.required,
                     presentable: rel.presentable,
-                    collectionId: rel.targetCollectionId, // Direct property
-                    cascadeDelete: rel.cascadeDelete, // Direct property
-                    minSelect: rel.minSelect, // Direct property
-                    maxSelect: rel.maxSelect, // Direct property
-                    displayFields: rel.displayFields // Direct property
+                    collectionId: rel.targetCollectionId,
+                    cascadeDelete: rel.cascadeDelete,
+                    minSelect: rel.minSelect,
+                    maxSelect: rel.maxSelect,
+                    displayFields: rel.displayFields 
                 };
                 
                 fields.push(newField);
                 await pb.collections.update(sourceCollection.id, { fields: fields });
                 log(`Relation field "${rel.fieldName}" added to "${rel.sourceCollectionName}" successfully.`, 's');
                 
-                // Update API rules now that user field exists
                 if (rel.sourceCollectionName === "orders") {
                     log('Updating orders collection API rules with user field references...', 'i');
                     await pb.collections.update(sourceCollection.id, {
@@ -553,7 +545,6 @@
         return warnings.length === 0;
     }
 
-    // Event handlers following dev doc best practices
     runFullSetupButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
         outputDiv.innerHTML = ''; 
