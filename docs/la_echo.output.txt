@@ -4,46 +4,53 @@
 │   ├── pb_dev_doc.txt
 │   ├── pb_fix_instructions.txt
 │   └── setup_fix.txt
-├── public
-│   ├── admin.html
-│   ├── images
-│   │   ├── baladi-sheep.jpg
-│   │   ├── bank_transfer_icon.svg
-│   │   ├── bank_transfer.svg
-│   │   ├── barki-sheep.jpg
-│   │   ├── cod.svg
-│   │   ├── fawry.svg
-│   │   ├── hero-sheep-farm.jpg
-│   │   ├── hero-sheep-farm1.jpg
-│   │   ├── icon-delivery.svg
-│   │   ├── icon-easybooking.svg
-│   │   ├── icon-premium.svg
-│   │   ├── icon-sharia.svg
-│   │   ├── instapay.svg
-│   │   ├── mastercard.svg
-│   │   ├── monzo.svg
-│   │   ├── packaging-standard.jpg
-│   │   ├── packaging-vacuum-sealed.jpg
-│   │   ├── prep-charity-portions.jpg
-│   │   ├── prep-custom-ground-mix.jpg
-│   │   ├── prep-feast-preparation.jpg
-│   │   ├── prep-standard-mixed-cuts.jpg
-│   │   ├── revolut.svg
-│   │   ├── visa.svg
-│   │   ├── vodafone.svg
-│   │   └── vodafonecash.png
-│   ├── index.html
-│   └── setup.html
-├── src
-│   ├── main.css
-│   ├── main.js
-│   └── pb.js
-└── vendor
-    ├── alpine-collapse.min.js
-    ├── alpine.min.js
-    └── pocketbase.umd.js
+├── pb_hooks
+│   └── main.pb.js
+└── public
+    ├── admin.html
+    ├── css
+    │   └── main.css
+    ├── images
+    │   ├── baladi-sheep.jpg
+    │   ├── bank_transfer_icon.svg
+    │   ├── bank_transfer.svg
+    │   ├── barki-sheep.jpg
+    │   ├── bbq_pack-gathering.jpg
+    │   ├── beef-cuts.jpg
+    │   ├── card_payment.svg
+    │   ├── cod.svg
+    │   ├── fawry.svg
+    │   ├── feast_pack-gathering.jpg
+    │   ├── hero-sheep-farm.jpg
+    │   ├── hero-sheep-farm1.jpg
+    │   ├── icon-delivery.svg
+    │   ├── icon-easybooking.svg
+    │   ├── icon-premium.svg
+    │   ├── icon-sharia.svg
+    │   ├── instapay.svg
+    │   ├── lamb-cuts.jpg
+    │   ├── mastercard.svg
+    │   ├── monzo.svg
+    │   ├── packaging-standard.jpg
+    │   ├── packaging-vacuum-sealed.jpg
+    │   ├── prep-charity-portions.jpg
+    │   ├── prep-custom-ground-mix.jpg
+    │   ├── prep-feast-preparation.jpg
+    │   ├── prep-standard-mixed-cuts.jpg
+    │   ├── revolut.svg
+    │   ├── visa.svg
+    │   ├── vodafone.svg
+    │   └── vodafonecash.png
+    ├── index.html
+    ├── js
+    │   └── main.js
+    ├── setup.html
+    └── vendor
+        ├── alpine-collapse.min.js
+        ├── alpine.min.js
+        └── pocketbase.umd.js
 
-6 directories, 38 files
+8 directories, 43 files
 
 ===== public/index.html =====
 <!-- Filename: /index.html -->
@@ -57,7 +64,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/src/main.css">
+    <link rel="stylesheet" href="css/main.css">
     <style>[x-cloak]{display:none!important}</style>
 </head>
 <body x-data="udh" x-init="initApp()" x-cloak>
@@ -1151,7 +1158,7 @@
 <script src="vendor/pocketbase.umd.js"></script>
 <script defer src="vendor/alpine.min.js"></script>
 <script defer src="vendor/alpine-collapse.min.js"></script>
-<script type="module" src="/src/main.js"></script>
+<script type="module" src="js/main.js"></script>
 
 </body>
 </html>
@@ -1798,7 +1805,7 @@
 </script>
 </body>
 </html>
-===== src/main.js =====
+===== public/js/main.js =====
 // Filename: /script.js
 document.addEventListener('alpine:init', () => {
     const initialCheckoutForm = {
@@ -1824,7 +1831,7 @@ document.addEventListener('alpine:init', () => {
         { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg' },
         { id: 'ip', title: 'InstaPay', imgSrc: 'instapay.svg' },
         { id: 'fa', title: 'Fawry', imgSrc: 'fawry.svg' },
-        { id: 'vo', title: 'Vodafone Cash', imgSrc: 'vodafone.svg' },
+        { id: 'vo', title: 'Vodafone Cash', imgSrc: 'vodafonecash.png' },
         { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg' },
         { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg' }
     ];
@@ -2398,7 +2405,7 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 });
-===== src/main.css =====
+===== public/css/main.css =====
 /* Filename: /styles.css */
 :root{
     --c1:#5D4037; --c1d:#3E2723; --c2:#386641; --c2l:#A3B18A; --c3:#F28C28;
@@ -3142,7 +3149,7 @@ html[dir="rtl"] .nav-list-mob .nav-link-mob.as-button .nav-icon {
     background-color: rgba(0,0,0,.03);
 }
 /* --- End Header Icon Button Fix --- */
-===== src/pb.js =====
+===== pb_hooks/main.pb.js =====
 // Filename: /pb_hooks/main.pb.js
 /// <reference path="../pb_data/types.d.ts" />
 

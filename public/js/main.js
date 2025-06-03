@@ -23,7 +23,7 @@ document.addEventListener('alpine:init', () => {
         { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg' },
         { id: 'ip', title: 'InstaPay', imgSrc: 'instapay.svg' },
         { id: 'fa', title: 'Fawry', imgSrc: 'fawry.svg' },
-        { id: 'vo', title: 'Vodafone Cash', imgSrc: 'vodafone.svg' },
+        { id: 'vo', title: 'Vodafone Cash', imgSrc: 'vodafonecash.png' },
         { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg' },
         { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg' }
     ];
