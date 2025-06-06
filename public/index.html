@@ -35,22 +35,31 @@
         </div>
         <div x-show="cartItems.length > 0">
             <template x-for="(cartItem) in cartItems" :key="cartItem.uniqueIdInCart">
-                <div class="cart-item bil-row">
+                <div class="cart-item">
                     <div class="cart-item-details">
-                        <p class="cart-item-name bil-spread"><span x-text="cartItem.nameENSpec"></span><span x-text="cartItem.nameARSpec"></span></p>
+                        <div class="cart-item-name bil-spread">
+                            <span class="en" x-text="cartItem.nameENSpec"></span>
+                            <span class="ar" x-text="cartItem.nameARSpec"></span>
+                        </div>
                         <template x-if="cartItem.product_category === 'udheya' && cartItem.udheya_details">
                             <div class="cart-item-udheya-details">
-                                <p class="udheya-detail bil-row"><span class="en sm-label">Service:</span><span class="ar sm-label">الخدمة:</span> <span class="en sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'Standard' : 'Live Animal'"></span><span class="ar sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></p>
+                                <div class="udheya-detail bil-spread">
+                                    <span class="en"><span class="sm-label">Service:</span> <span class="sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'Standard' : 'Live Animal'"></span></span>
+                                    <span class="ar"><span class="sm-label">الخدمة:</span> <span class="sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></span>
+                                </div>
                             </div>
                         </template>
-                        <p class="cart-item-price bil-row"><span class="en" x-text="fmtPrice(cartItem.priceEGP) + ' x ' + cartItem.quantity"></span><span class="ar" x-text="fmtPrice(cartItem.priceEGP) + ' × ' + cartItem.quantity"></span></p>
+                        <div class="cart-item-price bil-spread">
+                            <span class="en" x-text="fmtPrice(cartItem.priceEGP) + ' x ' + cartItem.quantity"></span>
+                            <span class="ar" x-text="fmtPrice(cartItem.priceEGP) + ' × ' + cartItem.quantity"></span>
+                        </div>
                     </div>
-                    <div class="cart-item-quantity bil-inline">
+                    <div class="cart-item-quantity">
                         <button type="button" @click="updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity - 1)" class="btn btn-sm qty-btn" :disabled="cartItem.quantity <= 1">-</button>
                         <span class="cart-qty-display" x-text="cartItem.quantity"></span>
                         <button type="button" @click="updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity + 1)" class="btn btn-sm qty-btn" :disabled="cartItem.quantity >= cartItem.stock || (cartItem.product_category === 'udheya' && cartItem.quantity >=1 )">+</button>
                     </div>
-                    <div class="cart-item-subtotal bil-row">
+                    <div class="cart-item-subtotal bil-spread">
                          <span class="en" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
                          <span class="ar" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
                     </div>
