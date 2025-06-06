@@ -7,11 +7,344 @@
     <title x-text="pageTitle() + ' - Sheep Land'">Sheep Land</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="main.css">
     <style>[x-cloak]{display:none!important}</style>
 </head>
-<body x-data="udh" x-init="initApp()" x-cloak>
+<body x-data="udh" x-init="initApp()" x-cloak :class="{'no-scroll': isCartOpen || isRefundModalOpen || isOrderStatusModalOpen || isUdheyaConfigModalOpen}">
+
+<!-- Loading State -->
+<div x-show="load.init && !apiErr" class="loading" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;background:var(--bg);padding:var(--space-xl);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg)" aria-live="polite">
+    <div class="spinner"></div>
+    <span>Loading application data...</span>
+</div>
+
+<!-- Error State -->
+<div x-show="apiErr" class="alert alert-error" style="position:fixed;top:var(--space);left:50%;transform:translateX(-50%);z-index:100;max-width:500px" role="alert" aria-live="assertive">
+    <span x-text="usrApiErr || 'An unexpected error occurred. Please try again.'"></span>
+</div>
+
+<!-- Cart Sidebar -->
+<div x-show="isCartOpen" class="cart-overlay" @click="closeCart()" x-transition:enter="fade-enter" x-transition:enter-active="fade-enter-active" x-transition:leave="fade-leave" x-transition:leave-active="fade-leave-active"></div>
+<aside x-show="isCartOpen" class="cart-sidebar" x-transition:enter="slide-enter" x-transition:enter-active="slide-enter-active" x-transition:leave="slide-leave" x-transition:leave-active="slide-leave-active" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+    <div class="cart-header">
+        <h2 id="cart-title" class="cart-title bilingual">
+            <span class="en">Your Cart</span><span class="ar">سلتك</span>
+        </h2>
+        <button @click="closeCart()" class="close-btn" aria-label="Close cart">×</button>
+    </div>
+    
+    <div class="cart-content">
+        <div x-show="cartItems.length === 0" class="cart-empty">
+            <div class="bilingual-center">
+                <p class="en">Your cart is currently empty</p>
+                <p class="ar">سلتك فارغة حاليًا</p>
+            </div>
+            <button @click="closeCart(); navigateToOrScroll('udheya')" class="btn btn-primary bilingual-inline" style="margin-top:var(--space)">
+                <span class="en">Start Shopping</span><span class="ar">ابدأ التسوق</span>
+            </button>
+        </div>
+        
+        <div x-show="cartItems.length > 0">
+            <template x-for="item in cartItems" :key="item.uniqueIdInCart">
+                <div class="cart-item">
+                    <div class="cart-item-details">
+                        <div class="cart-item-name bilingual">
+                            <span class="en" x-text="item.nameENSpec"></span>
+                            <span class="ar" x-text="item.nameARSpec"></span>
+                        </div>
+                        <template x-if="item.product_category === 'udheya' && item.udheya_details">
+                            <div class="cart-item-meta bilingual">
+                                <span class="en">Service: <span x-text="item.udheya_details.serviceOption === 'standard_service' ? 'Standard' : 'Live Animal'"></span></span>
+                                <span class="ar">الخدمة: <span x-text="item.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></span>
+                            </div>
+                        </template>
+                        <div class="cart-item-price bilingual">
+                            <span class="en" x-text="fmtPrice(item.priceEGP) + ' each'"></span>
+                            <span class="ar" x-text="fmtPrice(item.priceEGP) + ' للقطعة'"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-controls">
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" @click="item.quantity === 1 ? removeFromCart(item.uniqueIdInCart) : updateCartQuantity(item.uniqueIdInCart, item.quantity - 1)">−</button>
+                            <span class="quantity-display" x-text="item.quantity"></span>
+                            <button class="quantity-btn" @click="updateCartQuantity(item.uniqueIdInCart, item.quantity + 1)" :disabled="item.quantity >= item.stock || (item.product_category === 'udheya' && item.quantity >= 1)">+</button>
+                        </div>
+                        <div class="cart-item-total" x-text="fmtPrice(getSubtotalForItem(item))"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+    
+    <div class="cart-footer" x-show="cartItems.length > 0">
+        <div class="cart-total bilingual">
+            <span class="en">Total</span><span class="ar">الإجمالي</span>
+            <span x-text="fmtPrice(calculateCartTotal())"></span>
+        </div>
+        <button @click="closeCart(); navigateToOrScroll('checkout')" class="btn btn-primary btn-block bilingual-inline">
+            <span class="en">Proceed to Checkout</span><span class="ar">المتابعة للدفع</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Header -->
+<header class="header">
+    <div class="container header-content">
+        <a href="#home" class="logo bilingual-inline" @click.prevent="navigateToOrScroll('home')">
+            <span class="en">🐑 Sheep Land</span><span class="ar">أرض الأغنام</span>
+        </a>
+
+        <nav class="nav-main">
+            <template x-if="settings.enable_udheya_section">
+                <a href="#udheya" class="nav-link bilingual-inline" :class="{'active': currentPage === 'udheya'}" @click.prevent="navigateToOrScroll('udheya')">
+                    <span class="en">Udheya</span><span class="ar">الأضحية</span>
+                </a>
+            </template>
+            <template x-if="settings.enable_livestock_section">
+                <a href="#livestock" class="nav-link bilingual-inline" :class="{'active': currentPage === 'livestock'}" @click.prevent="navigateToOrScroll('livestock')">
+                    <span class="en">Livestock</span><span class="ar">الأغنام</span>
+                </a>
+            </template>
+            <template x-if="settings.enable_meat_section">
+                <a href="#meat" class="nav-link bilingual-inline" :class="{'active': currentPage === 'meat'}" @click.prevent="navigateToOrScroll('meat')">
+                    <span class="en">Meat</span><span class="ar">اللحوم</span>
+                </a>
+            </template>
+            <template x-if="settings.enable_gatherings_section">
+                <a href="#gatherings" class="nav-link bilingual-inline" :class="{'active': currentPage === 'gatherings'}" @click.prevent="navigateToOrScroll('gatherings')">
+                    <span class="en">Gatherings</span><span class="ar">الولائم</span>
+                </a>
+            </template>
+            <template x-if="currentUser">
+                <a href="#account" class="nav-link bilingual-inline" :class="{'active': currentPage === 'account'}" @click.prevent="navigateToOrScroll('account')">
+                    <span class="en">Account</span><span class="ar">حسابي</span>
+                </a>
+            </template>
+        </nav>
+
+        <div class="header-actions">
+            <button @click="openOrderStatusModal()" class="header-btn" title="Order Status">📋</button>
+            <template x-if="!currentUser">
+                <button @click="navigateToOrScroll('auth')" class="header-btn" title="Login">👤</button>
+            </template>
+            <template x-if="currentUser">
+                <button @click="navigateToOrScroll('account')" class="header-btn" title="My Account">👤</button>
+            </template>
+            <button @click="openCart()" class="header-btn" title="Cart">
+                🛒<span x-show="cartItems.length > 0" class="cart-badge" x-text="cartItemCount"></span>
+            </button>
+            <select x-model="curr" class="form-select" style="width:auto;padding:var(--space-xs) var(--space-sm);font-size:var(--text-sm)">
+                <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
+                    <option :value="code" x-text="code" :disabled="!settings.xchgRates[code].is_active"></option>
+                </template>
+            </select>
+            <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" class="header-btn bilingual-inline" title="WhatsApp Contact">
+                📱 <span x-text="settings.waNumDisp" style="font-size:var(--text-sm);margin-left:var(--space-xs)"></span>
+            </a>
+            <button class="mobile-menu-btn header-btn" @click="isMobNavOpen = !isMobNavOpen">☰</button>
+        </div>
+
+        <div class="mobile-nav" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
+            <div class="mobile-nav-list">
+                <template x-if="settings.enable_udheya_section">
+                    <a href="#udheya" class="nav-link bilingual-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')">
+                        <span class="en">Udheya</span><span class="ar">الأضحية</span>
+                    </a>
+                </template>
+                <template x-if="settings.enable_livestock_section">
+                    <a href="#livestock" class="nav-link bilingual-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')">
+                        <span class="en">Livestock</span><span class="ar">الأغنام</span>
+                    </a>
+                </template>
+                <template x-if="settings.enable_meat_section">
+                    <a href="#meat" class="nav-link bilingual-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')">
+                        <span class="en">Meat</span><span class="ar">اللحوم</span>
+                    </a>
+                </template>
+                <template x-if="settings.enable_gatherings_section">
+                    <a href="#gatherings" class="nav-link bilingual-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')">
+                        <span class="en">Gatherings</span><span class="ar">الولائم</span>
+                    </a>
+                </template>
+                <template x-if="currentUser">
+                    <a href="#account" class="nav-link bilingual-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')">
+                        <span class="en">My Account</span><span class="ar">حسابي</span>
+                    </a>
+                    <button @click="logoutUser(); isMobNavOpen = false;" class="nav-link bilingual-inline" style="background:none;border:none;width:100%;text-align:center">
+                        <span class="en">Logout</span><span class="ar">خروج</span>
+                    </button>
+                </template>
+            </div>
+            
+            <div class="mobile-nav-actions">
+                <button @click="openOrderStatusModal(); isMobNavOpen = false;" class="header-btn">📋</button>
+                <template x-if="!currentUser">
+                    <button @click="navigateToOrScroll('auth'); isMobNavOpen = false;" class="header-btn">👤</button>
+                </template>
+                <button @click="openCart(); isMobNavOpen = false;" class="header-btn">
+                    🛒<span x-show="cartItems.length > 0" class="cart-badge" x-text="cartItemCount"></span>
+                </button>
+            </div>
+            
+            <div class="mobile-contact">
+                <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" class="bilingual-inline" style="color:var(--primary);text-decoration:none">
+                    📱 <span x-text="settings.waNumDisp"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main style="flex:1">
+    <!-- Home Section -->
+    <section class="hero" x-show="currentPage === 'home'" x-transition>
+        <div class="container hero-content">
+            <h1 class="bilingual-center">
+                <span class="en">Premium Udheya & Livestock</span>
+                <span class="ar">أضاحي ومواشي فاخرة</span>
+            </h1>
+            <div class="bilingual-center">
+                <p class="en">Experience the tradition of Udheya with ease and quality. Farm-fresh, Sharia-compliant livestock and meats delivered to your doorstep.</p>
+                <p class="ar">عش تجربة الأضحية التقليدية بسهولة وجودة. مواشي ولحوم طازجة من المزرعة، متوافقة مع الشريعة، تصلك حتى باب منزلك.</p>
+            </div>
+            <button @click="navigateToOrScroll('udheya')" class="btn btn-secondary btn-lg bilingual-inline">
+                <span class="en">Explore Udheya Options</span><span class="ar">تصفح خيارات الأضاحي</span>
+            </button>
+            
+            <template x-if="settings.promoActive && !cd.ended">
+                <div class="promo-banner">
+                    <div class="bilingual-center">
+                        <p class="en"><strong>🎉 Special Offer: <span x-text="settings.promoDiscPc"></span>% OFF Udheya!</strong></p>
+                        <p class="ar"><strong>🎉 عرض خاص: خصم <span x-text="settings.promoDiscPc"></span>% على الأضاحي!</strong></p>
+                    </div>
+                    <div class="countdown">
+                        <div class="countdown-item">
+                            <div class="countdown-value" x-text="cd.days"></div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" x-text="cd.hours"></div>
+                            <div class="countdown-label">Hrs</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" x-text="cd.mins"></div>
+                            <div class="countdown-label">Min</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" x-text="cd.secs"></div>
+                            <div class="countdown-label">Sec</div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </section>
+
+    <!-- Product Sections -->
+    <template x-for="section in [
+        {key: 'udheya', name: {en: 'Order Your Udheya', ar: 'اطلب أضحيتك'}, products: prodOpts.udheya, badge: 'UDHEYA'},
+        {key: 'livestock', name: {en: 'Our Livestock', ar: 'أغنامنا'}, products: prodOpts.livestock_general, badge: 'LIVESTOCK'},
+        {key: 'meat', name: {en: 'Fresh Meat Cuts', ar: 'قطعيات اللحوم الطازجة'}, products: prodOpts.meat_cuts, badge: 'MEAT'},
+        {key: 'gatherings', name: {en: 'Gatherings & Feasts', ar: 'الولائم والمناسبات'}, products: prodOpts.gathering_package, badge: 'FEAST'}
+    ]" :key="section.key">
+        <section class="section" x-show="currentPage === section.key && settings['enable_' + section.key + '_section']" x-transition>
+            <div class="container">
+                <div style="margin-bottom:var(--space-2xl)">
+                    <h1 class="bilingual text-center">
+                        <span class="en" x-text="section.name.en"></span>
+                        <span class="ar" x-text="section.name.ar"></span>
+                    </h1>
+                </div>
+                
+                <div x-show="section.products && section.products.length > 0" class="product-grid">
+                    <template x-for="productType in section.products" :key="productType.valKey">
+                        <template x-for="item in productType.wps" :key="item.itemKey">
+                            <div class="card product-card">
+                                <div class="product-image">
+                                    <img :src="'images/' + productType.valKey + (section.key === 'meat' ? '-cuts' : section.key === 'gatherings' ? '-gathering' : '-sheep') + '.jpg'" :alt="item.nameENSpec" loading="lazy">
+                                    <div class="product-badge" x-text="section.badge"></div>
+                                </div>
+                                <div class="card-body product-content">
+                                    <h3 class="product-title bilingual">
+                                        <span class="en" x-text="item.nameENSpec"></span>
+                                        <span class="ar" x-text="item.nameARSpec"></span>
+                                    </h3>
+                                    <div class="product-description bilingual">
+                                        <p class="en" x-text="item.descEn || productType.descEn"></p>
+                                        <p class="ar" x-text="item.descAr || productType.descAr"></p>
+                                    </div>
+                                    <div class="product-price" x-text="fmtPrice(item.priceEGP)"></div>
+                                    <div class="product-actions">
+                                        <template x-if="section.key === 'udheya'">
+                                            <div style="display:flex;gap:var(--space-sm);width:100%">
+                                                <button @click="openUdheyaConfiguration(item, false)" class="btn btn-secondary btn-sm" :disabled="!item.isActive || item.stock <= 0" style="flex:1">
+                                                    <span class="bilingual-inline">
+                                                        <span class="en">Configure</span><span class="ar">خصص</span>
+                                                    </span>
+                                                </button>
+                                                <button @click="openUdheyaConfiguration(item, true)" class="btn btn-primary btn-sm" :disabled="!item.isActive || item.stock <= 0" style="flex:1">
+                                                    <span class="bilingual-inline">
+                                                        <span class="en">Buy Now</span><span class="ar">اشتر الآن</span>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template x-if="section.key !== 'udheya'">
+                                            <div style="display:flex;gap:var(--space-sm);width:100%">
+                                                <button @click="addItemToCart(item)" class="btn btn-secondary btn-sm" :disabled="!item.isActive || item.stock <= 0" style="flex:1">
+                                                    <span class="bilingual-inline">
+                                                        <span class="en">Add to Cart</span><span class="ar">أضف للسلة</span>
+                                                    </span>
+                                                </button>
+                                                <button @click="buyNow(item)" class="btn btn-primary btn-sm" :disabled="!item.isActive || item.stock <= 0" style="flex:1">
+                                                    <span class="bilingual-inline">
+                                                        <span class="en">Buy Now</span><span class="ar">اشتر الآن</span>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="product-stock bilingual" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
+                                        <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
+                                        <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+                
+                <div x-show="(!section.products || section.products.length === 0) && !load.init" class="cart-empty">
+                    <div class="bilingual-center">
+                        <p class="en">Products are currently being updated. Please check back soon!</p>
+                        <p class="ar">يتم تحديث المنتجات حاليًا. يرجى التحقق مرة أخرى قريبًا!</p>
+                    </div>
+                    <button @click="navigateToOrScroll('home')" class="btn btn-primary bilingual-inline">
+                        <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
+                    </button>
+                </div>
+                
+                <div x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section.key" 
+                     :class="addedToCartMsg.isError ? 'alert alert-error' : 'alert alert-success'">
+                    <span class="bilingual">
+                        <span class="en" x-text="addedToCartMsg.text ? (addedToCartMsg.text.en || addedToCartMsg.text) : ''"></span>
+                        <span class="ar" x-text="addedToCartMsg.text ? (addedToCartMsg.text.ar || addedToCartMsg.text) : ''"></span>
+                    </span>
+                </div>
+            </div>
+        </section>
+    </template>
+</main>
+
+<script src="vendor/pocketbase.umd.js"></script>
+<script defer src="vendor/alpine.min.js"></script>
+<script src="main.js"></script>
+
+</body>
+</html>
 
 <!-- Loading & Error States -->
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading application data... Please wait.</div>
@@ -42,28 +375,25 @@
                             <span class="ar" x-text="cartItem.nameARSpec"></span>
                         </div>
                         <template x-if="cartItem.product_category === 'udheya' && cartItem.udheya_details">
-                            <div class="cart-item-udheya-details">
-                                <div class="udheya-detail bil-spread">
-                                    <span class="en"><span class="sm-label">Service:</span> <span class="sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'Standard' : 'Live Animal'"></span></span>
-                                    <span class="ar"><span class="sm-label">الخدمة:</span> <span class="sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></span>
-                                </div>
+                            <div class="udheya-detail bil-spread">
+                                <span class="en"><small>Service: <span x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'Standard' : 'Live Animal'"></span></small></span>
+                                <span class="ar"><small>الخدمة: <span x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></small></span>
                             </div>
                         </template>
                         <div class="cart-item-price bil-spread">
-                            <span class="en" x-text="fmtPrice(cartItem.priceEGP) + ' x ' + cartItem.quantity"></span>
-                            <span class="ar" x-text="fmtPrice(cartItem.priceEGP) + ' × ' + cartItem.quantity"></span>
+                            <span class="en" x-text="fmtPrice(cartItem.priceEGP) + ' each'"></span>
+                            <span class="ar" x-text="fmtPrice(cartItem.priceEGP) + ' للقطعة'"></span>
                         </div>
                     </div>
-                    <div class="cart-item-quantity">
-                        <button type="button" @click="updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity - 1)" class="btn btn-sm qty-btn" :disabled="cartItem.quantity <= 1">-</button>
-                        <span class="cart-qty-display" x-text="cartItem.quantity"></span>
-                        <button type="button" @click="updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity + 1)" class="btn btn-sm qty-btn" :disabled="cartItem.quantity >= cartItem.stock || (cartItem.product_category === 'udheya' && cartItem.quantity >=1 )">+</button>
+                    
+                    <div class="cart-item-controls">
+                        <div class="cart-item-quantity">
+                            <button type="button" @click="cartItem.quantity === 1 ? removeFromCart(cartItem.uniqueIdInCart) : updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity - 1)" class="btn btn-sm qty-btn">-</button>
+                            <span class="cart-qty-display" x-text="cartItem.quantity"></span>
+                            <button type="button" @click="updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity + 1)" class="btn btn-sm qty-btn" :disabled="cartItem.quantity >= cartItem.stock || (cartItem.product_category === 'udheya' && cartItem.quantity >=1 )">+</button>
+                        </div>
+                        <div class="cart-item-subtotal" x-text="fmtPrice(getSubtotalForItem(cartItem))"></div>
                     </div>
-                    <div class="cart-item-subtotal bil-spread">
-                         <span class="en" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
-                         <span class="ar" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
-                    </div>
-                    <button @click="removeFromCart(cartItem.uniqueIdInCart)" class="cart-item-remove">×</button>
                 </div>
             </template>
         </div>
@@ -456,21 +786,20 @@
                             <div class="rev-sum checkout-rev-sum">
                                 <template x-for="item in cartItems" :key="item.uniqueIdInCart">
                                     <div class="sum-item">
-                                        <div class="sum-item-content bil-row">
-                                            <span class="en" x-text="item.nameENSpec + ' (x' + item.quantity + ')'"></span>
+                                        <div class="sum-item-content bil-spread">
+                                            <span class="en" x-text="item.nameENSpec + ' (×' + item.quantity + ')'"></span>
                                             <span class="ar" x-text="item.nameARSpec + ' (×' + item.quantity + ')'"></span>
                                         </div>
-                                        <div class="sum-item-price bil-row">
-                                            <span class="en" x-text="fmtPrice(getSubtotalForItem(item))"></span>
-                                            <span class="ar" x-text="fmtPrice(getSubtotalForItem(item))"></span>
-                                        </div>
+                                        <div class="sum-item-price" x-text="fmtPrice(getSubtotalForItem(item))"></div>
                                     </div>
                                 </template>
                                 <hr class="sum-hr">
-                                <div class="sum-total bil-row">
-                                    <div class="en"><strong>Total:</strong></div><div class="ar"><strong>المجموع:</strong></div>
-                                    <div class="en"><strong x-text="fmtPrice(checkoutForm.final_total_egp)"></strong></div>
-                                    <div class="ar"><strong x-text="fmtPrice(checkoutForm.final_total_egp)"></strong></div>
+                                <div class="sum-total">
+                                    <div class="bil-spread">
+                                        <span class="en"><strong>Total:</strong></span>
+                                        <span class="ar"><strong>المجموع:</strong></span>
+                                    </div>
+                                    <div><strong x-text="fmtPrice(checkoutForm.final_total_egp)"></strong></div>
                                 </div>
                             </div>
                         </div>
