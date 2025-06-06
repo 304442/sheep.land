@@ -13,24 +13,23 @@
 </head>
 <body x-data="udh" x-init="initApp()" x-cloak>
 
+<!-- Loading & Error States -->
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading application data... Please wait.</div>
 <div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'An unexpected error occurred. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
 
-<div x-show="isCartOpen" class="cart-sidebar-overlay" @click="closeCart()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
-<aside x-show="isCartOpen" class="cart-sidebar" x-transition:enter="transition ease-in-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
-        role="dialog" aria-modal="true" aria-labelledby="cart-sidebar-title" @keydown.escape.window="closeCart()">
+<!-- Cart Sidebar -->
+<div x-show="isCartOpen" class="cart-sidebar-overlay" @click="closeCart()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+<aside x-show="isCartOpen" class="cart-sidebar" x-transition:enter="transition ease-in-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" role="dialog" aria-modal="true" aria-labelledby="cart-sidebar-title" @keydown.escape.window="closeCart()">
     <div class="cart-sidebar-header">
         <h2 id="cart-sidebar-title" class="bil-spread modal-title">
             <span class="en">Your Cart</span><span class="ar">سلتك</span>
         </h2>
-        <button @click="closeCart()" class="modal-close-btn" aria-label="Close cart">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-        </button>
+        <button @click="closeCart()" class="modal-close-btn" aria-label="Close cart">×</button>
     </div>
     <div class="cart-sidebar-content">
         <div x-show="cartItems.length === 0" class="tc cart-empty-msg">
             <p class="bil-row"><span class="en">Your cart is currently empty.</span><span class="ar">سلتك فارغة حاليًا.</span></p>
-            <button @click="closeCart(); navigateToOrScroll('udheya')" class="btn bp btn-sm bil-inline" style="margin-top: var(--s1);">
+            <button @click="closeCart(); navigateToOrScroll('udheya')" class="btn bp btn-sm bil-inline">
                 <span class="en">Start Shopping</span><span class="ar">ابدأ التسوق</span>
             </button>
         </div>
@@ -42,7 +41,6 @@
                         <template x-if="cartItem.product_category === 'udheya' && cartItem.udheya_details">
                             <div class="cart-item-udheya-details">
                                 <p class="udheya-detail bil-row"><span class="en sm-label">Service:</span><span class="ar sm-label">الخدمة:</span> <span class="en sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'Standard' : 'Live Animal'"></span><span class="ar sm-val" x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></p>
-                                <p class="udheya-detail bil-row"><span class="en sm-label">Day:</span><span class="ar sm-label">اليوم:</span> <span class="en sm-val" x-text="getSacrificeDayText(cartItem.udheya_details.sacrificeDay, 'en')"></span><span class="ar sm-val" x-text="getSacrificeDayText(cartItem.udheya_details.sacrificeDay, 'ar')"></span></p>
                             </div>
                         </template>
                         <p class="cart-item-price bil-row"><span class="en" x-text="fmtPrice(cartItem.priceEGP) + ' x ' + cartItem.quantity"></span><span class="ar" x-text="fmtPrice(cartItem.priceEGP) + ' × ' + cartItem.quantity"></span></p>
@@ -56,7 +54,7 @@
                          <span class="en" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
                          <span class="ar" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
                     </div>
-                    <button @click="removeFromCart(cartItem.uniqueIdInCart)" class="cart-item-remove" :aria-label="'Remove ' + cartItem.nameENSpec + ' from cart'">×</button>
+                    <button @click="removeFromCart(cartItem.uniqueIdInCart)" class="cart-item-remove">×</button>
                 </div>
             </template>
         </div>
@@ -66,22 +64,20 @@
             <span class="en"><strong>Total:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
             <span class="ar"><strong>الإجمالي:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
         </div>
-        <button type="button" @click="closeCart(); navigateToOrScroll('checkout')" class="btn bac btn-lg btn-block bil-inline" :disabled="cartItems.length === 0">
+        <button type="button" @click="closeCart(); navigateToOrScroll('checkout')" class="btn bac btn-lg btn-block bil-inline">
             <span class="en">Proceed to Checkout</span><span class="ar">المتابعة للدفع</span>
         </button>
     </div>
 </aside>
 
-<div x-show="isRefundModalOpen" class="modal-overlay" @click="closeRefundModal()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
+<!-- Modals -->
+<div x-show="isRefundModalOpen" class="modal-overlay" @click="closeRefundModal()"></div>
 <div x-show="isRefundModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title" @keydown.escape.window="closeRefundModal()">
     <div class="modal-header">
         <h2 id="refund-modal-title" class="bil-spread modal-title">
-            <span class="en">Refund & Cancellation Policy</span>
-            <span class="ar" dir="rtl">سياسة الاسترداد والإلغاء</span>
+            <span class="en">Refund & Cancellation Policy</span><span class="ar" dir="rtl">سياسة الاسترداد والإلغاء</span>
         </h2>
-        <button @click="closeRefundModal()" class="modal-close-btn" aria-label="Close refund policy">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-        </button>
+        <button @click="closeRefundModal()" class="modal-close-btn">×</button>
     </div>
     <div class="modal-content policy-container">
          <div x-html="settings.refundPolicyHTMLContent || '<p>Loading refund policy...</p>'"></div>
@@ -91,314 +87,190 @@
     </div>
 </div>
 
-<div x-show="isOrderStatusModalOpen" class="modal-overlay" @click="closeOrderStatusModal()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
+<div x-show="isOrderStatusModalOpen" class="modal-overlay" @click="closeOrderStatusModal()"></div>
 <div x-show="isOrderStatusModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="order-status-modal-title" @keydown.escape.window="closeOrderStatusModal()">
     <div class="modal-header">
         <h2 id="order-status-modal-title" class="bil-spread modal-title">
             <span class="en">Check Order Status</span><span class="ar">تحقق من حالة الطلب</span>
         </h2>
-        <button @click="closeOrderStatusModal()" class="modal-close-btn" aria-label="Close order status">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-        </button>
+        <button @click="closeOrderStatusModal()" class="modal-close-btn">×</button>
     </div>
     <div class="modal-content">
-        <form id="chk-stat-form-modal" @submit.prevent="submitStatValid()" novalidate>
+        <form @submit.prevent="submitStatValid()" novalidate>
             <div class="fg">
-                <label for="order_id_lookup_modal" class="bil-spread lbl-req chk-stat-lbl"><span class="en">Enter Order ID *</span><span class="ar">أدخل رقم الطلب *</span></label>
-                <input type="text" id="order_id_lookup_modal" class="input chk-stat-input" x-model="lookupOrderID" placeholder="e.g., A1B2C3D4E5" x-ref="lookupOrderIdInputModal" :aria-invalid="errs.lookupOrderID ? 'true' : 'false'" aria-describedby="lookupOrderIdErrModal" @input="clrErr('lookupOrderID')" aria-required="true">
-                <div class="err-msg" id="lookupOrderIdErrModal" x-show="errs.lookupOrderID" x-text="errs.lookupOrderID ? (currLang === 'ar' ? errs.lookupOrderID.ar : errs.lookupOrderID.en) : ''" role="alert" aria-live="assertive"></div>
+                <label for="order_id_lookup_modal" class="bil-spread lbl-req"><span class="en">Enter Order ID *</span><span class="ar">أدخل رقم الطلب *</span></label>
+                <input type="text" id="order_id_lookup_modal" class="input" x-model="lookupOrderID" placeholder="e.g., A1B2C3D4E5" x-ref="lookupOrderIdInputModal" @input="clrErr('lookupOrderID')">
+                <div class="err-msg" x-show="errs.lookupOrderID" x-text="errs.lookupOrderID ? (currLang === 'ar' ? errs.lookupOrderID.ar : errs.lookupOrderID.en) : ''"></div>
             </div>
-            <div class="card-act" style="margin-top: var(--s2);">
-                <button type="submit" id="btn-chk-stat-modal" class="btn bp chk-stat-btn bil-inline btn-block" :disabled="load.status">
+            <div class="card-act">
+                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.status">
                     <span x-show="!load.status"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></span>
-                    <span x-show="load.status" aria-live="polite"><span class="en">Checking...</span><span class="ar">جاري...</span></span>
+                    <span x-show="load.status"><span class="en">Checking...</span><span class="ar">جاري...</span></span>
                 </button>
             </div>
         </form>
-        <div id="order-stat-res-modal" class="order-stat-res" x-show="load.status || statRes || statNotFound" x-transition style="margin-top: var(--s2);">
-            <div x-show="load.status && !statRes && !statNotFound" class="load-text tc" aria-live="polite">Checking...</div>
+        <div class="order-stat-res" x-show="load.status || statRes || statNotFound">
+            <div x-show="load.status && !statRes && !statNotFound" class="load-text tc">Checking...</div>
             <div x-show="statRes && !load.status">
                 <h4 class="form-subh bil-spread"><span class="en">Order Details</span><span class="ar">تفاصيل الطلب</span></h4>
-                <div id="stat-content-modal">
-                    <div class="sum-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div><div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Ordered By:</strong> <span x-text="statRes?.customer_name || ''"></span></div><div class="ar"><strong>الطلب باسم:</strong> <span x-text="statRes?.customer_name || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Order Status:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Payment Status:</strong> <span x-text="statRes?.payment_status || ''"></span></div><div class="ar"><strong>حالة الدفع:</strong> <span x-text="statRes?.payment_status || ''"></span></div></div>
-                    
-                    <template x-if="statRes?.line_items && statRes.line_items.length > 0">
-                        <h5 class="bil-spread modal-section-title" style="margin-top:var(--s1);"><span class="en">Items Ordered</span><span class="ar">العناصر المطلوبة</span></h5>
-                        <template x-for="item in statRes.line_items" :key="item.item_key_pb + '-status'"> 
-                             <div class="sum-item bil-row">
-                                <div class="en"><span x-text="item.name_en + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '')"></span></div>
-                                <div class="ar"><span x-text="item.name_ar + (item.quantity > 1 ? ' (×' + item.quantity + ')' : '')"></span></div>
-                            </div>
-                        </template>
-                    </template>
-
-                    <div class="sum-item bil-row"><div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div><div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div></div>
-                    <div class="sum-item bil-row"><div class="en"><strong>Payment Method:</strong> <span x-text="statRes?.payment_method?.toUpperCase() || ''"></span></div><div class="ar"><strong>طريقة الدفع:</strong> <span x-text="statRes?.payment_method?.toUpperCase() || ''"></span></div></div>
-                    <div class="sum-item bil-row" x-show="statRes && statRes.delivery_option === 'home_delivery' && statRes.delivery_address">
-                        <div class="en"><strong>Delivery To:</strong> <span x-text="`${statRes?.delivery_address || ''}, ${statRes?.delivery_area_name_en || ''}`"></span></div>
-                        <div class="ar"><strong>التوصيل إلى:</strong> <span x-text="`${statRes?.delivery_address || ''}، ${statRes?.delivery_area_name_ar || ''}`"></span></div>
-                    </div>
-                </div>
+                <div class="sum-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div><div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div></div>
+                <div class="sum-item bil-row"><div class="en"><strong>Status:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div></div>
+                <div class="sum-item bil-row"><div class="en"><strong>Total:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div><div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div></div>
             </div>
-            <div id="stat-no-res-modal" class="stat-no-res bil-row tc" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب أو اتصل بالدعم.</p></div>
+            <div class="stat-no-res bil-row tc" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب أو اتصل بالدعم.</p></div>
         </div>
     </div>
-     <div class="modal-footer">
+    <div class="modal-footer">
         <button @click="closeOrderStatusModal()" class="btn bp">Close</button>
     </div>
 </div>
 
-<div x-show="isUdheyaConfigModalOpen" class="modal-overlay" @click="closeUdheyaConfiguration()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" aria-hidden="true"></div>
-<div x-show="isUdheyaConfigModalOpen" class="modal udheya-config-modal" role="dialog" aria-modal="true" aria-labelledby="udheya-config-modal-title" @keydown.escape.window="closeUdheyaConfiguration()">
+<div x-show="isUdheyaConfigModalOpen" class="modal-overlay" @click="closeUdheyaConfiguration()"></div>
+<div x-show="isUdheyaConfigModalOpen" class="modal udheya-config-modal" role="dialog" aria-modal="true" @keydown.escape.window="closeUdheyaConfiguration()">
     <div class="modal-header">
-        <h2 id="udheya-config-modal-title" class="bil-spread modal-title">
+        <h2 class="bil-spread modal-title">
             <span class="en">Configure Your Udheya</span><span class="ar" dir="rtl">تخصيص الأضحية</span>
         </h2>
-        <button @click="closeUdheyaConfiguration()" class="modal-close-btn" aria-label="Close Udheya configuration">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
-        </button>
+        <button @click="closeUdheyaConfiguration()" class="modal-close-btn">×</button>
     </div>
     <div class="modal-content">
         <div x-show="configuringUdheyaItem">
             <h3 class="bil-spread modal-section-title"><span x-text="configuringUdheyaItem?.nameENSpec"></span><span x-text="configuringUdheyaItem?.nameARSpec"></span></h3>
             <div class="fg">
-                <label for="udheyaNiyyah" class="bil-spread lbl-req"><span class="en">Niyyah (Intention - Names for whom Udheya is being offered, Optional)</span><span class="ar">النية (أسماء من تهدى لهم الأضحية، اختياري)</span></label>
-                <input type="text" id="udheyaNiyyah" class="input" x-model="tempUdheyaConfig.niyyahNames" placeholder="e.g., Self, Family, Late John Doe">
-                <div class="bil-row field-note"><p class="f-note en">Please ensure names are clearly written. Max 150 characters.</p><p class="f-note ar">يرجى التأكد من كتابة الأسماء بوضوح. الحد الأقصى ١٥٠ حرفًا.</p></div>
-            </div>
-            <div class="fg">
-                <label class="bil-spread lbl-req" id="udheyaServOptLabel"><span class="en">Service Option *</span><span class="ar">خيار الخدمة *</span></label>
-                <div class="rgrp" role="radiogroup" aria-labelledby="udheyaServOptLabel">
-                    <label class="bil-spread"><input type="radio" name="service_option_udh_conf" value="standard_service" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span class="en">Standard Service (Slaughter, Butchering, Packaging) - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span><span class="ar">خدمة عادية (ذبح، تقطيع، تغليف) - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span></label>
-                    <label class="bil-spread"><input type="radio" name="service_option_udh_conf" value="live_animal_delivery" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span class="en">Live Animal Delivery (No service fee)</span><span class="ar">توصيل حيوان حي (بدون رسوم خدمة)</span></label>
+                <label class="bil-spread lbl-req"><span class="en">Service Option *</span><span class="ar">خيار الخدمة *</span></label>
+                <div class="rgrp">
+                    <label class="bil-spread"><input type="radio" name="service_option_udh_conf" value="standard_service" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span class="en">Standard Service - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span><span class="ar">خدمة عادية - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span></label>
+                    <label class="bil-spread"><input type="radio" name="service_option_udh_conf" value="live_animal_delivery" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span class="en">Live Animal Delivery</span><span class="ar">توصيل حيوان حي</span></label>
                 </div>
                 <div class="err-msg" x-show="errs.udheya_service_config" x-text="getUdheyaConfigErrorText()"></div>
             </div>
             <div class="fg" x-show="tempUdheyaConfig.serviceOption === 'standard_service'">
-                <label for="sacrificeDaySel" class="bil-spread lbl-req"><span class="en">Sacrifice Day *</span><span class="ar">يوم الذبح *</span></label>
-                <select id="sacrificeDaySel" class="input" x-model="tempUdheyaConfig.sacrificeDay" @change="clrErr('udheya_sacrifice_day_config')" :aria-invalid="errs.udheya_sacrifice_day_config ? 'true' : 'false'" :aria-required="tempUdheyaConfig.serviceOption === 'standard_service'">
-                    <option value="">-- Select Day -- / -- اختر اليوم --</option>
-                    <template x-for="(dayInfo, dayValue) in sacrificeDayMapInternal" :key="dayValue + '-conf'">
-                        <option :value="dayValue"><span x-text="dayInfo.en"></span> / <span x-text="dayInfo.ar"></span></option>
+                <label class="bil-spread lbl-req"><span class="en">Sacrifice Day *</span><span class="ar">يوم الذبح *</span></label>
+                <select class="input" x-model="tempUdheyaConfig.sacrificeDay" @change="clrErr('udheya_sacrifice_day_config')">
+                    <option value="">-- Select Day --</option>
+                    <template x-for="(dayInfo, dayValue) in sacrificeDayMapInternal" :key="dayValue">
+                        <option :value="dayValue"><span x-text="dayInfo.en + ' / ' + dayInfo.ar"></span></option>
                     </template>
                 </select>
-                <div class="err-msg" x-show="errs.udheya_sacrifice_day_config" x-text="getUdheyaConfigErrorText()"></div>
-            </div>
-             <div class="fg" x-show="tempUdheyaConfig.serviceOption === 'standard_service'">
-                <label for="viewingPrefSel" class="bil-spread lbl-req"><span class="en">Slaughter Viewing Preference (Optional)</span><span class="ar">تفضيل مشاهدة الذبح (اختياري)</span></label>
-                <select id="viewingPrefSel" class="input" x-model="tempUdheyaConfig.viewingPreference">
-                     <template x-for="opt in slViewOpts()" :key="opt.val + '-view-conf'">
-                        <option :value="opt.val"><span x-text="opt.txtEn"></span> / <span x-text="opt.txtAr"></span></option>
-                    </template>
-                </select>
-                <div class="bil-row field-note" x-show="settings.slaughter_location_gmaps_url && (tempUdheyaConfig.viewingPreference === 'physical_inquiry' || tempUdheyaConfig.viewingPreference === 'live_video_inquiry')"><p class="f-note en">Our facility is at: <a :href="settings.slaughter_location_gmaps_url" target="_blank" class="gmaps-link">View Map</a>. We'll contact you for arrangements.</p><p class="f-note ar">موقعنا: <a :href="settings.slaughter_location_gmaps_url" target="_blank" class="gmaps-link">عرض الخريطة</a>. سنتواصل لترتيب الحضور.</p></div>
             </div>
             <div class="fg">
-                <label class="bil-spread lbl-req" id="udheyaDistroLabel"><span class="en">Distribution Choice *</span><span class="ar">خيار التوزيع *</span></label>
-                <div class="rgrp" role="radiogroup" aria-labelledby="udheyaDistroLabel">
-                    <template x-for="opt in distrOpts()" :key="opt.val + '-distro-conf'">
-                        <label class="bil-spread"><input type="radio" name="distribution_choice_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.choice" @change="clrErr('udheya_distribution_choice_config'); tempUdheyaConfig.distribution.splitOption = ''; tempUdheyaConfig.distribution.customSplitText = '';"><span x-text="opt.txtEn"></span><span x-text="opt.txtAr"></span></label>
+                <label class="bil-spread lbl-req"><span class="en">Distribution Choice *</span><span class="ar">خيار التوزيع *</span></label>
+                <div class="rgrp">
+                    <template x-for="opt in distrOpts()" :key="opt.val">
+                        <label class="bil-spread"><input type="radio" name="distribution_choice_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.choice" @change="clrErr('udheya_distribution_choice_config')"><span x-text="opt.txtEn"></span><span x-text="opt.txtAr"></span></label>
                     </template>
                 </div>
-                <div class="err-msg" x-show="errs.udheya_distribution_choice_config" x-text="getUdheyaConfigErrorText()"></div>
-            </div>
-            <div class="fg" x-show="tempUdheyaConfig.distribution.choice === 'split'">
-                <label class="bil-spread lbl-req" id="udheyaSplitLabel"><span class="en">Split Option *</span><span class="ar">خيار التقسيم *</span></label>
-                <div class="rgrp" role="radiogroup" aria-labelledby="udheyaSplitLabel">
-                    <template x-for="opt in splitOptsList()" :key="opt.val + '-split-conf'">
-                         <label class="bil-spread"><input type="radio" name="split_option_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.splitOption" @change="clrErr('udheya_split_option_config')"><span x-text="opt.txtEn"></span><span x-text="opt.txtAr"></span></label>
+                <div x-show="tempUdheyaConfig.distribution.choice === 'split'">
+                    <template x-for="opt in splitOptsList()" :key="opt.val">
+                         <label class="bil-spread"><input type="radio" name="split_option_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.splitOption"><span x-text="opt.txtEn"></span><span x-text="opt.txtAr"></span></label>
                     </template>
+                    <textarea x-show="tempUdheyaConfig.distribution.splitOption === 'custom'" class="input" rows="2" x-model="tempUdheyaConfig.distribution.customSplitText" placeholder="Specify custom distribution"></textarea>
                 </div>
-                <textarea x-show="tempUdheyaConfig.distribution.splitOption === 'custom'" class="input custom-split-ta" rows="2" x-model="tempUdheyaConfig.distribution.customSplitText" placeholder="e.g., 1/4 for me, 3/4 for specific charity (provide details)" :aria-required="tempUdheyaConfig.distribution.splitOption === 'custom'" @input="clrErr('udheya_split_option_config')"></textarea>
-                <div class="err-msg" x-show="errs.udheya_split_option_config" x-text="getUdheyaConfigErrorText()"></div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <button type="button" @click="closeUdheyaConfiguration()" class="btn bp-alt"><span class="en">Cancel</span><span class="ar">إلغاء</span></button>
-        <button type="button" @click="confirmUdheyaConfigurationAndProceed()" class="btn bac" :disabled="load.addingToCart === tempUdheyaConfig.itemKey || load.configuringUdheya === tempUdheyaConfig.itemKey">
-            <span x-show="load.addingToCart !== tempUdheyaConfig.itemKey && load.configuringUdheya !== tempUdheyaConfig.itemKey">
-                <span class="en" x-text="tempUdheyaConfig.isBuyNowIntent ? 'Confirm & Buy Now' : 'Confirm & Add to Cart'"></span>
-                <span class="ar" x-text="tempUdheyaConfig.isBuyNowIntent ? 'تأكيد والشراء الآن' : 'تأكيد والإضافة للسلة'"></span>
-            </span>
-            <span x-show="(load.addingToCart === tempUdheyaConfig.itemKey && !tempUdheyaConfig.isBuyNowIntent) || (load.configuringUdheya === tempUdheyaConfig.itemKey && !tempUdheyaConfig.isBuyNowIntent)" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري الإضافة...</span></span>
-            <span x-show="(load.addingToCart === tempUdheyaConfig.itemKey && tempUdheyaConfig.isBuyNowIntent) || (load.configuringUdheya === tempUdheyaConfig.itemKey && tempUdheyaConfig.isBuyNowIntent)" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري المعالجة...</span></span>
+        <button type="button" @click="confirmUdheyaConfigurationAndProceed()" class="btn bac">
+            <span x-text="tempUdheyaConfig.isBuyNowIntent ? 'Confirm & Buy Now' : 'Confirm & Add to Cart'"></span>
         </button>
     </div>
 </div>
 
+<!-- Header -->
 <header class="site-head">
     <div class="c nav-cont">
         <a href="#home" class="logo bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('home')">
             <span class="en">Sheep Land</span><span class="ar">أرض الأغنام</span>
         </a>
 
-        <nav class="nav-main nav-desk" aria-label="Main navigation">
+        <nav class="nav-main nav-desk">
             <ul class="nav-list">
                 <template x-if="settings.enable_udheya_section">
-                    <li>
-                        <a href="#udheya" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'udheya'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')">
-                            <span class="en">Udheya</span><span class="ar">الأضحية</span>
-                        </a>
-                    </li>
+                    <li><a href="#udheya" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'udheya'}" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_livestock_section">
-                    <li><a href="#livestock" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'livestock'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
+                    <li><a href="#livestock" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'livestock'}" @click.prevent="navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
                 </template>
                 <template x-if="settings.enable_meat_section">
-                    <li><a href="#meat" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'meat'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
+                    <li><a href="#meat" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'meat'}" @click.prevent="navigateToOrScroll('meat')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
                 </template>
                 <template x-if="settings.enable_gatherings_section">
-                    <li><a href="#gatherings" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'gatherings'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
+                    <li><a href="#gatherings" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'gatherings'}" @click.prevent="navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                 </template>
                 <template x-if="currentUser">
-                    <li><a href="#account" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
+                    <li><a href="#account" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
                     <li><button @click="logoutUser()" class="nav-link bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
                 </template>
             </ul>
         </nav>
 
         <div class="head-extras desk-extras">
-            <button @click="openOrderStatusModal()" class="header-action-btn" title="Order Status" aria-label="Order Status">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3h-3V2zM15 20H9v-2h6v2zm0-4H9v-2h6v2zm-4.5-4L9 10.5l1.5-1.5L12 10.5l1.5-1.5L15 10.5V5h1.5v15H18V5h1.5v15H21V2l-1.5 1.5z"/></svg>
-            </button>
-
+            <button @click="openOrderStatusModal()" class="header-action-btn">📋</button>
             <template x-if="!currentUser">
-                <button @click="isMobNavOpen = false; navigateToOrScroll('auth')" class="header-action-btn" :class="{'active-nav': currentPage === 'auth'}" title="Login or Register" aria-label="Login or Register">
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                </button>
+                <button @click="navigateToOrScroll('auth')" class="header-action-btn">👤</button>
             </template>
             <template x-if="currentUser">
-                <button @click="isMobNavOpen = false; navigateToOrScroll('account')" class="header-action-btn" :class="{'active-nav': currentPage === 'account'}" title="My Account" aria-label="My Account">
-                     <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                </button>
+                <button @click="navigateToOrScroll('account')" class="header-action-btn">👤</button>
             </template>
-
-            <button @click="openCart()" class="header-action-btn" title="Shopping Cart" aria-label="Shopping Cart">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0020.01 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6z"/></svg>
-                <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
+            <button @click="openCart()" class="header-action-btn">
+                🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
             </button>
-            
-            <div class="curr-sel">
-                <label for="curr-sel-desk" class="sr-only">Select Currency</label>
-                <select id="curr-sel-desk" x-model="curr" aria-label="Select Currency">
-                    <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
-                        <option :value="code" x-text="code" :disabled="!settings.xchgRates[code].is_active"></option>
-                    </template>
-                </select>
-            </div>
+            <select x-model="curr" class="curr-sel">
+                <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
+                    <option :value="code" x-text="code" :disabled="!settings.xchgRates[code].is_active"></option>
+                </template>
+            </select>
             <div class="wa-contact">
-                <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp">
-                    <svg class="wa-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.43 16.84L2.05 22l5.26-1.39c1.44.75 3.05 1.18 4.73 1.18 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.13c-1.48 0-2.91-.38-4.15-1.08l-.34-.2-3.14.83.85-3.05-.22-.35A8.04 8.04 0 0 1 3.79 11.91c0-4.41 3.72-8.13 8.25-8.13s8.25 3.72 8.25 8.13-3.72 8.13-8.25 8.13zm5.32-5.68c-.25-.13-1.55-.76-1.79-.85s-.42-.13-.6.12c-.17.25-.67.85-.82 1.02s-.3.18-.55.06c-.25-.12-1.11-.41-2.15-1.33S10.08 13 9.91 12.74s.13-.24.26-.37c.11-.11.25-.29.39-.46s.05-.11.18-.36c.13-.25.08-.43 0-.55s-.56-1.39-.79-1.94c-.23-.55-.45-.49-.62-.49h-.17c-.16 0-.42.05-.64.3s-.85.82-.85 2.02S8.11 13.5 8.24 13.67s1.47 2.28 3.74 3.2c.5.25.93.4 1.26.51.52.15.94.12 1.27.07.38-.06 1.07-.44 1.27-.81.2-.38.2-.7.15-.82s-.15-.07-.4-.18z"/></svg>
-                    <span class="wa-num" x-text="settings.waNumDisp"></span>
+                <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer">
+                    📱 <span x-text="settings.waNumDisp"></span>
                 </a>
             </div>
         </div>
 
-        <button class="menu-btn" @click="isMobNavOpen = !isMobNavOpen" aria-label="Toggle menu" :aria-expanded="isMobNavOpen.toString()" aria-controls="mob-nav-content">
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-                <path x-show="!isMobNavOpen" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
-                <path x-show="isMobNavOpen" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
-            </svg>
-        </button>
+        <button class="menu-btn" @click="isMobNavOpen = !isMobNavOpen">☰</button>
     </div>
 
-    <div class="mob-nav" id="mob-nav-content" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
-        <nav aria-label="Mobile navigation">
+    <div class="mob-nav" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
+        <nav>
             <ul class="nav-list-mob">
                 <template x-if="settings.enable_udheya_section">
-                    <li>
-                        <a href="#udheya" class="nav-link-mob bil-inline" :class="{'active-nav': currentPage === 'udheya'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')">
-                            <span class="en">Udheya</span><span class="ar">الأضحية</span>
-                        </a>
-                    </li>
+                    <li><a href="#udheya" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_livestock_section">
-                <li>
-                    <a href="#livestock" class="nav-link-mob bil-inline" :class="{'active-nav': currentPage === 'livestock'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')">
-                        <span class="en">Livestock</span><span class="ar">الأغنام</span>
-                    </a>
-                </li>
+                    <li><a href="#livestock" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
                 </template>
                 <template x-if="settings.enable_meat_section">
-                <li>
-                    <a href="#meat" class="nav-link-mob bil-inline" :class="{'active-nav': currentPage === 'meat'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')">
-                        <span class="en">Meat</span><span class="ar">اللحوم</span>
-                    </a>
-                </li>
+                    <li><a href="#meat" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')"><span class="en">Meat</span><span class="ar">اللحوم</span></a></li>
                 </template>
                 <template x-if="settings.enable_gatherings_section">
-                <li>
-                    <a href="#gatherings" class="nav-link-mob bil-inline" :class="{'active-nav': currentPage === 'gatherings'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')">
-                        <span class="en">Gatherings</span><span class="ar">الولائم</span>
-                    </a>
-                </li>
+                    <li><a href="#gatherings" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                 </template>
-                <li>
-                    <button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button" title="Order Status" aria-label="Order Status">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3h-3V2zM15 20H9v-2h6v2zm0-4H9v-2h6v2zm-4.5-4L9 10.5l1.5-1.5L12 10.5l1.5-1.5L15 10.5V5h1.5v15H18V5h1.5v15H21V2l-1.5 1.5z"/></svg>
-                         <span class="bil-inline"><span class="en">Order Status</span><span class="ar">حالة الطلب</span></span>
-                    </button>
-                </li>
-                 <template x-if="!currentUser">
-                    <li>
-                        <button @click="isMobNavOpen = false; navigateToOrScroll('auth')" class="nav-link-mob as-button" :class="{'active-nav': currentPage === 'auth'}" title="Login or Register" aria-label="Login or Register">
-                            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                            </svg>
-                             <span class="bil-inline"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></span>
-                        </button>
-                    </li>
+                <li><button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button">📋 <span class="bil-inline"><span class="en">Order Status</span><span class="ar">حالة الطلب</span></span></button></li>
+                <template x-if="!currentUser">
+                    <li><button @click="navigateToOrScroll('auth'); isMobNavOpen = false;" class="nav-link-mob as-button">👤 <span class="bil-inline"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></span></button></li>
                 </template>
                 <template x-if="currentUser">
-                    <li><a href="#account" class="nav-link-mob bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
+                    <li><a href="#account" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
                     <li><button @click="logoutUser(); isMobNavOpen = false;" class="nav-link-mob bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
                 </template>
-                <li>
-                    <button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button" title="Shopping Cart" aria-label="Shopping Cart">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0020.01 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6z"/></svg>
-                        <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
-                         <span class="bil-inline"><span class="en">Cart</span><span class="ar">السلة</span></span>
-                    </button>
-                </li>
+                <li><button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button">🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span> <span class="bil-inline"><span class="en">Cart</span><span class="ar">السلة</span></span></button></li>
             </ul>
         </nav>
-        <div class="mob-extras">
-            <div class="curr-sel">
-                <label for="curr-sel-mob" class="sr-only">Select Currency</label>
-                <select id="curr-sel-mob" x-model="curr" aria-label="Select Currency Mobile">
-                     <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
-                        <option :value="code" x-text="code" :disabled="!settings.xchgRates[code].is_active"></option>
-                    </template>
-                </select>
-            </div>
-            <div class="wa-contact">
-                 <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp" @click="isMobNavOpen = false">
-                    <svg class="wa-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.35 3.43 16.84L2.05 22l5.26-1.39c1.44.75 3.05 1.18 4.73 1.18 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.13c-1.48 0-2.91-.38-4.15-1.08l-.34-.2-3.14.83.85-3.05-.22-.35A8.04 8.04 0 0 1 3.79 11.91c0-4.41 3.72-8.13 8.25-8.13s8.25 3.72 8.25 8.13-3.72 8.13-8.25 8.13zm5.32-5.68c-.25-.13-1.55-.76-1.79-.85s-.42-.13-.6.12c-.17.25-.67.85-.82 1.02s-.3.18-.55.06c-.25-.12-1.11-.41-2.15-1.33S10.08 13 9.91 12.74s.13-.24.26-.37c.11-.11.25-.29.39-.46s.05-.11.18-.36c.13-.25.08-.43 0-.55s-.56-1.39-.79-1.94c-.23-.55-.45-.49-.62-.49h-.17c-.16 0-.42.05-.64.3s-.85.82-.85 2.02S8.11 13.5 8.24 13.67s1.47 2.28 3.74 3.2c.5.25.93.4 1.26.51.52.15.94.12 1.27.07.38-.06 1.07-.44 1.27-.81.2-.38.2-.7.15-.82s-.15-.07-.4-.18z"/></svg>
-                    <span class="wa-num" x-text="settings.waNumDisp"></span>
-                </a>
-            </div>
-        </div>
     </div>
 </header>
 
+<!-- Main Content -->
 <main>
-    <section id="home-sect" class="hero main-page-sec" x-show="currentPage === 'home'" style="background-color: var(--b2); padding-top: 0; padding-bottom: 0;" x-transition>
+    <!-- Home Section -->
+    <section class="hero main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="c tc">
             <h1 class="bil-spread hero-h"><span class="en">Premium Udheya & Livestock</span><span class="ar">أضاحي ومواشي فاخرة</span></h1>
             <div class="hero-desc bil-row"><p class="en">Experience the tradition of Udheya with ease and quality. Farm-fresh, Sharia-compliant livestock and meats delivered to your doorstep.</p><p class="ar">عش تجربة الأضحية التقليدية بسهولة وجودة. مواشي ولحوم طازجة من المزرعة، متوافقة مع الشريعة، تصلك حتى باب منزلك.</p></div>
             <button @click="navigateToOrScroll('udheya')" class="btn bac btn-lg bil-inline hero-cta"><span class="en">Explore Udheya Options</span><span class="ar">تصفح خيارات الأضاحي</span></button>
             
             <template x-if="settings.promoActive && !cd.ended">
-            <div class="hero-promo">
-                <a href="#udheya" @click.prevent="navigateToOrScroll('udheya')" class="hero-promo-link">
+                <div class="hero-promo">
                     <div class="pban">
                         <div class="pban-text">
                             <h3 class="prm-h bil-row">
@@ -408,411 +280,199 @@
                         </div>
                         <div class="cd-wrap">
                             <div class="cd">
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.days"></span><span class="cd-lbl">Days</span></div><span class="cd-sep">:</span>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.hours"></span><span class="cd-lbl">Hrs</span></div><span class="cd-sep">:</span>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Min</span></div><span class="cd-sep">:</span>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.days"></span><span class="cd-lbl">Days</span></div>:
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.hours"></span><span class="cd-lbl">Hrs</span></div>:
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Min</span></div>:
                                 <div class="cd-seg"><span class="cd-val" x-text="cd.secs"></span><span class="cd-lbl">Sec</span></div>
                             </div>
                         </div>
                     </div>
-                </a>
-            </div>
+                </div>
             </template>
         </div>
     </section>
 
-    <section id="udheya-sect" class="main-page-sec sec order-sect" x-show="currentPage === 'udheya' && settings.enable_udheya_section" x-transition>
-        <div class="c">
-            <div class="sec-head order-sect-h">
-                <h1 class="bil-spread" tabindex="-1"><span class="en">Order Your Udheya</span><span class="ar">اطلب أضحيتك</span></h1>
-            </div>
-            <p class="bil-row section-intro">
-                <span class="en">Select your preferred Udheya from our high-quality, Sharia-compliant livestock. Configure your sacrifice options easily.</span>
-                <span class="ar">اختر أضحيتك المفضلة من مواشينا عالية الجودة والمتوافقة مع الشريعة. قم بتخصيص خيارات الأضحية بسهولة.</span>
-            </p>
-            <div x-show="prodOpts.udheya && prodOpts.udheya.length > 0" class="prod-grid grid2">
-                <template x-for="productType in prodOpts.udheya" :key="productType.valKey + '-udh'">
-                    <template x-for="item in productType.wps" :key="item.itemKey + '-udh-item'">
-                        <div class="card card-live">
-                            <div class="card-img">
-                                <img :src="'images/' + productType.valKey + '-sheep.jpg'" :alt="productType.nameEn  + ' - ' + item.nameENSpec" loading="lazy">
-                                <div class="badge udheya-badge bil-inline"><span class="en">UDHEYA</span><span class="ar">أضحية</span></div>
-                            </div>
-                            <div class="card-b">
-                                <div class="card-content">
-                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
-                                    <div class="bil-row card-p-row">
-                                        <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
-                                        <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
+    <!-- Product Sections -->
+    <template x-for="section in [
+        {key: 'udheya', name: {en: 'Order Your Udheya', ar: 'اطلب أضحيتك'}, products: prodOpts.udheya, badge: 'UDHEYA'},
+        {key: 'livestock', name: {en: 'Our Livestock', ar: 'أغنامنا'}, products: prodOpts.livestock_general, badge: 'LIVESTOCK'},
+        {key: 'meat', name: {en: 'Fresh Meat Cuts', ar: 'قطعيات اللحوم الطازجة'}, products: prodOpts.meat_cuts, badge: 'MEAT'},
+        {key: 'gatherings', name: {en: 'Gatherings & Feasts', ar: 'الولائم والمناسبات'}, products: prodOpts.gathering_package, badge: 'FEAST'}
+    ]" :key="section.key">
+        <section class="main-page-sec sec" :class="section.key === 'livestock' ? 'order-sect' : ''" x-show="currentPage === section.key && settings['enable_' + section.key + '_section']" x-transition>
+            <div class="c">
+                <div class="sec-head">
+                    <h1 class="bil-spread" tabindex="-1">
+                        <span class="en" x-text="section.name.en"></span><span class="ar" x-text="section.name.ar"></span>
+                    </h1>
+                </div>
+                <div x-show="section.products && section.products.length > 0" class="prod-grid grid2">
+                    <template x-for="productType in section.products" :key="productType.valKey">
+                        <template x-for="item in productType.wps" :key="item.itemKey">
+                            <div class="card card-live">
+                                <div class="card-img">
+                                    <img :src="'images/' + productType.valKey + (section.key === 'meat' ? '-cuts' : section.key === 'gatherings' ? '-gathering' : '-sheep') + '.jpg'" :alt="item.nameENSpec" loading="lazy">
+                                    <div class="badge bil-inline" x-text="section.badge"></div>
+                                </div>
+                                <div class="card-b">
+                                    <div class="card-content">
+                                        <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
+                                        <div class="bil-row card-p-row">
+                                            <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
+                                            <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
+                                        </div>
+                                    </div>
+                                    <div class="card-foot">
+                                        <div class="price bil-row">
+                                            <span class="en"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
+                                            <span class="ar"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
+                                        </div>
+                                        <div class="card-act">
+                                            <template x-if="section.key === 'udheya'">
+                                                <div>
+                                                    <button type="button" @click="openUdheyaConfiguration(item, false)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0">
+                                                        <span class="en">Configure & Add</span><span class="ar">خصص وأضف</span>
+                                                    </button>
+                                                    <button type="button" @click="openUdheyaConfiguration(item, true)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0">
+                                                        <span class="en">Buy Now</span><span class="ar">اشتر الآن</span>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <template x-if="section.key !== 'udheya'">
+                                                <div>
+                                                    <button type="button" @click="addItemToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0">
+                                                        <span class="en">Add to Cart</span><span class="ar">أضف للسلة</span>
+                                                    </button>
+                                                    <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0">
+                                                        <span class="en">Buy Now</span><span class="ar">اشتر الآن</span>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
+                                                <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
+                                                <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="card-foot">
-                                    <div class="price bil-row">
-                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
-                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
-                                    </div>
-                                    <div class="card-act">
-                                        <button type="button" @click="openUdheyaConfiguration(item, false)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.configuringUdheya === item.itemKey">
-                                            <span x-show="load.configuringUdheya !== item.itemKey"><span class="en">Configure & Add</span><span class="ar">خصص وأضف</span></span>
-                                            <span x-show="load.configuringUdheya === item.itemKey && !tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Configuring...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <button type="button" @click="openUdheyaConfiguration(item, true)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.configuringUdheya === item.itemKey">
-                                            <span x-show="load.configuringUdheya !== item.itemKey"><span class="en">Configure & Buy Now</span><span class="ar">خصص واشتر الآن</span></span>
-                                            <span x-show="load.configuringUdheya === item.itemKey && tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
-                                            <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
-                                            <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
-                                        </span>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
+                        </template>
                     </template>
-                </template>
-            </div>
-            <div class="empty-state tc" x-show="(!prodOpts.udheya || prodOpts.udheya.length === 0) && !load.init">
-                <p class="bil-row">
-                    <span class="en" style="flex-basis: 100%;">Our Udheya offerings are currently being updated, or the season has passed. Please check back or contact us for inquiries!</span>
-                    <span class="ar" style="flex-basis: 100%;">يتم تحديث عروض الأضاحي لدينا حاليًا، أو قد انتهى الموسم. يرجى التحقق مرة أخرى أو الاتصال بنا للاستفسارات!</span>
+                </div>
+                <div class="empty-state tc" x-show="(!section.products || section.products.length === 0) && !load.init">
+                    <p class="bil-row">
+                        <span class="en">Products are currently being updated. Please check back soon!</span>
+                        <span class="ar">يتم تحديث المنتجات حاليًا. يرجى التحقق مرة أخرى قريبًا!</span>
+                    </p>
+                    <button @click="navigateToOrScroll('home')" class="btn bp btn-sm bil-inline">
+                        <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
+                    </button>
+                </div>
+                <p class="f-note bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section.key" :class="addedToCartMsg.isError ? 'err-msg' : 'succ-msg'">
+                    <span class="en" x-text="addedToCartMsg.text ? (addedToCartMsg.text.en || addedToCartMsg.text) : ''"></span>
+                    <span class="ar" x-text="addedToCartMsg.text ? (addedToCartMsg.text.ar || addedToCartMsg.text) : ''"></span>
                 </p>
-                <button @click="navigateToOrScroll('home')" class="btn bp btn-sm bil-inline" style="margin-top: var(--s1);">
-                    <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
-                </button>
             </div>
-            <p class="f-note bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === 'udheya'" :class="addedToCartMsg.isError ? 'err-msg' : 'succ-msg'" style="margin-top:var(--s2); justify-content: center;">
-                <span class="en" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].en : (addedToCartMsg.text.en || addedToCartMsg.text) ) : (addedToCartMsg.text.en || addedToCartMsg.text)"></span>
-                <span class="ar" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].ar : (addedToCartMsg.text.ar || addedToCartMsg.text) ) : (addedToCartMsg.text.ar || addedToCartMsg.text)"></span>
-            </p>
-        </div>
-    </section>
+        </section>
+    </template>
 
-    <section id="live-sect" class="main-page-sec sec" style="background-color: var(--b2);" x-show="currentPage === 'livestock' && settings.enable_livestock_section" x-transition>
-        <div class="c">
-            <div class="sec-head">
-                <h1 class="bil-spread" tabindex="-1">
-                    <span class="en">Our Livestock</span><span class="ar">أغنامنا (المواشي العامة)</span>
-                </h1>
-            </div>
-            <p class="bil-row section-intro">
-                <span class="en">Explore our selection of high-quality livestock, available for various purposes such as breeding, Aqeeqah, or general consumption. Each animal is raised with care to ensure health and vitality.</span>
-                <span class="ar">تصفح مجموعتنا المختارة من المواشي عالية الجودة، المتاحة لأغراض متنوعة مثل التربية، العقيقة، أو الاستهلاك العام. يتم تربية كل حيوان بعناية لضمان صحته وحيويته.</span>
-            </p>
-            <div x-show="prodOpts.livestock_general && prodOpts.livestock_general.length > 0" class="prod-grid grid2">
-                <template x-for="productType in prodOpts.livestock_general" :key="productType.valKey + '-ls'">
-                    <template x-for="item in productType.wps" :key="item.itemKey + '-ls-item'">
-                        <div class="card card-live">
-                            <div class="card-img">
-                                <img :src="'images/' + productType.valKey + '-sheep.jpg'" :alt="productType.nameEn  + ' - ' + item.nameENSpec"  loading="lazy">
-                                <div class="badge bil-inline"><span class="en" x-text="productType.valKey.toUpperCase().replace('_', ' ')"></span><span class="ar" x-text="productType.nameAr.split(' ')[0]"></span></div>
-                            </div>
-                            <div class="card-b">
-                                <div class="card-content">
-                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
-                                    <div class="bil-row card-p-row">
-                                        <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
-                                        <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
-                                    </div>
-                                </div>
-                                <div class="card-foot">
-                                    <div class="price bil-row">
-                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
-                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
-                                    </div>
-                                    <div class="card-act">
-                                        <button type="button" @click="addItemToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
-                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
-                                            <span x-show="load.addingToCart === item.itemKey && !tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
-                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
-                                            <span x-show="load.addingToCart === item.itemKey && tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
-                                            <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
-                                            <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </template>
-            </div>
-             <div class="empty-state tc" x-show="(!prodOpts.livestock_general || prodOpts.livestock_general.length === 0) && !load.init">
-                <p class="bil-row">
-                    <span class="en" style="flex-basis: 100%;">Our livestock offerings are currently being updated. Please check back soon for the latest availability!</span>
-                    <span class="ar" style="flex-basis: 100%;">يتم تحديث عروض المواشي لدينا حاليًا. يرجى التحقق مرة أخرى قريبًا لمعرفة أحدث المتوفر!</span>
-                </p>
-                <button @click="navigateToOrScroll('home')" class="btn bp btn-sm bil-inline" style="margin-top: var(--s1);">
-                    <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
-                </button>
-            </div>
-            <p class="f-note bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === 'livestock'" :class="addedToCartMsg.isError ? 'err-msg' : 'succ-msg'" style="margin-top:var(--s2); justify-content: center;">
-                <span class="en" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].en : (addedToCartMsg.text.en || addedToCartMsg.text) ) : (addedToCartMsg.text.en || addedToCartMsg.text)"></span>
-                <span class="ar" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].ar : (addedToCartMsg.text.ar || addedToCartMsg.text) ) : (addedToCartMsg.text.ar || addedToCartMsg.text)"></span>
-            </p>
-        </div>
-    </section>
-
-    <section id="meat-sect" class="main-page-sec sec" x-show="currentPage === 'meat' && settings.enable_meat_section" x-transition>
-        <div class="c">
-            <div class="sec-head">
-                <h1 class="bil-spread" tabindex="-1">
-                    <span class="en">Fresh Meat Cuts</span><span class="ar">قطعيات اللحوم الطازجة</span>
-                </h1>
-            </div>
-            <p class="bil-row section-intro">
-                <span class="en">Choose from our selection of fresh, high-quality meat cuts, expertly prepared from our farm-raised livestock. Perfect for your daily meals and special occasions.</span>
-                <span class="ar">اختر من مجموعتنا المختارة من قطعيات اللحوم الطازجة عالية الجودة، والمعدة بخبرة من مواشينا المرباة في المزرعة. مثالية لوجباتك اليومية ومناسباتك الخاصة.</span>
-            </p>
-            <div x-show="prodOpts.meat_cuts && prodOpts.meat_cuts.length > 0" class="prod-grid grid2">
-                 <template x-for="productType in prodOpts.meat_cuts" :key="productType.valKey + '-mc'">
-                    <template x-for="item in productType.wps" :key="item.itemKey + '-mc-item'">
-                        <div class="card card-live">
-                            <div class="card-img">
-                                <img :src="'images/' + (productType.valKey.includes('lamb') ? 'lamb' : (productType.valKey.includes('beef') ? 'beef' : productType.valKey)) + '-cuts.jpg'" :alt="item.nameENSpec" loading="lazy">
-                                <div class="badge bil-inline"><span class="en">MEAT</span><span class="ar">لحوم</span></div>
-                            </div>
-                            <div class="card-b">
-                                <div class="card-content">
-                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
-                                    <div class="bil-row card-p-row">
-                                        <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
-                                        <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
-                                    </div>
-                                </div>
-                                <div class="card-foot">
-                                    <div class="price bil-row">
-                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP) + (item.wtRangeEn && item.wtRangeEn.toLowerCase().includes('kg') && !item.wtRangeEn.toLowerCase().includes('per') ? '/kg' : '')"></strong></span>
-                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP) + (item.wtRangeAr && item.wtRangeAr.toLowerCase().includes('كجم') && !item.wtRangeAr.toLowerCase().includes('لكل') ? '/كجم' : '')"></strong></span>
-                                    </div>
-                                     <div class="card-act">
-                                        <button type="button" @click="addItemToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
-                                            <span x-show="load.addingToCart !== item.itemKey || tempUdheyaConfig.isBuyNowIntent"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
-                                            <span x-show="load.addingToCart === item.itemKey && !tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
-                                            <span x-show="load.addingToCart !== item.itemKey || !tempUdheyaConfig.isBuyNowIntent"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
-                                            <span x-show="load.addingToCart === item.itemKey && tempUdheyaConfig.isBuyNowIntent" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
-                                            <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
-                                            <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                 </template>
-            </div>
-            <div class="empty-state tc" x-show="(!prodOpts.meat_cuts || prodOpts.meat_cuts.length === 0) && !load.init">
-                <p class="bil-row">
-                    <span class="en" style="flex-basis: 100%;">Our fresh meat selection is currently being updated. Please check back shortly for delicious options!</span>
-                    <span class="ar" style="flex-basis: 100%;">يتم تحديث تشكيلة اللحوم الطازجة لدينا حاليًا. يرجى التحقق مرة أخرى قريبًا للحصول على خيارات لذيذة!</span>
-                </p>
-                 <button @click="navigateToOrScroll('home')" class="btn bp btn-sm bil-inline" style="margin-top: var(--s1);">
-                    <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
-                </button>
-            </div>
-            <p class="f-note bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === 'meat'" :class="addedToCartMsg.isError ? 'err-msg' : 'succ-msg'" style="margin-top:var(--s2); justify-content: center;">
-                <span class="en" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].en : (addedToCartMsg.text.en || addedToCartMsg.text) ) : (addedToCartMsg.text.en || addedToCartMsg.text)"></span>
-                <span class="ar" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].ar : (addedToCartMsg.text.ar || addedToCartMsg.text) ) : (addedToCartMsg.text.ar || addedToCartMsg.text)"></span>
-            </p>
-        </div>
-    </section>
-
-    <section id="gath-sect" class="main-page-sec sec" style="background-color: var(--b1);" x-show="currentPage === 'gatherings' && settings.enable_gatherings_section" x-transition>
-        <div class="c">
-            <div class="sec-head">
-                <h1 class="bil-spread" tabindex="-1">
-                    <span class="en">Gatherings & Feasts</span><span class="ar">الولائم والمناسبات</span>
-                </h1>
-            </div>
-            <p class="bil-row section-intro">
-                <span class="en">Make your special occasions memorable with our tailored feast packages. We provide everything you need for a delightful and hassle-free gathering, featuring our finest livestock and expertly prepared accompaniments.</span>
-                <span class="ar">اجعل مناسباتك الخاصة لا تُنسى مع باقات الولائم المصممة خصيصًا لك. نوفر كل ما تحتاجه لتجمع مبهج وخالٍ من المتاعب، يضم أجود مواشينا والأطباق الجانبية المعدة بخبرة.</span>
-            </p>
-            <div x-show="prodOpts.gathering_package && prodOpts.gathering_package.length > 0" class="prod-grid grid2">
-                 <template x-for="productType in prodOpts.gathering_package" :key="productType.valKey + '-gp'">
-                    <template x-for="item in productType.wps" :key="item.itemKey + '-gp-item'">
-                        <div class="card card-live">
-                            <div class="card-img">
-                                <img :src="'images/' + productType.valKey + '-gathering.jpg'" :alt="item.nameENSpec" loading="lazy">
-                                <div class="badge bil-inline"><span class="en">FEAST</span><span class="ar">وليمة</span></div>
-                            </div>
-                            <div class="card-b">
-                                <div class="card-content">
-                                    <h3 class="card-h bil-spread"><span x-text="item.nameENSpec"></span><span x-text="item.nameARSpec"></span></h3>
-                                    <div class="bil-row card-p-row">
-                                        <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
-                                        <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
-                                    </div>
-                                </div>
-                                <div class="card-foot">
-                                    <div class="price bil-row">
-                                        <span class="en"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
-                                        <span class="ar"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
-                                    </div>
-                                     <div class="card-act">
-                                        <button type="button" @click="addItemToCart(item)" class="btn bac btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
-                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
-                                            <span x-show="load.addingToCart === item.itemKey" aria-live="polite"><span class="en">Adding...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <button type="button" @click="buyNow(item)" class="btn bp btn-sm bil-inline" :disabled="!item.isActive || item.stock <= 0 || load.addingToCart === item.itemKey">
-                                            <span x-show="load.addingToCart !== item.itemKey"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
-                                            <span x-show="load.addingToCart === item.itemKey" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري...</span></span>
-                                        </button>
-                                        <span class="stock-display bil-inline" :class="{'out-of-stock': !item.isActive || item.stock <= 0}">
-                                            <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
-                                            <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                 </template>
-            </div>
-            <div class="empty-state tc" x-show="(!prodOpts.gathering_package || prodOpts.gathering_package.length === 0) && !load.init">
-                <p class="bil-row">
-                    <span class="en" style="flex-basis: 100%;">Our gathering and feast packages are being curated. Please check back soon or contact us for bespoke arrangements!</span>
-                    <span class="ar" dir="rtl" style="flex-basis: 100%;">يجري حاليًا إعداد باقات المناسبات والولائم. يرجى التحقق مرة أخرى قريبًا أو الاتصال بنا لترتيبات مخصصة!</span>
-                </p>
-                 <button @click="navigateToOrScroll('home')" class="btn bp btn-sm bil-inline" style="margin-top: var(--s1);">
-                    <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
-                </button>
-            </div>
-            <p class="f-note bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === 'gatherings'" :class="addedToCartMsg.isError ? 'err-msg' : 'succ-msg'" style="margin-top:var(--s2); justify-content: center;">
-                <span class="en" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].en : (addedToCartMsg.text.en || addedToCartMsg.text) ) : (addedToCartMsg.text.en || addedToCartMsg.text)"></span>
-                <span class="ar" x-text="addedToCartMsg.isError ? (errs[addedToCartMsg.text] ? errs[addedToCartMsg.text].ar : (addedToCartMsg.text.ar || addedToCartMsg.text) ) : (addedToCartMsg.text.ar || addedToCartMsg.text)"></span>
-            </p>
-        </div>
-    </section>
-
-    <section class="sec main-page-sec" id="checkout-page" x-show="currentPage === 'checkout'" x-transition>
+    <!-- Checkout Section -->
+    <section class="sec main-page-sec" x-show="currentPage === 'checkout'" x-transition>
         <div class="c">
             <div class="sec-head">
                 <h1 class="bil-spread" x-ref="checkoutTitle" tabindex="-1">
-                    <span class="en">Checkout</span>
-                    <span class="ar">إتمام الطلب</span>
+                    <span class="en">Checkout</span><span class="ar">إتمام الطلب</span>
                 </h1>
             </div>
 
-            <div x-show="cartItems.length === 0 && !orderConf.show && currentPage === 'checkout'" class="empty-state tc">
-                <p class="bil-row section-intro"><span class="en">Your cart is empty. Please add items to proceed.</span><span class="ar">سلتك فارغة. يرجى إضافة منتجات للمتابعة.</span></p>
-                <button @click="navigateToOrScroll('udheya')" class="btn bp" style="margin-top: var(--s2);">
+            <div x-show="cartItems.length === 0 && !orderConf.show" class="empty-state tc">
+                <p class="bil-row"><span class="en">Your cart is empty. Please add items to proceed.</span><span class="ar">سلتك فارغة. يرجى إضافة منتجات للمتابعة.</span></p>
+                <button @click="navigateToOrScroll('udheya')" class="btn bp">
                     <span class="en">Continue Shopping</span><span class="ar">متابعة التسوق</span>
                 </button>
             </div>
             
-            <div x-show="(cartItems.length > 0 || (new URLSearchParams(window.location.hash.split('?')[1] || '').get('buyNow') === 'true')) && !orderConf.show && currentPage === 'checkout'" class="checkout-layout">
+            <div x-show="cartItems.length > 0 && !orderConf.show" class="checkout-layout">
                 <div class="checkout-form-col">
-                    <form id="checkout-form" @submit.prevent="processOrder()" novalidate>
+                    <form @submit.prevent="processOrder()" novalidate>
+                        <!-- Contact Information -->
                         <div class="card form-panel">
                             <div class="card-b">
-                                <h2 class="form-subh bil-spread"><span class="en">1. Contact Information</span><span class="ar">١. معلومات الاتصال</span></h2>
+                                <h2 class="form-subh bil-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h2>
                                 <div class="fg">
-                                    <label for="custNameInputCheckout" class="bil-spread lbl-req"><span class="en">Your Full Name *</span><span class="ar">اسمك الكامل *</span></label>
-                                    <input id="custNameInputCheckout" type="text" class="input" x-model="checkoutForm.customer_name" @input="clrErr('customer_name')" :aria-invalid="errs.customer_name ? 'true' : 'false'" aria-required="true" autocomplete="name" x-ref="custNameInputCheckout">
+                                    <label class="bil-spread lbl-req"><span class="en">Name *</span><span class="ar">الاسم *</span></label>
+                                    <input type="text" class="input" x-model="checkoutForm.customer_name" @input="clrErr('customer_name')">
                                     <div class="err-msg" x-show="errs.customer_name" x-text="errs.customer_name ? (currLang === 'ar' ? errs.customer_name.ar : errs.customer_name.en) : ''"></div>
                                 </div>
                                 <div class="fg">
-                                    <label for="custPhoneInputCheckout" class="bil-spread lbl-req"><span class="en">Your Phone *</span><span class="ar">رقم هاتفك *</span></label>
-                                    <input id="custPhoneInputCheckout" type="tel" class="input" x-model="checkoutForm.customer_phone" @input="clrErr('customer_phone')" :aria-invalid="errs.customer_phone ? 'true' : 'false'" aria-required="true" autocomplete="tel">
+                                    <label class="bil-spread lbl-req"><span class="en">Phone *</span><span class="ar">الهاتف *</span></label>
+                                    <input type="tel" class="input" x-model="checkoutForm.customer_phone" @input="clrErr('customer_phone')">
                                     <div class="err-msg" x-show="errs.customer_phone" x-text="errs.customer_phone ? (currLang === 'ar' ? errs.customer_phone.ar : errs.customer_phone.en) : ''"></div>
                                 </div>
                                 <div class="fg">
-                                    <label for="custEmailInputCheckout" class="bil-spread lbl-req"><span class="en">Your Email *</span><span class="ar">بريدك الإلكتروني *</span></label>
-                                    <input id="custEmailInputCheckout" type="email" class="input" x-model="checkoutForm.customer_email" @input="clrErr('customer_email')" placeholder="confirmation@example.com" :aria-invalid="errs.customer_email ? 'true' : 'false'" aria-required="true" autocomplete="email">
+                                    <label class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
+                                    <input type="email" class="input" x-model="checkoutForm.customer_email" @input="clrErr('customer_email')">
                                     <div class="err-msg" x-show="errs.customer_email" x-text="errs.customer_email ? (currLang === 'ar' ? errs.customer_email.ar : errs.customer_email.en) : ''"></div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Delivery Information -->
                         <div class="card form-panel" x-show="deliveryNeededForCart()">
                             <div class="card-b">
-                                <h2 class="form-subh bil-spread"><span class="en">2. Delivery Information</span><span class="ar">٢. معلومات التوصيل</span></h2>
-                                <div class="bil-row field-note delivery-scope-note">
-                                    <p class="en"><strong>Important:</strong> Delivery is ONLY available within Egypt to the selected cities. If ordering from abroad for local delivery, please provide an Egyptian phone number and address for the recipient.</p>
-                                    <p class="ar"><strong>هام:</strong> التوصيل متاح فقط داخل مصر للمدن المختارة. إذا كنت تطلب من خارج مصر للتوصيل المحلي، يرجى تقديم رقم هاتف وعنوان مصري للمستلم.</p>
-                                </div>
+                                <h2 class="form-subh bil-spread"><span class="en">Delivery Information</span><span class="ar">معلومات التوصيل</span></h2>
                                 <div class="fg">
-                                    <label for="delCitySelCheckout" class="bil-spread lbl-req"><span class="en">City *</span><span class="ar">المدينة *</span></label>
-                                    <select id="delCitySelCheckout" class="input" x-model="checkoutForm.delivery_city_id" @change="clrErr('delivery_city_id'); updateDeliveryFeeForCheckout()" :aria-invalid="errs.delivery_city_id ? 'true' : 'false'" :aria-required="deliveryNeededForCart()">
-                                        <option value="">-- Select City -- / -- اختر المدينة --</option>
+                                    <label class="bil-spread lbl-req"><span class="en">City *</span><span class="ar">المدينة *</span></label>
+                                    <select class="input" x-model="checkoutForm.delivery_city_id" @change="updateDeliveryFeeForCheckout()">
+                                        <option value="">-- Select City --</option>
                                         <template x-for="city in allCities" :key="city.id">
                                             <option :value="city.id" x-text="`${city.nameEn} / ${city.nameAr}`"></option>
                                         </template>
                                     </select>
-                                    <div class="err-msg" x-show="errs.delivery_city_id" x-text="errs.delivery_city_id ? (currLang === 'ar' ? errs.delivery_city_id.ar : errs.delivery_city_id.en) : ''"></div>
-                                </div>
-                                <div x-show="checkoutForm.delivery_fee_egp > 0 || isDelFeeVar" class="info-box">
-                                    <div class="card-b">
-                                        <div class="bil-row">
-                                            <p class="en" x-show="checkoutForm.delivery_fee_egp > 0 && !isDelFeeVar">Delivery Fee: <strong x-text="fmtPrice(checkoutForm.delivery_fee_egp)"></strong>. <small>(Will be added to total).</small></p>
-                                            <p class="ar" x-show="checkoutForm.delivery_fee_egp > 0 && !isDelFeeVar">رسوم التوصيل: <strong x-text="fmtPrice(checkoutForm.delivery_fee_egp)"></strong>. <small>(ستضاف للمجموع).</small></p>
-                                            <p class="en" x-show="isDelFeeVar && checkoutForm.delivery_city_id">Delivery fee for <span x-text="allCities.find(c=>c.id === checkoutForm.delivery_city_id)?.nameEn || 'selected area'"></span> will be confirmed.</p>
-                                            <p class="ar" x-show="isDelFeeVar && checkoutForm.delivery_city_id">سيتم تأكيد رسوم التوصيل لـ <span x-text="allCities.find(c=>c.id === checkoutForm.delivery_city_id)?.nameAr || 'المنطقة المختارة'"></span>.</p>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="fg">
-                                    <label for="delAddrInputCheckout" class="bil-spread lbl-req"><span class="en">Full Address *</span><span class="ar">العنوان بالكامل *</span></label>
-                                    <textarea id="delAddrInputCheckout" class="input" rows="2" x-model="checkoutForm.delivery_address" @input="clrErr('delivery_address')" :aria-invalid="errs.delivery_address ? 'true' : 'false'" :aria-required="deliveryNeededForCart()" autocomplete="street-address"></textarea>
-                                    <div class="err-msg" x-show="errs.delivery_address" x-text="errs.delivery_address ? (currLang === 'ar' ? errs.delivery_address.ar : errs.delivery_address.en) : ''"></div>
+                                    <label class="bil-spread lbl-req"><span class="en">Address *</span><span class="ar">العنوان *</span></label>
+                                    <textarea class="input" x-model="checkoutForm.delivery_address" @input="clrErr('delivery_address')"></textarea>
                                 </div>
                                 <div class="fg">
-                                    <label for="delNotesInputCheckout" class="bil-spread lbl-req"><span class="en">Special Instructions (Optional)</span><span class="ar">تعليمات خاصة (اختياري)</span></label>
-                                    <textarea id="delNotesInputCheckout" class="input" rows="2" x-model="checkoutForm.delivery_instructions"></textarea>
-                                </div>
-                                <div class="fg">
-                                    <label class="bil-spread lbl-req" id="timeSlotLabelCheckout"><span class="en">Preferred Delivery Time Slot *</span><span class="ar">وقت التوصيل المفضل *</span></label>
-                                    <div class="tslots" role="radiogroup" aria-labelledby="timeSlotLabelCheckout">
+                                    <label class="bil-spread"><span class="en">Time Slot *</span><span class="ar">وقت التوصيل *</span></label>
+                                    <div class="tslots">
                                         <template x-for="slot in deliveryTimeSlots" :key="slot.value">
-                                            <div class="ts" :class="{'sel': checkoutForm.delivery_time_slot === slot.value}" @click="checkoutForm.delivery_time_slot = slot.value; clrErr('delivery_time_slot')" tabindex="0" @keydown.enter.space.prevent="checkoutForm.delivery_time_slot = slot.value; clrErr('delivery_time_slot')" role="radio" :aria-checked="checkoutForm.delivery_time_slot === slot.value ? 'true' : 'false'" x-text="slot.label"></div>
+                                            <div class="ts" :class="{'sel': checkoutForm.delivery_time_slot === slot.value}" @click="checkoutForm.delivery_time_slot = slot.value" x-text="slot.label"></div>
                                         </template>
                                     </div>
-                                    <div class="err-msg" x-show="errs.delivery_time_slot" x-text="errs.delivery_time_slot ? (currLang === 'ar' ? errs.delivery_time_slot.ar : errs.delivery_time_slot.en) : ''"></div>
-                                    <div class="bil-row field-note tslot-note"><p class="f-note en">Preferred time. We will confirm exact window.</p><p class="f-note ar">هذا وقتكم المفضل. سنتواصل معكم لتأكيد نافذة التوصيل الدقيقة.</p></div>
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- Payment Method -->
                         <div class="card form-panel">
                             <div class="card-b">
-                                <h2 class="form-subh bil-spread"><span class="en" x-text="deliveryNeededForCart() ? '3. Payment Method' : '2. Payment Method'"></span><span class="ar" x-text="deliveryNeededForCart() ? '٣. طريقة الدفع' : '٢. طريقة الدفع'"></span></h2>
+                                <h2 class="form-subh bil-spread"><span class="en">Payment Method</span><span class="ar">طريقة الدفع</span></h2>
                                 <div class="fg">
-                                    <label class="bil-spread lbl-req" id="payMethLabelCheckout"><span class="en">Payment Method *</span><span class="ar">طريقة الدفع *</span></label>
-                                    <div class="pay-meths" role="radiogroup" aria-labelledby="payMethLabelCheckout">
-                                        <template x-for="pmOpt in availPayMeths" :key="pmOpt.id + '-checkout'">
-                                            <div class="pm" :class="{'sel': checkoutForm.payment_method === pmOpt.id}" @click="checkoutForm.payment_method = pmOpt.id; clrErr('payment_method'); calculateFinalTotal();" tabindex="0" @keydown.enter.space.prevent="checkoutForm.payment_method = pmOpt.id; clrErr('payment_method'); calculateFinalTotal();" role="radio" :aria-checked="checkoutForm.payment_method === pmOpt.id ? 'true' : 'false'" :aria-labelledby="'pm-label-' + pmOpt.id + '-checkout'">
-                                                <input type="radio" :id="'pm-' + pmOpt.id + '-checkout'" :value="pmOpt.id" x-model="checkoutForm.payment_method" class="sr-only">
-                                                <label :for="'pm-' + pmOpt.id + '-checkout'" :title="pmOpt.title" :id="'pm-label-' + pmOpt.id + '-checkout'"><img :src="'images/' + pmOpt.imgSrc" :alt="pmOpt.title" class="pay-icon"></label>
+                                    <div class="pay-meths">
+                                        <template x-for="pmOpt in availPayMeths" :key="pmOpt.id">
+                                            <div class="pm" :class="{'sel': checkoutForm.payment_method === pmOpt.id}" @click="checkoutForm.payment_method = pmOpt.id; calculateFinalTotal();">
+                                                <input type="radio" :value="pmOpt.id" x-model="checkoutForm.payment_method" class="sr-only">
+                                                <label><img :src="'images/' + pmOpt.imgSrc" :alt="pmOpt.title" class="pay-icon"></label>
                                             </div>
                                         </template>
-                                    </div>
-                                    <div class="err-msg" x-show="errs.payment_method" x-text="errs.payment_method ? (currLang === 'ar' ? errs.payment_method.ar : errs.payment_method.en) : ''"></div>
-                                    <div class="field-note bil-row" x-show="checkoutForm.payment_method === 'online_card' && settings.online_payment_fee_egp > 0" style="margin-top: var(--s0);">
-                                        <p class="en">An online payment processing fee of <strong x-text="fmtPrice(settings.online_payment_fee_egp)"></strong> will be added.</p>
-                                        <p class="ar">سيتم إضافة رسوم معالجة دفع إلكتروني بقيمة <strong x-text="fmtPrice(settings.online_payment_fee_egp)"></strong>.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-act tc page-act final-submit">
-                             <label class="lbl-chk bil-inline" style="margin-bottom: var(--s2); font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
-                                <input type="checkbox" x-model="checkoutForm.terms_agreed" @change="clrErr('terms_agreed')" :aria-invalid="errs.terms_agreed ? 'true' : 'false'" aria-required="true">
+                             <label class="lbl-chk bil-inline">
+                                <input type="checkbox" x-model="checkoutForm.terms_agreed" @change="clrErr('terms_agreed')">
                                 <span class="en">I agree to the <button type="button" class="link-style" @click.prevent="openRefundModal()">Terms & Refund Policy</button> *</span>
                                 <span class="ar">أوافق على <button type="button" class="link-style" @click.prevent="openRefundModal()">الشروط وسياسة الاسترداد</button> *</span>
                             </label>
                             <div class="err-msg tc" x-show="errs.terms_agreed" x-text="errs.terms_agreed ? (currLang === 'ar' ? errs.terms_agreed.ar : errs.terms_agreed.en) : ''"></div>
 
-                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.checkout || cartItems.length === 0" :class="{'disabled-btn': load.checkout || cartItems.length === 0}">
+                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.checkout">
                                 <span x-show="!load.checkout"><span class="en">Place Order & Pay</span><span class="ar">إرسال الطلب والدفع</span></span>
-                                <span x-show="load.checkout" aria-live="polite"><span class="en">Processing...</span><span class="ar">جاري المعالجة...</span></span>
+                                <span x-show="load.checkout"><span class="en">Processing...</span><span class="ar">جاري المعالجة...</span></span>
                             </button>
                         </div>
                     </form>
@@ -823,37 +483,23 @@
                         <div class="card-b">
                             <h2 class="form-subh bil-spread"><span class="en">Order Summary</span><span class="ar">ملخص الطلب</span></h2>
                             <div class="rev-sum checkout-rev-sum">
-                                <template x-for="item in cartItems" :key="item.uniqueIdInCart + '-summary'">
+                                <template x-for="item in cartItems" :key="item.uniqueIdInCart">
                                     <div class="sum-item">
-                                        <div class="sum-item-content">
-                                            <div class="bil-row"><span class="en" x-text="item.nameENSpec"></span><span class="ar" x-text="item.nameARSpec"></span></div>
-                                            <div class="bil-row sm-label" style="font-size:0.8em;"><span class="en" x-text="'Qty: ' + item.quantity"></span><span class="ar" x-text="'الكمية: ' + item.quantity"></span></div>
+                                        <div class="sum-item-content bil-row">
+                                            <span class="en" x-text="item.nameENSpec + ' (x' + item.quantity + ')'"></span>
+                                            <span class="ar" x-text="item.nameARSpec + ' (×' + item.quantity + ')'"></span>
                                         </div>
-                                        <div class="sum-item-price bil-row"><span class="en" x-text="fmtPrice(getSubtotalForItem(item))"></span><span class="ar" x-text="fmtPrice(getSubtotalForItem(item))"></span></div>
+                                        <div class="sum-item-price bil-row">
+                                            <span class="en" x-text="fmtPrice(getSubtotalForItem(item))"></span>
+                                            <span class="ar" x-text="fmtPrice(getSubtotalForItem(item))"></span>
+                                        </div>
                                     </div>
                                 </template>
-                                <hr class="sum-hr" x-show="checkoutForm.total_service_fee_egp > 0 || checkoutForm.delivery_fee_egp > 0 || (checkoutForm.payment_method === 'online_card' && settings.online_payment_fee_egp > 0)">
-                                
-                                <div class="sum-item" x-show="checkoutForm.total_service_fee_egp > 0">
-                                    <div class="sum-item-content bil-row"><span class="en">Udheya Service Fee(s)</span><span class="ar">رسوم خدمة الأضاحي</span></div>
-                                    <div class="sum-item-price bil-row"><span class="en" x-text="fmtPrice(checkoutForm.total_service_fee_egp)"></span><span class="ar" x-text="fmtPrice(checkoutForm.total_service_fee_egp)"></span></div>
-                                </div>
-                                <div class="sum-item" x-show="deliveryNeededForCart() && checkoutForm.delivery_fee_egp > 0">
-                                    <div class="sum-item-content bil-row"><span class="en">Delivery Fee</span><span class="ar">رسوم التوصيل</span></div>
-                                    <div class="sum-item-price bil-row"><span class="en" x-text="fmtPrice(checkoutForm.delivery_fee_egp)"></span><span class="ar" x-text="fmtPrice(checkoutForm.delivery_fee_egp)"></span></div>
-                                </div>
-                                <div class="sum-item" x-show="isDelFeeVar && deliveryNeededForCart() && checkoutForm.delivery_city_id">
-                                    <div class="sum-item-content bil-row"><span class="en">Delivery Fee</span><span class="ar">رسوم التوصيل</span></div>
-                                    <div class="sum-item-price bil-row"><span class="en">To be confirmed</span><span class="ar">سيتم التأكيد</span></div>
-                                </div>
-                                <div class="sum-item" x-show="checkoutForm.payment_method === 'online_card' && settings.online_payment_fee_egp > 0">
-                                    <div class="sum-item-content bil-row"><span class="en">Online Payment Fee</span><span class="ar">رسوم الدفع الإلكتروني</span></div>
-                                    <div class="sum-item-price bil-row"><span class="en" x-text="fmtPrice(settings.online_payment_fee_egp)"></span><span class="ar" x-text="fmtPrice(settings.online_payment_fee_egp)"></span></div>
-                                </div>
                                 <hr class="sum-hr">
                                 <div class="sum-total bil-row">
-                                    <div class="en"><strong>Order Total:</strong></div><div class="ar"><strong>المجموع الكلي:</strong></div>
-                                    <div class="en"><strong x-text="fmtPrice(checkoutForm.final_total_egp)"></strong></div><div class="ar"><strong x-text="fmtPrice(checkoutForm.final_total_egp)"></strong></div>
+                                    <div class="en"><strong>Total:</strong></div><div class="ar"><strong>المجموع:</strong></div>
+                                    <div class="en"><strong x-text="fmtPrice(checkoutForm.final_total_egp)"></strong></div>
+                                    <div class="ar"><strong x-text="fmtPrice(checkoutForm.final_total_egp)"></strong></div>
                                 </div>
                             </div>
                         </div>
@@ -861,35 +507,32 @@
                 </div>
             </div>
 
-            <section id="order-conf-sect" class="sec conf-sect-wide" x-show="orderConf.show && currentPage === 'checkout'" x-transition.opacity.duration.300ms>
+            <!-- Order Confirmation -->
+            <section class="sec conf-sect-wide" x-show="orderConf.show" x-transition>
                 <div class="c tc">
-                    <div class="sec-head conf-h"><h2 class="bil-spread" x-ref="orderConfTitle" tabindex="-1"><span class="en">Order Confirmed! JazakAllah Khairan.</span><span class="ar">تم تأكيد الطلب! جزاكم الله خيرًا.</span></h2></div>
+                    <h2 class="bil-spread conf-h" x-ref="orderConfTitle" tabindex="-1">
+                        <span class="en">Order Confirmed! JazakAllah Khairan.</span>
+                        <span class="ar">تم تأكيد الطلب! جزاكم الله خيرًا.</span>
+                    </h2>
                     <div class="conf-msg">
-                        <div class="bil-row conf-intro"><p class="en">Thank you for choosing Sheep Land. Your order is being processed. May Allah accept it.</p><p class="ar">نشكركم على اختيار أرض الأغنام. طلبكم قيد المعالجة. تقبل الله منا ومنكم.</p></div>
-                        <div class="card form-panel order-id-box"><div class="card-b order-id-box-body">
-                            <div class="bil-spread"><p class="en order-id-box-imp"><strong>Important: Your Order Details</strong></p><p class="ar order-id-box-imp"><strong>هام: تفاصيل طلبكم</strong></p></div>
-                            <div class="bil-spread"><p class="en order-id-box-lbl">Order ID:</p><p class="ar order-id-box-lbl">رقم طلبكم:</p></div>
-                            <p class="order-id-disp" x-text="orderConf.orderID"></p>
-                            <div class="bil-row">
-                                <p class="en order-id-box-note">Save your Order ID for status checking. An email confirmation <strong x-text="orderConf.customerEmail ? 'has been sent to ' + orderConf.customerEmail : 'could not be sent as no email was provided'"></strong>. Please check your spam/junk folder if not received. (Note: Email sending requires server configuration).</p>
-                                <p class="ar order-id-box-note">احفظ رقم طلبك للتحقق من الحالة. <strong x-text="orderConf.customerEmail ? 'تم إرسال تأكيد إلى ' + orderConf.customerEmail : 'تعذر إرسال تأكيد لعدم تقديم بريد إلكتروني'"></strong>. يرجى التحقق من مجلد الرسائل غير المرغوب فيها/البريد العشوائي إذا لم تستلمه. (ملاحظة: إرسال البريد الإلكتروني يتطلب إعدادات الخادم).</p>
-                            </div>
-                        </div></div>
-                        <div class="quick-recap">
-                            <h4 class="form-subh bil-spread recap-h"><span class="en">Quick Order Recap</span><span class="ar">ملخص سريع للطلب</span></h4>
-                            <template x-for="item in orderConf.items" :key="item.item_key_pb + '-conf'"> 
-                                 <div class="sum-item bil-row">
-                                     <div class="en"><strong x-text="item.name_en"></strong> <span x-text="item.quantity > 1 ? '(x' + item.quantity + ')' : ''"></span></div>
-                                     <div class="ar"><strong x-text="item.name_ar"></strong> <span x-text="item.quantity > 1 ? '(×' + item.quantity + ')' : ''"></span></div>
-                                 </div>
-                            </template>
-                             <div class="sum-item bil-row">
-                                <div class="en"><strong>Order Total:</strong> <span x-text="fmtPrice(orderConf.totalEgp)"></span></div>
-                                <div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(orderConf.totalEgp)"></span></div>
+                        <div class="bil-row conf-intro">
+                            <p class="en">Thank you for choosing Sheep Land. Your order is being processed.</p>
+                            <p class="ar">نشكركم على اختيار أرض الأغنام. طلبكم قيد المعالجة.</p>
+                        </div>
+                        <div class="card form-panel order-id-box">
+                            <div class="card-b order-id-box-body">
+                                <div class="bil-spread">
+                                    <p class="en order-id-box-imp"><strong>Order ID:</strong></p>
+                                    <p class="ar order-id-box-imp"><strong>رقم الطلب:</strong></p>
+                                </div>
+                                <p class="order-id-disp" x-text="orderConf.orderID"></p>
                             </div>
                         </div>
                         <div class="pay-instr">
-                            <h4 class="form-subh bil-spread pay-instr-h"><span class="en">Next Steps & Payment</span><span class="ar">الخطوات التالية والدفع</span></h4>
+                            <h4 class="form-subh bil-spread">
+                                <span class="en">Payment Instructions</span>
+                                <span class="ar">تعليمات الدفع</span>
+                            </h4>
                             <div x-html="orderConf.paymentInstructions"></div>
                         </div>
                     </div>
@@ -897,22 +540,17 @@
                         <button @click="navigateToOrScroll('home')" class="btn bp btn-lg bil-inline">
                             <span class="en">Back to Homepage</span><span class="ar">العودة للرئيسية</span>
                         </button>
-                        <button @click="navigateToOrScroll('account')" class="btn bac btn-lg bil-inline" x-show="currentUser">
-                            <span class="en">View My Orders</span><span class="ar">عرض طلباتي</span>
-                        </button>
-                         <button @click="openOrderStatusModal()" class="btn bp-alt btn-lg bil-inline" x-show="!currentUser">
-                            <span class="en">Check Order Status</span><span class="ar">تحقق من حالة الطلب</span>
-                        </button>
                     </div>
                 </div>
             </section>
         </div>
     </section>
     
-    <section class="sec main-page-sec" id="auth-page" x-show="currentPage === 'auth'" x-transition>
+    <!-- Auth Section -->
+    <section class="sec main-page-sec" x-show="currentPage === 'auth'" x-transition>
         <div class="c">
             <div class="sec-head">
-                <h1 class="bil-spread" x-ref="authTitle" tabindex="-1">
+                <h1 class="bil-spread" tabindex="-1">
                     <span class="en" x-text="auth.view === 'login' ? 'Login' : 'Register'"></span>
                     <span class="ar" x-text="auth.view === 'login' ? 'تسجيل الدخول' : 'تسجيل حساب جديد'"></span>
                 </h1>
@@ -921,22 +559,22 @@
             <div class="auth-form-container">
                 <div class="card form-panel">
                     <div class="card-b">
-                        <form id="login-form" @submit.prevent="loginUser()" novalidate x-show="auth.view === 'login'">
+                        <!-- Login Form -->
+                        <form @submit.prevent="loginUser()" novalidate x-show="auth.view === 'login'">
                             <div class="fg">
-                                <label for="loginEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
-                                <input id="loginEmail" type="email" class="input" x-model="auth.email" @input="clrErr('auth_email'); clrErr('auth_login')" :aria-invalid="errs.auth_email || errs.auth_login ? 'true' : 'false'" aria-required="true" autocomplete="email">
+                                <label class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
+                                <input type="email" class="input" x-model="auth.email" @input="clrErr('auth_email')">
                                 <div class="err-msg" x-show="errs.auth_email" x-text="currLang === 'ar' ? errs.auth_email.ar : errs.auth_email.en"></div>
                             </div>
                             <div class="fg">
-                                <label for="loginPassword" class="bil-spread lbl-req"><span class="en">Password *</span><span class="ar">كلمة المرور *</span></label>
-                                <input id="loginPassword" type="password" class="input" x-model="auth.password" @input="clrErr('auth_password'); clrErr('auth_login')" :aria-invalid="errs.auth_password || errs.auth_login ? 'true' : 'false'" aria-required="true" autocomplete="current-password">
+                                <label class="bil-spread lbl-req"><span class="en">Password *</span><span class="ar">كلمة المرور *</span></label>
+                                <input type="password" class="input" x-model="auth.password" @input="clrErr('auth_password')">
                                 <div class="err-msg" x-show="errs.auth_password" x-text="currLang === 'ar' ? errs.auth_password.ar : errs.auth_password.en"></div>
                             </div>
-                            <div class="err-msg tc" x-show="errs.auth_login" x-text="currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en"></div>
-                            <div class="card-act" style="margin-top: var(--s2);">
+                            <div class="card-act">
                                 <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
                                     <span x-show="!load.auth"><span class="en">Login</span><span class="ar">دخول</span></span>
-                                    <span x-show="load.auth" aria-live="polite"><span class="en">Logging in...</span><span class="ar">جاري الدخول...</span></span>
+                                    <span x-show="load.auth"><span class="en">Logging in...</span><span class="ar">جاري الدخول...</span></span>
                                 </button>
                             </div>
                             <p class="auth-toggle-link bil-row">
@@ -945,33 +583,32 @@
                             </p>
                         </form>
 
-                        <form id="register-form" @submit.prevent="registerUser()" novalidate x-show="auth.view === 'register'">
+                        <!-- Register Form -->
+                        <form @submit.prevent="registerUser()" novalidate x-show="auth.view === 'register'">
                             <div class="fg">
-                                <label for="registerName" class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
-                                <input id="registerName" type="text" class="input" x-model="auth.name" @input="clrErr('auth_name')" :aria-invalid="errs.auth_name ? 'true' : 'false'" aria-required="true" autocomplete="name">
+                                <label class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
+                                <input type="text" class="input" x-model="auth.name" @input="clrErr('auth_name')">
                                 <div class="err-msg" x-show="errs.auth_name" x-text="currLang === 'ar' ? errs.auth_name.ar : errs.auth_name.en"></div>
                             </div>
                             <div class="fg">
-                                <label for="registerEmail" class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
-                                <input id="registerEmail" type="email" class="input" x-model="auth.email" @input="clrErr('auth_email')" :aria-invalid="errs.auth_email ? 'true' : 'false'" aria-required="true" autocomplete="email">
+                                <label class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
+                                <input type="email" class="input" x-model="auth.email" @input="clrErr('auth_email')">
                                 <div class="err-msg" x-show="errs.auth_email" x-text="currLang === 'ar' ? errs.auth_email.ar : errs.auth_email.en"></div>
                             </div>
                             <div class="fg">
-                                <label for="registerPassword" class="bil-spread lbl-req"><span class="en">Password *</span><span class="ar">كلمة المرور *</span></label>
-                                <input id="registerPassword" type="password" class="input" x-model="auth.password" @input="clrErr('auth_password')" :aria-invalid="errs.auth_password ? 'true' : 'false'" aria-required="true" autocomplete="new-password">
+                                <label class="bil-spread lbl-req"><span class="en">Password *</span><span class="ar">كلمة المرور *</span></label>
+                                <input type="password" class="input" x-model="auth.password" @input="clrErr('auth_password')">
                                 <div class="err-msg" x-show="errs.auth_password" x-text="currLang === 'ar' ? errs.auth_password.ar : errs.auth_password.en"></div>
                             </div>
                             <div class="fg">
-                                <label for="registerPasswordConfirm" class="bil-spread lbl-req"><span class="en">Confirm Password *</span><span class="ar">تأكيد كلمة المرور *</span></label>
-                                <input id="registerPasswordConfirm" type="password" class="input" x-model="auth.passwordConfirm" @input="clrErr('auth_passwordConfirm')" :aria-invalid="errs.auth_passwordConfirm ? 'true' : 'false'" aria-required="true" autocomplete="new-password">
+                                <label class="bil-spread lbl-req"><span class="en">Confirm Password *</span><span class="ar">تأكيد كلمة المرور *</span></label>
+                                <input type="password" class="input" x-model="auth.passwordConfirm" @input="clrErr('auth_passwordConfirm')">
                                 <div class="err-msg" x-show="errs.auth_passwordConfirm" x-text="currLang === 'ar' ? errs.auth_passwordConfirm.ar : errs.auth_passwordConfirm.en"></div>
                             </div>
-                            <div class="err-msg tc" x-show="errs.auth_register" x-text="currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en"></div>
-                            <div class="succ-msg tc" x-show="errs.auth_form_success" x-text="currLang === 'ar' ? errs.auth_form_success.ar : errs.auth_form_success.en"></div>
-                            <div class="card-act" style="margin-top: var(--s2);">
+                            <div class="card-act">
                                 <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
                                     <span x-show="!load.auth"><span class="en">Register</span><span class="ar">تسجيل</span></span>
-                                    <span x-show="load.auth" aria-live="polite"><span class="en">Registering...</span><span class="ar">جاري التسجيل...</span></span>
+                                    <span x-show="load.auth"><span class="en">Registering...</span><span class="ar">جاري التسجيل...</span></span>
                                 </button>
                             </div>
                             <p class="auth-toggle-link bil-row">
@@ -985,81 +622,64 @@
         </div>
     </section>
     
-    <section class="sec main-page-sec" id="account-page" x-show="currentPage === 'account'" x-transition>
+    <!-- Account Section -->
+    <section class="sec main-page-sec" x-show="currentPage === 'account'" x-transition>
         <div class="c">
             <div class="sec-head">
-                <h1 class="bil-spread" x-ref="accountTitle" tabindex="-1">
-                    <span class="en">My Account</span>
-                    <span class="ar">حسابي</span>
+                <h1 class="bil-spread" tabindex="-1">
+                    <span class="en">My Account</span><span class="ar">حسابي</span>
                 </h1>
             </div>
 
-            <div x-show="!currentUser && !load.auth && currentPage === 'account'" class="empty-state tc">
-                <p class="bil-row section-intro"><span class="en">Please <a href="#auth" @click.prevent="navigateToOrScroll('auth')" class="link-style">login or register</a> to view your account details and order history.</span><span class="ar">يرجى <a href="#auth" @click.prevent="navigateToOrScroll('auth')" class="link-style">تسجيل الدخول أو إنشاء حساب</a> لعرض تفاصيل حسابك وسجل الطلبات.</span></p>
+            <div x-show="!currentUser" class="empty-state tc">
+                <p class="bil-row">
+                    <span class="en">Please <a href="#auth" @click.prevent="navigateToOrScroll('auth')" class="link-style">login or register</a> to view your account.</span>
+                    <span class="ar">يرجى <a href="#auth" @click.prevent="navigateToOrScroll('auth')" class="link-style">تسجيل الدخول أو إنشاء حساب</a> لعرض حسابك.</span>
+                </p>
             </div>
             
-            <div x-show="currentUser && currentPage === 'account'">
+            <div x-show="currentUser">
                 <div class="card form-panel">
                     <div class="card-b">
                         <h2 class="form-subh bil-spread"><span class="en">Account Information</span><span class="ar">معلومات الحساب</span></h2>
-                        <div class="sum-item bil-row"><span class="en"><strong>Email:</strong></span><span class="ar"><strong>البريد الإلكتروني:</strong></span> <span x-text="currentUser.email"></span></div>
-                        <div class="sum-item bil-row"><span class="en"><strong>Name:</strong></span><span class="ar"><strong>الاسم:</strong></span> <span x-text="currentUser.name || 'Not set'"></span></div>
-                        <button @click="logoutUser()" class="btn bp-alt" style="margin-top: var(--s2);"><span class="en">Logout</span><span class="ar">تسجيل الخروج</span></button>
+                        <div class="sum-item bil-row"><span class="en"><strong>Email:</strong> <span x-text="currentUser.email"></span></span><span class="ar"><strong>البريد الإلكتروني:</strong> <span x-text="currentUser.email"></span></span></div>
+                        <div class="sum-item bil-row"><span class="en"><strong>Name:</strong> <span x-text="currentUser.name || 'Not set'"></span></span><span class="ar"><strong>الاسم:</strong> <span x-text="currentUser.name || 'غير محدد'"></span></span></div>
+                        <button @click="logoutUser()" class="btn bp-alt"><span class="en">Logout</span><span class="ar">تسجيل الخروج</span></button>
                     </div>
                 </div>
 
-                <div class="card form-panel" style="margin-top: var(--s3);">
+                <div class="card form-panel">
                     <div class="card-b">
                         <h2 class="form-subh bil-spread"><span class="en">Order History</span><span class="ar">سجل الطلبات</span></h2>
-                        <div x-show="load.orders" class="load-text tc" aria-live="polite"><span class="en">Loading your orders...</span><span class="ar">جاري تحميل طلباتك...</span></div>
+                        <div x-show="load.orders" class="load-text tc">Loading orders...</div>
                         
                         <div x-show="!load.orders && userOrders.length === 0" class="empty-state tc">
-                            <p class="bil-row section-intro"><span class="en">You have not placed any orders yet.</span><span class="ar">لم تقم بأي طلبات بعد.</span></p>
-                            <button @click="navigateToOrScroll('udheya')" class="btn bp" style="margin-top: var(--s1);">
+                            <p class="bil-row"><span class="en">No orders yet.</span><span class="ar">لا توجد طلبات بعد.</span></p>
+                            <button @click="navigateToOrScroll('udheya')" class="btn bp">
                                 <span class="en">Start Shopping</span><span class="ar">ابدأ التسوق</span>
                             </button>
                         </div>
 
-                        <div x-show="!load.orders && userOrders.length > 0" class="order-history-list">
+                        <div x-show="!load.orders && userOrders.length > 0">
                             <template x-for="order in userOrders" :key="order.id">
-                                <div class="order-history-item card">
+                                <div class="card order-history-item">
                                     <div class="card-b">
                                         <div class="sum-item bil-row">
                                             <div><strong class="en">Order ID:</strong><strong class="ar">رقم الطلب:</strong></div>
                                             <div><span x-text="order.order_id_text"></span></div>
                                         </div>
                                         <div class="sum-item bil-row">
-                                            <div><strong class="en">Date:</strong><strong class="ar">التاريخ:</strong></div>
-                                            <div><span class="en" x-text="new Date(order.created).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })"></span><span class="ar" x-text="new Date(order.created).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' })"></span></div>
+                                            <div><strong class="en">Status:</strong><strong class="ar">الحالة:</strong></div>
+                                            <div><span class="stat-hl" x-text="order.order_status"></span></div>
                                         </div>
                                         <div class="sum-item bil-row">
                                              <div><strong class="en">Total:</strong><strong class="ar">الإجمالي:</strong></div>
                                              <div><span x-text="fmtPrice(order.total_amount_due_egp)"></span></div>
                                         </div>
-                                        <div class="sum-item bil-row">
-                                            <div><strong class="en">Status:</strong><strong class="ar">الحالة:</strong></div>
-                                            <div><span class="stat-hl" x-text="order.order_status"></span></div>
-                                        </div>
-                                        <div class="sum-item bil-row">
-                                            <div><strong class="en">Payment:</strong><strong class="ar">الدفع:</strong></div>
-                                            <div><span x-text="order.payment_status"></span></div>
-                                        </div>
-                                        <details class="order-details-toggle">
-                                            <summary class="bil-spread"><span class="en">View Items</span><span class="ar">عرض العناصر</span></summary>
-                                            <ul class="order-items-list">
-                                                <template x-for="item in order.line_items" :key="item.item_key_pb + '-' + order.id"> 
-                                                    <li class="bil-row">
-                                                        <span class="en" x-text="item.name_en + (item.quantity > 1 ? ` (x${item.quantity})` : '')"></span>
-                                                        <span class="ar" x-text="item.name_ar + (item.quantity > 1 ? ` (×${item.quantity})` : '')"></span>
-                                                    </li>
-                                                </template>
-                                            </ul>
-                                        </details>
                                     </div>
                                 </div>
                             </template>
                         </div>
-                         <div class="err-msg tc" x-show="errs.orders_fetch" x-text="errs.orders_fetch ? (currLang === 'ar' ? errs.orders_fetch.ar : errs.orders_fetch.en) : ''"></div>
                     </div>
                 </div>
             </div>
@@ -1068,6 +688,7 @@
 
 </main>
 
+<!-- Footer -->
 <footer class="foot main-page-sec">
     <div class="c">
         <div class="foot-grid">
@@ -1075,11 +696,6 @@
                 <p class="en">Your trusted partner for premium, Sharia-compliant livestock and meat, delivered with care and tradition.</p>
                 <p class="ar">شريكك الموثوق للمواشي واللحوم الفاخرة المتوافقة مع الشريعة، نوصلها بعناية وأصالة.</p>
             </div>
-        </div>
-        <div class="foot-pay tc">
-            <h5 class="bil-spread">
-                <span class="en">Secure Payment Options Available</span><span class="ar">تتوفر خيارات دفع آمنة</span>
-            </h5>
         </div>
         <hr class="foot-div">
         <p class="foot-copy">© <span x-text="new Date().getFullYear()"></span> Sheep Land.
@@ -1090,6 +706,7 @@
         </p>
     </div>
 </footer>
+
 <script src="vendor/pocketbase.umd.js"></script>
 <script defer src="vendor/alpine.min.js"></script>
 <script defer src="vendor/alpine-collapse.min.js"></script>
