@@ -366,3 +366,31 @@ registerHook("orders", "beforeUpdate", (e) => {
                  shouldRestock = false; 
             }
         }
+        
+        if (cancellableStates.includes(oldStatus) && shouldRestock) {
+            const lineItems = record.get("line_items") || []; 
+            let stockUpdateNotes = "";
+
+            for (const lineItem of lineItems) {
+                const productID = lineItem.item_key_pb; 
+                const quantityToRestock = lineItem.quantity;
+
+                if (productID && quantityToRestock > 0) {
+                    try {
+                        const product = dao.findRecordById("products", productID);
+                        const currentStock = product.getInt("stock_available_pb");
+                        product.set("stock_available_pb", currentStock + quantityToRestock);
+                        dao.saveRecord(product);
+                        stockUpdateNotes += `Restocked ${quantityToRestock} of ${product.getString("variant_name_en") || lineItem.name_en}. `;
+                    } catch (err) {
+                         console.error(`[OrderHook] Failed to restock product ${productID}: ${err}`);
+                         stockUpdateNotes += `STOCK INCREMENT FAILED for product ${productID}. `;
+                    }
+                }
+            }
+            record.set("admin_notes", (record.getString("admin_notes") || "" + `\nOrder Cancellation: ${stockUpdateNotes}`).trim());
+        } else {
+            record.set("admin_notes", (record.getString("admin_notes") || "" + `\nOrder cancelled (old status: ${oldStatus}, payment: ${paymentStatus}). Stock not auto-incremented.`).trim());
+        }
+    }
+});
