@@ -1,5 +1,3 @@
-/// <reference path="../pb_data/types.d.ts" />
-
 const registerHook = (collection, event, handler) => {
     try {
         if (typeof $app !== 'undefined') {
@@ -21,7 +19,6 @@ const sacrificeDayMap = {
     "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" },
 };
 
-// Orders - Before Create Hook
 registerHook("orders", "beforeCreate", (e) => {
     const record = e.record;
     const dao = $app.dao();
@@ -36,7 +33,6 @@ registerHook("orders", "beforeCreate", (e) => {
     const productStockUpdates = []; 
     const processedLineItems = []; 
 
-    // Get app settings
     let appSettings;
     try {
         appSettings = dao.findFirstRecordByFilter("settings", "id!=''");
@@ -47,7 +43,6 @@ registerHook("orders", "beforeCreate", (e) => {
     }
     const defaultServiceFeeEGP = appSettings.getFloat("servFeeEGP") || 0;
 
-    // Process line items
     for (let i = 0; i < lineItemsData.length; i++) {
         const clientLineItem = lineItemsData[i]; 
 
@@ -104,7 +99,6 @@ registerHook("orders", "beforeCreate", (e) => {
     record.set("subtotal_amount_egp", calculatedSubtotalEGP);
     record.set("total_udheya_service_fee_egp", calculatedTotalServiceFeeEGP);
 
-    // Handle delivery
     let deliveryFeeAppliedEGP = record.getFloat("delivery_fee_applied_egp") || 0; 
     const deliveryOption = record.getString("delivery_option");
     let areaNameEnToSet = record.getString("delivery_area_name_en") || ""; 
@@ -146,8 +140,14 @@ registerHook("orders", "beforeCreate", (e) => {
         record.set("delivery_fee_applied_egp", deliveryFeeAppliedEGP);
         record.set("delivery_area_name_en", areaNameEnToSet);
         record.set("delivery_area_name_ar", areaNameArToSet);
+    } else if (deliveryOption === "international_shipping") {
+        const internationalShippingFee = 500;
+        record.set("international_shipping_fee_egp", internationalShippingFee);
+        deliveryFeeAppliedEGP = internationalShippingFee;
+        record.set("delivery_fee_applied_egp", deliveryFeeAppliedEGP);
     } else { 
         record.set("delivery_fee_applied_egp", 0);
+        record.set("international_shipping_fee_egp", 0);
         record.set("delivery_city_id", null); 
         record.set("delivery_address", null);
         record.set("delivery_instructions", null); 
@@ -156,7 +156,6 @@ registerHook("orders", "beforeCreate", (e) => {
         record.set("delivery_area_name_ar", null);
     }
 
-    // Handle online payment fee
     let onlinePaymentFeeAppliedEGP = 0.0;
     const paymentMethod = record.getString("payment_method");
     if (paymentMethod === "online_card") {
@@ -164,7 +163,6 @@ registerHook("orders", "beforeCreate", (e) => {
     }
     record.set("online_payment_fee_applied_egp", onlinePaymentFeeAppliedEGP);
 
-    // Calculate final total
     const totalAmountDueEGP = calculatedSubtotalEGP + calculatedTotalServiceFeeEGP + deliveryFeeAppliedEGP + onlinePaymentFeeAppliedEGP;
     if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) {
         console.error(`[OrderHook] Invalid totalAmountDueEGP: ${totalAmountDueEGP}`);
@@ -172,7 +170,6 @@ registerHook("orders", "beforeCreate", (e) => {
     }
     record.set("total_amount_due_egp", totalAmountDueEGP);
 
-    // Set payment and order status
     if (paymentMethod === "online_card") {
         record.set("payment_status", "pending_gateway_redirect");
         record.set("order_status", "awaiting_payment_gateway");
@@ -184,12 +181,10 @@ registerHook("orders", "beforeCreate", (e) => {
         record.set("order_status", "confirmed_pending_payment");
     }
 
-    // Set user ID if authenticated
     if (e.httpContext?.get("authRecord") && e.httpContext.get("authRecord").id) {
         record.set("user", e.httpContext.get("authRecord").id);
     }
 
-    // Set IP and User Agent
     try {
         if (record.has("user_ip_address") && e.httpContext && e.httpContext.realIp) {
             record.set("user_ip_address", e.httpContext.realIp());
@@ -201,7 +196,6 @@ registerHook("orders", "beforeCreate", (e) => {
         console.warn(`[OrderHook] Could not set IP/UserAgent: ${ipErr}`); 
     }
 
-    // Update product stock
     for (const update of productStockUpdates) {
         update.productRecord.set("stock_available_pb", update.newStock);
         try {
@@ -213,13 +207,12 @@ registerHook("orders", "beforeCreate", (e) => {
     }
 });
 
-// Orders - After Create Hook
 registerHook("orders", "afterCreate", (e) => {
     const record = e.record;
     const customerEmail = record.getString("customer_email");
     
-    let senderAddress = "noreply@sheepland.example.com"; 
-    let senderName = "Sheep Land"; 
+    let senderAddress = "noreply@sheepland.eg"; 
+    let senderName = "Sheep Land Egypt"; 
     let appSettings;
     try {
         appSettings = $app.dao().findFirstRecordByFilter("settings", "id!=''");
@@ -240,50 +233,76 @@ registerHook("orders", "afterCreate", (e) => {
             const message = $app.newMailMessage();
             message.setFrom(senderAddress, senderName);
             message.setTo(customerEmail);
-            message.setSubject(`Your Sheep Land Order Confirmed: ${record.getString("order_id_text")}`);
+            message.setSubject(`🐑 Your Sheep Land Egypt Order Confirmed: ${record.getString("order_id_text")}`);
             
             const lineItems = record.get("line_items") || [];
-            let itemsListHTML = "<ul>";
+            let itemsListHTML = "<ul style='list-style-type: none; padding: 0;'>";
             
             for (const item of lineItems) {
                 let itemDisplayPrice = item.price_egp_each * item.quantity;
                 let serviceFeeText = "";
+                let premiumBadge = "";
+                
                 if (item.product_category === 'udheya' && item.udheya_details && item.udheya_details.serviceOption === 'standard_service' && appSettings) {
                     const udheyaServiceFee = appSettings.getFloat("servFeeEGP") || 0;
                     serviceFeeText = ` (+ ${udheyaServiceFee} EGP service)`; 
                 }
-                itemsListHTML += `<li>${item.name_en} (x${item.quantity}) - ${itemDisplayPrice} EGP${serviceFeeText}`;
+                
+                itemsListHTML += `<li style='margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 8px;'>`;
+                itemsListHTML += `<strong>${item.name_en}</strong> (×${item.quantity}) - <span style='color: #2C5F41; font-weight: bold;'>${itemDisplayPrice} EGP${serviceFeeText}</span>`;
+                
                 if (item.product_category === 'udheya' && item.udheya_details) {
                     const sacrificeDayValue = item.udheya_details.sacrificeDay;
                     const sacrificeDayInfo = sacrificeDayMap[sacrificeDayValue] || {en: sacrificeDayValue, ar: sacrificeDayValue}; 
                     const sacrificeDayText = sacrificeDayInfo.en;
-                    itemsListHTML += `<br><small>Service: ${item.udheya_details.serviceOption || 'N/A'}, Day: ${sacrificeDayText}</small>`;
-                     if (item.udheya_details.niyyahNames && item.udheya_details.niyyahNames.trim() !== "") {
-                        itemsListHTML += `<br><small>Niyyah for: ${item.udheya_details.niyyahNames}</small>`;
+                    itemsListHTML += `<br><small style='color: #8B4513;'>🕌 Service: ${item.udheya_details.serviceOption === 'standard_service' ? 'Standard Processing' : 'Live Animal Delivery'}</small>`;
+                    if (item.udheya_details.serviceOption === 'standard_service') {
+                        itemsListHTML += `<br><small style='color: #8B4513;'>📅 Sacrifice Day: ${sacrificeDayText}</small>`;
                     }
+                    itemsListHTML += `<br><small style='color: #8B4513;'>📦 Distribution: ${item.udheya_details.distribution?.choice || 'Standard'}</small>`;
                 }
                 itemsListHTML += "</li>";
             }
             itemsListHTML += "</ul>";
 
-            let emailBody = `<h1>Thank You for Your Order!</h1>`;
-            emailBody += `<p>JazakAllah Khairan for choosing Sheep Land. Your Order ID is: <strong>${record.getString("order_id_text")}</strong></p>`;
-            emailBody += `<h2>Order Summary:</h2>`;
-            emailBody += itemsListHTML;
+            let emailBody = `
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #ddd; border-radius: 12px; overflow: hidden;'>
+                <div style='background: linear-gradient(135deg, #2C5F41, #8B4513); color: white; padding: 20px; text-align: center;'>
+                    <h1 style='margin: 0; font-size: 24px;'>🐑 Sheep Land Egypt</h1>
+                    <p style='margin: 5px 0 0 0; font-size: 16px;'>Premium Livestock & Udheya Services</p>
+                </div>
+                <div style='padding: 30px;'>
+                    <h2 style='color: #2C5F41; margin-top: 0;'>JazakAllah Khairan for Your Order! 🙏</h2>
+                    <p style='font-size: 16px; line-height: 1.6;'>Thank you for choosing Sheep Land Egypt. Your order has been confirmed and is being processed with the utmost care.</p>
+                    
+                    <div style='background: #f0ebe3; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;'>
+                        <p style='margin: 0; font-size: 14px; color: #8B4513;'><strong>Order ID</strong></p>
+                        <p style='margin: 5px 0 0 0; font-size: 20px; font-weight: bold; color: #2C5F41;'>${record.getString("order_id_text")}</p>
+                    </div>
+
+                    <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>📦 Order Summary</h3>
+                    ${itemsListHTML}`;
             
             if (record.getFloat("total_udheya_service_fee_egp") > 0) {
-                 emailBody += `<p>Total Udheya Service Fee(s): ${record.getFloat("total_udheya_service_fee_egp")} EGP</p>`;
+                 emailBody += `<p style='margin: 15px 0 5px 0; font-size: 14px;'><strong>🕌 Total Udheya Service Fee(s):</strong> <span style='color: #2C5F41;'>${record.getFloat("total_udheya_service_fee_egp")} EGP</span></p>`;
             }
             if (record.getFloat("delivery_fee_applied_egp") > 0) {
-                emailBody += `<p>Delivery Fee: ${record.getFloat("delivery_fee_applied_egp")} EGP</p>`;
+                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>🚚 Delivery Fee:</strong> <span style='color: #2C5F41;'>${record.getFloat("delivery_fee_applied_egp")} EGP</span></p>`;
+            }
+            if (record.getFloat("international_shipping_fee_egp") > 0) {
+                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>🌍 International Shipping:</strong> <span style='color: #2C5F41;'>${record.getFloat("international_shipping_fee_egp")} EGP</span></p>`;
             }
             if (record.getFloat("online_payment_fee_applied_egp") > 0) {
-                emailBody += `<p>Online Payment Fee: ${record.getFloat("online_payment_fee_applied_egp")} EGP</p>`;
+                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>💳 Online Payment Fee:</strong> <span style='color: #2C5F41;'>${record.getFloat("online_payment_fee_applied_egp")} EGP</span></p>`;
             }
-            emailBody += `<p><strong>Total Amount Due: ${record.getFloat("total_amount_due_egp")} EGP</strong></p>`;
+            
+            emailBody += `
+                    <div style='background: #2C5F41; color: white; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;'>
+                        <p style='margin: 0; font-size: 18px; font-weight: bold;'>💰 Total Amount Due: ${record.getFloat("total_amount_due_egp")} EGP</p>
+                    </div>
 
-            // Payment instructions
-            emailBody += `<h2>Payment Instructions:</h2>`;
+                    <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>💳 Payment Instructions</h3>`;
+
             const paymentMethod = record.getString("payment_method");
             const totalAmount = record.getFloat("total_amount_due_egp");
             const orderId = record.getString("order_id_text");
@@ -293,55 +312,90 @@ registerHook("orders", "afterCreate", (e) => {
             const waConfirmationLink = `https://wa.me/${waNumRaw}?text=Order%20Payment%20Confirmation%3A%20${orderId}`;
             
             if (paymentMethod === "online_card") {
-                emailBody += `<p>To complete your order for ${totalAmount} EGP, please follow the instructions on the website or contact us. Order ID: ${orderId}.</p>`;
+                emailBody += `<div style='background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>💳 <strong>Online Payment:</strong> To complete your order for <strong>${totalAmount} EGP</strong>, please follow the payment instructions on our website or contact us directly. Order ID: <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${orderId}</code></p></div>`;
             } else if (paymentMethod === "cod") {
-                emailBody += `<p>Our team will contact you on ${record.getString("customer_phone")} to confirm delivery and collect payment of ${totalAmount} EGP. Order ID: ${orderId}.</p>`;
-            } else if (paymentMethod === "fa") {
-                emailBody += `<p>Fawry: Pay ${totalAmount} EGP. Use Order ID ${orderId}. Payment due within 24 hours. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
-            } else if (paymentMethod === "vo") {
-                emailBody += `<p>Vodafone Cash: Pay ${totalAmount} EGP to ${payDetails.vodafone_cash || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
-            } else if (paymentMethod === "ip") {
-                emailBody += `<p>InstaPay: Pay ${totalAmount} EGP to ${payDetails.instapay_ipn || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+                emailBody += `<div style='background: #fff3cd; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>💵 <strong>Cash on Delivery:</strong> Our team will contact you on <strong>${record.getString("customer_phone")}</strong> to confirm delivery and collect payment of <strong>${totalAmount} EGP</strong>. Order ID: <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${orderId}</code></p></div>`;
+            } else if (paymentMethod === "fawry") {
+                emailBody += `<div style='background: #d1ecf1; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>🏪 <strong>Fawry:</strong> Pay <strong>${totalAmount} EGP</strong> at any Fawry location. Use Order ID <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${orderId}</code>. Payment due within 24 hours. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p></div>`;
+            } else if (paymentMethod === "vodafone_cash") {
+                emailBody += `<div style='background: #f8d7da; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>📱 <strong>Vodafone Cash:</strong> Send <strong>${totalAmount} EGP</strong> to <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${payDetails.vodafone_cash || 'N/A'}</code>. Reference: <strong>${orderId}</strong>. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p></div>`;
+            } else if (paymentMethod === "instapay") {
+                emailBody += `<div style='background: #d4edda; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>⚡ <strong>InstaPay:</strong> Send <strong>${totalAmount} EGP</strong> to <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${payDetails.instapay_ipn || 'N/A'}</code>. Reference: <strong>${orderId}</strong>. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p></div>`;
             } else if (paymentMethod === "revolut") {
-                emailBody += `<p>Revolut: Pay ${totalAmount} EGP to ${payDetails.revolut_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
-            } else if (paymentMethod === "monzo") {
-                emailBody += `<p>Monzo: Pay ${totalAmount} EGP to ${payDetails.monzo_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+                emailBody += `<div style='background: #e2e3e5; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>🌍 <strong>Revolut:</strong> Send <strong>${totalAmount} EGP</strong> to <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${payDetails.revolut_details || 'N/A'}</code>. Reference: <strong>${orderId}</strong>. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p></div>`;
+            } else if (paymentMethod === "paypal") {
+                emailBody += `<div style='background: #cce5ff; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>🌐 <strong>PayPal:</strong> Send <strong>${totalAmount} EGP</strong> to <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${payDetails.paypal_email || 'N/A'}</code>. Reference: <strong>${orderId}</strong>. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p></div>`;
+            } else if (paymentMethod === "western_union") {
+                emailBody += `<div style='background: #fff2cc; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>🏦 <strong>Western Union:</strong> Send <strong>${totalAmount} EGP</strong> to <strong>${payDetails.western_union_details || 'N/A'}</strong>. Reference: <strong>${orderId}</strong>. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p></div>`;
             } else if (paymentMethod === "bank_transfer") {
-                emailBody += `<p>Bank Transfer ${totalAmount} EGP to:</p><ul>
-                    <li>Bank: ${payDetails.bank_name || 'N/A'}</li>
-                    <li>Account Name: ${payDetails.bank_account_name || 'N/A'}</li>
-                    <li>Account Number: ${payDetails.bank_account_number || 'N/A'}</li>
-                    ${payDetails.bank_iban ? `<li>IBAN: ${payDetails.bank_iban}</li>` : ''}
-                    ${payDetails.bank_swift ? `<li>SWIFT: ${payDetails.bank_swift}</li>` : ''}
-                </ul><p>Reference Order ID: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+                emailBody += `<div style='background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 10px 0;'>
+                    <p><strong>🏛️ Bank Transfer ${totalAmount} EGP to:</strong></p>
+                    <ul style='margin: 10px 0; padding-left: 20px;'>
+                        <li><strong>Bank:</strong> ${payDetails.bank_name || 'N/A'}</li>
+                        <li><strong>Account Name:</strong> ${payDetails.bank_account_name || 'N/A'}</li>
+                        <li><strong>Account Number:</strong> <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${payDetails.bank_account_number || 'N/A'}</code></li>
+                        ${payDetails.bank_iban ? `<li><strong>IBAN:</strong> <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${payDetails.bank_iban}</code></li>` : ''}
+                        ${payDetails.bank_swift ? `<li><strong>SWIFT:</strong> <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${payDetails.bank_swift}</code></li>` : ''}
+                    </ul>
+                    <p>Reference Order ID: <strong>${orderId}</strong>. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p>
+                </div>`;
             }
 
             if (record.getString("delivery_option") === "home_delivery" && record.getString("delivery_address")) {
-                emailBody += `<h2>Delivery Details:</h2><p>${record.getString("delivery_address")}, ${record.getString("delivery_area_name_en") || record.getString("delivery_city_id") || ''}. Preferred Time: ${record.getString("delivery_time_slot") || 'N/A'}</p>`;
+                emailBody += `
+                    <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>🚚 Delivery Details</h3>
+                    <div style='background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 10px 0;'>
+                        <p><strong>📍 Address:</strong> ${record.getString("delivery_address")}</p>
+                        <p><strong>🏙️ Area:</strong> ${record.getString("delivery_area_name_en") || record.getString("delivery_city_id") || 'N/A'}</p>
+                        <p><strong>⏰ Preferred Time:</strong> ${record.getString("delivery_time_slot") || 'Flexible'}</p>
+                        ${record.getString("delivery_instructions") ? `<p><strong>📝 Instructions:</strong> ${record.getString("delivery_instructions")}</p>` : ''}
+                    </div>`;
+            } else if (record.getString("delivery_option") === "international_shipping") {
+                emailBody += `
+                    <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>🌍 International Shipping</h3>
+                    <div style='background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 10px 0;'>
+                        <p><strong>🌎 Country:</strong> ${record.getString("customer_country") || 'International'}</p>
+                        <p>📦 International shipping arrangements will be coordinated separately after payment confirmation.</p>
+                    </div>`;
             }
             
             if (appSettings?.getString("slaughter_location_gmaps_url")) {
                 let hasUdheyaStandardService = lineItems.some(item => item.product_category === 'udheya' && item.udheya_details?.serviceOption === 'standard_service');
                 if (hasUdheyaStandardService) {
-                    emailBody += `<p>Our slaughter facility location: <a href="${appSettings.getString("slaughter_location_gmaps_url")}" target="_blank">View Map</a></p>`;
+                    emailBody += `
+                        <div style='background: #f0ebe3; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                            <p>🏭 <strong>Our Certified Slaughter Facility:</strong> <a href="${appSettings.getString("slaughter_location_gmaps_url")}" style='color: #2C5F41;'>📍 View Location on Maps</a></p>
+                            <p style='font-size: 14px; color: #666;'>All Udheya services are performed according to Islamic guidelines with full Halal certification.</p>
+                        </div>`;
                 }
             }
-            emailBody += `<p>Thank you,<br/>The Sheep Land Team</p>`;
+            
+            emailBody += `
+                    <div style='background: #2C5F41; color: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;'>
+                        <h3 style='margin: 0 0 10px 0;'>📞 Need Help?</h3>
+                        <p style='margin: 0; font-size: 16px;'>Contact us via WhatsApp: <a href="${waConfirmationLink}" style='color: #D2B48C; text-decoration: none;'>${waNumDisp}</a></p>
+                    </div>
+                    
+                    <div style='text-align: center; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;'>
+                        <p style='margin: 0;'>🐑 <strong>Sheep Land Egypt</strong> - Your trusted partner for premium livestock</p>
+                        <p style='margin: 5px 0 0 0; font-size: 14px;'>Serving Egypt and international customers with quality guaranteed</p>
+                    </div>
+                </div>
+            </div>`;
             
             message.setHtml(emailBody);
             $app.mails.send(message);
-            console.log(`[OrderHook] Confirmation email sent for order ${record.getString("order_id_text")} to ${customerEmail}.`);
+            console.log(`[OrderHook] ✅ Confirmation email sent for order ${record.getString("order_id_text")} to ${customerEmail}.`);
         } catch (err) {
-            console.error(`[OrderHook] Failed to send email for order ${record.getString("order_id_text")}: ${err}`);
+            console.error(`[OrderHook] ❌ Failed to send email for order ${record.getString("order_id_text")}: ${err}`);
         }
     } else if (customerEmail && !($app && typeof $app.newMailMessage === 'function')) {
-        console.warn(`[OrderHook] Email for ${record.getString("order_id_text")} not sent: SMTP not configured.`);
+        console.warn(`[OrderHook] ⚠️ Email for ${record.getString("order_id_text")} not sent: SMTP not configured.`);
     } else if (!customerEmail) {
-        console.warn(`[OrderHook] Email for ${record.getString("order_id_text")} not sent: No customer email.`);
+        console.warn(`[OrderHook] ⚠️ Email for ${record.getString("order_id_text")} not sent: No customer email.`);
     }
 });
 
-// Orders - Before Update Hook
 registerHook("orders", "beforeUpdate", (e) => {
     const record = e.record; 
     const dao = $app.dao();
