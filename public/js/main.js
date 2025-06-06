@@ -33,62 +33,31 @@ document.addEventListener('alpine:init', () => {
         "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" }
     };
 
-    const pageTitles = {
-        home: "Premium Udheya, Livestock & Meats",
-        udheya: "Udheya Ordering",
-        livestock: "Our Livestock", 
-        meat: "Fresh Meat Cuts",
-        gatherings: "Gatherings & Feasts",
-        checkout: "Checkout",
-        auth: "Login / Register",
-        account: "My Account"
-    };
-
     Alpine.data('udh', () => ({
-        // Loading states
+        // Core state
         load: { init: true, status: false, checkout: false, auth: false, orders: false, addingToCart: null, configuringUdheya: null },
-        
-        // App settings
         settings: {
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
-            defCurr: "EGP", waNumRaw: "", waNumDisp: "",
-            promoEndISO: new Date().toISOString(), promoDiscPc: 0, promoActive: false,
-            servFeeEGP: 0, delAreas: [], payDetails: {},
-            enable_udheya_section: true, enable_livestock_section: true, 
-            enable_meat_section: true, enable_gatherings_section: true,
-            slaughter_location_gmaps_url: "", online_payment_fee_egp: 0, 
-            refundPolicyHTMLContent: "<p>Loading policy...</p>",
+            defCurr: "EGP", waNumRaw: "", waNumDisp: "", promoEndISO: new Date().toISOString(), 
+            promoDiscPc: 0, promoActive: false, servFeeEGP: 0, delAreas: [], payDetails: {},
+            enable_udheya_section: true, enable_livestock_section: true, enable_meat_section: true, enable_gatherings_section: true,
+            slaughter_location_gmaps_url: "", online_payment_fee_egp: 0, refundPolicyHTMLContent: "<p>Loading policy...</p>",
             app_email_sender_address: "noreply@example.com", app_email_sender_name: "Sheep Land"
         },
-        
-        // Products & Cart
         prodOpts: { udheya: [], livestock_general: [], meat_cuts: [], gathering_package: [] },
         cartItems: [], 
-        
-        // UI State
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
         currentPage: 'home', currentProductPage: '', currLang: "en", curr: "EGP",
-        
-        // Countdown
-        cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false },
-        cdTimer: null,
-        
-        // Forms
+        cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
         checkoutForm: JSON.parse(JSON.stringify(initForm)),
         tempUdheyaConfig: JSON.parse(JSON.stringify(initUdheya)), 
-        
-        // Status & Messages
         apiErr: null, usrApiErr: "", addedToCartMsg: { text: null, isError: false, pageContext: '' },
         statRes: null, statNotFound: false, lookupOrderID: "",
         orderConf: { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "", customerEmail: "" },
-        
-        // Auth
         currentUser: null, 
         auth: { email: "", password: "", passwordConfirm: "", name: "" , view: 'login' }, 
         userOrders: [], redirectAfterLogin: null,
-        
-        // Errors
         errs: {}, 
         errMsgs: { 
             required: { en: "This field is required.", ar: "هذا الحقل مطلوب." },
@@ -96,8 +65,6 @@ document.addEventListener('alpine:init', () => {
             phone: { en: "Please enter a valid phone number.", ar: "يرجى إدخال رقم هاتف صحيح." },
             terms_agreed: { en: "You must agree to the terms and refund policy.", ar: "يجب أن توافق على الشروط وسياسة الاسترداد." }
         },
-        
-        // Other
         allCities: [], isDelFeeVar: false, configuringUdheyaItem: null,
         
         get availPayMeths() { return payMethods; },
@@ -111,22 +78,22 @@ document.addEventListener('alpine:init', () => {
         ],
 
         pageTitle() {
-            const title = pageTitles[this.currentPage] || "Premium Udheya, Livestock & Meats";
-            return this.currLang === 'ar' ? this.translatePageTitle(title) : title;
-        },
-
-        translatePageTitle(englishTitle) {
-            const translations = {
-                "Premium Udheya, Livestock & Meats": "أضاحي ومواشي ولحوم فاخرة",
-                "Udheya Ordering": "طلب الأضحية",
-                "Our Livestock": "مواشينا",
-                "Fresh Meat Cuts": "قطعيات اللحوم الطازجة",
-                "Gatherings & Feasts": "الولائم والمناسبات",
-                "Checkout": "إتمام الطلب",
-                "Login / Register": "دخول / تسجيل",
-                "My Account": "حسابي"
+            const titles = {
+                home: "Premium Udheya, Livestock & Meats", udheya: "Udheya Ordering", livestock: "Our Livestock", 
+                meat: "Fresh Meat Cuts", gatherings: "Gatherings & Feasts", checkout: "Checkout",
+                auth: "Login / Register", account: "My Account"
             };
-            return translations[englishTitle] || englishTitle;
+            const title = titles[this.currentPage] || titles.home;
+            if (this.currLang === 'ar') {
+                const translations = {
+                    "Premium Udheya, Livestock & Meats": "أضاحي ومواشي ولحوم فاخرة",
+                    "Udheya Ordering": "طلب الأضحية", "Our Livestock": "مواشينا",
+                    "Fresh Meat Cuts": "قطعيات اللحوم الطازجة", "Gatherings & Feasts": "الولائم والمناسبات",
+                    "Checkout": "إتمام الطلب", "Login / Register": "دخول / تسجيل", "My Account": "حسابي"
+                };
+                return translations[title] || title;
+            }
+            return title;
         },
 
         async initApp() {
@@ -151,8 +118,7 @@ document.addEventListener('alpine:init', () => {
                     Object.assign(this.settings, {
                         xchgRates: rs.xchgRates || this.settings.xchgRates,
                         defCurr: rs.defCurr || this.settings.defCurr,
-                        waNumRaw: rs.waNumRaw || "", 
-                        waNumDisp: rs.waNumDisp || "",
+                        waNumRaw: rs.waNumRaw || "", waNumDisp: rs.waNumDisp || "",
                         promoEndISO: rs.promoEndISO || new Date().toISOString(),
                         promoDiscPc: Number(rs.promoDiscPc) || 0,
                         promoActive: typeof rs.promoActive === 'boolean' ? rs.promoActive : false,
@@ -174,10 +140,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 // Load products
-                const allProducts = await pb.collection('products').getFullList({ 
-                    filter: 'is_active = true', 
-                    sort:'+sort_order_type,+sort_order_variant'
-                });
+                const allProducts = await pb.collection('products').getFullList({ filter: 'is_active = true', sort:'+sort_order_type,+sort_order_variant'});
                 
                 const categorizeProducts = (products, categoryFilter) => {
                     const categoryProducts = products.filter(p => p.product_category === categoryFilter);
@@ -215,11 +178,8 @@ document.addEventListener('alpine:init', () => {
                     if (gov.cities && Array.isArray(gov.cities) && gov.cities.length > 0) { 
                         gov.cities.forEach(city => { 
                             cities.push({ 
-                                id: `${gov.id}_${city.id}`, 
-                                nameEn: `${gov.name_en} - ${city.name_en}`, 
-                                nameAr: `${gov.name_ar} - ${city.name_ar}`, 
-                                delFeeEgp: city.delivery_fee_egp, 
-                                govId: gov.id 
+                                id: `${gov.id}_${city.id}`, nameEn: `${gov.name_en} - ${city.name_en}`, 
+                                nameAr: `${gov.name_ar} - ${city.name_ar}`, delFeeEgp: city.delivery_fee_egp, govId: gov.id 
                             }); 
                         });
                     } else if (gov.delivery_fee_egp !== undefined) { 
@@ -381,11 +341,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const buyNowItem = {
-                ...productVariant,
-                quantity: 1, 
-                uniqueIdInCart: Date.now().toString(36) + Math.random().toString(36).substring(2)
-            };
+            const buyNowItem = { ...productVariant, quantity: 1, uniqueIdInCart: Date.now().toString(36) + Math.random().toString(36).substring(2) };
 
             if (productVariant.product_category === 'udheya') {
                 if (!udheyaConfigDetails) {
@@ -445,10 +401,7 @@ document.addEventListener('alpine:init', () => {
             return itemTotal;
         },
 
-        calculateCartSubtotal() { 
-            return this.cartItems.reduce((total, item) => total + (item.priceEGP * item.quantity), 0);
-        },
-
+        calculateCartSubtotal() { return this.cartItems.reduce((total, item) => total + (item.priceEGP * item.quantity), 0); },
         calculateTotalServiceFee() { 
             return this.cartItems.reduce((totalFee, item) => { 
                 if (item.product_category === 'udheya' && item.udheya_details?.serviceOption === 'standard_service') { 
@@ -457,12 +410,7 @@ document.addEventListener('alpine:init', () => {
                 return totalFee; 
             }, 0);
         },
-
-        calculateCartTotal() { 
-            const subtotal = this.calculateCartSubtotal(); 
-            const serviceFee = this.calculateTotalServiceFee(); 
-            return subtotal + serviceFee;
-        },
+        calculateCartTotal() { return this.calculateCartSubtotal() + this.calculateTotalServiceFee(); },
 
         saveCartToStorage() { 
             try { 
