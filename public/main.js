@@ -67,6 +67,7 @@ document.addEventListener('alpine:init', () => {
         },
         allCities: [], isDelFeeVar: false, configuringUdheyaItem: null,
         
+        get sacrificeDayMapInternal() { return sacrificeDayMapInternal; },
         get availPayMeths() { return payMethods; },
         get cartItemCount() { return this.cartItems.reduce((sum, item) => sum + item.quantity, 0); },
         deliveryTimeSlots: [ 
@@ -638,7 +639,7 @@ document.addEventListener('alpine:init', () => {
         // Auth functions
         initAuthPage() { 
             this.clrAllErrs();
-            if (this.currentUser) { 
+            if (this.currentUser?.id) { 
                 this.navigateToOrScroll('account'); 
                 return; 
             } 
@@ -651,7 +652,7 @@ document.addEventListener('alpine:init', () => {
             try { 
                 const authData = await this.pb.collection('users').authWithPassword(this.auth.email, this.auth.password); 
                 this.currentUser = authData.record; 
-                this.checkoutForm.user_id = this.currentUser.id; 
+                this.checkoutForm.user_id = this.currentUser?.id || null; 
                 this.loadCartFromStorage(); 
                 this.load.auth = false; 
                 this.navigateToOrScroll(this.redirectAfterLogin || 'account'); 
@@ -724,12 +725,16 @@ document.addEventListener('alpine:init', () => {
                 this.navigateToOrScroll('auth'); 
                 return; 
             } 
-            if (!this.currentUser && this.pb.authStore.model) this.currentUser = this.pb.authStore.model; 
-            if (this.currentUser) await this.fetchUserOrders(); 
+            if (!this.currentUser && this.pb.authStore.model) {
+                this.currentUser = this.pb.authStore.model; 
+            }
+            if (this.currentUser?.id) {
+                await this.fetchUserOrders(); 
+            }
         },
 
         async fetchUserOrders() { 
-            if (!this.currentUser) return; 
+            if (!this.currentUser?.id) return; 
             this.load.orders = true; 
             this.clrErr('orders_fetch');
             try { 
@@ -777,7 +782,7 @@ document.addEventListener('alpine:init', () => {
             }
             
             this.checkoutForm = JSON.parse(JSON.stringify(initForm)); 
-            if (this.currentUser) { 
+            if (this.currentUser?.id) { 
                 this.checkoutForm.customer_name = this.currentUser.name || ""; 
                 this.checkoutForm.customer_email = this.currentUser.email || ""; 
                 this.checkoutForm.user_id = this.currentUser.id; 

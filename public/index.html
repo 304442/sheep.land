@@ -246,15 +246,15 @@
                 <template x-if="settings.enable_gatherings_section">
                     <li><a href="#gatherings" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                 </template>
-                <li><button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button">📋 <span class="bil-inline"><span class="en">Order Status</span><span class="ar">حالة الطلب</span></span></button></li>
+                <li><button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button">📋</button></li>
                 <template x-if="!currentUser">
-                    <li><button @click="navigateToOrScroll('auth'); isMobNavOpen = false;" class="nav-link-mob as-button">👤 <span class="bil-inline"><span class="en">Login/Register</span><span class="ar">دخول/تسجيل</span></span></button></li>
+                    <li><button @click="navigateToOrScroll('auth'); isMobNavOpen = false;" class="nav-link-mob as-button">👤</button></li>
                 </template>
                 <template x-if="currentUser">
                     <li><a href="#account" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
                     <li><button @click="logoutUser(); isMobNavOpen = false;" class="nav-link-mob bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
                 </template>
-                <li><button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button">🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span> <span class="bil-inline"><span class="en">Cart</span><span class="ar">السلة</span></span></button></li>
+                <li><button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button">🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span></button></li>
             </ul>
         </nav>
     </div>
@@ -376,7 +376,7 @@
         </section>
     </template>
 
-    <!-- Checkout, Auth, Account sections (compressed) -->
+    <!-- Checkout Section -->
     <section class="sec main-page-sec" x-show="currentPage === 'checkout'" x-transition>
         <div class="c">
             <div class="sec-head">
@@ -391,11 +391,9 @@
                 </button>
             </div>
             
-            <!-- Checkout form and order confirmation sections (shortened for space) -->
             <div x-show="cartItems.length > 0 && !orderConf.show" class="checkout-layout">
                 <div class="checkout-form-col">
                     <form @submit.prevent="processOrder()" novalidate>
-                        <!-- Contact, delivery, payment forms -->
                         <div class="card form-panel">
                             <div class="card-b">
                                 <h2 class="form-subh bil-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h2>
@@ -416,8 +414,6 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Additional form sections continue here (delivery, payment) -->
                         
                         <div class="form-act tc page-act final-submit">
                              <label class="lbl-chk bil-inline">
@@ -587,8 +583,8 @@
                 <div class="card form-panel">
                     <div class="card-b">
                         <h2 class="form-subh bil-spread"><span class="en">Account Information</span><span class="ar">معلومات الحساب</span></h2>
-                        <div class="sum-item bil-row"><span class="en"><strong>Email:</strong> <span x-text="currentUser.email"></span></span><span class="ar"><strong>البريد الإلكتروني:</strong> <span x-text="currentUser.email"></span></span></div>
-                        <div class="sum-item bil-row"><span class="en"><strong>Name:</strong> <span x-text="currentUser.name || 'Not set'"></span></span><span class="ar"><strong>الاسم:</strong> <span x-text="currentUser.name || 'غير محدد'"></span></span></div>
+                        <div class="sum-item bil-row"><span class="en"><strong>Email:</strong> <span x-text="currentUser?.email || 'N/A'"></span></span><span class="ar"><strong>البريد الإلكتروني:</strong> <span x-text="currentUser?.email || 'غير متوفر'"></span></span></div>
+                        <div class="sum-item bil-row"><span class="en"><strong>Name:</strong> <span x-text="currentUser?.name || 'Not set'"></span></span><span class="ar"><strong>الاسم:</strong> <span x-text="currentUser?.name || 'غير محدد'"></span></span></div>
                         <button @click="logoutUser()" class="btn bp-alt"><span class="en">Logout</span><span class="ar">تسجيل الخروج</span></button>
                     </div>
                 </div>
