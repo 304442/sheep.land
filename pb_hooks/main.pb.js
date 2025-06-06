@@ -1,118 +1,121 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-console.log("=== SHEEP LAND HOOKS LOADING ===");
-
-// Universal hook registration that works with both old and new PocketBase versions
 const registerHook = (collection, event, handler) => {
     try {
-        // Try new syntax first
-        if (typeof onRecordBeforeCreateRequest !== 'undefined' && event === 'beforeCreate') {
-            onRecordBeforeCreateRequest(handler, collection);
-            console.log(`✅ Registered ${event} hook for ${collection} (new syntax)`);
-        } else if (typeof onRecordAfterCreateRequest !== 'undefined' && event === 'afterCreate') {
-            onRecordAfterCreateRequest(handler, collection);
-            console.log(`✅ Registered ${event} hook for ${collection} (new syntax)`);
-        } else if (typeof onRecordBeforeUpdateRequest !== 'undefined' && event === 'beforeUpdate') {
-            onRecordBeforeUpdateRequest(handler, collection);
-            console.log(`✅ Registered ${event} hook for ${collection} (new syntax)`);
+        if (typeof $app !== 'undefined') {
+            if (event === 'beforeCreate') $app.onRecordBeforeCreateRequest(collection, handler);
+            else if (event === 'afterCreate') $app.onRecordAfterCreateRequest(collection, handler);
+            else if (event === 'beforeUpdate') $app.onRecordBeforeUpdateRequest(collection, handler);
         } else {
-            // Fall back to old syntax
-            if (typeof $app !== 'undefined') {
-                if (event === 'beforeCreate') {
-                    $app.onRecordBeforeCreateRequest(collection, handler);
-                } else if (event === 'afterCreate') {
-                    $app.onRecordAfterCreateRequest(collection, handler);
-                } else if (event === 'beforeUpdate') {
-                    $app.onRecordBeforeUpdateRequest(collection, handler);
-                }
-                console.log(`✅ Registered ${event} hook for ${collection} (old syntax)`);
-            } else {
-                console.error(`❌ Cannot register ${event} hook for ${collection} - no hook functions available`);
-            }
+            console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: $app not available.`);
         }
     } catch (error) {
-        console.error(`❌ Failed to register ${event} hook for ${collection}:`, error);
+        console.error(`HOOK REGISTRATION FAILED for ${collection} - ${event}: ${error}`);
     }
 };
 
-// Before Create Hook
+const sacrificeDayMap = { 
+    "day1_10_dhul_hijjah": { "en": "Day 1 of Eid (10th Dhul Hijjah)", "ar": "اليوم الأول (10 ذو الحجة)" },
+    "day2_11_dhul_hijjah": { "en": "Day 2 of Eid (11th Dhul Hijjah)", "ar": "اليوم الثاني (11 ذو الحجة)" },
+    "day3_12_dhul_hijjah": { "en": "Day 3 of Eid (12th Dhul Hijjah)", "ar": "اليوم الثالث (12 ذو الحجة)" },
+    "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" },
+};
+
+// Orders - Before Create Hook
 registerHook("orders", "beforeCreate", (e) => {
-    console.log("=== ORDER HOOK TRIGGERED ===");
     const record = e.record;
     const dao = $app.dao();
+    const lineItemsData = JSON.parse(JSON.stringify(record.get("line_items"))); 
 
-    console.log(`[OrderHook START] Client-suggested ID: ${record.getString("order_id_text")}`);
-
-    const productID = record.getString("product_id");
-    console.log(`[OrderHook] Product ID from client: ${productID}`);
-    if (!productID) {
-        throw new Error("product_id is required from the client.");
+    if (!Array.isArray(lineItemsData) || lineItemsData.length === 0) {
+        throw new Error("Order must contain at least one item.");
     }
 
-    let product;
-    try {
-        product = dao.findRecordById("products", productID);
-        console.log(`[OrderHook] Found product: ${product.getString("item_key")}`);
-    } catch (err) {
-        console.error(`[OrderHook] CRITICAL: Product with ID ${productID} not found: ${err}`);
-        throw new Error(`Product with ID ${productID} not found. Ensure it's a valid product variant ID.`);
-    }
+    let calculatedSubtotalEGP = 0;
+    let calculatedTotalServiceFeeEGP = 0;
+    const productStockUpdates = []; 
+    const processedLineItems = []; 
 
-    if (!product.getBool("is_active")) {
-        console.error(`[OrderHook] CRITICAL: Product ${product.getString("item_key")} (ID: ${productID}) is not active.`);
-        throw new Error(`Product ${product.getString("item_key")} (ID: ${productID}) is not active.`);
-    }
-
-    const currentStock = product.getInt("stock_available_pb");
-    console.log(`[OrderHook] Product ${product.getString("item_key")} current stock: ${currentStock}`);
-    if (currentStock <= 0) {
-        console.error(`[OrderHook] CRITICAL: Product ${product.getString("item_key")} (ID: ${productID}) is out of stock.`);
-        throw new Error(`Product ${product.getString("item_key")} (ID: ${productID}) is out of stock.`);
-    }
-
-    // Set the required fields that are missing
-    const orderedProductNameEn = product.getString("variant_name_en");
-    const orderedProductNameAr = product.getString("variant_name_ar");
-    const orderedWeightRangeEn = product.getString("weight_range_text_en");
-    const orderedWeightRangeAr = product.getString("weight_range_text_ar");
-    const priceAtOrderTimeEGP = product.getFloat("base_price_egp");
-
-    console.log(`[OrderHook] Setting product details -> nameEn: "${orderedProductNameEn}", nameAr: "${orderedProductNameAr}"`);
-    
-    record.set("ordered_product_name_en", orderedProductNameEn);
-    record.set("ordered_product_name_ar", orderedProductNameAr);
-    record.set("ordered_weight_range_en", orderedWeightRangeEn);
-    record.set("ordered_weight_range_ar", orderedWeightRangeAr);
-    record.set("price_at_order_time_egp", priceAtOrderTimeEGP);
-
-    // Get settings for service fee
+    // Get app settings
     let appSettings;
     try {
         appSettings = dao.findFirstRecordByFilter("settings", "id!=''");
-        console.log(`[OrderHook] Found settings record`);
+        if (!appSettings) throw new Error("Application settings not found.");
     } catch (err) {
-        console.error(`[OrderHook] CRITICAL: Failed to fetch settings: ${err}`);
-        throw new Error("Failed to fetch application settings. Cannot process order.");
+        console.error(`[OrderHook] Failed to fetch settings: ${err}`);
+        throw new Error("Server configuration error. Please contact support.");
     }
+    const defaultServiceFeeEGP = appSettings.getFloat("servFeeEGP") || 0;
 
-    const defaultServiceFeeEGP = appSettings.getFloat("servFeeEGP");
-    let serviceFeeAppliedEGP = 0.0;
-    if (record.getString("udheya_service_option_selected") === "standard_service") {
-        serviceFeeAppliedEGP = defaultServiceFeeEGP;
+    // Process line items
+    for (let i = 0; i < lineItemsData.length; i++) {
+        const clientLineItem = lineItemsData[i]; 
+
+        if (!clientLineItem.item_key_pb || typeof clientLineItem.quantity !== 'number' || clientLineItem.quantity <= 0) {
+            throw new Error(`Invalid line item data at index ${i}.`);
+        }
+
+        let product;
+        try {
+            product = dao.findRecordById("products", clientLineItem.item_key_pb);
+        } catch (err) {
+            console.error(`[OrderHook] Product lookup failed: ${clientLineItem.item_key_pb}`);
+            throw new Error(`Product "${clientLineItem.name_en || clientLineItem.item_key_pb}" not found.`);
+        }
+
+        if (!product.getBool("is_active")) {
+            throw new Error(`Product "${product.getString("variant_name_en")}" is not active.`);
+        }
+
+        const currentStock = product.getInt("stock_available_pb");
+        if (currentStock < clientLineItem.quantity) {
+            throw new Error(`Not enough stock for "${product.getString("variant_name_en")}". Available: ${currentStock}, Requested: ${clientLineItem.quantity}.`);
+        }
+        
+        productStockUpdates.push({ productRecord: product, newStock: currentStock - clientLineItem.quantity });
+
+        const pricePerItemEGP = product.getFloat("base_price_egp");
+        
+        const processedItem = {
+            item_key_pb: product.id, 
+            product_category: product.getString("product_category"),
+            name_en: product.getString("variant_name_en"),
+            name_ar: product.getString("variant_name_ar"),
+            quantity: clientLineItem.quantity,
+            price_egp_each: pricePerItemEGP, 
+            udheya_details: null 
+        };
+
+        calculatedSubtotalEGP += pricePerItemEGP * clientLineItem.quantity;
+
+        if (processedItem.product_category === "udheya" && clientLineItem.udheya_details) {
+            processedItem.udheya_details = clientLineItem.udheya_details; 
+            if (clientLineItem.udheya_details.serviceOption === "standard_service") {
+                calculatedTotalServiceFeeEGP += defaultServiceFeeEGP;
+            }
+            if (!clientLineItem.udheya_details.sacrificeDay || !clientLineItem.udheya_details.distribution?.choice) {
+                 throw new Error(`Missing Udheya details for "${processedItem.name_en}".`);
+            }
+        }
+        processedLineItems.push(processedItem);
     }
-    record.set("service_fee_applied_egp", serviceFeeAppliedEGP);
-    console.log(`[OrderHook] Service fee applied: ${serviceFeeAppliedEGP}`);
+    
+    record.set("line_items", processedLineItems); 
+    record.set("subtotal_amount_egp", calculatedSubtotalEGP);
+    record.set("total_udheya_service_fee_egp", calculatedTotalServiceFeeEGP);
 
-    // Calculate delivery fee
-    let deliveryFeeAppliedEGP = 0.0;
+    // Handle delivery
+    let deliveryFeeAppliedEGP = record.getFloat("delivery_fee_applied_egp") || 0; 
     const deliveryOption = record.getString("delivery_option");
-    const deliveryAreaID = record.getString("delivery_area_id");
-    const deliveryAreasJSON = appSettings.get("delAreas");
+    let areaNameEnToSet = record.getString("delivery_area_name_en") || ""; 
+    let areaNameArToSet = record.getString("delivery_area_name_ar") || "";
 
-    console.log(`[OrderHook] Delivery option: ${deliveryOption}, Area ID: ${deliveryAreaID}`);
-
-    if (deliveryOption === "home_delivery_to_orderer" && deliveryAreaID) {
-        if (deliveryAreasJSON && Array.isArray(deliveryAreasJSON)) {
+    if (deliveryOption === "home_delivery") {
+        const deliveryAreaID = record.getString("delivery_city_id");
+        const deliveryAreasJSON = appSettings.get("delAreas");
+        let foundFee = false;
+        
+        if (deliveryAreaID && Array.isArray(deliveryAreasJSON)) {
             for (const govArea of deliveryAreasJSON) {
                 if (typeof govArea === 'object' && govArea !== null) {
                     const govID = govArea.id || "";
@@ -121,147 +124,273 @@ registerHook("orders", "beforeCreate", (e) => {
                             if (typeof city === 'object' && city !== null) {
                                 const currentCityID = `${govID}_${city.id || ""}`;
                                 if (currentCityID === deliveryAreaID) {
-                                    if (typeof city.delivery_fee_egp === 'number') {
-                                        deliveryFeeAppliedEGP = city.delivery_fee_egp;
-                                        console.log(`[OrderHook] Found delivery fee: ${deliveryFeeAppliedEGP} for city ${currentCityID}`);
-                                        break;
-                                    }
+                                    if (typeof city.delivery_fee_egp === 'number') deliveryFeeAppliedEGP = city.delivery_fee_egp;
+                                    foundFee = true; 
+                                    areaNameEnToSet = `${govArea.name_en || ''} - ${city.name_en || ''}`;
+                                    areaNameArToSet = `${govArea.name_ar || ''} - ${city.name_ar || ''}`;
+                                    break;
                                 }
                             }
                         }
                     } else if (govID === deliveryAreaID) {
-                        if (typeof govArea.delivery_fee_egp === 'number') {
-                            deliveryFeeAppliedEGP = govArea.delivery_fee_egp;
-                            console.log(`[OrderHook] Found delivery fee: ${deliveryFeeAppliedEGP} for gov ${govID}`);
-                            break;
-                        }
+                        if (typeof govArea.delivery_fee_egp === 'number') deliveryFeeAppliedEGP = govArea.delivery_fee_egp;
+                        foundFee = true; 
+                        areaNameEnToSet = govArea.name_en || '';
+                        areaNameArToSet = govArea.name_ar || '';
+                        break;
                     }
                 }
-                if (deliveryFeeAppliedEGP > 0) break;
+                if (foundFee) break;
             }
         }
+        record.set("delivery_fee_applied_egp", deliveryFeeAppliedEGP);
+        record.set("delivery_area_name_en", areaNameEnToSet);
+        record.set("delivery_area_name_ar", areaNameArToSet);
+    } else { 
+        record.set("delivery_fee_applied_egp", 0);
+        record.set("delivery_city_id", null); 
+        record.set("delivery_address", null);
+        record.set("delivery_instructions", null); 
+        record.set("delivery_time_slot", null);
+        record.set("delivery_area_name_en", null); 
+        record.set("delivery_area_name_ar", null);
     }
-    record.set("delivery_fee_applied_egp", deliveryFeeAppliedEGP);
 
-    // Calculate total
-    const totalAmountDueEGP = priceAtOrderTimeEGP + serviceFeeAppliedEGP + deliveryFeeAppliedEGP;
-    console.log(`[OrderHook] Calculated total: ${totalAmountDueEGP} (${priceAtOrderTimeEGP} + ${serviceFeeAppliedEGP} + ${deliveryFeeAppliedEGP})`);
-    
+    // Handle online payment fee
+    let onlinePaymentFeeAppliedEGP = 0.0;
+    const paymentMethod = record.getString("payment_method");
+    if (paymentMethod === "online_card") {
+        onlinePaymentFeeAppliedEGP = appSettings.getFloat("online_payment_fee_egp") || 0;
+    }
+    record.set("online_payment_fee_applied_egp", onlinePaymentFeeAppliedEGP);
+
+    // Calculate final total
+    const totalAmountDueEGP = calculatedSubtotalEGP + calculatedTotalServiceFeeEGP + deliveryFeeAppliedEGP + onlinePaymentFeeAppliedEGP;
     if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) {
-        console.error("[OrderHook] CRITICAL: totalAmountDueEGP is NaN or negative");
-        throw new Error("Internal error calculating total order amount. Please contact support.");
+        console.error(`[OrderHook] Invalid totalAmountDueEGP: ${totalAmountDueEGP}`);
+        throw new Error("Internal error calculating total. Please contact support.");
     }
     record.set("total_amount_due_egp", totalAmountDueEGP);
 
-    // Set sacrifice day text
-    const sacrificeDayMap = {
-        "day1_10_dhul_hijjah": { "en": "Day 1 of Eid (10th Dhul Hijjah)", "ar": "اليوم الأول (10 ذو الحجة)" },
-        "day2_11_dhul_hijjah": { "en": "Day 2 of Eid (11th Dhul Hijjah)", "ar": "اليوم الثاني (11 ذو الحجة)" },
-        "day3_12_dhul_hijjah": { "en": "Day 3 of Eid (12th Dhul Hijjah)", "ar": "اليوم الثالث (12 ذو الحجة)" },
-        "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" },
-    };
-    const sacDayVal = record.getString("sacrifice_day_value");
-    if (sacrificeDayMap[sacDayVal]) {
-        record.set("sacrifice_day_text_en", sacrificeDayMap[sacDayVal].en);
-        record.set("sacrifice_day_text_ar", sacrificeDayMap[sacDayVal].ar);
-        console.log(`[OrderHook] Set sacrifice day texts for: ${sacDayVal}`);
-    } else {
-        record.set("sacrifice_day_text_en", sacDayVal);
-        record.set("sacrifice_day_text_ar", sacDayVal);
-        console.log(`[OrderHook] Used raw sacrifice day value: ${sacDayVal}`);
-    }
-
     // Set payment and order status
-    const paymentMethod = record.getString("payment_method");
-    let paymentStatusToSet = "";
-    let orderStatusToSet = "";
-    if (paymentMethod === "cod") {
-        paymentStatusToSet = "cod_pending_confirmation";
-        orderStatusToSet = "pending_confirmation";
-    } else {
-        paymentStatusToSet = "pending_payment";
-        orderStatusToSet = "confirmed_pending_payment";
+    if (paymentMethod === "online_card") {
+        record.set("payment_status", "pending_gateway_redirect");
+        record.set("order_status", "awaiting_payment_gateway");
+    } else if (paymentMethod === "cod") {
+        record.set("payment_status", "cod_pending_confirmation");
+        record.set("order_status", "pending_confirmation");
+    } else { 
+        record.set("payment_status", "pending_payment");
+        record.set("order_status", "confirmed_pending_payment");
     }
-    record.set("payment_status", paymentStatusToSet);
-    record.set("order_status", orderStatusToSet);
 
-    console.log(`[OrderHook] Set statuses -> payment: "${paymentStatusToSet}", order: "${orderStatusToSet}"`);
+    // Set user ID if authenticated
+    if (e.httpContext?.get("authRecord") && e.httpContext.get("authRecord").id) {
+        record.set("user", e.httpContext.get("authRecord").id);
+    }
 
-    // Set IP and User Agent if fields exist
+    // Set IP and User Agent
     try {
-        if (record.has("user_ip_address")) {
+        if (record.has("user_ip_address") && e.httpContext && e.httpContext.realIp) {
             record.set("user_ip_address", e.httpContext.realIp());
         }
-        if (record.has("user_agent_string")) {
+        if (record.has("user_agent_string") && e.httpContext && e.httpContext.request) {
             record.set("user_agent_string", e.httpContext.request().header.get("User-Agent"));
         }
-    } catch (ipErr) {
-        console.warn(`[OrderHook] Could not set IP/UserAgent: ${ipErr}`);
+    } catch (ipErr) { 
+        console.warn(`[OrderHook] Could not set IP/UserAgent: ${ipErr}`); 
     }
 
-    // Update stock
-    product.set("stock_available_pb", currentStock - 1);
-    try {
-        dao.saveRecord(product);
-        console.log(`[OrderHook] Stock updated for ${product.getString("item_key")} from ${currentStock} to ${currentStock - 1}`);
-    } catch (err) {
-        console.error(`[OrderHook] CRITICAL: Failed to update stock: ${err}`);
-        throw new Error(`Failed to update product stock. Order not created.`);
-    }
-
-    console.log(`[OrderHook END] Order processing complete.`);
-});
-
-// After Create Hook
-registerHook("orders", "afterCreate", (e) => {
-    const record = e.record;
-    console.log(`[OrderHook AfterCreate]: Order ${record.id} (Client ID: ${record.getString("order_id_text")}) created successfully.`);
-});
-
-// Before Update Hook
-registerHook("orders", "beforeUpdate", (e) => {
-    const record = e.record;
-    const dao = $app.dao();
-    let oldStatus = "";
-    
-    try {
-        const originalRecord = dao.findRecordById("orders", record.id);
-        oldStatus = originalRecord?.getString("order_status") || "";
-    } catch (findErr) {
-        console.warn(`[OrderHook BeforeUpdate]: Could not find original record ${record.id} to get oldStatus. Proceeding with update.`);
-    }
-    
-    console.log(`[OrderHook BeforeUpdate]: Processing order ${record.id} (Client ID: ${record.getString("order_id_text")}). Old status: ${oldStatus}, New status: ${record.getString("order_status")}`);
-
-    const newStatus = record.getString("order_status");
-    const paymentStatus = record.getString("payment_status");
-
-    if ((newStatus === "cancelled_by_user" || newStatus === "cancelled_by_admin") &&
-        oldStatus !== "cancelled_by_user" && oldStatus !== "cancelled_by_admin") {
-        
-        if (paymentStatus !== "paid_confirmed" &&
-            paymentStatus !== "payment_under_review" &&
-            !(paymentStatus === "cod_confirmed_pending_delivery" && oldStatus === "ready_for_fulfillment")) {
-            
-            const productID = record.getString("product_id");
-            if (productID) {
-                try {
-                    const product = dao.findRecordById("products", productID);
-                    const currentStock = product.getInt("stock_available_pb");
-                    product.set("stock_available_pb", currentStock + 1);
-                    dao.saveRecord(product);
-                    console.log(`[OrderHook BeforeUpdate] Order ${record.id} cancelled. Product ${productID} stock incremented back to ${currentStock + 1}.`);
-                    record.set("admin_notes", (record.getString("admin_notes") + "\nStock auto-incremented on cancellation.").trim());
-                } catch (err) {
-                    console.error(`[OrderHook BeforeUpdate] Failed to restock product ${productID} for cancelled order ${record.id}: ${err}`);
-                    record.set("admin_notes", (record.getString("admin_notes") + `\nStock auto-increment FAILED on cancellation for product ${productID}. Error: ${err.message}`).trim());
-                }
-            }
-        } else {
-            console.log(`[OrderHook BeforeUpdate] Order ${record.id} cancelled but was paid/under review or CoD advanced. Stock NOT automatically incremented.`);
-            record.set("admin_notes", (record.getString("admin_notes") + "\nOrder cancelled (paid/review/CoD advanced). Stock not auto-incremented.").trim());
+    // Update product stock
+    for (const update of productStockUpdates) {
+        update.productRecord.set("stock_available_pb", update.newStock);
+        try {
+            dao.saveRecord(update.productRecord);
+        } catch (err) {
+            console.error(`[OrderHook] Failed to update stock for ${update.productRecord.getString("item_key")}: ${err}`);
+            throw new Error(`Failed to update product stock. Order not created.`);
         }
     }
 });
 
-console.log("=== SHEEP LAND HOOKS REGISTERED SUCCESSFULLY ===");
+// Orders - After Create Hook
+registerHook("orders", "afterCreate", (e) => {
+    const record = e.record;
+    const customerEmail = record.getString("customer_email");
+    
+    let senderAddress = "noreply@sheepland.example.com"; 
+    let senderName = "Sheep Land"; 
+    let appSettings;
+    try {
+        appSettings = $app.dao().findFirstRecordByFilter("settings", "id!=''");
+        if (appSettings && appSettings.getString("app_email_sender_address")) { 
+            senderAddress = appSettings.getString("app_email_sender_address");
+        }
+        if (appSettings && appSettings.getString("app_email_sender_name")) {
+            senderName = appSettings.getString("app_email_sender_name");
+        }
+    } catch (err) {
+        console.warn(`[OrderHook] Could not fetch app settings for email. Using defaults.`);
+    }
+
+    const enableEmailConfirmation = true; 
+
+    if (enableEmailConfirmation && customerEmail && $app && typeof $app.newMailMessage === 'function') {
+        try {
+            const message = $app.newMailMessage();
+            message.setFrom(senderAddress, senderName);
+            message.setTo(customerEmail);
+            message.setSubject(`Your Sheep Land Order Confirmed: ${record.getString("order_id_text")}`);
+            
+            const lineItems = record.get("line_items") || [];
+            let itemsListHTML = "<ul>";
+            
+            for (const item of lineItems) {
+                let itemDisplayPrice = item.price_egp_each * item.quantity;
+                let serviceFeeText = "";
+                if (item.product_category === 'udheya' && item.udheya_details && item.udheya_details.serviceOption === 'standard_service' && appSettings) {
+                    const udheyaServiceFee = appSettings.getFloat("servFeeEGP") || 0;
+                    serviceFeeText = ` (+ ${udheyaServiceFee} EGP service)`; 
+                }
+                itemsListHTML += `<li>${item.name_en} (x${item.quantity}) - ${itemDisplayPrice} EGP${serviceFeeText}`;
+                if (item.product_category === 'udheya' && item.udheya_details) {
+                    const sacrificeDayValue = item.udheya_details.sacrificeDay;
+                    const sacrificeDayInfo = sacrificeDayMap[sacrificeDayValue] || {en: sacrificeDayValue, ar: sacrificeDayValue}; 
+                    const sacrificeDayText = sacrificeDayInfo.en;
+                    itemsListHTML += `<br><small>Service: ${item.udheya_details.serviceOption || 'N/A'}, Day: ${sacrificeDayText}</small>`;
+                     if (item.udheya_details.niyyahNames && item.udheya_details.niyyahNames.trim() !== "") {
+                        itemsListHTML += `<br><small>Niyyah for: ${item.udheya_details.niyyahNames}</small>`;
+                    }
+                }
+                itemsListHTML += "</li>";
+            }
+            itemsListHTML += "</ul>";
+
+            let emailBody = `<h1>Thank You for Your Order!</h1>`;
+            emailBody += `<p>JazakAllah Khairan for choosing Sheep Land. Your Order ID is: <strong>${record.getString("order_id_text")}</strong></p>`;
+            emailBody += `<h2>Order Summary:</h2>`;
+            emailBody += itemsListHTML;
+            
+            if (record.getFloat("total_udheya_service_fee_egp") > 0) {
+                 emailBody += `<p>Total Udheya Service Fee(s): ${record.getFloat("total_udheya_service_fee_egp")} EGP</p>`;
+            }
+            if (record.getFloat("delivery_fee_applied_egp") > 0) {
+                emailBody += `<p>Delivery Fee: ${record.getFloat("delivery_fee_applied_egp")} EGP</p>`;
+            }
+            if (record.getFloat("online_payment_fee_applied_egp") > 0) {
+                emailBody += `<p>Online Payment Fee: ${record.getFloat("online_payment_fee_applied_egp")} EGP</p>`;
+            }
+            emailBody += `<p><strong>Total Amount Due: ${record.getFloat("total_amount_due_egp")} EGP</strong></p>`;
+
+            // Payment instructions
+            emailBody += `<h2>Payment Instructions:</h2>`;
+            const paymentMethod = record.getString("payment_method");
+            const totalAmount = record.getFloat("total_amount_due_egp");
+            const orderId = record.getString("order_id_text");
+            const waNumRaw = appSettings?.getString("waNumRaw") || "";
+            const waNumDisp = appSettings?.getString("waNumDisp") || waNumRaw;
+            const payDetails = appSettings?.get("payDetails") || {};
+            const waConfirmationLink = `https://wa.me/${waNumRaw}?text=Order%20Payment%20Confirmation%3A%20${orderId}`;
+            
+            if (paymentMethod === "online_card") {
+                emailBody += `<p>To complete your order for ${totalAmount} EGP, please follow the instructions on the website or contact us. Order ID: ${orderId}.</p>`;
+            } else if (paymentMethod === "cod") {
+                emailBody += `<p>Our team will contact you on ${record.getString("customer_phone")} to confirm delivery and collect payment of ${totalAmount} EGP. Order ID: ${orderId}.</p>`;
+            } else if (paymentMethod === "fa") {
+                emailBody += `<p>Fawry: Pay ${totalAmount} EGP. Use Order ID ${orderId}. Payment due within 24 hours. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+            } else if (paymentMethod === "vo") {
+                emailBody += `<p>Vodafone Cash: Pay ${totalAmount} EGP to ${payDetails.vodafone_cash || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+            } else if (paymentMethod === "ip") {
+                emailBody += `<p>InstaPay: Pay ${totalAmount} EGP to ${payDetails.instapay_ipn || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+            } else if (paymentMethod === "revolut") {
+                emailBody += `<p>Revolut: Pay ${totalAmount} EGP to ${payDetails.revolut_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+            } else if (paymentMethod === "monzo") {
+                emailBody += `<p>Monzo: Pay ${totalAmount} EGP to ${payDetails.monzo_details || 'N/A'}. Reference: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+            } else if (paymentMethod === "bank_transfer") {
+                emailBody += `<p>Bank Transfer ${totalAmount} EGP to:</p><ul>
+                    <li>Bank: ${payDetails.bank_name || 'N/A'}</li>
+                    <li>Account Name: ${payDetails.bank_account_name || 'N/A'}</li>
+                    <li>Account Number: ${payDetails.bank_account_number || 'N/A'}</li>
+                    ${payDetails.bank_iban ? `<li>IBAN: ${payDetails.bank_iban}</li>` : ''}
+                    ${payDetails.bank_swift ? `<li>SWIFT: ${payDetails.bank_swift}</li>` : ''}
+                </ul><p>Reference Order ID: ${orderId}. Confirm payment on <a href="${waConfirmationLink}" target="_blank">${waNumDisp}</a>.</p>`;
+            }
+
+            if (record.getString("delivery_option") === "home_delivery" && record.getString("delivery_address")) {
+                emailBody += `<h2>Delivery Details:</h2><p>${record.getString("delivery_address")}, ${record.getString("delivery_area_name_en") || record.getString("delivery_city_id") || ''}. Preferred Time: ${record.getString("delivery_time_slot") || 'N/A'}</p>`;
+            }
+            
+            if (appSettings?.getString("slaughter_location_gmaps_url")) {
+                let hasUdheyaStandardService = lineItems.some(item => item.product_category === 'udheya' && item.udheya_details?.serviceOption === 'standard_service');
+                if (hasUdheyaStandardService) {
+                    emailBody += `<p>Our slaughter facility location: <a href="${appSettings.getString("slaughter_location_gmaps_url")}" target="_blank">View Map</a></p>`;
+                }
+            }
+            emailBody += `<p>Thank you,<br/>The Sheep Land Team</p>`;
+            
+            message.setHtml(emailBody);
+            $app.mails.send(message);
+            console.log(`[OrderHook] Confirmation email sent for order ${record.getString("order_id_text")} to ${customerEmail}.`);
+        } catch (err) {
+            console.error(`[OrderHook] Failed to send email for order ${record.getString("order_id_text")}: ${err}`);
+        }
+    } else if (customerEmail && !($app && typeof $app.newMailMessage === 'function')) {
+        console.warn(`[OrderHook] Email for ${record.getString("order_id_text")} not sent: SMTP not configured.`);
+    } else if (!customerEmail) {
+        console.warn(`[OrderHook] Email for ${record.getString("order_id_text")} not sent: No customer email.`);
+    }
+});
+
+// Orders - Before Update Hook
+registerHook("orders", "beforeUpdate", (e) => {
+    const record = e.record; 
+    const dao = $app.dao();
+    let originalRecord;
+    try {
+        originalRecord = dao.findRecordById("orders", record.id);
+    } catch (err) { 
+        console.warn(`[OrderHook] Could not find original record ${record.id}.`);
+        return; 
+    }
+
+    const oldStatus = originalRecord.getString("order_status") || "";
+    const newStatus = record.getString("order_status");
+    const paymentStatus = record.getString("payment_status"); 
+    
+    if ((newStatus === "cancelled_by_user" || newStatus === "cancelled_by_admin") && oldStatus !== newStatus) {
+        const cancellableStates = ["pending_confirmation", "confirmed_pending_payment", "awaiting_payment_gateway", "payment_confirmed_processing"];
+        let shouldRestock = true;
+
+        if (paymentStatus === "paid_confirmed" || paymentStatus.startsWith("cod_confirmed")) { 
+            if (oldStatus === "fulfilled_completed" || oldStatus === "out_for_delivery" || oldStatus === "ready_for_fulfillment") {
+                 shouldRestock = false; 
+            }
+        }
+        
+        if (cancellableStates.includes(oldStatus) && shouldRestock) {
+            const lineItems = record.get("line_items") || []; 
+            let stockUpdateNotes = "";
+
+            for (const lineItem of lineItems) {
+                const productID = lineItem.item_key_pb; 
+                const quantityToRestock = lineItem.quantity;
+
+                if (productID && quantityToRestock > 0) {
+                    try {
+                        const product = dao.findRecordById("products", productID);
+                        const currentStock = product.getInt("stock_available_pb");
+                        product.set("stock_available_pb", currentStock + quantityToRestock);
+                        dao.saveRecord(product);
+                        stockUpdateNotes += `Restocked ${quantityToRestock} of ${product.getString("variant_name_en") || lineItem.name_en}. `;
+                    } catch (err) {
+                         console.error(`[OrderHook] Failed to restock product ${productID}: ${err}`);
+                         stockUpdateNotes += `STOCK INCREMENT FAILED for product ${productID}. `;
+                    }
+                }
+            }
+            record.set("admin_notes", (record.getString("admin_notes") || "" + `\nOrder Cancellation: ${stockUpdateNotes}`).trim());
+        } else {
+            record.set("admin_notes", (record.getString("admin_notes") || "" + `\nOrder cancelled (old status: ${oldStatus}, payment: ${paymentStatus}). Stock not auto-incremented.`).trim());
+        }
+    }
+});
