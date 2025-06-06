@@ -255,16 +255,28 @@
                 <template x-if="settings.enable_gatherings_section">
                     <li><a href="#gatherings" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                 </template>
-                <li><button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button">📋</button></li>
-                <template x-if="!currentUser">
-                    <li><button @click="navigateToOrScroll('auth'); isMobNavOpen = false;" class="nav-link-mob as-button">👤</button></li>
-                </template>
                 <template x-if="currentUser">
                     <li><a href="#account" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
                     <li><button @click="logoutUser(); isMobNavOpen = false;" class="nav-link-mob bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
                 </template>
-                <li><button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button">🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span></button></li>
             </ul>
+            
+            <div class="nav-actions-mob">
+                <button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button">📋</button>
+                <template x-if="!currentUser">
+                    <button @click="navigateToOrScroll('auth'); isMobNavOpen = false;" class="nav-link-mob as-button">👤</button>
+                </template>
+                <template x-if="currentUser">
+                    <button @click="navigateToOrScroll('account'); isMobNavOpen = false;" class="nav-link-mob as-button">👤</button>
+                </template>
+                <button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button">🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span></button>
+            </div>
+            
+            <div class="wa-contact-mob">
+                <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer">
+                    📱 <span x-text="settings.waNumDisp"></span>
+                </a>
+            </div>
         </nav>
     </div>
 </header>

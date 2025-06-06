@@ -83,11 +83,15 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center;}
 .menu-btn{display:none;background:0 0;border:none;cursor:pointer;padding:var(--s0);color:var(--c1d);z-index:1010;font-size:1.5em;}
 .menu-btn:hover{color:var(--c2)}
 .mob-nav{position:absolute;top:var(--head-h);left:0;right:0;background-color:var(--b2);padding:var(--s2) var(--s2) var(--s3);box-shadow:0 4px 6px rgba(0,0,0,.1);z-index:1005;border-top:1px solid var(--bs)}
-.nav-list-mob{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:0}.nav-list-mob>li{width:100%}
-.nav-link-mob{font-size:1rem;color:var(--c1);font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--rad);display:flex;align-items:center;gap:.5em;text-decoration:none;width:100%;box-sizing:border-box;justify-content:center;line-height:1;}
-.nav-link-mob.as-button{background:none;border:none;cursor:pointer;color:var(--c1);}
+.nav-list-mob{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:var(--s1)}.nav-list-mob>li{width:auto}
+.nav-link-mob{font-size:1rem;color:var(--c1);font-weight:500;padding:var(--s1) var(--s2);border-radius:var(--rad);display:flex;align-items:center;gap:.5em;text-decoration:none;box-sizing:border-box;justify-content:center;line-height:1;min-width:48px;}
+.nav-link-mob.as-button{background:none;border:none;cursor:pointer;color:var(--c1);min-width:48px;}
 .nav-link-mob:hover,.nav-link-mob.active-nav,.nav-link-mob.as-button:hover,.nav-link-mob.as-button.active-nav{color:var(--c1d);background-color:rgba(0,0,0,.03);font-weight:700;}
 .nav-link-mob.active-nav :is(.en,.ar){color:var(--c1d)}.nav-link-mob .cart-count-badge{position:absolute;top:5px;right:10px;}
+.nav-actions-mob{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:var(--s1);margin-top:var(--s2);flex-wrap:wrap;}
+.wa-contact-mob{text-align:center;margin-top:var(--s1);}
+.wa-contact-mob a{display:inline-flex;align-items:center;gap:.5em;color:var(--c1);text-decoration:none;padding:var(--s1);border-radius:var(--rad);font-size:.9rem;justify-content:center;}
+.wa-contact-mob a:hover{color:var(--c1d);background-color:rgba(0,0,0,.03);}
 .hero{background-color:var(--b2);padding:var(--s4) 0 var(--s3);background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),url(../images/hero-sheep-farm.jpg);background-size:cover;background-position:center;background-repeat:no-repeat;color:var(--td);min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box}
 .hero>.c{display:flex;flex-direction:column;align-items:center;justify-content:center}.hero :is(h1,h2,p){color:var(--td)}
 .hero h1.bil-spread>:is(.en,.ar),.hero h2.bil-spread>:is(.en,.ar){margin-right:0;margin-left:0}
