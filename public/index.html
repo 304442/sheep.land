@@ -281,16 +281,24 @@
     <section class="hero main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="c tc">
             <h1 class="bil-spread hero-h">
-                <span class="en" x-text="settings.site_title_en || 'Premium Live Sheep & Udheya'"></span>
-                <span class="ar" x-text="settings.site_title_ar || 'مواشي وأضاحي فاخرة'"></span>
+                <span class="en">Premium Halal Meat & Livestock</span>
+                <span class="ar">لحوم حلال ومواشي فاخرة</span>
             </h1>
             <div class="hero-desc bil-row">
-                <p class="en" x-text="settings.site_desc_en || 'Experience premium quality sheep, livestock, and Sharia-compliant services.'"></p>
-                <p class="ar" x-text="settings.site_desc_ar || 'استمتع بجودة فائقة من الأغنام الحية والخدمات المتوافقة مع الشريعة.'"></p>
+                <p class="en">From farm-fresh meat to live sheep, Udheya services, and catering for your special gatherings</p>
+                <p class="ar">من اللحوم الطازجة إلى الأغنام الحية وخدمات الأضاحي والولائم لمناسباتكم الخاصة</p>
             </div>
-            <button @click="document.getElementById('udheya').scrollIntoView({behavior: 'smooth'})" class="btn bac btn-lg bil-inline hero-cta">
-                <span class="en">Explore Our Products</span><span class="ar">تصفح منتجاتنا</span>
-            </button>
+            <div class="hero-cta-group">
+                <button @click="document.getElementById('meat').scrollIntoView({behavior: 'smooth'})" class="btn bac btn-lg bil-inline">
+                    <span class="en">Fresh Meat</span><span class="ar">لحوم طازجة</span>
+                </button>
+                <button @click="document.getElementById('livesheep').scrollIntoView({behavior: 'smooth'})" class="btn bac-sec btn-lg bil-inline">
+                    <span class="en">Live Sheep</span><span class="ar">أغنام حية</span>
+                </button>
+                <button @click="document.getElementById('udheya').scrollIntoView({behavior: 'smooth'})" class="btn bac-sec btn-lg bil-inline">
+                    <span class="en">Udheya Service</span><span class="ar">خدمة الأضحية</span>
+                </button>
+            </div>
             
             <template x-if="settings.promoActive && !cd.ended">
                 <div class="hero-promo">
@@ -312,6 +320,49 @@
                     </div>
                 </div>
             </template>
+        </div>
+    </section>
+
+    <section class="features-sec main-page-sec" x-show="currentPage === 'home'" x-transition>
+        <div class="c">
+            <h2 class="tc bil-spread sec-h">
+                <span class="en">Why Choose Sheep.Land</span>
+                <span class="ar">لماذا تختار Sheep.Land</span>
+            </h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌿</div>
+                    <h3 class="bil-spread"><span class="en">100% Halal</span><span class="ar">حلال 100%</span></h3>
+                    <p class="bil-row">
+                        <span class="en">All our products are certified Halal, following strict Islamic guidelines</span>
+                        <span class="ar">جميع منتجاتنا حلال معتمدة، تتبع الإرشادات الإسلامية الصارمة</span>
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚚</div>
+                    <h3 class="bil-spread"><span class="en">Fast Delivery</span><span class="ar">توصيل سريع</span></h3>
+                    <p class="bil-row">
+                        <span class="en">Same-day delivery available across Cairo and Giza</span>
+                        <span class="ar">توصيل في نفس اليوم متاح في القاهرة والجيزة</span>
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3 class="bil-spread"><span class="en">Premium Quality</span><span class="ar">جودة فائقة</span></h3>
+                    <p class="bil-row">
+                        <span class="en">Hand-selected livestock from trusted local farms</span>
+                        <span class="ar">مواشي مختارة بعناية من مزارع محلية موثوقة</span>
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3 class="bil-spread"><span class="en">Easy Payment</span><span class="ar">دفع سهل</span></h3>
+                    <p class="bil-row">
+                        <span class="en">Multiple payment options including cash, cards, and installments</span>
+                        <span class="ar">خيارات دفع متعددة تشمل النقد والبطاقات والتقسيط</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
