@@ -42,13 +42,13 @@ document.addEventListener('alpine:init', () => {
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", icon: "🇪🇬", is_active: true } },
             defCurr: "EGP", waNumRaw: "", waNumDisp: "", promoEndISO: new Date().toISOString(), 
             promoDiscPc: 0, promoActive: false, servFeeEGP: 0, delAreas: [], payDetails: {},
-            enable_udheya_section: true, enable_livestock_section: true, enable_meat_section: true, enable_gatherings_section: true,
+            enable_udheya_section: true, enable_livesheep_section: true, enable_meat_section: true, enable_gatherings_section: true,
             slaughter_location_gmaps_url: "", online_payment_fee_egp: 0, refundPolicyHTMLContent: "<p>Loading policy...</p>",
             app_email_sender_address: "noreply@sheepland.eg", app_email_sender_name: "Sheep Land",
             site_title_en: "Sheep Land", site_title_ar: "أرض الأغنام",
-            site_desc_en: "Premium livestock & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
+            site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
         },
-        prodOpts: { udheya: [], livestock_general: [], meat_cuts: [], gathering_package: [] },
+        prodOpts: { udheya: [], livesheep_general: [], meat_cuts: [], gathering_package: [] },
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
@@ -85,9 +85,9 @@ document.addEventListener('alpine:init', () => {
 
         pageTitle() {
             const titles = {
-                home: this.settings.site_title_en || "Premium Livestock & Udheya", 
+                home: this.settings.site_title_en || "Premium Live Sheep & Udheya", 
                 udheya: "Premium Udheya Collection", 
-                livestock: "Live Sheep & Livestock", 
+                livesheep: "Live Sheep", 
                 meat: "Fresh Meat & Cuts", 
                 gatherings: "Event & Gathering Packages", 
                 checkout: "Secure Checkout",
@@ -126,7 +126,7 @@ document.addEventListener('alpine:init', () => {
                         delAreas: Array.isArray(rs.delAreas) ? rs.delAreas : [],
                         payDetails: typeof rs.payDetails === 'object' && rs.payDetails !== null ? rs.payDetails : {},
                         enable_udheya_section: typeof rs.enable_udheya_section === 'boolean' ? rs.enable_udheya_section : true,
-                        enable_livestock_section: typeof rs.enable_livestock_section === 'boolean' ? rs.enable_livestock_section : true,
+                        enable_livesheep_section: typeof rs.enable_livesheep_section === 'boolean' ? rs.enable_livesheep_section : true,
                         enable_meat_section: typeof rs.enable_meat_section === 'boolean' ? rs.enable_meat_section : true,
                         enable_gatherings_section: typeof rs.enable_gatherings_section === 'boolean' ? rs.enable_gatherings_section : true,
                         slaughter_location_gmaps_url: rs.slaughter_location_gmaps_url || "",
@@ -136,7 +136,7 @@ document.addEventListener('alpine:init', () => {
                         app_email_sender_name: rs.app_email_sender_name || "Sheep Land",
                         site_title_en: rs.site_title_en || "Sheep Land",
                         site_title_ar: rs.site_title_ar || "أرض الأغنام",
-                        site_desc_en: rs.site_desc_en || "Premium livestock & Udheya",
+                        site_desc_en: rs.site_desc_en || "Premium live sheep & Udheya",
                         site_desc_ar: rs.site_desc_ar || "مواشي وأضاحي فاخرة"
                     });
                 }
@@ -169,7 +169,7 @@ document.addEventListener('alpine:init', () => {
                 };
                 
                 this.prodOpts.udheya = categorizeProducts(allProducts, 'udheya');
-                this.prodOpts.livestock_general = categorizeProducts(allProducts, 'livestock_general');
+                this.prodOpts.livesheep_general = categorizeProducts(allProducts, 'livesheep_general');
                 this.prodOpts.meat_cuts = categorizeProducts(allProducts, 'meat_cuts');
                 this.prodOpts.gathering_package = categorizeProducts(allProducts, 'gathering_package');
             
@@ -211,7 +211,7 @@ document.addEventListener('alpine:init', () => {
 
         determineCurrentPageFromURL() {
             const hash = window.location.hash.replace(/^#/, '');
-            const validPages = ['home', 'udheya', 'livestock', 'meat', 'gatherings', 'checkout', 'auth', 'account'];
+            const validPages = ['home', 'udheya', 'livesheep', 'meat', 'gatherings', 'checkout', 'auth', 'account'];
             if (hash && validPages.includes(hash.split('?')[0])) {
                 this.currentPage = hash.split('?')[0];
             } else {
@@ -776,7 +776,7 @@ document.addEventListener('alpine:init', () => {
                     const splitOpt = item.udheya_details?.distribution?.splitOption; 
                     return distChoice === 'me' || (distChoice === 'split' && ["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(splitOpt));
                 } 
-                return ['meat_cuts', 'livestock_general', 'gathering_package'].includes(item.product_category);
+                return ['meat_cuts', 'livesheep_general', 'gathering_package'].includes(item.product_category);
             });
         },
 

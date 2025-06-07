@@ -269,7 +269,7 @@ registerHook("orders", "afterCreate", (e) => {
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #ddd; border-radius: 12px; overflow: hidden;'>
                 <div style='background: linear-gradient(135deg, #2C5F41, #8B4513); color: white; padding: 20px; text-align: center;'>
                     <h1 style='margin: 0; font-size: 24px;'>🐑 Sheep Land Egypt</h1>
-                    <p style='margin: 5px 0 0 0; font-size: 16px;'>Premium Livestock & Udheya Services</p>
+                    <p style='margin: 5px 0 0 0; font-size: 16px;'>Premium Live Sheep & Udheya Services</p>
                 </div>
                 <div style='padding: 30px;'>
                     <h2 style='color: #2C5F41; margin-top: 0;'>JazakAllah Khairan for Your Order! 🙏</h2>
@@ -377,7 +377,7 @@ registerHook("orders", "afterCreate", (e) => {
                     </div>
                     
                     <div style='text-align: center; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;'>
-                        <p style='margin: 0;'>🐑 <strong>Sheep Land Egypt</strong> - Your trusted partner for premium livestock</p>
+                        <p style='margin: 0;'>🐑 <strong>Sheep Land Egypt</strong> - Your trusted partner for premium live sheep</p>
                         <p style='margin: 5px 0 0 0; font-size: 14px;'>Serving Egypt and international customers with quality guaranteed</p>
                     </div>
                 </div>

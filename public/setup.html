@@ -107,7 +107,7 @@
     
     const defaultRefundPolicyHTML = `
         <div class="bil-row">
-            <p class="en">Welcome to Sheep Land. We are committed to providing premium quality sheep, livestock, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>
+            <p class="en">Welcome to Sheep Land. We are committed to providing premium quality sheep, livesheep, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>
             <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام الحية واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
         </div>
         <h3 class="bil-spread modal-section-title">
@@ -178,7 +178,7 @@
                 { name: "delAreas", type: "json", required: false, presentable: true }, 
                 { name: "payDetails", type: "json", required: false, presentable: true },
                 { name: "enable_udheya_section", type: "bool", required: false, presentable: true }, 
-                { name: "enable_livestock_section", type: "bool", required: false, presentable: true },
+                { name: "enable_livesheep_section", type: "bool", required: false, presentable: true },
                 { name: "enable_meat_section", type: "bool", required: false, presentable: true }, 
                 { name: "enable_gatherings_section", type: "bool", required: false, presentable: true },
                 { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true },
@@ -203,7 +203,7 @@
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
             fields: [
                 { name: "item_key", type: "text", required: true, presentable: true, unique: true, max: 100, min: 1, pattern: "^[a-z0-9_]+$" },
-                { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "breeding_stock", "feed_supplies"] },
+                { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livesheep_general", "meat_cuts", "gathering_package", "breeding_stock", "feed_supplies"] },
                 { name: "type_key", type: "text", required: true, presentable: true, max: 50, min: 1, pattern: "^[a-z0-9_]+$" },
                 { name: "type_name_en", type: "text", required: true, presentable: true, max: 100, min: 1 }, 
                 { name: "type_name_ar", type: "text", required: true, presentable: true, max: 100, min: 1 },
@@ -371,7 +371,7 @@
                 moneygram_details: "Available at all Egypt Post offices"
             },
             enable_udheya_section: true, 
-            enable_livestock_section: true, 
+            enable_livesheep_section: true, 
             enable_meat_section: true, 
             enable_gatherings_section: true,
             slaughter_location_gmaps_url: "https://maps.app.goo.gl/SheepLandEgyptFarm123", 
@@ -381,7 +381,7 @@
             app_email_sender_name: "Sheep Land",
             site_title_en: "Sheep Land",
             site_title_ar: "أرض الأغنام",
-            site_desc_en: "Sheep, livestock, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers.",
+            site_desc_en: "Sheep, livesheep, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers.",
             site_desc_ar: "أغنام ومواشي ولحوم طازجة وخدمات أضاحي متوافقة مع الشريعة. نخدم مصر والعملاء الدوليين."
         }],
         products: [
@@ -397,11 +397,11 @@
             { item_key: "barki_udheya_42kg", product_category: "udheya", type_key: "barki_sheep", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Barki sheep with lean meat.", type_description_ar: "أغنام برقي من مناطق صحراوية بلحم قليل الدهن.", price_per_kg_egp: 320, variant_name_en: "Barki Medium (40-45kg)", variant_name_ar: "برقي متوسط (٤٠-٤٥ كجم)", weight_range_text_en: "40-45kg", weight_range_text_ar: "٤٠-٤٥ كجم", avg_weight_kg: 42, base_price_egp: 13440, stock_available_pb: 12, is_active: true, is_premium: true, origin_farm: "Marsa Matrouh Desert Farms", breed_info_en: "Desert-adapted Bedouin breed", breed_info_ar: "سلالة بدوية متكيفة مع الصحراء", sort_order_type: 2, sort_order_variant: 2 },
 
             { item_key: "barki_udheya_47kg", product_category: "udheya", type_key: "barki_sheep", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Barki sheep with lean meat.", type_description_ar: "أغنام برقي من مناطق صحراوية بلحم قليل الدهن.", price_per_kg_egp: 320, variant_name_en: "Barki Large (45-50kg)", variant_name_ar: "برقي كبير (٤٥-٥٠ كجم)", weight_range_text_en: "45-50kg", weight_range_text_ar: "٤٥-٥٠ كجم", avg_weight_kg: 47, base_price_egp: 15040, stock_available_pb: 8, is_active: true, is_premium: true, origin_farm: "Marsa Matrouh Desert Farms", breed_info_en: "Desert-adapted Bedouin breed", breed_info_ar: "سلالة بدوية متكيفة مع الصحراء", sort_order_type: 2, sort_order_variant: 3 },
-            { item_key: "live_ram_baladi_breeding", product_category: "livestock_general", type_key: "breeding_rams", type_name_en: "Rams", type_name_ar: "كباش", type_description_en: "Breeding rams.", type_description_ar: "كباش تربية للمزارع.", variant_name_en: "Baladi Ram (80-100kg)", variant_name_ar: "كبش بلدي (٨٠-١٠٠ كجم)", weight_range_text_en: "80-100kg", weight_range_text_ar: "٨٠-١٠٠ كجم", avg_weight_kg: 90, base_price_egp: 18000, stock_available_pb: 6, is_active: true, is_premium: false, origin_farm: "Selection Breeding Center", breed_info_en: "Breeding genetics", breed_info_ar: "وراثة تربية", sort_order_type: 5, sort_order_variant: 1 },
+            { item_key: "live_ram_baladi_breeding", product_category: "livesheep_general", type_key: "breeding_rams", type_name_en: "Rams", type_name_ar: "كباش", type_description_en: "Breeding rams.", type_description_ar: "كباش تربية للمزارع.", variant_name_en: "Baladi Ram (80-100kg)", variant_name_ar: "كبش بلدي (٨٠-١٠٠ كجم)", weight_range_text_en: "80-100kg", weight_range_text_ar: "٨٠-١٠٠ كجم", avg_weight_kg: 90, base_price_egp: 18000, stock_available_pb: 6, is_active: true, is_premium: false, origin_farm: "Selection Breeding Center", breed_info_en: "Breeding genetics", breed_info_ar: "وراثة تربية", sort_order_type: 5, sort_order_variant: 1 },
 
-            { item_key: "live_ewe_saidi_breeding", product_category: "livestock_general", type_key: "breeding_ewes", type_name_en: "Ewes", type_name_ar: "نعاج", type_description_en: "Breeding ewes with fertility records.", type_description_ar: "نعاج تربية مع سجلات خصوبة. أمهات مع إنتاج حليب جيد.", variant_name_en: "Saidi Ewe (55-70kg)", variant_name_ar: "نعجة صعيدي (٥٥-٧٠ كجم)", weight_range_text_en: "55-70kg", weight_range_text_ar: "٥٥-٧٠ كجم", avg_weight_kg: 62, base_price_egp: 12000, stock_available_pb: 10, is_active: true, is_premium: true, origin_farm: "Elite Breeding Center", breed_info_en: "High fertility proven lines", breed_info_ar: "سلالات عالية الخصوبة مثبتة", sort_order_type: 5, sort_order_variant: 2 },
+            { item_key: "live_ewe_saidi_breeding", product_category: "livesheep_general", type_key: "breeding_ewes", type_name_en: "Ewes", type_name_ar: "نعاج", type_description_en: "Breeding ewes with fertility records.", type_description_ar: "نعاج تربية مع سجلات خصوبة. أمهات مع إنتاج حليب جيد.", variant_name_en: "Saidi Ewe (55-70kg)", variant_name_ar: "نعجة صعيدي (٥٥-٧٠ كجم)", weight_range_text_en: "55-70kg", weight_range_text_ar: "٥٥-٧٠ كجم", avg_weight_kg: 62, base_price_egp: 12000, stock_available_pb: 10, is_active: true, is_premium: true, origin_farm: "Elite Breeding Center", breed_info_en: "High fertility proven lines", breed_info_ar: "سلالات عالية الخصوبة مثبتة", sort_order_type: 5, sort_order_variant: 2 },
 
-            { item_key: "live_lambs_weaned", product_category: "livestock_general", type_key: "young_lambs", type_name_en: "Weaned Lambs", type_name_ar: "حملان مفطومة", type_description_en: "Weaned lambs, 3-6 months old. Vaccinated and health-checked.", type_description_ar: "حملان مفطومة، عمر ٣-٦ أشهر، للتربية أو التسمين. محصنة ومفحوصة صحياً.", variant_name_en: "Weaned Lamb (15-25kg)", variant_name_ar: "حمل مفطوم (١٥-٢٥ كجم)", weight_range_text_en: "15-25kg", weight_range_text_ar: "١٥-٢٥ كجم", avg_weight_kg: 20, base_price_egp: 4500, stock_available_pb: 35, is_active: true, is_premium: false, origin_farm: "Young Stock Farms", breed_info_en: "3-6 months weaned", breed_info_ar: "مفطوم ٣-٦ أشهر", sort_order_type: 6, sort_order_variant: 1 },
+            { item_key: "live_lambs_weaned", product_category: "livesheep_general", type_key: "young_lambs", type_name_en: "Weaned Lambs", type_name_ar: "حملان مفطومة", type_description_en: "Weaned lambs, 3-6 months old. Vaccinated and health-checked.", type_description_ar: "حملان مفطومة، عمر ٣-٦ أشهر، للتربية أو التسمين. محصنة ومفحوصة صحياً.", variant_name_en: "Weaned Lamb (15-25kg)", variant_name_ar: "حمل مفطوم (١٥-٢٥ كجم)", weight_range_text_en: "15-25kg", weight_range_text_ar: "١٥-٢٥ كجم", avg_weight_kg: 20, base_price_egp: 4500, stock_available_pb: 35, is_active: true, is_premium: false, origin_farm: "Young Stock Farms", breed_info_en: "3-6 months weaned", breed_info_ar: "مفطوم ٣-٦ أشهر", sort_order_type: 6, sort_order_variant: 1 },
 
             { item_key: "lamb_chops_premium", product_category: "meat_cuts", type_key: "lamb_premium_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Lamb chops.", type_description_ar: "ريش ضأن مقطعة طازجة يومياً.", price_per_kg_egp: 520, variant_name_en: "Lamb Chops (per kg)", variant_name_ar: "ريش ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 520, stock_available_pb: 25, is_active: true, is_premium: true, origin_farm: "Fresh Cut Daily", breed_info_en: "Grain-fed young lamb", breed_info_ar: "ضأن صغير يتغذى على الحبوب", sort_order_type: 7, sort_order_variant: 1 },
 
