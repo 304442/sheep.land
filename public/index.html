@@ -189,20 +189,20 @@
         <nav class="nav-main nav-desk">
             <ul class="nav-list">
                 <template x-if="settings.enable_udheya_section">
-                    <li><a href="#udheya" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'udheya'}" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
+                    <li><a href="#udheya" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'udheya'}" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_livestock_section">
-                    <li><a href="#livestock" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'livestock'}" @click.prevent="navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
+                    <li><a href="#livestock" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'livestock'}" @click.prevent="navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
                 </template>
                 <template x-if="settings.enable_meat_section">
-                    <li><a href="#meat" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'meat'}" @click.prevent="navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
+                    <li><a href="#meat" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'meat'}" @click.prevent="navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
                 </template>
                 <template x-if="settings.enable_gatherings_section">
-                    <li><a href="#gatherings" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'gatherings'}" @click.prevent="navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
+                    <li><a href="#gatherings" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'gatherings'}" @click.prevent="navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                 </template>
                 <template x-if="currentUser">
-                    <li><a href="#account" class="nav-link bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
-                    <li><button @click="logoutUser()" class="nav-link bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
+                    <li><a href="#account" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'account'}" @click.prevent="navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
+                    <li><button @click="logoutUser()" class="nav-link nav-bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
                 </template>
             </ul>
         </nav>
@@ -241,20 +241,20 @@
         <nav>
             <ul class="nav-list-mob">
                 <template x-if="settings.enable_udheya_section">
-                    <li><a href="#udheya" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
+                    <li><a href="#udheya" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_livestock_section">
-                    <li><a href="#livestock" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
+                    <li><a href="#livestock" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
                 </template>
                 <template x-if="settings.enable_meat_section">
-                    <li><a href="#meat" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
+                    <li><a href="#meat" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
                 </template>
                 <template x-if="settings.enable_gatherings_section">
-                    <li><a href="#gatherings" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
+                    <li><a href="#gatherings" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                 </template>
                 <template x-if="currentUser">
-                    <li><a href="#account" class="nav-link-mob bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
-                    <li><button @click="logoutUser(); isMobNavOpen = false;" class="nav-link-mob bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
+                    <li><a href="#account" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
+                    <li><button @click="logoutUser(); isMobNavOpen = false;" class="nav-link-mob nav-bil-inline as-button"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
                 </template>
             </ul>
             
