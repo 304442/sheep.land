@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Egypt's premier destination for premium sheep, livestock, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers with quality guaranteed.">
-    <title x-text="pageTitle()">Sheep Land Egypt - Premium Livestock & Udheya</title>
+    <title x-text="pageTitle()">Sheep Land</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 </head>
 <body x-data="sheepLand" x-init="initApp()" x-cloak>
 
-<div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">🐑 Loading Sheep Land Egypt...</div>
+<div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
 
 <div x-show="isCartOpen" class="cart-sidebar-overlay" @click="closeCart()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
@@ -45,9 +45,8 @@
                                 <span class="ar"><small>الخدمة: <span x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></small></span>
                             </div>
                         </template>
-                        <div class="cart-item-price bil-spread">
-                            <span class="en" x-text="fmtPrice(cartItem.priceEGP) + ' each'"></span>
-                            <span class="ar" x-text="fmtPrice(cartItem.priceEGP) + ' للقطعة'"></span>
+                        <div class="cart-item-price">
+                            <span x-text="fmtPrice(cartItem.priceEGP) + ' each'"></span>
                         </div>
                     </div>
                     
@@ -64,9 +63,8 @@
         </div>
     </div>
     <div class="cart-sidebar-footer" x-show="cartItems.length > 0">
-        <div class="cart-total bil-row">
-            <span class="en"><strong>Total:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
-            <span class="ar"><strong>الإجمالي:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
+        <div class="cart-total">
+            <span><strong>Total:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
         </div>
         <button type="button" @click="closeCart(); navigateToOrScroll('checkout')" class="btn bac btn-lg btn-block bil-inline">
             <span class="en">Proceed to Checkout</span><span class="ar">المتابعة للدفع</span>
@@ -118,7 +116,7 @@
                 <h4 class="form-subh bil-spread"><span class="en">Order Details</span><span class="ar">تفاصيل الطلب</span></h4>
                 <div class="sum-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div><div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div></div>
                 <div class="sum-item bil-row"><div class="en"><strong>Status:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div></div>
-                <div class="sum-item bil-row"><div class="en"><strong>Total:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div><div class="ar"><strong>إجمالي الطلب:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div></div>
+                <div class="sum-item"><div><strong>Total:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div></div>
             </div>
             <div class="stat-no-res bil-row tc" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب أو اتصل بالدعم.</p></div>
         </div>
@@ -142,7 +140,7 @@
             <div class="fg">
                 <label class="bil-spread lbl-req"><span class="en">Service Option *</span><span class="ar">خيار الخدمة *</span></label>
                 <div class="rgrp">
-                    <label class="bil-spread"><input type="radio" name="service_option_udh_conf" value="standard_service" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span class="en">Standard Service - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span><span class="ar">خدمة عادية - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span></label>
+                    <label><input type="radio" name="service_option_udh_conf" value="standard_service" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span>Standard Service - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span></label>
                     <label class="bil-spread"><input type="radio" name="service_option_udh_conf" value="live_animal_delivery" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span class="en">Live Animal Delivery</span><span class="ar">توصيل حيوان حي</span></label>
                 </div>
                 <div class="err-msg" x-show="errs.udheya_service_config" x-text="getUdheyaConfigErrorText()"></div>
@@ -357,9 +355,8 @@
                                         </template>
                                     </div>
                                     <div class="card-foot">
-                                        <div class="price bil-row">
-                                            <span class="en"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
-                                            <span class="ar"><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
+                                        <div class="price">
+                                            <span><strong x-text="fmtPrice(item.priceEGP)"></strong></span>
                                         </div>
                                         <div class="card-act">
                                             <template x-if="section.key === 'udheya'">
@@ -726,8 +723,8 @@
                                             <div><strong class="en">Status:</strong><strong class="ar">الحالة:</strong></div>
                                             <div><span class="stat-hl" x-text="order.order_status"></span></div>
                                         </div>
-                                        <div class="sum-item bil-row">
-                                             <div><strong class="en">Total:</strong><strong class="ar">الإجمالي:</strong></div>
+                                        <div class="sum-item">
+                                             <div><strong>Total:</strong></div>
                                              <div><span x-text="fmtPrice(order.total_amount_due_egp)"></span></div>
                                         </div>
                                         <div class="sum-item bil-row">

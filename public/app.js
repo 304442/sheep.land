@@ -44,8 +44,8 @@ document.addEventListener('alpine:init', () => {
             promoDiscPc: 0, promoActive: false, servFeeEGP: 0, delAreas: [], payDetails: {},
             enable_udheya_section: true, enable_livestock_section: true, enable_meat_section: true, enable_gatherings_section: true,
             slaughter_location_gmaps_url: "", online_payment_fee_egp: 0, refundPolicyHTMLContent: "<p>Loading policy...</p>",
-            app_email_sender_address: "noreply@sheepland.eg", app_email_sender_name: "Sheep Land Egypt",
-            site_title_en: "Sheep Land Egypt", site_title_ar: "أرض الأغنام مصر",
+            app_email_sender_address: "noreply@sheepland.eg", app_email_sender_name: "Sheep Land",
+            site_title_en: "Sheep Land", site_title_ar: "أرض الأغنام",
             site_desc_en: "Premium livestock & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
         },
         prodOpts: { udheya: [], livestock_general: [], meat_cuts: [], gathering_package: [] },
@@ -133,9 +133,9 @@ document.addEventListener('alpine:init', () => {
                         online_payment_fee_egp: Number(rs.online_payment_fee_egp) || 0,
                         refundPolicyHTMLContent: rs.refund_policy_html || this.generateDefaultRefundPolicyHTML(),
                         app_email_sender_address: rs.app_email_sender_address || "noreply@sheepland.eg",
-                        app_email_sender_name: rs.app_email_sender_name || "Sheep Land Egypt",
-                        site_title_en: rs.site_title_en || "Sheep Land Egypt",
-                        site_title_ar: rs.site_title_ar || "أرض الأغنام مصر",
+                        app_email_sender_name: rs.app_email_sender_name || "Sheep Land",
+                        site_title_en: rs.site_title_en || "Sheep Land",
+                        site_title_ar: rs.site_title_ar || "أرض الأغنام",
                         site_desc_en: rs.site_desc_en || "Premium livestock & Udheya",
                         site_desc_ar: rs.site_desc_ar || "مواشي وأضاحي فاخرة"
                     });
@@ -271,7 +271,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         generateDefaultRefundPolicyHTML() {
-            return `<div class="bil-row"><p class="en">Welcome to Sheep Land Egypt. Please read our policy carefully.</p><p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام مصر. يرجى قراءة سياستنا بعناية.</p></div>`;
+            return `<div class="bil-row"><p class="en">Welcome to Sheep Land. Please read our policy carefully.</p><p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام. يرجى قراءة سياستنا بعناية.</p></div>`;
         },
 
         openCart() { this.isCartOpen = true; document.body.classList.add('overflow-hidden'); },
