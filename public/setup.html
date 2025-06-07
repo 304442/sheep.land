@@ -77,8 +77,8 @@
     
     const defaultRefundPolicyHTML = `
         <div class="bil-row">
-            <p class="en">Welcome to Sheep Land Egypt. We are committed to providing premium quality sheep, livestock, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>
-            <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام مصر. نحن ملتزمون بتقديم منتجات الأغنام والمواشي واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
+            <p class="en">Welcome to Sheep Land. We are committed to providing premium quality sheep, livestock, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>
+            <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام والمواشي واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
         </div>
         <h3 class="bil-spread modal-section-title">
             <span class="en">Udheya & Qurbani Orders</span><span class="ar" dir="rtl">طلبات الأضاحي والقرباني</span>
@@ -225,8 +225,8 @@
             name: "orders", 
             type: "base", 
             system: false,
-            listRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true", 
-            viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
+            listRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true", 
+            viewRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
             createRule: "", 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
@@ -333,11 +333,11 @@
                 monzo_details: "monzo.me/sheeplandegypt", 
                 paypal_email: "payments@sheepland.eg",
                 bank_name: "Commercial International Bank Egypt", 
-                bank_account_name: "Sheep Land Egypt Trading", 
+                bank_account_name: "Sheep Land Trading", 
                 bank_account_number: "1234567890123456", 
                 bank_iban: "EG38CIBE12345678901234567890", 
                 bank_swift: "CIBEEGCX",
-                western_union_details: "Sheep Land Egypt - Cairo Branch",
+                western_union_details: "Sheep Land - Cairo Branch",
                 moneygram_details: "Available at all Egypt Post offices"
             },
             enable_udheya_section: true, 
@@ -348,11 +348,11 @@
             online_payment_fee_egp: 50,
             refund_policy_html: defaultRefundPolicyHTML, 
             app_email_sender_address: "noreply@sheepland.eg", 
-            app_email_sender_name: "Sheep Land Egypt",
-            site_title_en: "Sheep Land Egypt - Premium Livestock & Udheya",
-            site_title_ar: "أرض الأغنام مصر - مواشي وأضاحي فاخرة",
-            site_desc_en: "Egypt's premier destination for premium sheep, livestock, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers with quality guaranteed.",
-            site_desc_ar: "الوجهة الأولى في مصر للأغنام الفاخرة والمواشي واللحوم الطازجة وخدمات الأضاحي المتوافقة مع الشريعة. نخدم مصر والعملاء الدوليين مع ضمان الجودة."
+            app_email_sender_name: "Sheep Land",
+            site_title_en: "Sheep Land",
+            site_title_ar: "أرض الأغنام",
+            site_desc_en: "Premium sheep, livestock, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers with quality guaranteed.",
+            site_desc_ar: "أغنام فاخرة ومواشي ولحوم طازجة وخدمات أضاحي متوافقة مع الشريعة. نخدم مصر والعملاء الدوليين مع ضمان الجودة."
         }],
         products: [
             { item_key: "baladi_udheya_35kg", product_category: "udheya", type_key: "baladi_sheep", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Premium Egyptian Baladi sheep, raised on natural farms with traditional methods. Perfect for Udheya with excellent marbling and authentic taste.", type_description_ar: "أغنام بلدية مصرية فاخرة، تربت في مزارع طبيعية بطرق تقليدية. مثالية للأضحية مع دهون متداخلة ممتازة وطعم أصيل.", price_per_kg_egp: 280, variant_name_en: "Baladi Udheya Small (30-40kg)", variant_name_ar: "أضحية بلدي صغير (٣٠-٤٠ كجم)", weight_range_text_en: "30-40kg", weight_range_text_ar: "٣٠-٤٠ كجم", avg_weight_kg: 35, base_price_egp: 9800, stock_available_pb: 25, is_active: true, is_premium: false, origin_farm: "Fayoum Farms", breed_info_en: "Traditional Egyptian breed", breed_info_ar: "سلالة مصرية تقليدية", sort_order_type: 1, sort_order_variant: 1 },

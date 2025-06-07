@@ -208,6 +208,15 @@
         </nav>
 
         <div class="head-extras desk-extras">
+            <div class="curr-sel">
+                <select x-model="curr" title="Currency">
+                    <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
+                        <option :value="code" :disabled="!settings.xchgRates[code].is_active">
+                            <span x-text="(settings.xchgRates[code].icon || '') + ' ' + code"></span>
+                        </option>
+                    </template>
+                </select>
+            </div>
             <button @click="openOrderStatusModal()" class="header-action-btn" title="Order Status">📋</button>
             <template x-if="!currentUser">
                 <button @click="navigateToOrScroll('auth')" class="header-action-btn" title="Login">👤</button>
@@ -218,15 +227,6 @@
             <button @click="openCart()" class="header-action-btn" title="Shopping Cart">
                 🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
             </button>
-            <div class="curr-sel">
-                <select x-model="curr" title="Currency">
-                    <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
-                        <option :value="code" :disabled="!settings.xchgRates[code].is_active">
-                            <span x-text="(settings.xchgRates[code].icon || '') + ' ' + code"></span>
-                        </option>
-                    </template>
-                </select>
-            </div>
             <div class="wa-contact">
                 <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer" title="WhatsApp Contact">
                     📱 <span x-text="settings.waNumDisp"></span>
