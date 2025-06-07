@@ -38,14 +38,15 @@
             <input type="password" id="adminPassword" value="unifiedpassword" style="width:100%;padding:5px;border:1px solid #ccc;border-radius:4px">
         </div>
         
-        <div style="margin:10px 0">
-            <label style="display:block;margin-bottom:5px;font-weight:bold">Collections JSON:</label>
-            <textarea id="collectionsData" style="width:100%;height:200px;padding:5px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px"></textarea>
-        </div>
-        
-        <div style="margin:10px 0">
-            <label style="display:block;margin-bottom:5px;font-weight:bold">Seed Data JSON:</label>
-            <textarea id="seedData" style="width:100%;height:200px;padding:5px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px"></textarea>
+        <div style="display:flex;gap:10px;margin:10px 0">
+            <div style="flex:1">
+                <label style="display:block;margin-bottom:5px;font-weight:bold">Collections JSON:</label>
+                <textarea id="collectionsData" style="width:100%;height:200px;padding:5px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px"></textarea>
+            </div>
+            <div style="flex:1">
+                <label style="display:block;margin-bottom:5px;font-weight:bold">Seed Data JSON:</label>
+                <textarea id="seedData" style="width:100%;height:200px;padding:5px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px"></textarea>
+            </div>
         </div>
         
         <div style="text-align:center;margin:10px 0">
@@ -67,9 +68,7 @@
     const collectionsTextarea = document.getElementById('collectionsData');
     const seedTextarea = document.getElementById('seedData');
     
-    // Populate textareas with default data
-    collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
-    seedTextarea.value = JSON.stringify(seedData, null, 2);
+    // Note: textareas will be populated after data definitions
 
     const log = (message, type = 'i', data = null) => {
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
@@ -423,6 +422,10 @@
             { item_key: "bbq_premium_mixed", product_category: "gathering_package", type_key: "bbq_packages", type_name_en: "BBQ & Grill Packages", type_name_ar: "باقات الشواء والمشاوي", type_description_en: "Premium BBQ packages with mixed grilled meats, lamb kebabs, kofta, chicken, and all BBQ essentials. Perfect for outdoor gatherings and social events.", type_description_ar: "باقات شواء فاخرة مع لحوم مشوية مختلطة وكباب ضاني وكفتة ودجاج وجميع أساسيات الشواء. مثالية للتجمعات الخارجية والمناسبات الاجتماعية.", variant_name_en: "Premium BBQ Package (15-25 people)", variant_name_ar: "باقة شواء فاخرة (١٥-٢٥ فرد)", base_price_egp: 12500, stock_available_pb: 10, is_active: true, is_premium: true, origin_farm: "BBQ Specialists", breed_info_en: "Mixed grill specialties", breed_info_ar: "تخصصات مشاوي مختلطة", sort_order_type: 12, sort_order_variant: 1 }
         ]
     };
+
+    // Populate textareas with default data
+    collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
+    seedTextarea.value = JSON.stringify(seedData, null, 2);
 
     async function safeExecute(operation, operationName, pbInstance = null) {
         const pb = pbInstance || new PocketBase(pbUrl);
