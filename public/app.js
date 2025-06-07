@@ -540,8 +540,7 @@ document.addEventListener('alpine:init', () => {
             const ci=this.settings?.xchgRates?.[cc]; 
             if(p==null||p === undefined ||!ci||typeof ci.rate_from_egp !=='number') return`${ci?.symbol||(cc==='EGP'?'LE':'')} ---`; 
             const cp=p*ci.rate_from_egp; 
-            const icon = ci.icon ? ci.icon + ' ' : '';
-            return`${icon}${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP'||ci.symbol==="€")?0:2)}`; 
+            return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP'||ci.symbol==="€")?0:2)}`; 
         },
 
         getStockDisplayInfo(stock, isActive, lang = this.currLang) {
