@@ -191,7 +191,7 @@
                     <li><a href="#udheya" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'udheya'}" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_livestock_section">
-                    <li><a href="#livestock" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'livestock'}" @click.prevent="navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
+                    <li><a href="#livestock" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'livestock'}" @click.prevent="navigateToOrScroll('livestock')"><span class="en">Live Sheep</span><span class="ar">الأغنام الحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_meat_section">
                     <li><a href="#meat" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'meat'}" @click.prevent="navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
@@ -243,7 +243,7 @@
                     <li><a href="#udheya" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_livestock_section">
-                    <li><a href="#livestock" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')"><span class="en">Livestock</span><span class="ar">الأغنام</span></a></li>
+                    <li><a href="#livestock" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livestock')"><span class="en">Live Sheep</span><span class="ar">الأغنام الحية</span></a></li>
                 </template>
                 <template x-if="settings.enable_meat_section">
                     <li><a href="#meat" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
@@ -281,12 +281,12 @@
     <section class="hero main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="c tc">
             <h1 class="bil-spread hero-h">
-                <span class="en" x-text="settings.site_title_en || 'Premium Livestock & Udheya'"></span>
+                <span class="en" x-text="settings.site_title_en || 'Premium Live Sheep & Udheya'"></span>
                 <span class="ar" x-text="settings.site_title_ar || 'مواشي وأضاحي فاخرة'"></span>
             </h1>
             <div class="hero-desc bil-row">
                 <p class="en" x-text="settings.site_desc_en || 'Experience premium quality sheep, livestock, and Sharia-compliant services.'"></p>
-                <p class="ar" x-text="settings.site_desc_ar || 'استمتع بجودة فائقة من الأغنام والمواشي والخدمات المتوافقة مع الشريعة.'"></p>
+                <p class="ar" x-text="settings.site_desc_ar || 'استمتع بجودة فائقة من الأغنام الحية والخدمات المتوافقة مع الشريعة.'"></p>
             </div>
             <button @click="navigateToOrScroll('udheya')" class="btn bac btn-lg bil-inline hero-cta">
                 <span class="en">Explore Premium Udheya</span><span class="ar">تصفح الأضاحي الفاخرة</span>
@@ -317,7 +317,7 @@
 
     <template x-for="section in [
         {key: 'udheya', name: {en: 'Premium Udheya Collection', ar: 'مجموعة الأضاحي الفاخرة'}, products: prodOpts.udheya, badge: 'UDHEYA'},
-        {key: 'livestock', name: {en: 'Live Sheep & Livestock', ar: 'الأغنام الحية والمواشي'}, products: prodOpts.livestock_general, badge: 'LIVE'},
+        {key: 'livestock', name: {en: 'Live Sheep', ar: 'الأغنام الحية'}, products: prodOpts.livestock_general, badge: 'LIVE'},
         {key: 'meat', name: {en: 'Fresh Meat & Cuts', ar: 'اللحوم الطازجة والقطعيات'}, products: prodOpts.meat_cuts, badge: 'FRESH'},
         {key: 'gatherings', name: {en: 'Event & Gathering Packages', ar: 'باقات المناسبات والولائم'}, products: prodOpts.gathering_package, badge: 'EVENT'}
     ]" :key="section.key">
@@ -746,7 +746,7 @@
         <div class="foot-grid">
             <div class="bil-row foot-brand-desc">
                 <p class="en">Egypt's trusted partner for premium, Sharia-compliant sheep, livestock, fresh meat, and Udheya services. Serving Egypt and international customers with guaranteed quality and authentic farm-to-table experience.</p>
-                <p class="ar">الشريك الموثوق في مصر للأغنام والمواشي واللحوم الطازجة وخدمات الأضاحي المتوافقة مع الشريعة. نخدم مصر والعملاء الدوليين مع ضمان الجودة وتجربة أصيلة من المزرعة للمائدة.</p>
+                <p class="ar">الشريك الموثوق في مصر للأغنام الحية واللحوم الطازجة وخدمات الأضاحي المتوافقة مع الشريعة. نخدم مصر والعملاء الدوليين مع ضمان الجودة وتجربة أصيلة من المزرعة للمائدة.</p>
             </div>
         </div>
         <hr class="foot-div">

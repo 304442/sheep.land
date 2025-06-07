@@ -22,10 +22,32 @@
 <body>
     <div class="c">
         <h1>Sheep Land - PocketBase Setup</h1>
-        <div class="setup-info">
-            <p><strong>Sheep Land</strong> - Premium sheep farming and livestock e-commerce platform serving Egypt and international customers with Udheya, live sheep, fresh meat cuts, and gathering packages.</p>
+        
+        <div style="margin:10px 0">
+            <label style="display:block;margin-bottom:5px;font-weight:bold">PocketBase URL:</label>
+            <input type="text" id="pbUrlInput" value="/" style="width:100%;padding:5px;border:1px solid #ccc;border-radius:4px">
         </div>
-        <p class="warn">⚠️ <strong>PRODUCTION WARNING:</strong> Default admin credentials (admin@example.com / unifiedpassword). Change immediately! This will create/update collections and seed comprehensive livestock data.</p>
+        
+        <div style="margin:10px 0">
+            <label style="display:block;margin-bottom:5px;font-weight:bold">Admin Email:</label>
+            <input type="email" id="adminEmail" value="admin@example.com" style="width:100%;padding:5px;border:1px solid #ccc;border-radius:4px">
+        </div>
+        
+        <div style="margin:10px 0">
+            <label style="display:block;margin-bottom:5px;font-weight:bold">Admin Password:</label>
+            <input type="password" id="adminPassword" value="unifiedpassword" style="width:100%;padding:5px;border:1px solid #ccc;border-radius:4px">
+        </div>
+        
+        <div style="margin:10px 0">
+            <label style="display:block;margin-bottom:5px;font-weight:bold">Collections JSON:</label>
+            <textarea id="collectionsData" style="width:100%;height:200px;padding:5px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px"></textarea>
+        </div>
+        
+        <div style="margin:10px 0">
+            <label style="display:block;margin-bottom:5px;font-weight:bold">Seed Data JSON:</label>
+            <textarea id="seedData" style="width:100%;height:200px;padding:5px;border:1px solid #ccc;border-radius:4px;font-family:monospace;font-size:11px"></textarea>
+        </div>
+        
         <div style="text-align:center;margin:10px 0">
             <button id="runFullSetup">🚀 Complete Setup (Recommended)</button>
             <button id="runSchemaOnly">📋 Schema Only</button>
@@ -34,13 +56,20 @@
         <div id="out"></div>
     </div>
 <script>
-    const pbUrl = '/';
+    let pbUrl = '/';
     const outputDiv = document.getElementById('out');
     const runFullSetupButton = document.getElementById('runFullSetup');
     const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
     const runSeedOnlyButton = document.getElementById('runSeedOnly');
-    const ADM_E = 'admin@example.com';
-    const ADM_P = 'unifiedpassword';
+    const pbUrlInput = document.getElementById('pbUrlInput');
+    const adminEmailInput = document.getElementById('adminEmail');
+    const adminPasswordInput = document.getElementById('adminPassword');
+    const collectionsTextarea = document.getElementById('collectionsData');
+    const seedTextarea = document.getElementById('seedData');
+    
+    // Populate textareas with default data
+    collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
+    seedTextarea.value = JSON.stringify(seedData, null, 2);
 
     const log = (message, type = 'i', data = null) => {
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
@@ -66,7 +95,9 @@
 
     async function authenticateAdmin(pb) {
         try {
-            await pb.admins.authWithPassword(ADM_E, ADM_P);
+            const email = adminEmailInput.value;
+            const password = adminPasswordInput.value;
+            await pb.admins.authWithPassword(email, password);
             log('🔑 Admin authentication successful', 's');
             return true;
         } catch (error) {
@@ -78,7 +109,7 @@
     const defaultRefundPolicyHTML = `
         <div class="bil-row">
             <p class="en">Welcome to Sheep Land. We are committed to providing premium quality sheep, livestock, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>
-            <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام والمواشي واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
+            <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام الحية واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
         </div>
         <h3 class="bil-spread modal-section-title">
             <span class="en">Udheya & Qurbani Orders</span><span class="ar" dir="rtl">طلبات الأضاحي والقرباني</span>
@@ -101,7 +132,7 @@
             <p class="ar" dir="rtl"><strong>يوم العيد:</strong> لا يوجد استرداد (الحيوان محضر للذبح)</p>
         </div>
 
-        <h3 class="bil-spread modal-section-title"><span class="en">Live Sheep & Livestock</span><span class="ar" dir="rtl">الأغنام الحية والمواشي</span></h3>
+        <h3 class="bil-spread modal-section-title"><span class="en">Live Sheep</span><span class="ar" dir="rtl">الأغنام الحية</span></h3>
         <div class="bil-row">
             <p class="en">Live animals require 48-72 hours advance notice for cancellation. Health-guaranteed animals cannot be returned unless veterinary defects are proven within 24 hours of delivery.</p>
             <p class="ar" dir="rtl">الحيوانات الحية تتطلب إشعار مسبق 48-72 ساعة للإلغاء. الحيوانات المضمونة صحياً لا يمكن إرجاعها إلا إذا تم إثبات عيوب بيطرية خلال 24 ساعة من التسليم.</p>
@@ -421,7 +452,16 @@
         if (!await authenticateAdmin(pb)) return false;
 
         log('📋 Processing collections (settings, products, users, orders)...', 'i');
-        if (!await importOrUpdateCollections(pb, collectionsDefinition)) { 
+        
+        let collectionsToUse;
+        try {
+            collectionsToUse = JSON.parse(collectionsTextarea.value);
+        } catch (e) {
+            log('❌ Invalid Collections JSON: ' + e.message, 'e');
+            return false;
+        }
+        
+        if (!await importOrUpdateCollections(pb, collectionsToUse)) { 
              log('❌ Collection setup failed.', 'e'); 
              return false;
         }
@@ -609,11 +649,19 @@
         log('⏳ Pausing for 1 second before seeding...', 'i');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
+        let seedDataToUse;
+        try {
+            seedDataToUse = JSON.parse(seedTextarea.value);
+        } catch (e) {
+            log('❌ Invalid Seed Data JSON: ' + e.message, 'e');
+            return false;
+        }
+
         let anySeedErrors = false;
-        const settingsResult = await seedCollectionData(pb, 'settings', seedData.settings);
+        const settingsResult = await seedCollectionData(pb, 'settings', seedDataToUse.settings);
         if(settingsResult.errors > 0) anySeedErrors = true;
 
-        const productsResult = await seedCollectionData(pb, 'products', seedData.products, 'item_key');
+        const productsResult = await seedCollectionData(pb, 'products', seedDataToUse.products, 'item_key');
         if(productsResult.errors > 0) anySeedErrors = true;
         
         if (anySeedErrors) {
@@ -628,6 +676,7 @@
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
         outputDiv.innerHTML = ''; 
         log('🚀 === FULL SETUP PROCESS STARTED ===', 'i');
+        pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
         let schemaSuccess = false;
         
@@ -654,6 +703,7 @@
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
         outputDiv.innerHTML = ''; 
         log('📋 === SCHEMA ONLY SETUP STARTED ===', 'i');
+        pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
         let success = false;
         
@@ -674,6 +724,7 @@
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
         outputDiv.innerHTML = ''; 
         log('🌱 === SEED DATA ONLY STARTED ===', 'i');
+        pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
         
         try {
