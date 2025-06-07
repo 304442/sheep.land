@@ -227,9 +227,12 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s1);align-items:center}
     .c{padding-left:var(--s2);padding-right:var(--s2)}
     .sec{padding:var(--s3) 0}
     .bil-row{flex-direction:column;gap:var(--s1)}
-    .bil-row>.en,.bil-row>.ar{flex:1 1 100%;text-align:center}
-    .bil-spread{flex-direction:column;gap:var(--s1);text-align:center}
-    .bil-spread>.en,.bil-spread>.ar{flex:1 1 100%;text-align:center}
+    .bil-row>.en,.bil-row>.ar{flex:1 1 100%}
+    .bil-row>.en{text-align:left}
+    .bil-row>.ar{text-align:right;direction:rtl;font-family:var(--fa)}
+    .bil-spread{flex-direction:column;gap:var(--s1)}
+    .bil-spread>.en{flex:1 1 100%;text-align:left}
+    .bil-spread>.ar{flex:1 1 100%;text-align:right;direction:rtl;font-family:var(--fa)}
     .bil-inline{flex-direction:column;gap:var(--s1)}
     .grid2:not(.prod-grid){grid-template-columns:1fr}
     .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
