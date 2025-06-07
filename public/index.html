@@ -288,8 +288,8 @@
                 <p class="en" x-text="settings.site_desc_en || 'Experience premium quality sheep, livestock, and Sharia-compliant services.'"></p>
                 <p class="ar" x-text="settings.site_desc_ar || 'استمتع بجودة فائقة من الأغنام الحية والخدمات المتوافقة مع الشريعة.'"></p>
             </div>
-            <button @click="navigateToOrScroll('udheya')" class="btn bac btn-lg bil-inline hero-cta">
-                <span class="en">Explore Premium Udheya</span><span class="ar">تصفح الأضاحي الفاخرة</span>
+            <button @click="document.getElementById('udheya').scrollIntoView({behavior: 'smooth'})" class="btn bac btn-lg bil-inline hero-cta">
+                <span class="en">Explore Our Products</span><span class="ar">تصفح منتجاتنا</span>
             </button>
             
             <template x-if="settings.promoActive && !cd.ended">
