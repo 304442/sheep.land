@@ -192,6 +192,15 @@
                         <span x-text="settings.waNumDisp"></span>
                     </a>
                 </div>
+                <button @click="openOrderStatusModal()" class="track-order-btn" title="Track Your Order">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    <span class="bil-inline">
+                        <span class="en">Track Order</span>
+                        <span class="ar">تتبع الطلب</span>
+                    </span>
+                </button>
             </div>
         </div>
     </div>
@@ -240,11 +249,6 @@
                     <path d="m21 21-4.35-4.35"/>
                 </svg>
             </button>
-            <button @click="openOrderStatusModal()" class="header-action-btn" title="Order Status">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 11H3m6-4H3m6 8H3m8 4h8m-8-8h8m-8-4h8M13 3v18"/>
-                </svg>
-            </button>
             <template x-if="!currentUser">
                 <button @click="navigateToOrScroll('auth')" class="header-action-btn" title="Login">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -276,11 +280,6 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"/>
                     <path d="m21 21-4.35-4.35"/>
-                </svg>
-            </button>
-            <button @click="openOrderStatusModal()" class="header-action-btn" title="Order Status">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 11H3m6-4H3m6 8H3m8 4h8m-8-8h8m-8-4h8M13 3v18"/>
                 </svg>
             </button>
             <template x-if="!currentUser">
