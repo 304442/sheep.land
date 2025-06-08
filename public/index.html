@@ -477,50 +477,58 @@
                         <span class="ar">مجموعاتنا المميزة</span>
                     </h2>
                     <div class="hero-collections-grid">
-                        <div class="hero-collection-card" @click="navigateToOrScroll('udheya')">
-                            <div class="collection-icon">🐑</div>
-                            <h3 class="bil-inline">
-                                <span class="en">Udheya & Qurbani</span>
-                                <span class="ar">الأضحية والقرباني</span>
-                            </h3>
-                            <p class="bil-row">
-                                <span class="en">Complete religious sacrifice with certified halal processing</span>
-                                <span class="ar">أضحية كاملة مع ذبح حلال معتمد</span>
-                            </p>
-                        </div>
-                        <div class="hero-collection-card" @click="navigateToOrScroll('meat')">
-                            <div class="collection-icon">🥩</div>
-                            <h3 class="bil-inline">
-                                <span class="en">Fresh Meat & Cuts</span>
-                                <span class="ar">اللحوم والقطعيات</span>
-                            </h3>
-                            <p class="bil-row">
-                                <span class="en">Premium quality cuts delivered fresh daily to your door</span>
-                                <span class="ar">قطعيات فاخرة توصل طازجة يومياً لبابك</span>
-                            </p>
-                        </div>
-                        <div class="hero-collection-card" @click="navigateToOrScroll('livesheep')">
-                            <div class="collection-icon">🐏</div>
-                            <h3 class="bil-inline">
-                                <span class="en">Live Sheep & Rams</span>
-                                <span class="ar">الأغنام والكباش</span>
-                            </h3>
-                            <p class="bil-row">
-                                <span class="en">Healthy animals for breeding, fattening or home slaughter</span>
-                                <span class="ar">حيوانات صحية للتربية أو التسمين أو الذبح المنزلي</span>
-                            </p>
-                        </div>
-                        <div class="hero-collection-card" @click="navigateToOrScroll('gatherings')">
-                            <div class="collection-icon">🎉</div>
-                            <h3 class="bil-inline">
-                                <span class="en">Events & Gatherings</span>
-                                <span class="ar">المناسبات والولائم</span>
-                            </h3>
-                            <p class="bil-row">
-                                <span class="en">Complete catering solutions for weddings and celebrations</span>
-                                <span class="ar">حلول متكاملة للولائم والأفراح والمناسبات</span>
-                            </p>
-                        </div>
+                        <template x-if="settings.enable_udheya_section">
+                            <div class="hero-collection-card" @click="navigateToOrScroll('udheya')">
+                                <div class="collection-icon">🐑</div>
+                                <h3 class="bil-inline">
+                                    <span class="en">Udheya & Qurbani</span>
+                                    <span class="ar">الأضحية والقرباني</span>
+                                </h3>
+                                <p class="bil-row">
+                                    <span class="en">Complete religious sacrifice with certified halal processing</span>
+                                    <span class="ar">أضحية كاملة مع ذبح حلال معتمد</span>
+                                </p>
+                            </div>
+                        </template>
+                        <template x-if="settings.enable_meat_section">
+                            <div class="hero-collection-card" @click="navigateToOrScroll('meat')">
+                                <div class="collection-icon">🥩</div>
+                                <h3 class="bil-inline">
+                                    <span class="en">Fresh Meat & Cuts</span>
+                                    <span class="ar">اللحوم والقطعيات</span>
+                                </h3>
+                                <p class="bil-row">
+                                    <span class="en">Premium quality cuts delivered fresh daily to your door</span>
+                                    <span class="ar">قطعيات فاخرة توصل طازجة يومياً لبابك</span>
+                                </p>
+                            </div>
+                        </template>
+                        <template x-if="settings.enable_livesheep_section">
+                            <div class="hero-collection-card" @click="navigateToOrScroll('livesheep')">
+                                <div class="collection-icon">🐏</div>
+                                <h3 class="bil-inline">
+                                    <span class="en">Live Sheep & Rams</span>
+                                    <span class="ar">الأغنام والكباش</span>
+                                </h3>
+                                <p class="bil-row">
+                                    <span class="en">Healthy animals for breeding, fattening or home slaughter</span>
+                                    <span class="ar">حيوانات صحية للتربية أو التسمين أو الذبح المنزلي</span>
+                                </p>
+                            </div>
+                        </template>
+                        <template x-if="settings.enable_gatherings_section">
+                            <div class="hero-collection-card" @click="navigateToOrScroll('gatherings')">
+                                <div class="collection-icon">🎉</div>
+                                <h3 class="bil-inline">
+                                    <span class="en">Events & Gatherings</span>
+                                    <span class="ar">المناسبات والولائم</span>
+                                </h3>
+                                <p class="bil-row">
+                                    <span class="en">Complete catering solutions for weddings and celebrations</span>
+                                    <span class="ar">حلول متكاملة للولائم والأفراح والمناسبات</span>
+                                </p>
+                            </div>
+                        </template>
                     </div>
                 </div>
                 
