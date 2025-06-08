@@ -1,0 +1,634 @@
+[
+  {
+    "name": "settings",
+    "type": "base",
+    "system": false,
+    "listRule": "",
+    "viewRule": "",
+    "createRule": null,
+    "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
+    "deleteRule": null,
+    "fields": [
+      {
+        "name": "xchgRates",
+        "type": "json",
+        "required": true,
+        "presentable": true
+      },
+      {
+        "name": "defCurr",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 5,
+        "min": 3
+      },
+      {
+        "name": "waNumRaw",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 20
+      },
+      {
+        "name": "waNumDisp",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 30
+      },
+      {
+        "name": "promoEndISO",
+        "type": "date",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "promoDiscPc",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "name": "promoActive",
+        "type": "bool",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "servFeeEGP",
+        "type": "number",
+        "required": true,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "delAreas",
+        "type": "json",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "payDetails",
+        "type": "json",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "enable_udheya_section",
+        "type": "bool",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "enable_livesheep_section",
+        "type": "bool",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "enable_meat_section",
+        "type": "bool",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "enable_gatherings_section",
+        "type": "bool",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "slaughter_location_gmaps_url",
+        "type": "url",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "online_payment_fee_egp",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "refund_policy_html",
+        "type": "editor",
+        "required": false,
+        "presentable": false
+      },
+      {
+        "name": "app_email_sender_address",
+        "type": "email",
+        "required": false,
+        "presentable": false
+      },
+      {
+        "name": "app_email_sender_name",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "max": 100
+      },
+      {
+        "name": "site_title_en",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 100
+      },
+      {
+        "name": "site_title_ar",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 100
+      },
+      {
+        "name": "site_desc_en",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 300
+      },
+      {
+        "name": "site_desc_ar",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 300
+      }
+    ]
+  },
+  {
+    "name": "products",
+    "type": "base",
+    "system": false,
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != '' && @request.auth.verified = true",
+    "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
+    "deleteRule": "@request.auth.id != '' && @request.auth.verified = true",
+    "fields": [
+      {
+        "name": "item_key",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "unique": true,
+        "max": 100,
+        "min": 1,
+        "pattern": "^[a-z0-9_]+$"
+      },
+      {
+        "name": "product_category",
+        "type": "select",
+        "required": true,
+        "presentable": true,
+        "maxSelect": 1,
+        "values": [
+          "udheya",
+          "livesheep_general",
+          "meat_cuts",
+          "gathering_package",
+          "breeding_stock",
+          "feed_supplies"
+        ]
+      },
+      {
+        "name": "type_key",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 50,
+        "min": 1,
+        "pattern": "^[a-z0-9_]+$"
+      },
+      {
+        "name": "type_name_en",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 100,
+        "min": 1
+      },
+      {
+        "name": "type_name_ar",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 100,
+        "min": 1
+      },
+      {
+        "name": "type_description_en",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 500
+      },
+      {
+        "name": "type_description_ar",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 500
+      },
+      {
+        "name": "price_per_kg_egp",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "variant_name_en",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 150,
+        "min": 1
+      },
+      {
+        "name": "variant_name_ar",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 150,
+        "min": 1
+      },
+      {
+        "name": "weight_range_text_en",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 50
+      },
+      {
+        "name": "weight_range_text_ar",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 50
+      },
+      {
+        "name": "avg_weight_kg",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "base_price_egp",
+        "type": "number",
+        "required": true,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "stock_available_pb",
+        "type": "number",
+        "required": true,
+        "presentable": true,
+        "min": 0,
+        "noDecimal": true
+      },
+      {
+        "name": "is_active",
+        "type": "bool",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "is_premium",
+        "type": "bool",
+        "required": false,
+        "presentable": true
+      },
+      {
+        "name": "origin_farm",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 100
+      },
+      {
+        "name": "breed_info_en",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 200
+      },
+      {
+        "name": "breed_info_ar",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 200
+      },
+      {
+        "name": "sort_order_type",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0,
+        "noDecimal": true
+      },
+      {
+        "name": "sort_order_variant",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0,
+        "noDecimal": true
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)",
+      "CREATE INDEX `idx_products_category` ON `products` (`product_category`)"
+    ]
+  },
+  {
+    "name": "users",
+    "type": "auth",
+    "system": false,
+    "listRule": "@request.auth.id = id || @request.auth.admin = true",
+    "viewRule": "@request.auth.id = id || @request.auth.admin = true",
+    "createRule": "",
+    "updateRule": "@request.auth.id = id || @request.auth.admin = true",
+    "deleteRule": "@request.auth.id = id || @request.auth.admin = true",
+    "options": {
+      "emailVisibility": true,
+      "requireEmailVerification": false,
+      "allowOAuth2Auth": false,
+      "allowUsernameAuth": false,
+      "allowPasswordAuth": true,
+      "onlyVerified": false
+    },
+    "fields": [
+      {
+        "name": "name",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 100
+      },
+      {
+        "name": "phone",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 20
+      },
+      {
+        "name": "country",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 50
+      },
+      {
+        "name": "preferred_currency",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 5
+      }
+    ]
+  },
+  {
+    "name": "orders",
+    "type": "base",
+    "system": false,
+    "listRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
+    "viewRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
+    "createRule": "",
+    "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
+    "deleteRule": "@request.auth.id != '' && @request.auth.verified = true",
+    "fields": [
+      {
+        "name": "order_id_text",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "unique": true,
+        "max": 50,
+        "min": 1
+      },
+      {
+        "name": "customer_name",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 150,
+        "min": 1
+      },
+      {
+        "name": "customer_phone",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 30,
+        "min": 7
+      },
+      {
+        "name": "customer_email",
+        "type": "email",
+        "required": true,
+        "presentable": true
+      },
+      {
+        "name": "customer_country",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 50
+      },
+      {
+        "name": "line_items",
+        "type": "json",
+        "required": true,
+        "presentable": true
+      },
+      {
+        "name": "delivery_option",
+        "type": "select",
+        "required": true,
+        "presentable": true,
+        "maxSelect": 1,
+        "values": [
+          "home_delivery",
+          "self_pickup_or_internal_distribution",
+          "international_shipping"
+        ]
+      },
+      {
+        "name": "delivery_city_id",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 50
+      },
+      {
+        "name": "delivery_area_name_en",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 100
+      },
+      {
+        "name": "delivery_area_name_ar",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 100
+      },
+      {
+        "name": "delivery_address",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 500
+      },
+      {
+        "name": "delivery_instructions",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 500
+      },
+      {
+        "name": "delivery_time_slot",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 50
+      },
+      {
+        "name": "payment_method",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "max": 50,
+        "min": 1
+      },
+      {
+        "name": "payment_status",
+        "type": "select",
+        "required": true,
+        "presentable": true,
+        "maxSelect": 1,
+        "values": [
+          "pending_payment",
+          "payment_under_review",
+          "paid_confirmed",
+          "cod_pending_confirmation",
+          "cod_confirmed_pending_delivery",
+          "failed",
+          "refunded",
+          "partially_refunded",
+          "pending_gateway_redirect"
+        ]
+      },
+      {
+        "name": "order_status",
+        "type": "select",
+        "required": true,
+        "presentable": true,
+        "maxSelect": 1,
+        "values": [
+          "pending_confirmation",
+          "confirmed_pending_payment",
+          "payment_confirmed_processing",
+          "ready_for_fulfillment",
+          "out_for_delivery",
+          "fulfilled_completed",
+          "cancelled_by_user",
+          "cancelled_by_admin",
+          "on_hold",
+          "awaiting_payment_gateway"
+        ]
+      },
+      {
+        "name": "terms_agreed",
+        "type": "bool",
+        "required": true,
+        "presentable": true
+      },
+      {
+        "name": "admin_notes",
+        "type": "editor",
+        "required": false,
+        "presentable": false
+      },
+      {
+        "name": "user_ip_address",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "max": 50
+      },
+      {
+        "name": "user_agent_string",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "max": 300
+      },
+      {
+        "name": "subtotal_amount_egp",
+        "type": "number",
+        "required": true,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "total_udheya_service_fee_egp",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "delivery_fee_applied_egp",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "online_payment_fee_applied_egp",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "international_shipping_fee_egp",
+        "type": "number",
+        "required": false,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "total_amount_due_egp",
+        "type": "number",
+        "required": true,
+        "presentable": true,
+        "min": 0
+      },
+      {
+        "name": "selected_display_currency",
+        "type": "text",
+        "required": false,
+        "presentable": true,
+        "max": 5
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)"
+    ]
+  }
+]
