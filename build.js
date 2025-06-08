@@ -7,7 +7,15 @@ const imagemin = require('imagemin');
 const imageminMozjpeg = require('imagemin-mozjpeg');
 const imageminPngquant = require('imagemin-pngquant');
 const imageminSvgo = require('imagemin-svgo');
-const chalk = require('chalk');
+// Simple color functions to replace chalk
+const chalk = {
+  red: (text) => `\x1b[31m${text}\x1b[0m`,
+  green: (text) => `\x1b[32m${text}\x1b[0m`,
+  yellow: (text) => `\x1b[33m${text}\x1b[0m`,
+  blue: (text) => `\x1b[34m${text}\x1b[0m`,
+  gray: (text) => `\x1b[90m${text}\x1b[0m`,
+  white: (text) => `\x1b[37m${text}\x1b[0m`
+};
 
 // Configuration
 const config = {
@@ -35,10 +43,21 @@ const htmlMinifyOptions = {
   removeScriptTypeAttributes: true,
   removeStyleLinkTypeAttributes: true,
   useShortDoctype: true,
-  // Preserve Alpine.js attributes
-  customAttrSurround: [[/@?x[-:]/, /(?:)/]],
-  customEventAttributes: [/^x-on:?/],
-  ignoreCustomFragments: [/x-[\w-:]+/]
+  removeEmptyAttributes: false,
+  removeEmptyElements: false,
+  // Preserve Alpine.js attributes and directives
+  customAttrSurround: [
+    [/@?x[-:]/, /(?:)/],
+    [/:?@/, /(?:)/]
+  ],
+  customEventAttributes: [/^x-on:?/, /^@/],
+  ignoreCustomFragments: [
+    /x-[\w-:]+/,
+    /@[\w-:]+/,
+    /\{\{[\s\S]*?\}\}/,
+    /\{[\s\S]*?\}/
+  ],
+  caseSensitive: true
 };
 
 // JavaScript Minification options
@@ -112,7 +131,7 @@ const cssMinifyOptions = {
       replaceMultipleZeros: true,
       replaceTimeUnits: true,
       replaceZeroUnits: true,
-      roundingPrecision: false,
+      roundingPrecision: 2,
       selectorsSortingMethod: 'standard',
       specialComments: 'none',
       tidyAtRules: true,
@@ -124,15 +143,15 @@ const cssMinifyOptions = {
       mergeIntoShorthands: true,
       mergeMedia: true,
       mergeNonAdjacentRules: true,
-      mergeSemantically: false,
+      mergeSemantically: true,
       overrideProperties: true,
       removeEmpty: true,
       reduceNonAdjacentRules: true,
       removeDuplicateFontRules: true,
       removeDuplicateMediaBlocks: true,
       removeDuplicateRules: true,
-      removeUnusedAtRules: false,
-      restructureRules: false,
+      removeUnusedAtRules: true,
+      restructureRules: true,
       skipProperties: []
     }
   }
@@ -347,9 +366,12 @@ async function processDirectory(srcDir, destDir) {
 
 // Main build function
 async function build() {
+  const startTime = Date.now();
+  
   console.log(chalk.blue('\n🚀 Starting build process...\n'));
   console.log(chalk.gray(`Mode: ${config.isProduction ? 'Production' : 'Development'}`));
-  console.log(chalk.gray(`Console logs: ${config.preserveConsole ? 'Preserved' : 'Removed'}\n`));
+  console.log(chalk.gray(`Console logs: ${config.preserveConsole ? 'Preserved' : 'Removed'}`));
+  console.log(chalk.gray(`Target: ${config.distDir}\n`));
 
   // Clean dist directory
   await fs.remove(config.distDir);
@@ -357,12 +379,16 @@ async function build() {
 
   // Process all files
   await processDirectory(config.srcDir, config.distDir);
+  
+  const buildTime = ((Date.now() - startTime) / 1000).toFixed(2);
 
   // Display statistics
   console.log(chalk.blue('\n📊 Build Statistics:\n'));
+  console.log(chalk.white(`Build Time: ${buildTime}s`));
+  console.log(chalk.white(`Files Processed: ${config.stats.files.length}`));
   console.log(chalk.white(`Total Original Size: ${formatBytes(config.stats.totalOriginal)}`));
   console.log(chalk.white(`Total Minified Size: ${formatBytes(config.stats.totalMinified)}`));
-  console.log(chalk.green(`Total Reduction: ${calculateReduction(config.stats.totalOriginal, config.stats.totalMinified)}%\n`));
+  console.log(chalk.green(`Total Reduction: ${calculateReduction(config.stats.totalOriginal, config.stats.totalMinified)}% (${formatBytes(config.stats.totalOriginal - config.stats.totalMinified)} saved)\n`));
 
   // Show top 10 files by size reduction
   const topFiles = config.stats.files

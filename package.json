@@ -3,10 +3,23 @@
   "version": "1.0.0",
   "description": "Comprehensive minification system for sheep.land website",
   "scripts": {
-    "build": "node build.js",
-    "build:prod": "node build.js --production",
-    "minify": "node build.js",
-    "clean": "rm -rf dist"
+    "build": "node optimize.js",
+    "build:prod": "node optimize.js --production",
+    "ultra": "node ultra-optimize.js --ultra --production --gzip --brotli",
+    "ultra:dev": "node ultra-optimize.js --aggressive",
+    "ultra:safe": "node ultra-optimize.js --safe",
+    "minify": "node optimize.js",
+    "bundle": "node optimize.js --bundle",
+    "bundle:prod": "node optimize.js --production --bundle",
+    "bundle:ultra": "node ultra-optimize.js --ultra --production --bundle --gzip --brotli",
+    "clean": "rm -rf dist sheep-land-bundle.html .optimize-cache optimization-report.json split-output",
+    "cache:clear": "node ultra-optimize.js --clear-cache",
+    "cache:stats": "node ultra-optimize.js --cache-stats",
+    "split": "node bundle-splitter.js",
+    "split:beautify": "node bundle-splitter.js --beautify",
+    "help": "node ultra-optimize.js --help",
+    "help:split": "node bundle-splitter.js --help",
+    "report": "node ultra-optimize.js --production --report"
   },
   "devDependencies": {
     "chalk": "^5.3.0",
@@ -20,6 +33,7 @@
     "terser": "^5.24.0"
   },
   "dependencies": {
+    "cheerio": "^1.0.0",
     "csso-cli": "^4.0.2"
   }
 }
