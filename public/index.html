@@ -304,7 +304,7 @@
                 </button>
             </template>
             <template x-if="currentUser">
-                <button @click="navigateToOrScroll('account')" class="header-action-btn" title="My Account">
+                <button @click="toggleAccountDropdown()" class="header-action-btn" title="My Account">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
@@ -345,7 +345,7 @@
                 </button>
             </template>
             <template x-if="currentUser">
-                <button @click="navigateToOrScroll('account')" class="header-action-btn" title="My Account">
+                <button @click="toggleAccountDropdown()" class="header-action-btn" title="My Account">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
@@ -433,6 +433,58 @@
                         <span class="en">No products found</span>
                         <span class="ar">لم يتم العثور على منتجات</span>
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Dropdown -->
+<div class="account-dropdown" x-show="showAccountDropdown" x-transition @click.outside="showAccountDropdown = false">
+    <div class="c">
+        <div class="account-dropdown-content">
+            <div class="account-info">
+                <div class="account-header">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="account-avatar">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <div class="account-details">
+                        <h3 class="account-name" x-text="currentUser?.name || 'Welcome'"></h3>
+                        <p class="account-email" x-text="currentUser?.email"></p>
+                    </div>
+                </div>
+                <div class="account-menu">
+                    <a href="#account" @click="showAccountDropdown = false; navigateToOrScroll('account')" class="account-menu-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11H3v10h6V11zm5 0h6v10h-6V11zM10 3h4v5h-4V3z"/>
+                        </svg>
+                        <span class="bil-inline">
+                            <span class="en">My Orders</span>
+                            <span class="ar">طلباتي</span>
+                        </span>
+                    </a>
+                    <a href="#account" @click="showAccountDropdown = false; navigateToOrScroll('account')" class="account-menu-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span class="bil-inline">
+                            <span class="en">Profile Settings</span>
+                            <span class="ar">إعدادات الحساب</span>
+                        </span>
+                    </a>
+                    <button @click="logoutUser(); showAccountDropdown = false;" class="account-menu-item logout-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span class="bil-inline">
+                            <span class="en">Logout</span>
+                            <span class="ar">تسجيل الخروج</span>
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>

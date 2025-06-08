@@ -52,6 +52,7 @@ document.addEventListener('alpine:init', () => {
         selectedMeatWeights: {},
         searchQuery: '',
         showSearch: false,
+        showAccountDropdown: false,
         showExitOffer: false,
         showMeatCalculator: false,
         isPromoBarDismissed: false,
@@ -570,6 +571,10 @@ document.addEventListener('alpine:init', () => {
                     this.$refs.searchInput?.focus();
                 });
             }
+        },
+
+        toggleAccountDropdown() {
+            this.showAccountDropdown = !this.showAccountDropdown;
         },
 
 
