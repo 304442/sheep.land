@@ -516,13 +516,21 @@ document.addEventListener('alpine:init', () => {
 
         startCd() { 
             if(this.cdTimer) clearInterval(this.cdTimer); 
-            if(!this.settings.promoActive||!this.settings.promoEndISO) {
+            if(!this.settings.promoActive) {
                 this.cd.ended=true; 
+                return;
+            }
+            // If promo is active but no end date, show promo without countdown
+            if(!this.settings.promoEndISO) {
+                this.cd.ended=false; 
+                this.cd.days = "--"; this.cd.hours = "--"; this.cd.mins = "--"; this.cd.secs = "--";
                 return;
             } 
             const t=new Date(this.settings.promoEndISO).getTime(); 
             if(isNaN(t)){
-                this.cd.ended=true; 
+                // Invalid date but promo is active, show without countdown
+                this.cd.ended=false; 
+                this.cd.days = "--"; this.cd.hours = "--"; this.cd.mins = "--"; this.cd.secs = "--";
                 return;
             } 
             this.updCdDisp(t); 
