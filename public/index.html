@@ -270,16 +270,6 @@
                 </template>
             </ul>
             
-            <div class="nav-actions-mob">
-                <button @click="openOrderStatusModal(); isMobNavOpen = false;" class="nav-link-mob as-button">📋</button>
-                <template x-if="!currentUser">
-                    <button @click="navigateToOrScroll('auth'); isMobNavOpen = false;" class="nav-link-mob as-button">👤</button>
-                </template>
-                <template x-if="currentUser">
-                    <button @click="navigateToOrScroll('account'); isMobNavOpen = false;" class="nav-link-mob as-button">👤</button>
-                </template>
-                <button @click="openCart(); isMobNavOpen = false;" class="nav-link-mob as-button">🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span></button>
-            </div>
             
             <div class="wa-contact-mob">
                 <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer">
