@@ -397,10 +397,9 @@
                                     <span class="en">Select Size:</span>
                                     <span class="ar">اختر الحجم:</span>
                                 </label>
-                                <select class="size-dropdown" x-model="selectedBaladiSize" @change="updateBaladiPrice()">
-                                    <option value="">-- Choose Size --</option>
+                                <select class="size-dropdown" x-model="selectedBaladiSize" x-init="selectedBaladiSize = 'medium'" @change="updateBaladiPrice()">
                                     <option value="small">Small (25-30 kg) - 4,500 EGP</option>
-                                    <option value="medium">Medium (30-35 kg) - 5,500 EGP</option>
+                                    <option value="medium" selected>Medium (30-35 kg) - 5,500 EGP ⭐</option>
                                     <option value="large">Large (35-40 kg) - 6,500 EGP</option>
                                 </select>
                             </div>
@@ -410,11 +409,8 @@
                                 <span><strong x-text="fmtPrice(getBaladiPrice())"></strong></span>
                             </div>
                             <div class="card-act">
-                                <button type="button" @click="openUdheyaConfiguration(getBaladiProduct(), false)" class="btn bac btn-sm" :disabled="!selectedBaladiSize">
-                                    <span class="bil-inline"><span class="en">Configure</span><span class="ar">تخصيص</span></span>
-                                </button>
-                                <button type="button" @click="openUdheyaConfiguration(getBaladiProduct(), true)" class="btn bp btn-sm" :disabled="!selectedBaladiSize">
-                                    <span class="bil-inline"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
+                                <button type="button" @click="quickBuyUdheya(getBaladiProduct())" class="btn bp btn-lg btn-block" :disabled="!selectedBaladiSize">
+                                    <span class="bil-inline"><span class="en">Order Now</span><span class="ar">اطلب الآن</span></span>
                                 </button>
                             </div>
                         </div>
@@ -442,10 +438,9 @@
                                     <span class="en">Select Size:</span>
                                     <span class="ar">اختر الحجم:</span>
                                 </label>
-                                <select class="size-dropdown" x-model="selectedBarkiSize" @change="updateBarkiPrice()">
-                                    <option value="">-- Choose Size --</option>
+                                <select class="size-dropdown" x-model="selectedBarkiSize" x-init="selectedBarkiSize = 'medium'" @change="updateBarkiPrice()">
                                     <option value="small">Small (25-30 kg) - 5,000 EGP</option>
-                                    <option value="medium">Medium (30-35 kg) - 6,000 EGP</option>
+                                    <option value="medium" selected>Medium (30-35 kg) - 6,000 EGP ⭐</option>
                                     <option value="large">Large (35-40 kg) - 7,000 EGP</option>
                                 </select>
                             </div>
@@ -455,11 +450,8 @@
                                 <span><strong x-text="fmtPrice(getBarkiPrice())"></strong></span>
                             </div>
                             <div class="card-act">
-                                <button type="button" @click="openUdheyaConfiguration(getBarkiProduct(), false)" class="btn bac btn-sm" :disabled="!selectedBarkiSize">
-                                    <span class="bil-inline"><span class="en">Configure</span><span class="ar">تخصيص</span></span>
-                                </button>
-                                <button type="button" @click="openUdheyaConfiguration(getBarkiProduct(), true)" class="btn bp btn-sm" :disabled="!selectedBarkiSize">
-                                    <span class="bil-inline"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
+                                <button type="button" @click="quickBuyUdheya(getBarkiProduct())" class="btn bp btn-lg btn-block" :disabled="!selectedBarkiSize">
+                                    <span class="bil-inline"><span class="en">Order Now</span><span class="ar">اطلب الآن</span></span>
                                 </button>
                             </div>
                         </div>
@@ -507,9 +499,8 @@
                                                     <span class="en">Select Weight:</span>
                                                     <span class="ar">اختر الوزن:</span>
                                                 </label>
-                                                <select class="size-dropdown" x-model="selectedMeatWeights[item.itemKey]" @change="updateMeatPrice(item)">
-                                                    <option value="">-- Choose Weight --</option>
-                                                    <option value="1">1 kg</option>
+                                                <select class="size-dropdown" x-model="selectedMeatWeights[item.itemKey]" x-init="selectedMeatWeights[item.itemKey] = '1'" @change="updateMeatPrice(item)">
+                                                    <option value="1" selected>1 kg ⭐</option>
                                                     <option value="2">2 kg</option>
                                                     <option value="3">3 kg</option>
                                                     <option value="5">5 kg</option>
@@ -537,11 +528,8 @@
                                             </template>
                                             <template x-if="section.key !== 'udheya'">
                                                 <div>
-                                                    <button type="button" @click="addItemToCart(getMeatItemWithWeight(item, section.key))" class="btn bac btn-sm" :disabled="!item.isActive || item.stock <= 0 || (section.key === 'meat' && !selectedMeatWeights[item.itemKey])">
+                                                    <button type="button" @click="addItemToCart(getMeatItemWithWeight(item, section.key))" class="btn bp btn-lg btn-block" :disabled="!item.isActive || item.stock <= 0 || (section.key === 'meat' && !selectedMeatWeights[item.itemKey])">
                                                         <span class="bil-inline"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
-                                                    </button>
-                                                    <button type="button" @click="buyNow(getMeatItemWithWeight(item, section.key))" class="btn bp btn-sm" :disabled="!item.isActive || item.stock <= 0 || (section.key === 'meat' && !selectedMeatWeights[item.itemKey])">
-                                                        <span class="bil-inline"><span class="en">Buy Now</span><span class="ar">اشتر الآن</span></span>
                                                     </button>
                                                 </div>
                                             </template>

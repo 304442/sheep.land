@@ -598,6 +598,40 @@ document.addEventListener('alpine:init', () => {
             // Price update is handled reactively through x-text
         },
 
+        quickBuyUdheya(product) {
+            if (!product) return;
+            
+            // Set defaults for Udheya to reduce decisions
+            const udheyaDetails = {
+                serviceOption: 'standard_service',
+                sacrificeDay: 'eid_day_1', // Default to first day of Eid
+                distribution: {
+                    choice: 'full_charity' // Default to full charity
+                }
+            };
+            
+            // Add to cart with defaults
+            const cartItem = {
+                ...product,
+                udheya_details: udheyaDetails,
+                quantity: 1
+            };
+            
+            this.cartItems.push(cartItem);
+            this.isCartOpen = true;
+            
+            // Show success message
+            this.addedToCartMsg = { 
+                text: { 
+                    en: 'Udheya added to cart! Proceed to checkout when ready.', 
+                    ar: 'تمت إضافة الأضحية للسلة! تابع للدفع عندما تكون جاهزًا.' 
+                }, 
+                isError: false, 
+                pageContext: 'udheya' 
+            };
+            setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext:'' }, 3000);
+        },
+
         getMeatPrice(item) {
             const weight = this.selectedMeatWeights[item.itemKey] || 1;
             const pricePerKg = item.pricePerKg || item.priceEGP;
