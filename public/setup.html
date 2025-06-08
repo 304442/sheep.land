@@ -5,40 +5,77 @@
     <title>PB Setup: Sheep Land</title>
     <script src="vendor/pocketbase.umd.js"></script>
     <style>
-        body{font-family:sans-serif;font-size:13px;line-height:1.4;padding:10px;background:#f0f0f0;color:#333;display:flex;flex-direction:column;align-items:center;margin:0;}
-        .c{max-width:700px;width:100%;background:white;padding:15px;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-        h1{color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;margin:0 0 10px 0;font-size:1.2em;}
-        p{font-size:0.9em;margin:0 0 0.5em 0;} .warn{color:red;font-weight:bold;}
-        button{padding:6px 10px;background:#007bff;color:white;border:0;border-radius:3px;cursor:pointer;font-size:0.85em;margin-bottom:5px;}
-        button:disabled{background:#ccc;} button:hover:not(:disabled){background:#0056b3;}
-        #out{margin-top:10px;padding:8px;background:#222;color:#eee;border-radius:3px;white-space:pre-wrap;font-family:monospace;font-size:11px;max-height:70vh;overflow-y:auto;}
-        .ls{color:lime;font-weight:bold;} .le{color:salmon;font-weight:bold;} .li{color:cyan;} .lw{color:yellow;} .ld{color:gray;}
-        #out pre { margin-top: 5px; padding: 5px; background-color: #333; border-radius: 3px; font-size: 0.9em; }
+        body{font-family:sans-serif;font-size:12px;line-height:1.3;padding:8px;background:linear-gradient(135deg,#f5f7fa,#c3cfe2);color:#333;display:flex;flex-direction:column;align-items:center;margin:0;min-height:100vh}
+        .c{max-width:1000px;width:100%;background:white;padding:12px;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+        h1{color:#2C5F41;border-bottom:2px solid #D2B48C;padding-bottom:4px;margin:0 0 10px 0;font-size:1.3em;text-align:center}
+        p{font-size:.85rem;margin:0 0 .5rem 0;line-height:1.3} 
+        .warn{color:#dc3545;font-weight:bold;background:#ffe6e6;padding:10px;border-radius:6px;border-left:3px solid #dc3545}
+        button{padding:8px 16px;background:#2C5F41;color:white;border:0;border-radius:6px;cursor:pointer;font-size:.9rem;margin:5px;font-weight:600;transition:all 0.3s ease}
+        button:disabled{background:#ccc;cursor:not-allowed} 
+        button:hover:not(:disabled){background:#1A3B2B;transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.15)}
+        #out{margin-top:8px;padding:8px;background:#1a1a1a;color:#e0e0e0;border-radius:4px;font-family:'Courier New',monospace;font-size:9px;line-height:1.3;max-height:60vh;overflow-y:auto;border:1px solid #444}
+        .ls{color:#4ade80;font-weight:normal} .le{color:#f87171;font-weight:normal} .li{color:#60a5fa} .lw{color:#fbbf24} .ld{color:#9ca3af}
+        #out pre{margin:2px 0;padding:3px 5px;background:#2d2d2d;border-radius:2px;font-size:8px;line-height:1.2;overflow-x:auto}
+        #out div{margin:1px 0;padding:1px 0}
+        .setup-info{background:#e8f4fd;padding:10px;border-radius:6px;border-left:3px solid #2196f3;margin-bottom:12px}
     </style>
 </head>
 <body>
     <div class="c">
-        <h1>PB Sheep Land Setup</h1>
-        <p class="warn">WARNING: This script uses default admin credentials (admin@example.com / unifiedpassword). CHANGE THESE IMMEDIATELY in production. This script will create/update collections and data. Backup your existing data if necessary before running.</p>
-        <button id="runFullSetup">Run Full Setup</button>
-        <button id="runSchemaOnly">Schema Only</button>
-        <button id="runSeedOnly" disabled>Seed Data Only</button>
+        <h1>Sheep Land - PocketBase Setup</h1>
+        
+        <div style="display:flex;gap:8px;margin:8px 0">
+            <div style="flex:1">
+                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">PocketBase URL:</label>
+                <input type="text" id="pbUrlInput" value="/" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:3px;font-size:11px">
+            </div>
+            <div style="flex:1">
+                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Admin Email:</label>
+                <input type="email" id="adminEmail" value="admin@example.com" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:3px;font-size:11px">
+            </div>
+            <div style="flex:1">
+                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Admin Password:</label>
+                <input type="password" id="adminPassword" value="unifiedpassword" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:3px;font-size:11px">
+            </div>
+        </div>
+        
+        <div style="display:flex;gap:8px;margin:8px 0">
+            <div style="flex:1">
+                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Collections JSON:</label>
+                <textarea id="collectionsData" style="width:100%;height:120px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
+            </div>
+            <div style="flex:1">
+                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Seed Data JSON:</label>
+                <textarea id="seedData" style="width:100%;height:120px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
+            </div>
+        </div>
+        
+        <div style="text-align:center;margin:10px 0">
+            <button id="runFullSetup">🚀 Complete Setup (Recommended)</button>
+            <button id="runSchemaOnly">📋 Schema Only</button>
+            <button id="runSeedOnly" disabled>🌱 Seed Data Only</button>
+        </div>
         <div id="out"></div>
     </div>
 <script>
-    const pbUrl = '/';
+    let pbUrl = '/';
     const outputDiv = document.getElementById('out');
     const runFullSetupButton = document.getElementById('runFullSetup');
     const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
     const runSeedOnlyButton = document.getElementById('runSeedOnly');
-    const ADM_E = 'admin@example.com';
-    const ADM_P = 'unifiedpassword';
+    const pbUrlInput = document.getElementById('pbUrlInput');
+    const adminEmailInput = document.getElementById('adminEmail');
+    const adminPasswordInput = document.getElementById('adminPassword');
+    const collectionsTextarea = document.getElementById('collectionsData');
+    const seedTextarea = document.getElementById('seedData');
+    
+    // Note: textareas will be populated after data definitions
 
     const log = (message, type = 'i', data = null) => {
         const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
         const p = document.createElement('p');
         p.className = `l${type[0].toLowerCase()}`;
-        let logMessage = timestamp + message.replace(/</g, '<').replace(/>/g, '>');
+        let logMessage = timestamp + message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         if (data) {
             const pre = document.createElement('pre');
             pre.className = 'ld'; 
@@ -58,34 +95,66 @@
 
     async function authenticateAdmin(pb) {
         try {
-            await pb.admins.authWithPassword(ADM_E, ADM_P);
-            log('Admin authentication successful', 's');
+            const email = adminEmailInput.value;
+            const password = adminPasswordInput.value;
+            await pb.admins.authWithPassword(email, password);
+            log('🔑 Admin authentication successful', 's');
             return true;
         } catch (error) {
-            log(`Admin authentication failed: ${error.message}`, 'e');
+            log(`❌ Admin authentication failed: ${error.message}`, 'e');
             return false;
         }
     }
     
     const defaultRefundPolicyHTML = `
         <div class="bil-row">
-            <p class="en">Welcome to Sheep Land. We strive to provide the best quality Udheya and livestock services. Please read our policy carefully.</p>
-            <p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام. نسعى جاهدين لتقديم أفضل جودة في خدمات الأضاحي والمواشي. يرجى قراءة سياستنا بعناية.</p>
+            <p class="en">Welcome to Sheep Land. We are committed to providing premium quality sheep, livesheep, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>
+            <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام الحية واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
         </div>
         <h3 class="bil-spread modal-section-title">
-            <span class="en">Udheya Orders</span><span class="ar" dir="rtl">طلبات الأضاحي</span>
+            <span class="en">Udheya & Qurbani Orders</span><span class="ar" dir="rtl">طلبات الأضاحي والقرباني</span>
         </h3>
         <div class="bil-row">
-            <p class="en">Due to the nature of Udheya (Qurbani/Sacrifice), which is a time-sensitive religious observance, our refund and cancellation policy is as follows:</p>
-            <p class="ar" dir="rtl">نظرًا لطبيعة الأضحية، وهي شعيرة دينية مرتبطة بوقت محدد، فإن سياسة الاسترداد والإلغاء لدينا هي كما يلي:</p>
+            <p class="en">Due to the religious nature and specific timing of Udheya/Qurbani, our policies are designed to ensure proper fulfillment while accommodating genuine needs:</p>
+            <p class="ar" dir="rtl">نظراً للطبيعة الدينية والتوقيت المحدد للأضاحي والقرباني، تم تصميم سياساتنا لضمان التنفيذ السليم مع مراعاة الاحتياجات الحقيقية:</p>
         </div>
-        <ul class="modal-list">
-            <li><div class="bil-row"><p class="en"><strong>Cancellations Before Cut-off:</strong> Full refund available before specified deadline, minus payment processing fees.</p><p class="ar" dir="rtl"><strong>الإلغاء قبل الموعد النهائي:</strong> استرداد كامل متاح قبل الموعد النهائي المحدد، مخصومًا منه رسوم معالجة الدفع.</p></div></li>
-            <li><div class="bil-row"><p class="en"><strong>Cancellations After Cut-off:</strong> Non-refundable once animal is allocated and preparations begin.</p><p class="ar" dir="rtl"><strong>الإلغاء بعد الموعد النهائي:</strong> غير قابل للاسترداد بمجرد تخصيص الحيوان وبدء الاستعدادات.</p></div></li>
-            <li><div class="bil-row"><p class="en"><strong>Non-Fulfilment by Sheep Land:</strong> Full refund if we cannot fulfill confirmed orders due to unforeseen circumstances.</p><p class="ar" dir="rtl"><strong>عدم التنفيذ من قبل أرض الأغنام:</strong> استرداد كامل إذا لم نتمكن من تلبية الطلبات المؤكدة بسبب ظروف غير متوقعة.</p></div></li>
-        </ul>
-        <h3 class="bil-spread modal-section-title"><span class="en">Other Products</span><span class="ar" dir="rtl">منتجات أخرى</span></h3>
-        <div class="bil-row"><p class="en">For livestock, meat cuts, and gathering packages: cancellations typically allowed up to 48 hours before delivery. Quality issues should be reported within 12-24 hours with photographic evidence.</p><p class="ar" dir="rtl">للمواشي وقطعيات اللحوم وباقات الولائم: يُسمح بالإلغاء عادةً حتى 48 ساعة قبل التوصيل. يجب الإبلاغ عن مشاكل الجودة خلال 12-24 ساعة مع دليل فوتوغرافي.</p></div>
+        <h4 class="bil-spread"><span class="en">Cancellation Policy</span><span class="ar" dir="rtl">سياسة الإلغاء</span></h4>
+        <div class="bil-row">
+            <p class="en"><strong>Before Animal Selection (5+ days before Eid):</strong> Full refund minus 3% processing fee</p>
+            <p class="ar" dir="rtl"><strong>قبل اختيار الحيوان (5+ أيام قبل العيد):</strong> استرداد كامل ناقص 3% رسوم معالجة</p>
+        </div>
+        <div class="bil-row">
+            <p class="en"><strong>After Animal Selection (2-4 days before):</strong> 50% refund if suitable replacement buyer found</p>
+            <p class="ar" dir="rtl"><strong>بعد اختيار الحيوان (2-4 أيام قبل):</strong> استرداد 50% إذا تم العثور على مشترٍ بديل مناسب</p>
+        </div>
+        <div class="bil-row">
+            <p class="en"><strong>Day of Eid:</strong> No refunds (animal prepared for slaughter)</p>
+            <p class="ar" dir="rtl"><strong>يوم العيد:</strong> لا يوجد استرداد (الحيوان محضر للذبح)</p>
+        </div>
+
+        <h3 class="bil-spread modal-section-title"><span class="en">Live Sheep</span><span class="ar" dir="rtl">الأغنام الحية</span></h3>
+        <div class="bil-row">
+            <p class="en">Live animals require 48-72 hours advance notice for cancellation. Health-guaranteed animals cannot be returned unless veterinary defects are proven within 24 hours of delivery.</p>
+            <p class="ar" dir="rtl">الحيوانات الحية تتطلب إشعار مسبق 48-72 ساعة للإلغاء. الحيوانات المضمونة صحياً لا يمكن إرجاعها إلا إذا تم إثبات عيوب بيطرية خلال 24 ساعة من التسليم.</p>
+        </div>
+
+        <h3 class="bil-spread modal-section-title"><span class="en">Fresh Meat & Cuts</span><span class="ar" dir="rtl">اللحوم الطازجة والقطعيات</span></h3>
+        <div class="bil-row">
+            <p class="en">Fresh meat orders can be cancelled up to 24 hours before preparation. Quality issues must be reported within 4 hours of delivery with photographic evidence.</p>
+            <p class="ar" dir="rtl">يمكن إلغاء طلبات اللحوم الطازجة حتى 24 ساعة قبل التحضير. يجب الإبلاغ عن مشاكل الجودة خلال 4 ساعات من التوصيل مع دليل فوتوغرافي.</p>
+        </div>
+
+        <h3 class="bil-spread modal-section-title"><span class="en">Gathering Packages & Events</span><span class="ar" dir="rtl">باقات المناسبات والولائم</span></h3>
+        <div class="bil-row">
+            <p class="en">Event packages require 7 days notice for full refund, 3 days for 50% refund. Same-day cancellations incur full charges due to preparation costs.</p>
+            <p class="ar" dir="rtl">باقات المناسبات تتطلب إشعار 7 أيام للاسترداد الكامل، 3 أيام لاسترداد 50%. إلغاء نفس اليوم يتحمل الرسوم كاملة بسبب تكاليف التحضير.</p>
+        </div>
+
+        <h3 class="bil-spread modal-section-title"><span class="en">International Orders</span><span class="ar" dir="rtl">الطلبات الدولية</span></h3>
+        <div class="bil-row">
+            <p class="en">International customers enjoy the same quality guarantees. Shipping costs are non-refundable unless we fail to fulfill confirmed orders.</p>
+            <p class="ar" dir="rtl">العملاء الدوليون يتمتعون بنفس ضمانات الجودة. تكاليف الشحن غير قابلة للاسترداد إلا إذا فشلنا في تلبية الطلبات المؤكدة.</p>
+        </div>
     `;
 
     const collectionsDefinition = [
@@ -110,14 +179,18 @@
                 { name: "delAreas", type: "json", required: false, presentable: true }, 
                 { name: "payDetails", type: "json", required: false, presentable: true },
                 { name: "enable_udheya_section", type: "bool", required: false, presentable: true }, 
-                { name: "enable_livestock_section", type: "bool", required: false, presentable: true },
+                { name: "enable_livesheep_section", type: "bool", required: false, presentable: true },
                 { name: "enable_meat_section", type: "bool", required: false, presentable: true }, 
                 { name: "enable_gatherings_section", type: "bool", required: false, presentable: true },
                 { name: "slaughter_location_gmaps_url", type: "url", required: false, presentable: true },
                 { name: "online_payment_fee_egp", type: "number", required: false, presentable: true, min: 0 },
                 { name: "refund_policy_html", type: "editor", required: false, presentable: false }, 
                 { name: "app_email_sender_address", type: "email", required: false, presentable: false },
-                { name: "app_email_sender_name", type: "text", required: false, presentable: false, max: 100 }
+                { name: "app_email_sender_name", type: "text", required: false, presentable: false, max: 100 },
+                { name: "site_title_en", type: "text", required: false, presentable: true, max: 100 },
+                { name: "site_title_ar", type: "text", required: false, presentable: true, max: 100 },
+                { name: "site_desc_en", type: "text", required: false, presentable: true, max: 300 },
+                { name: "site_desc_ar", type: "text", required: false, presentable: true, max: 300 }
             ]
         },
         {
@@ -131,12 +204,12 @@
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
             fields: [
                 { name: "item_key", type: "text", required: true, presentable: true, unique: true, max: 100, min: 1, pattern: "^[a-z0-9_]+$" },
-                { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livestock_general", "meat_cuts", "gathering_package", "other"] },
+                { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livesheep_general", "meat_cuts", "gathering_package", "breeding_stock", "feed_supplies"] },
                 { name: "type_key", type: "text", required: true, presentable: true, max: 50, min: 1, pattern: "^[a-z0-9_]+$" },
                 { name: "type_name_en", type: "text", required: true, presentable: true, max: 100, min: 1 }, 
                 { name: "type_name_ar", type: "text", required: true, presentable: true, max: 100, min: 1 },
-                { name: "type_description_en", type: "text", required: false, presentable: true, max: 300 }, 
-                { name: "type_description_ar", type: "text", required: false, presentable: true, max: 300 },
+                { name: "type_description_en", type: "text", required: false, presentable: true, max: 500 }, 
+                { name: "type_description_ar", type: "text", required: false, presentable: true, max: 500 },
                 { name: "price_per_kg_egp", type: "number", required: false, presentable: true, min: 0 },
                 { name: "variant_name_en", type: "text", required: true, presentable: true, max: 150, min: 1 },
                 { name: "variant_name_ar", type: "text", required: true, presentable: true, max: 150, min: 1 }, 
@@ -146,6 +219,10 @@
                 { name: "base_price_egp", type: "number", required: true, presentable: true, min: 0 }, 
                 { name: "stock_available_pb", type: "number", required: true, presentable: true, min: 0, noDecimal: true },
                 { name: "is_active", type: "bool", required: false, presentable: true }, 
+                { name: "is_premium", type: "bool", required: false, presentable: true },
+                { name: "origin_farm", type: "text", required: false, presentable: true, max: 100 },
+                { name: "breed_info_en", type: "text", required: false, presentable: true, max: 200 },
+                { name: "breed_info_ar", type: "text", required: false, presentable: true, max: 200 },
                 { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
                 { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true }
             ],
@@ -169,15 +246,18 @@
                 onlyVerified: false 
             },
             fields: [ 
-                { name: "name", type: "text", required: false, presentable: true, max: 100 }
+                { name: "name", type: "text", required: false, presentable: true, max: 100 },
+                { name: "phone", type: "text", required: false, presentable: true, max: 20 },
+                { name: "country", type: "text", required: false, presentable: true, max: 50 },
+                { name: "preferred_currency", type: "text", required: false, presentable: true, max: 5 }
             ]
         },
         { 
             name: "orders", 
             type: "base", 
             system: false,
-            listRule: "@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID", 
-            viewRule: "@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID",
+            listRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true", 
+            viewRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
             createRule: "", 
             updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
             deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
@@ -186,8 +266,9 @@
                 { name: "customer_name", type: "text", required: true, presentable: true, max: 150, min: 1 },
                 { name: "customer_phone", type: "text", required: true, presentable: true, max: 30, min: 7 },
                 { name: "customer_email", type: "email", required: true, presentable: true },
+                { name: "customer_country", type: "text", required: false, presentable: true, max: 50 },
                 { name: "line_items", type: "json", required: true, presentable: true }, 
-                { name: "delivery_option", type: "select", required: true, presentable: true, maxSelect: 1, values: ["home_delivery", "self_pickup_or_internal_distribution"] },
+                { name: "delivery_option", type: "select", required: true, presentable: true, maxSelect: 1, values: ["home_delivery", "self_pickup_or_internal_distribution", "international_shipping"] },
                 { name: "delivery_city_id", type: "text", required: false, presentable: true, max: 50 },
                 { name: "delivery_area_name_en", type: "text", required: false, presentable: true, max: 100 },
                 { name: "delivery_area_name_ar", type: "text", required: false, presentable: true, max: 100 },
@@ -205,6 +286,7 @@
                 { name: "total_udheya_service_fee_egp", type: "number", required: false, presentable: true, min: 0 },
                 { name: "delivery_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
                 { name: "online_payment_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
+                { name: "international_shipping_fee_egp", type: "number", required: false, presentable: true, min: 0 },
                 { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0 },
                 { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 }
             ],
@@ -212,62 +294,164 @@
         }
     ];
 
+    // All product data is managed through the database
+    // No hardcoded products in the application code
+    // Admin can modify products via PocketBase admin panel after initial setup
     const seedData = {
         settings: [{
-            xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, GBP: { rate_from_egp: 0.015, symbol: "£", is_active: true }, EUR: { rate_from_egp: 0.018, symbol: "€", is_active: true } },
-            defCurr: "EGP", waNumRaw: "201117117489", waNumDisp: "+20 11 1711 7489", 
-            promoEndISO: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), 
-            promoDiscPc: 10, promoActive: true, servFeeEGP: 750,
+            xchgRates: { 
+                EGP: { rate_from_egp: 1, symbol: "LE", is_active: true }, 
+                USD: { rate_from_egp: 0.020, symbol: "$", is_active: true }, 
+                SAR: { rate_from_egp: 0.075, symbol: "﷼", is_active: true },
+                AED: { rate_from_egp: 0.073, symbol: "د.إ", is_active: true },
+                GBP: { rate_from_egp: 0.016, symbol: "£", is_active: true }, 
+                EUR: { rate_from_egp: 0.018, symbol: "€", is_active: true },
+                KWD: { rate_from_egp: 0.006, symbol: "د.ك", is_active: true },
+                QAR: { rate_from_egp: 0.073, symbol: "ر.ق", is_active: true }
+            },
+            defCurr: "EGP", 
+            waNumRaw: "201001234567", 
+            waNumDisp: "+20 100 123 4567", 
+            promoEndISO: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), 
+            promoDiscPc: 15, 
+            promoActive: true, 
+            servFeeEGP: 800,
             delAreas: [ 
-                { id: "giza_west", name_en: "Giza West", name_ar: "غرب الجيزة", cities: [ 
-                    { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 150 }, 
-                    { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 150 }, 
-                    { id: "hadayek_october", name_en: "Hadayek October", name_ar: "حدائق أكتوبر", delivery_fee_egp: 120 } 
-                ] }, 
-                { id:"cairo_east", name_en:"Cairo East", name_ar:"شرق القاهرة", cities:[ 
-                    {id:"tagamoa", name_en:"New Cairo (Tagamoa)", name_ar:"التجمع (القاهرة الجديدة)", delivery_fee_egp: 250 }, 
-                    {id:"madinaty", name_en:"Madinaty", name_ar:"مدينتي", delivery_fee_egp: 300 }, 
-                    {id:"shorouk", name_en:"El Shorouk", name_ar:"الشروق", delivery_fee_egp: 300} 
-                ] } 
+                { 
+                    id: "cairo_metro", 
+                    name_en: "Cairo Metropolitan", 
+                    name_ar: "القاهرة الكبرى", 
+                    cities: [ 
+                        { id: "nasr_city", name_en: "Nasr City", name_ar: "مدينة نصر", delivery_fee_egp: 100 }, 
+                        { id: "heliopolis", name_en: "Heliopolis", name_ar: "مصر الجديدة", delivery_fee_egp: 120 }, 
+                        { id: "maadi", name_en: "Maadi", name_ar: "المعادي", delivery_fee_egp: 150 },
+                        { id: "zamalek", name_en: "Zamalek", name_ar: "الزمالك", delivery_fee_egp: 180 }
+                    ] 
+                }, 
+                { 
+                    id: "giza_west", 
+                    name_en: "Giza West", 
+                    name_ar: "غرب الجيزة", 
+                    cities: [ 
+                        { id: "october", name_en: "6th of October City", name_ar: "مدينة 6 أكتوبر", delivery_fee_egp: 200 }, 
+                        { id: "zayed", name_en: "Sheikh Zayed", name_ar: "الشيخ زايد", delivery_fee_egp: 220 }, 
+                        { id: "hadayek_october", name_en: "Hadayek October", name_ar: "حدائق أكتوبر", delivery_fee_egp: 180 } 
+                    ] 
+                }, 
+                { 
+                    id:"new_cairo", 
+                    name_en:"New Cairo & East", 
+                    name_ar:"القاهرة الجديدة والشرق", 
+                    cities:[ 
+                        {id:"tagamoa", name_en:"New Cairo (Tagamoa)", name_ar:"التجمع (القاهرة الجديدة)", delivery_fee_egp: 250 }, 
+                        {id:"madinaty", name_en:"Madinaty", name_ar:"مدينتي", delivery_fee_egp: 280 }, 
+                        {id:"shorouk", name_en:"El Shorouk", name_ar:"الشروق", delivery_fee_egp: 300},
+                        {id:"rehab", name_en:"Rehab City", name_ar:"مدينة الرحاب", delivery_fee_egp: 260}
+                    ] 
+                },
+                { 
+                    id:"alex_metro", 
+                    name_en:"Alexandria Metropolitan", 
+                    name_ar:"الإسكندرية الكبرى", 
+                    cities:[ 
+                        {id:"alex_center", name_en:"Alexandria Center", name_ar:"وسط الإسكندرية", delivery_fee_egp: 400 }, 
+                        {id:"alex_east", name_en:"Alexandria East", name_ar:"شرق الإسكندرية", delivery_fee_egp: 450 },
+                        {id:"alex_west", name_en:"Alexandria West", name_ar:"غرب الإسكندرية", delivery_fee_egp: 420 }
+                    ] 
+                }
             ],
-            payDetails: { vodafone_cash: "01076543210", instapay_ipn: "seed_user@instapay", revolut_details: "@seedUserRevolut", monzo_details: "monzo.me/seeduser", bank_name: "Seed Bank Egypt", bank_account_name: "Sheep Land Seed Account", bank_account_number: "1234567890123456", bank_iban: "EG00123400000000001234567890", bank_swift: "SEEDBANKEGCA" },
-            enable_udheya_section: true, enable_livestock_section: true, enable_meat_section: true, enable_gatherings_section: true,
-            slaughter_location_gmaps_url: "https://maps.app.goo.gl/GmWajZfqzPh4ZAey7", online_payment_fee_egp: 35,
-            refund_policy_html: defaultRefundPolicyHTML, app_email_sender_address: "noreply@sheepland.example.com", app_email_sender_name: "Sheep Land Orders"
+            payDetails: { 
+                vodafone_cash: "01012345678", 
+                instapay_ipn: "sheepland@instapay", 
+                revolut_details: "@SheepLandEgypt", 
+                monzo_details: "monzo.me/sheeplandegypt", 
+                paypal_email: "payments@sheepland.eg",
+                bank_name: "Commercial International Bank Egypt", 
+                bank_account_name: "Sheep Land Trading", 
+                bank_account_number: "1234567890123456", 
+                bank_iban: "EG38CIBE12345678901234567890", 
+                bank_swift: "CIBEEGCX",
+                western_union_details: "Sheep Land - Cairo Branch",
+                moneygram_details: "Available at all Egypt Post offices"
+            },
+            enable_udheya_section: true, 
+            enable_livesheep_section: true, 
+            enable_meat_section: true, 
+            enable_gatherings_section: true,
+            slaughter_location_gmaps_url: "https://maps.app.goo.gl/SheepLandEgyptFarm123", 
+            online_payment_fee_egp: 50,
+            refund_policy_html: defaultRefundPolicyHTML, 
+            app_email_sender_address: "noreply@sheepland.eg", 
+            app_email_sender_name: "Sheep Land",
+            site_title_en: "Sheep Land",
+            site_title_ar: "أرض الأغنام",
+            site_desc_en: "Sheep, livesheep, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers.",
+            site_desc_ar: "أغنام ومواشي ولحوم طازجة وخدمات أضاحي متوافقة مع الشريعة. نخدم مصر والعملاء الدوليين."
         }],
+        // Initial product catalog - can be modified via PocketBase admin after setup
+        // These replace the old hardcoded Baladi/Barki products that were in the HTML
         products: [
-            { item_key: "baladi_udheya_45kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Local breed, excellent for Udheya, known for its marbling and taste.", type_description_ar: "سلالة محلية، ممتازة للأضحية، معروفة بدهونها المتداخلة وطعمها الغني.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 45kg)", variant_name_ar: "أضحية بلدي (تقريباً ٤٥ كجم)", weight_range_text_en: "40-50kg", weight_range_text_ar: "٤٠-٥٠ كجم", avg_weight_kg: 45, base_price_egp: 10350, stock_available_pb: 10, is_active: true, sort_order_type: 1, sort_order_variant: 1 },
-            { item_key: "baladi_udheya_55kg", product_category: "udheya", type_key: "baladi", type_name_en: "Baladi Udheya Sheep", type_name_ar: "خروف بلدي للأضحية", type_description_en: "Larger local breed, excellent for Udheya.", type_description_ar: "سلالة محلية أكبر حجمًا، ممتازة للأضحية.", price_per_kg_egp: 230, variant_name_en: "Baladi Udheya (Approx. 55kg)", variant_name_ar: "أضحية بلدي (تقريباً ٥٥ كجم)", weight_range_text_en: "50-60kg", weight_range_text_ar: "٥٠-٦٠ كجم", avg_weight_kg: 55, base_price_egp: 12650, stock_available_pb: 8, is_active: true, sort_order_type: 1, sort_order_variant: 2 },
-            { item_key: "barki_udheya_50kg", product_category: "udheya", type_key: "barki", type_name_en: "Barki Udheya Sheep", type_name_ar: "خروف برقي للأضحية", type_description_en: "Desert breed, lean and flavorful meat, popular for Udheya.", type_description_ar: "سلالة صحراوية، لحم قليل الدهن وذو نكهة مميزة، شائع للأضحية.", price_per_kg_egp: 250, variant_name_en: "Barki Udheya (Approx. 50kg)", variant_name_ar: "أضحية برقي (تقريباً ٥٠ كجم)", weight_range_text_en: "45-55kg", weight_range_text_ar: "٤٥-٥٥ كجم", avg_weight_kg: 50, base_price_egp: 12500, stock_available_pb: 12, is_active: true, sort_order_type: 2, sort_order_variant: 1 },
-            { item_key: "live_ram_baladi_large", product_category: "livestock_general", type_key: "baladi", type_name_en: "Live Baladi Ram", type_name_ar: "كبش بلدي حي", type_description_en: "Large healthy Baladi ram for breeding or other purposes.", type_description_ar: "كبش بلدي كبير صحي للتربية أو أغراض أخرى.", variant_name_en: "Large Baladi Ram (70-80kg)", variant_name_ar: "كبش بلدي كبير (٧٠-٨٠كجم)", base_price_egp: 15000, stock_available_pb: 3, is_active: true, sort_order_type: 3, sort_order_variant: 1 },
-            { item_key: "live_ewe_barki_medium", product_category: "livestock_general", type_key: "barki", type_name_en: "Live Barki Ewe", type_name_ar: "نعجة برقي حية", type_description_en: "Healthy Barki ewe, excellent for breeding programs.", type_description_ar: "نعجة برقي صحية، ممتازة لبرامج التربية.", variant_name_en: "Medium Barki Ewe (50-60kg)", variant_name_ar: "نعجة برقي متوسطة (٥٠-٦٠كجم)", base_price_egp: 9500, stock_available_pb: 5, is_active: true, sort_order_type: 3, sort_order_variant: 2 },
-            { item_key: "lamb_chops_kg", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Fresh premium lamb chops, tender and juicy.", type_description_ar: "ريش ضأن طازجة فاخرة، طرية وغنية بالعصارة.", variant_name_en: "Lamb Chops (per kg)", variant_name_ar: "ريش ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 450, stock_available_pb: 15, is_active: true, sort_order_type: 4, sort_order_variant: 1 },
-            { item_key: "lamb_leg_whole", product_category: "meat_cuts", type_key: "lamb_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Whole lamb leg, perfect for roasting or special meals.", type_description_ar: "فخذة ضأن كاملة، مثالية للتحمير أو الوجبات الخاصة.", variant_name_en: "Whole Lamb Leg (Approx. 2-3kg)", variant_name_ar: "فخذة ضاني كاملة (تقريباً ٢-٣ كجم)", avg_weight_kg: 2.5, base_price_egp: 1100, stock_available_pb: 7, is_active: true, sort_order_type: 4, sort_order_variant: 2 },
-            { item_key: "beef_mince_kg", product_category: "meat_cuts", type_key: "beef_cuts", type_name_en: "Beef Cuts", type_name_ar: "قطعيات بقري", type_description_en: "Freshly ground local beef, versatile for many dishes.", type_description_ar: "لحم بقري محلي مفروم طازج، متعدد الاستخدامات للعديد من الأطباق.", variant_name_en: "Beef Mince (per kg)", variant_name_ar: "لحم بقري مفروم (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 380, stock_available_pb: 20, is_active: true, sort_order_type: 4, sort_order_variant: 3 },
-            { item_key: "gathering_feast_medium", product_category: "gathering_package", type_key: "feast_pack", type_name_en: "Medium Feast Package", type_name_ar: "باقة وليمة متوسطة", type_description_en: "Complete package for a medium gathering. Includes one processed sheep (approx 50kg live weight), rice, and salads.", type_description_ar: "باقة متكاملة لوليمة متوسطة. تشمل خروف مجهز (وزن حي تقريباً ٥٠ كجم)، أرز، وسلطات.", variant_name_en: "Medium Feast (serves 15-20)", variant_name_ar: "وليمة متوسطة (تكفي ١٥-٢٠ فرد)", base_price_egp: 14500, stock_available_pb: 5, is_active: true, sort_order_type: 5, sort_order_variant: 1 },
-            { item_key: "gathering_bbq_large", product_category: "gathering_package", type_key: "bbq_pack", type_name_en: "Large BBQ Package", type_name_ar: "باقة شواء كبيرة", type_description_en: "Generous assortment of marinated meats, skewers, and sides for a large BBQ event.", type_description_ar: "تشكيلة وفيرة من اللحوم المتبلة، الأسياخ، والأطباق الجانبية لحفل شواء كبير.", variant_name_en: "Large BBQ Pack (serves 20-25)", variant_name_ar: "باقة شواء كبيرة (تكفي ٢٠-٢٥ فردًا)", base_price_egp: 4500, stock_available_pb: 8, is_active: true, sort_order_type: 5, sort_order_variant: 2 }
+            { item_key: "baladi_udheya_40kg", product_category: "udheya", type_key: "baladi_sheep", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Egyptian Baladi sheep.", type_description_ar: "أغنام بلدية مصرية تربت في مزارع بطرق تقليدية.", price_per_kg_egp: 280, variant_name_en: "Baladi Small (35-45kg)", variant_name_ar: "بلدي صغير (٣٥-٤٥ كجم)", weight_range_text_en: "35-45kg", weight_range_text_ar: "٣٥-٤٥ كجم", avg_weight_kg: 40, base_price_egp: 11200, stock_available_pb: 25, is_active: true, is_premium: false, origin_farm: "Fayoum Farms", breed_info_en: "Traditional Egyptian breed", breed_info_ar: "سلالة مصرية تقليدية", sort_order_type: 1, sort_order_variant: 1 },
+            
+            { item_key: "baladi_udheya_50kg", product_category: "udheya", type_key: "baladi_sheep", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Egyptian Baladi sheep.", type_description_ar: "أغنام بلدية مصرية تربت في مزارع بطرق تقليدية.", price_per_kg_egp: 280, variant_name_en: "Baladi Medium (45-55kg)", variant_name_ar: "بلدي متوسط (٤٥-٥٥ كجم)", weight_range_text_en: "45-55kg", weight_range_text_ar: "٤٥-٥٥ كجم", avg_weight_kg: 50, base_price_egp: 14000, stock_available_pb: 30, is_active: true, is_premium: false, origin_farm: "Fayoum Farms", breed_info_en: "Traditional Egyptian breed", breed_info_ar: "سلالة مصرية تقليدية", sort_order_type: 1, sort_order_variant: 2 },
+
+            { item_key: "baladi_udheya_62kg", product_category: "udheya", type_key: "baladi_sheep", type_name_en: "Baladi Sheep", type_name_ar: "خروف بلدي", type_description_en: "Egyptian Baladi sheep.", type_description_ar: "أغنام بلدية مصرية تربت في مزارع بطرق تقليدية.", price_per_kg_egp: 280, variant_name_en: "Baladi Large (55-70kg)", variant_name_ar: "بلدي كبير (٥٥-٧٠ كجم)", weight_range_text_en: "55-70kg", weight_range_text_ar: "٥٥-٧٠ كجم", avg_weight_kg: 62, base_price_egp: 17360, stock_available_pb: 20, is_active: true, is_premium: false, origin_farm: "Fayoum Farms", breed_info_en: "Traditional Egyptian breed", breed_info_ar: "سلالة مصرية تقليدية", sort_order_type: 1, sort_order_variant: 3 },
+
+
+            { item_key: "barki_udheya_37kg", product_category: "udheya", type_key: "barki_sheep", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Barki sheep with lean meat.", type_description_ar: "أغنام برقي من مناطق صحراوية بلحم قليل الدهن.", price_per_kg_egp: 320, variant_name_en: "Barki Small (35-40kg)", variant_name_ar: "برقي صغير (٣٥-٤٠ كجم)", weight_range_text_en: "35-40kg", weight_range_text_ar: "٣٥-٤٠ كجم", avg_weight_kg: 37, base_price_egp: 11840, stock_available_pb: 15, is_active: true, is_premium: true, origin_farm: "Marsa Matrouh Desert Farms", breed_info_en: "Desert-adapted Bedouin breed", breed_info_ar: "سلالة بدوية متكيفة مع الصحراء", sort_order_type: 2, sort_order_variant: 1 },
+
+            { item_key: "barki_udheya_42kg", product_category: "udheya", type_key: "barki_sheep", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Barki sheep with lean meat.", type_description_ar: "أغنام برقي من مناطق صحراوية بلحم قليل الدهن.", price_per_kg_egp: 320, variant_name_en: "Barki Medium (40-45kg)", variant_name_ar: "برقي متوسط (٤٠-٤٥ كجم)", weight_range_text_en: "40-45kg", weight_range_text_ar: "٤٠-٤٥ كجم", avg_weight_kg: 42, base_price_egp: 13440, stock_available_pb: 12, is_active: true, is_premium: true, origin_farm: "Marsa Matrouh Desert Farms", breed_info_en: "Desert-adapted Bedouin breed", breed_info_ar: "سلالة بدوية متكيفة مع الصحراء", sort_order_type: 2, sort_order_variant: 2 },
+
+            { item_key: "barki_udheya_47kg", product_category: "udheya", type_key: "barki_sheep", type_name_en: "Barki Sheep", type_name_ar: "خروف برقي", type_description_en: "Barki sheep with lean meat.", type_description_ar: "أغنام برقي من مناطق صحراوية بلحم قليل الدهن.", price_per_kg_egp: 320, variant_name_en: "Barki Large (45-50kg)", variant_name_ar: "برقي كبير (٤٥-٥٠ كجم)", weight_range_text_en: "45-50kg", weight_range_text_ar: "٤٥-٥٠ كجم", avg_weight_kg: 47, base_price_egp: 15040, stock_available_pb: 8, is_active: true, is_premium: true, origin_farm: "Marsa Matrouh Desert Farms", breed_info_en: "Desert-adapted Bedouin breed", breed_info_ar: "سلالة بدوية متكيفة مع الصحراء", sort_order_type: 2, sort_order_variant: 3 },
+            { item_key: "live_ram_baladi_breeding", product_category: "livesheep_general", type_key: "breeding_rams", type_name_en: "Rams", type_name_ar: "كباش", type_description_en: "Breeding rams.", type_description_ar: "كباش تربية للمزارع.", variant_name_en: "Baladi Ram (80-100kg)", variant_name_ar: "كبش بلدي (٨٠-١٠٠ كجم)", weight_range_text_en: "80-100kg", weight_range_text_ar: "٨٠-١٠٠ كجم", avg_weight_kg: 90, base_price_egp: 18000, stock_available_pb: 6, is_active: true, is_premium: false, origin_farm: "Selection Breeding Center", breed_info_en: "Breeding genetics", breed_info_ar: "وراثة تربية", sort_order_type: 5, sort_order_variant: 1 },
+
+            { item_key: "live_ewe_saidi_breeding", product_category: "livesheep_general", type_key: "breeding_ewes", type_name_en: "Ewes", type_name_ar: "نعاج", type_description_en: "Breeding ewes with fertility records.", type_description_ar: "نعاج تربية مع سجلات خصوبة. أمهات مع إنتاج حليب جيد.", variant_name_en: "Saidi Ewe (55-70kg)", variant_name_ar: "نعجة صعيدي (٥٥-٧٠ كجم)", weight_range_text_en: "55-70kg", weight_range_text_ar: "٥٥-٧٠ كجم", avg_weight_kg: 62, base_price_egp: 12000, stock_available_pb: 10, is_active: true, is_premium: true, origin_farm: "Elite Breeding Center", breed_info_en: "High fertility proven lines", breed_info_ar: "سلالات عالية الخصوبة مثبتة", sort_order_type: 5, sort_order_variant: 2 },
+
+            { item_key: "live_lambs_weaned", product_category: "livesheep_general", type_key: "young_lambs", type_name_en: "Weaned Lambs", type_name_ar: "حملان مفطومة", type_description_en: "Weaned lambs, 3-6 months old. Vaccinated and health-checked.", type_description_ar: "حملان مفطومة، عمر ٣-٦ أشهر، للتربية أو التسمين. محصنة ومفحوصة صحياً.", variant_name_en: "Weaned Lamb (15-25kg)", variant_name_ar: "حمل مفطوم (١٥-٢٥ كجم)", weight_range_text_en: "15-25kg", weight_range_text_ar: "١٥-٢٥ كجم", avg_weight_kg: 20, base_price_egp: 4500, stock_available_pb: 35, is_active: true, is_premium: false, origin_farm: "Young Stock Farms", breed_info_en: "3-6 months weaned", breed_info_ar: "مفطوم ٣-٦ أشهر", sort_order_type: 6, sort_order_variant: 1 },
+
+            { item_key: "lamb_chops_premium", product_category: "meat_cuts", type_key: "lamb_premium_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Lamb chops.", type_description_ar: "ريش ضأن مقطعة طازجة يومياً.", price_per_kg_egp: 520, variant_name_en: "Lamb Chops (per kg)", variant_name_ar: "ريش ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 520, stock_available_pb: 25, is_active: true, is_premium: true, origin_farm: "Fresh Cut Daily", breed_info_en: "Grain-fed young lamb", breed_info_ar: "ضأن صغير يتغذى على الحبوب", sort_order_type: 7, sort_order_variant: 1 },
+
+            { item_key: "lamb_leg_whole", product_category: "meat_cuts", type_key: "lamb_premium_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Whole lamb leg for roasting.", type_description_ar: "فخذة ضأن كاملة للتحمير أو الطبخ.", variant_name_en: "Lamb Leg (2.5-4kg)", variant_name_ar: "فخذة ضاني (٢.٥-٤ كجم)", weight_range_text_en: "2.5-4kg", weight_range_text_ar: "٢.٥-٤ كجم", avg_weight_kg: 3.2, base_price_egp: 1450, stock_available_pb: 15, is_active: true, is_premium: true, origin_farm: "Fresh Cut Daily", breed_info_en: "Premium leg cuts", breed_info_ar: "قطعيات فخذ", sort_order_type: 7, sort_order_variant: 2 },
+
+            { item_key: "lamb_shoulder_boneless", product_category: "meat_cuts", type_key: "lamb_standard_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Boneless lamb shoulder for slow cooking and stews.", type_description_ar: "كتف ضأن بدون عظم للطبخ البطيء والطواجن.", variant_name_en: "Lamb Shoulder (per kg)", variant_name_ar: "كتف ضاني (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 380, stock_available_pb: 30, is_active: true, is_premium: false, origin_farm: "Daily Fresh Cuts", breed_info_en: "Standard quality cuts", breed_info_ar: "قطعيات جودة عادية", sort_order_type: 8, sort_order_variant: 1 },
+
+            { item_key: "lamb_mince_fresh", product_category: "meat_cuts", type_key: "lamb_standard_cuts", type_name_en: "Lamb Cuts", type_name_ar: "قطعيات ضأن", type_description_en: "Ground lamb mince for kofta and kebabs.", type_description_ar: "لحم ضأن مفروم طازج للكفتة والكباب. يفرم طازج يومياً.", variant_name_en: "Lamb Mince (per kg)", variant_name_ar: "لحم ضاني مفروم (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 350, stock_available_pb: 40, is_active: true, is_premium: false, origin_farm: "Daily Fresh Ground", breed_info_en: "Fresh daily grinding", breed_info_ar: "فرم طازج يومياً", sort_order_type: 8, sort_order_variant: 2 },
+
+            { item_key: "mutton_stew_cuts", product_category: "meat_cuts", type_key: "mutton_cuts", type_name_en: "Mutton Cuts", type_name_ar: "قطعيات لحم الغنم", type_description_en: "Mutton stew cuts from mature sheep.", type_description_ar: "قطعيات لحم غنم للطواجن من أغنام ناضجة.", variant_name_en: "Mutton Stew Cuts (per kg)", variant_name_ar: "قطعيات طاجن لحم غنم (للكيلو)", weight_range_text_en: "Per kg", weight_range_text_ar: "للكيلو", base_price_egp: 320, stock_available_pb: 20, is_active: true, is_premium: false, origin_farm: "Traditional Cuts", breed_info_en: "Mature sheep cuts", breed_info_ar: "قطعيات أغنام ناضجة", sort_order_type: 9, sort_order_variant: 1 },
+
+            { item_key: "gathering_small_family", product_category: "gathering_package", type_key: "family_packages", type_name_en: "Family Packages", type_name_ar: "باقات عائلية", type_description_en: "Family gathering packages with lamb, rice, salads, and bread.", type_description_ar: "باقات تجمعات عائلية تشمل ضأن وأرز وسلطات وخبز.", variant_name_en: "Family Small (8-12 people)", variant_name_ar: "عائلي صغير (٨-١٢ فرد)", base_price_egp: 8500, stock_available_pb: 12, is_active: true, is_premium: false, origin_farm: "Complete Service", breed_info_en: "Full service package", breed_info_ar: "باقة خدمة كاملة", sort_order_type: 10, sort_order_variant: 1 },
+
+            { item_key: "gathering_medium_celebration", product_category: "gathering_package", type_key: "celebration_packages", type_name_en: "Celebration Packages", type_name_ar: "باقات الاحتفالات", type_description_en: "Celebration packages with whole sheep, side dishes, desserts, and service.", type_description_ar: "باقات احتفالات للأفراح والتخرج والمناسبات. تشمل خروف مجهز وأطباق جانبية وحلويات وخدمة.", variant_name_en: "Celebration Medium (20-30 people)", variant_name_ar: "احتفال متوسط (٢٠-٣٠ فرد)", base_price_egp: 18500, stock_available_pb: 8, is_active: true, is_premium: true, origin_farm: "Premium Catering", breed_info_en: "Full celebration service", breed_info_ar: "خدمة احتفال كاملة", sort_order_type: 11, sort_order_variant: 1 },
+
+            { item_key: "gathering_large_wedding", product_category: "gathering_package", type_key: "wedding_packages", type_name_en: "Wedding Packages", type_name_ar: "باقات أفراح", type_description_en: "Wedding packages with multiple sheep, buffet, Egyptian dishes, and event management.", type_description_ar: "باقات أفراح ومناسبات كبرى. عدة أغنام، إعداد بوفيه، أطباق مصرية، طاقم خدمة، وإدارة مناسبات.", variant_name_en: "Wedding Large (50-80 people)", variant_name_ar: "فرح كبير (٥٠-٨٠ فرد)", base_price_egp: 45000, stock_available_pb: 4, is_active: true, is_premium: true, origin_farm: "Luxury Events", breed_info_en: "Full event management", breed_info_ar: "إدارة مناسبات كاملة", sort_order_type: 11, sort_order_variant: 2 },
+
+            { item_key: "bbq_premium_mixed", product_category: "gathering_package", type_key: "bbq_packages", type_name_en: "BBQ & Grill Packages", type_name_ar: "باقات الشواء والمشاوي", type_description_en: "BBQ packages with mixed grilled meats, kebabs, kofta, and chicken.", type_description_ar: "باقات شواء مع لحوم مشوية مختلطة وكباب وكفتة ودجاج.", variant_name_en: "BBQ (15-25 people)", variant_name_ar: "شواء (١٥-٢٥ فرد)", base_price_egp: 12500, stock_available_pb: 10, is_active: true, is_premium: true, origin_farm: "BBQ Specialists", breed_info_en: "Mixed grill specialties", breed_info_ar: "مشاوي مختلطة", sort_order_type: 12, sort_order_variant: 1 }
         ]
     };
+
+    // Populate textareas with default data
+    collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
+    seedTextarea.value = JSON.stringify(seedData, null, 2);
 
     async function safeExecute(operation, operationName, pbInstance = null) {
         const pb = pbInstance || new PocketBase(pbUrl);
         try {
-            log(`Starting ${operationName}...`, 'i');
+            log(`🚀 Starting ${operationName}...`, 'i');
             const result = await operation(pb);
-            log(`${operationName} completed successfully.`, 's');
+            log(`✅ ${operationName} completed successfully.`, 's');
             return { success: true, result };
         } catch (error) {
-            log(`${operationName} FAILED: ${error.message}`, 'e');
+            log(`❌ ${operationName} FAILED: ${error.message}`, 'e');
             console.error(`${operationName} error:`, error);
             if (error.response && error.response.data) {
-                log('Server error details:', 'e', error.response.data);
+                log('📋 Server error details:', 'e', error.response.data);
             } else if (error.data) {
-                 log('Error details:', 'e', error.data);
+                 log('📋 Error details:', 'e', error.data);
             }
             return { success: false, error };
         } finally {
             if (pbInstance === null && pb.authStore.isValid && pb.authStore.isAdmin) {
-                log(`Clearing temporary admin auth after ${operationName}`, 'd');
+                log(`🔒 Clearing temporary admin auth after ${operationName}`, 'd');
                 pb.authStore.clear();
             }
         }
@@ -276,24 +460,33 @@
     async function setupSchema(pb) {
         if (!await authenticateAdmin(pb)) return false;
 
-        log('Processing collections (settings, products, users, orders)...', 'i');
-        if (!await importOrUpdateCollections(pb, collectionsDefinition)) { 
-             log('Collection setup failed.', 'e'); 
+        log('📋 Processing collections (settings, products, users, orders)...', 'i');
+        
+        let collectionsToUse;
+        try {
+            collectionsToUse = JSON.parse(collectionsTextarea.value);
+        } catch (e) {
+            log('❌ Invalid Collections JSON: ' + e.message, 'e');
+            return false;
+        }
+        
+        if (!await importOrUpdateCollections(pb, collectionsToUse)) { 
+             log('❌ Collection setup failed.', 'e'); 
              return false;
         }
         
-        log('Processing relation fields for "orders" collection...', 'i');
+        log('🔗 Processing relation fields for "orders" collection...', 'i');
         if (!await addOrVerifyRelationFields(pb)) {
-             log('Relation field setup for "orders" failed.', 'e'); 
+             log('❌ Relation field setup for "orders" failed.', 'e'); 
              return false;
         }
 
-        log('Schema setup phase completed successfully.', 's');
+        log('✅ Schema setup phase completed successfully.', 's');
         return true;
     }
     
     async function importOrUpdateCollections(pb, collectionsToProcess) {
-        log('Starting collection schema setup/update...', 'i');
+        log('📋 Starting collection schema setup/update...', 'i');
         for (const collectionDef of collectionsToProcess) {
             let existingCollection = null;
             const isAuthCollection = collectionDef.name === "users";
@@ -301,7 +494,7 @@
 
             try {
                 existingCollection = await pb.collections.getOne(collectionNameToUse);
-                log(`Collection "${collectionNameToUse}" exists. Attempting update...`, 'i');
+                log(`🔄 Collection "${collectionNameToUse}" exists. Updating...`, 'i');
                 
                 const updatePayload = {
                     listRule: collectionDef.listRule,
@@ -317,11 +510,11 @@
                 }
                 
                 await pb.collections.update(collectionNameToUse, updatePayload);
-                log(`Collection "${collectionNameToUse}" updated successfully.`, 's');
+                log(`✅ Collection "${collectionNameToUse}" updated successfully.`, 's');
 
             } catch (e) {
                 if (e.status === 404 && !isAuthCollection) { 
-                    log(`Collection "${collectionDef.name}" not found. Creating...`, 'i');
+                    log(`➕ Collection "${collectionDef.name}" not found. Creating...`, 'i');
                     try {
                          const newCollectionData = {
                             name: collectionDef.name,
@@ -337,33 +530,33 @@
                         };
                         
                         await pb.collections.create(newCollectionData); 
-                        log(`Collection "${collectionDef.name}" created successfully.`, 's');
+                        log(`✅ Collection "${collectionDef.name}" created successfully.`, 's');
                     } catch (createError) {
-                        log(`Error CREATING collection "${collectionDef.name}": ${createError.message}`, 'e', createError.data || createError);
+                        log(`❌ Error CREATING collection "${collectionDef.name}": ${createError.message}`, 'e', createError.data || createError);
                         return false; 
                     }
                 } else { 
-                    log(`Error processing collection "${collectionNameToUse}": ${e.message}`, 'e', e.data || e);
+                    log(`❌ Error processing collection "${collectionNameToUse}": ${e.message}`, 'e', e.data || e);
                     return false; 
                 }
             }
-            await new Promise(r => setTimeout(r, 100));
+            await new Promise(r => setTimeout(r, 150));
         }
-        log('Collection schema processing finished.', 's');
+        log('✅ Collection schema processing finished.', 's');
         return true;
     }
     
     async function addOrVerifyRelationFields(pb) {
-        log('Adding/Verifying relation fields...', 'i');
+        log('🔗 Adding/Verifying relation fields...', 'i');
         let overallSuccess = true;
         
         let usersCollectionId;
         try {
             const usersCollection = await pb.collections.getOne("_pb_users_auth_");
             usersCollectionId = usersCollection.id;
-            log(`Found users collection ID: ${usersCollectionId}`, 'd');
+            log(`✅ Found users collection ID: ${usersCollectionId}`, 'd');
         } catch (error) {
-            log(`Failed to get users collection: ${error.message}`, 'e');
+            log(`❌ Failed to get users collection: ${error.message}`, 'e');
             return false;
         }
         
@@ -388,7 +581,7 @@
                 const fieldExists = fields.find(f => f.name === rel.fieldName && f.type === "relation");
 
                 if (fieldExists) {
-                    log(`Relation field "${rel.fieldName}" already exists.`, 'w');
+                    log(`⚠️ Relation field "${rel.fieldName}" already exists.`, 'w');
                     continue;
                 }
                 
@@ -406,28 +599,28 @@
                 
                 fields.push(newField);
                 await pb.collections.update(sourceCollection.id, { fields: fields });
-                log(`Relation field "${rel.fieldName}" added to "${rel.sourceCollectionName}" successfully.`, 's');
+                log(`✅ Relation field "${rel.fieldName}" added to "${rel.sourceCollectionName}" successfully.`, 's');
                 
                 if (rel.sourceCollectionName === "orders") {
-                    log('Updating orders collection API rules with user field references...', 'i');
+                    log('🔄 Updating orders collection API rules with user field references...', 'i');
                     await pb.collections.update(sourceCollection.id, {
                         listRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
                         viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true"
                     });
-                    log('Orders collection API rules updated successfully.', 's');
+                    log('✅ Orders collection API rules updated successfully.', 's');
                 }
 
             } catch (error) {
-                log(`Error adding relation field "${rel.fieldName}" to "${rel.sourceCollectionName}": ${error.message}`, 'e', error.data || error);
+                log(`❌ Error adding relation field "${rel.fieldName}" to "${rel.sourceCollectionName}": ${error.message}`, 'e', error.data || error);
                 overallSuccess = false;
             }
-            await new Promise(r => setTimeout(r, 100)); 
+            await new Promise(r => setTimeout(r, 150)); 
         }
         return overallSuccess;
     }
 
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
-        log(`Seeding data for ${collectionName}...`, 'i');
+        log(`🌱 Seeding data for ${collectionName}...`, 'i');
         let createdCount = 0, updatedCount = 0, errorCount = 0;
         
         for (const item of seedItems) {
@@ -436,7 +629,7 @@
                 if (uniqueKeyField && item[uniqueKeyField] !== undefined) { 
                     try { 
                         existingRecord = await pb.collection(collectionName).getFirstListItem(`${uniqueKeyField}="${pb.utils.escapeFilterValue(item[uniqueKeyField])}"`); 
-                    } catch (e) { /* Record doesn't exist, will create */ }
+                    } catch (e) { }
                 } else if (!uniqueKeyField && collectionName === "settings") { 
                     const list = await pb.collection(collectionName).getList(1, 1);
                     if (list.items.length > 0) existingRecord = list.items[0];
@@ -450,40 +643,49 @@
                     createdCount++;
                 }
             } catch (error) {
-                log(`Error processing item in ${collectionName}: ${error.message}`, 'e');
+                log(`❌ Error processing item in ${collectionName}: ${error.message}`, 'e');
                 errorCount++;
             }
         }
-        log(`Seeding ${collectionName} complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, errorCount > 0 ? 'w' : 's');
+        log(`📊 Seeding ${collectionName} complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, errorCount > 0 ? 'w' : 's');
         return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
 
     async function setupSeedData(pb) {
-        log('=== SEED DATA PHASE ===', 'i');
+        log('🌱 === SEED DATA PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
 
-        log('Pausing for 1 second before seeding...', 'i');
+        log('⏳ Pausing for 1 second before seeding...', 'i');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
+        let seedDataToUse;
+        try {
+            seedDataToUse = JSON.parse(seedTextarea.value);
+        } catch (e) {
+            log('❌ Invalid Seed Data JSON: ' + e.message, 'e');
+            return false;
+        }
+
         let anySeedErrors = false;
-        const settingsResult = await seedCollectionData(pb, 'settings', seedData.settings);
+        const settingsResult = await seedCollectionData(pb, 'settings', seedDataToUse.settings);
         if(settingsResult.errors > 0) anySeedErrors = true;
 
-        const productsResult = await seedCollectionData(pb, 'products', seedData.products, 'item_key');
+        const productsResult = await seedCollectionData(pb, 'products', seedDataToUse.products, 'item_key');
         if(productsResult.errors > 0) anySeedErrors = true;
         
         if (anySeedErrors) {
-            log('Seed data setup completed with errors.', 'w');
+            log('⚠️ Seed data setup completed with errors.', 'w');
             return false; 
         }
-        log('Seed data setup completed successfully.', 's');
+        log('✅ Seed data setup completed successfully.', 's');
         return true;
     }
 
     runFullSetupButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
         outputDiv.innerHTML = ''; 
-        log('=== FULL SETUP PROCESS STARTED ===', 'i');
+        log('🚀 === FULL SETUP PROCESS STARTED ===', 'i');
+        pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
         let schemaSuccess = false;
         
@@ -492,13 +694,13 @@
             schemaSuccess = schemaResult.success;
 
             if (!schemaSuccess) {
-                log('Schema setup failed, aborting full setup', 'e');
+                log('❌ Schema setup failed, aborting full setup', 'e');
             } else {
                 const seedResult = await safeExecute(async (pbInstance) => setupSeedData(pbInstance), "Seed Data", pb);
-                log('=== FULL SETUP COMPLETED ===', seedResult.success ? 's' : 'w');
+                log('🎉 === FULL SETUP COMPLETED ===', seedResult.success ? 's' : 'w');
             }
         } catch (error) {
-            log(`CRITICAL ERROR during full setup: ${error.message}`, 'e');
+            log(`💥 CRITICAL ERROR during full setup: ${error.message}`, 'e');
         } finally {
             if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
@@ -509,16 +711,17 @@
     runSchemaOnlyButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
         outputDiv.innerHTML = ''; 
-        log('=== SCHEMA ONLY SETUP STARTED ===', 'i');
+        log('📋 === SCHEMA ONLY SETUP STARTED ===', 'i');
+        pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
         let success = false;
         
         try {
             const schemaResult = await safeExecute(async (pbInstance) => setupSchema(pbInstance), "Schema Setup", pb);
             success = schemaResult.success;
-            log('Schema setup completed', success ? 's' : 'e');
+            log('📋 Schema setup completed', success ? 's' : 'e');
         } catch (error) {
-            log(`ERROR during schema setup: ${error.message}`, 'e');
+            log(`❌ ERROR during schema setup: ${error.message}`, 'e');
         } finally {
             if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
@@ -529,14 +732,15 @@
     runSeedOnlyButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
         outputDiv.innerHTML = ''; 
-        log('=== SEED DATA ONLY STARTED ===', 'i');
+        log('🌱 === SEED DATA ONLY STARTED ===', 'i');
+        pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
         
         try {
             const seedResult = await safeExecute(async (pbInstance) => setupSeedData(pbInstance), "Seed Data", pb);
-            log('Seed data setup completed', seedResult.success ? 's' : 'w');
+            log('🌱 Seed data setup completed', seedResult.success ? 's' : 'w');
         } catch (error) {
-            log(`ERROR during seed setup: ${error.message}`, 'e');
+            log(`❌ ERROR during seed setup: ${error.message}`, 'e');
         } finally {
             if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = false);
