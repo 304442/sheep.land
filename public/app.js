@@ -39,7 +39,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('sheepLand', () => ({
         load: { init: true, status: false, checkout: false, auth: false, orders: false, addingToCart: null },
         settings: {
-            xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", icon: "🇪🇬", is_active: true } },
+            xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
             defCurr: "EGP", waNumRaw: "", waNumDisp: "", promoEndISO: new Date().toISOString(), 
             promoDiscPc: 0, promoActive: false, servFeeEGP: 0, delAreas: [], payDetails: {},
             enable_udheya_section: true, enable_livesheep_section: true, enable_meat_section: true, enable_gatherings_section: true,

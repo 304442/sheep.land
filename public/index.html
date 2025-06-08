@@ -210,8 +210,7 @@
             <div class="curr-sel">
                 <select x-model="curr" title="Currency">
                     <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
-                        <option :value="code" :disabled="!settings.xchgRates[code].is_active">
-                            <span x-text="(settings.xchgRates[code].icon || '') + ' ' + code"></span>
+                        <option :value="code" :disabled="!settings.xchgRates[code].is_active" x-text="settings.xchgRates[code].symbol || code">
                         </option>
                     </template>
                 </select>
