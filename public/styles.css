@@ -173,9 +173,9 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .nav-link-mob{font-size:1.1rem;color:var(--c1);font-weight:600;padding:var(--s2) var(--s3);border-radius:var(--rad);display:flex;align-items:center;gap:.5em;text-decoration:none;justify-content:center;line-height:1;min-width:48px;transition:all .3s ease}
 .nav-link-mob:hover,.nav-link-mob.active-nav{color:var(--c1d);background:rgba(62,39,35,.1);font-weight:700;transform:translateY(-1px)}
 
-.hero{background:linear-gradient(135deg,rgba(62,39,35,0.85),rgba(139,69,19,0.75)),url(https://placehold.co/1920x1080/E8D4B8/8B4513?text=Hero+Background);background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--td);min-height:95vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;overflow:hidden;padding:calc(var(--s4) * 3) 0 var(--s4) 0}
+.hero{background:linear-gradient(135deg,rgba(62,39,35,0.85),rgba(139,69,19,0.75)),url(https://placehold.co/1920x1080/E8D4B8/8B4513?text=Hero+Background);background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--td);min-height:95vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:calc(var(--s4) * 2) 0}
 .hero-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.4));z-index:1}
-.hero-content{position:relative;z-index:2;width:100%;display:flex;align-items:flex-start;justify-content:center;min-height:auto;padding-top:var(--s4)}
+.hero-content{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;min-height:auto;flex-direction:column}
 .hero-badge{background:linear-gradient(135deg,var(--c3),#ff8c69);color:white;padding:var(--s1) var(--s3);border-radius:50px;font-size:0.85rem;font-weight:600;margin-bottom:var(--s3);display:inline-block;box-shadow:0 4px 20px rgba(255,107,53,0.3);animation:pulse 2s infinite}
 .hero-title{font-size:3rem;margin-bottom:var(--s3);text-align:center;font-weight:800;line-height:1.1;background:linear-gradient(135deg,#fff,#f0f0f0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-subtitle{max-width:100%;margin:0 auto var(--s4);font-size:1.1rem;text-align:center;line-height:1.6;opacity:0.95}
@@ -517,7 +517,7 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
     
     /* Mobile Hero */
     .hero{min-height:80vh}
-    .hero-content{min-height:75vh}
+    .hero-content{min-height:auto}
     .hero-title{font-size:2rem}
     .hero-subtitle{font-size:1rem}
     .hero-stats{gap:var(--s2);margin:var(--s3) 0}
