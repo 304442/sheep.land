@@ -16,61 +16,6 @@
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
 
-<div x-show="isCartOpen" class="cart-sidebar-overlay" @click="closeCart()" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
-<aside x-show="isCartOpen" class="cart-sidebar" x-transition:enter="transition ease-in-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" role="dialog" aria-modal="true" aria-labelledby="cart-sidebar-title" @keydown.escape.window="closeCart()">
-    <div class="cart-sidebar-header">
-        <h2 id="cart-sidebar-title" class="bil-spread modal-title">
-            <span class="en">Your Cart</span><span class="ar">سلتك</span>
-        </h2>
-        <button @click="closeCart()" class="modal-close-btn" aria-label="Close cart">×</button>
-    </div>
-    <div class="cart-sidebar-content">
-        <div x-show="cartItems.length === 0" class="tc cart-empty-msg">
-            <p class="bil-row"><span class="en">Your cart is currently empty.</span><span class="ar">سلتك فارغة حاليًا.</span></p>
-            <button @click="closeCart(); navigateToOrScroll('udheya')" class="btn bp btn-sm bil-inline">
-                <span class="en">Start Shopping</span><span class="ar">ابدأ التسوق</span>
-            </button>
-        </div>
-        <div x-show="cartItems.length > 0">
-            <template x-for="(cartItem) in cartItems" :key="cartItem.uniqueIdInCart">
-                <div class="cart-item">
-                    <div class="cart-item-details">
-                        <div class="cart-item-name bil-spread">
-                            <span class="en" x-text="cartItem.nameENSpec"></span>
-                            <span class="ar" x-text="cartItem.nameARSpec"></span>
-                        </div>
-                        <template x-if="cartItem.product_category === 'udheya' && cartItem.udheya_details">
-                            <div class="udheya-detail bil-spread">
-                                <span class="en"><small>Service: <span x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'Standard' : 'Live Animal'"></span></small></span>
-                                <span class="ar"><small>الخدمة: <span x-text="cartItem.udheya_details.serviceOption === 'standard_service' ? 'عادية' : 'حيوان حي'"></span></small></span>
-                            </div>
-                        </template>
-                        <div class="cart-item-price">
-                            <span x-text="fmtPrice(cartItem.priceEGP) + ' each'"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="cart-item-controls">
-                        <div class="cart-item-quantity">
-                            <button type="button" @click="cartItem.quantity === 1 ? removeFromCart(cartItem.uniqueIdInCart) : updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity - 1)" class="btn btn-sm qty-btn">-</button>
-                            <span class="cart-qty-display" x-text="cartItem.quantity"></span>
-                            <button type="button" @click="updateCartQuantity(cartItem.uniqueIdInCart, cartItem.quantity + 1)" class="btn btn-sm qty-btn" :disabled="cartItem.quantity >= cartItem.stock || (cartItem.product_category === 'udheya' && cartItem.quantity >=1 )">+</button>
-                        </div>
-                        <div class="cart-item-subtotal" x-text="fmtPrice(getSubtotalForItem(cartItem))"></div>
-                    </div>
-                </div>
-            </template>
-        </div>
-    </div>
-    <div class="cart-sidebar-footer" x-show="cartItems.length > 0">
-        <div class="cart-total">
-            <span><strong>Total:</strong> <span x-text="fmtPrice(calculateCartTotal())"></span></span>
-        </div>
-        <button type="button" @click="closeCart(); navigateToOrScroll('checkout')" class="btn bac btn-lg btn-block bil-inline">
-            <span class="en">Proceed to Checkout</span><span class="ar">المتابعة للدفع</span>
-        </button>
-    </div>
-</aside>
 
 <div x-show="isRefundModalOpen" class="modal-overlay" @click="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 <div x-show="isRefundModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title" @keydown.escape.window="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4">
@@ -311,7 +256,7 @@
                     </svg>
                 </button>
             </template>
-            <button @click="openCart()" class="header-action-btn" title="Shopping Cart">
+            <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="9" cy="21" r="1"/>
                     <circle cx="20" cy="21" r="1"/>
@@ -352,7 +297,7 @@
                     </svg>
                 </button>
             </template>
-            <button @click="openCart()" class="header-action-btn" title="Shopping Cart">
+            <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="9" cy="21" r="1"/>
                     <circle cx="20" cy="21" r="1"/>
@@ -494,57 +439,256 @@
 <div class="auth-dropdown" x-show="showAuthDropdown" x-transition @click.outside="showAuthDropdown = false">
     <div class="c">
         <div class="auth-dropdown-content">
-            <div class="auth-header">
-                <h2 class="bil-spread">
-                    <span class="en">Welcome Back</span>
-                    <span class="ar">مرحباً بك</span>
-                </h2>
-                <p class="auth-subtitle bil-spread">
-                    <span class="en">Sign in to access your account</span>
-                    <span class="ar">قم بتسجيل الدخول للوصول إلى حسابك</span>
-                </p>
-            </div>
-            <div class="auth-quick-actions">
-                <button @click="showAuthDropdown = false; navigateToOrScroll('auth'); auth.view = 'login'" class="auth-action-btn primary">
+            <!-- Welcome/Choice View -->
+            <div x-show="auth.view === 'welcome'" class="auth-view">
+                <div class="auth-header">
+                    <h2 class="bil-spread">
+                        <span class="en">Welcome</span>
+                        <span class="ar">مرحباً</span>
+                    </h2>
+                    <p class="auth-subtitle bil-spread">
+                        <span class="en">Sign in or create an account</span>
+                        <span class="ar">تسجيل الدخول أو إنشاء حساب</span>
+                    </p>
+                </div>
+                <div class="auth-quick-actions">
+                    <button @click="auth.view = 'login'" class="auth-action-btn primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10 17 15 12 10 7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
+                        </svg>
+                        <span class="bil-inline">
+                            <span class="en">Sign In</span>
+                            <span class="ar">تسجيل الدخول</span>
+                        </span>
+                    </button>
+                    <button @click="auth.view = 'register'" class="auth-action-btn secondary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <line x1="20" y1="8" x2="20" y2="14"/>
+                            <line x1="23" y1="11" x2="17" y2="11"/>
+                        </svg>
+                        <span class="bil-inline">
+                            <span class="en">Create Account</span>
+                            <span class="ar">إنشاء حساب</span>
+                        </span>
+                    </button>
+                </div>
+                <div class="auth-divider">
+                    <span class="bil-inline">
+                        <span class="en">or continue as</span>
+                        <span class="ar">أو تابع كـ</span>
+                    </span>
+                </div>
+                <button @click="showAuthDropdown = false; navigateToOrScroll('checkout')" class="auth-action-btn guest">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                        <polyline points="10 17 15 12 10 7"/>
-                        <line x1="15" y1="12" x2="3" y2="12"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
                     </svg>
                     <span class="bil-inline">
+                        <span class="en">Guest Checkout</span>
+                        <span class="ar">الشراء كضيف</span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Login View -->
+            <div x-show="auth.view === 'login'" class="auth-view">
+                <div class="auth-header">
+                    <button @click="auth.view = 'welcome'" class="auth-back-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+                    <h2 class="bil-spread">
                         <span class="en">Sign In</span>
                         <span class="ar">تسجيل الدخول</span>
-                    </span>
-                </button>
-                <button @click="showAuthDropdown = false; navigateToOrScroll('auth'); auth.view = 'register'" class="auth-action-btn secondary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="8.5" cy="7" r="4"/>
-                        <line x1="20" y1="8" x2="20" y2="14"/>
-                        <line x1="23" y1="11" x2="17" y2="11"/>
-                    </svg>
-                    <span class="bil-inline">
+                    </h2>
+                </div>
+                <form @submit.prevent="loginUser()" class="auth-form">
+                    <div x-show="errs.auth_login" class="err-msg" x-text="errs.auth_login ? (currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en) : ''"></div>
+                    <div class="fg">
+                        <label for="login_email_dropdown" class="bil-spread lbl-req">
+                            <span class="en">Email *</span>
+                            <span class="ar">البريد الإلكتروني *</span>
+                        </label>
+                        <input type="email" id="login_email_dropdown" class="input" x-model="auth.email" required>
+                    </div>
+                    <div class="fg">
+                        <label for="login_password_dropdown" class="bil-spread lbl-req">
+                            <span class="en">Password *</span>
+                            <span class="ar">كلمة المرور *</span>
+                        </label>
+                        <input type="password" id="login_password_dropdown" class="input" x-model="auth.password" required>
+                    </div>
+                    <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
+                        <span x-show="!load.auth">
+                            <span class="en">Sign In</span>
+                            <span class="ar">دخول</span>
+                        </span>
+                        <span x-show="load.auth">
+                            <span class="en">Signing in...</span>
+                            <span class="ar">جاري الدخول...</span>
+                        </span>
+                    </button>
+                    <p class="auth-switch tc">
+                        <span class="bil-inline">
+                            <span class="en">Don't have an account?</span>
+                            <span class="ar">ليس لديك حساب؟</span>
+                        </span>
+                        <button type="button" @click="auth.view = 'register'" class="link-btn bil-inline">
+                            <span class="en">Create one</span>
+                            <span class="ar">أنشئ حساب</span>
+                        </button>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Register View -->
+            <div x-show="auth.view === 'register'" class="auth-view">
+                <div class="auth-header">
+                    <button @click="auth.view = 'welcome'" class="auth-back-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+                    <h2 class="bil-spread">
                         <span class="en">Create Account</span>
                         <span class="ar">إنشاء حساب</span>
+                    </h2>
+                </div>
+                <form @submit.prevent="registerUser()" class="auth-form">
+                    <div x-show="errs.auth_register" class="err-msg" x-text="errs.auth_register ? (currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en) : ''"></div>
+                    <div x-show="errs.auth_form_success" class="success-msg" x-text="errs.auth_form_success ? (currLang === 'ar' ? errs.auth_form_success.ar : errs.auth_form_success.en) : ''"></div>
+                    <div class="fg">
+                        <label for="register_name_dropdown" class="bil-spread lbl-req">
+                            <span class="en">Name *</span>
+                            <span class="ar">الاسم *</span>
+                        </label>
+                        <input type="text" id="register_name_dropdown" class="input" x-model="auth.name" required>
+                    </div>
+                    <div class="fg">
+                        <label for="register_email_dropdown" class="bil-spread lbl-req">
+                            <span class="en">Email *</span>
+                            <span class="ar">البريد الإلكتروني *</span>
+                        </label>
+                        <input type="email" id="register_email_dropdown" class="input" x-model="auth.email" required>
+                    </div>
+                    <div class="fg">
+                        <label for="register_password_dropdown" class="bil-spread lbl-req">
+                            <span class="en">Password *</span>
+                            <span class="ar">كلمة المرور *</span>
+                        </label>
+                        <input type="password" id="register_password_dropdown" class="input" x-model="auth.password" required>
+                    </div>
+                    <div class="fg">
+                        <label for="register_password_confirm_dropdown" class="bil-spread lbl-req">
+                            <span class="en">Confirm Password *</span>
+                            <span class="ar">تأكيد كلمة المرور *</span>
+                        </label>
+                        <input type="password" id="register_password_confirm_dropdown" class="input" x-model="auth.passwordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
+                        <span x-show="!load.auth">
+                            <span class="en">Create Account</span>
+                            <span class="ar">إنشاء حساب</span>
+                        </span>
+                        <span x-show="load.auth">
+                            <span class="en">Creating...</span>
+                            <span class="ar">جاري الإنشاء...</span>
+                        </span>
+                    </button>
+                    <p class="auth-switch tc">
+                        <span class="bil-inline">
+                            <span class="en">Already have an account?</span>
+                            <span class="ar">لديك حساب بالفعل؟</span>
+                        </span>
+                        <button type="button" @click="auth.view = 'login'" class="link-btn bil-inline">
+                            <span class="en">Sign In</span>
+                            <span class="ar">تسجيل الدخول</span>
+                        </button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Dropdown -->
+<div class="cart-dropdown" x-show="isCartOpen" x-transition @click.outside="closeCart()">
+    <div class="c">
+        <div class="cart-dropdown-content">
+            <div class="cart-header">
+                <h2 class="bil-spread">
+                    <span class="en">Your Cart</span><span class="ar">سلتك</span>
+                </h2>
+            </div>
+            <div class="cart-items-container">
+                <div x-show="cartItems.length === 0" class="cart-empty-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-cart-icon">
+                        <circle cx="9" cy="21" r="1"/>
+                        <circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <p class="bil-spread cart-empty-text">
+                        <span class="en">Your cart is empty</span>
+                        <span class="ar">سلتك فارغة</span>
+                    </p>
+                    <button @click="closeCart(); navigateToOrScroll('udheya')" class="btn bp btn-sm bil-inline">
+                        <span class="en">Start Shopping</span>
+                        <span class="ar">ابدأ التسوق</span>
+                    </button>
+                </div>
+                <div x-show="cartItems.length > 0" class="cart-items-list">
+                    <template x-for="(cartItem) in cartItems.slice(0, 3)" :key="cartItem.uniqueIdInCart">
+                        <div class="cart-dropdown-item">
+                            <div class="cart-item-info">
+                                <div class="cart-item-name bil-spread">
+                                    <span class="en" x-text="cartItem.nameENSpec"></span>
+                                    <span class="ar" x-text="cartItem.nameARSpec"></span>
+                                </div>
+                                <div class="cart-item-meta">
+                                    <span class="qty" x-text="'x' + cartItem.quantity"></span>
+                                    <span class="price" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
+                                </div>
+                            </div>
+                            <button @click="removeFromCart(cartItem.uniqueIdInCart)" class="cart-item-remove" title="Remove">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </template>
+                    <div x-show="cartItems.length > 3" class="cart-more-items">
+                        <span class="bil-inline">
+                            <span class="en">+ <span x-text="cartItems.length - 3"></span> more items</span>
+                            <span class="ar">+ <span x-text="cartItems.length - 3"></span> عناصر أخرى</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-dropdown-footer" x-show="cartItems.length > 0">
+                <div class="cart-total-row">
+                    <span class="bil-spread">
+                        <span class="en">Total</span>
+                        <span class="ar">المجموع</span>
                     </span>
-                </button>
+                    <span class="cart-total-amount" x-text="fmtPrice(calculateCartTotal())"></span>
+                </div>
+                <div class="cart-actions">
+                    <button @click="closeCart(); navigateToOrScroll('checkout')" class="btn bac btn-block bil-inline">
+                        <span class="en">Checkout</span>
+                        <span class="ar">الدفع</span>
+                    </button>
+                    <button @click="closeCart(); currentPage = 'cart'" class="btn bp-alt btn-block bil-inline">
+                        <span class="en">View Full Cart</span>
+                        <span class="ar">عرض السلة كاملة</span>
+                    </button>
+                </div>
             </div>
-            <div class="auth-divider">
-                <span class="bil-inline">
-                    <span class="en">or continue as</span>
-                    <span class="ar">أو تابع كـ</span>
-                </span>
-            </div>
-            <button @click="showAuthDropdown = false; navigateToOrScroll('checkout')" class="auth-action-btn guest">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-                <span class="bil-inline">
-                    <span class="en">Guest Checkout</span>
-                    <span class="ar">الشراء كضيف</span>
-                </span>
-            </button>
         </div>
     </div>
 </div>

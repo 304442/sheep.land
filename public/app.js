@@ -285,8 +285,12 @@ document.addEventListener('alpine:init', () => {
             return `<div class="bil-row"><p class="en">Welcome to Sheep Land. Please read our policy carefully.</p><p class="ar" dir="rtl">مرحباً بكم في أرض الأغنام. يرجى قراءة سياستنا بعناية.</p></div>`;
         },
 
-        openCart() { this.isCartOpen = true; document.body.classList.add('overflow-hidden'); },
-        closeCart() { this.isCartOpen = false; document.body.classList.remove('overflow-hidden'); },
+        toggleCart() { 
+            this.isCartOpen = !this.isCartOpen; 
+        },
+        closeCart() { 
+            this.isCartOpen = false; 
+        },
 
         addItemToCart(productVariant, udheyaConfigDetails = null) {
             this.load.addingToCart = productVariant.itemKey;
@@ -580,6 +584,9 @@ document.addEventListener('alpine:init', () => {
 
         toggleAuthDropdown() {
             this.showAuthDropdown = !this.showAuthDropdown;
+            if (this.showAuthDropdown) {
+                this.auth.view = 'welcome';
+            }
         },
 
 
@@ -746,9 +753,12 @@ document.addEventListener('alpine:init', () => {
                 this.currentUser = authData.record; 
                 this.checkoutForm.user_id = this.currentUser?.id || null; 
                 this.loadCartFromStorage(); 
-                this.load.auth = false; 
-                this.navigateToOrScroll(this.redirectAfterLogin || 'account'); 
-                this.redirectAfterLogin = null; 
+                this.load.auth = false;
+                this.showAuthDropdown = false; // Close dropdown on successful login
+                if (this.redirectAfterLogin) {
+                    this.navigateToOrScroll(this.redirectAfterLogin);
+                    this.redirectAfterLogin = null;
+                } 
             } catch (e) { 
                 this.load.auth = false; 
                 this.setErr('auth_login', {en: 'Login failed. Please check credentials.', ar: 'فشل الدخول. تحقق من البيانات.'}); 
