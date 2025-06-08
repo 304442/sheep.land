@@ -470,7 +470,7 @@
                     <template x-for="item in productType.wps" :key="item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
-                                <img :src="'images/' + item.type_key + '-sheep.jpg'" :alt="item.nameENSpec" loading="lazy" onerror="this.src='images/placeholder-sheep.jpg'">
+                                <img src="https://placehold.co/400x300/E8D4B8/8B4513?text=Sheep" :alt="item.nameENSpec" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
                             </div>
                             <div class="card-b">
@@ -536,7 +536,7 @@
                         <template x-for="item in productType.wps" :key="item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
-                                    <img :src="'images/' + productType.valKey + (section.key === 'meat' ? '-cuts' : section.key === 'gatherings' ? '-gathering' : '-sheep') + '.jpg'" :alt="item.nameENSpec" loading="lazy" onerror="this.src='images/placeholder-sheep.jpg'">
+                                    <img src="https://placehold.co/400x300/E8D4B8/8B4513?text=Product" :alt="item.nameENSpec" loading="lazy">
                                     <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
                                 </div>
                                 <div class="card-b">
@@ -717,7 +717,7 @@
                                         <div class="pm" :class="{'sel': checkoutForm.payment_method === method.id}">
                                             <input type="radio" :id="'pay_' + method.id" :value="method.id" x-model="checkoutForm.payment_method" @change="calculateFinalTotal(); clrErr('payment_method')">
                                             <label :for="'pay_' + method.id" :title="method.title">
-                                                <img :src="'images/payment/' + method.imgSrc" :alt="method.title" class="pay-icon">
+                                                <img :src="'https://placehold.co/60x40/E8E8E8/666666?text=' + method.id.toUpperCase()" :alt="method.title" class="pay-icon">
                                             </label>
                                         </div>
                                     </template>
