@@ -233,6 +233,19 @@
             </div>
         </div>
 
+        <div class="head-extras mob-extras">
+            <button @click="openOrderStatusModal()" class="header-action-btn" title="Order Status">📋</button>
+            <template x-if="!currentUser">
+                <button @click="navigateToOrScroll('auth')" class="header-action-btn" title="Login">👤</button>
+            </template>
+            <template x-if="currentUser">
+                <button @click="navigateToOrScroll('account')" class="header-action-btn" title="My Account">👤</button>
+            </template>
+            <button @click="openCart()" class="header-action-btn" title="Shopping Cart">
+                🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
+            </button>
+        </div>
+        
         <button class="menu-btn" @click="isMobNavOpen = !isMobNavOpen" title="Menu">☰</button>
     </div>
 
