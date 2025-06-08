@@ -49,6 +49,9 @@ document.addEventListener('alpine:init', () => {
             site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
         },
         prodOpts: { udheya: [], livesheep_general: [], meat_cuts: [], gathering_package: [] },
+        selectedBaladiSize: '',
+        selectedBarkiSize: '',
+        selectedMeatWeights: {},
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
@@ -541,6 +544,81 @@ document.addEventListener('alpine:init', () => {
             if(p==null||p === undefined ||!ci||typeof ci.rate_from_egp !=='number') return`${ci?.symbol||(cc==='EGP'?'LE':'')} ---`; 
             const cp=p*ci.rate_from_egp; 
             return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP'||ci.symbol==="€")?0:2)}`; 
+        },
+
+        getBaladiPrice() {
+            const prices = { small: 4500, medium: 5500, large: 6500 };
+            return prices[this.selectedBaladiSize] || 0;
+        },
+
+        getBarkiPrice() {
+            const prices = { small: 5000, medium: 6000, large: 7000 };
+            return prices[this.selectedBarkiSize] || 0;
+        },
+
+        getBaladiProduct() {
+            if (!this.selectedBaladiSize) return null;
+            const weights = { small: '25-30', medium: '30-35', large: '35-40' };
+            return {
+                itemKey: `baladi_${this.selectedBaladiSize}`,
+                varIdPb: `baladi_${this.selectedBaladiSize}`,
+                nameENSpec: `Baladi Sheep - ${this.selectedBaladiSize.charAt(0).toUpperCase() + this.selectedBaladiSize.slice(1)}`,
+                nameARSpec: `خروف بلدي - ${this.selectedBaladiSize === 'small' ? 'صغير' : this.selectedBaladiSize === 'medium' ? 'متوسط' : 'كبير'}`,
+                wtRangeEn: `${weights[this.selectedBaladiSize]} kg`,
+                wtRangeAr: `${weights[this.selectedBaladiSize]} كجم`,
+                priceEGP: this.getBaladiPrice(),
+                stock: 10,
+                isActive: true,
+                product_category: 'udheya'
+            };
+        },
+
+        getBarkiProduct() {
+            if (!this.selectedBarkiSize) return null;
+            const weights = { small: '25-30', medium: '30-35', large: '35-40' };
+            return {
+                itemKey: `barki_${this.selectedBarkiSize}`,
+                varIdPb: `barki_${this.selectedBarkiSize}`,
+                nameENSpec: `Barki Sheep - ${this.selectedBarkiSize.charAt(0).toUpperCase() + this.selectedBarkiSize.slice(1)}`,
+                nameARSpec: `خروف برقي - ${this.selectedBarkiSize === 'small' ? 'صغير' : this.selectedBarkiSize === 'medium' ? 'متوسط' : 'كبير'}`,
+                wtRangeEn: `${weights[this.selectedBarkiSize]} kg`,
+                wtRangeAr: `${weights[this.selectedBarkiSize]} كجم`,
+                priceEGP: this.getBarkiPrice(),
+                stock: 10,
+                isActive: true,
+                product_category: 'udheya'
+            };
+        },
+
+        updateBaladiPrice() {
+            // Price update is handled reactively through x-text
+        },
+
+        updateBarkiPrice() {
+            // Price update is handled reactively through x-text
+        },
+
+        getMeatPrice(item) {
+            const weight = this.selectedMeatWeights[item.itemKey] || 1;
+            const pricePerKg = item.pricePerKg || item.priceEGP;
+            return pricePerKg * weight;
+        },
+
+        updateMeatPrice(item) {
+            // Price update is handled reactively through x-text
+        },
+
+        getMeatItemWithWeight(item, sectionKey) {
+            if (sectionKey !== 'meat') return item;
+            
+            const weight = this.selectedMeatWeights[item.itemKey] || 1;
+            return {
+                ...item,
+                nameENSpec: `${item.nameENSpec} - ${weight} kg`,
+                nameARSpec: `${item.nameARSpec} - ${weight} كجم`,
+                priceEGP: this.getMeatPrice(item),
+                selectedWeight: weight
+            };
         },
 
         getStockDisplayInfo(stock, isActive, lang = this.currLang) {
