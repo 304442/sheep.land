@@ -564,6 +564,7 @@
                                             <div>
                                                 <div class="price-line">
                                                     <strong x-text="fmtPrice(item.priceEGP)"></strong>
+                                                    <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
                                                 </div>
                                                 <button type="button" @click="addItemToCart(item)" class="btn bp btn-lg btn-block" :disabled="!item.isActive || item.stock <= 0">
                                                     <span class="bil-inline"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
