@@ -234,6 +234,7 @@
         </div>
 
         <div class="head-extras mob-extras">
+            <button @click="toggleSearch()" class="header-action-btn" title="Search">🔍</button>
             <button @click="openOrderStatusModal()" class="header-action-btn" title="Order Status">📋</button>
             <template x-if="!currentUser">
                 <button @click="navigateToOrScroll('auth')" class="header-action-btn" title="Login">👤</button>
@@ -244,9 +245,8 @@
             <button @click="openCart()" class="header-action-btn" title="Shopping Cart">
                 🛒<span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
             </button>
+            <button class="menu-btn" @click="isMobNavOpen = !isMobNavOpen" title="Menu">☰</button>
         </div>
-        
-        <button class="menu-btn" @click="isMobNavOpen = !isMobNavOpen" title="Menu">☰</button>
     </div>
 
     <div class="mob-nav" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
