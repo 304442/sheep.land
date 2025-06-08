@@ -331,6 +331,8 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
     .size-dropdown,.input,select{height:48px;font-size:1rem}
     .card{padding:var(--s2)}
     .card-act .btn{width:100%}
+    .bil-copy span{display:inline-block;margin:0 4px}
+    .card-h.bil-spread>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .search-hint{display:none}
     .trust-badges-grid{grid-template-columns:1fr 1fr}
     .social-proof{bottom:60px}
@@ -341,17 +343,20 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
     .size-dropdown-inline{width:100%;flex:auto}
     .price-inline{order:3;width:100%;text-align:center;padding:var(--s1) 0}
     .inline-selection .btn{width:100%;order:4}
+    .btn .bil-inline>span{white-space:nowrap;font-size:0.8rem}
     body{padding-top:var(--head-h-mob)}
     .c{padding-left:var(--s2);padding-right:var(--s2)}
     .sec{padding:var(--s3) 0}
-    .bil-row{flex-direction:column;gap:var(--s1)}
-    .bil-row>.en,.bil-row>.ar{flex:1 1 100%}
+    .bil-row{flex-direction:row;gap:8px;align-items:center}
+    .bil-row>.en,.bil-row>.ar{flex:0 0 48%;font-size:0.85rem}
     .bil-row>.en{text-align:left}
     .bil-row>.ar{text-align:right;direction:rtl;font-family:var(--fa)}
-    .bil-spread{flex-direction:column;gap:var(--s1)}
-    .bil-spread>.en{flex:1 1 100%;text-align:left}
-    .bil-spread>.ar{flex:1 1 100%;text-align:right;direction:rtl;font-family:var(--fa)}
-    .bil-inline{flex-direction:column;gap:var(--s1)}
+    .bil-spread{flex-direction:row;gap:8px;align-items:center}
+    .bil-spread>.en{flex:0 0 48%;text-align:left;font-size:0.85rem}
+    .bil-spread>.ar{flex:0 0 48%;text-align:right;direction:rtl;font-family:var(--fa);font-size:0.85rem}
+    .bil-inline{flex-direction:row;gap:8px;font-size:0.85rem}
+    .nav-bil-inline{gap:6px;font-size:0.85rem}
+    .nav-bil-inline>.en,.nav-bil-inline>.ar{white-space:nowrap}
     .grid2:not(.prod-grid){grid-template-columns:1fr}
     .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
     .site-head{height:var(--head-h-mob)}
