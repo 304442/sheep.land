@@ -192,6 +192,14 @@
                         <span x-text="settings.waNumDisp"></span>
                     </a>
                 </div>
+                <div class="curr-sel">
+                    <select x-model="curr" title="Currency">
+                        <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
+                            <option :value="code" :disabled="!settings.xchgRates[code].is_active" x-text="code + ' (' + (settings.xchgRates[code].symbol || code) + ')'">
+                            </option>
+                        </template>
+                    </select>
+                </div>
                 <button @click="openOrderStatusModal()" class="track-order-btn" title="Track Your Order">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -281,14 +289,6 @@
         </nav>
 
         <div class="head-extras desk-extras">
-            <div class="curr-sel">
-                <select x-model="curr" title="Currency">
-                    <template x-for="code in Object.keys(settings.xchgRates)" :key="code">
-                        <option :value="code" :disabled="!settings.xchgRates[code].is_active" x-text="code + ' (' + (settings.xchgRates[code].symbol || code) + ')'">
-                        </option>
-                    </template>
-                </select>
-            </div>
             <button @click="toggleSearch()" class="header-action-btn" title="Search">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"/>
