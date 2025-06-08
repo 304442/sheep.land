@@ -115,12 +115,9 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 /* Top Contact Bar */
 .top-contact-bar{background:var(--c1);color:white;padding:var(--s1) 0;position:fixed;top:0;left:0;width:100%;z-index:1001;height:32px;display:flex;align-items:center}
 .contact-bar-content{display:flex;justify-content:center;align-items:center;width:100%}
-.contact-bar-items{display:flex;align-items:center;gap:var(--s4)}
 .wa-contact-top a{display:flex;align-items:center;gap:var(--s2);color:white;text-decoration:none;font-size:0.9rem;font-weight:600;transition:all 0.3s ease}
 .wa-contact-top a:hover{color:var(--c2l);transform:translateY(-1px)}
-.track-order-btn{background:transparent;border:1px solid rgba(255,255,255,0.3);color:white;padding:4px 12px;border-radius:20px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;gap:var(--s2)}
-.track-order-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);transform:translateY(-1px)}
-.wa-icon, .track-icon{flex-shrink:0}
+.wa-icon{flex-shrink:0}
 
 .site-head{background:linear-gradient(135deg,var(--b2),#f8f6f3);padding:var(--s2) 0;box-shadow:0 2px 12px rgba(0,0,0,.1);position:fixed;top:32px;left:0;width:100%;z-index:1000;height:var(--head-h);color:var(--c1d);backdrop-filter:blur(10px)}
 .nav-cont{display:flex;justify-content:space-between;align-items:center;height:100%;position:relative}
@@ -488,7 +485,7 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
     .grid2:not(.prod-grid){grid-template-columns:1fr}
     .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
     .site-head{height:var(--head-h-mob)}
-    .mob-nav{top:calc(var(--head-h-mob) + 28px)}
+    .mob-nav{top:calc(var(--head-h-mob) + 28px);padding-top:0}
     .logo{margin-right:0;font-size:0.9rem;flex:1}
     .nav-main.nav-desk{display:none!important}
     .head-extras.desk-extras{display:none!important}
@@ -556,10 +553,8 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
     
     /* Mobile Top Contact Bar */
     .top-contact-bar{height:28px;padding:var(--s0) 0}
-    .contact-bar-items{gap:var(--s2)}
     .wa-contact-top a{font-size:0.85rem;gap:var(--s1)}
-    .track-order-btn{font-size:0.85rem;padding:3px 10px;gap:var(--s1)}
-    .wa-icon, .track-icon{width:16px;height:16px}
+    .wa-icon{width:16px;height:16px}
     .tracking-timeline{gap:var(--s1)}
     .tracking-timeline::before{left:25px;right:25px;top:20px}
     .tracking-icon{width:40px;height:40px;font-size:1rem}
