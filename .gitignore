@@ -1,8 +1,22 @@
-# Node modules
+# Dependencies
 node_modules/
+package-lock.json
 
 # Production build output
 dist/
+
+# Minified files
+*.min.js
+*.min.css
+*.min.html
+*.prod.html
+
+# Vendor bundles
+public/vendor/vendor.bundle.min.js
+public/vendor/integration-snippet.html
+
+# Test files
+test-minified.html
 
 # Logs
 npm-debug.log*
@@ -23,17 +37,25 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Editor directories and files
 .vscode/
 .idea/
 .DS_Store
 .opencode/
+*.swp
+*.swo
 
 # OS generated files
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
 
 # Optional coverage directory
 coverage/
