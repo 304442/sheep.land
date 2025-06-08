@@ -485,20 +485,18 @@
                                     </div>
                                 </div>
                                 <div class="card-foot">
-                                    <div class="inline-selection" style="justify-content: space-between;">
-                                        <div class="price-inline">
-                                            <strong x-text="fmtPrice(item.priceEGP)"></strong>
-                                            <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
-                                        </div>
-                                        <button type="button" @click="openUdheyaConfiguration(item)" 
-                                                class="btn bp btn-lg" 
-                                                :disabled="!item.isActive || item.stock <= 0">
-                                            <span class="bil-inline">
-                                                <span class="en">Configure & Order</span>
-                                                <span class="ar">تكوين وطلب</span>
-                                            </span>
-                                        </button>
+                                    <div class="price-line">
+                                        <strong x-text="fmtPrice(item.priceEGP)"></strong>
+                                        <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
                                     </div>
+                                    <button type="button" @click="openUdheyaConfiguration(item)" 
+                                            class="btn bp btn-lg btn-block" 
+                                            :disabled="!item.isActive || item.stock <= 0">
+                                        <span class="bil-inline">
+                                            <span class="en">Configure & Order</span>
+                                            <span class="ar">تكوين وطلب</span>
+                                        </span>
+                                    </button>
                                     <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}">
                                         <span class="bil-inline">
                                             <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
@@ -554,28 +552,30 @@
                                     </div>
                                     <div class="card-foot">
                                         <template x-if="section.key === 'meat'">
-                                            <div class="inline-selection">
-                                                <select class="size-dropdown-inline" x-model="selectedMeatWeights[item.itemKey]" x-init="selectedMeatWeights[item.itemKey] = '1'">
-                                                    <option value="1" selected>1 kg</option>
-                                                    <option value="2">2 kg</option>
-                                                    <option value="3">3 kg</option>
-                                                    <option value="5">5 kg</option>
-                                                    <option value="10">10 kg</option>
-                                                </select>
-                                                <div class="price-inline">
-                                                    <strong x-text="fmtPrice(getMeatPrice(item))"></strong>
+                                            <div>
+                                                <div class="price-line-with-dropdown">
+                                                    <select class="size-dropdown-inline" x-model="selectedMeatWeights[item.itemKey]" x-init="selectedMeatWeights[item.itemKey] = '1'">
+                                                        <option value="1" selected>1 kg</option>
+                                                        <option value="2">2 kg</option>
+                                                        <option value="3">3 kg</option>
+                                                        <option value="5">5 kg</option>
+                                                        <option value="10">10 kg</option>
+                                                    </select>
+                                                    <div class="price-inline">
+                                                        <strong x-text="fmtPrice(getMeatPrice(item))"></strong>
+                                                    </div>
                                                 </div>
-                                                <button type="button" @click="addItemToCart(getMeatItemWithWeight(item, section.key))" class="btn bp btn-lg" :disabled="!item.isActive || item.stock <= 0">
+                                                <button type="button" @click="addItemToCart(getMeatItemWithWeight(item, section.key))" class="btn bp btn-lg btn-block" :disabled="!item.isActive || item.stock <= 0">
                                                     <span class="bil-inline"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
                                                 </button>
                                             </div>
                                         </template>
                                         <template x-if="section.key !== 'meat' && section.key !== 'udheya'">
-                                            <div class="inline-selection" style="justify-content: space-between;">
-                                                <div class="price-inline">
+                                            <div>
+                                                <div class="price-line">
                                                     <strong x-text="fmtPrice(item.priceEGP)"></strong>
                                                 </div>
-                                                <button type="button" @click="addItemToCart(item)" class="btn bp btn-lg" :disabled="!item.isActive || item.stock <= 0">
+                                                <button type="button" @click="addItemToCart(item)" class="btn bp btn-lg btn-block" :disabled="!item.isActive || item.stock <= 0">
                                                     <span class="bil-inline"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
                                                 </button>
                                             </div>
