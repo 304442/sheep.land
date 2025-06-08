@@ -115,9 +115,12 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 /* Top Contact Bar */
 .top-contact-bar{background:var(--c1);color:white;padding:var(--s1) 0;position:fixed;top:0;left:0;width:100%;z-index:1001;height:32px;display:flex;align-items:center}
 .contact-bar-content{display:flex;justify-content:center;align-items:center;width:100%}
+.contact-bar-items{display:flex;align-items:center;gap:var(--s4)}
 .wa-contact-top a{display:flex;align-items:center;gap:var(--s2);color:white;text-decoration:none;font-size:0.9rem;font-weight:600;transition:all 0.3s ease}
 .wa-contact-top a:hover{color:var(--c2l);transform:translateY(-1px)}
-.wa-icon{flex-shrink:0}
+.track-order-btn{background:transparent;border:1px solid rgba(255,255,255,0.3);color:white;padding:4px 12px;border-radius:20px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;gap:var(--s2)}
+.track-order-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5);transform:translateY(-1px)}
+.wa-icon, .track-icon{flex-shrink:0}
 
 .site-head{background:linear-gradient(135deg,var(--b2),#f8f6f3);padding:var(--s2) 0;box-shadow:0 2px 12px rgba(0,0,0,.1);position:fixed;top:32px;left:0;width:100%;z-index:1000;height:var(--head-h);color:var(--c1d);backdrop-filter:blur(10px)}
 .nav-cont{display:flex;justify-content:space-between;align-items:center;height:100%;position:relative}
@@ -362,6 +365,16 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .author-info h4{font-size:1rem;font-weight:700;color:var(--c1d);margin-bottom:4px}
 .author-info p{font-size:0.85rem;color:var(--tm);margin:0}
 
+/* Tracking Timeline */
+.tracking-timeline{display:flex;justify-content:space-between;align-items:flex-start;margin:var(--s3) 0;position:relative}
+.tracking-timeline::before{content:'';position:absolute;top:25px;left:50px;right:50px;height:2px;background:var(--bs);z-index:0}
+.tracking-step{flex:1;text-align:center;position:relative;z-index:1}
+.tracking-step.active .tracking-icon{background:var(--c2);color:white;box-shadow:0 4px 12px rgba(139,69,19,0.3)}
+.tracking-step.active ~ .tracking-step .tracking-icon{background:var(--b2);color:var(--tm)}
+.tracking-icon{width:50px;height:50px;border-radius:50%;background:var(--c2);color:white;display:flex;align-items:center;justify-content:center;margin:0 auto var(--s1);font-size:1.2rem;transition:all 0.3s ease}
+.tracking-info h5{font-size:0.85rem;color:var(--c1d);margin:0}
+.tracking-info p{font-size:0.75rem;color:var(--tm);margin:var(--s0) 0 0}
+
 /* Animation */
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 
@@ -543,8 +556,14 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
     
     /* Mobile Top Contact Bar */
     .top-contact-bar{height:28px;padding:var(--s0) 0}
+    .contact-bar-items{gap:var(--s2)}
     .wa-contact-top a{font-size:0.85rem;gap:var(--s1)}
-    .wa-icon{width:16px;height:16px}
+    .track-order-btn{font-size:0.85rem;padding:3px 10px;gap:var(--s1)}
+    .wa-icon, .track-icon{width:16px;height:16px}
+    .tracking-timeline{gap:var(--s1)}
+    .tracking-timeline::before{left:25px;right:25px;top:20px}
+    .tracking-icon{width:40px;height:40px;font-size:1rem}
+    .tracking-step{flex:1}
 }
 
 @media(min-width:769px){

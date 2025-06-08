@@ -56,7 +56,7 @@ document.addEventListener('alpine:init', () => {
         showMeatCalculator: false,
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
-        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
+        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, showTrackOrderModal: false,
         currentPage: 'home', currLang: "en", curr: "EGP",
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
         checkoutForm: JSON.parse(JSON.stringify(initForm)),
@@ -1133,6 +1133,15 @@ document.addEventListener('alpine:init', () => {
                 return; 
             } 
             await this.checkOrderStatus(); 
+        },
+
+        async trackOrder() {
+            this.clrErr('lookupOrderID');
+            if (!(this.lookupOrderID || "").trim()) {
+                this.setErr('lookupOrderID', 'required');
+                return;
+            }
+            await this.checkOrderStatus();
         },
 
         async checkOrderStatus() { 

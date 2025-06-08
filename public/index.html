@@ -126,6 +126,117 @@
     </div>
 </div>
 
+<!-- Track Order Modal -->
+<div x-show="showTrackOrderModal" class="modal-overlay" @click="showTrackOrderModal = false"></div>
+<div x-show="showTrackOrderModal" class="modal" role="dialog" aria-modal="true" @keydown.escape.window="showTrackOrderModal = false">
+    <div class="modal-header">
+        <h2 class="bil-spread modal-title">
+            <span class="en">Track Your Order</span><span class="ar" dir="rtl">تتبع طلبك</span>
+        </h2>
+        <button @click="showTrackOrderModal = false" class="modal-close-btn">×</button>
+    </div>
+    <div class="modal-content">
+        <p class="bil-row" style="margin-bottom: var(--s3);">
+            <span class="en">Enter your order ID to track its status and delivery information.</span>
+            <span class="ar">أدخل رقم طلبك لتتبع حالته ومعلومات التوصيل.</span>
+        </p>
+        <form @submit.prevent="trackOrder()" novalidate>
+            <div class="fg">
+                <label for="track_order_id" class="bil-spread lbl-req">
+                    <span class="en">Order ID *</span>
+                    <span class="ar">رقم الطلب *</span>
+                </label>
+                <input type="text" id="track_order_id" class="input" x-model="lookupOrderID" 
+                       placeholder="e.g., A1B2C3D4E5" @input="clrErr('lookupOrderID')">
+                <div class="err-msg" x-show="errs.lookupOrderID" 
+                     x-text="errs.lookupOrderID ? (currLang === 'ar' ? errs.lookupOrderID.ar : errs.lookupOrderID.en) : ''"></div>
+            </div>
+            <div class="card-act">
+                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.status">
+                    <span x-show="!load.status">
+                        <span class="en">Track Order</span>
+                        <span class="ar">تتبع الطلب</span>
+                    </span>
+                    <span x-show="load.status">
+                        <span class="en">Tracking...</span>
+                        <span class="ar">جاري التتبع...</span>
+                    </span>
+                </button>
+            </div>
+        </form>
+        
+        <!-- Tracking Results -->
+        <div class="order-stat-res" x-show="statRes && !load.status" style="margin-top: var(--s3);">
+            <h4 class="form-subh bil-spread" style="margin-bottom: var(--s2);">
+                <span class="en">Order Status</span>
+                <span class="ar">حالة الطلب</span>
+            </h4>
+            <div class="tracking-timeline">
+                <div class="tracking-step" :class="{'active': statRes?.order_status === 'pending' || statRes?.order_status === 'confirmed' || statRes?.order_status === 'processing' || statRes?.order_status === 'delivered'}">
+                    <div class="tracking-icon">📋</div>
+                    <div class="tracking-info">
+                        <h5 class="bil-inline">
+                            <span class="en">Order Placed</span>
+                            <span class="ar">تم الطلب</span>
+                        </h5>
+                    </div>
+                </div>
+                <div class="tracking-step" :class="{'active': statRes?.order_status === 'confirmed' || statRes?.order_status === 'processing' || statRes?.order_status === 'delivered'}">
+                    <div class="tracking-icon">✅</div>
+                    <div class="tracking-info">
+                        <h5 class="bil-inline">
+                            <span class="en">Confirmed</span>
+                            <span class="ar">تم التأكيد</span>
+                        </h5>
+                    </div>
+                </div>
+                <div class="tracking-step" :class="{'active': statRes?.order_status === 'processing' || statRes?.order_status === 'delivered'}">
+                    <div class="tracking-icon">🔪</div>
+                    <div class="tracking-info">
+                        <h5 class="bil-inline">
+                            <span class="en">Processing</span>
+                            <span class="ar">قيد التجهيز</span>
+                        </h5>
+                    </div>
+                </div>
+                <div class="tracking-step" :class="{'active': statRes?.order_status === 'delivered'}">
+                    <div class="tracking-icon">🚚</div>
+                    <div class="tracking-info">
+                        <h5 class="bil-inline">
+                            <span class="en">Delivered</span>
+                            <span class="ar">تم التوصيل</span>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-details-summary" style="margin-top: var(--s3);">
+                <div class="sum-item bil-row">
+                    <div class="en"><strong>Order ID:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div>
+                    <div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div>
+                </div>
+                <div class="sum-item bil-row">
+                    <div class="en"><strong>Total:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div>
+                    <div class="ar"><strong>المجموع:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-no-res bil-row tc" x-show="statNotFound && !statRes && !load.status" style="margin-top: var(--s3);">
+            <p class="en">No order found. Please check your order ID or contact support.</p>
+            <p class="ar">لم يتم العثور على الطلب. يرجى التحقق من رقم الطلب أو الاتصال بالدعم.</p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button @click="showTrackOrderModal = false; statRes = null; statNotFound = false;" class="btn bp">
+            <span class="bil-inline">
+                <span class="en">Close</span>
+                <span class="ar">إغلاق</span>
+            </span>
+        </button>
+    </div>
+</div>
+
 <div x-show="isUdheyaConfigModalOpen" class="modal-overlay" @click="closeUdheyaConfiguration()"></div>
 <div x-show="isUdheyaConfigModalOpen" class="modal udheya-config-modal" role="dialog" aria-modal="true" @keydown.escape.window="closeUdheyaConfiguration()">
     <div class="modal-header">
@@ -182,13 +293,27 @@
 <div class="top-contact-bar">
     <div class="c">
         <div class="contact-bar-content">
-            <div class="wa-contact-top">
-                <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer" title="WhatsApp Contact">
-                    <svg class="wa-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                    </svg>
-                    <span x-text="settings.waNumDisp"></span>
-                </a>
+            <div class="contact-bar-items">
+                <div class="wa-contact-top">
+                    <a :href="'https://wa.me/' + settings.waNumRaw" target="_blank" rel="noopener noreferrer" title="WhatsApp Contact">
+                        <svg class="wa-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                        <span x-text="settings.waNumDisp"></span>
+                    </a>
+                </div>
+                <div class="track-order-top">
+                    <button @click="showTrackOrderModal = true" class="track-order-btn">
+                        <svg class="track-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18 7c0-1.103-.897-2-2-2H4c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-5.586l3.707-3.707a.999.999 0 0 0 0-1.414l-1.414-1.414a.999.999 0 0 0-1.414 0L18 5.758V7zm0 2.414v1.586h2v-2.172l1.293-1.293.707.707-1.293 1.293A2.992 2.992 0 0 1 20 11h-2zm-2 7.586H4V7h12v10zm6-6v5c0 2.206-1.794 4-4 4H7v-2h11c1.103 0 2-.897 2-2v-5h2z"/>
+                            <circle cx="8" cy="12" r="2"/>
+                        </svg>
+                        <span class="bil-inline">
+                            <span class="en">Track Order</span>
+                            <span class="ar">تتبع الطلب</span>
+                        </span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
