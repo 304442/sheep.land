@@ -363,51 +363,22 @@
                     <p class="en">From farm-fresh cuts to live animals, Udheya services, and event catering - we deliver authentic quality for your family's needs</p>
                     <p class="ar">من القطعيات الطازجة إلى الحيوانات الحية وخدمات الأضاحي وتجهيز المناسبات - نقدم الجودة الأصيلة لاحتياجات عائلتك</p>
                 </div>
-                <template x-if="settings.promoActive && !cd.ended">
-                    <div class="hero-promo-inline">
-                        <div class="pban-hero">
-                            <div class="pban-text">
-                                <h3 class="prm-h-hero bil-row">
-                                    <span class="en" x-html="`🎉 Limited Time: <strong>${settings.promoDiscPc}% OFF</strong> All Udheya! Ends in:`"></span>
-                                    <span class="ar" x-html="`🎉 عرض محدود: <strong>خصم ${settings.promoDiscPc}%</strong> على جميع الأضاحي! ينتهي خلال:`"></span>
-                                </h3>
-                            </div>
-                            <div class="cd-wrap">
-                                <div class="cd">
-                                    <div class="cd-seg"><span class="cd-val" x-text="cd.days"></span><span class="cd-lbl">Days</span></div>
-                                    <div class="cd-seg"><span class="cd-val" x-text="cd.hours"></span><span class="cd-lbl">Hrs</span></div>
-                                    <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Min</span></div>
-                                    <div class="cd-seg"><span class="cd-val" x-text="cd.secs"></span><span class="cd-lbl">Sec</span></div>
-                                </div>
-                            </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">5000+</div>
+                        <div class="stat-label bil-inline">
+                            <span class="en">Happy Customers</span>
+                            <span class="ar">عميل سعيد</span>
                         </div>
                     </div>
-                </template>
-                <!-- Trust Indicators -->
-                <div class="hero-trust-indicators">
-                    <div class="trust-item">
-                        <span class="trust-stars">⭐⭐⭐⭐⭐</span>
-                        <span class="trust-text bil-inline">
-                            <span class="en">4.9/5 from 2,500+ customers</span>
-                            <span class="ar">٤.٩/٥ من ٢٥٠٠+ عميل</span>
-                        </span>
-                    </div>
-                    <div class="trust-item">
-                        <span class="trust-icon">✅</span>
-                        <span class="trust-text bil-inline">
-                            <span class="en">100% Halal Certified</span>
-                            <span class="ar">حلال معتمد ١٠٠%</span>
-                        </span>
-                    </div>
-                    <div class="trust-item">
-                        <span class="trust-icon">🚚</span>
-                        <span class="trust-text bil-inline">
-                            <span class="en">Same-Day Delivery</span>
-                            <span class="ar">توصيل نفس اليوم</span>
-                        </span>
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label bil-inline">
+                            <span class="en">Halal Certified</span>
+                            <span class="ar">حلال معتمد</span>
+                        </div>
                     </div>
                 </div>
-
                 <div class="hero-cta-group">
                     <button @click="navigateToOrScroll('udheya')" class="btn hero-btn-primary bil-inline">
                         <span class="btn-icon">🐑</span>
@@ -424,135 +395,251 @@
                         </span>
                     </button>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <!-- Live Activity & Quick Actions -->
-                <div class="hero-live-activity">
-                    <div class="live-activity-item">
-                        <span class="activity-pulse">🟢</span>
-                        <span class="activity-text bil-inline">
-                            <span class="en" x-text="`${Math.floor(Math.random() * 45) + 15} orders this week`"></span>
-                            <span class="ar" x-text="`${Math.floor(Math.random() * 45) + 15} طلب هذا الأسبوع`"></span>
-                        </span>
-                    </div>
-                    <div class="hero-whatsapp-quick">
-                        <a :href="'https://wa.me/' + settings.waNumRaw + '?text=Hi, I need help with sheep/meat products'" 
-                           target="_blank" 
-                           rel="noopener noreferrer"
-                           class="btn whatsapp-btn bil-inline">
-                            <span class="btn-icon">💬</span>
-                            <span class="btn-text">
-                                <span class="en">Quick WhatsApp</span>
-                                <span class="ar">واتساب سريع</span>
-                            </span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Trust Badges in Hero -->
-                <div class="hero-trust-badges">
-                    <div class="trust-badge-hero">
-                        <div class="badge-icon-hero">🏅</div>
-                        <div class="badge-content-hero">
-                            <h4 class="bil-inline">
-                                <span class="en">Certified Quality</span>
-                                <span class="ar">جودة معتمدة</span>
-                            </h4>
+    <!-- Promotional Banner -->
+    <template x-if="settings.promoActive && !cd.ended" x-show="currentPage === 'home'" x-transition>
+            <div class="hero-promo-wide">
+                <div class="c-wide">
+                    <div class="pban">
+                        <div class="pban-text">
+                            <h3 class="prm-h bil-row">
+                                <span class="en" x-html="`🎉 Limited Time: <strong>${settings.promoDiscPc}% OFF</strong> All Udheya! Ends in:`"></span>
+                                <span class="ar" x-html="`🎉 عرض محدود: <strong>خصم ${settings.promoDiscPc}%</strong> على جميع الأضاحي! ينتهي خلال:`"></span>
+                            </h3>
                         </div>
-                    </div>
-                    <div class="trust-badge-hero">
-                        <div class="badge-icon-hero">🚚</div>
-                        <div class="badge-content-hero">
-                            <h4 class="bil-inline">
-                                <span class="en">Fast Delivery</span>
-                                <span class="ar">توصيل سريع</span>
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="trust-badge-hero">
-                        <div class="badge-icon-hero">🔒</div>
-                        <div class="badge-content-hero">
-                            <h4 class="bil-inline">
-                                <span class="en">Secure Payment</span>
-                                <span class="ar">دفع آمن</span>
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="trust-badge-hero">
-                        <div class="badge-icon-hero">📞</div>
-                        <div class="badge-content-hero">
-                            <h4 class="bil-inline">
-                                <span class="en">24/7 Support</span>
-                                <span class="ar">دعم 24/7</span>
-                            </h4>
+                        <div class="cd-wrap">
+                            <div class="cd">
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.days"></span><span class="cd-lbl">Days</span></div>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.hours"></span><span class="cd-lbl">Hrs</span></div>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Min</span></div>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.secs"></span><span class="cd-lbl">Sec</span></div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </template>
 
-                <!-- Quick Categories in Hero -->
-                <div class="hero-categories">
-                    <h3 class="hero-categories-title bil-spread">
-                        <span class="en">Shop by Category</span>
-                        <span class="ar">تسوق بالفئة</span>
-                    </h3>
-                    <div class="hero-categories-grid">
-                        <div class="hero-category-card" @click="navigateToOrScroll('udheya')">
-                            <div class="hero-category-icon">🐑</div>
-                            <div class="hero-category-content">
-                                <h4 class="bil-inline">
-                                    <span class="en">Udheya</span>
-                                    <span class="ar">الأضحية</span>
-                                </h4>
-                                <p class="bil-inline">
-                                    <span class="en">From LE 11,200</span>
-                                    <span class="ar">من 11,200 ج.م</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="hero-category-card" @click="navigateToOrScroll('meat')">
-                            <div class="hero-category-icon">🥩</div>
-                            <div class="hero-category-content">
-                                <h4 class="bil-inline">
-                                    <span class="en">Fresh Cuts</span>
-                                    <span class="ar">قطعيات طازجة</span>
-                                </h4>
-                                <p class="bil-inline">
-                                    <span class="en">From LE 320/kg</span>
-                                    <span class="ar">من 320 ج.م/كجم</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="hero-category-card" @click="navigateToOrScroll('livesheep')">
-                            <div class="hero-category-icon">🐏</div>
-                            <div class="hero-category-content">
-                                <h4 class="bil-inline">
-                                    <span class="en">Live Sheep</span>
-                                    <span class="ar">أغنام حية</span>
-                                </h4>
-                                <p class="bil-inline">
-                                    <span class="en">From LE 4,500</span>
-                                    <span class="ar">من 4,500 ج.م</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="hero-category-card" @click="navigateToOrScroll('gatherings')">
-                            <div class="hero-category-icon">🎉</div>
-                            <div class="hero-category-content">
-                                <h4 class="bil-inline">
-                                    <span class="en">Events</span>
-                                    <span class="ar">مناسبات</span>
-                                </h4>
-                                <p class="bil-inline">
-                                    <span class="en">From LE 8,500</span>
-                                    <span class="ar">من 8,500 ج.م</span>
-                                </p>
-                            </div>
-                        </div>
+    <!-- Trust Indicators Section -->
+    <section class="trust-section main-page-sec" x-show="currentPage === 'home'" x-transition>
+        <div class="c">
+            <div class="trust-badges-modern">
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">🏅</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">Certified Quality</span>
+                            <span class="ar">جودة معتمدة</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Government approved facilities</span>
+                            <span class="ar">منشآت معتمدة حكومياً</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">🚚</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">Fast Delivery</span>
+                            <span class="ar">توصيل سريع</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Same day across Cairo & Giza</span>
+                            <span class="ar">نفس اليوم في القاهرة والجيزة</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">🔒</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">Secure Payment</span>
+                            <span class="ar">دفع آمن</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Multiple trusted methods</span>
+                            <span class="ar">طرق متعددة موثوقة</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">📞</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">24/7 Support</span>
+                            <span class="ar">دعم 24/7</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Always here to help</span>
+                            <span class="ar">دائماً هنا للمساعدة</span>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Featured Categories Section -->
+    <section class="featured-categories main-page-sec" x-show="currentPage === 'home'" x-transition>
+        <div class="c">
+            <div class="section-header">
+                <h2 class="bil-spread">
+                    <span class="en">Our Premium Collections</span>
+                    <span class="ar">مجموعاتنا المميزة</span>
+                </h2>
+                <p class="bil-row section-subtitle">
+                    <span class="en">Discover our carefully curated selection of premium halal products</span>
+                    <span class="ar">اكتشف مجموعتنا المختارة بعناية من المنتجات الحلال المميزة</span>
+                </p>
+            </div>
+            <div class="categories-grid">
+                <div class="category-card" @click="navigateToOrScroll('udheya')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/8B4513/FFFFFF?text=🐑+Udheya" alt="Udheya Services" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">Explore Udheya</span>
+                                <span class="ar">استكشف الأضحية</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Udheya & Qurbani</span>
+                            <span class="ar">الأضحية والقرباني</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Complete religious services with premium quality animals</span>
+                            <span class="ar">خدمات دينية كاملة مع حيوانات عالية الجودة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 11,200</span>
+                                    <span class="ar">من 11,200 ج.م</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">35-70kg</span>
+                                    <span class="ar">35-70 كجم</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="category-card" @click="navigateToOrScroll('meat')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/D2B48C/8B4513?text=🥩+Fresh+Cuts" alt="Fresh Meat" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">Shop Fresh Cuts</span>
+                                <span class="ar">تسوق القطعيات</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Fresh Meat & Cuts</span>
+                            <span class="ar">اللحوم والقطعيات الطازجة</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Daily fresh cuts from premium halal sources</span>
+                            <span class="ar">قطعيات طازجة يومياً من مصادر حلال مميزة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 320/kg</span>
+                                    <span class="ar">من 320 ج.م/كجم</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">Same Day</span>
+                                    <span class="ar">نفس اليوم</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="category-card" @click="navigateToOrScroll('livesheep')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/F0EBE3/8B4513?text=🐑+Live+Sheep" alt="Live Sheep" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">View Live Stock</span>
+                                <span class="ar">شاهد الأغنام</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Live Sheep & Rams</span>
+                            <span class="ar">الأغنام والكباش الحية</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Healthy breeding stock and quality animals</span>
+                            <span class="ar">أغنام تربية صحية وحيوانات عالية الجودة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 4,500</span>
+                                    <span class="ar">من 4,500 ج.م</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">15-100kg</span>
+                                    <span class="ar">15-100 كجم</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="category-card" @click="navigateToOrScroll('gatherings')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/FF6B35/FFFFFF?text=🎉+Events" alt="Event Catering" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">Plan Events</span>
+                                <span class="ar">خطط المناسبات</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Events & Gatherings</span>
+                            <span class="ar">المناسبات والولائم</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Complete catering packages for special occasions</span>
+                            <span class="ar">باقات تجهيز كاملة للمناسبات الخاصة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 8,500</span>
+                                    <span class="ar">من 8,500 ج.م</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">8-80 People</span>
+                                    <span class="ar">8-80 فرد</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Why Choose Section -->
     <section class="why-choose-section main-page-sec" x-show="currentPage === 'home'" x-transition>
