@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.min.css">
+    <link rel="stylesheet" href="styles.css">
     <style>[x-cloak]{display:none!important}</style>
 </head>
 <body x-data="sheepLand" x-init="initApp()" x-cloak :class="{'has-promo-bar': settings.promoActive && !cd.ended && !isPromoBarDismissed}">
@@ -961,7 +961,7 @@
                         </template>
                     </template>
                 </div>
-                <div class="empty-state tc" x-show="(!section.products || section.products.length === 0) && !load.init">
+                <div class="empty-state tc" x-show="(!section?.products || section?.products?.length === 0) && !load.init">
                     <p class="bil-row">
                         <span class="en">Products are being updated. Please check back soon!</span>
                         <span class="ar">يتم تحديث المنتجات. يرجى المراجعة قريبًا!</span>
@@ -970,11 +970,11 @@
                         <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
                     </button>
                 </div>
-                <p class="succ-msg bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section.key && !addedToCartMsg.isError">
+                <p class="succ-msg bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section?.key && !addedToCartMsg.isError">
                     <span class="en" x-text="addedToCartMsg.text ? (addedToCartMsg.text.en || addedToCartMsg.text) : ''"></span>
                     <span class="ar" x-text="addedToCartMsg.text ? (addedToCartMsg.text.ar || addedToCartMsg.text) : ''"></span>
                 </p>
-                <p class="err-msg bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section.key && addedToCartMsg.isError">
+                <p class="err-msg bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section?.key && addedToCartMsg.isError">
                     <span class="en" x-text="addedToCartMsg.text ? (addedToCartMsg.text.en || addedToCartMsg.text) : ''"></span>
                     <span class="ar" x-text="addedToCartMsg.text ? (addedToCartMsg.text.ar || addedToCartMsg.text) : ''"></span>
                 </p>
