@@ -278,6 +278,30 @@
 </header>
 
 <main>
+    <!-- Business Stats Bar -->
+    <div class="business-stats-bar" x-show="currentUser?.admin || settings.showPublicStats" x-data="businessStats()">
+        <div class="c">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" x-text="todayOrders">0</div>
+                    <div class="stat-label bil-inline"><span class="en">Orders Today</span><span class="ar">طلبات اليوم</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" x-text="fmtPrice(todayRevenue)">0</div>
+                    <div class="stat-label bil-inline"><span class="en">Today's Revenue</span><span class="ar">إيرادات اليوم</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" x-text="activeCustomers">0</div>
+                    <div class="stat-label bil-inline"><span class="en">Active Customers</span><span class="ar">عملاء نشطون</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" x-text="popularItem">-</div>
+                    <div class="stat-label bil-inline"><span class="en">Top Product</span><span class="ar">المنتج الأكثر مبيعاً</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <section class="hero main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="c tc">
             <h1 class="bil-spread hero-h">
@@ -322,6 +346,43 @@
             </template>
         </div>
     </section>
+
+    <!-- Search Bar -->
+    <div class="search-section" x-show="currentPage === 'home'">
+        <div class="c">
+            <div class="search-wrapper">
+                <input 
+                    type="text" 
+                    id="searchBar"
+                    class="search-input" 
+                    x-model="searchQuery"
+                    @input="filterProducts()"
+                    :placeholder="currLang === 'en' ? 'Search for products...' : 'ابحث عن المنتجات...'"
+                >
+                <div class="search-hint bil-inline">
+                    <span class="en">Press / to search</span>
+                    <span class="ar">اضغط / للبحث</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trust Badges -->
+    <div class="trust-badges-bar" x-show="currentPage === 'home'">
+        <div class="c">
+            <div class="trust-badges-grid">
+                <template x-for="badge in trustBadges" :key="badge.text.en">
+                    <div class="trust-badge">
+                        <span class="badge-icon" x-text="badge.icon"></span>
+                        <span class="badge-text bil-inline">
+                            <span class="en" x-text="badge.text.en"></span>
+                            <span class="ar" x-text="badge.text.ar"></span>
+                        </span>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
 
     <section class="features-sec main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="c">
@@ -587,6 +648,26 @@
                         <div class="card form-panel">
                             <div class="card-b">
                                 <h2 class="form-subh bil-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h2>
+                                
+                                <!-- Guest Checkout Notice -->
+                                <div class="guest-checkout-notice" x-show="!currentUser">
+                                    <div class="bil-row">
+                                        <p class="en">👤 Checking out as guest - No account required!</p>
+                                        <p class="ar">👤 الدفع كضيف - لا حاجة لحساب!</p>
+                                    </div>
+                                    <p class="notice-small bil-row">
+                                        <span class="en">Want to track orders easily? <a href="#auth" class="link-style">Create an account</a></span>
+                                        <span class="ar">تريد تتبع الطلبات بسهولة؟ <a href="#auth" class="link-style">أنشئ حساب</a></span>
+                                    </p>
+                                </div>
+                                
+                                <!-- Logged In Notice -->
+                                <div class="logged-in-notice" x-show="currentUser">
+                                    <p class="bil-inline">
+                                        <span class="en">✅ Logged in as <strong x-text="currentUser?.name || currentUser?.email"></strong></span>
+                                        <span class="ar">✅ مسجل الدخول كـ <strong x-text="currentUser?.name || currentUser?.email"></strong></span>
+                                    </p>
+                                </div>
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
                                     <input type="text" class="input" x-model="checkoutForm.customer_name" @input="clrErr('customer_name')">
@@ -895,6 +976,120 @@
         </div>
     </section>
 </main>
+
+<!-- Social Proof Notifications -->
+<div class="social-proof" x-data="socialProof()" x-show="currentNotification" x-transition>
+    <div class="social-proof-content">
+        <span class="bil-inline">
+            <span class="en" x-text="currentNotification?.en"></span>
+            <span class="ar" x-text="currentNotification?.ar"></span>
+        </span>
+    </div>
+</div>
+
+<!-- Exit Intent Popup -->
+<div class="exit-popup-overlay" x-show="showExitOffer" x-transition @click="showExitOffer = false">
+    <div class="exit-popup" @click.stop>
+        <button @click="showExitOffer = false" class="modal-close-btn">×</button>
+        <h2 class="bil-spread"><span class="en">Wait! Don't leave empty-handed 🛍️</span><span class="ar">انتظر! لا تغادر خالي الوفاض 🛍️</span></h2>
+        <p class="bil-row">
+            <span class="en">Complete your order now and get 5% OFF!</span>
+            <span class="ar">أكمل طلبك الآن واحصل على خصم 5%!</span>
+        </p>
+        <div class="exit-popup-code">
+            <div class="bil-spread"><span class="en">Use code:</span><span class="ar">استخدم الكود:</span></div>
+            <div class="promo-code">SAVE5</div>
+        </div>
+        <button @click="showExitOffer = false; isCartOpen = true" class="btn bp btn-lg btn-block">
+            <span class="bil-inline"><span class="en">Continue Shopping</span><span class="ar">متابعة التسوق</span></span>
+        </button>
+    </div>
+</div>
+
+<!-- Sticky Cart Button -->
+<button 
+    class="sticky-cart-btn" 
+    x-show="cartItems.length > 0 && stickyCartVisible && !isCartOpen" 
+    x-transition
+    @click="isCartOpen = true"
+>
+    <span class="cart-icon">🛒</span>
+    <span class="cart-count" x-text="cartItemCount"></span>
+    <span class="cart-total" x-text="fmtPrice(getCartTotal())"></span>
+</button>
+
+<!-- Quick View Modal -->
+<div class="modal-overlay" x-show="showQuickView" x-transition @click="showQuickView = false">
+    <div class="modal quick-view-modal" @click.stop>
+        <div class="modal-header">
+            <h2 class="bil-spread" x-show="quickViewItem">
+                <span x-text="quickViewItem?.nameENSpec"></span>
+                <span x-text="quickViewItem?.nameARSpec"></span>
+            </h2>
+            <button @click="showQuickView = false" class="modal-close-btn">×</button>
+        </div>
+        <div class="modal-content" x-show="quickViewItem">
+            <div class="quick-view-grid">
+                <div class="quick-view-image">
+                    <img :src="'images/' + (quickViewItem?.itemKey || 'placeholder') + '.jpg'" :alt="quickViewItem?.nameENSpec" onerror="this.src='images/placeholder-sheep.jpg'">
+                </div>
+                <div class="quick-view-details">
+                    <div class="bil-row">
+                        <p class="en" x-text="quickViewItem?.descEn || 'Premium quality product'"></p>
+                        <p class="ar" x-text="quickViewItem?.descAr || 'منتج عالي الجودة'"></p>
+                    </div>
+                    <div class="quick-view-price">
+                        <strong x-text="fmtPrice(quickViewItem?.priceEGP)"></strong>
+                    </div>
+                    <div class="quick-view-stock" x-text="getStockDisplayInfo(quickViewItem?.stock, quickViewItem?.isActive)"></div>
+                    <button @click="addItemToCart(quickViewItem); showQuickView = false" class="btn bp btn-lg btn-block">
+                        <span class="bil-inline"><span class="en">Add to Cart</span><span class="ar">أضف للسلة</span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meat Calculator Modal -->
+<div class="modal-overlay" x-show="showMeatCalculator" x-transition @click="showMeatCalculator = false">
+    <div class="modal calculator-modal" @click.stop>
+        <div class="modal-header">
+            <h2 class="bil-spread">
+                <span class="en">Meat Calculator</span>
+                <span class="ar">حاسبة اللحوم</span>
+            </h2>
+            <button @click="showMeatCalculator = false" class="modal-close-btn">×</button>
+        </div>
+        <div class="modal-content">
+            <div class="calculator-input">
+                <label class="bil-spread">
+                    <span class="en">Number of People:</span>
+                    <span class="ar">عدد الأشخاص:</span>
+                </label>
+                <input type="number" x-model="meatCalculator.people" min="1" max="100" class="input">
+            </div>
+            <div class="calculator-input">
+                <label class="bil-spread">
+                    <span class="en">Meat per Person (kg):</span>
+                    <span class="ar">اللحم لكل شخص (كجم):</span>
+                </label>
+                <select x-model="meatCalculator.meatPerPerson" class="input">
+                    <option value="0.2">Light (0.2 kg)</option>
+                    <option value="0.25">Standard (0.25 kg)</option>
+                    <option value="0.3">Generous (0.3 kg)</option>
+                    <option value="0.4">Feast (0.4 kg)</option>
+                </select>
+            </div>
+            <div class="calculator-result">
+                <h3 class="bil-spread" x-text="meatCalculator.recommendation[currLang]"></h3>
+                <button @click="searchQuery = meatCalculator.totalMeat + 'kg'; showMeatCalculator = false" class="btn bp btn-lg">
+                    <span class="bil-inline"><span class="en">Shop Now</span><span class="ar">تسوق الآن</span></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <footer class="foot main-page-sec">
     <div class="c">
