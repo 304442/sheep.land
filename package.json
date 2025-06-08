@@ -3,17 +3,17 @@
   "version": "1.0.0",
   "description": "Build optimization for sheep.land website",
   "scripts": {
-    "build": "node optimize.js",
-    "build:prod": "node optimize.js --production",
-    "minify": "node optimize.js",
+    "build": "node tools/build/optimize.js",
+    "build:prod": "node tools/build/optimize.js --production",
+    "minify": "node tools/build/optimize.js",
     "clean": "rm -rf dist",
-    "help": "node optimize.js --help",
-    "pb:extract": "node extract-pb-schema.js",
-    "pb:validate": "node pb-validator.js --validate",
-    "pb:lint": "node pb-validator.js --lint",
-    "pb:fix": "node pb-validator.js --fix",
-    "pb:all": "node pb-validator.js --verbose",
-    "pb:help": "node pb-validator.js --help"
+    "help": "node tools/build/optimize.js --help",
+    "pb:extract": "node tools/pocketbase/extract-pb-schema.js",
+    "pb:validate": "node tools/pocketbase/pb-validator.js --validate",
+    "pb:lint": "node tools/pocketbase/pb-validator.js --lint",
+    "pb:fix": "node tools/pocketbase/pb-validator.js --fix",
+    "pb:all": "node tools/pocketbase/pb-validator.js --verbose",
+    "pb:help": "node tools/pocketbase/pb-validator.js --help"
   },
   "devDependencies": {
     "chalk": "^5.3.0",

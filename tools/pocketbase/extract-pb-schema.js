@@ -16,9 +16,9 @@ async function extractSchema() {
     console.log(chalk.blue('🔍 Extracting PocketBase schema from setup.html...'));
 
     // Read setup.html
-    const setupPath = './public/setup.html';
+    const setupPath = path.resolve(__dirname, '../../public/setup.html');
     if (!fs.existsSync(setupPath)) {
-      throw new Error('setup.html not found in ./public/');
+      throw new Error('setup.html not found in ../../public/');
     }
 
     const content = await fs.readFile(setupPath, 'utf8');
@@ -67,8 +67,8 @@ async function extractSchema() {
       console.log(chalk.yellow('⚠️ Direct eval failed, using fallback method...'));
       
       // Write to temporary files and require them
-      const tempCollections = './temp-collections.js';
-      const tempSeed = './temp-seed.js';
+      const tempCollections = path.resolve(__dirname, '../../temp-collections.js');
+      const tempSeed = path.resolve(__dirname, '../../temp-seed.js');
       
       await fs.writeFile(tempCollections, `module.exports = ${cleanCollectionsCode};`);
       await fs.writeFile(tempSeed, `module.exports = ${cleanSeedCode};`);
@@ -85,12 +85,12 @@ async function extractSchema() {
     }
 
     // Write collections to JSON file
-    await fs.writeJson('./pb-collections.json', collections, { spaces: 2 });
-    console.log(chalk.green('✅ Collections extracted to: pb-collections.json'));
+    await fs.writeJson(path.resolve(__dirname, 'pb-collections.json'), collections, { spaces: 2 });
+    console.log(chalk.green('✅ Collections extracted to: tools/pocketbase/pb-collections.json'));
 
     // Write seed data to JSON file
-    await fs.writeJson('./pb-seed.json', seed, { spaces: 2 });
-    console.log(chalk.green('✅ Seed data extracted to: pb-seed.json'));
+    await fs.writeJson(path.resolve(__dirname, 'pb-seed.json'), seed, { spaces: 2 });
+    console.log(chalk.green('✅ Seed data extracted to: tools/pocketbase/pb-seed.json'));
 
     console.log(chalk.blue('\n📊 Extraction Summary:'));
     console.log(`   Collections: ${collections.length}`);

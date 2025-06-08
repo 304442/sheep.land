@@ -24,8 +24,8 @@ const getConfig = () => {
   const files = args.filter(arg => !arg.startsWith('--'));
   
   return {
-    collectionsFile: files[0] || './pb-collections.json',
-    seedFile: files[1] || './pb-seed.json',
+    collectionsFile: files[0] || path.resolve(__dirname, 'pb-collections.json'),
+    seedFile: files[1] || path.resolve(__dirname, 'pb-seed.json'),
     outputFile: process.argv.includes('--output') ? process.argv[process.argv.indexOf('--output') + 1] : null,
     mode: (() => {
       if (flags.includes('--validate')) return 'validate';
@@ -775,8 +775,8 @@ function showHelp() {
   console.log(chalk.white('Usage: node pb-validator.js [collections.json] [seed.json] [options]\n'));
   
   console.log(chalk.yellow('Arguments:'));
-  console.log(chalk.white('  collections.json  Path to collections file (default: ./pb-collections.json)'));
-  console.log(chalk.white('  seed.json         Path to seed data file (default: ./pb-seed.json)\n'));
+  console.log(chalk.white('  collections.json  Path to collections file (default: pb-collections.json)'));
+  console.log(chalk.white('  seed.json         Path to seed data file (default: pb-seed.json)\n'));
   
   console.log(chalk.yellow('Modes:'));
   console.log(chalk.white('  --validate        Validate schemas against PocketBase API'));
