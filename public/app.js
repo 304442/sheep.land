@@ -57,7 +57,7 @@ document.addEventListener('alpine:init', () => {
         showExitOffer: false,
         showMeatCalculator: false,
         cartItems: [], 
-        isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
+        isMobileNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
         currentPage: 'home', currLang: "en", curr: "EGP",
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
@@ -199,13 +199,13 @@ document.addEventListener('alpine:init', () => {
                 this.allCities = cities.sort((a,b) => a.nameEn.localeCompare(b.nameEn));
                 
             } catch (e) { 
-                this.apiErr = String(e.message || "Could not load initial application data."); 
-                this.usrApiErr = "Error loading essential data. Please try refreshing the page."; 
+                this.apiError = String(e.message || "Could not load initial application data."); 
+                this.userApiError = "Error loading essential data. Please try refreshing the page."; 
             }
             
             this.curr = this.settings.defCurr || "EGP"; 
             this.startCd(); 
-            this.clrAllErrs();
+            this.clearAllErrors();
             
             if (this.currentPage === 'checkout') this.initCheckoutPage();
             else if (this.currentPage === 'auth') this.initAuthPage();
@@ -214,6 +214,9 @@ document.addEventListener('alpine:init', () => {
             
             this.load.init = false;
             window.addEventListener('hashchange', () => this.determineCurrentPageFromURL());
+            
+            // Cleanup on page unload to prevent memory leaks
+            window.addEventListener('beforeunload', () => this.cleanup());
         },
 
         determineCurrentPageFromURL() {
@@ -228,7 +231,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         updatePageSpecifics() {
-            if (this.currentPage !== 'checkout' && this.orderConf.show) {
+            if (this.currentPage !== 'checkout' && this.orderConfirmation.show) {
                 this.orderConf = { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "", customerEmail: "" };
             }
 
@@ -286,12 +289,12 @@ document.addEventListener('alpine:init', () => {
 
         addItemToCart(productVariant, udheyaConfigDetails = null) {
             this.load.addingToCart = productVariant.itemKey;
-            this.addedToCartMsg = { text: null, isError: false, pageContext: this.currentPage };
+            this.addedToCartMessage = { text: null, isError: false, pageContext: this.currentPage };
             
             if (!productVariant || !productVariant.itemKey || productVariant.stock <= 0) {
-                this.addedToCartMsg = { text: { en: 'This item is out of stock.', ar: 'هذا المنتج غير متوفر.' }, isError: true, pageContext: this.currentPage };
+                this.addedToCartMessage = { text: { en: 'This item is out of stock.', ar: 'هذا المنتج غير متوفر.' }, isError: true, pageContext: this.currentPage };
                 this.load.addingToCart = null; 
-                setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000); 
+                setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext: '' }, 3000); 
                 return;
             }
 
@@ -300,17 +303,17 @@ document.addEventListener('alpine:init', () => {
 
             if (existingItemIndex > -1) {
                 if (isUdheya) {
-                    this.addedToCartMsg = { text: { en: 'This Udheya is already in your cart.', ar: 'هذه الأضحية موجودة بالفعل في سلتك.' }, isError: true, pageContext: this.currentPage };
+                    this.addedToCartMessage = { text: { en: 'This Udheya is already in your cart.', ar: 'هذه الأضحية موجودة بالفعل في سلتك.' }, isError: true, pageContext: this.currentPage };
                     this.load.addingToCart = null; 
-                    setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 5000); 
+                    setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext: '' }, 5000); 
                     return;
                 }
                 if (this.cartItems[existingItemIndex].quantity < productVariant.stock) { 
                     this.cartItems[existingItemIndex].quantity++; 
                 } else { 
-                    this.addedToCartMsg = { text: { en: 'Stock limit reached.', ar: 'وصلت إلى الحد الأقصى للمخزون.' }, isError: true, pageContext: this.currentPage }; 
+                    this.addedToCartMessage = { text: { en: 'Stock limit reached.', ar: 'وصلت إلى الحد الأقصى للمخزون.' }, isError: true, pageContext: this.currentPage }; 
                     this.load.addingToCart = null; 
-                    setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000); 
+                    setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext: '' }, 3000); 
                     return; 
                 }
             } else {
@@ -323,21 +326,21 @@ document.addEventListener('alpine:init', () => {
             
             this.saveCartToStorage(); 
             this.calculateFinalTotal(); 
-            this.addedToCartMsg = { text: { en: `${productVariant.nameENSpec} added to cart.`, ar: `تمت إضافة ${productVariant.nameARSpec} إلى السلة.` }, isError: false, pageContext: this.currentPage };
+            this.addedToCartMessage = { text: { en: `${productVariant.nameENSpec} added to cart.`, ar: `تمت إضافة ${productVariant.nameARSpec} إلى السلة.` }, isError: false, pageContext: this.currentPage };
             this.load.addingToCart = null;
             if (this.isUdheyaConfigModalOpen && udheyaConfigDetails && !udheyaConfigDetails.isBuyNowIntent) this.closeUdheyaConfiguration(); 
-            setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000);
+            setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext: '' }, 3000);
         },
 
         async buyNow(productVariant, udheyaConfigDetails = null) {
             this.load.addingToCart = productVariant.itemKey; 
-            this.addedToCartMsg = { text: null, isError: false, pageContext: this.currentPage }; 
-            this.clrAllErrs(); 
+            this.addedToCartMessage = { text: null, isError: false, pageContext: this.currentPage }; 
+            this.clearAllErrors(); 
 
             if (!productVariant || !productVariant.itemKey || productVariant.stock <= 0) {
-                this.addedToCartMsg = { text: { en: 'This item is out of stock.', ar: 'هذا المنتج غير متوفر.' }, isError: true, pageContext: this.currentPage };
+                this.addedToCartMessage = { text: { en: 'This item is out of stock.', ar: 'هذا المنتج غير متوفر.' }, isError: true, pageContext: this.currentPage };
                 this.load.addingToCart = null;
-                setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000);
+                setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext: '' }, 3000);
                 return;
             }
 
@@ -355,7 +358,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 localStorage.setItem('sheepLandBuyNowItem', JSON.stringify(buyNowItem));
             } catch(e) {
-                this.usrApiErr = "Could not proceed with Buy Now. Please try adding to cart.";
+                this.userApiError = "Could not proceed with Buy Now. Please try adding to cart.";
                 this.load.addingToCart = null;
                 return;
             }
@@ -377,16 +380,16 @@ document.addEventListener('alpine:init', () => {
                 const item = this.cartItems[itemIndex];
                 const qty = Math.max(1, parseInt(newQuantity) || 1);
                 if (item.product_category === 'udheya' && qty > 1) { 
-                    this.addedToCartMsg = { text: { en: 'Only one of each Udheya can be added.', ar: 'يمكن إضافة أضحية واحدة فقط من كل نوع.'}, isError: true, pageContext: 'cart' }; 
+                    this.addedToCartMessage = { text: { en: 'Only one of each Udheya can be added.', ar: 'يمكن إضافة أضحية واحدة فقط من كل نوع.'}, isError: true, pageContext: 'cart' }; 
                     item.quantity = 1; 
-                    setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000); 
+                    setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext: '' }, 3000); 
                 } else if (qty <= item.stock) { 
                     item.quantity = qty; 
-                    this.addedToCartMsg = { text: null, isError: false, pageContext: '' }; 
+                    this.addedToCartMessage = { text: null, isError: false, pageContext: '' }; 
                 } else { 
                     item.quantity = item.stock; 
-                    this.addedToCartMsg = { text: { en: 'Requested quantity exceeds available stock.', ar: 'الكمية المطلوبة تتجاوز المخزون المتاح.'}, isError: true, pageContext: 'cart' }; 
-                    setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext: '' }, 3000);
+                    this.addedToCartMessage = { text: { en: 'Requested quantity exceeds available stock.', ar: 'الكمية المطلوبة تتجاوز المخزون المتاح.'}, isError: true, pageContext: 'cart' }; 
+                    setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext: '' }, 3000);
                 }
             } 
             this.saveCartToStorage(); 
@@ -444,8 +447,8 @@ document.addEventListener('alpine:init', () => {
 
         openUdheyaConfiguration(item, isBuyNowIntent = false) { 
             if (!item.isActive || item.stock <= 0) { 
-                this.addedToCartMsg = { text: { en: 'This Udheya is out of stock.', ar: 'هذه الأضحية غير متوفرة حالياً.' }, isError: true, pageContext: 'udheya' }; 
-                setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext:'' }, 3000); 
+                this.addedToCartMessage = { text: { en: 'This Udheya is out of stock.', ar: 'هذه الأضحية غير متوفرة حالياً.' }, isError: true, pageContext: 'udheya' }; 
+                setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext:'' }, 3000); 
                 return; 
             }
             this.configuringUdheyaItem = {...item}; 
@@ -460,7 +463,7 @@ document.addEventListener('alpine:init', () => {
             this.isUdheyaConfigModalOpen = false; 
             this.configuringUdheyaItem = null; 
             const errorKeys = ['udheya_service_config', 'udheya_sacrifice_day_config', 'udheya_distribution_choice_config', 'udheya_split_option_config'];
-            errorKeys.forEach(key => this.clrErr(key));
+            errorKeys.forEach(key => this.clearError(key));
             document.body.classList.remove('overflow-hidden');
         },
 
@@ -468,26 +471,26 @@ document.addEventListener('alpine:init', () => {
             if (!this.configuringUdheyaItem) return; 
             let isValid = true; 
             const errorKeys = ['udheya_service_config', 'udheya_sacrifice_day_config', 'udheya_distribution_choice_config', 'udheya_split_option_config'];
-            errorKeys.forEach(key => this.clrErr(key));
+            errorKeys.forEach(key => this.clearError(key));
 
             if (!this.tempUdheyaConfig.serviceOption) { 
-                this.setErr('udheya_service_config', 'required'); 
+                this.setError('udheya_service_config', 'required'); 
                 isValid = false; 
             }
             if (this.tempUdheyaConfig.serviceOption === 'standard_service' && !this.tempUdheyaConfig.sacrificeDay) { 
-                this.setErr('udheya_sacrifice_day_config', 'required'); 
+                this.setError('udheya_sacrifice_day_config', 'required'); 
                 isValid = false; 
             }
             if (!this.tempUdheyaConfig.distribution.choice) { 
-                this.setErr('udheya_distribution_choice_config', 'required'); 
+                this.setError('udheya_distribution_choice_config', 'required'); 
                 isValid = false; 
             }
             if (this.tempUdheyaConfig.distribution.choice === 'split' && !this.tempUdheyaConfig.distribution.splitOption) { 
-                this.setErr('udheya_split_option_config', 'required'); 
+                this.setError('udheya_split_option_config', 'required'); 
                 isValid = false; 
             }
             if (this.tempUdheyaConfig.distribution.choice === 'split' && this.tempUdheyaConfig.distribution.splitOption === 'custom' && !this.tempUdheyaConfig.distribution.customSplitText.trim()) { 
-                this.setErr('udheya_split_option_config', {en: 'Please specify custom split details.', ar: 'يرجى تحديد تفاصيل التقسيم المخصصة.'}); 
+                this.setError('udheya_split_option_config', {en: 'Please specify custom split details.', ar: 'يرجى تحديد تفاصيل التقسيم المخصصة.'}); 
                 isValid = false; 
             }
             if (!isValid) return;
@@ -502,7 +505,7 @@ document.addEventListener('alpine:init', () => {
         getUdheyaConfigErrorText() {
             const errorKeys = ['udheya_service_config', 'udheya_sacrifice_day_config', 'udheya_distribution_choice_config', 'udheya_split_option_config'];
             for (const key of errorKeys) { 
-                if (this.errs[key]) return this.currLang === 'ar' ? this.errs[key].ar : this.errs[key].en; 
+                if (this.errors[key]) return this.currLang === 'ar' ? this.errors[key].ar : this.errors[key].en; 
             } 
             return '';
         },
@@ -510,36 +513,36 @@ document.addEventListener('alpine:init', () => {
         openRefundModal() { this.isRefundModalOpen = true; document.body.classList.add('overflow-hidden'); },
         closeRefundModal() { this.isRefundModalOpen = false; document.body.classList.remove('overflow-hidden'); },
         openOrderStatusModal() { this.isOrderStatusModalOpen = true; document.body.classList.add('overflow-hidden'); this.$nextTick(() => this.$refs.lookupOrderIdInputModal?.focus()); },
-        closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderID = ''; this.statRes = null; this.statNotFound = false; this.clrErr('lookupOrderID');},
+        closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderId = ''; this.statusResult = null; this.statusNotFound = false; this.clearError('lookupOrderID');},
 
         startCd() { 
-            if(this.cdTimer) clearInterval(this.cdTimer); 
+            if(this.countdownTimer) clearInterval(this.countdownTimer); 
             if(!this.settings.promoActive||!this.settings.promoEndISO) {
-                this.cd.ended=true; 
+                this.countdown.ended=true; 
                 return;
             } 
             const t=new Date(this.settings.promoEndISO).getTime(); 
             if(isNaN(t)){
-                this.cd.ended=true; 
+                this.countdown.ended=true; 
                 return;
             } 
             this.updCdDisp(t); 
-            this.cdTimer=setInterval(()=>this.updCdDisp(t),1000); 
+            this.countdownTimer=setInterval(()=>this.updCdDisp(t),1000); 
         },
 
         updCdDisp(t) { 
             const d = t - Date.now(); 
             if (d < 0) { 
-                if (this.cdTimer) clearInterval(this.cdTimer); 
-                this.cd.days = "00"; this.cd.hours = "00"; this.cd.mins = "00"; this.cd.secs = "00"; 
-                this.cd.ended = true; 
+                if (this.countdownTimer) clearInterval(this.countdownTimer); 
+                this.countdown.days = "00"; this.countdown.hours = "00"; this.countdown.mins = "00"; this.countdown.secs = "00"; 
+                this.countdown.ended = true; 
                 return; 
             } 
-            this.cd.ended = false; 
-            this.cd.days = String(Math.floor(d / 864e5)).padStart(2, '0'); 
-            this.cd.hours = String(Math.floor(d % 864e5 / 36e5)).padStart(2, '0'); 
-            this.cd.mins = String(Math.floor(d % 36e5 / 6e4)).padStart(2, '0'); 
-            this.cd.secs = String(Math.floor(d % 6e4 / 1e3)).padStart(2, '0'); 
+            this.countdown.ended = false; 
+            this.countdown.days = String(Math.floor(d / 864e5)).padStart(2, '0'); 
+            this.countdown.hours = String(Math.floor(d % 864e5 / 36e5)).padStart(2, '0'); 
+            this.countdown.mins = String(Math.floor(d % 36e5 / 6e4)).padStart(2, '0'); 
+            this.countdown.secs = String(Math.floor(d % 6e4 / 1e3)).padStart(2, '0'); 
         },
 
         fmtPrice(p, c) { 
@@ -634,7 +637,7 @@ document.addEventListener('alpine:init', () => {
             this.isCartOpen = true;
             
             // Show success message
-            this.addedToCartMsg = { 
+            this.addedToCartMessage = { 
                 text: { 
                     en: 'Udheya added to cart! Proceed to checkout when ready.', 
                     ar: 'تمت إضافة الأضحية للسلة! تابع للدفع عندما تكون جاهزًا.' 
@@ -642,7 +645,7 @@ document.addEventListener('alpine:init', () => {
                 isError: false, 
                 pageContext: 'udheya' 
             };
-            setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext:'' }, 3000);
+            setTimeout(() => this.addedToCartMessage = { text: null, isError: false, pageContext:'' }, 3000);
         },
 
         getMeatPrice(item) {
@@ -668,10 +671,7 @@ document.addEventListener('alpine:init', () => {
             };
         },
 
-        filterProducts() {
-            // Triggers computed property update
-            this.$nextTick();
-        },
+        // Removed empty filterProducts function - filtering is handled by computed property
 
         get filteredProducts() {
             if (!this.searchQuery || this.searchQuery.trim().length < 2) return {};
@@ -681,9 +681,9 @@ document.addEventListener('alpine:init', () => {
             
             const categoryNames = {
                 udheya: { en: 'Udheya', ar: 'الأضحية' },
-                livesheep_general: { en: 'Live Sheep', ar: 'الأغنام الحية' },
-                meat_cuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
-                gathering_package: { en: 'Gatherings', ar: 'الولائم' }
+                livesheepGeneral: { en: 'Live Sheep', ar: 'الأغنام الحية' },
+                meatCuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
+                gatheringPackage: { en: 'Gatherings', ar: 'الولائم' }
             };
             
             Object.keys(this.prodOpts).forEach(category => {
@@ -713,11 +713,19 @@ document.addEventListener('alpine:init', () => {
         getCategoryDisplayName(category) {
             const names = {
                 udheya: { en: 'Udheya', ar: 'الأضحية' },
-                livesheep_general: { en: 'Live Sheep', ar: 'الأغنام الحية' },
-                meat_cuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
-                gathering_package: { en: 'Gatherings', ar: 'الولائم' }
+                livesheepGeneral: { en: 'Live Sheep', ar: 'الأغنام الحية' },
+                meatCuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
+                gatheringPackage: { en: 'Gatherings', ar: 'الولائم' }
             };
             return names[category] || { en: category, ar: category };
+        },
+        
+        cleanup() {
+            // Cleanup timers to prevent memory leaks
+            if (this.countdownTimer) {
+                clearInterval(this.countdownTimer);
+                this.countdownTimer = null;
+            }
         },
 
         getStockDisplayInfo(stock, isActive, lang = this.currLang) {
@@ -731,27 +739,27 @@ document.addEventListener('alpine:init', () => {
         isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
 
         setErr(f, m, isUserErr = true) { 
-            this.errs[f] = (typeof m === 'string' ? this.errMsgs[m] || {en:m, ar:m} : m) || this.errMsgs.required; 
-            if (isUserErr && typeof this.errs[f] === 'object') { 
-                this.usrApiErr = this.currLang === 'ar' ? this.errs[f].ar : this.errs[f].en; 
+            this.errors[f] = (typeof m === 'string' ? this.errorMessages[m] || {en:m, ar:m} : m) || this.errorMessages.required; 
+            if (isUserErr && typeof this.errors[f] === 'object') { 
+                this.userApiError = this.currLang === 'ar' ? this.errors[f].ar : this.errors[f].en; 
             } else if (isUserErr) { 
-                this.usrApiErr = String(this.errs[f]); 
+                this.userApiError = String(this.errors[f]); 
             } 
         },
 
         clrErr(f) { 
-            if(this.errs[f]) delete this.errs[f]; 
-            let hasVisibleErrors = Object.keys(this.errs).some(key => this.errs[key]); 
+            if(this.errors[f]) delete this.errors[f]; 
+            let hasVisibleErrors = Object.keys(this.errors).some(key => this.errors[key]); 
             if (!hasVisibleErrors) { 
-                this.usrApiErr = ""; 
-                this.apiErr = null;
+                this.userApiError = ""; 
+                this.apiError = null;
             } 
         },
 
         clrAllErrs() { 
-            this.errs = {}; 
-            this.usrApiErr = ""; 
-            this.apiErr = null; 
+            this.errors = {}; 
+            this.userApiError = ""; 
+            this.apiError = null; 
         },
 
         focusRef(r, s=true) { 
@@ -789,7 +797,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         initAuthPage() { 
-            this.clrAllErrs();
+            this.clearAllErrors();
             if (this.currentUser?.id) { 
                 this.navigateToOrScroll('account'); 
                 return; 
@@ -798,7 +806,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async loginUser() { 
-            this.clrAllErrs(); 
+            this.clearAllErrors(); 
             this.load.auth = true;
             try { 
                 const authData = await this.pb.collection('users').authWithPassword(this.auth.email, this.auth.password); 
@@ -810,28 +818,28 @@ document.addEventListener('alpine:init', () => {
                 this.redirectAfterLogin = null; 
             } catch (e) { 
                 this.load.auth = false; 
-                this.setErr('auth_login', {en: 'Login failed. Please check credentials.', ar: 'فشل الدخول. تحقق من البيانات.'}); 
+                this.setError('auth_login', {en: 'Login failed. Please check credentials.', ar: 'فشل الدخول. تحقق من البيانات.'}); 
             }
         },
 
         async registerUser() { 
-            this.clrAllErrs(); 
+            this.clearAllErrors(); 
             this.load.auth = true;
             let regValid = true;
             if (!this.auth.name.trim()) { 
-                this.setErr('auth_name', {en: 'Name is required.', ar: 'الاسم مطلوب.'}); 
+                this.setError('auth_name', {en: 'Name is required.', ar: 'الاسم مطلوب.'}); 
                 regValid = false; 
             }
             if (!this.isEmailValid(this.auth.email)) { 
-                this.setErr('auth_email', 'email'); 
+                this.setError('auth_email', 'email'); 
                 regValid = false; 
             }
             if (this.auth.password.length < 8) { 
-                this.setErr('auth_password', {en: 'Password must be at least 8 characters.', ar: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.'}); 
+                this.setError('auth_password', {en: 'Password must be at least 8 characters.', ar: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.'}); 
                 regValid = false; 
             }
             if (this.auth.password !== this.auth.passwordConfirm) { 
-                this.setErr('auth_passwordConfirm', {en: 'Passwords do not match.', ar: 'كلمات المرور غير متطابقة.'}); 
+                this.setError('auth_passwordConfirm', {en: 'Passwords do not match.', ar: 'كلمات المرور غير متطابقة.'}); 
                 regValid = false; 
             }
             if (!regValid) { 
@@ -850,14 +858,14 @@ document.addEventListener('alpine:init', () => {
                     emailVisibility: true 
                 }; 
                 await this.pb.collection('users').create(data); 
-                this.errs.auth_form_success = {en: 'Registration successful! Please login.', ar: 'تم التسجيل بنجاح! يرجى تسجيل الدخول.'};
+                this.errors.auth_form_success = {en: 'Registration successful! Please login.', ar: 'تم التسجيل بنجاح! يرجى تسجيل الدخول.'};
                 this.load.auth = false; 
                 this.auth.view = 'login'; 
                 this.auth.password = ""; 
                 this.auth.passwordConfirm = "";
             } catch (e) { 
                 this.load.auth = false; 
-                this.setErr('auth_register', { en: 'Registration failed. This email might already be in use.', ar: 'فشل التسجيل. قد يكون هذا البريد الإلكتروني مستخدمًا بالفعل.' }); 
+                this.setError('auth_register', { en: 'Registration failed. This email might already be in use.', ar: 'فشل التسجيل. قد يكون هذا البريد الإلكتروني مستخدمًا بالفعل.' }); 
             }
         },
 
@@ -871,7 +879,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async initAccountPage() { 
-            this.clrAllErrs();
+            this.clearAllErrors();
             if (!this.pb.authStore.isValid) { 
                 this.redirectAfterLogin = 'account'; 
                 this.navigateToOrScroll('auth'); 
@@ -888,7 +896,7 @@ document.addEventListener('alpine:init', () => {
         async fetchUserOrders() { 
             if (!this.currentUser?.id) return; 
             this.load.orders = true; 
-            this.clrErr('orders_fetch');
+            this.clearError('orders_fetch');
             try { 
                 const resultList = await this.pb.collection('orders').getFullList({ 
                     filter: `user = "${this.currentUser.id}"`, 
@@ -900,14 +908,14 @@ document.addEventListener('alpine:init', () => {
                     payment_status: order.payment_status?.replace(/_/g, " ") || "N/A"
                 }));
             } catch (e) { 
-                this.setErr('orders_fetch', {en: 'Could not fetch your orders.', ar: 'تعذر جلب طلباتك.'}); 
+                this.setError('orders_fetch', {en: 'Could not fetch your orders.', ar: 'تعذر جلب طلباتك.'}); 
             } finally { 
                 this.load.orders = false; 
             }
         },
 
         initCheckoutPage() { 
-            this.clrAllErrs();
+            this.clearAllErrors();
             const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
             const isBuyNow = urlParams.get('buyNow') === 'true';
             let buyNowItem = null;
@@ -934,7 +942,7 @@ document.addEventListener('alpine:init', () => {
                 this.checkoutForm.customer_phone = this.currentUser.phone || '';
             }
             
-            if (this.cartItems.length === 0 && !this.orderConf.show) { 
+            if (this.cartItems.length === 0 && !this.orderConfirmation.show) { 
                 this.navigateToOrScroll('udheya'); 
                 return; 
             }
@@ -966,7 +974,7 @@ document.addEventListener('alpine:init', () => {
 
         updateDeliveryFeeForCheckout() { 
             this.checkoutForm.delivery_fee_egp = 0; 
-            this.isDelFeeVar = false; 
+            this.isDeliveryFeeVariable = false; 
             if (!this.deliveryNeededForCart() || !this.checkoutForm.delivery_city_id) { 
                 this.calculateFinalTotal(); 
                 return; 
@@ -974,12 +982,12 @@ document.addEventListener('alpine:init', () => {
             const cityData = this.allCities.find(c => c.id === this.checkoutForm.delivery_city_id); 
             if (cityData && typeof cityData.delFeeEgp === 'number') { 
                 this.checkoutForm.delivery_fee_egp = cityData.delFeeEgp; 
-                this.isDelFeeVar = false; 
+                this.isDeliveryFeeVariable = false; 
             } else if (cityData && cityData.delFeeEgp === null) { 
-                this.isDelFeeVar = true; 
+                this.isDeliveryFeeVariable = true; 
                 this.checkoutForm.delivery_fee_egp = 0; 
             } else { 
-                this.isDelFeeVar = true; 
+                this.isDeliveryFeeVariable = true; 
                 this.checkoutForm.delivery_fee_egp = 0; 
             } 
             this.calculateFinalTotal(); 
@@ -990,7 +998,7 @@ document.addEventListener('alpine:init', () => {
             const totalServiceFee = this.calculateTotalServiceFee(); 
             this.checkoutForm.total_service_fee_egp = totalServiceFee; 
             let deliveryFee = 0; 
-            if (this.deliveryNeededForCart() && this.checkoutForm.delivery_fee_egp > 0 && !this.isDelFeeVar) { 
+            if (this.deliveryNeededForCart() && this.checkoutForm.delivery_fee_egp > 0 && !this.isDeliveryFeeVariable) { 
                 deliveryFee = this.checkoutForm.delivery_fee_egp; 
             } 
             let onlinePaymentFee = 0; 
@@ -1002,40 +1010,40 @@ document.addEventListener('alpine:init', () => {
         },
 
         validateCheckoutForm() { 
-            this.clrAllErrs(); 
+            this.clearAllErrors(); 
             let isValid = true;
             if (!this.checkoutForm.customer_name.trim()) { 
-                this.setErr('customer_name', 'required'); 
+                this.setError('customer_name', 'required'); 
                 isValid = false; 
             }
             if (!this.isPhoneValid(this.checkoutForm.customer_phone)) { 
-                this.setErr('customer_phone', 'phone'); 
+                this.setError('customer_phone', 'phone'); 
                 isValid = false; 
             }
             if (!this.isEmailValid(this.checkoutForm.customer_email)) { 
-                this.setErr('customer_email', 'email'); 
+                this.setError('customer_email', 'email'); 
                 isValid = false; 
             }
             if (this.deliveryNeededForCart()) { 
                 if (!this.checkoutForm.delivery_city_id) { 
-                    this.setErr('delivery_city_id', 'required'); 
+                    this.setError('delivery_city_id', 'required'); 
                     isValid = false; 
                 } 
                 if (!this.checkoutForm.delivery_address.trim()) { 
-                    this.setErr('delivery_address', 'required'); 
+                    this.setError('delivery_address', 'required'); 
                     isValid = false; 
                 } 
                 if (!this.checkoutForm.delivery_time_slot) { 
-                    this.setErr('delivery_time_slot', {en: 'Please select a delivery time slot.', ar: 'يرجى اختيار وقت التوصيل.'}); 
+                    this.setError('delivery_time_slot', {en: 'Please select a delivery time slot.', ar: 'يرجى اختيار وقت التوصيل.'}); 
                     isValid = false; 
                 } 
             }
             if (!this.checkoutForm.payment_method) { 
-                this.setErr('payment_method', 'required'); 
+                this.setError('payment_method', 'required'); 
                 isValid = false; 
             }
             if (!this.checkoutForm.terms_agreed) { 
-                this.setErr('terms_agreed', 'terms_agreed'); 
+                this.setError('terms_agreed', 'terms_agreed'); 
                 isValid = false; 
             }
             return isValid;
@@ -1044,8 +1052,8 @@ document.addEventListener('alpine:init', () => {
         async processOrder() { 
             if (!this.validateCheckoutForm()) return; 
             this.load.checkout = true; 
-            this.usrApiErr = ""; 
-            this.apiErr = "";
+            this.userApiError = ""; 
+            this.apiError = "";
             
             const lineItemsForOrder = this.cartItems.map(item => { 
                 let lineItem = { 
@@ -1078,18 +1086,25 @@ document.addEventListener('alpine:init', () => {
             // Set user_id from current user if logged in, otherwise null for guest checkout
             this.checkoutForm.user_id = this.currentUser?.id || null;
             
+            // Sanitize all input data before submission to prevent XSS
+            const sanitizeInput = (input) => {
+                if (typeof input !== 'string') return input;
+                // Remove any HTML tags and limit length
+                return input.replace(/<[^>]*>/g, '').trim().substring(0, 1000);
+            };
+            
             const orderPayload = { 
                 order_id_text: `${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`, 
                 user: this.checkoutForm.user_id, 
-                customer_name: this.checkoutForm.customer_name, 
-                customer_phone: this.checkoutForm.customer_phone, 
-                customer_email: this.checkoutForm.customer_email, 
+                customer_name: sanitizeInput(this.checkoutForm.customer_name), 
+                customer_phone: sanitizeInput(this.checkoutForm.customer_phone), 
+                customer_email: sanitizeInput(this.checkoutForm.customer_email), 
                 customer_country: this.checkoutForm.customer_country || "Egypt",
                 line_items: lineItemsForOrder, 
                 delivery_option: deliveryOpt, 
                 delivery_city_id: this.checkoutForm.delivery_city_id, 
-                delivery_address: this.checkoutForm.delivery_address, 
-                delivery_instructions: this.checkoutForm.delivery_instructions, 
+                delivery_address: sanitizeInput(this.checkoutForm.delivery_address), 
+                delivery_instructions: sanitizeInput(this.checkoutForm.delivery_instructions), 
                 delivery_time_slot: this.checkoutForm.delivery_time_slot, 
                 payment_method: this.checkoutForm.payment_method, 
                 terms_agreed: this.checkoutForm.terms_agreed, 
@@ -1103,12 +1118,12 @@ document.addEventListener('alpine:init', () => {
             
             try { 
                 const createdOrder = await this.pb.collection('orders').create(orderPayload); 
-                this.orderConf.orderID = createdOrder.order_id_text; 
-                this.orderConf.totalEgp = createdOrder.total_amount_due_egp; 
-                this.orderConf.items = createdOrder.line_items.map(li => ({...li})); 
-                this.orderConf.customerEmail = createdOrder.customer_email; 
-                this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); 
-                this.orderConf.show = true; 
+                this.orderConfirmation.orderID = createdOrder.order_id_text; 
+                this.orderConfirmation.totalEgp = createdOrder.total_amount_due_egp; 
+                this.orderConfirmation.items = createdOrder.line_items.map(li => ({...li})); 
+                this.orderConfirmation.customerEmail = createdOrder.customer_email; 
+                this.orderConfirmation.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); 
+                this.orderConfirmation.show = true; 
                 
                 const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
                 const isBuyNow = urlParams.get('buyNow') === 'true';
@@ -1122,11 +1137,11 @@ document.addEventListener('alpine:init', () => {
                 this.sendBusinessWhatsAppNotification(createdOrder);
                 
                 this.$nextTick(() => { 
-                    this.focusRef('orderConfTitle'); 
+                    this.focusReference('orderConfTitle'); 
                 }); 
             } catch (e) { 
-                this.apiErr = String(e.data?.message || e.message || "Order placement failed."); 
-                this.usrApiErr = "An unexpected error occurred. Please check your selections or contact support."; 
+                this.apiError = String(e.data?.message || e.message || "Order placement failed."); 
+                this.userApiError = "An unexpected error occurred. Please check your selections or contact support."; 
             } finally { 
                 this.load.checkout = false; 
             }
@@ -1134,7 +1149,7 @@ document.addEventListener('alpine:init', () => {
 
         getPaymentInstructionsHTML(payMeth, totalEgp, orderID) { 
             let instructions = ""; 
-            const priceText = this.fmtPrice(totalEgp); 
+            const priceText = this.formatPrice(totalEgp); 
             const waLink = `https://wa.me/${this.settings.waNumRaw}?text=Order%20Payment%20Confirmation%3A%20${orderID}`;
             const confirmWALink = `<a href="${waLink}" target="_blank" rel="noopener noreferrer" class="link-style">${this.settings.waNumDisp || 'WhatsApp'}</a>`;
             
@@ -1167,7 +1182,7 @@ document.addEventListener('alpine:init', () => {
         sendBusinessWhatsAppNotification(order) {
             // Format order details for WhatsApp
             const items = order.line_items.map(item => 
-                `• ${item.name_en} x${item.quantity} = ${this.fmtPrice(item.price_egp_each * item.quantity)}`
+                `• ${item.name_en} x${item.quantity} = ${this.formatPrice(item.price_egp_each * item.quantity)}`
             ).join('\n');
             
             const deliveryInfo = order.delivery_option === 'home_delivery' 
@@ -1181,7 +1196,7 @@ document.addEventListener('alpine:init', () => {
                 `✉️ Email: ${order.customer_email}\n` +
                 `${deliveryInfo}\n\n` +
                 `🛒 *Items:*\n${items}\n\n` +
-                `💰 *Total: ${this.fmtPrice(order.total_amount_due_egp)}*\n` +
+                `💰 *Total: ${this.formatPrice(order.total_amount_due_egp)}*\n` +
                 `💳 Payment: ${order.payment_method}\n\n` +
                 `⏰ Time: ${new Date().toLocaleString('en-EG')}`;
             
@@ -1197,30 +1212,39 @@ document.addEventListener('alpine:init', () => {
         },
 
         async submitStatValid() { 
-            this.clrErr('lookupOrderID'); 
-            if (!(this.lookupOrderID || "").trim()) { 
-                this.setErr('lookupOrderID', 'required'); 
+            this.clearError('lookupOrderId'); 
+            if (!(this.lookupOrderId || "").trim()) { 
+                this.setError('lookupOrderId', 'required'); 
                 this.$refs.lookupOrderIdInputModal?.focus(); 
                 return; 
             } 
-            await this.chkOrderStatus(); 
+            await this.checkOrderStatus(); 
         },
 
-        async chkOrderStatus() { 
-            this.statRes = null; 
-            this.statNotFound = false; 
+        async checkOrderStatus() { 
+            this.statusResult = null; 
+            this.statusNotFound = false; 
             this.load.status = true; 
-            this.apiErr = null; 
-            this.usrApiErr = ""; 
-            const id = (this.lookupOrderID || "").trim();
+            this.apiErroror = null; 
+            this.userApiError = ""; 
+            const id = (this.lookupOrderId || "").trim();
+            
+            // Validate order ID format (alphanumeric, hyphens, underscores only)
+            if (!id || !/^[A-Za-z0-9_-]+$/.test(id)) {
+                this.userApiError = "Invalid order ID format. Please check and try again.";
+                this.statusNotFound = true;
+                this.load.status = false;
+                return;
+            }
             
             try { 
+                // Use parameterized query to prevent SQL injection
                 const result = await this.pb.collection('orders').getList(1, 1, {
-                    filter: `order_id_text = "${this.pb.utils.escapeFieldValue(id)}"`,
+                    filter: this.pb.filter('order_id_text = {:id}', { id: id })
                 });
                 if (result.items && result.items.length > 0) { 
                     const o = result.items[0]; 
-                    this.statRes = { 
+                    this.statusResult = { 
                         orderIdTxt: o.order_id_text, 
                         customer_name: o.customer_name, 
                         order_status: o.order_status?.replace(/_/g," ")||"N/A", 
@@ -1234,13 +1258,13 @@ document.addEventListener('alpine:init', () => {
                         delivery_area_name_ar: o.delivery_area_name_ar 
                     }; 
                 } else { 
-                    this.statNotFound = true; 
-                    this.usrApiErr = "No order found with that ID."; 
+                    this.statusNotFound = true; 
+                    this.userApiError = "No order found with that ID."; 
                 }
             } catch (e) { 
-                this.apiErr = String(e.message); 
-                this.usrApiErr = "Could not get order status. Please check details or contact support."; 
-                this.statNotFound = true; 
+                this.apiErroror = String(e.message); 
+                this.userApiError = "Could not get order status. Please check details or contact support."; 
+                this.statusNotFound = true; 
             } finally { 
                 this.load.status = false; 
             }
@@ -1264,7 +1288,7 @@ document.addEventListener('alpine:init', () => {
         },
         
         async fetchTodayStats() {
-            if (!this.pb) return;
+            if (!this.pb || typeof PocketBase === 'undefined') return;
             
             try {
                 const today = new Date().toISOString().split('T')[0];
