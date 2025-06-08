@@ -352,33 +352,308 @@
     </template>
 
     <section class="hero main-page-sec" x-show="currentPage === 'home'" x-transition>
-        <div class="c tc">
-            <h1 class="bil-spread hero-h">
-                <span class="en">Premium Halal Meat & Livesheep</span>
-                <span class="ar">لحوم حلال ومواشي فاخرة</span>
-            </h1>
-            <div class="hero-desc bil-row">
-                <p class="en">From farm-fresh meat to live sheep, Udheya services, and catering for your special gatherings</p>
-                <p class="ar">من اللحوم الطازجة إلى الأغنام الحية وخدمات الأضاحي والولائم لمناسباتكم الخاصة</p>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="c">
+                <div class="hero-badge">
+                    <span class="bil-inline">
+                        <span class="en">🌟 Egypt's #1 Premium Halal Choice</span>
+                        <span class="ar">🌟 الخيار الحلال الأول في مصر</span>
+                    </span>
+                </div>
+                <h1 class="hero-title bil-spread">
+                    <span class="en">Premium Halal Meat & Live Sheep</span>
+                    <span class="ar">لحوم حلال وأغنام فاخرة</span>
+                </h1>
+                <div class="hero-subtitle bil-row">
+                    <p class="en">From farm-fresh cuts to live animals, Udheya services, and event catering - we deliver authentic quality for your family's needs</p>
+                    <p class="ar">من القطعيات الطازجة إلى الحيوانات الحية وخدمات الأضاحي وتجهيز المناسبات - نقدم الجودة الأصيلة لاحتياجات عائلتك</p>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">5000+</div>
+                        <div class="stat-label bil-inline">
+                            <span class="en">Happy Customers</span>
+                            <span class="ar">عميل سعيد</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label bil-inline">
+                            <span class="en">Halal Certified</span>
+                            <span class="ar">حلال معتمد</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label bil-inline">
+                            <span class="en">Fresh Quality</span>
+                            <span class="ar">جودة طازجة</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-cta-group">
+                    <button @click="navigateToOrScroll('udheya')" class="btn hero-btn-primary bil-inline">
+                        <span class="btn-icon">🐑</span>
+                        <span class="btn-text">
+                            <span class="en">Udheya Service</span>
+                            <span class="ar">خدمة الأضحية</span>
+                        </span>
+                    </button>
+                    <button @click="navigateToOrScroll('meat')" class="btn hero-btn-secondary bil-inline">
+                        <span class="btn-icon">🥩</span>
+                        <span class="btn-text">
+                            <span class="en">Fresh Cuts</span>
+                            <span class="ar">قطعيات طازجة</span>
+                        </span>
+                    </button>
+                </div>
+                <div class="hero-features-quick">
+                    <div class="quick-feature">
+                        <span class="feature-icon">🚚</span>
+                        <span class="bil-inline">
+                            <span class="en">Same Day Delivery</span>
+                            <span class="ar">توصيل نفس اليوم</span>
+                        </span>
+                    </div>
+                    <div class="quick-feature">
+                        <span class="feature-icon">🏆</span>
+                        <span class="bil-inline">
+                            <span class="en">Premium Quality</span>
+                            <span class="ar">جودة فائقة</span>
+                        </span>
+                    </div>
+                    <div class="quick-feature">
+                        <span class="feature-icon">💳</span>
+                        <span class="bil-inline">
+                            <span class="en">Easy Payment</span>
+                            <span class="ar">دفع سهل</span>
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div class="hero-cta-group">
-                <button @click="navigateToOrScroll('meat')" class="btn bac btn-lg bil-inline">
-                    <span class="en">Fresh Meat</span><span class="ar">لحوم طازجة</span>
-                </button>
-                <button @click="navigateToOrScroll('livesheep')" class="btn bac-sec btn-lg bil-inline">
-                    <span class="en">Live Sheep</span><span class="ar">أغنام حية</span>
-                </button>
-                <button @click="navigateToOrScroll('udheya')" class="btn bac-sec btn-lg bil-inline">
-                    <span class="en">Udheya Service</span><span class="ar">خدمة الأضحية</span>
-                </button>
-                <button @click="navigateToOrScroll('gatherings')" class="btn bac-sec btn-lg bil-inline">
-                    <span class="en">Gatherings</span><span class="ar">الولائم</span>
-                </button>
-            </div>
-            
         </div>
-        
-        <template x-if="settings.promoActive && !cd.ended">
+    </section>
+
+    <!-- Trust Indicators Section -->
+    <section class="trust-section main-page-sec" x-show="currentPage === 'home'" x-transition>
+        <div class="c">
+            <div class="trust-badges-modern">
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">🏅</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">Certified Quality</span>
+                            <span class="ar">جودة معتمدة</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Government approved facilities</span>
+                            <span class="ar">منشآت معتمدة حكومياً</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">🚚</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">Fast Delivery</span>
+                            <span class="ar">توصيل سريع</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Same day across Cairo & Giza</span>
+                            <span class="ar">نفس اليوم في القاهرة والجيزة</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">🔒</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">Secure Payment</span>
+                            <span class="ar">دفع آمن</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Multiple trusted methods</span>
+                            <span class="ar">طرق متعددة موثوقة</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="trust-badge-modern">
+                    <div class="badge-icon-modern">📞</div>
+                    <div class="badge-content">
+                        <h4 class="bil-inline">
+                            <span class="en">24/7 Support</span>
+                            <span class="ar">دعم 24/7</span>
+                        </h4>
+                        <p class="bil-inline">
+                            <span class="en">Always here to help</span>
+                            <span class="ar">دائماً هنا للمساعدة</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Categories Section -->
+    <section class="featured-categories main-page-sec" x-show="currentPage === 'home'" x-transition>
+        <div class="c">
+            <div class="section-header">
+                <h2 class="bil-spread">
+                    <span class="en">Our Premium Collections</span>
+                    <span class="ar">مجموعاتنا المميزة</span>
+                </h2>
+                <p class="bil-row section-subtitle">
+                    <span class="en">Discover our carefully curated selection of premium halal products</span>
+                    <span class="ar">اكتشف مجموعتنا المختارة بعناية من المنتجات الحلال المميزة</span>
+                </p>
+            </div>
+            <div class="categories-grid">
+                <div class="category-card" @click="navigateToOrScroll('udheya')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/8B4513/FFFFFF?text=🐑+Udheya" alt="Udheya Services" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">Explore Udheya</span>
+                                <span class="ar">استكشف الأضحية</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Udheya & Qurbani</span>
+                            <span class="ar">الأضحية والقرباني</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Complete religious services with premium quality animals</span>
+                            <span class="ar">خدمات دينية كاملة مع حيوانات عالية الجودة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 11,200</span>
+                                    <span class="ar">من 11,200 ج.م</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">35-70kg</span>
+                                    <span class="ar">35-70 كجم</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="category-card" @click="navigateToOrScroll('meat')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/D2B48C/8B4513?text=🥩+Fresh+Cuts" alt="Fresh Meat" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">Shop Fresh Cuts</span>
+                                <span class="ar">تسوق القطعيات</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Fresh Meat & Cuts</span>
+                            <span class="ar">اللحوم والقطعيات الطازجة</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Daily fresh cuts from premium halal sources</span>
+                            <span class="ar">قطعيات طازجة يومياً من مصادر حلال مميزة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 320/kg</span>
+                                    <span class="ar">من 320 ج.م/كجم</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">Same Day</span>
+                                    <span class="ar">نفس اليوم</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="category-card" @click="navigateToOrScroll('livesheep')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/F0EBE3/8B4513?text=🐑+Live+Sheep" alt="Live Sheep" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">View Live Stock</span>
+                                <span class="ar">شاهد الأغنام</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Live Sheep & Rams</span>
+                            <span class="ar">الأغنام والكباش الحية</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Healthy breeding stock and quality animals</span>
+                            <span class="ar">أغنام تربية صحية وحيوانات عالية الجودة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 4,500</span>
+                                    <span class="ar">من 4,500 ج.م</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">15-100kg</span>
+                                    <span class="ar">15-100 كجم</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="category-card" @click="navigateToOrScroll('gatherings')">
+                    <div class="category-image">
+                        <img src="https://placehold.co/400x280/FF6B35/FFFFFF?text=🎉+Events" alt="Event Catering" loading="lazy">
+                        <div class="category-overlay">
+                            <span class="category-cta bil-inline">
+                                <span class="en">Plan Events</span>
+                                <span class="ar">خطط المناسبات</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="bil-spread">
+                            <span class="en">Events & Gatherings</span>
+                            <span class="ar">المناسبات والولائم</span>
+                        </h3>
+                        <p class="bil-row">
+                            <span class="en">Complete catering packages for special occasions</span>
+                            <span class="ar">باقات تجهيز كاملة للمناسبات الخاصة</span>
+                        </p>
+                        <div class="category-stats">
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">From LE 8,500</span>
+                                    <span class="ar">من 8,500 ج.م</span>
+                                </span>
+                            </span>
+                            <span class="stat">
+                                <span class="bil-inline">
+                                    <span class="en">8-80 People</span>
+                                    <span class="ar">8-80 فرد</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <template x-if="settings.promoActive && !cd.ended" x-show="currentPage === 'home'" x-transition>
             <div class="hero-promo-wide">
                 <div class="c-wide">
                     <div class="pban">
@@ -401,49 +676,237 @@
             </div>
         </template>
         
-        <!-- Why Choose Section -->
-        <div class="hero-features-wide">
+    <!-- Why Choose Section -->
+    <section class="why-choose-section main-page-sec" x-show="currentPage === 'home'" x-transition>
+        <div class="why-choose-bg">
             <div class="c">
-                <h2 class="tc bil-spread sec-h">
-                    <span class="en">Why Choose Sheep.Land</span>
-                    <span class="ar">لماذا تختار Sheep.Land</span>
-                </h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🌿</div>
-                        <h3 class="bil-spread"><span class="en">100% Halal</span><span class="ar">حلال 100%</span></h3>
-                        <p class="bil-row">
-                            <span class="en">All our products are certified Halal, following strict Islamic guidelines</span>
-                            <span class="ar">جميع منتجاتنا حلال معتمدة، تتبع الإرشادات الإسلامية الصارمة</span>
-                        </p>
+                <div class="section-header centered">
+                    <h2 class="bil-spread">
+                        <span class="en">Why Egypt Trusts Sheep.Land</span>
+                        <span class="ar">لماذا تثق مصر في Sheep.Land</span>
+                    </h2>
+                    <p class="bil-row section-subtitle">
+                        <span class="en">Join thousands of satisfied customers who choose quality, trust, and tradition</span>
+                        <span class="ar">انضم لآلاف العملاء الراضين الذين يختارون الجودة والثقة والتقاليد</span>
+                    </p>
+                </div>
+                <div class="why-choose-grid">
+                    <div class="why-choose-card featured">
+                        <div class="card-icon-wrapper">
+                            <div class="card-icon">🕌</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="bil-spread">
+                                <span class="en">100% Sharia Compliant</span>
+                                <span class="ar">متوافق مع الشريعة 100%</span>
+                            </h3>
+                            <p class="bil-row">
+                                <span class="en">Certified halal processes following strict Islamic guidelines with religious supervision</span>
+                                <span class="ar">عمليات حلال معتمدة تتبع الإرشادات الإسلامية الصارمة تحت إشراف ديني</span>
+                            </p>
+                            <div class="card-feature">
+                                <span class="bil-inline">
+                                    <span class="en">✓ Religious supervision</span>
+                                    <span class="ar">✓ إشراف ديني</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🚚</div>
-                        <h3 class="bil-spread"><span class="en">Fast Delivery</span><span class="ar">توصيل سريع</span></h3>
-                        <p class="bil-row">
-                            <span class="en">Same-day delivery available across Cairo and Giza</span>
-                            <span class="ar">توصيل في نفس اليوم متاح في القاهرة والجيزة</span>
-                        </p>
+                    
+                    <div class="why-choose-card">
+                        <div class="card-icon-wrapper">
+                            <div class="card-icon">🏆</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="bil-spread">
+                                <span class="en">Premium Quality</span>
+                                <span class="ar">جودة فائقة</span>
+                            </h3>
+                            <p class="bil-row">
+                                <span class="en">Hand-selected animals from trusted Egyptian farms with health guarantees</span>
+                                <span class="ar">حيوانات مختارة بعناية من مزارع مصرية موثوقة مع ضمانات صحية</span>
+                            </p>
+                            <div class="card-feature">
+                                <span class="bil-inline">
+                                    <span class="en">✓ Health certified</span>
+                                    <span class="ar">✓ معتمد صحياً</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🏆</div>
-                        <h3 class="bil-spread"><span class="en">Premium Quality</span><span class="ar">جودة فائقة</span></h3>
-                        <p class="bil-row">
-                            <span class="en">Hand-selected livesheep from trusted local farms</span>
-                            <span class="ar">مواشي مختارة بعناية من مزارع محلية موثوقة</span>
-                        </p>
+                    
+                    <div class="why-choose-card">
+                        <div class="card-icon-wrapper">
+                            <div class="card-icon">⚡</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="bil-spread">
+                                <span class="en">Same Day Service</span>
+                                <span class="ar">خدمة نفس اليوم</span>
+                            </h3>
+                            <p class="bil-row">
+                                <span class="en">Fast delivery across Cairo and Giza with temperature-controlled transport</span>
+                                <span class="ar">توصيل سريع في القاهرة والجيزة مع نقل محكم الحرارة</span>
+                            </p>
+                            <div class="card-feature">
+                                <span class="bil-inline">
+                                    <span class="en">✓ Cold chain delivery</span>
+                                    <span class="ar">✓ توصيل بالسلسلة الباردة</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">💳</div>
-                        <h3 class="bil-spread"><span class="en">Easy Payment</span><span class="ar">دفع سهل</span></h3>
-                        <p class="bil-row">
-                            <span class="en">Multiple payment options including cash, cards, and installments</span>
-                            <span class="ar">خيارات دفع متعددة تشمل النقد والبطاقات والتقسيط</span>
-                        </p>
+                    
+                    <div class="why-choose-card">
+                        <div class="card-icon-wrapper">
+                            <div class="card-icon">🛡️</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="bil-spread">
+                                <span class="en">Trusted & Secure</span>
+                                <span class="ar">موثوق وآمن</span>
+                            </h3>
+                            <p class="bil-row">
+                                <span class="en">Secure payments, money-back guarantee, and 24/7 customer support</span>
+                                <span class="ar">مدفوعات آمنة وضمان استرداد الأموال ودعم عملاء 24/7</span>
+                            </p>
+                            <div class="card-feature">
+                                <span class="bil-inline">
+                                    <span class="en">✓ Money back guarantee</span>
+                                    <span class="ar">✓ ضمان استرداد الأموال</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="why-choose-card">
+                        <div class="card-icon-wrapper">
+                            <div class="card-icon">🌱</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="bil-spread">
+                                <span class="en">Farm to Table</span>
+                                <span class="ar">من المزرعة للمائدة</span>
+                            </h3>
+                            <p class="bil-row">
+                                <span class="en">Direct from Egyptian farms with complete traceability and freshness</span>
+                                <span class="ar">مباشرة من المزارع المصرية مع إمكانية تتبع كاملة وطزاجة</span>
+                            </p>
+                            <div class="card-feature">
+                                <span class="bil-inline">
+                                    <span class="en">✓ Full traceability</span>
+                                    <span class="ar">✓ تتبع كامل</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="why-choose-card">
+                        <div class="card-icon-wrapper">
+                            <div class="card-icon">💰</div>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="bil-spread">
+                                <span class="en">Best Value</span>
+                                <span class="ar">أفضل قيمة</span>
+                            </h3>
+                            <p class="bil-row">
+                                <span class="en">Competitive prices with flexible payment options including installments</span>
+                                <span class="ar">أسعار تنافسية مع خيارات دفع مرنة بما في ذلك التقسيط</span>
+                            </p>
+                            <div class="card-feature">
+                                <span class="bil-inline">
+                                    <span class="en">✓ Flexible payments</span>
+                                    <span class="ar">✓ مدفوعات مرنة</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
+
+    <!-- Customer Testimonials -->
+    <section class="testimonials-section main-page-sec" x-show="currentPage === 'home'" x-transition>
+        <div class="c">
+            <div class="section-header centered">
+                <h2 class="bil-spread">
+                    <span class="en">What Our Customers Say</span>
+                    <span class="ar">ما يقوله عملاؤنا</span>
+                </h2>
+                <p class="bil-row section-subtitle">
+                    <span class="en">Real stories from families across Egypt</span>
+                    <span class="ar">قصص حقيقية من عائلات في جميع أنحاء مصر</span>
+                </p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">⭐⭐⭐⭐⭐</div>
+                        <p class="bil-row">
+                            <span class="en">"Excellent service for our Eid celebration. The meat quality was outstanding and delivery was on time."</span>
+                            <span class="ar">"خدمة ممتازة لاحتفال العيد. جودة اللحم كانت رائعة والتوصيل كان في الموعد."</span>
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-info">
+                                <h4 class="bil-inline">
+                                    <span class="en">Ahmed Hassan</span>
+                                    <span class="ar">أحمد حسن</span>
+                                </h4>
+                                <p class="bil-inline">
+                                    <span class="en">Cairo Customer</span>
+                                    <span class="ar">عميل من القاهرة</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">⭐⭐⭐⭐⭐</div>
+                        <p class="bil-row">
+                            <span class="en">"Best Udheya service in Egypt. Professional, reliable, and follows all religious requirements perfectly."</span>
+                            <span class="ar">"أفضل خدمة أضحية في مصر. محترفة وموثوقة وتتبع جميع المتطلبات الدينية بشكل مثالي."</span>
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-info">
+                                <h4 class="bil-inline">
+                                    <span class="en">Fatima Al-Masry</span>
+                                    <span class="ar">فاطمة المصري</span>
+                                </h4>
+                                <p class="bil-inline">
+                                    <span class="en">Alexandria Customer</span>
+                                    <span class="ar">عميلة من الإسكندرية</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">⭐⭐⭐⭐⭐</div>
+                        <p class="bil-row">
+                            <span class="en">"Amazing quality and service. The live sheep we bought for breeding has been excellent. Highly recommended!"</span>
+                            <span class="ar">"جودة وخدمة مذهلة. الغنم الحي الذي اشتريناه للتربية كان ممتازاً. أنصح به بشدة!"</span>
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-info">
+                                <h4 class="bil-inline">
+                                    <span class="en">Mohamed Abdel Rahman</span>
+                                    <span class="ar">محمد عبد الرحمن</span>
+                                </h4>
+                                <p class="bil-inline">
+                                    <span class="en">Giza Customer</span>
+                                    <span class="ar">عميل من الجيزة</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     </section>
 
     <!-- Udheya Section -->
