@@ -483,10 +483,6 @@
                                         <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
                                         <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
                                     </div>
-                                    <div class="bil-row stock-info" x-show="item.stock !== undefined">
-                                        <p :class="{'out-of-stock': item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}" 
-                                           x-text="getStockDisplayInfo(item.stock, item.isActive)"></p>
-                                    </div>
                                 </div>
                                 <div class="card-foot">
                                     <div class="inline-selection" style="justify-content: space-between;">
@@ -503,6 +499,12 @@
                                             </span>
                                         </button>
                                     </div>
+                                    <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}">
+                                        <span class="bil-inline">
+                                            <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
+                                            <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
+                                        </span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
