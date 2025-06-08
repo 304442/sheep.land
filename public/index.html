@@ -364,7 +364,14 @@
         </div>
     </div>
 
-    <div class="mob-nav" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
+    <div class="mob-nav-overlay" x-show="isMobNavOpen" x-transition.opacity @click="isMobNavOpen = false"></div>
+    <div class="mob-nav" :class="{'active': isMobNavOpen}">
+        <div class="mob-nav-header">
+            <div class="logo logo-icon nav-bil-inline">
+                🐑<span class="en">Sheep Land</span><span class="ar">أرض الأغنام</span>
+            </div>
+            <button class="mob-nav-close" @click="isMobNavOpen = false">✕</button>
+        </div>
         <nav>
             <ul class="nav-list-mob">
                 <template x-if="settings.enable_udheya_section">
