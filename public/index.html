@@ -446,76 +446,55 @@
                     <span class="ar">مجموعة الأضاحي الفاخرة</span>
                 </h1>
             </div>
-            <div class="product-grid">
-                <!-- Baladi Sheep -->
-                <div class="card card-live">
-                    <div class="card-img">
-                        <img src="images/baladi-sheep.jpg" alt="Baladi Sheep" loading="lazy" onerror="this.src='images/placeholder-sheep.jpg'">
-                        <div class="badge udheya-badge">UDHEYA</div>
-                    </div>
-                    <div class="card-b">
-                        <div class="card-content">
-                            <h3 class="card-h bil-spread">
-                                <span class="en">Baladi Sheep</span>
-                                <span class="ar">خروف بلدي</span>
-                            </h3>
-                            <div class="bil-row card-p-row">
-                                <p class="en card-p">Premium local breed, tender meat</p>
-                                <p class="ar card-p">سلالة محلية فاخرة، لحم طري</p>
+            <div x-show="prodOpts.udheya && prodOpts.udheya.length > 0" class="prod-grid grid2">
+                <template x-for="productType in prodOpts.udheya" :key="productType.valKey">
+                    <template x-for="item in productType.wps" :key="item.itemKey">
+                        <div class="card card-live" :class="{'card-sel': item.is_premium}">
+                            <div class="card-img">
+                                <img :src="'images/' + item.type_key + '-sheep.jpg'" :alt="item.nameENSpec" loading="lazy" onerror="this.src='images/placeholder-sheep.jpg'">
+                                <div class="badge udheya-badge">UDHEYA</div>
                             </div>
-                        </div>
-                        <div class="card-foot">
-                            <div class="inline-selection">
-                                <select class="size-dropdown-inline" x-model="selectedBaladiSize" x-init="selectedBaladiSize = 'medium'" @change="updateBaladiPrice()">
-                                    <option value="small">Small (25-30 kg)</option>
-                                    <option value="medium" selected>Medium (30-35 kg) ⭐</option>
-                                    <option value="large">Large (35-40 kg)</option>
-                                </select>
-                                <div class="price-inline" x-show="selectedBaladiSize">
-                                    <strong x-text="fmtPrice(getBaladiPrice())"></strong>
+                            <div class="card-b">
+                                <div class="card-content">
+                                    <h3 class="card-h bil-spread">
+                                        <span class="en" x-text="item.nameENSpec"></span>
+                                        <span class="ar" x-text="item.nameARSpec"></span>
+                                    </h3>
+                                    <div class="bil-row card-p-row">
+                                        <p class="en card-p" x-text="item.descEn || productType.descEn"></p>
+                                        <p class="ar card-p" x-text="item.descAr || productType.descAr"></p>
+                                    </div>
+                                    <div class="bil-row stock-info" x-show="item.stock !== undefined">
+                                        <p :class="{'out-of-stock': item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}" 
+                                           x-text="getStockDisplayInfo(item.stock, item.isActive)"></p>
+                                    </div>
                                 </div>
-                                <button type="button" @click="quickBuyUdheya(getBaladiProduct())" class="btn bp btn-lg" :disabled="!selectedBaladiSize">
-                                    <span class="bil-inline"><span class="en">Order Now</span><span class="ar">اطلب الآن</span></span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Barki Sheep -->
-                <div class="card card-live">
-                    <div class="card-img">
-                        <img src="images/barki-sheep.jpg" alt="Barki Sheep" loading="lazy" onerror="this.src='images/placeholder-sheep.jpg'">
-                        <div class="badge udheya-badge">UDHEYA</div>
-                    </div>
-                    <div class="card-b">
-                        <div class="card-content">
-                            <h3 class="card-h bil-spread">
-                                <span class="en">Barki Sheep</span>
-                                <span class="ar">خروف برقي</span>
-                            </h3>
-                            <div class="bil-row card-p-row">
-                                <p class="en card-p">Premium imported breed, exceptional quality</p>
-                                <p class="ar card-p">سلالة مستوردة فاخرة، جودة استثنائية</p>
-                            </div>
-                        </div>
-                        <div class="card-foot">
-                            <div class="inline-selection">
-                                <select class="size-dropdown-inline" x-model="selectedBarkiSize" x-init="selectedBarkiSize = 'medium'" @change="updateBarkiPrice()">
-                                    <option value="small">Small (25-30 kg)</option>
-                                    <option value="medium" selected>Medium (30-35 kg) ⭐</option>
-                                    <option value="large">Large (35-40 kg)</option>
-                                </select>
-                                <div class="price-inline" x-show="selectedBarkiSize">
-                                    <strong x-text="fmtPrice(getBarkiPrice())"></strong>
+                                <div class="card-foot">
+                                    <div class="inline-selection" style="justify-content: space-between;">
+                                        <div class="price-inline">
+                                            <strong x-text="fmtPrice(item.priceEGP)"></strong>
+                                            <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
+                                        </div>
+                                        <button type="button" @click="openUdheyaConfiguration(item)" 
+                                                class="btn bp btn-lg" 
+                                                :disabled="!item.isActive || item.stock <= 0">
+                                            <span class="bil-inline">
+                                                <span class="en">Configure & Order</span>
+                                                <span class="ar">تكوين وطلب</span>
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <button type="button" @click="quickBuyUdheya(getBarkiProduct())" class="btn bp btn-lg" :disabled="!selectedBarkiSize">
-                                    <span class="bil-inline"><span class="en">Order Now</span><span class="ar">اطلب الآن</span></span>
-                                </button>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </template>
+                </template>
+            </div>
+            <div x-show="!prodOpts.udheya || prodOpts.udheya.length === 0" class="empty-state">
+                <p class="bil-row">
+                    <span class="en">No Udheya products available at the moment.</span>
+                    <span class="ar">لا توجد منتجات أضحية متاحة حالياً.</span>
+                </p>
             </div>
         </div>
     </section>
@@ -555,7 +534,7 @@
                                     <div class="card-foot">
                                         <template x-if="section.key === 'meat'">
                                             <div class="inline-selection">
-                                                <select class="size-dropdown-inline" x-model="selectedMeatWeights[item.itemKey]" x-init="selectedMeatWeights[item.itemKey] = '1'" @change="updateMeatPrice(item)">
+                                                <select class="size-dropdown-inline" x-model="selectedMeatWeights[item.itemKey]" x-init="selectedMeatWeights[item.itemKey] = '1'">
                                                     <option value="1" selected>1 kg</option>
                                                     <option value="2">2 kg</option>
                                                     <option value="3">3 kg</option>

@@ -49,8 +49,6 @@ document.addEventListener('alpine:init', () => {
             site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
         },
         prodOpts: { udheya: [], livesheep_general: [], meat_cuts: [], gathering_package: [] },
-        selectedBaladiSize: '',
-        selectedBarkiSize: '',
         selectedMeatWeights: {},
         searchQuery: '',
         showSearch: false,
@@ -553,49 +551,8 @@ document.addEventListener('alpine:init', () => {
             return`${ci.symbol||(cc==='EGP'?'LE':cc)} ${cp.toFixed((ci.symbol==="LE"||ci.symbol==="ل.م"||cc==='EGP'||ci.symbol==="€")?0:2)}`; 
         },
 
-        getBaladiPrice() {
-            const prices = { small: 4500, medium: 5500, large: 6500 };
-            return prices[this.selectedBaladiSize] || 0;
-        },
-
-        getBarkiPrice() {
-            const prices = { small: 5000, medium: 6000, large: 7000 };
-            return prices[this.selectedBarkiSize] || 0;
-        },
-
-        getBaladiProduct() {
-            if (!this.selectedBaladiSize) return null;
-            const weights = { small: '25-30', medium: '30-35', large: '35-40' };
-            return {
-                itemKey: `baladi_${this.selectedBaladiSize}`,
-                varIdPb: `baladi_${this.selectedBaladiSize}`,
-                nameENSpec: `Baladi Sheep - ${this.selectedBaladiSize.charAt(0).toUpperCase() + this.selectedBaladiSize.slice(1)}`,
-                nameARSpec: `خروف بلدي - ${this.selectedBaladiSize === 'small' ? 'صغير' : this.selectedBaladiSize === 'medium' ? 'متوسط' : 'كبير'}`,
-                wtRangeEn: `${weights[this.selectedBaladiSize]} kg`,
-                wtRangeAr: `${weights[this.selectedBaladiSize]} كجم`,
-                priceEGP: this.getBaladiPrice(),
-                stock: 10,
-                isActive: true,
-                product_category: 'udheya'
-            };
-        },
-
-        getBarkiProduct() {
-            if (!this.selectedBarkiSize) return null;
-            const weights = { small: '25-30', medium: '30-35', large: '35-40' };
-            return {
-                itemKey: `barki_${this.selectedBarkiSize}`,
-                varIdPb: `barki_${this.selectedBarkiSize}`,
-                nameENSpec: `Barki Sheep - ${this.selectedBarkiSize.charAt(0).toUpperCase() + this.selectedBarkiSize.slice(1)}`,
-                nameARSpec: `خروف برقي - ${this.selectedBarkiSize === 'small' ? 'صغير' : this.selectedBarkiSize === 'medium' ? 'متوسط' : 'كبير'}`,
-                wtRangeEn: `${weights[this.selectedBarkiSize]} kg`,
-                wtRangeAr: `${weights[this.selectedBarkiSize]} كجم`,
-                priceEGP: this.getBarkiPrice(),
-                stock: 10,
-                isActive: true,
-                product_category: 'udheya'
-            };
-        },
+        // All product data now comes from database via PocketBase
+        // No hardcoded products or prices
 
         toggleSearch() {
             this.showSearch = !this.showSearch;
@@ -606,47 +563,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        updateBaladiPrice() {
-            // Price update is handled reactively through x-text
-        },
 
-        updateBarkiPrice() {
-            // Price update is handled reactively through x-text
-        },
-
-        quickBuyUdheya(product) {
-            if (!product) return;
-            
-            // Set defaults for Udheya to reduce decisions
-            const udheyaDetails = {
-                serviceOption: 'standard_service',
-                sacrificeDay: 'day1_10_dhul_hijjah', // Default to first day of Eid
-                distribution: {
-                    choice: 'char' // Default to full charity
-                }
-            };
-            
-            // Add to cart with defaults
-            const cartItem = {
-                ...product,
-                udheya_details: udheyaDetails,
-                quantity: 1
-            };
-            
-            this.cartItems.push(cartItem);
-            this.isCartOpen = true;
-            
-            // Show success message
-            this.addedToCartMsg = { 
-                text: { 
-                    en: 'Udheya added to cart! Proceed to checkout when ready.', 
-                    ar: 'تمت إضافة الأضحية للسلة! تابع للدفع عندما تكون جاهزًا.' 
-                }, 
-                isError: false, 
-                pageContext: 'udheya' 
-            };
-            setTimeout(() => this.addedToCartMsg = { text: null, isError: false, pageContext:'' }, 3000);
-        },
 
         getMeatPrice(item) {
             const weight = this.selectedMeatWeights[item.itemKey] || 1;
@@ -654,9 +571,6 @@ document.addEventListener('alpine:init', () => {
             return pricePerKg * weight;
         },
 
-        updateMeatPrice(item) {
-            // Price update is handled reactively through x-text
-        },
 
         getMeatItemWithWeight(item, sectionKey) {
             if (sectionKey !== 'meat') return item;
