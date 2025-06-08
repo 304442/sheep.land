@@ -480,9 +480,6 @@
                     <template x-if="settings.enable_gatherings_section">
                         <li><a href="#gatherings" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
                     </template>
-                    <template x-if="!currentUser">
-                        <li><a href="#auth" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('auth')"><span class="en">Login / Register</span><span class="ar">دخول / تسجيل</span></a></li>
-                    </template>
                     <template x-if="currentUser">
                         <li><a href="#account" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('account')"><span class="en">My Account</span><span class="ar">حسابي</span></a></li>
                         <li><button @click="logoutUser(); isMobNavOpen = false;" class="nav-link-mob nav-bil-inline as-button logout"><span class="en">Logout</span><span class="ar">خروج</span></button></li>
