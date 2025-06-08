@@ -55,7 +55,7 @@ document.addEventListener('alpine:init', () => {
         showExitOffer: false,
         showMeatCalculator: false,
         cartItems: [], 
-        isMobileNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
+        isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
         currentPage: 'home', currLang: "en", curr: "EGP",
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
@@ -229,7 +229,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         updatePageSpecifics() {
-            if (this.currentPage !== 'checkout' && this.orderConfirmation.show) {
+            if (this.currentPage !== 'checkout' && this.orderConf.show) {
                 this.orderConf = { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "", customerEmail: "" };
             }
 
@@ -856,7 +856,7 @@ document.addEventListener('alpine:init', () => {
                 this.checkoutForm.customer_phone = this.currentUser.phone || '';
             }
             
-            if (this.cartItems.length === 0 && !this.orderConfirmation.show) { 
+            if (this.cartItems.length === 0 && !this.orderConf.show) { 
                 this.navigateToOrScroll('udheya'); 
                 return; 
             }
@@ -1032,12 +1032,12 @@ document.addEventListener('alpine:init', () => {
             
             try { 
                 const createdOrder = await this.pb.collection('orders').create(orderPayload); 
-                this.orderConfirmation.orderID = createdOrder.order_id_text; 
-                this.orderConfirmation.totalEgp = createdOrder.total_amount_due_egp; 
-                this.orderConfirmation.items = createdOrder.line_items.map(li => ({...li})); 
-                this.orderConfirmation.customerEmail = createdOrder.customer_email; 
-                this.orderConfirmation.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); 
-                this.orderConfirmation.show = true; 
+                this.orderConf.orderID = createdOrder.order_id_text; 
+                this.orderConf.totalEgp = createdOrder.total_amount_due_egp; 
+                this.orderConf.items = createdOrder.line_items.map(li => ({...li})); 
+                this.orderConf.customerEmail = createdOrder.customer_email; 
+                this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); 
+                this.orderConf.show = true; 
                 
                 const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
                 const isBuyNow = urlParams.get('buyNow') === 'true';
