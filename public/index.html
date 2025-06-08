@@ -578,13 +578,13 @@
                                                 </button>
                                             </div>
                                         </template>
-                                            <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}">
-                                                <span class="bil-inline">
-                                                    <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
-                                                    <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
-                                                </span>
+                                        <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}">
+                                            <span class="bil-inline">
+                                                <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
+                                                <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
                                             </span>
-                                        </div>
+                                        </span>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
