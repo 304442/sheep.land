@@ -296,7 +296,7 @@
                 </svg>
             </button>
             <template x-if="!currentUser">
-                <button @click="navigateToOrScroll('auth')" class="header-action-btn" title="Login">
+                <button @click="toggleAuthDropdown()" class="header-action-btn" title="Login">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
@@ -337,7 +337,7 @@
                 </svg>
             </button>
             <template x-if="!currentUser">
-                <button @click="navigateToOrScroll('auth')" class="header-action-btn" title="Login">
+                <button @click="toggleAuthDropdown()" class="header-action-btn" title="Login">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
@@ -486,6 +486,65 @@
                     </template>
                 </ul>
             </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Auth/Login Dropdown -->
+<div class="auth-dropdown" x-show="showAuthDropdown" x-transition @click.outside="showAuthDropdown = false">
+    <div class="c">
+        <div class="auth-dropdown-content">
+            <div class="auth-header">
+                <h2 class="bil-spread">
+                    <span class="en">Welcome Back</span>
+                    <span class="ar">مرحباً بك</span>
+                </h2>
+                <p class="auth-subtitle bil-spread">
+                    <span class="en">Sign in to access your account</span>
+                    <span class="ar">قم بتسجيل الدخول للوصول إلى حسابك</span>
+                </p>
+            </div>
+            <div class="auth-quick-actions">
+                <button @click="showAuthDropdown = false; navigateToOrScroll('auth'); auth.view = 'login'" class="auth-action-btn primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10 17 15 12 10 7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                    <span class="bil-inline">
+                        <span class="en">Sign In</span>
+                        <span class="ar">تسجيل الدخول</span>
+                    </span>
+                </button>
+                <button @click="showAuthDropdown = false; navigateToOrScroll('auth'); auth.view = 'register'" class="auth-action-btn secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <line x1="20" y1="8" x2="20" y2="14"/>
+                        <line x1="23" y1="11" x2="17" y2="11"/>
+                    </svg>
+                    <span class="bil-inline">
+                        <span class="en">Create Account</span>
+                        <span class="ar">إنشاء حساب</span>
+                    </span>
+                </button>
+            </div>
+            <div class="auth-divider">
+                <span class="bil-inline">
+                    <span class="en">or continue as</span>
+                    <span class="ar">أو تابع كـ</span>
+                </span>
+            </div>
+            <button @click="showAuthDropdown = false; navigateToOrScroll('checkout')" class="auth-action-btn guest">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span class="bil-inline">
+                    <span class="en">Guest Checkout</span>
+                    <span class="ar">الشراء كضيف</span>
+                </span>
+            </button>
         </div>
     </div>
 </div>

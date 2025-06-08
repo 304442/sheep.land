@@ -53,6 +53,7 @@ document.addEventListener('alpine:init', () => {
         searchQuery: '',
         showSearch: false,
         showAccountDropdown: false,
+        showAuthDropdown: false,
         showExitOffer: false,
         showMeatCalculator: false,
         isPromoBarDismissed: false,
@@ -575,6 +576,10 @@ document.addEventListener('alpine:init', () => {
 
         toggleAccountDropdown() {
             this.showAccountDropdown = !this.showAccountDropdown;
+        },
+
+        toggleAuthDropdown() {
+            this.showAuthDropdown = !this.showAuthDropdown;
         },
 
 
