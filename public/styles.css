@@ -29,12 +29,12 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 .load-text{padding:var(--s3) 0;text-align:center;color:var(--tm);font-size:1rem}
 
 .bil-row{display:flex;justify-content:space-between;width:100%;gap:var(--s2);align-items:flex-start}
-.bil-row>.en{flex:0 0 48%;text-align:left;min-width:0;word-wrap:break-word}
-.bil-row>.ar{flex:0 0 48%;font-family:var(--fa);direction:rtl;text-align:right;min-width:0;word-wrap:break-word}
+.bil-row>.en{flex:1 1 48%;text-align:left;min-width:0;word-wrap:break-word}
+.bil-row>.ar{flex:1 1 48%;font-family:var(--fa);direction:rtl;text-align:right;min-width:0;word-wrap:break-word}
 
 .bil-spread{display:flex;justify-content:space-between;align-items:baseline;width:100%;gap:var(--s2)}
-.bil-spread>.en{text-align:left;flex:0 0 48%;min-width:0;word-wrap:break-word}
-.bil-spread>.ar{text-align:right;font-family:var(--fa);direction:rtl;flex:0 0 48%;min-width:0;word-wrap:break-word}
+.bil-spread>.en{text-align:left;flex:1 1 48%;min-width:0;word-wrap:break-word}
+.bil-spread>.ar{text-align:right;font-family:var(--fa);direction:rtl;flex:1 1 48%;min-width:0;word-wrap:break-word}
 
 .bil-inline{display:inline-flex;justify-content:center;align-items:baseline;gap:var(--s2)}
 .bil-inline>.en{margin-right:0;padding-right:0}
@@ -297,10 +297,12 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .feature-card p{font-size:.85rem;color:var(--tm);line-height:1.5}
 
 /* Modern Section Styling */
-.section-header{text-align:center;margin-bottom:var(--s4)}
-.section-header.centered{max-width:800px;margin:0 auto var(--s4)}
-.section-header h2{font-size:2.5rem;font-weight:800;color:var(--c1d);margin-bottom:var(--s2);line-height:1.2}
-.section-subtitle{font-size:1.1rem;color:var(--tm);line-height:1.6;max-width:600px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:var(--s4);width:100%}
+.section-header.centered{width:100%;margin:0 0 var(--s4)}
+.section-header h2{font-size:2.5rem;font-weight:800;color:var(--c1d);margin-bottom:var(--s2);line-height:1.2;width:100%}
+.section-header h2.bil-spread{display:flex;width:100%}
+.section-subtitle{font-size:1.1rem;color:var(--tm);line-height:1.6;width:100%}
+.section-subtitle.bil-row{display:flex;width:100%}
 
 /* Trust Section */
 .trust-section{background:linear-gradient(135deg,var(--b1),var(--b2));padding:var(--s4) 0}
