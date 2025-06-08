@@ -165,6 +165,16 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .quick-feature{display:flex;align-items:center;gap:var(--s2);background:rgba(255,255,255,0.1);padding:var(--s2) var(--s3);border-radius:50px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);font-size:0.9rem}
 .feature-icon{font-size:1.2em}
 
+/* Hero Collections */
+.hero-collections{margin-top:var(--s4);max-width:1000px;margin-left:auto;margin-right:auto}
+.hero-collections-title{color:white;font-size:1.8rem;font-weight:700;margin-bottom:var(--s4);text-align:center}
+.hero-collections-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3)}
+.hero-collection-card{background:rgba(255,255,255,0.1);padding:var(--s4);border-radius:calc(var(--rad)*2);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,0.2);cursor:pointer;transition:all 0.3s ease;text-align:center}
+.hero-collection-card:hover{background:rgba(255,255,255,0.2);transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.3);border-color:rgba(255,255,255,0.4)}
+.collection-icon{font-size:3rem;margin-bottom:var(--s2);line-height:1}
+.hero-collection-card h3{color:white;font-size:1.1rem;margin:0 0 var(--s1);font-weight:700}
+.hero-collection-card p{color:rgba(255,255,255,0.9);font-size:0.9rem;margin:0;font-weight:500}
+
 .hero-promo-wide{width:100%;margin-top:2rem;padding:2rem 0}
 .pban{padding:var(--s4);background:linear-gradient(135deg,var(--c3),#FF8C69);color:var(--c1d);border-radius:calc(var(--rad)*2);box-shadow:0 8px 25px rgba(255,107,53,.3);display:flex;flex-direction:column;align-items:center;gap:var(--s2);text-align:center;margin:0 auto;max-width:1200px}
 .pban-text{width:100%}
@@ -467,6 +477,15 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
     .hero-btn-primary,.hero-btn-secondary{padding:var(--s2) var(--s3);font-size:1rem;justify-content:center}
     .hero-features-quick{gap:var(--s2);flex-direction:column}
     .quick-feature{justify-content:center}
+    
+    /* Mobile Hero Collections */
+    .hero-collections{margin-top:var(--s3)}
+    .hero-collections-title{font-size:1.3rem;margin-bottom:var(--s3)}
+    .hero-collections-grid{grid-template-columns:repeat(2,1fr);gap:var(--s2)}
+    .hero-collection-card{padding:var(--s3)}
+    .collection-icon{font-size:2rem;margin-bottom:var(--s1)}
+    .hero-collection-card h3{font-size:0.9rem}
+    .hero-collection-card p{font-size:0.8rem}
     
     /* Mobile Sections */
     .section-header h2{font-size:2rem}
