@@ -53,6 +53,7 @@ document.addEventListener('alpine:init', () => {
         selectedBarkiSize: '',
         selectedMeatWeights: {},
         searchQuery: '',
+        showSearch: false,
         showExitOffer: false,
         showMeatCalculator: false,
         cartItems: [], 
@@ -593,6 +594,15 @@ document.addEventListener('alpine:init', () => {
             };
         },
 
+        toggleSearch() {
+            this.showSearch = !this.showSearch;
+            if (this.showSearch) {
+                this.$nextTick(() => {
+                    this.$refs.searchInput?.focus();
+                });
+            }
+        },
+
         updateBaladiPrice() {
             // Price update is handled reactively through x-text
         },
@@ -607,9 +617,9 @@ document.addEventListener('alpine:init', () => {
             // Set defaults for Udheya to reduce decisions
             const udheyaDetails = {
                 serviceOption: 'standard_service',
-                sacrificeDay: 'eid_day_1', // Default to first day of Eid
+                sacrificeDay: 'day1_10_dhul_hijjah', // Default to first day of Eid
                 distribution: {
-                    choice: 'full_charity' // Default to full charity
+                    choice: 'char' // Default to full charity
                 }
             };
             
@@ -659,29 +669,55 @@ document.addEventListener('alpine:init', () => {
         },
 
         filterProducts() {
-            // This will be used to filter products based on searchQuery
-            // For now, just trigger re-render
+            // Triggers computed property update
             this.$nextTick();
         },
 
         get filteredProducts() {
-            if (!this.searchQuery) return this.prodOpts;
+            if (!this.searchQuery || this.searchQuery.trim().length < 2) return {};
             
-            const query = this.searchQuery.toLowerCase();
+            const query = this.searchQuery.toLowerCase().trim();
             const filtered = {};
             
+            const categoryNames = {
+                udheya: { en: 'Udheya', ar: 'الأضحية' },
+                livesheep_general: { en: 'Live Sheep', ar: 'الأغنام الحية' },
+                meat_cuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
+                gathering_package: { en: 'Gatherings', ar: 'الولائم' }
+            };
+            
             Object.keys(this.prodOpts).forEach(category => {
-                filtered[category] = this.prodOpts[category].filter(productType => {
-                    return productType.nameEn.toLowerCase().includes(query) ||
-                           productType.nameAr.includes(query) ||
-                           productType.wps.some(item => 
-                               item.nameENSpec.toLowerCase().includes(query) ||
-                               item.nameARSpec.includes(query)
-                           );
+                const matchingProducts = [];
+                
+                this.prodOpts[category].forEach(productType => {
+                    const matchingItems = productType.wps.filter(item => 
+                        item.nameENSpec.toLowerCase().includes(query) ||
+                        item.nameARSpec.includes(query) ||
+                        productType.nameEn.toLowerCase().includes(query) ||
+                        productType.nameAr.includes(query)
+                    );
+                    
+                    if (matchingItems.length > 0) {
+                        matchingProducts.push(...matchingItems);
+                    }
                 });
+                
+                if (matchingProducts.length > 0) {
+                    filtered[category] = matchingProducts;
+                }
             });
             
             return filtered;
+        },
+        
+        getCategoryDisplayName(category) {
+            const names = {
+                udheya: { en: 'Udheya', ar: 'الأضحية' },
+                livesheep_general: { en: 'Live Sheep', ar: 'الأغنام الحية' },
+                meat_cuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
+                gathering_package: { en: 'Gatherings', ar: 'الولائم' }
+            };
+            return names[category] || { en: category, ar: category };
         },
 
         getStockDisplayInfo(stock, isActive, lang = this.currLang) {
@@ -691,7 +727,7 @@ document.addEventListener('alpine:init', () => {
             return lang === 'ar' ? `متوفر: ${stock}` : `${stock} Available`;
         },
 
-        isEmailValid: (e) => (!e?.trim()) || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
+        isEmailValid: (e) => e?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
 
         setErr(f, m, isUserErr = true) { 
@@ -893,9 +929,9 @@ document.addEventListener('alpine:init', () => {
 
             // Pre-fill form if user is logged in
             if (this.currentUser) {
-                this.checkoutData.customer_name = this.currentUser.name || '';
-                this.checkoutData.customer_email = this.currentUser.email || '';
-                this.checkoutData.customer_phone = this.currentUser.phone || '';
+                this.checkoutForm.customer_name = this.currentUser.name || '';
+                this.checkoutForm.customer_email = this.currentUser.email || '';
+                this.checkoutForm.customer_phone = this.currentUser.phone || '';
             }
             
             if (this.cartItems.length === 0 && !this.orderConf.show) { 
@@ -1217,31 +1253,38 @@ document.addEventListener('alpine:init', () => {
         todayRevenue: 0,
         activeCustomers: 0,
         popularItem: '-',
+        pb: null,
         
         async init() {
+            // Get pb instance from parent component
+            this.pb = this.$root.pb || new PocketBase('/');
             await this.fetchTodayStats();
-            setInterval(() => this.fetchTodayStats(), 30000);
+            // Disable auto-refresh to avoid overwhelming the server
+            // setInterval(() => this.fetchTodayStats(), 30000);
         },
         
         async fetchTodayStats() {
+            if (!this.pb) return;
+            
             try {
                 const today = new Date().toISOString().split('T')[0];
-                const orders = await pb.collection('orders').getList(1, 50, {
+                const orders = await this.pb.collection('orders').getList(1, 50, {
                     filter: `created >= '${today} 00:00:00'`,
                     sort: '-created'
                 });
                 
                 this.todayOrders = orders.totalItems;
-                this.todayRevenue = orders.items.reduce((sum, order) => sum + (order.total_amount_egp || 0), 0);
+                this.todayRevenue = orders.items.reduce((sum, order) => sum + (order.total_amount_due_egp || 0), 0);
                 
-                const uniqueCustomers = new Set(orders.items.map(o => o.user));
+                const uniqueCustomers = new Set(orders.items.map(o => o.user || o.customer_email));
                 this.activeCustomers = uniqueCustomers.size;
                 
                 const itemCounts = {};
                 orders.items.forEach(order => {
-                    if (order.items) {
-                        order.items.forEach(item => {
-                            itemCounts[item.nameENSpec] = (itemCounts[item.nameENSpec] || 0) + item.quantity;
+                    if (order.line_items && Array.isArray(order.line_items)) {
+                        order.line_items.forEach(item => {
+                            const itemName = item.name_en || 'Unknown';
+                            itemCounts[itemName] = (itemCounts[itemName] || 0) + item.quantity;
                         });
                     }
                 });
@@ -1250,28 +1293,22 @@ document.addEventListener('alpine:init', () => {
                 this.popularItem = topItem ? topItem[0] : '-';
             } catch (error) {
                 console.error('Failed to fetch stats:', error);
+                // Silently fail - stats are not critical
             }
         },
         
         fmtPrice(amount) {
-            return Alpine.store('sheepLandApp').fmtPrice(amount);
+            // Use parent component's fmtPrice method
+            return this.$root.fmtPrice ? this.$root.fmtPrice(amount) : `${amount} EGP`;
         }
     }));
 
-    // Auto-save cart
-    Alpine.effect(() => {
-        const app = Alpine.store('sheepLandApp');
-        if (app.cartItems.length > 0) {
-            localStorage.setItem('sheepLandCart_autosave', JSON.stringify({
-                items: app.cartItems,
-                savedAt: new Date().toISOString()
-            }));
-        }
-    });
+    // Auto-save cart functionality is handled within the main component
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        const app = Alpine.store('sheepLandApp');
+        const app = document.querySelector('[x-data="sheepLand"]')?._x_dataStack?.[0];
+        if (!app) return;
         if (e.target.matches('input, textarea, select')) return;
         
         switch(e.key.toLowerCase()) {
@@ -1288,13 +1325,25 @@ document.addEventListener('alpine:init', () => {
                 }
                 break;
             case 'escape':
-                app.isCartOpen = false;
-                app.isOrderStatusModalOpen = false;
-                app.isUdheyaConfigModalOpen = false;
+                if (app) {
+                    app.isCartOpen = false;
+                    app.isOrderStatusModalOpen = false;
+                    app.isUdheyaConfigModalOpen = false;
+                    app.showSearch = false;
+                }
                 break;
             case '/':
-                e.preventDefault();
-                document.getElementById('searchBar')?.focus();
+                if (!e.metaKey && !e.ctrlKey) {
+                    e.preventDefault();
+                    // Get Alpine component directly from the page
+                    const alpineApp = document.querySelector('[x-data="sheepLand"]')?._x_dataStack?.[0];
+                    if (alpineApp) {
+                        alpineApp.showSearch = true;
+                        setTimeout(() => {
+                            document.querySelector('.search-input-header')?.focus();
+                        }, 100);
+                    }
+                }
                 break;
         }
     });
@@ -1303,8 +1352,8 @@ document.addEventListener('alpine:init', () => {
     let exitIntentShown = false;
     document.addEventListener('mouseleave', (e) => {
         if (e.clientY <= 0 && !exitIntentShown) {
-            const app = Alpine.store('sheepLandApp');
-            if (app.cartItems.length > 0 && !app.isCartOpen) {
+            const app = document.querySelector('[x-data="sheepLand"]')?._x_dataStack?.[0];
+            if (app && app.cartItems.length > 0 && !app.isCartOpen) {
                 exitIntentShown = true;
                 app.showExitOffer = true;
                 setTimeout(() => app.showExitOffer = false, 10000);
@@ -1312,172 +1361,8 @@ document.addEventListener('alpine:init', () => {
         }
     });
 
-    // Social proof notifications
-    Alpine.data('socialProof', () => ({
-        notifications: [],
-        currentNotification: null,
-        
-        init() {
-            this.startNotifications();
-        },
-        
-        startNotifications() {
-            const messages = [
-                { en: 'Ahmed from Cairo just ordered 5kg of meat', ar: 'أحمد من القاهرة طلب للتو 5 كجم من اللحم' },
-                { en: '3 people are viewing this product', ar: '3 أشخاص يشاهدون هذا المنتج' },
-                { en: 'Sara from Giza bought Barki Sheep', ar: 'سارة من الجيزة اشترت خروف برقي' },
-                { en: 'Limited stock remaining!', ar: 'مخزون محدود متبقي!' },
-                { en: '12 orders in the last hour', ar: '12 طلب في الساعة الأخيرة' }
-            ];
-            
-            setInterval(() => {
-                const msg = messages[Math.floor(Math.random() * messages.length)];
-                this.currentNotification = msg;
-                setTimeout(() => this.currentNotification = null, 4000);
-            }, 15000);
-        }
-    }));
+    // Social proof notifications - removed due to lack of real data
 
-    // Add to app store
-    const appStore = Alpine.store('sheepLandApp');
-    
-    // Quick reorder function
-    appStore.quickReorder = async function(orderId) {
-        try {
-            const order = await pb.collection('orders').getOne(orderId);
-            if (order.items) {
-                this.cartItems = [...order.items];
-                this.isCartOpen = true;
-                this.addedToCartMsg = { 
-                    text: { en: 'Previous order added to cart!', ar: 'تمت إضافة الطلب السابق للسلة!' }, 
-                    isError: false 
-                };
-            }
-        } catch (error) {
-            this.usrApiErr = "Could not load previous order";
-        }
-    };
-
-    // Copy order to WhatsApp
-    appStore.copyOrderToWhatsApp = function(order) {
-        const items = order.items.map(item => 
-            `• ${item.nameENSpec} x${item.quantity} = ${this.fmtPrice(item.priceEGP * item.quantity)}`
-        ).join('\n');
-        
-        const message = `Order #${order.order_id_text}\n\nItems:\n${items}\n\nTotal: ${this.fmtPrice(order.total_amount_egp)}\n\nCustomer: ${order.customer_name}\nPhone: ${order.customer_phone}`;
-        
-        navigator.clipboard.writeText(message);
-        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
-    };
-
-    // Cart timer for urgency
-    appStore.cartTimer = {
-        minutes: 10,
-        seconds: 0,
-        interval: null,
-        
-        start() {
-            this.interval = setInterval(() => {
-                if (this.seconds === 0) {
-                    if (this.minutes === 0) {
-                        clearInterval(this.interval);
-                        return;
-                    }
-                    this.minutes--;
-                    this.seconds = 59;
-                } else {
-                    this.seconds--;
-                }
-            }, 1000);
-        },
-        
-        reset() {
-            clearInterval(this.interval);
-            this.minutes = 10;
-            this.seconds = 0;
-        }
-    };
-
-    // Meat calculator
-    appStore.meatCalculator = {
-        people: 10,
-        meatPerPerson: 0.25,
-        
-        get totalMeat() {
-            return this.people * this.meatPerPerson;
-        },
-        
-        get recommendation() {
-            return {
-                en: `For ${this.people} people, we recommend ${this.totalMeat}kg of meat`,
-                ar: `لـ ${this.people} أشخاص، نوصي بـ ${this.totalMeat} كجم من اللحم`
-            };
-        }
-    };
-
-    // Prayer times integration
-    appStore.prayerTimes = {
-        current: null,
-        next: null,
-        
-        async fetch() {
-            try {
-                const response = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Cairo&country=Egypt');
-                const data = await response.json();
-                const timings = data.data.timings;
-                
-                const now = new Date();
-                const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-                
-                for (let prayer of prayers) {
-                    const time = timings[prayer].split(':');
-                    const prayerTime = new Date();
-                    prayerTime.setHours(parseInt(time[0]), parseInt(time[1]));
-                    
-                    if (prayerTime > now) {
-                        this.next = { name: prayer, time: timings[prayer] };
-                        break;
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to fetch prayer times:', error);
-            }
-        }
-    };
-
-    // Initialize prayer times
-    appStore.prayerTimes.fetch();
-    
-    // Loading indicators
-    appStore.showLoading = false;
-    
-    // Trust badges data
-    appStore.trustBadges = [
-        { icon: '✅', text: { en: '100% Halal Certified', ar: 'حلال 100% معتمد' } },
-        { icon: '🚚', text: { en: 'Same Day Delivery', ar: 'توصيل في نفس اليوم' } },
-        { icon: '💯', text: { en: 'Quality Guaranteed', ar: 'جودة مضمونة' } },
-        { icon: '🔒', text: { en: 'Secure Payment', ar: 'دفع آمن' } }
-    ];
-
-    // Quick view modal
-    appStore.quickViewItem = null;
-    appStore.showQuickView = false;
-    
-    appStore.openQuickView = function(item) {
-        this.quickViewItem = item;
-        this.showQuickView = true;
-    };
-
-    // Sticky cart button
-    appStore.stickyCartVisible = true;
-    
-    // Scroll handler for sticky cart
-    let lastScroll = 0;
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
-        appStore.stickyCartVisible = currentScroll < lastScroll || currentScroll < 100;
-        lastScroll = currentScroll;
-    });
-        }
-    }));
+    // Removed unused features: prayer times, social proof, etc.
+    // These features were not properly integrated and caused errors
 });
