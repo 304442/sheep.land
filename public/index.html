@@ -378,13 +378,6 @@
                             <span class="ar">حلال معتمد</span>
                         </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label bil-inline">
-                            <span class="en">Fresh Quality</span>
-                            <span class="ar">جودة طازجة</span>
-                        </div>
-                    </div>
                 </div>
                 <div class="hero-cta-group">
                     <button @click="navigateToOrScroll('udheya')" class="btn hero-btn-primary bil-inline">
@@ -402,32 +395,33 @@
                         </span>
                     </button>
                 </div>
-                <div class="hero-features-quick">
-                    <div class="quick-feature">
-                        <span class="feature-icon">🚚</span>
-                        <span class="bil-inline">
-                            <span class="en">Same Day Delivery</span>
-                            <span class="ar">توصيل نفس اليوم</span>
-                        </span>
-                    </div>
-                    <div class="quick-feature">
-                        <span class="feature-icon">🏆</span>
-                        <span class="bil-inline">
-                            <span class="en">Premium Quality</span>
-                            <span class="ar">جودة فائقة</span>
-                        </span>
-                    </div>
-                    <div class="quick-feature">
-                        <span class="feature-icon">💳</span>
-                        <span class="bil-inline">
-                            <span class="en">Easy Payment</span>
-                            <span class="ar">دفع سهل</span>
-                        </span>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
+
+    <!-- Promotional Banner -->
+    <template x-if="settings.promoActive && !cd.ended" x-show="currentPage === 'home'" x-transition>
+            <div class="hero-promo-wide">
+                <div class="c-wide">
+                    <div class="pban">
+                        <div class="pban-text">
+                            <h3 class="prm-h bil-row">
+                                <span class="en" x-html="`🎉 Limited Time: <strong>${settings.promoDiscPc}% OFF</strong> All Udheya! Ends in:`"></span>
+                                <span class="ar" x-html="`🎉 عرض محدود: <strong>خصم ${settings.promoDiscPc}%</strong> على جميع الأضاحي! ينتهي خلال:`"></span>
+                            </h3>
+                        </div>
+                        <div class="cd-wrap">
+                            <div class="cd">
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.days"></span><span class="cd-lbl">Days</span></div>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.hours"></span><span class="cd-lbl">Hrs</span></div>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Min</span></div>
+                                <div class="cd-seg"><span class="cd-val" x-text="cd.secs"></span><span class="cd-lbl">Sec</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
 
     <!-- Trust Indicators Section -->
     <section class="trust-section main-page-sec" x-show="currentPage === 'home'" x-transition>
@@ -647,29 +641,6 @@
         </div>
     </section>
 
-    <template x-if="settings.promoActive && !cd.ended" x-show="currentPage === 'home'" x-transition>
-            <div class="hero-promo-wide">
-                <div class="c-wide">
-                    <div class="pban">
-                        <div class="pban-text">
-                            <h3 class="prm-h bil-row">
-                                <span class="en" x-html="`🎉 Limited Time: <strong>${settings.promoDiscPc}% OFF</strong> All Udheya! Ends in:`"></span>
-                                <span class="ar" x-html="`🎉 عرض محدود: <strong>خصم ${settings.promoDiscPc}%</strong> على جميع الأضاحي! ينتهي خلال:`"></span>
-                            </h3>
-                        </div>
-                        <div class="cd-wrap">
-                            <div class="cd">
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.days"></span><span class="cd-lbl">Days</span></div>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.hours"></span><span class="cd-lbl">Hrs</span></div>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.mins"></span><span class="cd-lbl">Min</span></div>
-                                <div class="cd-seg"><span class="cd-val" x-text="cd.secs"></span><span class="cd-lbl">Sec</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-        
     <!-- Why Choose Section -->
     <section class="why-choose-section main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="why-choose-bg">

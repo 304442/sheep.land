@@ -191,6 +191,15 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .rgrp label:has(input:checked){background:rgba(139,69,19,.1);border-color:var(--c1);font-weight:600}
 .rgrp input[type=radio]{margin-right:var(--s1);width:16px;height:16px;flex-shrink:0;accent-color:var(--c1)}
 
+/* Payment Methods */
+.pay-meths{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--s2);margin:var(--s2) 0}
+.pm{display:flex;flex-direction:column;align-items:center;border:2px solid var(--bs);border-radius:var(--rad);padding:var(--s2);cursor:pointer;transition:all .3s ease;background:var(--bc);position:relative}
+.pm:hover{border-color:var(--c2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.pm.sel{border-color:var(--c1);background:rgba(139,69,19,.05);box-shadow:0 4px 12px rgba(139,69,19,.2)}
+.pm input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.pm label{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%}
+.pay-icon{width:50px;height:32px;object-fit:contain;border-radius:4px;border:1px solid var(--bs)}
+
 .err-msg{color:#dc3545;font-size:.85rem;margin-top:var(--s1);display:block;font-weight:600}
 .succ-msg{color:var(--c2);font-size:.85rem;margin-top:var(--s2);display:block;text-align:center;font-weight:600}
 
