@@ -54,6 +54,7 @@ document.addEventListener('alpine:init', () => {
         showSearch: false,
         showExitOffer: false,
         showMeatCalculator: false,
+        isPromoBarDismissed: false,
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
