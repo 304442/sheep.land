@@ -146,7 +146,7 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .menu-btn{display:none;background:0 0;border:none;cursor:pointer;padding:var(--s2);color:var(--c1);z-index:1010;font-size:1.8em;transition:all .3s ease}
 .menu-btn:hover{color:var(--c2);transform:scale(1.1)}
 
-.mob-nav{position:fixed;top:calc(var(--head-h) + 32px);left:0;right:0;background:linear-gradient(135deg,var(--b2),#f8f6f3);padding:var(--s2);box-shadow:0 8px 20px rgba(0,0,0,.15);z-index:1005;border-top:1px solid var(--bs);backdrop-filter:blur(10px)}
+.mob-nav{position:fixed;top:calc(var(--head-h) + 32px);left:0;right:0;background:linear-gradient(135deg,var(--b2),#f8f6f3);padding:var(--s2);box-shadow:0 8px 20px rgba(0,0,0,.15);z-index:1005;backdrop-filter:blur(10px)}
 .nav-list-mob{display:flex;flex-direction:column;align-items:center;gap:var(--s1)}
 .nav-link-mob{font-size:1.1rem;color:var(--c1);font-weight:600;padding:var(--s2) var(--s3);border-radius:var(--rad);display:flex;align-items:center;gap:.5em;text-decoration:none;justify-content:center;line-height:1;min-width:48px;transition:all .3s ease}
 .nav-link-mob:hover,.nav-link-mob.active-nav{color:var(--c1d);background:rgba(62,39,35,.1);font-weight:700;transform:translateY(-1px)}
@@ -374,8 +374,8 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .footer-link-btn:hover{color:var(--td)}
 
 /* Search Dropdown */
-.search-dropdown{position:fixed;top:calc(var(--head-h) + 32px);left:0;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:999;border-bottom:2px solid var(--c2);max-height:calc(100vh - var(--head-h) - 32px);overflow:hidden}
-.search-dropdown-content{padding:var(--s3) 0}
+.search-dropdown{position:fixed;top:calc(var(--head-h) + 32px);left:0;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-bottom:2px solid var(--c2);max-height:calc(100vh - var(--head-h) - 32px);overflow:auto}
+.search-dropdown-content{padding:var(--s3) 0;max-height:calc(100vh - var(--head-h) - 32px - 4rem);overflow-y:auto}
 .search-input-header{width:100%;max-width:600px;margin:0 auto;display:block;padding:var(--s3) var(--s4);font-size:1.1rem;border:2px solid var(--bs);border-radius:var(--rad);background:var(--b1);transition:all .3s ease}
 .search-input-header:focus{border-color:var(--c2);outline:none;box-shadow:0 0 0 3px rgba(139,69,19,.1);background:white}
 .search-results{max-height:50vh;overflow-y:auto;margin-top:var(--s3);padding:0 var(--s3)}
