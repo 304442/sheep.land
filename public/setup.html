@@ -18,6 +18,12 @@
         #out pre{margin:2px 0;padding:3px 5px;background:#2d2d2d;border-radius:2px;font-size:8px;line-height:1.2;overflow-x:auto}
         #out div{margin:1px 0;padding:1px 0}
         .setup-info{background:#e8f4fd;padding:10px;border-radius:6px;border-left:3px solid #2196f3;margin-bottom:12px}
+        .validation-success{color:#22c55e;font-weight:600}
+        .validation-error{color:#ef4444;font-weight:600}
+        .validation-warning{color:#f59e0b;font-weight:600}
+        .validation-info{color:#3b82f6;font-weight:normal}
+        .textarea-valid{border-color:#22c55e!important;box-shadow:0 0 0 2px rgba(34,197,94,0.1)}
+        .textarea-invalid{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,0.1)}
     </style>
 </head>
 <body>
@@ -42,11 +48,17 @@
         <div style="display:flex;gap:8px;margin:8px 0">
             <div style="flex:1">
                 <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Collections JSON:</label>
-                <textarea id="collectionsData" style="width:100%;height:100px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
+                <div style="position:relative">
+                    <textarea id="collectionsData" style="width:100%;height:100px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
+                    <div id="collectionsValidation" style="margin-top:2px;font-size:10px;min-height:15px"></div>
+                </div>
             </div>
             <div style="flex:1">
                 <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Seed Data JSON:</label>
-                <textarea id="seedData" style="width:100%;height:100px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
+                <div style="position:relative">
+                    <textarea id="seedData" style="width:100%;height:100px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
+                    <div id="seedValidation" style="margin-top:2px;font-size:10px;min-height:15px"></div>
+                </div>
             </div>
         </div>
         
@@ -68,6 +80,8 @@
     const adminPasswordInput = document.getElementById('adminPassword');
     const collectionsTextarea = document.getElementById('collectionsData');
     const seedTextarea = document.getElementById('seedData');
+    const collectionsValidationDiv = document.getElementById('collectionsValidation');
+    const seedValidationDiv = document.getElementById('seedValidation');
     
     // Note: textareas will be populated after data definitions
 
@@ -429,9 +443,727 @@
         ]
     };
 
-    // Populate textareas with default data
+    // PocketBase API-compliant validation functions
+    // Based on official PocketBase API documentation
+    const VALID_FIELD_TYPES = [
+        'text', 'email', 'url', 'number', 'bool', 'date', 'select', 'json', 
+        'file', 'relation', 'user', 'editor', 'autodate', 'password'
+    ];
+    
+    // Additional field validation constraints from API docs
+    const FIELD_CONSTRAINTS = {
+        text: { maxLength: 5000 },
+        email: { maxLength: 320 },
+        url: { maxLength: 2048 },
+        password: { minLength: 8, maxLength: 255 },
+        select: { maxValues: 100, maxSelect: 100 },
+        file: { maxSelect: 99, maxSize: 5368709120 }, // 5GB in bytes
+        relation: { maxSelect: 100, maxDepth: 6 },
+        json: { maxSize: 65536 } // 64KB for JSON fields
+    };
+    
+    const VALID_COLLECTION_TYPES = ['base', 'auth', 'view'];
+    
+    function validateCollections(jsonText) {
+        try {
+            const collections = JSON.parse(jsonText);
+            
+            if (!Array.isArray(collections)) {
+                return { valid: false, message: "❌ Must be an array of collections", details: null };
+            }
+            
+            if (collections.length === 0) {
+                return { valid: false, message: "❌ At least one collection required", details: null };
+            }
+            
+            const requiredCollections = ['settings', 'products', 'users', 'orders'];
+            const foundCollections = collections.map(c => c.name);
+            const missingCollections = requiredCollections.filter(name => !foundCollections.includes(name));
+            
+            if (missingCollections.length > 0) {
+                return { valid: false, message: `❌ Missing required collections: ${missingCollections.join(', ')}`, details: null };
+            }
+            
+            // Validate each collection against PocketBase API specs
+            for (const collection of collections) {
+                const validation = validateSingleCollection(collection);
+                if (!validation.valid) {
+                    return validation;
+                }
+            }
+            
+            return { valid: true, message: `✅ Valid collections structure (${collections.length} collections)`, details: { count: collections.length, names: foundCollections } };
+            
+        } catch (error) {
+            return { valid: false, message: `❌ JSON Parse Error: ${error.message}`, details: error };
+        }
+    }
+    
+    function validateSingleCollection(collection) {
+        // Validate required collection properties
+        if (!collection.name || typeof collection.name !== 'string') {
+            return { valid: false, message: "❌ Collection missing valid 'name' field", details: collection };
+        }
+        
+        // Collection name validation (PocketBase requirements)
+        if (!/^[a-zA-Z0-9_]+$/.test(collection.name) || collection.name.length < 1 || collection.name.length > 32) {
+            return { valid: false, message: `❌ Collection '${collection.name}' has invalid name (alphanumeric + underscore, 1-32 chars)`, details: collection };
+        }
+        
+        if (!collection.type || !VALID_COLLECTION_TYPES.includes(collection.type)) {
+            return { valid: false, message: `❌ Collection '${collection.name}' has invalid type (must be: ${VALID_COLLECTION_TYPES.join(', ')})`, details: collection };
+        }
+        
+        if (!Array.isArray(collection.fields)) {
+            return { valid: false, message: `❌ Collection '${collection.name}' missing fields array`, details: collection };
+        }
+        
+        // Validate system property
+        if (collection.system !== undefined && typeof collection.system !== 'boolean') {
+            return { valid: false, message: `❌ Collection '${collection.name}' system property must be boolean`, details: collection };
+        }
+        
+        // Validate API rules (can be null, empty string, or valid rule string)
+        const rules = ['listRule', 'viewRule', 'createRule', 'updateRule', 'deleteRule'];
+        for (const rule of rules) {
+            if (collection[rule] !== undefined && collection[rule] !== null && typeof collection[rule] !== 'string') {
+                return { valid: false, message: `❌ Collection '${collection.name}' ${rule} must be string or null`, details: collection };
+            }
+            
+            // Enhanced API rule syntax validation
+            if (collection[rule] && typeof collection[rule] === 'string') {
+                const ruleValidation = validateAPIRule(collection[rule], rule, collection.name);
+                if (!ruleValidation.valid) {
+                    return { valid: false, message: ruleValidation.message, details: ruleValidation.details || collection };
+                }
+            }
+        }
+        
+        // Validate auth collection options
+        if (collection.type === 'auth' && collection.options) {
+            const authValidation = validateAuthOptions(collection.options, collection.name);
+            if (!authValidation.valid) {
+                return authValidation;
+            }
+        }
+        
+        // Validate fields
+        for (let i = 0; i < collection.fields.length; i++) {
+            const fieldValidation = validateField(collection.fields[i], collection.name, i);
+            if (!fieldValidation.valid) {
+                return fieldValidation;
+            }
+        }
+        
+        // Validate collection-specific requirements
+        const specificValidation = validateCollectionSpecificRequirements(collection);
+        if (!specificValidation.valid) {
+            return specificValidation;
+        }
+        
+        return { valid: true, message: `✅ Collection '${collection.name}' is valid`, details: null };
+    }
+    
+    function validateField(field, collectionName, index) {
+        if (!field.name || typeof field.name !== 'string') {
+            return { valid: false, message: `❌ Field ${index + 1} in '${collectionName}' missing valid name`, details: field };
+        }
+        
+        // Field name validation
+        if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(field.name) || field.name.length > 64) {
+            return { valid: false, message: `❌ Field '${field.name}' has invalid name (must start with letter, alphanumeric + underscore, max 64 chars)`, details: field };
+        }
+        
+        if (!field.type || !VALID_FIELD_TYPES.includes(field.type)) {
+            return { valid: false, message: `❌ Field '${field.name}' has invalid type (must be: ${VALID_FIELD_TYPES.join(', ')})`, details: field };
+        }
+        
+        // Type-specific validation based on PocketBase API documentation
+        switch (field.type) {
+            case 'text':
+                if (field.min !== undefined && (typeof field.min !== 'number' || field.min < 0)) {
+                    return { valid: false, message: `❌ Text field '${field.name}' min must be positive number`, details: field };
+                }
+                if (field.max !== undefined && (typeof field.max !== 'number' || field.max < 1 || field.max > FIELD_CONSTRAINTS.text.maxLength)) {
+                    return { valid: false, message: `❌ Text field '${field.name}' max must be 1-${FIELD_CONSTRAINTS.text.maxLength}`, details: field };
+                }
+                if (field.pattern !== undefined && typeof field.pattern !== 'string') {
+                    return { valid: false, message: `❌ Text field '${field.name}' pattern must be valid regex string`, details: field };
+                }
+                break;
+                
+            case 'email':
+                if (field.max !== undefined && field.max > FIELD_CONSTRAINTS.email.maxLength) {
+                    return { valid: false, message: `❌ Email field '${field.name}' max length cannot exceed ${FIELD_CONSTRAINTS.email.maxLength}`, details: field };
+                }
+                if (field.exceptDomains !== undefined && !Array.isArray(field.exceptDomains)) {
+                    return { valid: false, message: `❌ Email field '${field.name}' exceptDomains must be array`, details: field };
+                }
+                if (field.onlyDomains !== undefined && !Array.isArray(field.onlyDomains)) {
+                    return { valid: false, message: `❌ Email field '${field.name}' onlyDomains must be array`, details: field };
+                }
+                break;
+                
+            case 'url':
+                if (field.max !== undefined && field.max > FIELD_CONSTRAINTS.url.maxLength) {
+                    return { valid: false, message: `❌ URL field '${field.name}' max length cannot exceed ${FIELD_CONSTRAINTS.url.maxLength}`, details: field };
+                }
+                break;
+                
+            case 'password':
+                if (field.min !== undefined && field.min < FIELD_CONSTRAINTS.password.minLength) {
+                    return { valid: false, message: `❌ Password field '${field.name}' min must be at least ${FIELD_CONSTRAINTS.password.minLength}`, details: field };
+                }
+                if (field.max !== undefined && field.max > FIELD_CONSTRAINTS.password.maxLength) {
+                    return { valid: false, message: `❌ Password field '${field.name}' max cannot exceed ${FIELD_CONSTRAINTS.password.maxLength}`, details: field };
+                }
+                if (field.pattern !== undefined && typeof field.pattern !== 'string') {
+                    return { valid: false, message: `❌ Password field '${field.name}' pattern must be valid regex string`, details: field };
+                }
+                break;
+                
+            case 'number':
+                if (field.min !== undefined && typeof field.min !== 'number') {
+                    return { valid: false, message: `❌ Number field '${field.name}' min must be number`, details: field };
+                }
+                if (field.max !== undefined && typeof field.max !== 'number') {
+                    return { valid: false, message: `❌ Number field '${field.name}' max must be number`, details: field };
+                }
+                if (field.noDecimal !== undefined && typeof field.noDecimal !== 'boolean') {
+                    return { valid: false, message: `❌ Number field '${field.name}' noDecimal must be boolean`, details: field };
+                }
+                break;
+                
+            case 'bool':
+                // Boolean fields don't have additional constraints
+                break;
+                
+            case 'date':
+                if (field.min !== undefined && typeof field.min !== 'string') {
+                    return { valid: false, message: `❌ Date field '${field.name}' min must be ISO date string`, details: field };
+                }
+                if (field.max !== undefined && typeof field.max !== 'string') {
+                    return { valid: false, message: `❌ Date field '${field.name}' max must be ISO date string`, details: field };
+                }
+                break;
+                
+            case 'select':
+                if (!Array.isArray(field.values) || field.values.length === 0) {
+                    return { valid: false, message: `❌ Select field '${field.name}' must have non-empty values array`, details: field };
+                }
+                if (field.values.length > FIELD_CONSTRAINTS.select.maxValues) {
+                    return { valid: false, message: `❌ Select field '${field.name}' cannot have more than ${FIELD_CONSTRAINTS.select.maxValues} values`, details: field };
+                }
+                if (field.maxSelect !== undefined && (typeof field.maxSelect !== 'number' || field.maxSelect < 1 || field.maxSelect > FIELD_CONSTRAINTS.select.maxSelect)) {
+                    return { valid: false, message: `❌ Select field '${field.name}' maxSelect must be 1-${FIELD_CONSTRAINTS.select.maxSelect}`, details: field };
+                }
+                break;
+                
+            case 'json':
+                if (field.maxSize !== undefined && field.maxSize > FIELD_CONSTRAINTS.json.maxSize) {
+                    return { valid: false, message: `❌ JSON field '${field.name}' maxSize cannot exceed ${FIELD_CONSTRAINTS.json.maxSize} bytes`, details: field };
+                }
+                break;
+                
+            case 'file':
+                if (field.maxSelect !== undefined && (typeof field.maxSelect !== 'number' || field.maxSelect < 1 || field.maxSelect > FIELD_CONSTRAINTS.file.maxSelect)) {
+                    return { valid: false, message: `❌ File field '${field.name}' maxSelect must be 1-${FIELD_CONSTRAINTS.file.maxSelect}`, details: field };
+                }
+                if (field.maxSize !== undefined && (typeof field.maxSize !== 'number' || field.maxSize < 1 || field.maxSize > FIELD_CONSTRAINTS.file.maxSize)) {
+                    return { valid: false, message: `❌ File field '${field.name}' maxSize must be 1-${FIELD_CONSTRAINTS.file.maxSize} bytes`, details: field };
+                }
+                if (field.mimeTypes !== undefined && !Array.isArray(field.mimeTypes)) {
+                    return { valid: false, message: `❌ File field '${field.name}' mimeTypes must be array`, details: field };
+                }
+                if (field.thumbs !== undefined && !Array.isArray(field.thumbs)) {
+                    return { valid: false, message: `❌ File field '${field.name}' thumbs must be array`, details: field };
+                }
+                break;
+                
+            case 'relation':
+                if (!field.collectionId || typeof field.collectionId !== 'string') {
+                    return { valid: false, message: `❌ Relation field '${field.name}' must have collectionId`, details: field };
+                }
+                if (field.cascadeDelete !== undefined && typeof field.cascadeDelete !== 'boolean') {
+                    return { valid: false, message: `❌ Relation field '${field.name}' cascadeDelete must be boolean`, details: field };
+                }
+                if (field.minSelect !== undefined && (typeof field.minSelect !== 'number' || field.minSelect < 0)) {
+                    return { valid: false, message: `❌ Relation field '${field.name}' minSelect must be non-negative number`, details: field };
+                }
+                if (field.maxSelect !== undefined && (typeof field.maxSelect !== 'number' || field.maxSelect < 1 || field.maxSelect > FIELD_CONSTRAINTS.relation.maxSelect)) {
+                    return { valid: false, message: `❌ Relation field '${field.name}' maxSelect must be 1-${FIELD_CONSTRAINTS.relation.maxSelect}`, details: field };
+                }
+                if (field.displayFields !== undefined && !Array.isArray(field.displayFields)) {
+                    return { valid: false, message: `❌ Relation field '${field.name}' displayFields must be array`, details: field };
+                }
+                break;
+                
+            case 'user':
+                // User fields inherit from relation field constraints
+                if (field.maxSelect !== undefined && (typeof field.maxSelect !== 'number' || field.maxSelect < 1 || field.maxSelect > FIELD_CONSTRAINTS.relation.maxSelect)) {
+                    return { valid: false, message: `❌ User field '${field.name}' maxSelect must be 1-${FIELD_CONSTRAINTS.relation.maxSelect}`, details: field };
+                }
+                if (field.displayFields !== undefined && !Array.isArray(field.displayFields)) {
+                    return { valid: false, message: `❌ User field '${field.name}' displayFields must be array`, details: field };
+                }
+                break;
+                
+            case 'editor':
+                if (field.convertURLs !== undefined && typeof field.convertURLs !== 'boolean') {
+                    return { valid: false, message: `❌ Editor field '${field.name}' convertURLs must be boolean`, details: field };
+                }
+                break;
+                
+            case 'autodate':
+                if (field.onCreate !== undefined && typeof field.onCreate !== 'boolean') {
+                    return { valid: false, message: `❌ Autodate field '${field.name}' onCreate must be boolean`, details: field };
+                }
+                if (field.onUpdate !== undefined && typeof field.onUpdate !== 'boolean') {
+                    return { valid: false, message: `❌ Autodate field '${field.name}' onUpdate must be boolean`, details: field };
+                }
+                break;
+        }
+        
+        // Common field properties validation
+        if (field.required !== undefined && typeof field.required !== 'boolean') {
+            return { valid: false, message: `❌ Field '${field.name}' required must be boolean`, details: field };
+        }
+        
+        if (field.presentable !== undefined && typeof field.presentable !== 'boolean') {
+            return { valid: false, message: `❌ Field '${field.name}' presentable must be boolean`, details: field };
+        }
+        
+        if (field.unique !== undefined && typeof field.unique !== 'boolean') {
+            return { valid: false, message: `❌ Field '${field.name}' unique must be boolean`, details: field };
+        }
+        
+        return { valid: true, message: `✅ Field '${field.name}' is valid`, details: null };
+    }
+    
+    function validateAuthOptions(options, collectionName) {
+        // Enhanced auth options based on PocketBase API documentation
+        const validOptions = [
+            'allowEmailAuth', 'allowUsernameAuth', 'allowOAuth2Auth', 
+            'requireEmailVerification', 'exceptEmailDomains', 'onlyEmailDomains',
+            'minPasswordLength', 'manageRule', 'emailVisibility', 'onlyVerified',
+            'allowPasswordAuth', 'allowOAuth2Auth', 'allowUsernameAuth',
+            'requireOTP', 'allowOTP', 'otpDuration', 'otpEmailTemplate',
+            'verificationTemplate', 'resetPasswordTemplate', 'confirmEmailChangeTemplate'
+        ];
+        
+        for (const key in options) {
+            if (!validOptions.includes(key)) {
+                return { valid: false, message: `❌ Auth collection '${collectionName}' has invalid option: ${key}`, details: options };
+            }
+        }
+        
+        // Comprehensive auth options validation based on PocketBase API
+        const booleanOptions = [
+            'allowEmailAuth', 'allowUsernameAuth', 'allowOAuth2Auth', 'allowPasswordAuth',
+            'requireEmailVerification', 'emailVisibility', 'onlyVerified', 
+            'requireOTP', 'allowOTP'
+        ];
+        
+        for (const option of booleanOptions) {
+            if (options[option] !== undefined && typeof options[option] !== 'boolean') {
+                return { valid: false, message: `❌ Auth collection '${collectionName}' ${option} must be boolean`, details: options };
+            }
+        }
+        
+        if (options.minPasswordLength !== undefined && (typeof options.minPasswordLength !== 'number' || options.minPasswordLength < 5 || options.minPasswordLength > 255)) {
+            return { valid: false, message: `❌ Auth collection '${collectionName}' minPasswordLength must be 5-255`, details: options };
+        }
+        
+        if (options.otpDuration !== undefined && (typeof options.otpDuration !== 'number' || options.otpDuration < 60 || options.otpDuration > 86400)) {
+            return { valid: false, message: `❌ Auth collection '${collectionName}' otpDuration must be 60-86400 seconds`, details: options };
+        }
+        
+        const arrayOptions = ['exceptEmailDomains', 'onlyEmailDomains'];
+        for (const option of arrayOptions) {
+            if (options[option] !== undefined && !Array.isArray(options[option])) {
+                return { valid: false, message: `❌ Auth collection '${collectionName}' ${option} must be array`, details: options };
+            }
+        }
+        
+        const stringOptions = ['manageRule', 'otpEmailTemplate', 'verificationTemplate', 'resetPasswordTemplate', 'confirmEmailChangeTemplate'];
+        for (const option of stringOptions) {
+            if (options[option] !== undefined && typeof options[option] !== 'string') {
+                return { valid: false, message: `❌ Auth collection '${collectionName}' ${option} must be string`, details: options };
+            }
+        }
+        
+        return { valid: true, message: `✅ Auth options valid`, details: null };
+    }
+    
+    function validateCollectionSpecificRequirements(collection) {
+        // Validate collection-specific business logic
+        switch (collection.name) {
+            case 'products':
+                const requiredProductFields = ['item_key', 'product_category', 'variant_name_en', 'base_price_egp', 'stock_available_pb'];
+                const fieldNames = collection.fields.map(f => f.name);
+                const missingFields = requiredProductFields.filter(name => !fieldNames.includes(name));
+                if (missingFields.length > 0) {
+                    return { valid: false, message: `❌ Products collection missing critical fields: ${missingFields.join(', ')}`, details: collection };
+                }
+                
+                // Check for unique constraint on item_key
+                const itemKeyField = collection.fields.find(f => f.name === 'item_key');
+                if (!itemKeyField.unique) {
+                    return { valid: false, message: `❌ Products collection item_key field must be unique`, details: collection };
+                }
+                break;
+                
+            case 'orders':
+                const requiredOrderFields = ['order_id_text', 'customer_name', 'customer_email', 'total_amount_due_egp'];
+                const orderFieldNames = collection.fields.map(f => f.name);
+                const missingOrderFields = requiredOrderFields.filter(name => !orderFieldNames.includes(name));
+                if (missingOrderFields.length > 0) {
+                    return { valid: false, message: `❌ Orders collection missing critical fields: ${missingOrderFields.join(', ')}`, details: collection };
+                }
+                break;
+                
+            case 'settings':
+                const requiredSettingsFields = ['xchgRates', 'defCurr', 'servFeeEGP'];
+                const settingsFieldNames = collection.fields.map(f => f.name);
+                const missingSettingsFields = requiredSettingsFields.filter(name => !settingsFieldNames.includes(name));
+                if (missingSettingsFields.length > 0) {
+                    return { valid: false, message: `❌ Settings collection missing critical fields: ${missingSettingsFields.join(', ')}`, details: collection };
+                }
+                break;
+        }
+        
+        return { valid: true, message: `✅ Collection-specific requirements met`, details: null };
+    }
+    
+    // Enhanced validation for API rules based on PocketBase filter syntax
+    function validateAPIRule(rule, ruleName, collectionName) {
+        if (!rule || rule === '') return { valid: true, message: '✅ Empty rule is valid' };
+        
+        // Basic syntax validation for PocketBase filter rules
+        const validOperators = ['=', '!=', '>', '<', '>=', '<=', '~', '!~', '?=', '?!=', '?>', '?<', '?>=', '?<=', '?~', '?!~'];
+        const validLogicals = ['&&', '||'];
+        
+        // Check for common rule patterns
+        const commonPatterns = [
+            /@request\.auth\.id/,
+            /@request\.auth\.verified/,
+            /@request\.auth\.admin/,
+            /@request\.query\./,
+            /@request\.data\./,
+            /@collection\./,
+            /^\s*$/,  // empty rule
+            /^""$|^''$/  // empty string rule
+        ];
+        
+        // Validate that rule contains valid PocketBase syntax
+        let hasValidPattern = false;
+        for (const pattern of commonPatterns) {
+            if (pattern.test(rule)) {
+                hasValidPattern = true;
+                break;
+            }
+        }
+        
+        // Check for field references (basic validation)
+        const fieldReferencePattern = /\w+\s*[=!<>~?]+/;
+        if (fieldReferencePattern.test(rule)) {
+            hasValidPattern = true;
+        }
+        
+        if (!hasValidPattern && rule.trim() !== '') {
+            return { 
+                valid: false, 
+                message: `⚠️ ${ruleName} in '${collectionName}' may have invalid syntax - use @request.auth.*, field references, or collection patterns`,
+                details: { rule, suggestion: 'Common patterns: @request.auth.id != "", field = value, @request.auth.admin = true' }
+            };
+        }
+        
+        return { valid: true, message: `✅ ${ruleName} syntax appears valid` };
+    }
+    
+    // Validate record data against collection schema
+    function validateRecordData(record, collectionFields, collectionName) {
+        const errors = [];
+        const warnings = [];
+        
+        // Check required fields
+        const requiredFields = collectionFields.filter(f => f.required);
+        for (const field of requiredFields) {
+            if (record[field.name] === undefined || record[field.name] === null || record[field.name] === '') {
+                errors.push(`Required field '${field.name}' is missing or empty`);
+            }
+        }
+        
+        // Validate field types and constraints
+        for (const [fieldName, value] of Object.entries(record)) {
+            // Skip system fields
+            if (['id', 'created', 'updated', 'collectionId', 'collectionName'].includes(fieldName)) {
+                continue;
+            }
+            
+            const fieldDef = collectionFields.find(f => f.name === fieldName);
+            if (!fieldDef) {
+                warnings.push(`Field '${fieldName}' not defined in collection schema`);
+                continue;
+            }
+            
+            const validation = validateFieldValue(value, fieldDef, fieldName);
+            if (!validation.valid) {
+                errors.push(validation.message);
+            }
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors,
+            warnings,
+            message: errors.length === 0 ? 
+                `✅ Record data valid for '${collectionName}'` : 
+                `❌ Record validation failed: ${errors.slice(0, 3).join(', ')}${errors.length > 3 ? '...' : ''}`
+        };
+    }
+    
+    // Validate individual field values
+    function validateFieldValue(value, fieldDef, fieldName) {
+        if (value === null || value === undefined) {
+            return fieldDef.required ? 
+                { valid: false, message: `Required field '${fieldName}' cannot be null/undefined` } :
+                { valid: true };
+        }
+        
+        switch (fieldDef.type) {
+            case 'text':
+            case 'email':
+            case 'url':
+            case 'password':
+            case 'editor':
+                if (typeof value !== 'string') {
+                    return { valid: false, message: `Field '${fieldName}' must be string` };
+                }
+                if (fieldDef.min && value.length < fieldDef.min) {
+                    return { valid: false, message: `Field '${fieldName}' too short (min: ${fieldDef.min})` };
+                }
+                if (fieldDef.max && value.length > fieldDef.max) {
+                    return { valid: false, message: `Field '${fieldName}' too long (max: ${fieldDef.max})` };
+                }
+                break;
+                
+            case 'number':
+                if (typeof value !== 'number' && !Number.isFinite(Number(value))) {
+                    return { valid: false, message: `Field '${fieldName}' must be a valid number` };
+                }
+                const numValue = Number(value);
+                if (fieldDef.min !== undefined && numValue < fieldDef.min) {
+                    return { valid: false, message: `Field '${fieldName}' below minimum (${fieldDef.min})` };
+                }
+                if (fieldDef.max !== undefined && numValue > fieldDef.max) {
+                    return { valid: false, message: `Field '${fieldName}' above maximum (${fieldDef.max})` };
+                }
+                break;
+                
+            case 'bool':
+                if (typeof value !== 'boolean') {
+                    return { valid: false, message: `Field '${fieldName}' must be boolean` };
+                }
+                break;
+                
+            case 'date':
+            case 'autodate':
+                if (typeof value === 'string') {
+                    const date = new Date(value);
+                    if (isNaN(date.getTime())) {
+                        return { valid: false, message: `Field '${fieldName}' must be valid ISO date` };
+                    }
+                } else if (!(value instanceof Date)) {
+                    return { valid: false, message: `Field '${fieldName}' must be date string or Date object` };
+                }
+                break;
+                
+            case 'select':
+                if (Array.isArray(value)) {
+                    if (fieldDef.maxSelect && value.length > fieldDef.maxSelect) {
+                        return { valid: false, message: `Field '${fieldName}' too many selections (max: ${fieldDef.maxSelect})` };
+                    }
+                    for (const item of value) {
+                        if (!fieldDef.values.includes(item)) {
+                            return { valid: false, message: `Field '${fieldName}' contains invalid value: ${item}` };
+                        }
+                    }
+                } else {
+                    if (!fieldDef.values.includes(value)) {
+                        return { valid: false, message: `Field '${fieldName}' invalid value: ${value}` };
+                    }
+                }
+                break;
+                
+            case 'json':
+                try {
+                    if (typeof value === 'string') {
+                        JSON.parse(value);
+                    } else if (typeof value !== 'object') {
+                        return { valid: false, message: `Field '${fieldName}' must be valid JSON` };
+                    }
+                } catch {
+                    return { valid: false, message: `Field '${fieldName}' contains invalid JSON` };
+                }
+                break;
+                
+            case 'file':
+                if (Array.isArray(value)) {
+                    if (fieldDef.maxSelect && value.length > fieldDef.maxSelect) {
+                        return { valid: false, message: `Field '${fieldName}' too many files (max: ${fieldDef.maxSelect})` };
+                    }
+                }
+                break;
+        }
+        
+        return { valid: true };
+    }
+    
+    function validateSeedData(jsonText) {
+        try {
+            const seedData = JSON.parse(jsonText);
+            
+            if (!seedData || typeof seedData !== 'object') {
+                return { valid: false, message: "❌ Must be an object", details: null };
+            }
+            
+            const requiredSections = ['settings', 'products'];
+            const foundSections = Object.keys(seedData);
+            const missingSections = requiredSections.filter(name => !foundSections.includes(name));
+            
+            if (missingSections.length > 0) {
+                return { valid: false, message: `❌ Missing required sections: ${missingSections.join(', ')}`, details: null };
+            }
+            
+            // Validate settings
+            if (!Array.isArray(seedData.settings) || seedData.settings.length === 0) {
+                return { valid: false, message: "❌ Settings must be non-empty array", details: null };
+            }
+            
+            const settings = seedData.settings[0];
+            const requiredSettingsFields = ['xchgRates', 'defCurr', 'servFeeEGP'];
+            const missingSettingsFields = requiredSettingsFields.filter(field => !(field in settings));
+            
+            if (missingSettingsFields.length > 0) {
+                return { valid: false, message: `❌ Settings missing fields: ${missingSettingsFields.join(', ')}`, details: settings };
+            }
+            
+            // Validate products
+            if (!Array.isArray(seedData.products)) {
+                return { valid: false, message: "❌ Products must be an array", details: null };
+            }
+            
+            if (seedData.products.length === 0) {
+                return { valid: true, message: "⚠️ Valid structure, but no products defined", details: { productsCount: 0, settingsValid: true } };
+            }
+            
+            // Enhanced product structure validation with field type checking
+            for (let i = 0; i < Math.min(3, seedData.products.length); i++) {
+                const product = seedData.products[i];
+                const requiredProductFields = ['item_key', 'product_category', 'variant_name_en', 'base_price_egp'];
+                const missingProductFields = requiredProductFields.filter(field => !(field in product));
+                
+                if (missingProductFields.length > 0) {
+                    return { valid: false, message: `❌ Product ${i + 1} missing fields: ${missingProductFields.join(', ')}`, details: product };
+                }
+                
+                // Validate field types for critical fields
+                if (typeof product.item_key !== 'string' || product.item_key.length === 0) {
+                    return { valid: false, message: `❌ Product ${i + 1} item_key must be non-empty string`, details: product };
+                }
+                
+                if (typeof product.base_price_egp !== 'number' || product.base_price_egp < 0) {
+                    return { valid: false, message: `❌ Product ${i + 1} base_price_egp must be positive number`, details: product };
+                }
+                
+                const validCategories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package', 'breeding_stock', 'feed_supplies'];
+                if (!validCategories.includes(product.product_category)) {
+                    return { valid: false, message: `❌ Product ${i + 1} invalid product_category: ${product.product_category}`, details: product };
+                }
+                
+                // Validate stock if present
+                if (product.stock_available_pb !== undefined && (typeof product.stock_available_pb !== 'number' || product.stock_available_pb < 0)) {
+                    return { valid: false, message: `❌ Product ${i + 1} stock_available_pb must be non-negative number`, details: product };
+                }
+            }
+            
+            return { valid: true, message: `✅ Valid seed data (${seedData.products.length} products, settings configured)`, details: { productsCount: seedData.products.length, sectionsCount: foundSections.length } };
+            
+        } catch (error) {
+            return { valid: false, message: `❌ JSON Parse Error: ${error.message}`, details: error };
+        }
+    }
+    
+    function updateValidationDisplay(validationDiv, textarea, result) {
+        validationDiv.innerHTML = '';
+        
+        const statusSpan = document.createElement('span');
+        statusSpan.textContent = result.message;
+        
+        if (result.valid) {
+            statusSpan.className = 'validation-success';
+            textarea.className = textarea.className.replace(' textarea-invalid', '') + ' textarea-valid';
+        } else {
+            statusSpan.className = 'validation-error';
+            textarea.className = textarea.className.replace(' textarea-valid', '') + ' textarea-invalid';
+        }
+        
+        validationDiv.appendChild(statusSpan);
+        
+        if (result.details && !result.valid) {
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'validation-info';
+            detailsDiv.style.marginTop = '2px';
+            
+            if (result.details.suggestion) {
+                detailsDiv.textContent = `💡 ${result.details.suggestion}`;
+            } else {
+                detailsDiv.textContent = `💡 Check: ${JSON.stringify(result.details).substring(0, 100)}...`;
+            }
+            validationDiv.appendChild(detailsDiv);
+        }
+        
+        // Show validation summary for successful validations
+        if (result.valid && result.details && (result.details.count || result.details.productsCount)) {
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'validation-info';
+            summaryDiv.style.marginTop = '2px';
+            
+            if (result.details.count) {
+                summaryDiv.textContent = `📊 Collections: ${result.details.names ? result.details.names.join(', ') : result.details.count}`;
+            } else if (result.details.productsCount !== undefined) {
+                summaryDiv.textContent = `📦 Products: ${result.details.productsCount}, Sections: ${result.details.sectionsCount || 'N/A'}`;
+            }
+            validationDiv.appendChild(summaryDiv);
+        }
+    }
+    
+    // Live validation event listeners
+    collectionsTextarea.addEventListener('input', () => {
+        const result = validateCollections(collectionsTextarea.value);
+        updateValidationDisplay(collectionsValidationDiv, collectionsTextarea, result);
+        
+        // Enable/disable buttons based on validation
+        const isValid = result.valid;
+        runFullSetupButton.disabled = !isValid;
+        runSchemaOnlyButton.disabled = !isValid;
+    });
+    
+    seedTextarea.addEventListener('input', () => {
+        const result = validateSeedData(seedTextarea.value);
+        updateValidationDisplay(seedValidationDiv, seedTextarea, result);
+    });
+    
+    // Populate textareas with default data and validate immediately
     collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
     seedTextarea.value = JSON.stringify(seedData, null, 2);
+    
+    // Trigger initial validation
+    setTimeout(() => {
+        collectionsTextarea.dispatchEvent(new Event('input'));
+        seedTextarea.dispatchEvent(new Event('input'));
+    }, 100);
 
     async function safeExecute(operation, operationName, pbInstance = null) {
         const pb = pbInstance || new PocketBase(pbUrl);
