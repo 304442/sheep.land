@@ -516,47 +516,7 @@
                     </div>
                 </div>
                 
-                <!-- Promotional Banner -->
-                <template x-if="settings.promoActive && !cd.ended">
-                    <div class="hero-promo-banner">
-                        <div class="promo-content">
-                            <h3 class="promo-title bil-row">
-                                <span class="en" x-html="`🎉 Limited Time: <strong>${settings.promoDiscPc}% OFF</strong> All Udheya!`"></span>
-                                <span class="ar" x-html="`🎉 عرض محدود: <strong>خصم ${settings.promoDiscPc}%</strong> على جميع الأضاحي!`"></span>
-                            </h3>
-                            <div class="promo-countdown">
-                                <div class="countdown-item">
-                                    <span class="countdown-value" x-text="cd.days"></span>
-                                    <span class="countdown-label bil-inline">
-                                        <span class="en">Days</span>
-                                        <span class="ar">يوم</span>
-                                    </span>
-                                </div>
-                                <div class="countdown-item">
-                                    <span class="countdown-value" x-text="cd.hours"></span>
-                                    <span class="countdown-label bil-inline">
-                                        <span class="en">Hours</span>
-                                        <span class="ar">ساعة</span>
-                                    </span>
-                                </div>
-                                <div class="countdown-item">
-                                    <span class="countdown-value" x-text="cd.mins"></span>
-                                    <span class="countdown-label bil-inline">
-                                        <span class="en">Minutes</span>
-                                        <span class="ar">دقيقة</span>
-                                    </span>
-                                </div>
-                                <div class="countdown-item">
-                                    <span class="countdown-value" x-text="cd.secs"></span>
-                                    <span class="countdown-label bil-inline">
-                                        <span class="en">Seconds</span>
-                                        <span class="ar">ثانية</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
+                <!-- Promotional Banner removed - now using promo bar below nav -->
             </div>
         </div>
     </section>
