@@ -263,9 +263,10 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .payment-category-international{background:rgba(33,150,243,0.03)}
 .payment-category-crypto{background:rgba(255,193,7,0.03)}
 .pay-meths{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--s2);margin:0}
-.pm{display:flex;flex-direction:column;align-items:center;padding:var(--s1);cursor:pointer;transition:all .3s ease;position:relative}
-.pm:hover{transform:translateY(-2px)}
-.pm.sel{transform:scale(1.05)}
+.pm{display:flex;flex-direction:column;align-items:center;padding:var(--s2);cursor:pointer;transition:all .3s ease;position:relative;background:white;border-radius:var(--rad);box-shadow:0 2px 8px rgba(0,0,0,0.1);border:2px solid transparent}
+.pm:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.15);background:#fafafa}
+.pm:active{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.12)}
+.pm.sel{transform:scale(1.05);border-color:var(--c2);box-shadow:0 8px 25px rgba(0,0,0,0.2),0 0 0 3px rgba(139,69,19,0.1);background:#fffbf7}
 .pm input[type=radio]{position:absolute;opacity:0;width:0;height:0}
 .pm label{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%;text-align:center}
 .pay-icon{width:100px;height:60px;object-fit:contain}
