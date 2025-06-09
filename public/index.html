@@ -748,13 +748,10 @@
                     <template x-for="(cartItem) in cartItems.slice(0, 3)" :key="cartItem.uniqueIdInCart">
                         <div class="cart-dropdown-item">
                             <div class="cart-item-info">
-                                <div class="cart-item-name bil-spread">
-                                    <span class="en" x-text="cartItem.nameENSpec"></span>
-                                    <span class="ar" x-text="cartItem.nameARSpec"></span>
-                                </div>
-                                <div class="cart-item-meta">
-                                    <span class="qty" x-text="'x' + cartItem.quantity"></span>
-                                    <span class="price" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
+                                <div class="cart-item-display">
+                                    <span class="cart-item-name-en" x-text="cartItem.nameENSpec + ' (×' + cartItem.quantity + ')'"></span>
+                                    <span class="cart-item-price" x-text="fmtPrice(getSubtotalForItem(cartItem))"></span>
+                                    <span class="cart-item-name-ar" x-text="cartItem.nameARSpec + ' (×' + cartItem.quantity + ')'"></span>
                                 </div>
                             </div>
                             <button @click="removeFromCart(cartItem.uniqueIdInCart)" class="cart-item-remove" title="Remove">
@@ -1683,11 +1680,9 @@
                             <div class="rev-sum checkout-rev-sum">
                                 <template x-for="item in cartItems" :key="item.uniqueIdInCart">
                                     <div class="sum-item">
-                                        <div class="sum-item-content bil-spread">
-                                            <span class="en" x-text="item.nameENSpec + ' (×' + item.quantity + ')'"></span>
-                                            <span class="ar" x-text="item.nameARSpec + ' (×' + item.quantity + ')'"></span>
-                                        </div>
-                                        <div class="sum-item-price" x-text="fmtPrice(getSubtotalForItem(item))"></div>
+                                        <span class="sum-item-name en" x-text="item.nameENSpec + ' (×' + item.quantity + ')'"></span>
+                                        <span class="sum-item-price" x-text="fmtPrice(getSubtotalForItem(item))"></span>
+                                        <span class="sum-item-name ar" x-text="item.nameARSpec + ' (×' + item.quantity + ')'"></span>
                                     </div>
                                 </template>
                                 <template x-if="checkoutForm.delivery_fee_egp > 0">
