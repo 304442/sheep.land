@@ -264,9 +264,9 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .payment-category-title .en{text-align:left}
 .payment-category-title .ar{text-align:right;font-family:var(--fa);direction:rtl}
 .pay-meths{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--s2);margin:0}
-.pm{display:flex;flex-direction:column;align-items:center;border:2px solid var(--bs);border-radius:var(--rad);padding:var(--s2);cursor:pointer;transition:all .3s ease;background:var(--bc);position:relative}
-.pm:hover{border-color:var(--c2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
-.pm.sel{border-color:var(--c1);background:rgba(139,69,19,.05);box-shadow:0 4px 12px rgba(139,69,19,.2)}
+.pm{display:flex;flex-direction:column;align-items:center;padding:var(--s2);cursor:pointer;transition:all .3s ease;position:relative}
+.pm:hover{transform:translateY(-2px)}
+.pm.sel{transform:scale(1.05)}
 .pm input[type=radio]{position:absolute;opacity:0;width:0;height:0}
 .pm label{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%;text-align:center}
 .pay-icon{width:60px;height:40px;object-fit:contain}
