@@ -1,0 +1,317 @@
+<!-- Collective Buying Section - Add this to index.html -->
+
+<!-- Add to head section -->
+<link rel="stylesheet" href="collective-buying.css">
+<script src="collective-buying.js"></script>
+
+<!-- Collective Sheep Section -->
+<section id="collective" class="collective-sheep-section" x-data="collectiveSheep" x-init="loadActiveCollectives()">
+    <div class="c">
+        <div class="collective-header">
+            <h2 class="sec-title bil-spread">
+                <span class="en">Collective Sheep Shares</span>
+                <span class="ar">الذبائح المشتركة</span>
+            </h2>
+            <p class="collective-intro bil-row">
+                <span class="en">Join your neighbors in purchasing a whole sheep. Save up to 30% and get fresher meat!</span>
+                <span class="ar">اشترك مع جيرانك في شراء ذبيحة كاملة. وفر حتى 30% واحصل على لحم أطزج!</span>
+            </p>
+        </div>
+
+        <!-- Area Filter -->
+        <div class="area-filter">
+            <select class="area-select" x-model="selectedArea" @change="filterByArea()">
+                <option value="">All Areas / جميع المناطق</option>
+                <option value="cairo_metro_nasr_city">Nasr City / مدينة نصر</option>
+                <option value="cairo_metro_heliopolis">Heliopolis / مصر الجديدة</option>
+                <option value="giza_west_october">6th October / 6 أكتوبر</option>
+            </select>
+            <button class="btn bp" @click="startNewCollective()">
+                <span class="bil-inline">
+                    <span class="en">Start New Collective</span>
+                    <span class="ar">ابدأ مجموعة جديدة</span>
+                </span>
+            </button>
+        </div>
+
+        <!-- Active Collectives Grid -->
+        <div class="collective-grid" x-show="!loading">
+            <template x-for="collective in activeCollectives" :key="collective.sheep_id">
+                <div class="collective-card">
+                    <div class="collective-card-header">
+                        <h3 class="bil-spread">
+                            <span class="en" x-text="'Sheep #' + collective.sheep_id"></span>
+                            <span class="ar" x-text="'ذبيحة #' + collective.sheep_id"></span>
+                        </h3>
+                        <div class="area-tag bil-inline">
+                            <span class="en" x-text="getAreaName(collective.area_id).en"></span>
+                            <span class="ar" x-text="getAreaName(collective.area_id).ar"></span>
+                        </div>
+                    </div>
+                    <div class="collective-card-body">
+                        <div class="booking-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" :style="'width: ' + collective.booking_percentage + '%'">
+                                    <span x-text="collective.booking_percentage + '%'"></span>
+                                </div>
+                            </div>
+                            <div class="progress-text bil-spread">
+                                <span class="en">
+                                    <span x-text="collective.booking_percentage"></span>% Reserved - 
+                                    <span x-text="countAvailableParts(collective)"></span> parts left
+                                </span>
+                                <span class="ar">
+                                    <span x-text="collective.booking_percentage"></span>% محجوز - 
+                                    باقي <span x-text="countAvailableParts(collective)"></span> أجزاء
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="collective-info">
+                            <div class="info-row bil-row">
+                                <span class="en">Target Date: <strong x-text="formatDate(collective.target_slaughter_date)"></strong></span>
+                                <span class="ar">التاريخ المستهدف: <strong x-text="formatDate(collective.target_slaughter_date)"></strong></span>
+                            </div>
+                            <div class="info-row bil-row">
+                                <span class="en">Total Weight: <strong x-text="collective.total_weight_kg + ' kg'"></strong></span>
+                                <span class="ar">الوزن الكلي: <strong x-text="collective.total_weight_kg + ' كجم'"></strong></span>
+                            </div>
+                        </div>
+
+                        <button class="btn bac btn-block" @click="viewCollectiveDetails(collective)">
+                            <span class="bil-inline">
+                                <span class="en">View & Reserve Parts</span>
+                                <span class="ar">عرض وحجز الأجزاء</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Loading State -->
+        <div x-show="loading" class="load-text tc">
+            <span class="bil-inline">
+                <span class="en">Loading collective orders...</span>
+                <span class="ar">جاري تحميل الطلبات الجماعية...</span>
+            </span>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="!loading && activeCollectives.length === 0" class="empty-state tc">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <p class="bil-spread">
+                <span class="en">No active collective orders in your area</span>
+                <span class="ar">لا توجد طلبات جماعية نشطة في منطقتك</span>
+            </p>
+            <button class="btn bp" @click="startNewCollective()">
+                <span class="bil-inline">
+                    <span class="en">Be the first to start!</span>
+                    <span class="ar">كن أول من يبدأ!</span>
+                </span>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Monthly Subscription Box Section -->
+<section id="subscription" class="subscription-section" x-data="subscriptionBox">
+    <div class="c">
+        <div class="sec-header">
+            <h2 class="sec-title bil-spread">
+                <span class="en">Monthly Meat Box</span>
+                <span class="ar">صندوق اللحوم الشهري</span>
+            </h2>
+            <p class="sec-subtitle bil-row">
+                <span class="en">Premium cuts delivered to your door every month. Cancel anytime!</span>
+                <span class="ar">قطعيات مميزة توصل لباب بيتك كل شهر. يمكنك الإلغاء في أي وقت!</span>
+            </p>
+        </div>
+
+        <div class="subscription-plans">
+            <!-- Basic Plan -->
+            <div class="plan-card" :class="{'selected': selectedPlan === 'basic'}" @click="selectPlan('basic')">
+                <h3 class="plan-name bil-spread">
+                    <span class="en">Basic Box</span>
+                    <span class="ar">الصندوق الأساسي</span>
+                </h3>
+                <div class="plan-price">
+                    <span class="currency">EGP</span> 800 <span class="period">/month</span>
+                </div>
+                <div class="plan-details">
+                    <div class="plan-feature bil-row">
+                        <span class="en">2-3 kg mixed cuts</span>
+                        <span class="ar">2-3 كجم قطعيات مختلطة</span>
+                    </div>
+                    <div class="plan-feature bil-row">
+                        <span class="en">Serves 2-3 people</span>
+                        <span class="ar">يكفي 2-3 أشخاص</span>
+                    </div>
+                    <div class="plan-feature bil-row">
+                        <span class="en">Recipe cards included</span>
+                        <span class="ar">بطاقات وصفات مضمنة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family Plan -->
+            <div class="plan-card popular" :class="{'selected': selectedPlan === 'family'}" @click="selectPlan('family')">
+                <h3 class="plan-name bil-spread">
+                    <span class="en">Family Box</span>
+                    <span class="ar">صندوق العائلة</span>
+                </h3>
+                <div class="plan-price">
+                    <span class="currency">EGP</span> 1,500 <span class="period">/month</span>
+                </div>
+                <div class="plan-details">
+                    <div class="plan-feature bil-row">
+                        <span class="en">5-7 kg variety cuts</span>
+                        <span class="ar">5-7 كجم قطعيات متنوعة</span>
+                    </div>
+                    <div class="plan-feature bil-row">
+                        <span class="en">Serves 4-6 people</span>
+                        <span class="ar">يكفي 4-6 أشخاص</span>
+                    </div>
+                    <div class="plan-feature bil-row">
+                        <span class="en">Premium selections</span>
+                        <span class="ar">اختيارات مميزة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="plan-card" :class="{'selected': selectedPlan === 'premium'}" @click="selectPlan('premium')">
+                <h3 class="plan-name bil-spread">
+                    <span class="en">Premium Box</span>
+                    <span class="ar">الصندوق المميز</span>
+                </h3>
+                <div class="plan-price">
+                    <span class="currency">EGP</span> 2,500 <span class="period">/month</span>
+                </div>
+                <div class="plan-details">
+                    <div class="plan-feature bil-row">
+                        <span class="en">10+ kg premium cuts</span>
+                        <span class="ar">10+ كجم قطعيات فاخرة</span>
+                    </div>
+                    <div class="plan-feature bil-row">
+                        <span class="en">Serves 6-8 people</span>
+                        <span class="ar">يكفي 6-8 أشخاص</span>
+                    </div>
+                    <div class="plan-feature bil-row">
+                        <span class="en">Chef recipe collection</span>
+                        <span class="ar">مجموعة وصفات الشيف</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Preferences -->
+        <div class="subscription-preferences" x-show="selectedPlan">
+            <h4 class="bil-spread">
+                <span class="en">Customize Your Box</span>
+                <span class="ar">خصص صندوقك</span>
+            </h4>
+            
+            <div class="preference-item">
+                <input type="checkbox" id="no_organs" class="preference-checkbox" x-model="preferences.no_organs">
+                <label for="no_organs" class="bil-spread">
+                    <span class="en">No organ meats</span>
+                    <span class="ar">بدون أعضاء داخلية</span>
+                </label>
+            </div>
+            
+            <div class="preference-item">
+                <input type="checkbox" id="extra_ground" class="preference-checkbox" x-model="preferences.extra_ground">
+                <label for="extra_ground" class="bil-spread">
+                    <span class="en">Extra ground meat</span>
+                    <span class="ar">لحم مفروم إضافي</span>
+                </label>
+            </div>
+
+            <div class="delivery-schedule">
+                <h5 class="bil-spread">
+                    <span class="en">Delivery Day (Each Month)</span>
+                    <span class="ar">يوم التوصيل (كل شهر)</span>
+                </h5>
+                <div class="day-selector">
+                    <template x-for="day in [1, 5, 10, 15, 20, 25, 28]" :key="day">
+                        <div class="day-option" :class="{'selected': deliveryDay === day}" @click="deliveryDay = day">
+                            <span x-text="day"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <button class="btn bac btn-block" @click="subscribe()">
+                <span class="bil-inline">
+                    <span class="en">Subscribe Now</span>
+                    <span class="ar">اشترك الآن</span>
+                </span>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Collective Details Modal (example) -->
+<div x-show="showCollectiveModal" class="modal-overlay" @click="closeCollectiveModal()">
+    <div class="modal collective-modal" @click.stop>
+        <button class="modal-close-btn" @click="closeCollectiveModal()">×</button>
+        
+        <h2 class="modal-title bil-spread">
+            <span class="en">Select Your Parts</span>
+            <span class="ar">اختر أجزاءك</span>
+        </h2>
+        
+        <!-- Sheep Visualization would go here -->
+        <div x-html="collectiveBuyingSystem.generateSheepSVG(currentSheep)"></div>
+        
+        <!-- Parts List -->
+        <div class="parts-selection">
+            <div class="parts-list">
+                <template x-for="(part, key) in sheepParts" :key="key">
+                    <div class="part-item" 
+                         :class="getPartClass(key)"
+                         @click="selectPart(key)">
+                        <div class="part-info">
+                            <div class="part-name bil-spread">
+                                <span class="en" x-text="part.name_en"></span>
+                                <span class="ar" x-text="part.name_ar"></span>
+                            </div>
+                            <div class="part-details">
+                                <span x-text="part.weight + ' kg'"></span>
+                            </div>
+                        </div>
+                        <div class="part-price" x-text="formatPrice(part.price_egp)"></div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Reservation Summary -->
+            <div class="reservation-summary">
+                <div class="summary-row">
+                    <span class="bil-inline">
+                        <span class="en">Selected Parts:</span>
+                        <span class="ar">الأجزاء المختارة:</span>
+                    </span>
+                    <span x-text="selectedParts.length"></span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span class="bil-inline">
+                        <span class="en">Total:</span>
+                        <span class="ar">المجموع:</span>
+                    </span>
+                    <span x-text="formatPrice(getTotalPrice())"></span>
+                </div>
+                
+                <button class="btn bac btn-block" @click="reserveParts()" :disabled="selectedParts.length === 0">
+                    <span class="bil-inline">
+                        <span class="en">Reserve Selected Parts</span>
+                        <span class="ar">احجز الأجزاء المختارة</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

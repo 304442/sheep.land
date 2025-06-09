@@ -1,0 +1,449 @@
+/* Collective Buying System Styles */
+
+/* Collective Sheep Section */
+.collective-sheep-section {
+    padding: var(--s4) 0;
+    background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+}
+
+.collective-header {
+    text-align: center;
+    margin-bottom: var(--s4);
+}
+
+.collective-intro {
+    max-width: 800px;
+    margin: 0 auto var(--s4);
+    text-align: center;
+    color: var(--tm);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Area Filter */
+.area-filter {
+    display: flex;
+    justify-content: center;
+    gap: var(--s3);
+    margin-bottom: var(--s4);
+    flex-wrap: wrap;
+}
+
+.area-select {
+    padding: var(--s2) var(--s3);
+    border: 2px solid var(--c2);
+    border-radius: var(--rad);
+    background: white;
+    font-size: 1rem;
+    min-width: 200px;
+}
+
+/* Collective Cards Grid */
+.collective-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--s3);
+    margin-bottom: var(--s4);
+}
+
+.collective-card {
+    background: white;
+    border-radius: var(--rad);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.collective-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.collective-card-header {
+    padding: var(--s3);
+    background: var(--c2);
+    color: white;
+}
+
+.collective-card-body {
+    padding: var(--s3);
+}
+
+/* Booking Progress */
+.booking-progress {
+    margin-bottom: var(--s3);
+}
+
+.progress-bar {
+    height: 24px;
+    background: var(--b2);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--c2) 0%, var(--c3) 100%);
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: var(--s2);
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.progress-text {
+    margin-top: var(--s1);
+    font-size: 0.95rem;
+    color: var(--tm);
+}
+
+/* Sheep Visualization */
+.sheep-visualization {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--s3);
+}
+
+.sheep-svg {
+    width: 100%;
+    height: auto;
+    margin: var(--s3) 0;
+}
+
+.sheep-part {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    stroke: var(--c1d);
+    stroke-width: 2;
+}
+
+.sheep-part.status-available {
+    fill: #4CAF50;
+    opacity: 0.7;
+}
+
+.sheep-part.status-available:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.sheep-part.status-reserved {
+    fill: #9E9E9E;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sheep-part.status-selected {
+    fill: #2196F3;
+    opacity: 0.9;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.sheep-part.status-mine {
+    fill: #FF9800;
+    opacity: 0.9;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Parts Legend */
+.parts-legend {
+    display: flex;
+    justify-content: center;
+    gap: var(--s3);
+    flex-wrap: wrap;
+    margin-top: var(--s3);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid var(--bs);
+}
+
+.legend-item.available .legend-color {
+    background: #4CAF50;
+}
+
+.legend-item.reserved .legend-color {
+    background: #9E9E9E;
+}
+
+.legend-item.selected .legend-color {
+    background: #2196F3;
+}
+
+/* Parts Selection Panel */
+.parts-selection {
+    background: white;
+    border-radius: var(--rad);
+    padding: var(--s3);
+    margin-top: var(--s3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.parts-list {
+    display: grid;
+    gap: var(--s2);
+    margin-bottom: var(--s3);
+}
+
+.part-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--s2);
+    border: 1px solid var(--bs);
+    border-radius: var(--rad);
+    transition: all 0.2s ease;
+}
+
+.part-item.available {
+    cursor: pointer;
+}
+
+.part-item.available:hover {
+    border-color: var(--c2);
+    background: var(--b2);
+}
+
+.part-item.selected {
+    background: var(--c2l);
+    border-color: var(--c2);
+}
+
+.part-item.reserved {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.part-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s0);
+}
+
+.part-name {
+    font-weight: 600;
+    color: var(--c1d);
+}
+
+.part-details {
+    font-size: 0.9rem;
+    color: var(--tm);
+}
+
+.part-price {
+    font-weight: 700;
+    color: var(--c2);
+    font-size: 1.1rem;
+}
+
+/* Reservation Summary */
+.reservation-summary {
+    background: var(--b2);
+    padding: var(--s3);
+    border-radius: var(--rad);
+    margin-top: var(--s3);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--s2);
+}
+
+.summary-total {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--c1d);
+    padding-top: var(--s2);
+    border-top: 2px solid var(--bs);
+}
+
+/* Subscription Boxes */
+.subscription-section {
+    padding: var(--s4) 0;
+    background: white;
+}
+
+.subscription-plans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--s3);
+    margin-bottom: var(--s4);
+}
+
+.plan-card {
+    border: 2px solid var(--bs);
+    border-radius: var(--rad);
+    padding: var(--s3);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.plan-card:hover {
+    border-color: var(--c2);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.plan-card.selected {
+    border-color: var(--c2);
+    background: var(--c2l);
+}
+
+.plan-card.popular::before {
+    content: "Most Popular";
+    position: absolute;
+    top: 10px;
+    right: -30px;
+    background: var(--c3);
+    color: white;
+    padding: 4px 40px;
+    transform: rotate(45deg);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--c1d);
+    margin-bottom: var(--s2);
+}
+
+.plan-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--c2);
+    margin-bottom: var(--s1);
+}
+
+.plan-price .currency {
+    font-size: 1.2rem;
+    color: var(--tm);
+}
+
+.plan-price .period {
+    font-size: 1rem;
+    color: var(--tm);
+}
+
+.plan-details {
+    margin: var(--s3) 0;
+}
+
+.plan-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--s1);
+    margin-bottom: var(--s1);
+    text-align: right;
+}
+
+.plan-feature::before {
+    content: "✓";
+    color: var(--c2);
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+/* Subscription Preferences */
+.subscription-preferences {
+    background: var(--b2);
+    padding: var(--s3);
+    border-radius: var(--rad);
+    margin-top: var(--s3);
+}
+
+.preference-item {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    margin-bottom: var(--s2);
+    padding: var(--s2);
+    background: white;
+    border-radius: var(--rad);
+}
+
+.preference-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.delivery-schedule {
+    margin-top: var(--s3);
+    padding: var(--s3);
+    background: white;
+    border-radius: var(--rad);
+}
+
+.day-selector {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--s1);
+    margin-top: var(--s2);
+}
+
+.day-option {
+    padding: var(--s2);
+    text-align: center;
+    border: 1px solid var(--bs);
+    border-radius: var(--rad);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.day-option:hover {
+    border-color: var(--c2);
+    background: var(--b2);
+}
+
+.day-option.selected {
+    background: var(--c2);
+    color: white;
+    border-color: var(--c2);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .collective-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sheep-visualization {
+        padding: var(--s2);
+    }
+    
+    .subscription-plans {
+        grid-template-columns: 1fr;
+    }
+    
+    .area-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .area-select {
+        width: 100%;
+    }
+}

@@ -132,6 +132,8 @@ document.addEventListener('alpine:init', () => {
                 livesheep: "Live Sheep", 
                 meat: "Fresh Meat & Cuts", 
                 gatherings: "Event & Gathering Packages", 
+                collective: "Collective Sheep Shares",
+                subscription: "Monthly Meat Box",
                 checkout: "Secure Checkout",
                 auth: "Account Access", 
                 account: "My Account"

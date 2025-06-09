@@ -803,6 +803,334 @@
                 "indexes": [
                         "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)"
                 ]
+        },
+        {
+                "name": "collective_sheep",
+                "type": "base",
+                "listRule": "",
+                "viewRule": "",
+                "createRule": "@request.auth.id != ''",
+                "updateRule": "@request.auth.is_admin = true",
+                "deleteRule": "@request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "sheep_id",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "unique": true,
+                                "pattern": "^CS[0-9]{8}$"
+                        },
+                        {
+                                "name": "status",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": [
+                                        "booking",
+                                        "fully_booked",
+                                        "processing",
+                                        "delivered",
+                                        "cancelled"
+                                ]
+                        },
+                        {
+                                "name": "area_id",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "max": 100
+                        },
+                        {
+                                "name": "total_weight_kg",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 20,
+                                "max": 60
+                        },
+                        {
+                                "name": "parts_data",
+                                "type": "json",
+                                "required": true,
+                                "presentable": false
+                        },
+                        {
+                                "name": "booking_percentage",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0,
+                                "max": 100
+                        },
+                        {
+                                "name": "total_reserved_value",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "target_slaughter_date",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "actual_slaughter_date",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "min_participants",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 1,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "max_participants",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 1,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "notes",
+                                "type": "text",
+                                "required": false,
+                                "presentable": false,
+                                "max": 500
+                        }
+                ],
+                "indexes": [
+                        "CREATE UNIQUE INDEX `idx_collective_sheep_id` ON `collective_sheep` (`sheep_id`)"
+                ]
+        },
+        {
+                "name": "collective_reservations",
+                "type": "base",
+                "listRule": "@request.auth.id != '' && (@request.auth.id = user || @request.auth.is_admin = true)",
+                "viewRule": "@request.auth.id != '' && (@request.auth.id = user || @request.auth.is_admin = true)",
+                "createRule": "@request.auth.id != ''",
+                "updateRule": "@request.auth.id = user || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "relCollection": "users"
+                        },
+                        {
+                                "name": "sheep",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "relCollection": "collective_sheep"
+                        },
+                        {
+                                "name": "reserved_parts",
+                                "type": "json",
+                                "required": true,
+                                "presentable": false
+                        },
+                        {
+                                "name": "total_weight_kg",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "total_price_egp",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "status",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": [
+                                        "pending",
+                                        "confirmed",
+                                        "processing",
+                                        "ready",
+                                        "delivered",
+                                        "cancelled"
+                                ]
+                        },
+                        {
+                                "name": "payment_status",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": [
+                                        "pending",
+                                        "paid",
+                                        "refunded"
+                                ]
+                        },
+                        {
+                                "name": "payment_method",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 50
+                        },
+                        {
+                                "name": "delivery_address",
+                                "type": "text",
+                                "required": false,
+                                "presentable": false,
+                                "max": 500
+                        },
+                        {
+                                "name": "delivery_date",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "notes",
+                                "type": "text",
+                                "required": false,
+                                "presentable": false,
+                                "max": 500
+                        }
+                ]
+        },
+        {
+                "name": "subscription_boxes",
+                "type": "base",
+                "listRule": "@request.auth.id != '' && (@request.auth.id = user || @request.auth.is_admin = true)",
+                "viewRule": "@request.auth.id != '' && (@request.auth.id = user || @request.auth.is_admin = true)",
+                "createRule": "@request.auth.id != ''",
+                "updateRule": "@request.auth.id = user || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "relCollection": "users"
+                        },
+                        {
+                                "name": "plan",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": [
+                                        "basic",
+                                        "family",
+                                        "premium",
+                                        "custom"
+                                ]
+                        },
+                        {
+                                "name": "status",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": [
+                                        "active",
+                                        "paused",
+                                        "cancelled",
+                                        "expired"
+                                ]
+                        },
+                        {
+                                "name": "price_per_month_egp",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "delivery_day",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 1,
+                                "max": 28,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "next_delivery_date",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "last_delivery_date",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "total_deliveries",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "payment_method",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "max": 50
+                        },
+                        {
+                                "name": "delivery_address",
+                                "type": "text",
+                                "required": true,
+                                "presentable": false,
+                                "max": 500
+                        },
+                        {
+                                "name": "preferences",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "pause_start_date",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "pause_end_date",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "cancellation_reason",
+                                "type": "text",
+                                "required": false,
+                                "presentable": false,
+                                "max": 500
+                        }
+                ]
         }
 ];
 
