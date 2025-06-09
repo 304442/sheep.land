@@ -257,13 +257,20 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .rgrp input[type=radio]{accent-color:var(--c1)}
 
 /* Payment Methods */
-.pay-meths{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--s2);margin:var(--s2) 0}
+.payment-categories{display:flex;flex-direction:column;gap:var(--s4);margin:var(--s3) 0}
+.payment-category{background:var(--b2);border-radius:var(--rad);padding:var(--s3);border:1px solid var(--bs)}
+.payment-category-title{margin-bottom:var(--s3);padding-bottom:var(--s2);border-bottom:2px solid var(--c2);font-size:1.1rem;font-weight:700;color:var(--c1d)}
+.payment-category-title.bil-row{display:flex;justify-content:space-between;align-items:center}
+.payment-category-title .en{text-align:left}
+.payment-category-title .ar{text-align:right;font-family:var(--fa);direction:rtl}
+.pay-meths{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--s2);margin:0}
 .pm{display:flex;flex-direction:column;align-items:center;border:2px solid var(--bs);border-radius:var(--rad);padding:var(--s2);cursor:pointer;transition:all .3s ease;background:var(--bc);position:relative}
 .pm:hover{border-color:var(--c2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
 .pm.sel{border-color:var(--c1);background:rgba(139,69,19,.05);box-shadow:0 4px 12px rgba(139,69,19,.2)}
 .pm input[type=radio]{position:absolute;opacity:0;width:0;height:0}
-.pm label{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%}
+.pm label{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:var(--s1);width:100%;text-align:center}
 .pay-icon{width:50px;height:32px;object-fit:contain;border-radius:4px;border:1px solid var(--bs)}
+.pay-title{font-size:0.75rem;color:var(--tm);font-weight:600;line-height:1.2}
 
 .err-msg{color:#dc3545;font-size:.85rem;margin-top:var(--s1);display:block;font-weight:600}
 .success-msg{color:#28a745;font-size:.85rem;margin-top:var(--s1);display:block;font-weight:600;padding:var(--s2);background:#d4edda;border-radius:var(--rad);border:1px solid #c3e6cb}
@@ -737,6 +744,12 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
     .tracking-timeline::before{left:25px;right:25px;top:20px}
     .tracking-icon{width:40px;height:40px;font-size:1rem}
     .tracking-step{flex:1}
+    
+    /* Mobile Payment Categories */
+    .payment-categories{gap:var(--s3)}
+    .payment-category{padding:var(--s2)}
+    .payment-category-title{font-size:1rem;margin-bottom:var(--s2);padding-bottom:var(--s1)}
+    .pay-meths{grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--s1)}
 }
 
 @media(min-width:769px){

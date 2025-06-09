@@ -16,20 +16,20 @@ document.addEventListener('alpine:init', () => {
     };
 
     const payMethods = [
-        { id: 'online_card', title: 'Online Payment', imgSrc: 'card_payment.svg' },
-        { id: 'vodafone_cash', title: 'Vodafone Cash', imgSrc: 'vodafonecash.png' },
-        { id: 'instapay', title: 'InstaPay', imgSrc: 'instapay.svg' },
-        { id: 'fawry', title: 'Fawry', imgSrc: 'fawry.svg' },
-        { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg' },
-        { id: 'western_union', title: 'Western Union', imgSrc: 'western_union.svg' },
-        { id: 'moneygram', title: 'MoneyGram', imgSrc: 'moneygram.svg' },
-        { id: 'paypal', title: 'PayPal', imgSrc: 'paypal.svg' },
-        { id: 'revolut', title: 'Revolut', imgSrc: 'revolut.svg' },
-        { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg' },
-        { id: 'bitcoin', title: 'Bitcoin', imgSrc: 'bitcoin.svg' },
-        { id: 'ethereum', title: 'Ethereum', imgSrc: 'ethereum.svg' },
-        { id: 'usdt', title: 'USDT (Tether)', imgSrc: 'usdt.svg' },
-        { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg' }
+        { id: 'online_card', title: 'Online Payment', imgSrc: 'card_payment.svg', category: 'online' },
+        { id: 'vodafone_cash', title: 'Vodafone Cash', imgSrc: 'vodafonecash.png', category: 'online' },
+        { id: 'instapay', title: 'InstaPay', imgSrc: 'instapay.svg', category: 'online' },
+        { id: 'fawry', title: 'Fawry', imgSrc: 'fawry.svg', category: 'online' },
+        { id: 'paypal', title: 'PayPal', imgSrc: 'paypal.svg', category: 'online' },
+        { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg', category: 'transfer' },
+        { id: 'western_union', title: 'Western Union', imgSrc: 'western_union.svg', category: 'transfer' },
+        { id: 'moneygram', title: 'MoneyGram', imgSrc: 'moneygram.svg', category: 'transfer' },
+        { id: 'revolut', title: 'Revolut', imgSrc: 'revolut.svg', category: 'transfer' },
+        { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg', category: 'transfer' },
+        { id: 'bitcoin', title: 'Bitcoin', imgSrc: 'bitcoin.svg', category: 'crypto' },
+        { id: 'ethereum', title: 'Ethereum', imgSrc: 'ethereum.svg', category: 'crypto' },
+        { id: 'usdt', title: 'USDT (Tether)', imgSrc: 'usdt.svg', category: 'crypto' },
+        { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg', category: 'cash' }
     ];
 
     const sacrificeDayMapInternal = {
@@ -87,6 +87,26 @@ document.addEventListener('alpine:init', () => {
         
         get sacrificeDayMapInternal() { return sacrificeDayMapInternal; },
         get availPayMeths() { return payMethods; },
+        get groupedPaymentMethods() {
+            return {
+                online: {
+                    title: { en: 'Online Payment', ar: 'الدفع الإلكتروني' },
+                    methods: payMethods.filter(m => m.category === 'online')
+                },
+                transfer: {
+                    title: { en: 'Bank/Money Transfer', ar: 'التحويل البنكي/المالي' },
+                    methods: payMethods.filter(m => m.category === 'transfer')
+                },
+                crypto: {
+                    title: { en: 'Cryptocurrency', ar: 'العملات الرقمية' },
+                    methods: payMethods.filter(m => m.category === 'crypto')
+                },
+                cash: {
+                    title: { en: 'Cash Payment', ar: 'الدفع النقدي' },
+                    methods: payMethods.filter(m => m.category === 'cash')
+                }
+            };
+        },
         get cartItemCount() { return this.cartItems.reduce((sum, item) => sum + item.quantity, 0); },
         deliveryTimeSlots: [ 
             { value: "9AM-11AM", label: "9 AM - 11 AM" }, 
