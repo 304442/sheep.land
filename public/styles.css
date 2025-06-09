@@ -451,8 +451,12 @@ body.has-promo-bar .account-dropdown{top:calc(var(--head-h) + 76px)}
 body:not(.has-promo-bar) .whatsapp-dropdown{top:calc(var(--head-h) + 32px)}
 body.has-promo-bar .whatsapp-dropdown{top:calc(var(--head-h) + 76px)}
 .whatsapp-dropdown-content{padding:var(--s3)}
-.whatsapp-header{border-bottom:1px solid #eee;padding-bottom:1rem;margin-bottom:1rem}
+.whatsapp-header{border-bottom:1px solid #eee;padding-bottom:1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
 .whatsapp-info{display:flex;gap:1rem;align-items:flex-start}
+.whatsapp-curr-sel{margin-left:auto}
+.whatsapp-curr-sel select{padding:4px 8px;font-size:.875rem;border:1px solid #ddd;border-radius:20px;background:white;color:#333;font-weight:500;min-width:80px;cursor:pointer;transition:all 0.2s}
+.whatsapp-curr-sel select:focus{outline:none;border-color:#25D366}
+.whatsapp-curr-sel select:hover{border-color:#25D366;background:#f0f9f4}
 .whatsapp-info h3{margin:0 0 0.25rem 0;font-size:1.1rem}
 .whatsapp-status{display:flex;align-items:center;gap:0.5rem;font-size:0.9rem;color:#666}
 .status-dot{width:8px;height:8px;background:#25D366;border-radius:50%;display:inline-block}
