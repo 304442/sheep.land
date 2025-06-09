@@ -272,6 +272,12 @@
                     </svg>
                 </button>
             </template>
+            <button @click="toggleWishlistModal()" class="header-action-btn wishlist-btn" title="Wishlist">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span x-show="wishlistCount > 0" class="wishlist-badge" x-text="wishlistCount"></span>
+            </button>
             <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="9" cy="21" r="1"/>
@@ -313,6 +319,12 @@
                     </svg>
                 </button>
             </template>
+            <button @click="toggleWishlistModal()" class="header-action-btn wishlist-btn" title="Wishlist">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span x-show="wishlistCount > 0" class="wishlist-badge" x-text="wishlistCount"></span>
+            </button>
             <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="9" cy="21" r="1"/>
@@ -791,6 +803,71 @@
     </div>
 </div>
 
+<!-- Wishlist Modal -->
+<div class="wishlist-modal" x-show="isWishlistOpen" x-transition @click="closeWishlist($event)" x-data="wishlistFeature">
+    <div class="wishlist-content" @click.stop>
+        <div class="wishlist-header">
+            <h3 class="bil-spread">
+                <span class="en">My Wishlist</span>
+                <span class="ar">قائمة أمنياتي</span>
+            </h3>
+            <button @click="closeWishlist()" class="wishlist-close">&times;</button>
+        </div>
+        
+        <div class="wishlist-body">
+            <div x-show="wishlistItems.length === 0" class="wishlist-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <p class="bil-row">
+                    <span class="en">Your wishlist is empty</span>
+                    <span class="ar">قائمة أمنياتك فارغة</span>
+                </p>
+            </div>
+            
+            <div x-show="wishlistItems.length > 0" class="wishlist-items">
+                <template x-for="item in wishlistItems" :key="item.item_key">
+                    <div class="wishlist-item">
+                        <img :src="item.image" :alt="item.name_en" class="wishlist-item-image">
+                        <div class="wishlist-item-info">
+                            <div class="wishlist-item-name bil-spread">
+                                <span class="en" x-text="item.name_en"></span>
+                                <span class="ar" x-text="item.name_ar"></span>
+                            </div>
+                            <div class="wishlist-item-price" x-text="item.price"></div>
+                        </div>
+                        <div class="wishlist-item-actions">
+                            <button @click="moveToCart(item)" class="btn bp-s" title="Add to Cart">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="9" cy="21" r="1"/>
+                                    <circle cx="20" cy="21" r="1"/>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                </svg>
+                            </button>
+                            <button @click="removeFromWishlist(item.item_key)" class="btn bp-alt-s" title="Remove">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        
+        <div x-show="wishlistItems.length > 0" class="wishlist-footer">
+            <button @click="clearWishlist()" class="wishlist-clear bil-inline">
+                <span class="en">Clear All</span>
+                <span class="ar">مسح الكل</span>
+            </button>
+            <div class="wishlist-count bil-inline">
+                <span class="en"><span x-text="wishlistItems.length"></span> items</span>
+                <span class="ar"><span x-text="wishlistItems.length"></span> عناصر</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <main>
     <!-- Business Stats Bar - Hidden by default -->
@@ -1207,6 +1284,14 @@
                             <div class="card-img">
                                 <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
+                                <button @click="$parent.toggleWishlist(item)" 
+                                        class="wishlist-icon" 
+                                        :class="{ 'active': $parent.isInWishlist(item.item_key) }"
+                                        :title="$parent.isInWishlist(item.item_key) ? 'Remove from wishlist' : 'Add to wishlist'">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="$parent.isInWishlist(item.item_key) ? 'currentColor' : 'none'"/>
+                                    </svg>
+                                </button>
                             </div>
                             <div class="card-b">
                                 <div class="card-content">
@@ -1273,6 +1358,14 @@
                                 <div class="card-img">
                                     <img :src="getProductImage(item, section.key)" :alt="item.nameENSpec || section.name.en" loading="lazy">
                                     <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
+                                    <button @click="$parent.$parent.toggleWishlist(item)" 
+                                            class="wishlist-icon" 
+                                            :class="{ 'active': $parent.$parent.isInWishlist(item.itemKey) }"
+                                            :title="$parent.$parent.isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="$parent.$parent.isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
+                                        </svg>
+                                    </button>
                                 </div>
                                 <div class="card-b">
                                     <div class="card-content">
@@ -1949,6 +2042,7 @@
 </footer>
 
 <script src="vendor/pocketbase.umd.js"></script>
+<script src="wishlist.js"></script>
 <script src="app.js"></script>
 <script defer src="vendor/alpine-collapse.min.js"></script>
 <script defer src="vendor/alpine.min.js"></script>

@@ -70,7 +70,8 @@ document.addEventListener('alpine:init', () => {
         isPromoBarDismissed: false,
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
-        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false,
+        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false,
+        wishlistCount: 0,
         currentPage: 'home', currLang: "en", curr: "EGP",
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
         checkoutForm: JSON.parse(JSON.stringify(initForm)),
@@ -146,6 +147,12 @@ document.addEventListener('alpine:init', () => {
                 this.currentUser = null;
             }
             this.loadCartFromStorage(); 
+            
+            // Initialize wishlist count
+            this.wishlistCount = wishlist.getCount();
+            window.addEventListener('wishlistUpdated', (e) => {
+                this.wishlistCount = e.detail.count;
+            }); 
 
             try {
                 const rs = await pb.collection('settings').getFirstListItem('id!=""');
@@ -317,6 +324,34 @@ document.addEventListener('alpine:init', () => {
         },
         closeCart() { 
             this.isCartOpen = false; 
+        },
+        
+        toggleWishlistModal() {
+            this.isWishlistOpen = !this.isWishlistOpen;
+        },
+        closeWishlist(event) {
+            if (!event || event.target === event.currentTarget) {
+                this.isWishlistOpen = false;
+            }
+        },
+        
+        toggleWishlist(product) {
+            if (wishlist.contains(product.item_key || product.itemKey)) {
+                wishlist.remove(product.item_key || product.itemKey);
+            } else {
+                wishlist.add({
+                    item_key: product.item_key || product.itemKey,
+                    nameEN: product.nameENSpec || product.nameEN,
+                    nameAR: product.nameARSpec || product.nameAR,
+                    priceDisp: this.fmtPrice(product.priceEGP || product.price),
+                    image: this.getProductImage(product, product.product_category || 'general'),
+                    cat: product.product_category || 'general'
+                });
+            }
+        },
+        
+        isInWishlist(itemKey) {
+            return wishlist.contains(itemKey);
         },
 
         addItemToCart(productVariant, udheyaConfigDetails = null) {
