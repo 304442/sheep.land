@@ -774,12 +774,10 @@
                 </div>
             </div>
             <div class="cart-dropdown-footer" x-show="cartItems.length > 0">
-                <div class="cart-total-row">
-                    <span class="bil-spread">
-                        <span class="en">Total</span>
-                        <span class="ar">المجموع</span>
-                    </span>
+                <div class="cart-total-row bil-spread">
+                    <span class="en">Total</span>
                     <span class="cart-total-amount" x-text="fmtPrice(calculateCartTotal())"></span>
+                    <span class="ar">المجموع</span>
                 </div>
                 <div class="cart-actions">
                     <button @click="closeCart(); navigateToOrScroll('checkout')" class="btn bac btn-block bil-inline">
