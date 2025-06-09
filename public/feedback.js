@@ -392,14 +392,14 @@ const feedbackSystem = {
         const rating = parseInt(document.getElementById('feedbackRating').value);
         const feedbackData = {
             rating: rating,
-            category: document.getElementById('feedbackCategory').value,
-            message: document.getElementById('feedbackText').value,
-            name: document.getElementById('feedbackName').value,
-            email: document.getElementById('feedbackEmail').value,
-            phone: document.getElementById('feedbackPhone').value,
+            category: document.getElementById('feedbackCategory').value || 'general',
+            message: document.getElementById('feedbackText').value || '',
+            name: document.getElementById('feedbackName').value || '',
+            email: document.getElementById('feedbackEmail').value || '',
+            phone: document.getElementById('feedbackPhone').value || '',
             allowTestimonial: document.getElementById('allowTestimonial').checked,
-            orderType: document.getElementById('feedbackContext').value,
-            orderNumber: document.getElementById('feedbackOrderId').value,
+            orderType: document.getElementById('feedbackContext').value || 'general',
+            orderNumber: document.getElementById('feedbackOrderId').value || '',
             userAgent: navigator.userAgent,
             pageUrl: window.location.href,
             wouldRecommend: rating >= 4 ? 'yes' : (rating >= 3 ? 'maybe' : 'no'),
@@ -409,13 +409,22 @@ const feedbackSystem = {
         try {
             // Store in PocketBase
             if (window.pb) {
-                await window.pb.collection('customer_feedback').create(feedbackData);
+                try {
+                    console.log('Attempting to save feedback to PocketBase:', feedbackData);
+                    const record = await window.pb.collection('customer_feedback').create(feedbackData);
+                    console.log('Feedback saved to PocketBase:', record);
+                } catch (pbError) {
+                    console.error('PocketBase error:', pbError);
+                    console.error('PocketBase error details:', pbError.response);
+                    // Continue to save in localStorage
+                }
                 
                 // Also store in localStorage for offline access
                 const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
                 feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
                 localStorage.setItem('sheepland_feedbacks', JSON.stringify(feedbacks));
             } else {
+                console.log('PocketBase not available, saving to localStorage only');
                 // Fallback to localStorage only
                 const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
                 feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
