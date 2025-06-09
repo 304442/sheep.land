@@ -1264,6 +1264,21 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Dynamic Customer Feedback -->
+            <div class="dynamic-testimonials" id="testimonials-container">
+                <!-- Dynamic testimonials will be loaded here by feedback.js -->
+            </div>
+            
+            <!-- Call to Action for Feedback -->
+            <div class="feedback-cta">
+                <button onclick="feedbackSystem.openFeedbackModal()" class="btn prim">
+                    <span class="bil-inline">
+                        <span class="en">Share Your Experience</span>
+                        <span class="ar">شارك تجربتك</span>
+                    </span>
+                </button>
+            </div>
         </div>
     </section>
     </section>
@@ -1279,8 +1294,7 @@
             </div>
             <div x-show="prodOpts.udheya && prodOpts.udheya.length > 0" class="prod-grid grid2">
                 <template x-for="productType in prodOpts.udheya" :key="productType.valKey">
-                    <template x-if="productType && productType.wps">
-                        <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
+                    <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
                                 <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
@@ -1351,8 +1365,7 @@
                 </div>
                 <div x-show="section.products && section.products.length > 0" class="prod-grid grid2">
                     <template x-for="productType in section.products" :key="productType.valKey">
-                        <template x-if="productType && productType.wps">
-                            <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
+                        <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
                                     <img :src="getProductImage(item, section.key)" :alt="item.nameENSpec || section.name.en" loading="lazy">
@@ -2043,6 +2056,8 @@
 
 <script src="vendor/pocketbase.umd.js"></script>
 <script src="wishlist.js"></script>
+<script src="feedback.js"></script>
+<script src="admin.js"></script>
 <script src="app.js"></script>
 <script defer src="vendor/alpine-collapse.min.js"></script>
 <script defer src="vendor/alpine.min.js"></script>

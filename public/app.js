@@ -56,7 +56,12 @@ document.addEventListener('alpine:init', () => {
             site_title_en: "Sheep Land", site_title_ar: "أرض الأغنام",
             site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
         },
-        prodOpts: { udheya: [], livesheep_general: [], meat_cuts: [], gathering_package: [] },
+        prodOpts: { 
+            udheya: [], 
+            livesheep_general: [], 
+            meat_cuts: [], 
+            gathering_package: [] 
+        },
         selectedMeatWeights: {},
         searchQuery: '',
         showSearch: false,
@@ -215,19 +220,38 @@ document.addEventListener('alpine:init', () => {
                             descAr: p.type_description_ar, breed_info_en: p.breed_info_en, breed_info_ar: p.breed_info_ar
                         });
                     });
-                    return Object.values(grouped);
+                    // Ensure all returned objects have valid wps arrays
+                    const result = Object.values(grouped);
+                    result.forEach(productType => {
+                        if (!productType.wps) productType.wps = [];
+                    });
+                    return result;
                 };
                 
-                this.prodOpts.udheya = categorizeProducts(allProducts, 'udheya');
-                this.prodOpts.livesheep_general = categorizeProducts(allProducts, 'livesheep_general');
-                this.prodOpts.meat_cuts = categorizeProducts(allProducts, 'meat_cuts');
-                this.prodOpts.gathering_package = categorizeProducts(allProducts, 'gathering_package');
+                // Helper to ensure all productTypes have valid wps arrays
+                const ensureValidStructure = (productTypes) => {
+                    return productTypes.filter(pt => pt && pt.wps && Array.isArray(pt.wps));
+                };
+                
+                this.prodOpts.udheya = ensureValidStructure(categorizeProducts(allProducts, 'udheya'));
+                this.prodOpts.livesheep_general = ensureValidStructure(categorizeProducts(allProducts, 'livesheep_general'));
+                this.prodOpts.meat_cuts = ensureValidStructure(categorizeProducts(allProducts, 'meat_cuts'));
+                this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(allProducts, 'gathering_package'));
                 
                 console.log('Product categories loaded:', {
                     udheya: this.prodOpts.udheya.length,
                     livesheep: this.prodOpts.livesheep_general.length,
                     meat: this.prodOpts.meat_cuts.length,
                     gathering: this.prodOpts.gathering_package.length
+                });
+                
+                // Verify data structure integrity
+                const allCategories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package'];
+                allCategories.forEach(cat => {
+                    const valid = this.prodOpts[cat].every(pt => pt && pt.wps && Array.isArray(pt.wps));
+                    if (!valid) {
+                        console.warn(`Data structure issue in ${cat} - some products missing wps array`);
+                    }
                 });
                 
                 // Debug: Check structure of first udheya product
@@ -396,6 +420,20 @@ document.addEventListener('alpine:init', () => {
                 this.isWishlistOpen = false;
                 this.showWishlistNotification('Wishlist cleared', 'info');
             }
+        },
+
+        // Feedback System Integration
+        openFeedback(context = 'general', orderId = null) {
+            if (window.feedbackSystem) {
+                window.feedbackSystem.openFeedbackModal(context, orderId);
+            }
+        },
+
+        getFeedbackStats() {
+            if (window.feedbackSystem) {
+                return window.feedbackSystem.getStatistics();
+            }
+            return null;
         },
         
         moveToCart(item) {
@@ -799,10 +837,16 @@ document.addEventListener('alpine:init', () => {
         // Removed empty filterProducts function - filtering is handled by computed property
 
         get productSections() {
+            // Ensure each product array has valid structure
+            const ensureValidProducts = (products) => {
+                if (!Array.isArray(products)) return [];
+                return products.filter(p => p && p.wps && Array.isArray(p.wps));
+            };
+            
             return [
-                {key: 'livesheep', name: {en: 'Live Sheep', ar: 'الأغنام الحية'}, products: this.prodOpts.livesheep_general || [], badge: 'LIVE'},
-                {key: 'meat', name: {en: 'Fresh Meat & Cuts', ar: 'اللحوم الطازجة والقطعيات'}, products: this.prodOpts.meat_cuts || [], badge: 'FRESH'},
-                {key: 'gatherings', name: {en: 'Event & Gathering Packages', ar: 'باقات المناسبات والولائم'}, products: this.prodOpts.gathering_package || [], badge: 'EVENT'}
+                {key: 'livesheep', name: {en: 'Live Sheep', ar: 'الأغنام الحية'}, products: ensureValidProducts(this.prodOpts.livesheep_general), badge: 'LIVE'},
+                {key: 'meat', name: {en: 'Fresh Meat & Cuts', ar: 'اللحوم الطازجة والقطعيات'}, products: ensureValidProducts(this.prodOpts.meat_cuts), badge: 'FRESH'},
+                {key: 'gatherings', name: {en: 'Event & Gathering Packages', ar: 'باقات المناسبات والولائم'}, products: ensureValidProducts(this.prodOpts.gathering_package), badge: 'EVENT'}
             ];
         },
 
@@ -1314,7 +1358,12 @@ document.addEventListener('alpine:init', () => {
                 this.orderConf.items = createdOrder.line_items.map(li => ({...li})); 
                 this.orderConf.customerEmail = createdOrder.customer_email; 
                 this.orderConf.paymentInstructions = this.getPaymentInstructionsHTML(createdOrder.payment_method, createdOrder.total_amount_due_egp, createdOrder.order_id_text); 
-                this.orderConf.show = true; 
+                this.orderConf.show = true;
+            
+            // Trigger feedback prompt after order completion
+            window.dispatchEvent(new CustomEvent('orderCompleted', {
+                detail: { orderId: this.orderConf.orderID }
+            })); 
                 
                 const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
                 const isBuyNow = urlParams.get('buyNow') === 'true';
