@@ -815,6 +815,236 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
 
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 
+/* Wishlist Dropdown Styles */
+.wishlist-dropdown {
+    position: fixed;
+    top: var(--head-h);
+    right: 0;
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    border-radius: 0 0 12px 12px;
+}
+
+.wishlist-dropdown-content {
+    padding: 0;
+}
+
+.wishlist-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bord);
+    background: var(--bg2);
+}
+
+.wishlist-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text1);
+}
+
+.wishlist-items-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.wishlist-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.empty-wishlist-icon {
+    color: var(--text3);
+    margin-bottom: 16px;
+}
+
+.wishlist-empty-text {
+    margin: 16px 0;
+    color: var(--text2);
+}
+
+.wishlist-items-list {
+    padding: 8px 0;
+}
+
+.wishlist-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--bg3);
+    transition: background 0.2s;
+    gap: 12px;
+}
+
+.wishlist-dropdown-item:hover {
+    background: var(--bg2);
+}
+
+.wishlist-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.wishlist-item-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--bord);
+}
+
+.wishlist-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.wishlist-item-display {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.wishlist-item-name-en {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wishlist-item-name-ar {
+    font-size: 13px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wishlist-item-price {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--prim);
+}
+
+.wishlist-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.wishlist-item-add,
+.wishlist-item-remove {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wishlist-item-add {
+    background: var(--prim);
+    color: white;
+}
+
+.wishlist-item-add:hover {
+    background: var(--prim-dark);
+    transform: translateY(-1px);
+}
+
+.wishlist-item-remove {
+    background: var(--bg3);
+    color: var(--text2);
+}
+
+.wishlist-item-remove:hover {
+    background: #ff6b6b;
+    color: white;
+}
+
+.wishlist-more-items {
+    padding: 8px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text2);
+    background: var(--bg2);
+}
+
+.wishlist-dropdown-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--bord);
+    background: var(--bg2);
+}
+
+.wishlist-count-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.wishlist-count-label {
+    color: var(--text2);
+}
+
+.wishlist-count-number {
+    font-weight: 600;
+    color: var(--prim);
+    background: var(--prim-light);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.wishlist-actions {
+    display: flex;
+    justify-content: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .wishlist-dropdown {
+        max-width: 100%;
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+    
+    .wishlist-dropdown-item {
+        padding: 10px 16px;
+        gap: 10px;
+    }
+    
+    .wishlist-item-image {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .wishlist-item-name-en,
+    .wishlist-item-name-ar {
+        font-size: 13px;
+    }
+    
+    .wishlist-item-price {
+        font-size: 13px;
+    }
+    
+    .wishlist-item-add,
+    .wishlist-item-remove {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Positioning adjustment for promo bar */
+body.has-promo-bar .wishlist-dropdown {
+    top: calc(var(--head-h) + 76px);
+}
+
 /* Feedback System Styles */
 .feedback-widget {
     position: fixed;

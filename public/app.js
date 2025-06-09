@@ -379,13 +379,11 @@ document.addEventListener('alpine:init', () => {
             this.isCartOpen = false; 
         },
         
-        toggleWishlistModal() {
+        toggleWishlistDropdown() {
             this.isWishlistOpen = !this.isWishlistOpen;
         },
-        closeWishlist(event) {
-            if (!event || event.target === event.currentTarget) {
-                this.isWishlistOpen = false;
-            }
+        closeWishlist() {
+            this.isWishlistOpen = false;
         },
         
         toggleWishlist(product) {

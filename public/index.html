@@ -272,7 +272,7 @@
                     </svg>
                 </button>
             </template>
-            <button @click="toggleWishlistModal()" class="header-action-btn wishlist-btn" title="Wishlist">
+            <button @click="toggleWishlistDropdown()" class="header-action-btn wishlist-btn" title="Wishlist">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
@@ -319,7 +319,7 @@
                     </svg>
                 </button>
             </template>
-            <button @click="toggleWishlistModal()" class="header-action-btn wishlist-btn" title="Wishlist">
+            <button @click="toggleWishlistDropdown()" class="header-action-btn wishlist-btn" title="Wishlist">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
@@ -804,66 +804,77 @@
 </div>
 
 <!-- Wishlist Modal -->
-<div class="wishlist-modal" x-show="isWishlistOpen" x-transition @click="closeWishlist($event)">
-    <div class="wishlist-content" @click.stop>
-        <div class="wishlist-header">
-            <h3 class="bil-spread">
-                <span class="en">My Wishlist</span>
-                <span class="ar">قائمة أمنياتي</span>
-            </h3>
-            <button @click="closeWishlist()" class="wishlist-close">&times;</button>
-        </div>
-        
-        <div class="wishlist-body">
-            <div x-show="wishlistItems.length === 0" class="wishlist-empty">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                <p class="bil-row">
-                    <span class="en">Your wishlist is empty</span>
-                    <span class="ar">قائمة أمنياتك فارغة</span>
-                </p>
+<!-- Wishlist Dropdown -->
+<div class="wishlist-dropdown" x-show="isWishlistOpen" x-transition @click.outside="closeWishlist()">
+    <div class="c">
+        <div class="wishlist-dropdown-content">
+            <div class="wishlist-header">
+                <h2 class="bil-spread">
+                    <span class="en">My Wishlist</span><span class="ar">قائمة أمنياتي</span>
+                </h2>
             </div>
-            
-            <div x-show="wishlistItems.length > 0" class="wishlist-items">
-                <template x-for="item in wishlistItems" :key="item.item_key">
-                    <div class="wishlist-item">
-                        <img :src="item.image" :alt="item.name_en" class="wishlist-item-image">
-                        <div class="wishlist-item-info">
-                            <div class="wishlist-item-name bil-spread">
-                                <span class="en" x-text="item.name_en"></span>
-                                <span class="ar" x-text="item.name_ar"></span>
+            <div class="wishlist-items-container">
+                <div x-show="wishlistItems.length === 0" class="wishlist-empty-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-wishlist-icon">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <p class="bil-spread wishlist-empty-text">
+                        <span class="en">Your wishlist is empty</span>
+                        <span class="ar">قائمة أمنياتك فارغة</span>
+                    </p>
+                    <button @click="closeWishlist(); navigateToOrScroll('udheya')" class="btn bp btn-sm bil-inline">
+                        <span class="en">Start Shopping</span>
+                        <span class="ar">ابدأ التسوق</span>
+                    </button>
+                </div>
+                <div x-show="wishlistItems.length > 0" class="wishlist-items-list">
+                    <template x-for="(item) in wishlistItems.slice(0, 4)" :key="item.item_key">
+                        <div class="wishlist-dropdown-item">
+                            <img :src="item.image" :alt="item.name_en" class="wishlist-item-image">
+                            <div class="wishlist-item-info">
+                                <div class="wishlist-item-display">
+                                    <span class="wishlist-item-name-en" x-text="item.name_en"></span>
+                                    <span class="wishlist-item-price" x-text="item.price"></span>
+                                    <span class="wishlist-item-name-ar" x-text="item.name_ar"></span>
+                                </div>
                             </div>
-                            <div class="wishlist-item-price" x-text="item.price"></div>
+                            <div class="wishlist-item-actions">
+                                <button @click="moveToCart(item)" class="wishlist-item-add" title="Add to Cart">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="9" cy="21" r="1"/>
+                                        <circle cx="20" cy="21" r="1"/>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                    </svg>
+                                </button>
+                                <button @click="removeFromWishlist(item.item_key)" class="wishlist-item-remove" title="Remove">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"/>
+                                        <line x1="6" y1="6" x2="18" y2="18"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <div class="wishlist-item-actions">
-                            <button @click="moveToCart(item)" class="btn bp-s" title="Add to Cart">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="9" cy="21" r="1"/>
-                                    <circle cx="20" cy="21" r="1"/>
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                                </svg>
-                            </button>
-                            <button @click="removeFromWishlist(item.item_key)" class="btn bp-alt-s" title="Remove">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                </svg>
-                            </button>
-                        </div>
+                    </template>
+                    <div x-show="wishlistItems.length > 4" class="wishlist-more-items">
+                        <span class="bil-inline">
+                            <span class="en">+ <span x-text="wishlistItems.length - 4"></span> more items</span>
+                            <span class="ar">+ <span x-text="wishlistItems.length - 4"></span> عناصر أخرى</span>
+                        </span>
                     </div>
-                </template>
+                </div>
             </div>
-        </div>
-        
-        <div x-show="wishlistItems.length > 0" class="wishlist-footer">
-            <button @click="clearWishlist()" class="wishlist-clear bil-inline">
-                <span class="en">Clear All</span>
-                <span class="ar">مسح الكل</span>
-            </button>
-            <div class="wishlist-count bil-inline">
-                <span class="en"><span x-text="wishlistItems.length"></span> items</span>
-                <span class="ar"><span x-text="wishlistItems.length"></span> عناصر</span>
+            <div class="wishlist-dropdown-footer" x-show="wishlistItems.length > 0">
+                <div class="wishlist-count-row">
+                    <span class="wishlist-count-label en">Total Items</span>
+                    <span class="wishlist-count-number" x-text="wishlistItems.length"></span>
+                    <span class="wishlist-count-label ar">إجمالي العناصر</span>
+                </div>
+                <div class="wishlist-actions">
+                    <button @click="clearWishlist()" class="btn bp btn-sm bil-inline">
+                        <span class="en">Clear All</span>
+                        <span class="ar">مسح الكل</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
