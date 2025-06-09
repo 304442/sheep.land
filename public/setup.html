@@ -527,11 +527,11 @@
                 "name": "users",
                 "type": "auth",
                 "system": false,
-                "listRule": "@request.auth.id = id || @request.auth.admin = true",
-                "viewRule": "@request.auth.id = id || @request.auth.admin = true",
+                "listRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
+                "viewRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
                 "createRule": "",
-                "updateRule": "@request.auth.id = id || @request.auth.admin = true",
-                "deleteRule": "@request.auth.id = id || @request.auth.admin = true",
+                "updateRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
+                "deleteRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
                 "options": {
                         "emailVisibility": true,
                         "requireEmailVerification": false,
@@ -575,8 +575,8 @@
                 "name": "orders",
                 "type": "base",
                 "system": false,
-                "listRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
-                "viewRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
+                "listRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.collectionName = '_superusers'",
+                "viewRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.collectionName = '_superusers'",
                 "createRule": "",
                 "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
                 "deleteRule": "@request.auth.id != '' && @request.auth.verified = true",
@@ -1844,7 +1844,7 @@
             return { 
                 valid: false, 
                 message: `⚠️ ${ruleName} in '${collectionName}' may have invalid syntax - use @request.auth.*, field references, or collection patterns`,
-                details: { rule, suggestion: 'Common patterns: @request.auth.id != "", field = value, @request.auth.admin = true' }
+                details: { rule, suggestion: 'Common patterns: @request.auth.id != "", field = value, @request.auth.collectionName = '_superusers'' }
             };
         }
         
@@ -2152,7 +2152,7 @@
             }
             return { success: false, error };
         } finally {
-            if (pbInstance === null && pb.authStore.isValid && pb.authStore.isAdmin) {
+            if (pbInstance === null && pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') {
                 log(`🔒 Clearing temporary admin auth after ${operationName}`, 'd');
                 pb.authStore.clear();
             }
@@ -2306,8 +2306,8 @@
                 if (rel.sourceCollectionName === "orders") {
                     log('🔄 Updating orders collection API rules with user field references...', 'i');
                     await pb.collections.update(sourceCollection.id, {
-                        listRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
-                        viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true"
+                        listRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.collectionName = '_superusers'",
+                        viewRule: "(@request.auth.id != '' && user = @request.auth.id) || (@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.collectionName = '_superusers'"
                     });
                     log('✅ Orders collection API rules updated successfully.', 's');
                 }
@@ -2404,7 +2404,7 @@
         } catch (error) {
             log(`💥 CRITICAL ERROR during full setup: ${error.message}`, 'e');
         } finally {
-            if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
+            if (pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
              runSeedOnlyButton.disabled = !schemaSuccess; 
         }
@@ -2425,7 +2425,7 @@
         } catch (error) {
             log(`❌ ERROR during schema setup: ${error.message}`, 'e');
         } finally {
-            if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
+            if (pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton].forEach(b => b.disabled = false);
             runSeedOnlyButton.disabled = !success;
         }
@@ -2444,7 +2444,7 @@
         } catch (error) {
             log(`❌ ERROR during seed setup: ${error.message}`, 'e');
         } finally {
-            if (pb.authStore.isValid && pb.authStore.isAdmin) pb.authStore.clear();
+            if (pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') pb.authStore.clear();
             [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = false);
         }
     };
