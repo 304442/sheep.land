@@ -72,6 +72,7 @@ document.addEventListener('alpine:init', () => {
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false,
         wishlistCount: 0,
+        wishlistItems: [],
         currentPage: 'home', currLang: "en", curr: "EGP",
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
         checkoutForm: JSON.parse(JSON.stringify(initForm)),
@@ -148,10 +149,12 @@ document.addEventListener('alpine:init', () => {
             }
             this.loadCartFromStorage(); 
             
-            // Initialize wishlist count
+            // Initialize wishlist
+            this.wishlistItems = wishlist.getItems();
             this.wishlistCount = wishlist.getCount();
             window.addEventListener('wishlistUpdated', (e) => {
                 this.wishlistCount = e.detail.count;
+                this.wishlistItems = wishlist.getItems();
             }); 
 
             try {
@@ -352,6 +355,71 @@ document.addEventListener('alpine:init', () => {
         
         isInWishlist(itemKey) {
             return wishlist.contains(itemKey);
+        },
+        
+        removeFromWishlist(itemKey) {
+            wishlist.remove(itemKey);
+            this.wishlistItems = wishlist.getItems();
+            this.showWishlistNotification('Removed from wishlist', 'remove');
+        },
+        
+        clearWishlist() {
+            if (confirm('Are you sure you want to clear your wishlist?')) {
+                wishlist.clear();
+                this.wishlistItems = [];
+                this.isWishlistOpen = false;
+                this.showWishlistNotification('Wishlist cleared', 'info');
+            }
+        },
+        
+        moveToCart(item) {
+            // Find the actual product data
+            let product = null;
+            const categories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package'];
+            
+            for (const cat of categories) {
+                if (this.prodOpts[cat]) {
+                    for (const productType of this.prodOpts[cat]) {
+                        const found = productType.wps.find(p => p.itemKey === item.item_key);
+                        if (found) {
+                            product = found;
+                            break;
+                        }
+                    }
+                }
+                if (product) break;
+            }
+            
+            if (product) {
+                this.addItemToCart(product);
+                wishlist.remove(item.item_key);
+                this.wishlistItems = wishlist.getItems();
+                this.showWishlistNotification('Moved to cart', 'success');
+            } else {
+                this.showWishlistNotification('Product not found', 'remove');
+            }
+        },
+        
+        showWishlistNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `wishlist-notification ${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+                <span class="close">&times;</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+            
+            // Close on click
+            notification.querySelector('.close').addEventListener('click', () => {
+                notification.remove();
+            });
         },
 
         addItemToCart(productVariant, udheyaConfigDetails = null) {
