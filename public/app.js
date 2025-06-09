@@ -145,6 +145,7 @@ document.addEventListener('alpine:init', () => {
             
             const pb = new PocketBase('/'); 
             this.pb = pb;
+            window.pb = pb; // Make PocketBase available globally for feedback system
             
             if (pb.authStore.isValid && pb.authStore.model) {
                 this.currentUser = pb.authStore.model;

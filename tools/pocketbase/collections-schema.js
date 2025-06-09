@@ -144,7 +144,7 @@ const collectionsDefinition = [
         type: "base",
         system: false,
         listRule: "@request.auth.id != '' && @request.auth.verified = true",
-        viewRule: "@request.auth.id != '' && @request.auth.verified = true",
+        viewRule: "",
         createRule: "",
         updateRule: "@request.auth.id != '' && @request.auth.verified = true",
         deleteRule: "@request.auth.id != '' && @request.auth.verified = true",

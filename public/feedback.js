@@ -411,11 +411,13 @@ const feedbackSystem = {
             if (window.pb) {
                 try {
                     console.log('Attempting to save feedback to PocketBase:', feedbackData);
+                    console.log('PocketBase auth status:', window.pb.authStore.isValid);
                     const record = await window.pb.collection('customer_feedback').create(feedbackData);
                     console.log('Feedback saved to PocketBase:', record);
                 } catch (pbError) {
                     console.error('PocketBase error:', pbError);
                     console.error('PocketBase error details:', pbError.response);
+                    console.error('PocketBase error data:', pbError.data);
                     // Continue to save in localStorage
                 }
                 
@@ -477,22 +479,26 @@ const feedbackSystem = {
     async loadExistingFeedback() {
         try {
             // Try to load from PocketBase first
-            if (window.pb && window.pb.authStore.isValid) {
-                const records = await window.pb.collection('customer_feedback').getList(1, 20, {
-                    filter: 'isPublished = true && rating >= 4',
-                    sort: '-created'
-                });
-                
-                if (records.items.length > 0) {
-                    const testimonials = records.items.map(item => ({
-                        name: item.name || 'Valued Customer',
-                        rating: item.rating,
-                        text: item.message,
-                        date: item.created,
-                        category: item.category
-                    }));
-                    this.displayTestimonials(testimonials);
-                    return;
+            if (window.pb) {
+                try {
+                    const records = await window.pb.collection('customer_feedback').getList(1, 20, {
+                        filter: 'isPublished = true && rating >= 4',
+                        sort: '-created'
+                    });
+                    
+                    if (records.items.length > 0) {
+                        const testimonials = records.items.map(item => ({
+                            name: item.name || 'Valued Customer',
+                            rating: item.rating,
+                            text: item.message,
+                            date: item.created,
+                            category: item.category
+                        }));
+                        this.displayTestimonials(testimonials);
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Could not load testimonials from PocketBase:', error);
                 }
             }
         } catch (error) {

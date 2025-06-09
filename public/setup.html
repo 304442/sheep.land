@@ -815,7 +815,7 @@
                 "type": "base",
                 "system": false,
                 "listRule": "@request.auth.id != '' && @request.auth.verified = true",
-                "viewRule": "@request.auth.id != '' && @request.auth.verified = true",
+                "viewRule": "",
                 "createRule": "",
                 "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
                 "deleteRule": "@request.auth.id != '' && @request.auth.verified = true",
@@ -853,7 +853,14 @@
                                 "required": false,
                                 "presentable": true,
                                 "maxSelect": 1,
-                                "values": ["udheya", "livesheep", "meat", "gatherings", "general", "not_specified"]
+                                "values": [
+                                        "udheya",
+                                        "livesheep",
+                                        "meat",
+                                        "gatherings",
+                                        "general",
+                                        "not_specified"
+                                ]
                         },
                         {
                                 "name": "rating",
@@ -870,7 +877,14 @@
                                 "required": false,
                                 "presentable": true,
                                 "maxSelect": 1,
-                                "values": ["product", "delivery", "service", "website", "price", "other"]
+                                "values": [
+                                        "product",
+                                        "delivery",
+                                        "service",
+                                        "website",
+                                        "price",
+                                        "other"
+                                ]
                         },
                         {
                                 "name": "message",
@@ -885,7 +899,11 @@
                                 "required": false,
                                 "presentable": true,
                                 "maxSelect": 1,
-                                "values": ["yes", "maybe", "no"]
+                                "values": [
+                                        "yes",
+                                        "maybe",
+                                        "no"
+                                ]
                         },
                         {
                                 "name": "allowTestimonial",
@@ -925,7 +943,6 @@
                         "CREATE INDEX `idx_feedback_published` ON `customer_feedback` (`isPublished`)"
                 ]
         }
-
 ];
 
     // All product data is managed through the database
