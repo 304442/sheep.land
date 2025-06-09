@@ -527,9 +527,11 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
 .cart-item-remove:hover{background:#fee;color:#dc3545}
 .cart-more-items{text-align:center;padding:var(--s2);color:var(--tm);font-size:0.85rem;border-top:1px solid var(--bs)}
 .cart-dropdown-footer{border-top:2px solid var(--bs);padding:var(--s3);background:white}
-.cart-total-row{margin-bottom:var(--s3);padding-bottom:var(--s2);border-bottom:1px solid var(--bs)}
-.cart-total-row.bil-spread{display:flex;justify-content:space-between;align-items:center}
-.cart-total-row .cart-total-amount{font-weight:700;font-size:1.2rem;color:var(--c1d);text-align:center;flex:0 0 auto}
+.cart-total-row{margin-bottom:var(--s3);padding-bottom:var(--s2);border-bottom:1px solid var(--bs);display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
+.cart-total-label{font-weight:600;font-size:1rem;color:var(--tm)}
+.cart-total-label.en{text-align:left}
+.cart-total-label.ar{font-family:var(--fa);direction:rtl;text-align:right}
+.cart-total-row .cart-total-amount{font-weight:700;font-size:1.2rem;color:var(--c1d);text-align:center;flex:0 1 auto;margin:0 auto}
 .cart-total-amount{font-size:1.25rem;font-weight:700;color:var(--c1)}
 .cart-actions{display:flex;flex-direction:column;gap:var(--s2)}
 
