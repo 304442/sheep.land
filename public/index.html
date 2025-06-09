@@ -1205,7 +1205,7 @@
                     <template x-for="item in productType.wps" :key="item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
-                                <img src="https://images.unsplash.com/photo-1484557985045-edf25e08da73?w=400&h=300&fit=crop&q=80" :alt="item.nameENSpec" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1484557985045-edf25e08da73?w=400&h=300&fit=crop&q=80&sat=-100" :alt="item.nameENSpec" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
                             </div>
                             <div class="card-b">
@@ -1271,7 +1271,7 @@
                         <template x-for="item in productType.wps" :key="item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
-                                    <img :src="section.key === 'livesheep_general' ? 'https://images.unsplash.com/photo-1542838775-961894306368?w=400&h=300&fit=crop&q=80' : section.key === 'meat_cuts' ? 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400&h=300&fit=crop&q=80' : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80'" :alt="item.nameENSpec" loading="lazy">
+                                    <img :src="section.key === 'livesheep_general' ? 'https://images.unsplash.com/photo-1542838775-961894306368?w=400&h=300&fit=crop&q=80&sat=-100' : section.key === 'meat_cuts' ? 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400&h=300&fit=crop&q=80&sat=-100' : 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80&sat=-100'" :alt="item.nameENSpec" loading="lazy">
                                     <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
                                 </div>
                                 <div class="card-b">
