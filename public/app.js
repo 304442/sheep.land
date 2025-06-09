@@ -229,6 +229,13 @@ document.addEventListener('alpine:init', () => {
                     meat: this.prodOpts.meat_cuts.length,
                     gathering: this.prodOpts.gathering_package.length
                 });
+                
+                // Debug: Check structure of first udheya product
+                if (this.prodOpts.udheya.length > 0) {
+                    console.log('First udheya product structure:', this.prodOpts.udheya[0]);
+                    console.log('Has wps?', this.prodOpts.udheya[0].hasOwnProperty('wps'));
+                    console.log('wps is array?', Array.isArray(this.prodOpts.udheya[0].wps));
+                }
             
                 let cities = []; 
                 (this.settings.delAreas || []).forEach(gov => { 

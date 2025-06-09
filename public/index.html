@@ -1279,7 +1279,8 @@
             </div>
             <div x-show="prodOpts.udheya && prodOpts.udheya.length > 0" class="prod-grid grid2">
                 <template x-for="productType in prodOpts.udheya" :key="productType.valKey">
-                    <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
+                    <template x-if="productType && productType.wps">
+                        <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
                                 <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
@@ -1326,6 +1327,7 @@
                                 </div>
                             </div>
                         </div>
+                        </template>
                     </template>
                 </template>
             </div>
@@ -1349,7 +1351,8 @@
                 </div>
                 <div x-show="section.products && section.products.length > 0" class="prod-grid grid2">
                     <template x-for="productType in section.products" :key="productType.valKey">
-                        <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
+                        <template x-if="productType && productType.wps">
+                            <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
                                     <img :src="getProductImage(item, section.key)" :alt="item.nameENSpec || section.name.en" loading="lazy">
@@ -1415,6 +1418,7 @@
                                     </div>
                                 </div>
                             </div>
+                            </template>
                         </template>
                     </template>
                 </div>
