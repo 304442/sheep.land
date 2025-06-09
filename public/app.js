@@ -67,7 +67,6 @@ document.addEventListener('alpine:init', () => {
         showSearch: false,
         showAccountDropdown: false,
         showAuthDropdown: false,
-        showSetupNotification: false,
         showWhatsAppChat: false,
         chatMessage: '',
         chatMessages: [],
@@ -175,9 +174,10 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 if (!isPocketBaseSetUp) {
-                    // Use default settings if PocketBase is not set up
-                    console.info('PocketBase not set up yet. Using default settings.');
-                    throw new Error('PocketBase not configured');
+                    // Redirect to setup page if PocketBase is not configured
+                    console.error('PocketBase not configured. Redirecting to setup...');
+                    window.location.href = '/setup.html';
+                    return;
                 }
                 const rs = await pb.collection('settings').getFirstListItem('id!=""');
                 if (rs) {
@@ -296,26 +296,11 @@ document.addEventListener('alpine:init', () => {
                 this.allCities = cities.sort((a,b) => a.nameEn.localeCompare(b.nameEn));
                 
             } catch (e) { 
-                if (!isPocketBaseSetUp) {
-                    console.info("Using default data - PocketBase setup required.");
-                    this.apiErr = ""; 
-                    this.usrApiErr = "";
-                    // Show setup notification only if not already shown
-                    if (!sessionStorage.getItem('setupNotificationShown')) {
-                        this.showSetupNotification = true;
-                        sessionStorage.setItem('setupNotificationShown', 'true');
-                    }
-                } else {
-                    console.error("Failed to load products from database:", e);
-                    this.apiErr = String(e.message || "Could not load initial application data."); 
-                    this.usrApiErr = "Error loading essential data. Please try refreshing the page.";
-                } 
-                
-                // Ensure prodOpts has the expected structure even on error
-                if (!this.prodOpts.udheya) this.prodOpts.udheya = [];
-                if (!this.prodOpts.livesheep_general) this.prodOpts.livesheep_general = [];
-                if (!this.prodOpts.meat_cuts) this.prodOpts.meat_cuts = [];
-                if (!this.prodOpts.gathering_package) this.prodOpts.gathering_package = [];
+                console.error("Failed to load products from database:", e);
+                this.apiErr = String(e.message || "Could not load initial application data."); 
+                this.usrApiErr = "Database connection error. Please ensure PocketBase is properly configured.";
+                // Don't provide fallback data - require proper setup
+                throw e;
             }
             
             this.curr = this.settings.defCurr || "EGP"; 

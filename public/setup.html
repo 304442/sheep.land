@@ -2292,6 +2292,32 @@
     collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
     seedTextarea.value = JSON.stringify(seedData, null, 2);
     
+    // Check if PocketBase is already set up
+    async function checkPocketBaseStatus() {
+        try {
+            const response = await fetch('/api/health');
+            if (response.ok) {
+                const setupInfo = document.createElement('div');
+                setupInfo.className = 'setup-info';
+                setupInfo.innerHTML = `
+                    <p><strong>✅ PocketBase is already running!</strong></p>
+                    <p>It appears PocketBase is already configured and running. You can:</p>
+                    <div style="margin-top: 8px;">
+                        <button onclick="window.location.href='/'">🏠 Go to Main Site</button>
+                        <button onclick="window.location.href='/_'">⚙️ Open PocketBase Admin</button>
+                        <button onclick="this.parentElement.parentElement.style.display='none'">🔧 Continue with Setup (Advanced)</button>
+                    </div>
+                `;
+                document.querySelector('.c').insertBefore(setupInfo, document.querySelector('.c').children[1]);
+            }
+        } catch (error) {
+            // PocketBase not running, which is expected for initial setup
+            console.log('PocketBase not detected, ready for initial setup');
+        }
+    }
+    
+    checkPocketBaseStatus();
+    
     // Trigger initial validation
     setTimeout(() => {
         collectionsTextarea.dispatchEvent(new Event('input'));
