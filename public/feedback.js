@@ -3,7 +3,6 @@ const feedbackSystem = {
     // Initialize feedback system
     init() {
         this.setupFeedbackWidget();
-        this.loadExistingFeedback();
         this.setupEventListeners();
         this.checkForDirectFeedbackLink();
     },
@@ -108,27 +107,13 @@ const feedbackSystem = {
         let testimonials = [];
         
         try {
-            // Try to load from PocketBase first
-            if (window.pb && window.pb.authStore.isValid) {
-                const feedbackRecords = await window.pb.collection('customer_feedback').getList(1, 1000, {
-                    sort: '-created'
-                });
-                feedbacks = feedbackRecords.items;
-                
-                const testimonialRecords = await window.pb.collection('customer_feedback').getList(1, 100, {
-                    filter: 'isPublished = true && rating >= 4',
-                    sort: '-created'
-                });
-                testimonials = testimonialRecords.items;
-            } else {
-                // Fallback to localStorage
-                feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
-                testimonials = JSON.parse(localStorage.getItem('sheepland_testimonials') || '[]');
-            }
-        } catch (error) {
-            console.error('Error loading data for export:', error);
+            // Always use localStorage for export
             feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
             testimonials = JSON.parse(localStorage.getItem('sheepland_testimonials') || '[]');
+        } catch (error) {
+            console.error('Error loading data for export:', error);
+            feedbacks = [];
+            testimonials = [];
         }
         
         const exportData = {
@@ -475,78 +460,6 @@ const feedbackSystem = {
         localStorage.setItem('sheepland_testimonials', JSON.stringify(testimonials));
     },
 
-    // Load existing feedback/testimonials
-    async loadExistingFeedback() {
-        try {
-            // Try to load from PocketBase first
-            if (window.pb) {
-                try {
-                    const records = await window.pb.collection('customer_feedback').getList(1, 20, {
-                        filter: 'isPublished = true && rating >= 4',
-                        sort: '-created'
-                    });
-                    
-                    if (records.items.length > 0) {
-                        const testimonials = records.items.map(item => ({
-                            name: item.name || 'Valued Customer',
-                            rating: item.rating,
-                            text: item.message,
-                            date: item.created,
-                            category: item.category
-                        }));
-                        this.displayTestimonials(testimonials);
-                        return;
-                    }
-                } catch (error) {
-                    console.log('Could not load testimonials from PocketBase:', error);
-                }
-            }
-        } catch (error) {
-            console.log('Could not load testimonials from PocketBase:', error);
-        }
-        
-        // Fallback to localStorage
-        let testimonials = JSON.parse(localStorage.getItem('sheepland_testimonials') || '[]');
-        
-        // Add some sample testimonials if none exist
-        if (testimonials.length === 0) {
-            testimonials = [
-                {
-                    name: 'Sarah Ahmed',
-                    rating: 5,
-                    text: 'Amazing quality meat and perfect timing for our family gathering. Will definitely order again!',
-                    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    category: 'product'
-                },
-                {
-                    name: 'Mohamed Ali',
-                    rating: 5,
-                    text: 'Best Udheya service in Egypt. Professional, reliable, and follows all religious requirements.',
-                    date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-                    category: 'service'
-                },
-                {
-                    name: 'Fatima Hassan',
-                    rating: 4,
-                    text: 'Great customer service and the website is easy to use. Delivery was on time.',
-                    date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-                    category: 'delivery'
-                }
-            ];
-            localStorage.setItem('sheepland_testimonials', JSON.stringify(testimonials));
-        }
-        
-        if (testimonials.length > 0) {
-            this.displayTestimonials(testimonials);
-        }
-    },
-
-    // Display testimonials on page (kept for admin use only)
-    displayTestimonials(testimonials) {
-        // No longer display testimonials on public page
-        // This function is kept for potential admin panel use
-        console.log('Testimonials loaded:', testimonials.length);
-    },
 
     // Setup event listeners
     setupEventListeners() {
@@ -600,16 +513,11 @@ const feedbackSystem = {
         let feedbacks = [];
         
         try {
-            // Try to load from PocketBase first
-            if (window.pb && window.pb.authStore.isValid) {
-                const records = await window.pb.collection('customer_feedback').getList(1, 1000);
-                feedbacks = records.items;
-            } else {
-                feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
-            }
+            // Always use localStorage for statistics
+            feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
         } catch (error) {
             console.error('Error loading feedback for statistics:', error);
-            feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
+            feedbacks = [];
         }
         
         if (feedbacks.length === 0) return null;
@@ -1201,19 +1109,11 @@ feedbackSystem.showFeedbackManager = async function() {
     let feedbacks = [];
     
     try {
-        // Try to load from PocketBase first
-        if (window.pb && window.pb.authStore.isValid) {
-            const records = await window.pb.collection('customer_feedback').getList(1, 100, {
-                sort: '-created'
-            });
-            feedbacks = records.items;
-        } else {
-            // Fallback to localStorage
-            feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
-        }
+        // Always use localStorage for feedback management
+        feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
     } catch (error) {
         console.error('Error loading feedback:', error);
-        feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
+        feedbacks = [];
     }
     
     const sortedFeedbacks = feedbacks;
