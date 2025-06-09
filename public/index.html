@@ -784,7 +784,7 @@
                         <span class="en">Checkout</span>
                         <span class="ar">الدفع</span>
                     </button>
-                    <button @click="closeCart(); currentPage = 'cart'" class="btn bp-alt btn-block bil-inline">
+                    <button @click="closeCart(); navigateToOrScroll('checkout', 'cart-summary')" class="btn bp-alt btn-block bil-inline">
                         <span class="en">View Full Cart</span>
                         <span class="ar">عرض السلة كاملة</span>
                     </button>
@@ -1481,7 +1481,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="checkout-summary-col">
+                <div class="checkout-summary-col" id="cart-summary">
                     <div class="card form-panel sticky-summary">
                         <div class="card-b">
                             <h2 class="form-subh bil-spread"><span class="en">Order Summary</span><span class="ar">ملخص الطلب</span></h2>
