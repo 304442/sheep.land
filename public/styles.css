@@ -161,8 +161,9 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 
 .head-extras.desk-extras{display:flex;align-items:center;gap:2px;margin-left:auto;flex-shrink:0}
 .curr-sel{position:relative}
-.curr-sel select{padding:2px 6px;font-size:.75rem;border:1px solid var(--bs);border-radius:var(--rad);background:var(--bc);height:28px;color:var(--tm);font-weight:600;min-width:60px}
-.curr-sel select:focus{border-color:var(--c2);outline:none}
+.curr-sel select{padding:2px 6px;font-size:.75rem;border:none;background:transparent;height:28px;color:var(--tm);font-weight:600;min-width:60px;cursor:pointer}
+.curr-sel select:focus{outline:none}
+.curr-sel select:hover{color:var(--c2)}
 
 .wa-contact a{display:flex;align-items:center;gap:.3em;color:var(--c1);text-decoration:none;padding:4px 8px;border-radius:var(--rad);font-size:.8rem;font-weight:600;transition:all .3s ease}
 .wa-contact a:hover{color:var(--c1d);background:rgba(62,39,35,.1);transform:translateY(-1px)}
