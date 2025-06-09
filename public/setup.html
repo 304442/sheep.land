@@ -2550,7 +2550,7 @@
         for (const collectionDef of collectionsToProcess) {
             let existingCollection = null;
             const isAuthCollection = collectionDef.name === "users";
-            const collectionNameToUse = isAuthCollection ? "_pb_users_auth_" : collectionDef.name;
+            const collectionNameToUse = collectionDef.name;
 
             try {
                 existingCollection = await pb.collections.getOne(collectionNameToUse);
@@ -2612,7 +2612,7 @@
         
         let usersCollectionId;
         try {
-            const usersCollection = await pb.collections.getOne("_pb_users_auth_");
+            const usersCollection = await pb.collections.getOne("users");
             usersCollectionId = usersCollection.id;
             log(`✅ Found users collection ID: ${usersCollectionId}`, 'd');
         } catch (error) {
@@ -2699,7 +2699,17 @@
                     await pb.collection(collectionName).update(existingRecord.id, item);
                     updatedCount++;
                 } else {
-                    await pb.collection(collectionName).create(item);
+                    // Special handling for auth collections (users)
+                    if (collectionName === "users") {
+                        // For auth collections, we need to ensure password fields are handled correctly
+                        const userData = { ...item };
+                        if (userData.password && !userData.passwordConfirm) {
+                            userData.passwordConfirm = userData.password;
+                        }
+                        await pb.collection(collectionName).create(userData);
+                    } else {
+                        await pb.collection(collectionName).create(item);
+                    }
                     createdCount++;
                 }
             } catch (error) {
