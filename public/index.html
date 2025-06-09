@@ -1925,6 +1925,17 @@
                 <p class="ar">الشريك الموثوق في مصر للأغنام الحية واللحوم الطازجة وخدمات الأضاحي المتوافقة مع الشريعة. نخدم مصر والعملاء الدوليين مع ضمان الجودة وتجربة أصيلة من المزرعة للمائدة.</p>
             </div>
         </div>
+        <div class="foot-payments">
+            <p class="foot-payments-title bil-inline">
+                <span class="en">We Accept</span>
+                <span class="ar">نقبل</span>
+            </p>
+            <div class="foot-payment-logos">
+                <template x-for="method in availPayMeths" :key="method.id">
+                    <img :src="'/images/' + method.imgSrc" :alt="method.title" class="foot-pay-icon">
+                </template>
+            </div>
+        </div>
         <hr class="foot-div">
         <p class="foot-copy">© <span x-text="new Date().getFullYear()"></span> Sheep Land Egypt.
             <span class="bil-copy">
