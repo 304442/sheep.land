@@ -1205,7 +1205,7 @@
                     <template x-for="item in productType.wps" :key="item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
-                                <img :src="item.is_premium ? 'images/products/udheya-standard.jpg' : item.itemKey && item.itemKey.includes('black') ? 'images/products/sheep-black.jpg' : 'images/products/sheep-white.jpg'" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
+                                <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
                             </div>
                             <div class="card-b">

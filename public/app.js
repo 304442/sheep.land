@@ -730,27 +730,52 @@ document.addEventListener('alpine:init', () => {
         },
 
         getProductImage(item, sectionKey) {
-            // Map specific products to their unique images
-            if (sectionKey === 'livesheep') {
-                if (item.itemKey && item.itemKey.includes('black')) return 'images/products/sheep-black.jpg';
-                if (item.itemKey && item.itemKey.includes('white')) return 'images/products/sheep-white.jpg';
-                if (item.itemKey && item.itemKey.includes('import')) return 'images/products/sheep-imported.jpg';
-                return 'images/products/sheep-field.jpg';
+            // Most accurate mapping based on actual product data
+            const itemKey = (item.itemKey || '').toLowerCase();
+            const nameEN = (item.nameENSpec || '').toLowerCase();
+            const typeNameEN = (item.type_name_en || '').toLowerCase();
+            
+            if (sectionKey === 'udheya') {
+                // Specific Udheya breeds
+                if (itemKey.includes('barki') || nameEN.includes('barki')) return 'images/products/udheya-barki.jpg';
+                if (itemKey.includes('baladi') || nameEN.includes('baladi')) return 'images/products/udheya-baladi.jpg';
+                // Premium vs standard
+                if (item.is_premium || nameEN.includes('premium')) return 'images/products/udheya-barki.jpg'; // Barki is premium breed
+                return 'images/products/udheya-baladi.jpg'; // Default to Baladi for standard
+            }
+            else if (sectionKey === 'livesheep') {
+                // Breeding animals by type
+                if (itemKey.includes('ram') || nameEN.includes('ram') || nameEN.includes('كبش')) return 'images/products/ram-breeding.jpg';
+                if (itemKey.includes('ewe') || nameEN.includes('ewe') || nameEN.includes('نعجة')) return 'images/products/ewe-breeding.jpg';
+                if (itemKey.includes('lamb') || nameEN.includes('weaned') || nameEN.includes('حملان')) return 'images/products/lambs-weaned.jpg';
+                // Specific breeds
+                if (itemKey.includes('saidi') || nameEN.includes('saidi')) return 'images/products/sheep-saidi.jpg';
+                if (itemKey.includes('barki') || nameEN.includes('barki')) return 'images/products/sheep-barki.jpg';
+                if (itemKey.includes('baladi') || nameEN.includes('baladi')) return 'images/products/sheep-baladi.jpg';
+                if (itemKey.includes('import')) return 'images/products/sheep-imported.jpg';
+                return 'images/products/sheep-flock.jpg'; // Default to flock
             }
             else if (sectionKey === 'meat') {
-                if (item.itemKey && item.itemKey.includes('shoulder')) return 'images/products/lamb-shoulder.jpg';
-                if (item.itemKey && item.itemKey.includes('leg')) return 'images/products/lamb-leg.jpg';
-                if (item.itemKey && item.itemKey.includes('rib')) return 'images/products/lamb-ribs.jpg';
-                if (item.itemKey && item.itemKey.includes('mince')) return 'images/products/lamb-minced.jpg';
-                if (item.itemKey && item.itemKey.includes('steak')) return 'images/products/lamb-steak.jpg';
-                return 'images/products/lamb-cuts.jpg';
+                // Specific meat cuts
+                if (itemKey.includes('chop') || nameEN.includes('chop') || nameEN.includes('ريش')) return 'images/products/lamb-chops.jpg';
+                if (itemKey.includes('whole_leg') || nameEN.includes('whole leg') || nameEN.includes('فخذة كاملة')) return 'images/products/lamb-whole-leg.jpg';
+                if (itemKey.includes('shoulder') || nameEN.includes('shoulder') || nameEN.includes('كتف')) return 'images/products/lamb-shoulder.jpg';
+                if (itemKey.includes('mince') || nameEN.includes('minced') || nameEN.includes('مفروم')) return 'images/products/lamb-minced.jpg';
+                if (itemKey.includes('stew') || nameEN.includes('stew') || nameEN.includes('مقطع')) return 'images/products/mutton-stew-pieces.jpg';
+                if (itemKey.includes('rib') || nameEN.includes('rib')) return 'images/products/lamb-ribs.jpg';
+                if (itemKey.includes('steak') || nameEN.includes('steak')) return 'images/products/lamb-steak.jpg';
+                if (itemKey.includes('leg') || nameEN.includes('leg')) return 'images/products/lamb-leg.jpg';
+                return 'images/products/lamb-shoulder.jpg'; // Default
             }
             else if (sectionKey === 'gatherings') {
-                if (item.itemKey && item.itemKey.includes('small')) return 'images/products/event-small-gathering.jpg';
-                if (item.itemKey && item.itemKey.includes('large')) return 'images/products/event-large-gathering.jpg';
-                return 'images/products/event-catering.jpg';
+                // Event packages by size/type
+                if (itemKey.includes('wedding') || nameEN.includes('wedding') || nameEN.includes('زفاف')) return 'images/products/package-wedding.jpg';
+                if (itemKey.includes('bbq') || nameEN.includes('bbq') || nameEN.includes('شواء')) return 'images/products/package-bbq.jpg';
+                if (itemKey.includes('family') || nameEN.includes('family') || itemKey.includes('small')) return 'images/products/package-family.jpg';
+                if (itemKey.includes('large') || itemKey.includes('celebration')) return 'images/products/event-large-gathering.jpg';
+                return 'images/products/event-catering.jpg'; // Default
             }
-            return 'images/products/sheep-field.jpg'; // fallback
+            return 'images/products/sheep-flock.jpg'; // Global fallback
         },
 
         isEmailValid: (e) => e?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
