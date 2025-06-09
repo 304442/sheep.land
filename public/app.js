@@ -23,7 +23,8 @@ document.addEventListener('alpine:init', () => {
         { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg', category: 'egypt_local' },
         
         // International Payment Methods
-        { id: 'online_card', title: 'Credit/Debit Card', imgSrc: 'card_payment.svg', category: 'international' },
+        { id: 'online_card', title: 'Visa', imgSrc: 'visa.svg', category: 'international' },
+        { id: 'mastercard', title: 'Mastercard', imgSrc: 'mastercard.svg', category: 'international' },
         { id: 'google_pay', title: 'Google Pay', imgSrc: 'google_pay.svg', category: 'international' },
         { id: 'apple_pay', title: 'Apple Pay', imgSrc: 'apple_pay.svg', category: 'international' },
         { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg', category: 'international' },
