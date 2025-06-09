@@ -2624,16 +2624,24 @@
                         // Filter out relation fields for initial creation
                         const fieldsWithoutRelations = collectionDef.fields.filter(f => f.type !== 'relation');
                         
+                        // For collections with relation fields, temporarily simplify rules
+                        const hasRelationFields = collectionDef.fields.some(f => f.type === 'relation');
+                        const needsSimplifiedRules = hasRelationFields && 
+                            (collectionDef.listRule?.includes(' = user') || 
+                             collectionDef.viewRule?.includes(' = user') ||
+                             collectionDef.updateRule?.includes(' = user') ||
+                             collectionDef.deleteRule?.includes(' = user'));
+                        
                         const newCollectionData = {
                             name: collectionDef.name,
                             type: collectionDef.type,
                             system: collectionDef.system || false,
                             fields: fieldsWithoutRelations, 
-                            listRule: collectionDef.listRule !== undefined ? collectionDef.listRule : null,
-                            viewRule: collectionDef.viewRule !== undefined ? collectionDef.viewRule : null,
+                            listRule: needsSimplifiedRules ? "@request.auth.id != ''" : (collectionDef.listRule !== undefined ? collectionDef.listRule : null),
+                            viewRule: needsSimplifiedRules ? "@request.auth.id != ''" : (collectionDef.viewRule !== undefined ? collectionDef.viewRule : null),
                             createRule: collectionDef.createRule !== undefined ? collectionDef.createRule : null,
-                            updateRule: collectionDef.updateRule !== undefined ? collectionDef.updateRule : null,
-                            deleteRule: collectionDef.deleteRule !== undefined ? collectionDef.deleteRule : null,
+                            updateRule: needsSimplifiedRules ? "@request.auth.id != ''" : (collectionDef.updateRule !== undefined ? collectionDef.updateRule : null),
+                            deleteRule: needsSimplifiedRules ? "@request.auth.id != ''" : (collectionDef.deleteRule !== undefined ? collectionDef.deleteRule : null),
                             options: collectionDef.options || {} 
                         };
                         
@@ -2696,6 +2704,46 @@
                     log(`✅ Added relation fields to "${collectionDef.name}"`, 's');
                 } catch (e) {
                     log(`❌ Error adding relation fields to "${collectionDef.name}": ${e.message}`, 'e');
+                }
+            }
+        }
+        
+        // Third pass - update rules that reference relation fields
+        log('📏 Updating collection rules...', 'i');
+        for (const collectionDef of collectionsToProcess) {
+            const hasRelationFields = collectionDef.fields.some(f => f.type === 'relation');
+            const needsRuleUpdate = hasRelationFields && 
+                (collectionDef.listRule?.includes(' = user') || 
+                 collectionDef.viewRule?.includes(' = user') ||
+                 collectionDef.updateRule?.includes(' = user') ||
+                 collectionDef.deleteRule?.includes(' = user'));
+            
+            if (needsRuleUpdate) {
+                try {
+                    let actualCollectionName = collectionDef.name;
+                    
+                    // Handle legacy _pb_users_auth_
+                    if (collectionDef.name === 'users') {
+                        try {
+                            await pb.collections.getOne('_pb_users_auth_');
+                            actualCollectionName = '_pb_users_auth_';
+                        } catch {
+                            // Use users if _pb_users_auth_ doesn't exist
+                        }
+                    }
+                    
+                    const ruleUpdate = {
+                        listRule: collectionDef.listRule,
+                        viewRule: collectionDef.viewRule,
+                        createRule: collectionDef.createRule,
+                        updateRule: collectionDef.updateRule,
+                        deleteRule: collectionDef.deleteRule
+                    };
+                    
+                    await pb.collections.update(actualCollectionName, ruleUpdate);
+                    log(`✅ Updated rules for "${collectionDef.name}"`, 's');
+                } catch (e) {
+                    log(`❌ Error updating rules for "${collectionDef.name}": ${e.message}`, 'e');
                 }
             }
         }
@@ -2812,6 +2860,9 @@
                 }
             } catch (error) {
                 log(`❌ Error processing item in ${collectionName}: ${error.message}`, 'e');
+                if (error.data) {
+                    log(`   Details: ${JSON.stringify(error.data)}`, 'd');
+                }
                 errorCount++;
             }
         }
