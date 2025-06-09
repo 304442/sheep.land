@@ -140,7 +140,7 @@ const collectionsDefinition = [
         indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)" ]
     },
     {
-        name: "customer_feedback",
+        name: "feedback",
         type: "base",
         system: false,
         listRule: "@request.auth.id != '' && @request.auth.verified = true",
@@ -164,7 +164,7 @@ const collectionsDefinition = [
             { name: "pageUrl", type: "url", required: false, presentable: false },
             { name: "ipAddress", type: "text", required: false, presentable: false, max: 50 }
         ],
-        indexes: [ "CREATE INDEX `idx_feedback_rating` ON `customer_feedback` (`rating`)", "CREATE INDEX `idx_feedback_published` ON `customer_feedback` (`isPublished`)" ]
+        indexes: [ "CREATE INDEX `idx_feedback_rating` ON `feedback` (`rating`)", "CREATE INDEX `idx_feedback_published` ON `feedback` (`isPublished`)" ]
     }
 ];
 

@@ -397,7 +397,7 @@ const feedbackSystem = {
                 try {
                     console.log('Attempting to save feedback to PocketBase:', feedbackData);
                     console.log('PocketBase auth status:', window.pb.authStore.isValid);
-                    const record = await window.pb.collection('customer_feedback').create(feedbackData);
+                    const record = await window.pb.collection('feedback').create(feedbackData);
                     console.log('Feedback saved to PocketBase:', record);
                 } catch (pbError) {
                     console.error('PocketBase error:', pbError);

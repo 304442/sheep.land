@@ -638,7 +638,7 @@
     ]
   },
   {
-    "name": "customer_feedback",
+    "name": "feedback",
     "type": "base",
     "system": false,
     "listRule": "",
@@ -766,8 +766,8 @@
       }
     ],
     "indexes": [
-      "CREATE INDEX `idx_feedback_rating` ON `customer_feedback` (`rating`)",
-      "CREATE INDEX `idx_feedback_published` ON `customer_feedback` (`isPublished`)"
+      "CREATE INDEX `idx_feedback_rating` ON `feedback` (`rating`)",
+      "CREATE INDEX `idx_feedback_published` ON `feedback` (`isPublished`)"
     ]
   }
 ]

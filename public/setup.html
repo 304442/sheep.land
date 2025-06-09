@@ -5,67 +5,72 @@
     <title>PB Setup: Sheep Land</title>
     <script src="vendor/pocketbase.umd.js"></script>
     <style>
-        body{font-family:sans-serif;font-size:12px;line-height:1.3;padding:8px;background:linear-gradient(135deg,#f5f7fa,#c3cfe2);color:#333;display:flex;flex-direction:column;align-items:center;margin:0;min-height:100vh}
-        .c{max-width:1000px;width:100%;background:white;padding:12px;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
-        h1{color:#2C5F41;border-bottom:2px solid #D2B48C;padding-bottom:4px;margin:0 0 10px 0;font-size:1.3em;text-align:center}
-        p{font-size:.85rem;margin:0 0 .5rem 0;line-height:1.3} 
-        .warn{color:#dc3545;font-weight:bold;background:#ffe6e6;padding:10px;border-radius:6px;border-left:3px solid #dc3545}
-        button{padding:5px 12px;background:#2C5F41;color:white;border:0;border-radius:6px;cursor:pointer;font-size:.8rem;margin:4px;font-weight:600;transition:all 0.3s ease;min-height:28px}
+        body{font-family:system-ui,-apple-system,sans-serif;font-size:11px;line-height:1.2;padding:4px;background:#f0f1f3;color:#333;margin:0;min-height:100vh}
+        .c{max-width:1200px;margin:0 auto;background:white;padding:8px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+        h1{color:#2C5F41;border-bottom:1px solid #D2B48C;padding-bottom:2px;margin:0 0 6px 0;font-size:1.1em;text-align:center}
+        p{font-size:.75rem;margin:0 0 4px 0;line-height:1.2} 
+        label{display:block;margin-bottom:2px;font-weight:bold;font-size:10px}
+        input,textarea{width:100%;padding:3px 4px;border:1px solid #ddd;border-radius:2px;font-size:10px;font-family:inherit}
+        textarea{font-family:monospace;resize:vertical}
+        .warn{color:#dc3545;font-weight:bold;background:#fee;padding:6px;border-radius:3px;border-left:2px solid #dc3545;font-size:10px}
+        button{padding:4px 8px;background:#2C5F41;color:white;border:0;border-radius:3px;cursor:pointer;font-size:10px;margin:2px;font-weight:600;white-space:nowrap}
         button:disabled{background:#ccc;cursor:not-allowed} 
-        button:hover:not(:disabled){background:#1A3B2B;transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.15)}
-        #out{margin-top:8px;padding:8px;background:#1a1a1a;color:#e0e0e0;border-radius:4px;font-family:'Courier New',monospace;font-size:9px;line-height:1.3;max-height:60vh;overflow-y:auto;border:1px solid #444}
-        .ls{color:#4ade80;font-weight:normal} .le{color:#f87171;font-weight:normal} .li{color:#60a5fa} .lw{color:#fbbf24} .ld{color:#9ca3af}
-        #out pre{margin:2px 0;padding:3px 5px;background:#2d2d2d;border-radius:2px;font-size:8px;line-height:1.2;overflow-x:auto}
-        #out div{margin:1px 0;padding:1px 0}
-        .setup-info{background:#e8f4fd;padding:10px;border-radius:6px;border-left:3px solid #2196f3;margin-bottom:12px}
-        .validation-success{color:#22c55e;font-weight:600}
-        .validation-error{color:#ef4444;font-weight:600}
-        .validation-warning{color:#f59e0b;font-weight:600}
-        .validation-info{color:#3b82f6;font-weight:normal}
-        .textarea-valid{border-color:#22c55e!important;box-shadow:0 0 0 2px rgba(34,197,94,0.1)}
-        .textarea-invalid{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,0.1)}
+        button:hover:not(:disabled){background:#1A3B2B;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+        #out{margin-top:4px;padding:4px;background:#1a1a1a;color:#e0e0e0;border-radius:3px;font-family:monospace;font-size:8px;line-height:1.15;max-height:40vh;overflow-y:auto;border:1px solid #333}
+        .ls{color:#4ade80} .le{color:#f87171} .li{color:#60a5fa} .lw{color:#fbbf24} .ld{color:#9ca3af}
+        #out p{margin:1px 0;padding:0}
+        #out pre{margin:1px 0;padding:2px;background:#2d2d2d;border-radius:2px;font-size:7px;line-height:1.1;overflow-x:auto}
+        .setup-info{background:#e8f4fd;padding:6px;border-radius:3px;border-left:2px solid #2196f3;margin-bottom:6px;font-size:10px}
+        .setup-info p{margin:2px 0}
+        .validation-success{color:#22c55e;font-weight:600;font-size:9px}
+        .validation-error{color:#ef4444;font-weight:600;font-size:9px}
+        .validation-warning{color:#f59e0b;font-weight:600;font-size:9px}
+        .validation-info{color:#3b82f6;font-weight:normal;font-size:9px}
+        .textarea-valid{border-color:#22c55e!important;box-shadow:0 0 0 1px rgba(34,197,94,0.2)}
+        .textarea-invalid{border-color:#ef4444!important;box-shadow:0 0 0 1px rgba(239,68,68,0.2)}
+        .grid{display:grid;gap:6px}
+        .grid-3{grid-template-columns:repeat(3,1fr)}
+        .grid-2{grid-template-columns:repeat(2,1fr)}
+        .btn-group{text-align:center;margin:6px 0}
+        .field-group{margin-bottom:4px}
     </style>
 </head>
 <body>
     <div class="c">
         <h1>Sheep Land - PocketBase Setup</h1>
         
-        <div style="display:flex;gap:8px;margin:8px 0">
-            <div style="flex:1">
-                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">PocketBase URL:</label>
-                <input type="text" id="pbUrlInput" value="/" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:3px;font-size:11px">
+        <div class="grid grid-3 field-group">
+            <div>
+                <label>PocketBase URL:</label>
+                <input type="text" id="pbUrlInput" value="/">
             </div>
-            <div style="flex:1">
-                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Admin Email:</label>
-                <input type="email" id="adminEmail" value="admin@example.com" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:3px;font-size:11px">
+            <div>
+                <label>Admin Email:</label>
+                <input type="email" id="adminEmail" value="admin@example.com">
             </div>
-            <div style="flex:1">
-                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Admin Password:</label>
-                <input type="password" id="adminPassword" value="unifiedpassword" style="width:100%;padding:4px;border:1px solid #ccc;border-radius:3px;font-size:11px">
-            </div>
-        </div>
-        
-        <div style="display:flex;gap:8px;margin:8px 0">
-            <div style="flex:1">
-                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Collections JSON:</label>
-                <div style="position:relative">
-                    <textarea id="collectionsData" style="width:100%;height:100px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
-                    <div id="collectionsValidation" style="margin-top:2px;font-size:10px;min-height:15px"></div>
-                </div>
-            </div>
-            <div style="flex:1">
-                <label style="display:block;margin-bottom:3px;font-weight:bold;font-size:11px">Seed Data JSON:</label>
-                <div style="position:relative">
-                    <textarea id="seedData" style="width:100%;height:100px;padding:4px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:9px;line-height:1.2"></textarea>
-                    <div id="seedValidation" style="margin-top:2px;font-size:10px;min-height:15px"></div>
-                </div>
+            <div>
+                <label>Admin Password:</label>
+                <input type="password" id="adminPassword" value="unifiedpassword">
             </div>
         </div>
         
-        <div style="text-align:center;margin:10px 0">
-            <button id="runFullSetup">🚀 Complete Setup (Recommended)</button>
+        <div class="grid grid-2 field-group">
+            <div>
+                <label>Collections JSON:</label>
+                <textarea id="collectionsData" style="height:80px"></textarea>
+                <div id="collectionsValidation" style="margin-top:2px;min-height:12px"></div>
+            </div>
+            <div>
+                <label>Seed Data JSON:</label>
+                <textarea id="seedData" style="height:80px"></textarea>
+                <div id="seedValidation" style="margin-top:2px;min-height:12px"></div>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button id="runFullSetup">🚀 Complete Setup</button>
             <button id="runSchemaOnly">📋 Schema Only</button>
-            <button id="runSeedOnly" disabled>🌱 Seed Data Only</button>
+            <button id="runSeedOnly" disabled>🌱 Seed Only</button>
         </div>
         <div id="out"></div>
     </div>
@@ -86,25 +91,18 @@
     // Note: textareas will be populated after data definitions
 
     const log = (message, type = 'i', data = null) => {
-        const timestamp = `[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}] `;
+        const time = new Date().toTimeString().slice(0,8);
         const p = document.createElement('p');
         p.className = `l${type[0].toLowerCase()}`;
-        let logMessage = timestamp + message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        if (data) {
+        let logMessage = `<span style="color:#666">${time}</span> ${message}`;
+        if (data && typeof data === 'object') {
             const pre = document.createElement('pre');
-            pre.className = 'ld'; 
-            pre.textContent = JSON.stringify(data, null, 2);
-            logMessage += "\n" + pre.outerHTML; 
+            pre.textContent = JSON.stringify(data, null, 1);
+            logMessage += pre.outerHTML; 
         }
         p.innerHTML = logMessage; 
         outputDiv.appendChild(p);
         outputDiv.scrollTop = outputDiv.scrollHeight;
-        
-        const consoleMessage = timestamp + message.replace(/<[^>]*>?/gm, ''); 
-        if (type === 'e') console.error(consoleMessage, data || '');
-        else if (type === 'w') console.warn(consoleMessage, data || '');
-        else if (type === 'd') console.debug(consoleMessage, data || '');
-        else console.log(consoleMessage, data || '');
     };
 
     async function authenticateAdmin(pb) {
@@ -811,7 +809,7 @@
                 ]
         },
         {
-                "name": "customer_feedback",
+                "name": "feedback",
                 "type": "base",
                 "system": false,
                 "listRule": "@request.auth.id != '' && @request.auth.verified = true",
@@ -939,8 +937,8 @@
                         }
                 ],
                 "indexes": [
-                        "CREATE INDEX `idx_feedback_rating` ON `customer_feedback` (`rating`)",
-                        "CREATE INDEX `idx_feedback_published` ON `customer_feedback` (`isPublished`)"
+                        "CREATE INDEX `idx_feedback_rating` ON `feedback` (`rating`)",
+                        "CREATE INDEX `idx_feedback_published` ON `feedback` (`isPublished`)"
                 ]
         }
 ];
