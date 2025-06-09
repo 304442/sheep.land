@@ -86,8 +86,20 @@
             <div class="fg">
                 <label class="bil-spread lbl-req"><span class="en">Service Option *</span><span class="ar">خيار الخدمة *</span></label>
                 <div class="rgrp">
-                    <label><input type="radio" name="service_option_udh_conf" value="standard_service" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span>Standard Service - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span></label>
-                    <label class="bil-spread"><input type="radio" name="service_option_udh_conf" value="live_animal_delivery" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')"><span class="en">Live Animal Delivery</span><span class="ar">توصيل حيوان حي</span></label>
+                    <label class="bil-radio">
+                        <input type="radio" name="service_option_udh_conf" value="standard_service" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')">
+                        <div class="radio-text">
+                            <span class="en">Standard Service - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span>
+                            <span class="ar">الخدمة القياسية - <strong x-text="fmtPrice(settings.servFeeEGP)"></strong></span>
+                        </div>
+                    </label>
+                    <label class="bil-radio">
+                        <input type="radio" name="service_option_udh_conf" value="live_animal_delivery" x-model="tempUdheyaConfig.serviceOption" @change="clrErr('udheya_service_config')">
+                        <div class="radio-text">
+                            <span class="en">Live Animal Delivery</span>
+                            <span class="ar">توصيل حيوان حي</span>
+                        </div>
+                    </label>
                 </div>
                 <div class="err-msg" x-show="errs.udheya_service_config" x-text="getUdheyaConfigErrorText()"></div>
             </div>
@@ -104,12 +116,24 @@
                 <label class="bil-spread lbl-req"><span class="en">Distribution Choice *</span><span class="ar">خيار التوزيع *</span></label>
                 <div class="rgrp">
                     <template x-for="opt in distrOpts()" :key="opt.val">
-                        <label class="bil-spread"><input type="radio" name="distribution_choice_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.choice" @change="clrErr('udheya_distribution_choice_config')"><span x-text="opt.txtEn"></span><span x-text="opt.txtAr"></span></label>
+                        <label class="bil-radio">
+                            <input type="radio" name="distribution_choice_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.choice" @change="clrErr('udheya_distribution_choice_config')">
+                            <div class="radio-text">
+                                <span class="en" x-text="opt.txtEn"></span>
+                                <span class="ar" x-text="opt.txtAr"></span>
+                            </div>
+                        </label>
                     </template>
                 </div>
                 <div x-show="tempUdheyaConfig.distribution.choice === 'split'">
                     <template x-for="opt in splitOptsList()" :key="opt.val">
-                         <label class="bil-spread"><input type="radio" name="split_option_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.splitOption"><span x-text="opt.txtEn"></span><span x-text="opt.txtAr"></span></label>
+                        <label class="bil-radio">
+                            <input type="radio" name="split_option_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.splitOption">
+                            <div class="radio-text">
+                                <span class="en" x-text="opt.txtEn"></span>
+                                <span class="ar" x-text="opt.txtAr"></span>
+                            </div>
+                        </label>
                     </template>
                     <textarea x-show="tempUdheyaConfig.distribution.splitOption === 'custom'" class="input" rows="2" x-model="tempUdheyaConfig.distribution.customSplitText" placeholder="Specify custom distribution"></textarea>
                 </div>
@@ -256,6 +280,11 @@
                     </svg>
                 </button>
             </template>
+            <button x-show="settings.waNumRaw" @click="toggleWhatsAppChat()" class="header-action-btn" title="WhatsApp Chat">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+            </button>
             <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="9" cy="21" r="1"/>
@@ -297,6 +326,11 @@
                     </svg>
                 </button>
             </template>
+            <button x-show="settings.waNumRaw" @click="toggleWhatsAppChat()" class="header-action-btn" title="WhatsApp Chat">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+            </button>
             <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="9" cy="21" r="1"/>
@@ -351,6 +385,85 @@
                     </p>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Dropdown -->
+<div class="whatsapp-dropdown" x-show="showWhatsAppChat" x-transition @click.outside="showWhatsAppChat = false">
+    <div class="c">
+        <div class="whatsapp-dropdown-content">
+            <div class="whatsapp-header">
+                <div class="whatsapp-info">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#25D366">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    <div>
+                        <h3 class="bil-row">
+                            <span class="en">WhatsApp Chat</span>
+                            <span class="ar">دردشة واتساب</span>
+                        </h3>
+                        <p class="whatsapp-status">
+                            <span class="status-dot"></span>
+                            <span class="bil-inline">
+                                <span class="en">Available</span>
+                                <span class="ar">متاح</span>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="whatsapp-messages">
+                <div class="welcome-message">
+                    <p class="bil-row">
+                        <span class="en">Hello! How can we help you today?</span>
+                        <span class="ar">مرحباً! كيف يمكننا مساعدتك اليوم؟</span>
+                    </p>
+                </div>
+                <template x-for="msg in chatMessages" :key="msg.id">
+                    <div class="chat-message sent">
+                        <p x-text="msg.text"></p>
+                        <span class="msg-time" x-text="msg.time"></span>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="whatsapp-quick-actions">
+                <button @click="sendQuickWhatsAppMessage('I need help with my order')" class="quick-action-btn">
+                    <span class="bil-inline">
+                        <span class="en">Order Help</span>
+                        <span class="ar">مساعدة الطلب</span>
+                    </span>
+                </button>
+                <button @click="sendQuickWhatsAppMessage('What are your available products?')" class="quick-action-btn">
+                    <span class="bil-inline">
+                        <span class="en">Product Info</span>
+                        <span class="ar">معلومات المنتج</span>
+                    </span>
+                </button>
+                <button @click="sendQuickWhatsAppMessage('I want to check delivery options')" class="quick-action-btn">
+                    <span class="bil-inline">
+                        <span class="en">Delivery</span>
+                        <span class="ar">التوصيل</span>
+                    </span>
+                </button>
+            </div>
+            
+            <form @submit.prevent="sendWhatsAppMessage()" class="whatsapp-input-form">
+                <input 
+                    type="text" 
+                    x-model="chatMessage" 
+                    class="whatsapp-input" 
+                    :placeholder="currLang === 'en' ? 'Type a message...' : 'اكتب رسالة...'"
+                    x-ref="whatsappInput"
+                >
+                <button type="submit" class="whatsapp-send-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </form>
         </div>
     </div>
 </div>
@@ -692,6 +805,7 @@
         </div>
     </div>
 </div>
+
 
 <main>
     <!-- Business Stats Bar - Hidden by default -->

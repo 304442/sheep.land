@@ -35,6 +35,11 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 .bil-spread{display:flex;justify-content:space-between;align-items:baseline;width:100%;gap:var(--s2);flex-wrap:nowrap}
 .bil-spread>.en{text-align:left;flex:0 0 48%;min-width:0;word-wrap:break-word}
 .bil-spread>.ar{text-align:right;font-family:var(--fa);direction:rtl;flex:0 0 48%;min-width:0;word-wrap:break-word}
+.bil-radio{display:flex;align-items:center;padding:var(--s2) 0;cursor:pointer;width:100%}
+.bil-radio input[type="radio"]{margin-right:var(--s2);flex-shrink:0}
+.bil-radio .radio-text{display:flex;justify-content:space-between;width:100%;gap:var(--s3);flex-wrap:nowrap}
+.bil-radio .radio-text>.en{text-align:left;flex:0 0 48%}
+.bil-radio .radio-text>.ar{text-align:right;font-family:var(--fa);direction:rtl;flex:0 0 48%}
 
 .bil-inline{display:inline-flex;justify-content:center;align-items:baseline;gap:var(--s2);flex-wrap:nowrap}
 .bil-inline>.en{margin-right:0;padding-right:0}
@@ -441,6 +446,27 @@ body.has-promo-bar .account-dropdown{top:calc(var(--head-h) + 76px)}
 .logout-btn:hover{background:#fee;border-color:#dc3545;color:#dc3545}
 
 /* Auth Dropdown */
+.whatsapp-dropdown{position:fixed;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-radius:0 0 0 var(--rad);border-left:2px solid var(--c2);border-bottom:2px solid var(--c2);overflow:hidden;transition:top 0.2s ease;width:400px;max-width:90vw}
+body:not(.has-promo-bar) .whatsapp-dropdown{top:calc(var(--head-h) + 32px)}
+body.has-promo-bar .whatsapp-dropdown{top:calc(var(--head-h) + 76px)}
+.whatsapp-dropdown-content{padding:var(--s3)}
+.whatsapp-header{border-bottom:1px solid #eee;padding-bottom:1rem;margin-bottom:1rem}
+.whatsapp-info{display:flex;gap:1rem;align-items:flex-start}
+.whatsapp-info h3{margin:0 0 0.25rem 0;font-size:1.1rem}
+.whatsapp-status{display:flex;align-items:center;gap:0.5rem;font-size:0.9rem;color:#666}
+.status-dot{width:8px;height:8px;background:#25D366;border-radius:50%;display:inline-block}
+.whatsapp-messages{max-height:200px;overflow-y:auto;margin-bottom:1rem;padding:1rem;background:#f8f8f8;border-radius:8px}
+.welcome-message{background:#e3f2fd;padding:0.75rem;border-radius:8px;margin-bottom:0.5rem}
+.chat-message{background:#25D366;color:white;padding:0.75rem;border-radius:8px;margin-bottom:0.5rem;max-width:80%;margin-left:auto;position:relative}
+.msg-time{font-size:0.75rem;opacity:0.8;display:block;margin-top:0.25rem}
+.whatsapp-quick-actions{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.quick-action-btn{padding:0.5rem 1rem;border:1px solid #25D366;background:white;color:#25D366;border-radius:20px;font-size:0.875rem;cursor:pointer;transition:all 0.2s}
+.quick-action-btn:hover{background:#25D366;color:white}
+.whatsapp-input-form{display:flex;gap:0.5rem}
+.whatsapp-input{flex:1;padding:0.75rem;border:1px solid #ddd;border-radius:25px;outline:none}
+.whatsapp-input:focus{border-color:#25D366}
+.whatsapp-send-btn{width:40px;height:40px;border-radius:50%;background:#25D366;color:white;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s}
+.whatsapp-send-btn:hover{background:#128C7E}
 .auth-dropdown{position:fixed;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-radius:0 0 0 var(--rad);border-left:2px solid var(--c2);border-bottom:2px solid var(--c2);overflow:hidden;transition:top 0.2s ease;width:360px;max-width:90vw}
 body:not(.has-promo-bar) .auth-dropdown{top:calc(var(--head-h) + 32px)}
 body.has-promo-bar .auth-dropdown{top:calc(var(--head-h) + 76px)}
@@ -560,6 +586,8 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
     body:not(.has-promo-bar) .mobile-nav-dropdown{top:calc(var(--head-h-mob) + 28px)}
     body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h-mob) + 68px)}
     body:not(.has-promo-bar) .auth-dropdown{top:calc(var(--head-h-mob) + 28px)}
+    body:not(.has-promo-bar) .whatsapp-dropdown{top:calc(var(--head-h-mob) + 28px)}
+    body.has-promo-bar .whatsapp-dropdown{top:calc(var(--head-h-mob) + 72px)}
     body.has-promo-bar .auth-dropdown{top:calc(var(--head-h-mob) + 68px)}
     .auth-dropdown{width:100%;max-width:100%;border-radius:0;border-left:none}
     body:not(.has-promo-bar) .cart-dropdown{top:calc(var(--head-h-mob) + 28px)}

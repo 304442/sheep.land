@@ -57,6 +57,9 @@ document.addEventListener('alpine:init', () => {
         showSearch: false,
         showAccountDropdown: false,
         showAuthDropdown: false,
+        showWhatsAppChat: false,
+        chatMessage: '',
+        chatMessages: [],
         showExitOffer: false,
         showMeatCalculator: false,
         isPromoBarDismissed: false,
@@ -590,6 +593,33 @@ document.addEventListener('alpine:init', () => {
             if (this.showAuthDropdown) {
                 this.auth.view = 'welcome';
             }
+        },
+
+        toggleWhatsAppChat() {
+            this.showWhatsAppChat = !this.showWhatsAppChat;
+        },
+
+        sendWhatsAppMessage() {
+            if (!this.chatMessage.trim()) return;
+            
+            const msg = {
+                id: Date.now(),
+                text: this.chatMessage,
+                time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+            };
+            
+            this.chatMessages.push(msg);
+            
+            // Send to WhatsApp in background
+            const whatsappUrl = `https://wa.me/${this.settings.waNumRaw}?text=${encodeURIComponent(this.chatMessage)}`;
+            window.open(whatsappUrl, '_blank', 'width=800,height=600');
+            
+            this.chatMessage = '';
+        },
+
+        sendQuickWhatsAppMessage(text) {
+            this.chatMessage = text;
+            this.sendWhatsAppMessage();
         },
 
 
