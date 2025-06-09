@@ -190,6 +190,10 @@ document.addEventListener('alpine:init', () => {
                 console.log('Loaded products from PocketBase:', allProducts.length, 'items');
                 
                 const categorizeProducts = (products, categoryFilter) => {
+                    if (!products || !Array.isArray(products)) {
+                        console.warn(`Products is not an array for category ${categoryFilter}:`, products);
+                        return [];
+                    }
                     const categoryProducts = products.filter(p => p.product_category === categoryFilter);
                     const grouped = {};
                     categoryProducts.forEach(p => {
@@ -248,6 +252,12 @@ document.addEventListener('alpine:init', () => {
                 console.error("Failed to load products from database:", e);
                 this.apiErr = String(e.message || "Could not load initial application data."); 
                 this.usrApiErr = "Error loading essential data. Please try refreshing the page."; 
+                
+                // Ensure prodOpts has the expected structure even on error
+                if (!this.prodOpts.udheya) this.prodOpts.udheya = [];
+                if (!this.prodOpts.livesheep_general) this.prodOpts.livesheep_general = [];
+                if (!this.prodOpts.meat_cuts) this.prodOpts.meat_cuts = [];
+                if (!this.prodOpts.gathering_package) this.prodOpts.gathering_package = [];
             }
             
             this.curr = this.settings.defCurr || "EGP"; 
