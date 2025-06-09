@@ -16,20 +16,27 @@ document.addEventListener('alpine:init', () => {
     };
 
     const payMethods = [
-        { id: 'online_card', title: 'Online Payment', imgSrc: 'card_payment.svg', category: 'online' },
-        { id: 'vodafone_cash', title: 'Vodafone Cash', imgSrc: 'vodafonecash.png', category: 'online' },
-        { id: 'instapay', title: 'InstaPay', imgSrc: 'instapay.svg', category: 'online' },
-        { id: 'fawry', title: 'Fawry', imgSrc: 'fawry.svg', category: 'online' },
-        { id: 'paypal', title: 'PayPal', imgSrc: 'paypal.svg', category: 'online' },
+        // Egypt Local Payment Methods
+        { id: 'vodafone_cash', title: 'Vodafone Cash', imgSrc: 'vodafonecash.svg', category: 'egypt_local' },
+        { id: 'instapay', title: 'InstaPay', imgSrc: 'instapay.svg', category: 'egypt_local' },
+        { id: 'fawry', title: 'Fawry', imgSrc: 'fawry.svg', category: 'egypt_local' },
+        { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg', category: 'egypt_local' },
+        
+        // International Cards & Digital Wallets
+        { id: 'online_card', title: 'Credit/Debit Card', imgSrc: 'card_payment.svg', category: 'cards_wallets' },
+        { id: 'paypal', title: 'PayPal', imgSrc: 'paypal.svg', category: 'cards_wallets' },
+        { id: 'revolut', title: 'Revolut', imgSrc: 'revolut.svg', category: 'cards_wallets' },
+        { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg', category: 'cards_wallets' },
+        
+        // Bank & Money Transfer
         { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg', category: 'transfer' },
         { id: 'western_union', title: 'Western Union', imgSrc: 'western_union.svg', category: 'transfer' },
         { id: 'moneygram', title: 'MoneyGram', imgSrc: 'moneygram.svg', category: 'transfer' },
-        { id: 'revolut', title: 'Revolut', imgSrc: 'revolut.svg', category: 'transfer' },
-        { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg', category: 'transfer' },
+        
+        // Cryptocurrency
         { id: 'bitcoin', title: 'Bitcoin', imgSrc: 'bitcoin.svg', category: 'crypto' },
         { id: 'ethereum', title: 'Ethereum', imgSrc: 'ethereum.svg', category: 'crypto' },
-        { id: 'usdt', title: 'USDT (Tether)', imgSrc: 'usdt.svg', category: 'crypto' },
-        { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg', category: 'cash' }
+        { id: 'usdt', title: 'USDT (Tether)', imgSrc: 'usdt.svg', category: 'crypto' }
     ];
 
     const sacrificeDayMapInternal = {
@@ -89,21 +96,21 @@ document.addEventListener('alpine:init', () => {
         get availPayMeths() { return payMethods; },
         get groupedPaymentMethods() {
             return {
-                online: {
-                    title: { en: 'Online Payment', ar: 'الدفع الإلكتروني' },
-                    methods: payMethods.filter(m => m.category === 'online')
+                egypt_local: {
+                    title: { en: 'Egypt Local Payment', ar: 'الدفع المحلي في مصر' },
+                    methods: payMethods.filter(m => m.category === 'egypt_local')
+                },
+                cards_wallets: {
+                    title: { en: 'Cards & Digital Wallets', ar: 'البطاقات والمحافظ الرقمية' },
+                    methods: payMethods.filter(m => m.category === 'cards_wallets')
                 },
                 transfer: {
-                    title: { en: 'Bank/Money Transfer', ar: 'التحويل البنكي/المالي' },
+                    title: { en: 'Bank & Money Transfer', ar: 'التحويل البنكي والمالي' },
                     methods: payMethods.filter(m => m.category === 'transfer')
                 },
                 crypto: {
                     title: { en: 'Cryptocurrency', ar: 'العملات الرقمية' },
                     methods: payMethods.filter(m => m.category === 'crypto')
-                },
-                cash: {
-                    title: { en: 'Cash Payment', ar: 'الدفع النقدي' },
-                    methods: payMethods.filter(m => m.category === 'cash')
                 }
             };
         },
