@@ -261,6 +261,14 @@ const feedbackSystem = {
                         </div>
 
                         <div class="form-group">
+                            <label class="bil-row">
+                                <span class="en">Phone Number (optional)</span>
+                                <span class="ar">رقم الهاتف (اختياري)</span>
+                            </label>
+                            <input type="tel" id="feedbackPhone" class="feedback-input" placeholder="+20...">
+                        </div>
+
+                        <div class="form-group">
                             <label class="feedback-checkbox">
                                 <input type="checkbox" id="allowTestimonial">
                                 <span class="bil-inline">
@@ -363,6 +371,7 @@ const feedbackSystem = {
             text: document.getElementById('feedbackText').value,
             name: document.getElementById('feedbackName').value,
             email: document.getElementById('feedbackEmail').value,
+            phone: document.getElementById('feedbackPhone').value,
             allow_testimonial: document.getElementById('allowTestimonial').checked,
             context: document.getElementById('feedbackContext').value,
             order_id: document.getElementById('feedbackOrderId').value,
@@ -1173,6 +1182,7 @@ feedbackSystem.showFeedbackManager = function() {
                                 <p class="customer-info">
                                     <strong>${f.name || 'Anonymous'}</strong>
                                     ${f.email ? `(${f.email})` : ''}
+                                    ${f.phone ? ` • ${f.phone}` : ''}
                                 </p>
                                 ${f.text ? `<p class="feedback-text">"${f.text}"</p>` : '<p class="no-comment">No comment provided</p>'}
                                 ${f.testimonial_rejected ? '<span class="rejected-badge">Testimonial Rejected</span>' : ''}
@@ -1281,6 +1291,36 @@ feedbackSystem.saveSettings = function() {
     
     // Close settings panel
     document.querySelector('.settings-panel').parentElement.remove();
+};
+
+// Export filtered feedback
+feedbackSystem.exportFilteredFeedback = function() {
+    const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
+    
+    // Convert to CSV
+    const headers = ['Date', 'Rating', 'Category', 'Name', 'Email', 'Phone', 'Feedback Text', 'Order ID', 'Testimonial Allowed'];
+    const csvContent = [
+        headers.join(','),
+        ...feedbacks.map(f => [
+            new Date(f.created_at).toLocaleString(),
+            f.rating,
+            f.category,
+            `"${(f.name || 'Anonymous').replace(/"/g, '""')}"`,
+            `"${(f.email || '').replace(/"/g, '""')}"`,
+            `"${(f.phone || '').replace(/"/g, '""')}"`,
+            `"${(f.text || '').replace(/"/g, '""')}"`,
+            f.order_id || '',
+            f.allow_testimonial ? 'Yes' : 'No'
+        ].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `feedback-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    this.showNotification('Feedback exported to CSV!', 'success');
 };
 
 // Export for use in Alpine components
