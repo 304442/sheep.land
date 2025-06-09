@@ -17,7 +17,7 @@ document.addEventListener('alpine:init', () => {
 
     const payMethods = [
         // Egypt Local Payment Methods
-        { id: 'vodafone_cash', title: 'Vodafone Cash', imgSrc: 'vodafonecash.svg', category: 'egypt_local' },
+        { id: 'vodafone_cash', title: 'Vodafone Cash', imgSrc: 'vodafonecash.png', category: 'egypt_local' },
         { id: 'instapay', title: 'InstaPay', imgSrc: 'instapay.svg', category: 'egypt_local' },
         { id: 'fawry', title: 'Fawry', imgSrc: 'fawry.svg', category: 'egypt_local' },
         { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg', category: 'egypt_local' },
