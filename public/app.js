@@ -67,6 +67,7 @@ document.addEventListener('alpine:init', () => {
         showSearch: false,
         showAccountDropdown: false,
         showAuthDropdown: false,
+        showSetupNotification: false,
         showWhatsAppChat: false,
         chatMessage: '',
         chatMessages: [],
@@ -147,6 +148,15 @@ document.addEventListener('alpine:init', () => {
             this.pb = pb;
             window.pb = pb; // Make PocketBase available globally for feedback system
             
+            // Check if PocketBase is set up by trying to fetch health endpoint
+            let isPocketBaseSetUp = false;
+            try {
+                const healthCheck = await fetch('/api/health');
+                isPocketBaseSetUp = healthCheck.ok;
+            } catch (e) {
+                isPocketBaseSetUp = false;
+            }
+            
             if (pb.authStore.isValid && pb.authStore.model) {
                 this.currentUser = pb.authStore.model;
             } else {
@@ -164,6 +174,11 @@ document.addEventListener('alpine:init', () => {
             }); 
 
             try {
+                if (!isPocketBaseSetUp) {
+                    // Use default settings if PocketBase is not set up
+                    console.info('PocketBase not set up yet. Using default settings.');
+                    throw new Error('PocketBase not configured');
+                }
                 const rs = await pb.collection('settings').getFirstListItem('id!=""');
                 if (rs) {
                     Object.assign(this.settings, {
@@ -281,9 +296,20 @@ document.addEventListener('alpine:init', () => {
                 this.allCities = cities.sort((a,b) => a.nameEn.localeCompare(b.nameEn));
                 
             } catch (e) { 
-                console.error("Failed to load products from database:", e);
-                this.apiErr = String(e.message || "Could not load initial application data."); 
-                this.usrApiErr = "Error loading essential data. Please try refreshing the page."; 
+                if (!isPocketBaseSetUp) {
+                    console.info("Using default data - PocketBase setup required.");
+                    this.apiErr = ""; 
+                    this.usrApiErr = "";
+                    // Show setup notification only if not already shown
+                    if (!sessionStorage.getItem('setupNotificationShown')) {
+                        this.showSetupNotification = true;
+                        sessionStorage.setItem('setupNotificationShown', 'true');
+                    }
+                } else {
+                    console.error("Failed to load products from database:", e);
+                    this.apiErr = String(e.message || "Could not load initial application data."); 
+                    this.usrApiErr = "Error loading essential data. Please try refreshing the page.";
+                } 
                 
                 // Ensure prodOpts has the expected structure even on error
                 if (!this.prodOpts.udheya) this.prodOpts.udheya = [];

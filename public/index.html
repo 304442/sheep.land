@@ -16,6 +16,17 @@
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
 
+<!-- Setup Notification -->
+<div x-show="showSetupNotification" class="setup-notification" x-transition>
+    <div class="setup-notification-content">
+        <p class="bil-row">
+            <span class="en">🔧 Database setup required. Admin? <a href="/setup.html" class="setup-link">Set up PocketBase →</a></span>
+            <span class="ar">🔧 يتطلب إعداد قاعدة البيانات. مسؤول؟ <a href="/setup.html" class="setup-link">إعداد PocketBase ←</a></span>
+        </p>
+        <button @click="showSetupNotification = false" class="setup-close">×</button>
+    </div>
+</div>
+
 
 <div x-show="isRefundModalOpen" class="modal-overlay" @click="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 <div x-show="isRefundModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title" @keydown.escape.window="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4">

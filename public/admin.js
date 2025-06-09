@@ -3457,45 +3457,32 @@ const adminSystem = {
 
 // Initialize admin system when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🐑 Admin System: DOM ready, checking for admin mode...');
-    console.log('🐑 Admin System: Current hash:', window.location.hash);
-    console.log('🐑 Admin System: Admin mode localStorage:', localStorage.getItem('admin_mode'));
-    
     // Check if admin mode is enabled
     if (window.location.hash.includes('admin') || localStorage.getItem('admin_mode') === 'true') {
-        console.log('🐑 Admin System: Admin mode detected, initializing...');
+        console.log('🐑 Admin System: Admin mode activated');
         localStorage.setItem('admin_mode', 'true');
         adminSystem.init();
-    } else {
-        console.log('🐑 Admin System: No admin mode detected');
     }
 });
 
 // Listen for hash changes to enable admin mode
 window.addEventListener('hashchange', () => {
-    console.log('🐑 Admin System: Hash changed to:', window.location.hash);
     if (window.location.hash.includes('admin') && localStorage.getItem('admin_mode') !== 'true') {
-        console.log('🐑 Admin System: Admin hash detected, enabling admin mode...');
+        console.log('🐑 Admin System: Admin mode activated via URL');
         localStorage.setItem('admin_mode', 'true');
         adminSystem.init();
     }
 });
 
 // Also check immediately if page loads with #admin hash
-console.log('🐑 Admin System: Script loaded, checking initial hash:', window.location.hash);
 if (window.location.hash.includes('admin')) {
-    console.log('🐑 Admin System: Admin hash detected on page load');
     localStorage.setItem('admin_mode', 'true');
-    
     // Wait for DOM to be ready if not already
     if (document.readyState === 'loading') {
-        console.log('🐑 Admin System: DOM still loading, waiting...');
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🐑 Admin System: DOM ready (from immediate check), initializing...');
             adminSystem.init();
         });
     } else {
-        console.log('🐑 Admin System: DOM already ready, initializing immediately...');
         adminSystem.init();
     }
 }
