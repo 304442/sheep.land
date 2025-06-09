@@ -3504,17 +3504,27 @@ window.toggleAdminMode = function() {
             console.log('🐑 Admin System: Attempting admin login...');
             
             if (!window.pb) {
-                throw new Error('PocketBase not initialized');
+                console.error('🐑 Admin System: PocketBase not found on window');
+                // Try to initialize PocketBase
+                if (window.PocketBase) {
+                    window.pb = new PocketBase('/');
+                    console.log('🐑 Admin System: Initialized PocketBase');
+                } else {
+                    throw new Error('PocketBase library not loaded');
+                }
             }
             
-            // Try to authenticate as a regular user first (admins are stored in _superusers collection)
+            // Try to authenticate as a PocketBase admin (superuser)
             try {
-                // First attempt: Try admin authentication
-                const authData = await pb.admins.authWithPassword(email, password);
-                console.log('🐑 Admin System: Admin login successful via admins.authWithPassword:', authData);
+                console.log('🐑 Admin System: Attempting admin authentication...');
                 
-                // Enable admin mode
+                // Use PocketBase _superusers collection authentication
+                const authData = await pb.collection('_superusers').authWithPassword(email, password);
+                console.log('🐑 Admin System: Admin authenticated successfully:', authData);
+                
+                // Admin authentication successful
                 localStorage.setItem('admin_mode', 'true');
+                localStorage.setItem('admin_auth', 'true');
                 
                 // Create admin panel directly
                 this.createAdminPanel();
@@ -3523,52 +3533,16 @@ window.toggleAdminMode = function() {
                 document.querySelector('.admin-login-prompt')?.remove();
                 
                 return { success: true, message: 'Admin login successful!' };
-            } catch (adminError) {
-                console.log('🐑 Admin System: Admin auth failed, trying user auth...', adminError);
                 
-                // Second attempt: Try user authentication and check if superuser
-                try {
-                    const userAuth = await pb.collection('users').authWithPassword(email, password);
-                    console.log('🐑 Admin System: User auth response:', userAuth);
-                    
-                    // Check if this user is a superuser
-                    if (pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') {
-                        console.log('🐑 Admin System: User is a superuser!');
-                        
-                        // Enable admin mode
-                        localStorage.setItem('admin_mode', 'true');
-                        
-                        // Create admin panel directly
-                        this.createAdminPanel();
-                        
-                        // Remove login prompt if exists
-                        document.querySelector('.admin-login-prompt')?.remove();
-                        
-                        return { success: true, message: 'Admin login successful!' };
-                    } else {
-                        return { success: false, message: 'User is not an admin' };
-                    }
-                } catch (userError) {
-                    console.error('🐑 Admin System: User auth also failed:', userError);
-                    
-                    // Final fallback: Just enable admin mode for testing
-                    if (email === 'admin@example.com' && password === 'unifiedpassword') {
-                        console.log('🐑 Admin System: Using fallback admin credentials');
-                        
-                        // Enable admin mode
-                        localStorage.setItem('admin_mode', 'true');
-                        
-                        // Create admin panel directly
-                        this.createAdminPanel();
-                        
-                        // Remove login prompt if exists
-                        document.querySelector('.admin-login-prompt')?.remove();
-                        
-                        return { success: true, message: 'Admin login successful (fallback)!' };
-                    }
-                    
-                    throw userError;
+            } catch (adminError) {
+                console.error('🐑 Admin System: Admin authentication failed:', adminError);
+                
+                // Clear any existing auth
+                if (pb.authStore) {
+                    pb.authStore.clear();
                 }
+                
+                return { success: false, message: 'Invalid admin credentials. Please use your PocketBase admin account.' };
             }
         } catch (error) {
             console.error('🐑 Admin System: Login failed:', error);
