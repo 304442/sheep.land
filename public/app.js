@@ -140,14 +140,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async initApp() {
-            this.load.init = true; 
-            this.determineCurrentPageFromURL();
-            
-            const pb = new PocketBase('/'); 
-            this.pb = pb;
-            window.pb = pb; // Make PocketBase available globally for feedback system
-            
-            // Check if PocketBase is set up by trying to fetch health endpoint
+            // Check if PocketBase is set up FIRST before doing anything else
             let isPocketBaseSetUp = false;
             try {
                 const healthCheck = await fetch('/api/health');
@@ -155,6 +148,23 @@ document.addEventListener('alpine:init', () => {
             } catch (e) {
                 isPocketBaseSetUp = false;
             }
+            
+            if (!isPocketBaseSetUp) {
+                // Redirect immediately without initializing anything
+                console.error('PocketBase not configured. Redirecting to setup...');
+                this.load.init = false;
+                this.apiErr = "PocketBase not configured";
+                this.usrApiErr = "Setting up database...";
+                window.location.href = '/setup.html';
+                return;
+            }
+            
+            this.load.init = true; 
+            this.determineCurrentPageFromURL();
+            
+            const pb = new PocketBase('/'); 
+            this.pb = pb;
+            window.pb = pb; // Make PocketBase available globally for feedback system
             
             if (pb.authStore.isValid && pb.authStore.model) {
                 this.currentUser = pb.authStore.model;
@@ -173,12 +183,6 @@ document.addEventListener('alpine:init', () => {
             }); 
 
             try {
-                if (!isPocketBaseSetUp) {
-                    // Redirect to setup page if PocketBase is not configured
-                    console.error('PocketBase not configured. Redirecting to setup...');
-                    window.location.href = '/setup.html';
-                    return;
-                }
                 const rs = await pb.collection('settings').getFirstListItem('id!=""');
                 if (rs) {
                     Object.assign(this.settings, {
@@ -298,9 +302,12 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { 
                 console.error("Failed to load products from database:", e);
                 this.apiErr = String(e.message || "Could not load initial application data."); 
-                this.usrApiErr = "Database connection error. Please ensure PocketBase is properly configured.";
-                // Don't provide fallback data - require proper setup
-                throw e;
+                this.usrApiErr = "Database connection error. Redirecting to setup...";
+                // Redirect to setup page after a short delay to show the message
+                setTimeout(() => {
+                    window.location.href = '/setup.html';
+                }, 1000);
+                return; // Stop further execution
             }
             
             this.curr = this.settings.defCurr || "EGP"; 

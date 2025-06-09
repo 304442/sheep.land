@@ -1352,17 +1352,6 @@
                         </template>
                     </template>
                 </div>
-                <template x-if="!section.products || section.products.length === 0">
-                    <div class="empty-state tc">
-                        <p class="bil-row">
-                            <span class="en">Products are being updated. Please check back soon!</span>
-                            <span class="ar">يتم تحديث المنتجات. يرجى المراجعة قريبًا!</span>
-                        </p>
-                        <button @click="navigateToOrScroll('home')" class="btn bp btn-sm bil-inline">
-                            <span class="en">Back to Home</span><span class="ar">العودة للرئيسية</span>
-                        </button>
-                    </div>
-                </template>
                 <p class="succ-msg bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section?.key && !addedToCartMsg.isError">
                     <span class="en" x-text="addedToCartMsg.text ? (addedToCartMsg.text.en || addedToCartMsg.text) : ''"></span>
                     <span class="ar" x-text="addedToCartMsg.text ? (addedToCartMsg.text.ar || addedToCartMsg.text) : ''"></span>
