@@ -527,11 +527,11 @@
                 "name": "users",
                 "type": "auth",
                 "system": false,
-                "listRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
-                "viewRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
+                "listRule": "@request.auth.id = id || @request.auth.admin = true",
+                "viewRule": "@request.auth.id = id || @request.auth.admin = true",
                 "createRule": "",
-                "updateRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
-                "deleteRule": "@request.auth.id = id || @request.auth.collectionName = '_superusers'",
+                "updateRule": "@request.auth.id = id || @request.auth.admin = true",
+                "deleteRule": "@request.auth.id = id || @request.auth.admin = true",
                 "options": {
                         "emailVisibility": true,
                         "requireEmailVerification": false,
@@ -575,8 +575,8 @@
                 "name": "orders",
                 "type": "base",
                 "system": false,
-                "listRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.collectionName = '_superusers'",
-                "viewRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.collectionName = '_superusers'",
+                "listRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
+                "viewRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
                 "createRule": "",
                 "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
                 "deleteRule": "@request.auth.id != '' && @request.auth.verified = true",
@@ -980,7 +980,7 @@
                                 "instapay_ipn": "sheepland@instapay",
                                 "revolut_details": "@SheepLandEgypt",
                                 "monzo_details": "monzo.me/sheeplandegypt",
-                                "paypal_email": "payments@sheepland.eg",
+                                "paypal_email": "payments@sheep.land",
                                 "bank_name": "Commercial International Bank Egypt",
                                 "bank_account_name": "Sheep Land Trading",
                                 "bank_account_number": "1234567890123456",
@@ -996,7 +996,7 @@
                         "slaughter_location_gmaps_url": "https://maps.app.goo.gl/SheepLandEgyptFarm123",
                         "online_payment_fee_egp": 50,
                         "refund_policy_html": "\n        <div class=\"bil-row\">\n            <p class=\"en\">Welcome to Sheep Land. We are committed to providing premium quality sheep, livesheep, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>\n            <p class=\"ar\" dir=\"rtl\">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام الحية واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>\n        </div>\n        <h3 class=\"bil-spread modal-section-title\">\n            <span class=\"en\">Udheya & Qurbani Orders</span><span class=\"ar\" dir=\"rtl\">طلبات الأضاحي والقرباني</span>\n        </h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Due to the religious nature and specific timing of Udheya/Qurbani, our policies are designed to ensure proper fulfillment while accommodating genuine needs:</p>\n            <p class=\"ar\" dir=\"rtl\">نظراً للطبيعة الدينية والتوقيت المحدد للأضاحي والقرباني، تم تصميم سياساتنا لضمان التنفيذ السليم مع مراعاة الاحتياجات الحقيقية:</p>\n        </div>\n        <h4 class=\"bil-spread\"><span class=\"en\">Cancellation Policy</span><span class=\"ar\" dir=\"rtl\">سياسة الإلغاء</span></h4>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>Before Animal Selection (5+ days before Eid):</strong> Full refund minus 3% processing fee</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>قبل اختيار الحيوان (5+ أيام قبل العيد):</strong> استرداد كامل ناقص 3% رسوم معالجة</p>\n        </div>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>After Animal Selection (2-4 days before):</strong> 50% refund if suitable replacement buyer found</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>بعد اختيار الحيوان (2-4 أيام قبل):</strong> استرداد 50% إذا تم العثور على مشترٍ بديل مناسب</p>\n        </div>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>Day of Eid:</strong> No refunds (animal prepared for slaughter)</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>يوم العيد:</strong> لا يوجد استرداد (الحيوان محضر للذبح)</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Live Sheep</span><span class=\"ar\" dir=\"rtl\">الأغنام الحية</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Live animals require 48-72 hours advance notice for cancellation. Health-guaranteed animals cannot be returned unless veterinary defects are proven within 24 hours of delivery.</p>\n            <p class=\"ar\" dir=\"rtl\">الحيوانات الحية تتطلب إشعار مسبق 48-72 ساعة للإلغاء. الحيوانات المضمونة صحياً لا يمكن إرجاعها إلا إذا تم إثبات عيوب بيطرية خلال 24 ساعة من التسليم.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Fresh Meat & Cuts</span><span class=\"ar\" dir=\"rtl\">اللحوم الطازجة والقطعيات</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Fresh meat orders can be cancelled up to 24 hours before preparation. Quality issues must be reported within 4 hours of delivery with photographic evidence.</p>\n            <p class=\"ar\" dir=\"rtl\">يمكن إلغاء طلبات اللحوم الطازجة حتى 24 ساعة قبل التحضير. يجب الإبلاغ عن مشاكل الجودة خلال 4 ساعات من التوصيل مع دليل فوتوغرافي.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Gathering Packages & Events</span><span class=\"ar\" dir=\"rtl\">باقات المناسبات والولائم</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Event packages require 7 days notice for full refund, 3 days for 50% refund. Same-day cancellations incur full charges due to preparation costs.</p>\n            <p class=\"ar\" dir=\"rtl\">باقات المناسبات تتطلب إشعار 7 أيام للاسترداد الكامل، 3 أيام لاسترداد 50%. إلغاء نفس اليوم يتحمل الرسوم كاملة بسبب تكاليف التحضير.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">International Orders</span><span class=\"ar\" dir=\"rtl\">الطلبات الدولية</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">International customers enjoy the same quality guarantees. Shipping costs are non-refundable unless we fail to fulfill confirmed orders.</p>\n            <p class=\"ar\" dir=\"rtl\">العملاء الدوليون يتمتعون بنفس ضمانات الجودة. تكاليف الشحن غير قابلة للاسترداد إلا إذا فشلنا في تلبية الطلبات المؤكدة.</p>\n        </div>\n    ",
-                        "app_email_sender_address": "noreply@sheepland.eg",
+                        "app_email_sender_address": "noreply@sheep.land",
                         "app_email_sender_name": "Sheep Land",
                         "site_title_en": "Sheep Land",
                         "site_title_ar": "أرض الأغنام",
@@ -1409,6 +1409,30 @@
                         "breed_info_ar": "مشاوي مختلطة",
                         "sort_order_type": 12,
                         "sort_order_variant": 1
+                }
+        ],
+        "users": [
+                {
+                        "email": "admin@sheep.land",
+                        "password": "admin123456",
+                        "passwordConfirm": "admin123456",
+                        "name": "Admin User",
+                        "phone": "+201234567890",
+                        "country": "Egypt",
+                        "preferred_currency": "EGP",
+                        "is_admin": true,
+                        "verified": true
+                },
+                {
+                        "email": "user@example.com",
+                        "password": "user123456",
+                        "passwordConfirm": "user123456",
+                        "name": "Test User",
+                        "phone": "+201098765432",
+                        "country": "Egypt",
+                        "preferred_currency": "EGP",
+                        "is_admin": false,
+                        "verified": true
                 }
         ]
 };
@@ -2374,6 +2398,23 @@
 
         const productsResult = await seedCollectionData(pb, 'products', seedDataToUse.products, 'item_key');
         if(productsResult.errors > 0) anySeedErrors = true;
+        
+        // Seed users (if present in seed data)
+        if (seedDataToUse.users && Array.isArray(seedDataToUse.users)) {
+            log('👥 Seeding users...', 'i');
+            const usersResult = await seedCollectionData(pb, 'users', seedDataToUse.users, 'email');
+            if(usersResult.errors > 0) anySeedErrors = true;
+            
+            // Log admin user info
+            const adminUsers = seedDataToUse.users.filter(u => u.is_admin === true);
+            if (adminUsers.length > 0) {
+                log('🔑 Admin users created:', 's');
+                adminUsers.forEach(admin => {
+                    log(`   • ${admin.email} (password: ${admin.password})`, 'i');
+                });
+                log('📌 To access admin panel: Add #admin to the URL', 'i');
+            }
+        }
         
         if (anySeedErrors) {
             log('⚠️ Seed data setup completed with errors.', 'w');

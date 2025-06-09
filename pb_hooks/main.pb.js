@@ -211,7 +211,7 @@ registerHook("orders", "afterCreate", (e) => {
     const record = e.record;
     const customerEmail = record.getString("customer_email");
     
-    let senderAddress = "noreply@sheepland.eg"; 
+    let senderAddress = "noreply@sheep.land"; 
     let senderName = "Sheep Land Egypt"; 
     let appSettings;
     try {

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const fs = require('fs-extra');
+const fs = require('fs').promises;
 const path = require('path');
 
 // Simple color functions
@@ -21,7 +21,9 @@ async function generateSetupHtml() {
 
     // Read the current setup.html to preserve the HTML structure
     const setupPath = path.resolve(__dirname, '../../public/setup.html');
-    if (!fs.existsSync(setupPath)) {
+    try {
+      await fs.access(setupPath);
+    } catch {
       throw new Error('Original setup.html not found');
     }
 

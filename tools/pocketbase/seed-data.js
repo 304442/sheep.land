@@ -128,7 +128,7 @@ const seedData = {
             instapay_ipn: "sheepland@instapay", 
             revolut_details: "@SheepLandEgypt", 
             monzo_details: "monzo.me/sheeplandegypt", 
-            paypal_email: "payments@sheepland.eg",
+            paypal_email: "payments@sheep.land",
             bank_name: "Commercial International Bank Egypt", 
             bank_account_name: "Sheep Land Trading", 
             bank_account_number: "1234567890123456", 
@@ -144,7 +144,7 @@ const seedData = {
         slaughter_location_gmaps_url: "https://maps.app.goo.gl/SheepLandEgyptFarm123", 
         online_payment_fee_egp: 50,
         refund_policy_html: defaultRefundPolicyHTML, 
-        app_email_sender_address: "noreply@sheepland.eg", 
+        app_email_sender_address: "noreply@sheep.land", 
         app_email_sender_name: "Sheep Land",
         site_title_en: "Sheep Land",
         site_title_ar: "أرض الأغنام",
@@ -188,6 +188,31 @@ const seedData = {
         { item_key: "gathering_large_wedding", product_category: "gathering_package", type_key: "wedding_packages", type_name_en: "Wedding Packages", type_name_ar: "باقات أفراح", type_description_en: "Wedding packages with multiple sheep, buffet, Egyptian dishes, and event management.", type_description_ar: "باقات أفراح ومناسبات كبرى. عدة أغنام، إعداد بوفيه، أطباق مصرية، طاقم خدمة، وإدارة مناسبات.", variant_name_en: "Wedding Large (50-80 people)", variant_name_ar: "فرح كبير (٥٠-٨٠ فرد)", base_price_egp: 45000, stock_available_pb: 4, is_active: true, is_premium: true, origin_farm: "Luxury Events", breed_info_en: "Full event management", breed_info_ar: "إدارة مناسبات كاملة", sort_order_type: 11, sort_order_variant: 2 },
 
         { item_key: "bbq_premium_mixed", product_category: "gathering_package", type_key: "bbq_packages", type_name_en: "BBQ & Grill Packages", type_name_ar: "باقات الشواء والمشاوي", type_description_en: "BBQ packages with mixed grilled meats, kebabs, kofta, and chicken.", type_description_ar: "باقات شواء مع لحوم مشوية مختلطة وكباب وكفتة ودجاج.", variant_name_en: "BBQ (15-25 people)", variant_name_ar: "شواء (١٥-٢٥ فرد)", base_price_egp: 12500, stock_available_pb: 10, is_active: true, is_premium: true, origin_farm: "BBQ Specialists", breed_info_en: "Mixed grill specialties", breed_info_ar: "مشاوي مختلطة", sort_order_type: 12, sort_order_variant: 1 }
+    ],
+    
+    users: [
+        {
+            email: "admin@sheep.land",
+            password: "admin123456",
+            passwordConfirm: "admin123456",
+            name: "Admin User",
+            phone: "+201234567890",
+            country: "Egypt",
+            preferred_currency: "EGP",
+            is_admin: true,
+            verified: true
+        },
+        {
+            email: "user@example.com",
+            password: "user123456",
+            passwordConfirm: "user123456",
+            name: "Test User",
+            phone: "+201098765432",
+            country: "Egypt",
+            preferred_currency: "EGP",
+            is_admin: false,
+            verified: true
+        }
     ]
 };
 

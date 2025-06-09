@@ -12,9 +12,19 @@ const adminSystem = {
     // Check if user is authenticated as admin
     checkAdminAuth() {
         // Check PocketBase auth first
-        if (window.pb && pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') {
-            console.log('🐑 Admin System: PocketBase admin authenticated');
-            return true;
+        if (window.pb && pb.authStore.isValid) {
+            const user = pb.authStore.record;
+            // Check if user has admin field set to true
+            if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true) {
+                console.log('🐑 Admin System: User is admin');
+                return true;
+            }
+            // Check for specific admin email addresses (you can customize this list)
+            const adminEmails = ['admin@sheep.land', 'admin@example.com'];
+            if (adminEmails.includes(user?.email)) {
+                console.log('🐑 Admin System: User has admin email');
+                return true;
+            }
         }
         
         // Fallback to hash or localStorage for testing
@@ -35,9 +45,17 @@ const adminSystem = {
             console.log('🐑 Admin System: Admin mode detected');
             
             // Check if user is authenticated as admin
-            if (this.checkAdminAuth() && pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') {
-                console.log('🐑 Admin System: User is authenticated admin, creating panel...');
-                this.createAdminPanel();
+            if (this.checkAdminAuth() && pb.authStore.isValid) {
+                const user = pb.authStore.record;
+                const adminEmails = ['admin@sheep.land', 'admin@example.com'];
+                
+                if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true || adminEmails.includes(user?.email)) {
+                    console.log('🐑 Admin System: User is authenticated admin, creating panel...');
+                    this.createAdminPanel();
+                } else if (window.location.hash.includes('admin')) {
+                    console.log('🐑 Admin System: Admin hash detected but user not admin, showing login prompt...');
+                    this.showAdminLoginPrompt();
+                }
             } else if (window.location.hash.includes('admin')) {
                 console.log('🐑 Admin System: Admin hash detected, showing login prompt...');
                 this.showAdminLoginPrompt();
@@ -3518,21 +3536,31 @@ window.toggleAdminMode = function() {
             try {
                 console.log('🐑 Admin System: Attempting admin authentication...');
                 
-                // Use PocketBase _superusers collection authentication
-                const authData = await pb.collection('_superusers').authWithPassword(email, password);
-                console.log('🐑 Admin System: Admin authenticated successfully:', authData);
+                // Use PocketBase users collection authentication
+                const authData = await pb.collection('users').authWithPassword(email, password);
+                console.log('🐑 Admin System: User authenticated successfully:', authData);
                 
-                // Admin authentication successful
-                localStorage.setItem('admin_mode', 'true');
-                localStorage.setItem('admin_auth', 'true');
+                // Check if user is admin
+                const user = authData.record;
+                const adminEmails = ['admin@sheep.land', 'admin@example.com'];
                 
-                // Create admin panel directly
-                this.createAdminPanel();
-                
-                // Remove login prompt if exists
-                document.querySelector('.admin-login-prompt')?.remove();
-                
-                return { success: true, message: 'Admin login successful!' };
+                if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true || adminEmails.includes(user?.email)) {
+                    // Admin authentication successful
+                    localStorage.setItem('admin_mode', 'true');
+                    localStorage.setItem('admin_auth', 'true');
+                    
+                    // Create admin panel directly
+                    this.createAdminPanel();
+                    
+                    // Remove login prompt if exists
+                    document.querySelector('.admin-login-prompt')?.remove();
+                    
+                    return { success: true, message: 'Admin login successful!' };
+                } else {
+                    // User is not an admin
+                    pb.authStore.clear();
+                    return { success: false, message: 'Access denied. This account does not have admin privileges.' };
+                }
                 
             } catch (adminError) {
                 console.error('🐑 Admin System: Admin authentication failed:', adminError);

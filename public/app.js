@@ -52,7 +52,7 @@ document.addEventListener('alpine:init', () => {
             promoDiscPc: 0, promoActive: false, servFeeEGP: 0, delAreas: [], payDetails: {},
             enable_udheya_section: true, enable_livesheep_section: true, enable_meat_section: true, enable_gatherings_section: true,
             slaughter_location_gmaps_url: "", online_payment_fee_egp: 0, refundPolicyHTMLContent: "<p>Loading policy...</p>",
-            app_email_sender_address: "noreply@sheepland.eg", app_email_sender_name: "Sheep Land",
+            app_email_sender_address: "noreply@sheep.land", app_email_sender_name: "Sheep Land",
             site_title_en: "Sheep Land", site_title_ar: "أرض الأغنام",
             site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
         },
@@ -182,7 +182,7 @@ document.addEventListener('alpine:init', () => {
                         slaughter_location_gmaps_url: rs.slaughter_location_gmaps_url || "",
                         online_payment_fee_egp: Number(rs.online_payment_fee_egp) || 0,
                         refundPolicyHTMLContent: rs.refund_policy_html || this.generateDefaultRefundPolicyHTML(),
-                        app_email_sender_address: rs.app_email_sender_address || "noreply@sheepland.eg",
+                        app_email_sender_address: rs.app_email_sender_address || "noreply@sheep.land",
                         app_email_sender_name: rs.app_email_sender_name || "Sheep Land",
                         site_title_en: rs.site_title_en || "Sheep Land",
                         site_title_ar: rs.site_title_ar || "أرض الأغنام",
