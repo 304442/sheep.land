@@ -22,16 +22,11 @@ document.addEventListener('alpine:init', () => {
         { id: 'fawry', title: 'Fawry', imgSrc: 'fawry.svg', category: 'egypt_local' },
         { id: 'cod', title: 'Cash on Delivery', imgSrc: 'cod.svg', category: 'egypt_local' },
         
-        // International Cards & Digital Wallets
-        { id: 'online_card', title: 'Credit/Debit Card', imgSrc: 'card_payment.svg', category: 'cards_wallets' },
-        { id: 'paypal', title: 'PayPal', imgSrc: 'paypal.svg', category: 'cards_wallets' },
-        { id: 'revolut', title: 'Revolut', imgSrc: 'revolut.svg', category: 'cards_wallets' },
-        { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg', category: 'cards_wallets' },
-        
-        // Bank & Money Transfer
-        { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg', category: 'transfer' },
-        { id: 'western_union', title: 'Western Union', imgSrc: 'western_union.svg', category: 'transfer' },
-        { id: 'moneygram', title: 'MoneyGram', imgSrc: 'moneygram.svg', category: 'transfer' },
+        // International Payment Methods
+        { id: 'online_card', title: 'Credit/Debit Card', imgSrc: 'card_payment.svg', category: 'international' },
+        { id: 'bank_transfer', title: 'Bank Transfer', imgSrc: 'bank_transfer.svg', category: 'international' },
+        { id: 'revolut', title: 'Revolut', imgSrc: 'revolut.svg', category: 'international' },
+        { id: 'monzo', title: 'Monzo', imgSrc: 'monzo.svg', category: 'international' },
         
         // Cryptocurrency
         { id: 'bitcoin', title: 'Bitcoin', imgSrc: 'bitcoin.svg', category: 'crypto' },
@@ -100,13 +95,9 @@ document.addEventListener('alpine:init', () => {
                     title: { en: 'Egypt Local Payment', ar: 'الدفع المحلي في مصر' },
                     methods: payMethods.filter(m => m.category === 'egypt_local')
                 },
-                cards_wallets: {
-                    title: { en: 'Cards & Digital Wallets', ar: 'البطاقات والمحافظ الرقمية' },
-                    methods: payMethods.filter(m => m.category === 'cards_wallets')
-                },
-                transfer: {
-                    title: { en: 'Bank & Money Transfer', ar: 'التحويل البنكي والمالي' },
-                    methods: payMethods.filter(m => m.category === 'transfer')
+                international: {
+                    title: { en: 'International Payment', ar: 'الدفع الدولي' },
+                    methods: payMethods.filter(m => m.category === 'international')
                 },
                 crypto: {
                     title: { en: 'Cryptocurrency', ar: 'العملات الرقمية' },
@@ -1168,12 +1159,6 @@ document.addEventListener('alpine:init', () => {
                 instructions = `<div class="bil-row"><p class="en">Revolut: Pay <strong>${priceText}</strong> to <strong class="pay-ref">${this.settings.payDetails?.revolut_details || 'N/A'}</strong>. Ref: <strong class="pay-ref">${orderID}</strong>. Confirm via ${confirmWALink}.</p><p class="ar">ريفولوت: ادفع <strong>${priceText}</strong> إلى <strong class="pay-ref">${this.settings.payDetails?.revolut_details || 'غير متوفر'}</strong>. مرجع: <strong class="pay-ref">${orderID}</strong>. أكد عبر ${confirmWALink}.</p></div>`; 
             } else if (payMeth === 'monzo') { 
                 instructions = `<div class="bil-row"><p class="en">Monzo: Pay <strong>${priceText}</strong> to <strong class="pay-ref">${this.settings.payDetails?.monzo_details || 'N/A'}</strong>. Ref: <strong class="pay-ref">${orderID}</strong>. Confirm via ${confirmWALink}.</p><p class="ar">مونزو: ادفع <strong>${priceText}</strong> إلى <strong class="pay-ref">${this.settings.payDetails?.monzo_details || 'غير متوفر'}</strong>. مرجع: <strong class="pay-ref">${orderID}</strong>. أكد عبر ${confirmWALink}.</p></div>`; 
-            } else if (payMeth === 'paypal') { 
-                instructions = `<div class="bil-row"><p class="en">PayPal: Send <strong>${priceText}</strong> to <strong class="pay-ref">${this.settings.payDetails?.paypal_email || 'N/A'}</strong>. Ref: <strong class="pay-ref">${orderID}</strong>. Confirm via ${confirmWALink}.</p><p class="ar">باي بال: أرسل <strong>${priceText}</strong> إلى <strong class="pay-ref">${this.settings.payDetails?.paypal_email || 'غير متوفر'}</strong>. مرجع: <strong class="pay-ref">${orderID}</strong>. أكد عبر ${confirmWALink}.</p></div>`; 
-            } else if (payMeth === 'western_union') { 
-                instructions = `<div class="bil-row"><p class="en">Western Union: Send <strong>${priceText}</strong> to <strong class="pay-ref">${this.settings.payDetails?.western_union_details || 'N/A'}</strong>. Ref: <strong class="pay-ref">${orderID}</strong>. Confirm via ${confirmWALink}.</p><p class="ar">ويسترن يونيون: أرسل <strong>${priceText}</strong> إلى <strong class="pay-ref">${this.settings.payDetails?.western_union_details || 'غير متوفر'}</strong>. مرجع: <strong class="pay-ref">${orderID}</strong>. أكد عبر ${confirmWALink}.</p></div>`; 
-            } else if (payMeth === 'moneygram') { 
-                instructions = `<div class="bil-row"><p class="en">MoneyGram: Send <strong>${priceText}</strong> via <strong class="pay-ref">${this.settings.payDetails?.moneygram_details || 'N/A'}</strong>. Ref: <strong class="pay-ref">${orderID}</strong>. Confirm via ${confirmWALink}.</p><p class="ar">موني جرام: أرسل <strong>${priceText}</strong> عبر <strong class="pay-ref">${this.settings.payDetails?.moneygram_details || 'غير متوفر'}</strong>. مرجع: <strong class="pay-ref">${orderID}</strong>. أكد عبر ${confirmWALink}.</p></div>`; 
             } else if (payMeth === 'bank_transfer') { 
                 instructions = `<div class="bil-row"><p class="en">Bank Transfer <strong>${priceText}</strong> to:</p><p class="ar">تحويل بنكي <strong>${priceText}</strong> إلى:</p></div><ul class="bank-dets"><li class="bil-row"><span class="en">Bank: <strong class="pay-ref">${this.settings.payDetails?.bank_name || 'N/A'}</strong></span><span class="ar">البنك: <strong class="pay-ref">${this.settings.payDetails?.bank_name || 'غير متوفر'}</strong></span></li><li class="bil-row"><span class="en">Acc No: <strong class="pay-ref">${this.settings.payDetails?.bank_account_number || 'N/A'}</strong></span><span class="ar">رقم الحساب: <strong class="pay-ref">${this.settings.payDetails?.bank_account_number || 'غير متوفر'}</strong></span></li></ul><div class="bil-row bank-note"><p class="en">Ref Order ID: <strong class="pay-ref">${orderID}</strong>. Confirm via ${confirmWALink}.</p><p class="ar">مرجع الطلب: <strong class="pay-ref">${orderID}</strong>. أكد عبر ${confirmWALink}.</p></div>`; 
             } else if (payMeth === 'bitcoin') { 
