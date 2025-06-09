@@ -1205,7 +1205,7 @@
                     <template x-for="item in productType.wps" :key="item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
-                                <img src="https://placehold.co/400x300/8B4513/FFFFFF?text=Udheya" alt="Udheya placeholder" loading="lazy">
+                                <img src="images/products/udheya-premium.jpg" alt="Premium Udheya sheep" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
                             </div>
                             <div class="card-b">
@@ -1271,7 +1271,7 @@
                         <template x-for="item in productType.wps" :key="item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
-                                    <img :src="section.key === 'livesheep' ? 'https://placehold.co/400x300/228B22/FFFFFF?text=Live+Sheep' : section.key === 'meat' ? 'https://placehold.co/400x300/DC143C/FFFFFF?text=Fresh+Meat' : 'https://placehold.co/400x300/FF69B4/FFFFFF?text=Event+Package'" :alt="section.key + ' placeholder'" loading="lazy">
+                                    <img :src="section.key === 'livesheep' ? 'images/products/sheep-field.jpg' : section.key === 'meat' ? 'images/products/meat-cuts.jpg' : 'images/products/event-catering.jpg'" :alt="section.key === 'livesheep' ? 'Sheep grazing in field' : section.key === 'meat' ? 'Fresh halal meat cuts' : 'Event catering service'" loading="lazy">
                                     <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
                                 </div>
                                 <div class="card-b">
