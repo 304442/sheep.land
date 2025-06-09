@@ -1645,19 +1645,13 @@
                         <div class="card form-panel">
                             <div class="card-b">
                                 <h2 class="form-subh bil-spread"><span class="en">Payment Method</span><span class="ar">طريقة الدفع</span></h2>
-                                <div class="payment-categories">
-                                    <template x-for="(categoryData, categoryKey) in groupedPaymentMethods" :key="categoryKey">
-                                        <div class="payment-category" :class="'payment-category-' + categoryKey">
-                                            <div class="pay-meths">
-                                                <template x-for="method in categoryData.methods" :key="method.id">
-                                                    <div class="pm" :class="{'sel': checkoutForm.payment_method === method.id}">
-                                                        <input type="radio" :id="'pay_' + method.id" :value="method.id" x-model="checkoutForm.payment_method" @change="calculateFinalTotal(); clrErr('payment_method')">
-                                                        <label :for="'pay_' + method.id" :title="method.title">
-                                                            <img :src="'/images/' + method.imgSrc" :alt="method.title" class="pay-icon" onerror="this.src='https://placehold.co/60x40/E8E8E8/666666?text=' + this.alt.substring(0,3).toUpperCase()">
-                                                        </label>
-                                                    </div>
-                                                </template>
-                                            </div>
+                                <div class="pay-meths-all">
+                                    <template x-for="method in availPayMeths" :key="method.id">
+                                        <div class="pm" :class="{'sel': checkoutForm.payment_method === method.id}">
+                                            <input type="radio" :id="'pay_' + method.id" :value="method.id" x-model="checkoutForm.payment_method" @change="calculateFinalTotal(); clrErr('payment_method')">
+                                            <label :for="'pay_' + method.id" :title="method.title">
+                                                <img :src="'/images/' + method.imgSrc" :alt="method.title" class="pay-icon" onerror="this.src='https://placehold.co/60x40/E8E8E8/666666?text=' + this.alt.substring(0,3).toUpperCase()">
+                                            </label>
                                         </div>
                                     </template>
                                 </div>
