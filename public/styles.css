@@ -447,7 +447,7 @@ body.has-promo-bar .account-dropdown{top:calc(var(--head-h) + 76px)}
 .logout-btn:hover{background:#fee;border-color:#dc3545;color:#dc3545}
 
 /* Auth Dropdown */
-.whatsapp-dropdown{position:fixed;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-radius:0 0 0 var(--rad);border-left:2px solid var(--c2);border-bottom:2px solid var(--c2);overflow:hidden;transition:top 0.2s ease;width:400px;max-width:90vw}
+.whatsapp-dropdown{position:fixed;left:50%;transform:translateX(-50%);background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-radius:0 0 var(--rad) var(--rad);border:2px solid var(--c2);border-top:none;overflow:hidden;transition:top 0.2s ease;width:400px;max-width:90vw}
 body:not(.has-promo-bar) .whatsapp-dropdown{top:32px}
 body.has-promo-bar .whatsapp-dropdown{top:calc(32px + 44px)}
 .whatsapp-dropdown-content{padding:var(--s3)}
@@ -589,6 +589,7 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
     body:not(.has-promo-bar) .auth-dropdown{top:calc(var(--head-h-mob) + 28px)}
     body:not(.has-promo-bar) .whatsapp-dropdown{top:28px}
     body.has-promo-bar .whatsapp-dropdown{top:calc(28px + 40px)}
+    .whatsapp-dropdown{width:100%;max-width:100%;left:0;transform:none;border-radius:0}
     body.has-promo-bar .auth-dropdown{top:calc(var(--head-h-mob) + 68px)}
     .auth-dropdown{width:100%;max-width:100%;border-radius:0;border-left:none}
     body:not(.has-promo-bar) .cart-dropdown{top:calc(var(--head-h-mob) + 28px)}
