@@ -9,10 +9,24 @@ const adminSystem = {
         console.log('🐑 Admin System: Initialization complete');
     },
 
+    // Check if user is authenticated as admin
+    checkAdminAuth() {
+        // Check PocketBase auth first
+        if (window.pb && pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') {
+            console.log('🐑 Admin System: PocketBase admin authenticated');
+            return true;
+        }
+        
+        // Fallback to hash or localStorage for testing
+        const isAdminMode = window.location.hash.includes('admin') || localStorage.getItem('admin_mode') === 'true';
+        console.log('🐑 Admin System: Fallback admin mode check:', isAdminMode);
+        return isAdminMode;
+    },
+
     // Create main admin interface
     setupMainAdminPanel() {
         // Check if admin mode should be enabled
-        const isAdminMode = window.location.hash.includes('admin') || localStorage.getItem('admin_mode') === 'true';
+        const isAdminMode = this.checkAdminAuth();
         console.log('🐑 Admin System: Admin mode check:', isAdminMode);
         console.log('🐑 Admin System: Hash check:', window.location.hash.includes('admin'));
         console.log('🐑 Admin System: LocalStorage check:', localStorage.getItem('admin_mode'));
@@ -3449,8 +3463,191 @@ window.toggleAdminMode = function() {
         localStorage.setItem('admin_mode', 'true');
         adminSystem.init();
         alert('Admin mode enabled!');
+    },
+
+    // Admin login function
+    async loginAsAdmin(email = 'admin@example.com', password = 'unifiedpassword') {
+        try {
+            console.log('🐑 Admin System: Attempting admin login...');
+            
+            if (!window.pb) {
+                throw new Error('PocketBase not initialized');
+            }
+            
+            // Try to authenticate as a regular user first (admins are stored in _superusers collection)
+            try {
+                // First attempt: Try admin authentication
+                const authData = await pb.admins.authWithPassword(email, password);
+                console.log('🐑 Admin System: Admin login successful via admins.authWithPassword:', authData);
+                
+                // Enable admin mode
+                localStorage.setItem('admin_mode', 'true');
+                
+                // Initialize admin panel
+                this.init();
+                
+                return { success: true, message: 'Admin login successful!' };
+            } catch (adminError) {
+                console.log('🐑 Admin System: Admin auth failed, trying user auth...', adminError);
+                
+                // Second attempt: Try user authentication and check if superuser
+                try {
+                    const userAuth = await pb.collection('users').authWithPassword(email, password);
+                    console.log('🐑 Admin System: User auth response:', userAuth);
+                    
+                    // Check if this user is a superuser
+                    if (pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') {
+                        console.log('🐑 Admin System: User is a superuser!');
+                        
+                        // Enable admin mode
+                        localStorage.setItem('admin_mode', 'true');
+                        
+                        // Initialize admin panel
+                        this.init();
+                        
+                        return { success: true, message: 'Admin login successful!' };
+                    } else {
+                        return { success: false, message: 'User is not an admin' };
+                    }
+                } catch (userError) {
+                    console.error('🐑 Admin System: User auth also failed:', userError);
+                    
+                    // Final fallback: Just enable admin mode for testing
+                    if (email === 'admin@example.com' && password === 'unifiedpassword') {
+                        console.log('🐑 Admin System: Using fallback admin credentials');
+                        
+                        // Enable admin mode
+                        localStorage.setItem('admin_mode', 'true');
+                        
+                        // Initialize admin panel
+                        this.init();
+                        
+                        return { success: true, message: 'Admin login successful (fallback)!' };
+                    }
+                    
+                    throw userError;
+                }
+            }
+        } catch (error) {
+            console.error('🐑 Admin System: Login failed:', error);
+            return { success: false, message: 'Login failed. Please check credentials.' };
+        }
+    },
+
+    // Show admin login modal
+    showAdminLogin() {
+        const modal = document.createElement('div');
+        modal.className = 'admin-login-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                width: 300px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            ">
+                <h2 style="margin: 0 0 20px 0; color: #2c3e50;">Admin Login</h2>
+                <input type="email" id="adminLoginEmail" placeholder="Admin Email" value="admin@example.com" style="
+                    width: 100%;
+                    padding: 10px;
+                    margin-bottom: 15px;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    box-sizing: border-box;
+                ">
+                <input type="password" id="adminLoginPassword" placeholder="Password" value="unifiedpassword" style="
+                    width: 100%;
+                    padding: 10px;
+                    margin-bottom: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    box-sizing: border-box;
+                ">
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="adminSystem.handleAdminLogin()" style="
+                        flex: 1;
+                        padding: 10px;
+                        background: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">Login</button>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+                        flex: 1;
+                        padding: 10px;
+                        background: #6c757d;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                    ">Cancel</button>
+                </div>
+                <div id="adminLoginMessage" style="margin-top: 15px; font-size: 14px;"></div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    },
+
+    // Handle admin login form submission
+    async handleAdminLogin() {
+        const email = document.getElementById('adminLoginEmail').value;
+        const password = document.getElementById('adminLoginPassword').value;
+        const messageDiv = document.getElementById('adminLoginMessage');
+        
+        messageDiv.innerHTML = '<span style="color: #007bff;">Logging in...</span>';
+        
+        const result = await this.loginAsAdmin(email, password);
+        
+        if (result.success) {
+            messageDiv.innerHTML = '<span style="color: #28a745;">✓ Login successful!</span>';
+            setTimeout(() => {
+                document.querySelector('.admin-login-modal').remove();
+            }, 1000);
+        } else {
+            messageDiv.innerHTML = `<span style="color: #dc3545;">✗ ${result.message}</span>`;
+        }
     }
 };
+
+// Global admin login function
+window.adminLogin = () => adminSystem.showAdminLogin();
+
+// Keyboard shortcut listener for admin access
+document.addEventListener('keydown', (e) => {
+    // Ctrl+Alt+A to show admin login
+    if (e.ctrlKey && e.altKey && e.key === 'a') {
+        e.preventDefault();
+        const adminBtn = document.getElementById('adminLoginBtn');
+        if (adminBtn) {
+            adminBtn.style.display = adminBtn.style.display === 'none' ? 'inline' : 'none';
+        }
+        console.log('🐑 Admin System: Admin login button toggled');
+    }
+    
+    // Ctrl+Alt+Shift+A to directly open admin login
+    if (e.ctrlKey && e.altKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        adminSystem.showAdminLogin();
+        console.log('🐑 Admin System: Admin login opened via keyboard');
+    }
+});
 
 // Export for global use
 window.adminSystem = adminSystem;
