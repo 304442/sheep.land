@@ -932,7 +932,10 @@
                                 "required": true,
                                 "presentable": true,
                                 "maxSelect": 1,
-                                "collectionId": "users"
+                                "collectionId": "users",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "displayFields": []
                         },
                         {
                                 "name": "sheep",
@@ -940,7 +943,10 @@
                                 "required": true,
                                 "presentable": true,
                                 "maxSelect": 1,
-                                "collectionId": "collective_sheep"
+                                "collectionId": "collective_sheep",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "displayFields": []
                         },
                         {
                                 "name": "reserved_parts",
@@ -1033,7 +1039,10 @@
                                 "required": true,
                                 "presentable": true,
                                 "maxSelect": 1,
-                                "collectionId": "users"
+                                "collectionId": "users",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "displayFields": []
                         },
                         {
                                 "name": "plan",
@@ -2654,6 +2663,13 @@
                         const mappedField = { ...field };
                         if (mappedField.collectionId && collectionIdMap[mappedField.collectionId]) {
                             mappedField.collectionId = collectionIdMap[mappedField.collectionId];
+                        }
+                        // Set default values for required relation properties
+                        if (mappedField.type === 'relation') {
+                            mappedField.cascadeDelete = mappedField.cascadeDelete !== undefined ? mappedField.cascadeDelete : false;
+                            mappedField.minSelect = mappedField.minSelect !== undefined ? mappedField.minSelect : null;
+                            mappedField.maxSelect = mappedField.maxSelect !== undefined ? mappedField.maxSelect : 1;
+                            mappedField.displayFields = mappedField.displayFields || [];
                         }
                         return mappedField;
                     });

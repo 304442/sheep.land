@@ -172,8 +172,8 @@ const collectionsDefinition = [
         updateRule: "@request.auth.id = user || @request.auth.is_admin = true",
         deleteRule: "@request.auth.id = user || @request.auth.is_admin = true",
         fields: [
-            { name: "user", type: "relation", required: true, presentable: true, maxSelect: 1, collectionId: "users" },
-            { name: "sheep", type: "relation", required: true, presentable: true, maxSelect: 1, collectionId: "collective_sheep" },
+            { name: "user", type: "relation", required: true, presentable: true, maxSelect: 1, collectionId: "users", cascadeDelete: false, minSelect: 1, displayFields: [] },
+            { name: "sheep", type: "relation", required: true, presentable: true, maxSelect: 1, collectionId: "collective_sheep", cascadeDelete: false, minSelect: 1, displayFields: [] },
             { name: "reserved_parts", type: "json", required: true, presentable: false },
             { name: "total_weight_kg", type: "number", required: true, presentable: true, min: 0 },
             { name: "total_price_egp", type: "number", required: true, presentable: true, min: 0 },
@@ -194,7 +194,7 @@ const collectionsDefinition = [
         updateRule: "@request.auth.id = user || @request.auth.is_admin = true",
         deleteRule: "@request.auth.id = user || @request.auth.is_admin = true",
         fields: [
-            { name: "user", type: "relation", required: true, presentable: true, maxSelect: 1, collectionId: "users" },
+            { name: "user", type: "relation", required: true, presentable: true, maxSelect: 1, collectionId: "users", cascadeDelete: false, minSelect: 1, displayFields: [] },
             { name: "plan", type: "select", required: true, presentable: true, maxSelect: 1, values: ["basic", "family", "premium", "custom"] },
             { name: "status", type: "select", required: true, presentable: true, maxSelect: 1, values: ["active", "paused", "cancelled", "expired"] },
             { name: "price_per_month_egp", type: "number", required: true, presentable: true, min: 0 },
