@@ -32,40 +32,56 @@ const adminSystem = {
         console.log('🐑 Admin System: LocalStorage check:', localStorage.getItem('admin_mode'));
         
         if (isAdminMode) {
-            console.log('🐑 Admin System: Creating admin panel...');
-            // Remove old feedback admin panel
-            document.querySelector('.admin-feedback-panel')?.remove();
+            console.log('🐑 Admin System: Admin mode detected');
             
-            const adminPanel = document.createElement('div');
-            adminPanel.className = 'main-admin-panel';
-            adminPanel.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                z-index: 9999;
-                background: white;
-                border: 2px solid #007bff;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                font-family: 'Inter', sans-serif;
-            `;
-            adminPanel.innerHTML = `
-                <div class="admin-toggle" onclick="adminSystem.toggleAdminPanel()" style="
-                    background: linear-gradient(135deg, #007bff, #0056b3);
-                    color: white;
-                    padding: 12px 20px;
-                    cursor: pointer;
-                    border-radius: 6px;
-                    font-weight: bold;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    border: none;
-                    min-width: 120px;
-                    justify-content: center;
-                ">
-                    <span>👑 Admin Panel</span>
-                </div>
+            // Check if user is authenticated as admin
+            if (this.checkAdminAuth() && pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') {
+                console.log('🐑 Admin System: User is authenticated admin, creating panel...');
+                this.createAdminPanel();
+            } else if (window.location.hash.includes('admin')) {
+                console.log('🐑 Admin System: Admin hash detected, showing login prompt...');
+                this.showAdminLoginPrompt();
+            }
+        } else {
+            console.log('🐑 Admin System: Admin mode not enabled, skipping panel creation');
+        }
+    },
+
+    // Create the actual admin panel
+    createAdminPanel() {
+        // Remove old feedback admin panel
+        document.querySelector('.admin-feedback-panel')?.remove();
+        
+        const adminPanel = document.createElement('div');
+        adminPanel.className = 'main-admin-panel';
+        adminPanel.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-family: 'Inter', sans-serif;
+        `;
+        adminPanel.innerHTML = `
+            <div class="admin-toggle" onclick="adminSystem.toggleAdminPanel()" style="
+                background: linear-gradient(135deg, #007bff, #0056b3);
+                color: white;
+                padding: 12px 20px;
+                cursor: pointer;
+                border-radius: 6px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                border: none;
+                min-width: 120px;
+                justify-content: center;
+            ">
+                <span>👑 Admin Panel</span>
+            </div>
                 <div class="admin-content" id="mainAdminContent" style="
                     display:none;
                     background: white;
@@ -167,6 +183,39 @@ const adminSystem = {
         } else {
             console.log('🐑 Admin System: Admin mode not enabled, skipping panel creation');
         }
+    },
+
+    // Show admin login prompt
+    showAdminLoginPrompt() {
+        const prompt = document.createElement('div');
+        prompt.className = 'admin-login-prompt';
+        prompt.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        `;
+        prompt.innerHTML = `
+            <h3 style="margin: 0 0 15px 0; color: #2c3e50;">Admin Access Required</h3>
+            <p style="margin: 0 0 15px 0; color: #666;">Please login to access the admin panel.</p>
+            <button onclick="adminSystem.showAdminLogin()" style="
+                padding: 10px 20px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+                width: 100%;
+            ">Login as Admin</button>
+        `;
+        document.body.appendChild(prompt);
     },
 
     // Toggle admin panel visibility
@@ -3423,22 +3472,6 @@ if (window.location.hash.includes('admin')) {
     console.log('🐑 Admin System: Admin hash detected on page load');
     localStorage.setItem('admin_mode', 'true');
     
-    // Add a highly visible indicator that admin mode is detected
-    const indicator = document.createElement('div');
-    indicator.style.cssText = `
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        background: red;
-        color: white;
-        padding: 10px;
-        font-weight: bold;
-        z-index: 10000;
-        border-radius: 5px;
-    `;
-    indicator.textContent = '🐑 ADMIN MODE DETECTED - Check Console';
-    document.body.appendChild(indicator);
-    
     // Wait for DOM to be ready if not already
     if (document.readyState === 'loading') {
         console.log('🐑 Admin System: DOM still loading, waiting...');
@@ -3483,8 +3516,11 @@ window.toggleAdminMode = function() {
                 // Enable admin mode
                 localStorage.setItem('admin_mode', 'true');
                 
-                // Initialize admin panel
-                this.init();
+                // Create admin panel directly
+                this.createAdminPanel();
+                
+                // Remove login prompt if exists
+                document.querySelector('.admin-login-prompt')?.remove();
                 
                 return { success: true, message: 'Admin login successful!' };
             } catch (adminError) {
@@ -3502,8 +3538,11 @@ window.toggleAdminMode = function() {
                         // Enable admin mode
                         localStorage.setItem('admin_mode', 'true');
                         
-                        // Initialize admin panel
-                        this.init();
+                        // Create admin panel directly
+                        this.createAdminPanel();
+                        
+                        // Remove login prompt if exists
+                        document.querySelector('.admin-login-prompt')?.remove();
                         
                         return { success: true, message: 'Admin login successful!' };
                     } else {
@@ -3519,8 +3558,11 @@ window.toggleAdminMode = function() {
                         // Enable admin mode
                         localStorage.setItem('admin_mode', 'true');
                         
-                        // Initialize admin panel
-                        this.init();
+                        // Create admin panel directly
+                        this.createAdminPanel();
+                        
+                        // Remove login prompt if exists
+                        document.querySelector('.admin-login-prompt')?.remove();
                         
                         return { success: true, message: 'Admin login successful (fallback)!' };
                     }
@@ -3625,29 +3667,6 @@ window.toggleAdminMode = function() {
         }
     }
 };
-
-// Global admin login function
-window.adminLogin = () => adminSystem.showAdminLogin();
-
-// Keyboard shortcut listener for admin access
-document.addEventListener('keydown', (e) => {
-    // Ctrl+Alt+A to show admin login
-    if (e.ctrlKey && e.altKey && e.key === 'a') {
-        e.preventDefault();
-        const adminBtn = document.getElementById('adminLoginBtn');
-        if (adminBtn) {
-            adminBtn.style.display = adminBtn.style.display === 'none' ? 'inline' : 'none';
-        }
-        console.log('🐑 Admin System: Admin login button toggled');
-    }
-    
-    // Ctrl+Alt+Shift+A to directly open admin login
-    if (e.ctrlKey && e.altKey && e.shiftKey && e.key === 'A') {
-        e.preventDefault();
-        adminSystem.showAdminLogin();
-        console.log('🐑 Admin System: Admin login opened via keyboard');
-    }
-});
 
 // Export for global use
 window.adminSystem = adminSystem;
