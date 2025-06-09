@@ -1204,10 +1204,7 @@
                 <template x-for="productType in prodOpts.udheya" :key="productType.valKey">
                     <template x-for="item in productType.wps" :key="item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
-                            <div class="card-img">
-                                <img src="https://cdn.pixabay.com/photo/2017/01/16/19/54/sheep-1985304_960_720.jpg" :alt="item.nameENSpec" loading="lazy">
-                                <div class="badge udheya-badge">UDHEYA</div>
-                            </div>
+                            <div class="badge udheya-badge" style="position:relative;top:10px;left:10px;margin-bottom:10px;">UDHEYA</div>
                             <div class="card-b">
                                 <div class="card-content">
                                     <h3 class="card-h bil-spread">
@@ -1270,10 +1267,7 @@
                     <template x-for="productType in section.products" :key="productType.valKey">
                         <template x-for="item in productType.wps" :key="item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
-                                <div class="card-img">
-                                    <img :src="section.key === 'livesheep_general' ? 'https://cdn.pixabay.com/photo/2018/09/20/14/22/sheep-3690963_960_720.jpg' : section.key === 'meat_cuts' ? 'https://cdn.pixabay.com/photo/2016/11/10/16/29/beef-1814638_960_720.jpg' : 'https://cdn.pixabay.com/photo/2016/03/05/19/01/sheep-1238253_960_720.jpg'" :alt="item.nameENSpec" loading="lazy">
-                                    <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
-                                </div>
+                                <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge" style="position:relative;top:10px;left:10px;margin-bottom:10px;"></div>
                                 <div class="card-b">
                                     <div class="card-content">
                                         <h3 class="card-h bil-spread">
