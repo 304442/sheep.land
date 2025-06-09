@@ -1932,7 +1932,9 @@
             </p>
             <div class="foot-payment-logos">
                 <template x-for="method in availPayMeths" :key="method.id">
-                    <img :src="'/images/' + method.imgSrc" :alt="method.title" class="foot-pay-icon">
+                    <div class="foot-pay-logo-wrapper">
+                        <img :src="'/images/' + method.imgSrc" :alt="method.title" class="foot-pay-icon">
+                    </div>
                 </template>
             </div>
         </div>
