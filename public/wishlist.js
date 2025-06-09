@@ -122,12 +122,14 @@ document.addEventListener('alpine:init', () => {
             const categories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package'];
             
             for (const cat of categories) {
-                if (app.prodOpts[cat]) {
+                if (app.prodOpts[cat] && Array.isArray(app.prodOpts[cat])) {
                     for (const productType of app.prodOpts[cat]) {
-                        const found = productType.wps.find(p => p.itemKey === item.item_key);
-                        if (found) {
-                            product = found;
-                            break;
+                        if (productType && productType.wps && Array.isArray(productType.wps)) {
+                            const found = productType.wps.find(p => p.itemKey === item.item_key);
+                            if (found) {
+                                product = found;
+                                break;
+                            }
                         }
                     }
                 }

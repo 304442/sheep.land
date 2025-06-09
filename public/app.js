@@ -187,6 +187,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const allProducts = await pb.collection('products').getFullList({ filter: 'is_active = true', sort:'+sort_order_type,+sort_order_variant'});
+                console.log('Loaded products from PocketBase:', allProducts.length, 'items');
                 
                 const categorizeProducts = (products, categoryFilter) => {
                     const categoryProducts = products.filter(p => p.product_category === categoryFilter);
@@ -217,6 +218,13 @@ document.addEventListener('alpine:init', () => {
                 this.prodOpts.livesheep_general = categorizeProducts(allProducts, 'livesheep_general');
                 this.prodOpts.meat_cuts = categorizeProducts(allProducts, 'meat_cuts');
                 this.prodOpts.gathering_package = categorizeProducts(allProducts, 'gathering_package');
+                
+                console.log('Product categories loaded:', {
+                    udheya: this.prodOpts.udheya.length,
+                    livesheep: this.prodOpts.livesheep_general.length,
+                    meat: this.prodOpts.meat_cuts.length,
+                    gathering: this.prodOpts.gathering_package.length
+                });
             
                 let cities = []; 
                 (this.settings.delAreas || []).forEach(gov => { 
@@ -237,6 +245,7 @@ document.addEventListener('alpine:init', () => {
                 this.allCities = cities.sort((a,b) => a.nameEn.localeCompare(b.nameEn));
                 
             } catch (e) { 
+                console.error("Failed to load products from database:", e);
                 this.apiErr = String(e.message || "Could not load initial application data."); 
                 this.usrApiErr = "Error loading essential data. Please try refreshing the page."; 
             }
@@ -378,12 +387,14 @@ document.addEventListener('alpine:init', () => {
             const categories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package'];
             
             for (const cat of categories) {
-                if (this.prodOpts[cat]) {
+                if (this.prodOpts[cat] && Array.isArray(this.prodOpts[cat])) {
                     for (const productType of this.prodOpts[cat]) {
-                        const found = productType.wps.find(p => p.itemKey === item.item_key);
-                        if (found) {
-                            product = found;
-                            break;
+                        if (productType && productType.wps && Array.isArray(productType.wps)) {
+                            const found = productType.wps.find(p => p.itemKey === item.item_key);
+                            if (found) {
+                                product = found;
+                                break;
+                            }
                         }
                     }
                 }
@@ -770,6 +781,14 @@ document.addEventListener('alpine:init', () => {
 
         // Removed empty filterProducts function - filtering is handled by computed property
 
+        get productSections() {
+            return [
+                {key: 'livesheep', name: {en: 'Live Sheep', ar: 'الأغنام الحية'}, products: this.prodOpts.livesheep_general || [], badge: 'LIVE'},
+                {key: 'meat', name: {en: 'Fresh Meat & Cuts', ar: 'اللحوم الطازجة والقطعيات'}, products: this.prodOpts.meat_cuts || [], badge: 'FRESH'},
+                {key: 'gatherings', name: {en: 'Event & Gathering Packages', ar: 'باقات المناسبات والولائم'}, products: this.prodOpts.gathering_package || [], badge: 'EVENT'}
+            ];
+        },
+
         get filteredProducts() {
             if (!this.searchQuery || this.searchQuery.trim().length < 2) return {};
             
@@ -786,18 +805,24 @@ document.addEventListener('alpine:init', () => {
             Object.keys(this.prodOpts).forEach(category => {
                 const matchingProducts = [];
                 
-                this.prodOpts[category].forEach(productType => {
-                    const matchingItems = productType.wps.filter(item => 
-                        item.nameENSpec.toLowerCase().includes(query) ||
-                        item.nameARSpec.includes(query) ||
-                        productType.nameEn.toLowerCase().includes(query) ||
-                        productType.nameAr.includes(query)
-                    );
+                // Add defensive check for category array
+                if (this.prodOpts[category] && Array.isArray(this.prodOpts[category])) {
+                    this.prodOpts[category].forEach(productType => {
+                        // Add defensive check for productType and wps property
+                        if (productType && productType.wps && Array.isArray(productType.wps)) {
+                            const matchingItems = productType.wps.filter(item => 
+                                item.nameENSpec && item.nameENSpec.toLowerCase().includes(query) ||
+                                item.nameARSpec && item.nameARSpec.includes(query) ||
+                                productType.nameEn && productType.nameEn.toLowerCase().includes(query) ||
+                                productType.nameAr && productType.nameAr.includes(query)
+                            );
                     
-                    if (matchingItems.length > 0) {
-                        matchingProducts.push(...matchingItems);
-                    }
-                });
+                            if (matchingItems.length > 0) {
+                                matchingProducts.push(...matchingItems);
+                            }
+                        }
+                    });
+                }
                 
                 if (matchingProducts.length > 0) {
                     filtered[category] = matchingProducts;

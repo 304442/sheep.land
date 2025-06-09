@@ -1279,7 +1279,7 @@
             </div>
             <div x-show="prodOpts.udheya && prodOpts.udheya.length > 0" class="prod-grid grid2">
                 <template x-for="productType in prodOpts.udheya" :key="productType.valKey">
-                    <template x-for="item in productType.wps" :key="item.itemKey">
+                    <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
                                 <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
@@ -1339,11 +1339,7 @@
     </section>
 
     <!-- Other Sections -->
-    <template x-for="section in [
-        {key: 'livesheep', name: {en: 'Live Sheep', ar: 'الأغنام الحية'}, products: prodOpts.livesheep_general, badge: 'LIVE'},
-        {key: 'meat', name: {en: 'Fresh Meat & Cuts', ar: 'اللحوم الطازجة والقطعيات'}, products: prodOpts.meat_cuts, badge: 'FRESH'},
-        {key: 'gatherings', name: {en: 'Event & Gathering Packages', ar: 'باقات المناسبات والولائم'}, products: prodOpts.gathering_package, badge: 'EVENT'}
-    ]" :key="section.key">
+    <template x-for="section in productSections" :key="section.key">
         <section class="main-page-sec sec" x-show="currentPage === section.key && settings['enable_' + section.key + '_section']" x-transition>
             <div class="c">
                 <div class="sec-head">
@@ -1353,7 +1349,7 @@
                 </div>
                 <div x-show="section.products && section.products.length > 0" class="prod-grid grid2">
                     <template x-for="productType in section.products" :key="productType.valKey">
-                        <template x-for="item in productType.wps" :key="item.itemKey">
+                        <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
                                     <img :src="getProductImage(item, section.key)" :alt="item.nameENSpec || section.name.en" loading="lazy">
