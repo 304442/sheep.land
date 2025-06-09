@@ -729,6 +729,30 @@ document.addEventListener('alpine:init', () => {
             return lang === 'ar' ? `متوفر: ${stock}` : `${stock} Available`;
         },
 
+        getProductImage(item, sectionKey) {
+            // Map specific products to their unique images
+            if (sectionKey === 'livesheep') {
+                if (item.itemKey && item.itemKey.includes('black')) return 'images/products/sheep-black.jpg';
+                if (item.itemKey && item.itemKey.includes('white')) return 'images/products/sheep-white.jpg';
+                if (item.itemKey && item.itemKey.includes('import')) return 'images/products/sheep-imported.jpg';
+                return 'images/products/sheep-field.jpg';
+            }
+            else if (sectionKey === 'meat') {
+                if (item.itemKey && item.itemKey.includes('shoulder')) return 'images/products/lamb-shoulder.jpg';
+                if (item.itemKey && item.itemKey.includes('leg')) return 'images/products/lamb-leg.jpg';
+                if (item.itemKey && item.itemKey.includes('rib')) return 'images/products/lamb-ribs.jpg';
+                if (item.itemKey && item.itemKey.includes('mince')) return 'images/products/lamb-minced.jpg';
+                if (item.itemKey && item.itemKey.includes('steak')) return 'images/products/lamb-steak.jpg';
+                return 'images/products/lamb-cuts.jpg';
+            }
+            else if (sectionKey === 'gatherings') {
+                if (item.itemKey && item.itemKey.includes('small')) return 'images/products/event-small-gathering.jpg';
+                if (item.itemKey && item.itemKey.includes('large')) return 'images/products/event-large-gathering.jpg';
+                return 'images/products/event-catering.jpg';
+            }
+            return 'images/products/sheep-field.jpg'; // fallback
+        },
+
         isEmailValid: (e) => e?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
         isPhoneValid: (p) => p?.trim() && /^\+?[0-9\s\-()]{7,20}$/.test(p.trim()),
 

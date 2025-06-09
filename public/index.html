@@ -1205,7 +1205,7 @@
                     <template x-for="item in productType.wps" :key="item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
-                                <img src="images/products/udheya-premium.jpg" alt="Premium Udheya sheep" loading="lazy">
+                                <img :src="item.is_premium ? 'images/products/udheya-standard.jpg' : item.itemKey && item.itemKey.includes('black') ? 'images/products/sheep-black.jpg' : 'images/products/sheep-white.jpg'" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
                             </div>
                             <div class="card-b">
@@ -1271,7 +1271,7 @@
                         <template x-for="item in productType.wps" :key="item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
-                                    <img :src="section.key === 'livesheep' ? 'images/products/sheep-field.jpg' : section.key === 'meat' ? 'images/products/lamb-cuts.jpg' : 'images/products/event-catering.jpg'" :alt="section.key === 'livesheep' ? 'Sheep grazing in field' : section.key === 'meat' ? 'Fresh halal lamb cuts' : 'Event catering service'" loading="lazy">
+                                    <img :src="getProductImage(item, section.key)" :alt="item.nameENSpec || section.name.en" loading="lazy">
                                     <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
                                 </div>
                                 <div class="card-b">
