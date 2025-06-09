@@ -78,11 +78,11 @@ const collectionsDefinition = [
         name: "users",
         type: "auth",
         system: false, 
-        listRule: "@request.auth.id = id || @request.auth.admin = true",
-        viewRule: "@request.auth.id = id || @request.auth.admin = true",
+        listRule: "@request.auth.id = id || @request.auth.is_admin = true",
+        viewRule: "@request.auth.id = id || @request.auth.is_admin = true",
         createRule: "", 
-        updateRule: "@request.auth.id = id || @request.auth.admin = true", 
-        deleteRule: "@request.auth.id = id || @request.auth.admin = true", 
+        updateRule: "@request.auth.id = id || @request.auth.is_admin = true", 
+        deleteRule: "@request.auth.id = id || @request.auth.is_admin = true", 
         options: { 
             emailVisibility: true, 
             requireEmailVerification: false, 
@@ -95,15 +95,16 @@ const collectionsDefinition = [
             { name: "name", type: "text", required: false, presentable: true, max: 100 },
             { name: "phone", type: "text", required: false, presentable: true, max: 20 },
             { name: "country", type: "text", required: false, presentable: true, max: 50 },
-            { name: "preferred_currency", type: "text", required: false, presentable: true, max: 5 }
+            { name: "preferred_currency", type: "text", required: false, presentable: true, max: 5 },
+            { name: "is_admin", type: "bool", required: false, presentable: true }
         ]
     },
     { 
         name: "orders", 
         type: "base", 
         system: false,
-        listRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true", 
-        viewRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.admin = true",
+        listRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true", 
+        viewRule: "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true",
         createRule: "", 
         updateRule: "@request.auth.id != '' && @request.auth.verified = true", 
         deleteRule: "@request.auth.id != '' && @request.auth.verified = true", 
