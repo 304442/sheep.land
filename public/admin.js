@@ -198,9 +198,6 @@ const adminSystem = {
             document.head.appendChild(adminStyles);
             
             console.log('🐑 Admin System: Admin panel added to DOM');
-        } else {
-            console.log('🐑 Admin System: Admin mode not enabled, skipping panel creation');
-        }
     },
 
     // Show admin login prompt
