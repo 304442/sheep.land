@@ -108,8 +108,14 @@ document.addEventListener('alpine:init', () => {
         },
         
         moveToCart(item) {
-            // Get the parent Alpine component (main app)
-            const app = this.$parent || Alpine.$data.sheepLand;
+            // Get the root Alpine component
+            const rootElement = document.querySelector('[x-data="sheepLand"]');
+            if (!rootElement || !rootElement._x_dataStack) {
+                this.showNotification('Unable to add to cart', 'remove');
+                return;
+            }
+            
+            const app = rootElement._x_dataStack[0];
             
             // Find the actual product data
             let product = null;

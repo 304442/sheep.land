@@ -1284,12 +1284,12 @@
                             <div class="card-img">
                                 <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
-                                <button @click="$parent.toggleWishlist(item)" 
+                                <button @click="toggleWishlist(item)" 
                                         class="wishlist-icon" 
-                                        :class="{ 'active': $parent.isInWishlist(item.item_key) }"
-                                        :title="$parent.isInWishlist(item.item_key) ? 'Remove from wishlist' : 'Add to wishlist'">
+                                        :class="{ 'active': isInWishlist(item.itemKey) }"
+                                        :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="$parent.isInWishlist(item.item_key) ? 'currentColor' : 'none'"/>
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
                                     </svg>
                                 </button>
                             </div>
@@ -1358,12 +1358,12 @@
                                 <div class="card-img">
                                     <img :src="getProductImage(item, section.key)" :alt="item.nameENSpec || section.name.en" loading="lazy">
                                     <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
-                                    <button @click="$parent.$parent.toggleWishlist(item)" 
+                                    <button @click="toggleWishlist(item)" 
                                             class="wishlist-icon" 
-                                            :class="{ 'active': $parent.$parent.isInWishlist(item.itemKey) }"
-                                            :title="$parent.$parent.isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
+                                            :class="{ 'active': isInWishlist(item.itemKey) }"
+                                            :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="$parent.$parent.isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
                                         </svg>
                                     </button>
                                 </div>
