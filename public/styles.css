@@ -275,8 +275,11 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .sum-item-content{flex-grow:1;min-width:0}
 .sum-item-price{flex-shrink:0;text-align:right;min-width:120px;font-size:.9rem;color:var(--tm);font-weight:600}
 .sum-hr{border:0;border-top:2px solid var(--c1);margin:var(--s2) 0}
-.sum-total{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2)}
-.sum-total div{font-size:1.1rem;font-weight:800;color:var(--c1)}
+.sum-total{display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
+.sum-total-label{font-size:1rem;color:var(--tm)}
+.sum-total-label.en{text-align:left}
+.sum-total-label.ar{font-family:var(--fa);direction:rtl;text-align:right}
+.sum-total-amount{font-size:1.1rem;font-weight:800;color:var(--c1);text-align:center;flex:0 1 auto}
 
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1040;backdrop-filter:blur(4px)}
 .modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--b1);border-radius:calc(var(--rad)*2);box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:1050;width:90vw;max-width:var(--modal-max-width);display:flex;flex-direction:column;max-height:85vh;overflow:hidden}
