@@ -2556,6 +2556,11 @@
             const existingCollections = await pb.collections.getFullList();
             existingCollections.forEach(col => {
                 collectionIdMap[col.name] = col.id;
+                // Also map _pb_users_auth_ to users for backward compatibility
+                if (col.name === '_pb_users_auth_') {
+                    collectionIdMap['users'] = col.id;
+                    log('📌 Found legacy _pb_users_auth_ collection, mapping to users', 'i');
+                }
             });
         } catch (e) {
             log('⚠️ Could not fetch existing collections', 'w');
@@ -2568,8 +2573,19 @@
             const collectionNameToUse = collectionDef.name;
 
             try {
-                existingCollection = await pb.collections.getOne(collectionNameToUse);
-                log(`🔄 Collection "${collectionNameToUse}" exists. Updating...`, 'i');
+                // Special handling for users collection - check both names
+                if (collectionNameToUse === 'users') {
+                    try {
+                        existingCollection = await pb.collections.getOne('_pb_users_auth_');
+                        log(`🔄 Found legacy _pb_users_auth_ collection, will update as users...`, 'i');
+                    } catch {
+                        existingCollection = await pb.collections.getOne('users');
+                        log(`🔄 Collection "users" exists. Updating...`, 'i');
+                    }
+                } else {
+                    existingCollection = await pb.collections.getOne(collectionNameToUse);
+                    log(`🔄 Collection "${collectionNameToUse}" exists. Updating...`, 'i');
+                }
                 
                 // For existing collections, we need to handle relation fields separately
                 const fieldsWithoutRelations = collectionDef.fields.filter(f => f.type !== 'relation');
@@ -2587,8 +2603,10 @@
                     updatePayload.options = { ... (existingCollection.options || {}), ...collectionDef.options };
                 }
                 
-                await pb.collections.update(collectionNameToUse, updatePayload);
-                log(`✅ Collection "${collectionNameToUse}" updated successfully.`, 's');
+                // Use the actual collection name (might be _pb_users_auth_ for users)
+                const actualCollectionName = existingCollection.name || collectionNameToUse;
+                await pb.collections.update(actualCollectionName, updatePayload);
+                log(`✅ Collection "${actualCollectionName}" updated successfully.`, 's');
 
             } catch (e) {
                 if (e.status === 404 && !isAuthCollection) { 
@@ -2640,12 +2658,25 @@
                         return mappedField;
                     });
                     
-                    // Get current collection fields
-                    const currentCollection = await pb.collections.getOne(collectionDef.name);
+                    // Get current collection fields (handle legacy _pb_users_auth_)
+                    let currentCollection;
+                    let actualCollectionName = collectionDef.name;
+                    
+                    if (collectionDef.name === 'users') {
+                        try {
+                            currentCollection = await pb.collections.getOne('_pb_users_auth_');
+                            actualCollectionName = '_pb_users_auth_';
+                        } catch {
+                            currentCollection = await pb.collections.getOne('users');
+                        }
+                    } else {
+                        currentCollection = await pb.collections.getOne(collectionDef.name);
+                    }
+                    
                     const allFields = [...currentCollection.fields, ...mappedRelationFields];
                     
                     // Update collection with relation fields
-                    await pb.collections.update(collectionDef.name, { fields: allFields });
+                    await pb.collections.update(actualCollectionName, { fields: allFields });
                     log(`✅ Added relation fields to "${collectionDef.name}"`, 's');
                 } catch (e) {
                     log(`❌ Error adding relation fields to "${collectionDef.name}": ${e.message}`, 'e');
