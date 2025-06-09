@@ -402,7 +402,9 @@ const feedbackSystem = {
                 } catch (pbError) {
                     console.error('PocketBase error:', pbError);
                     console.error('PocketBase error details:', pbError.response);
-                    console.error('PocketBase error data:', pbError.data);
+                    if (pbError.response && pbError.response.data) {
+                        console.error('Validation errors:', pbError.response.data);
+                    }
                     // Continue to save in localStorage
                 }
                 
