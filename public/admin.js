@@ -22,12 +22,6 @@ const adminSystem = {
                 console.log('🐑 Admin System: User is admin');
                 return true;
             }
-            // Check for specific admin email addresses (server should validate this)
-            const adminEmails = ['admin@sheep.land'];
-            if (adminEmails.includes(user?.email)) {
-                console.log('🐑 Admin System: User has admin email');
-                return true;
-            }
         }
         
         // For development only - remove in production
@@ -59,9 +53,8 @@ const adminSystem = {
             // Check if user is authenticated as admin
             if (window.pb && window.pb.authStore.isValid) {
                 const user = window.pb.authStore.record;
-                const adminEmails = ['admin@sheep.land', 'admin@example.com'];
                 
-                if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true || adminEmails.includes(user?.email)) {
+                if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true) {
                     console.log('🐑 Admin System: User is authenticated admin, creating panel...');
                     this.createAdminPanel();
                 } else {
