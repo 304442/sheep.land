@@ -217,9 +217,10 @@ const adminSystem = {
             font-family: 'Inter', sans-serif;
         `;
         prompt.innerHTML = `
+            <button onclick="document.querySelector('.admin-login-prompt')?.remove()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
             <h3 style="margin: 0 0 15px 0; color: #2c3e50;">Admin Access Required</h3>
             <p style="margin: 0 0 15px 0; color: #666;">Please login to access the admin panel.</p>
-            <button onclick="window.location.href='#login'" style="
+            <button onclick="document.querySelector('.admin-login-prompt')?.remove(); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAuthDropdown = true; app.auth.view = 'login';" style="
                 padding: 10px 20px;
                 background: #007bff;
                 color: white;
