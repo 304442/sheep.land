@@ -14,7 +14,7 @@ const adminSystem = {
 
     // Check if user is authenticated as admin
     checkAdminAuth() {
-        // Check PocketBase auth first
+        // Only check PocketBase auth - no fallbacks for security
         if (window.pb && window.pb.authStore.isValid) {
             const user = window.pb.authStore.record;
             // Check if user has admin field set to true
@@ -22,18 +22,24 @@ const adminSystem = {
                 console.log('🐑 Admin System: User is admin');
                 return true;
             }
-            // Check for specific admin email addresses (you can customize this list)
-            const adminEmails = ['admin@sheep.land', 'admin@example.com'];
+            // Check for specific admin email addresses (server should validate this)
+            const adminEmails = ['admin@sheep.land'];
             if (adminEmails.includes(user?.email)) {
                 console.log('🐑 Admin System: User has admin email');
                 return true;
             }
         }
         
-        // Fallback to hash or localStorage for testing
-        const isAdminMode = window.location.hash.includes('admin') || localStorage.getItem('admin_mode') === 'true';
-        console.log('🐑 Admin System: Fallback admin mode check:', isAdminMode);
-        return isAdminMode;
+        // For development only - remove in production
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const isDevAdmin = window.location.hash.includes('admin') && localStorage.getItem('admin_mode') === 'true';
+            if (isDevAdmin) {
+                console.warn('🐑 Admin System: Development mode - admin access granted');
+                return true;
+            }
+        }
+        
+        return false;
     },
 
     // Create main admin interface
@@ -137,29 +143,41 @@ const adminSystem = {
     },
     
     // Create modal for admin content
-    createAdminModal() {
-        // Remove any existing admin modals
-        const existingModal = document.getElementById('adminModal');
-        if (existingModal) {
-            existingModal.remove();
-        }
+    createAdminModal(title, content) {
+        // Remove any existing modals
+        document.querySelector('.admin-modal-overlay')?.remove();
+        document.getElementById('adminModal')?.remove();
         
-        const modalHTML = `
-            <div id="adminModal" class="admin-modal" style="display: none;">
-                <div class="admin-modal-overlay" onclick="adminSystem.closeAdminModal()"></div>
-                <div class="admin-modal-content">
-                    <div class="admin-modal-header">
-                        <h2 id="adminModalTitle">Admin Panel</h2>
-                        <button class="admin-modal-close" onclick="adminSystem.closeAdminModal()">×</button>
-                    </div>
-                    <div class="admin-modal-body" id="adminModalContent">
-                        <!-- Dynamic content will be loaded here -->
-                    </div>
+        const modal = document.createElement('div');
+        modal.className = 'admin-modal-overlay';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'adminModalTitle');
+        
+        modal.innerHTML = `
+            <div class="admin-modal">
+                <div class="admin-modal-header">
+                    <h2 id="adminModalTitle">${title || 'Admin Panel'}</h2>
+                    <button class="admin-modal-close" onclick="adminSystem.closeAdminModal()" aria-label="Close modal">&times;</button>
+                </div>
+                <div class="admin-modal-content" role="document">
+                    ${content || ''}
                 </div>
             </div>
         `;
         
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeAdminModal();
+            }
+        });
+        
+        // Focus management
+        modal.querySelector('.admin-modal-close')?.focus();
         
         // Add modal styles if not already present
         if (!document.querySelector('#adminModalStyles')) {
@@ -598,39 +616,167 @@ const adminSystem = {
                     .alert-dismiss:hover {
                         opacity: 1;
                     }
+                    
+                    /* Responsive Styles */
+                    @media (max-width: 768px) {
+                        .admin-modal-content {
+                            width: 95%;
+                            max-width: 100%;
+                            max-height: 95vh;
+                            margin: 10px;
+                        }
+                        
+                        .admin-modal-header {
+                            padding: 15px;
+                        }
+                        
+                        .admin-modal-body {
+                            padding: 15px;
+                        }
+                        
+                        .metrics-grid,
+                        .products-grid {
+                            grid-template-columns: 1fr;
+                        }
+                        
+                        .admin-table {
+                            font-size: 14px;
+                        }
+                        
+                        .admin-table th,
+                        .admin-table td {
+                            padding: 8px;
+                        }
+                        
+                        /* Make tables scrollable on mobile */
+                        .admin-table-wrapper,
+                        .orders-table-wrapper {
+                            overflow-x: auto;
+                            -webkit-overflow-scrolling: touch;
+                        }
+                        
+                        .section-header {
+                            flex-direction: column;
+                            gap: 10px;
+                            align-items: stretch;
+                        }
+                        
+                        .action-buttons {
+                            flex-direction: column;
+                        }
+                        
+                        .action-btn {
+                            width: 100%;
+                        }
+                    }
+                    
+                    @media (max-width: 480px) {
+                        .admin-modal-header h2 {
+                            font-size: 18px;
+                        }
+                        
+                        .stat-badge {
+                            font-size: 12px;
+                            padding: 4px 8px;
+                        }
+                        
+                        .btn-small {
+                            font-size: 11px;
+                            padding: 3px 6px;
+                        }
+                    }
+                    
+                    /* Accessibility Improvements */
+                    .admin-modal-content:focus {
+                        outline: 2px solid #007bff;
+                        outline-offset: 2px;
+                    }
+                    
+                    button:focus-visible {
+                        outline: 2px solid #007bff;
+                        outline-offset: 2px;
+                    }
+                    
+                    /* Loading States */
+                    .loading {
+                        display: inline-block;
+                        width: 20px;
+                        height: 20px;
+                        border: 3px solid rgba(0,0,0,.1);
+                        border-radius: 50%;
+                        border-top-color: #007bff;
+                        animation: spin 1s ease-in-out infinite;
+                    }
+                    
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+                    
+                    /* Error States */
+                    .error-message {
+                        background: #f8d7da;
+                        color: #721c24;
+                        padding: 12px;
+                        border-radius: 4px;
+                        margin: 10px 0;
+                    }
+                    
+                    /* Success States */
+                    .success-message {
+                        background: #d4edda;
+                        color: #155724;
+                        padding: 12px;
+                        border-radius: 4px;
+                        margin: 10px 0;
+                    }
+                    
+                    /* Form Validation */
+                    .form-control:invalid {
+                        border-color: #dc3545;
+                    }
+                    
+                    .form-control:valid {
+                        border-color: #28a745;
+                    }
+                    
+                    /* Skip to content link for accessibility */
+                    .skip-link {
+                        position: absolute;
+                        top: -40px;
+                        left: 0;
+                        background: #007bff;
+                        color: white;
+                        padding: 8px;
+                        text-decoration: none;
+                        border-radius: 0 0 4px 0;
+                    }
+                    
+                    .skip-link:focus {
+                        top: 0;
+                    }
                 </style>
             `;
             document.head.insertAdjacentHTML('beforeend', styles);
         }
+        
+        // Add keyboard event listeners for accessibility
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.querySelector('.admin-modal-overlay')) {
+                this.closeAdminModal();
+            }
+        });
     },
     
     // Show admin modal with content
     showAdminModal(title, content) {
-        // Call the createAdminModal function with the parameters
         this.createAdminModal(title, content);
-    },
-    
-    // Legacy showAdminModal for compatibility
-    OLD_showAdminModal(title, content) {
-        const modal = document.getElementById('adminModal');
-        const modalTitle = document.getElementById('adminModalTitle');
-        const modalContent = document.getElementById('adminModalContent');
-        
-        if (modal && modalTitle && modalContent) {
-            modalTitle.textContent = title;
-            modalContent.innerHTML = content;
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent body scroll
-        }
     },
     
     // Close admin modal
     closeAdminModal() {
-        const modal = document.getElementById('adminModal');
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = ''; // Restore body scroll
-        }
+        document.querySelector('.admin-modal-overlay')?.remove();
+        document.getElementById('adminModal')?.remove();
+        document.body.style.overflow = '';
     },
     
     // Old floating panel code removed - keeping for reference
@@ -805,38 +951,6 @@ const adminSystem = {
     },
 
     // Show main dashboard
-    // Create admin modal for displaying content
-    createAdminModal(title, content) {
-        // Remove any existing modal
-        document.querySelector('.admin-modal-overlay')?.remove();
-        
-        const modal = document.createElement('div');
-        modal.className = 'admin-modal-overlay';
-        modal.innerHTML = `
-            <div class="admin-modal">
-                <div class="admin-modal-header">
-                    <h2>${title}</h2>
-                    <button onclick="adminSystem.closeAdminModal()" class="admin-modal-close">&times;</button>
-                </div>
-                <div class="admin-modal-content">
-                    ${content}
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        
-        // Close on overlay click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                this.closeAdminModal();
-            }
-        });
-    },
-    
-    // Close admin modal
-    closeAdminModal() {
-        document.querySelector('.admin-modal-overlay')?.remove();
-    },
     
     showDashboard() {
         const dashboardData = this.getDashboardData();
@@ -1086,11 +1200,9 @@ const adminSystem = {
 
     // Show order management
     showOrderManager() {
-        this.setActiveNav('orders');
-        const content = document.getElementById('adminMainContent');
         const orders = this.getOrdersData('array');
         
-        content.innerHTML = `
+        const content = `
             <div class="admin-orders">
                 <div class="section-header">
                     <h2>Order Management</h2>
@@ -1171,15 +1283,15 @@ const adminSystem = {
                 </div>
             </div>
         `;
+        
+        this.showAdminModal('Order Management', content);
     },
 
     // Show product management
     showProductManager() {
-        this.setActiveNav('products');
-        const content = document.getElementById('adminMainContent');
         const products = this.getProductsData();
         
-        content.innerHTML = `
+        const content = `
             <div class="admin-products">
                 <div class="section-header">
                     <h2>Product Management</h2>
@@ -1204,7 +1316,7 @@ const adminSystem = {
                 </div>
 
                 <div class="products-grid">
-                    ${products.map(product => `
+                    ${(products.products || products).map(product => `
                         <div class="product-card" data-category="${product.category}" data-status="${product.status}">
                             <div class="product-image">
                                 <img src="${product.image}" alt="${product.name}" loading="lazy">
@@ -1230,19 +1342,22 @@ const adminSystem = {
                 </div>
             </div>
         `;
+        
+        this.showAdminModal('Product Management', content);
     },
 
     // Get dashboard data
     getDashboardData() {
-        // In a real app, this would fetch from your database
-        // For now, we'll use localStorage and mock data
-        const orders = JSON.parse(localStorage.getItem('admin_orders') || '[]');
-        const feedback = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
-        
-        const todayOrders = orders.filter(o => this.isToday(o.date));
-        const pendingOrders = orders.filter(o => o.status === 'pending').length;
-        
-        return {
+        try {
+            // In a real app, this would fetch from your database
+            // For now, we'll use localStorage and mock data
+            const orders = JSON.parse(localStorage.getItem('admin_orders') || '[]');
+            const feedback = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
+            
+            const todayOrders = orders.filter(o => this.isToday(o.date));
+            const pendingOrders = orders.filter(o => o.status === 'pending').length;
+            
+            return {
             todaySales: todayOrders.reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2),
             pendingOrders: pendingOrders,
             lowStockItems: 3, // Mock data
@@ -1258,15 +1373,32 @@ const adminSystem = {
                 { id: 'order1', type: 'info', icon: 'ℹ️', text: '5 orders pending confirmation' }
             ]
         };
+        } catch (error) {
+            console.error('Error getting dashboard data:', error);
+            return {
+                todaySales: '0.00',
+                pendingOrders: 0,
+                lowStockItems: 0,
+                satisfaction: 0,
+                recentActivity: [],
+                alerts: [{
+                    id: 'error1',
+                    type: 'warning',
+                    icon: '⚠️',
+                    text: 'Error loading dashboard data'
+                }]
+            };
+        }
     },
 
     // Get orders data (mock for now)
     getOrdersData(returnFormat = 'object') {
-        const stored = localStorage.getItem('admin_orders');
-        let orders = [];
-        
-        if (stored) {
-            const parsedData = JSON.parse(stored);
+        try {
+            const stored = localStorage.getItem('admin_orders');
+            let orders = [];
+            
+            if (stored) {
+                const parsedData = JSON.parse(stored);
             // Handle both old format (array) and new format (object with orders array)
             if (Array.isArray(parsedData)) {
                 orders = parsedData;
@@ -1346,13 +1478,28 @@ const adminSystem = {
         };
         
         return ordersData;
+        } catch (error) {
+            console.error('Error getting orders data:', error);
+            // Return empty data structure on error
+            if (returnFormat === 'array') {
+                return [];
+            }
+            return {
+                total: 0,
+                pending: 0,
+                processing: 0,
+                delivered: 0,
+                orders: []
+            };
+        }
     },
 
     // Get products data (mock for now)
     getProductsData() {
-        const stored = localStorage.getItem('admin_products');
-        if (stored) {
-            const data = JSON.parse(stored);
+        try {
+            const stored = localStorage.getItem('admin_products');
+            if (stored) {
+                const data = JSON.parse(stored);
             // Handle old format (array) vs new format (object with products array)
             if (Array.isArray(data)) {
                 return {
@@ -1406,6 +1553,14 @@ const adminSystem = {
         
         localStorage.setItem('admin_products', JSON.stringify(productsData));
         return productsData;
+        } catch (error) {
+            console.error('Error getting products data:', error);
+            return {
+                products: [],
+                total: 0,
+                categories: 0
+            };
+        }
     },
     
     // Get users data (mock for now)
@@ -1484,9 +1639,77 @@ const adminSystem = {
         return date.toDateString() === today.toDateString();
     },
 
-    // Placeholder functions for admin actions
+    // Add new product
     addNewProduct() {
-        alert('Add New Product feature coming soon!');
+        const content = `
+            <div class="add-product-form">
+                <h3>Add New Product</h3>
+                <form onsubmit="adminSystem.saveNewProduct(event)">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control" name="category" required>
+                            <option value="">Select category</option>
+                            <option value="udheya">Udheya</option>
+                            <option value="livesheep_general">Live Sheep</option>
+                            <option value="meat_cuts">Meat Cuts</option>
+                            <option value="gathering_package">Gathering Package</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (EGP)</label>
+                        <input type="number" class="form-control" name="price" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type="number" class="form-control" name="stock" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn bp">Add Product</button>
+                </form>
+            </div>
+        `;
+        this.showAdminModal('Add New Product', content);
+    },
+    
+    // Save new product
+    saveNewProduct(event) {
+        event.preventDefault();
+        try {
+            const form = event.target;
+            const newProduct = {
+                id: 'prod-' + Date.now(),
+                name: form.name.value,
+                category: form.category.value,
+                price: parseFloat(form.price.value),
+                stock: parseInt(form.stock.value),
+                description: form.description.value,
+                status: 'active',
+                image: 'images/products/sheep-field.jpg' // Default image
+            };
+            
+            const productsData = this.getProductsData();
+            productsData.products.push(newProduct);
+            productsData.total = productsData.products.length;
+            
+            localStorage.setItem('admin_products', JSON.stringify(productsData));
+            this.showNotification('Product added successfully!', 'success');
+            this.closeAdminModal();
+            
+            // Refresh the products view if open
+            if (document.querySelector('.admin-products')) {
+                this.showProductManager();
+            }
+        } catch (error) {
+            console.error('Error saving product:', error);
+            this.showNotification('Error saving product', 'error');
+        }
     },
 
     processOrders() {
@@ -1498,15 +1721,172 @@ const adminSystem = {
     },
 
     viewOrder(orderId) {
-        alert(`View order ${orderId} feature coming soon!`);
+        try {
+            const orders = this.getOrdersData();
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) {
+                this.showNotification('Order not found', 'error');
+                return;
+            }
+            
+            const content = `
+                <div class="order-details">
+                    <h3>Order Details</h3>
+                    <div class="order-info">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Order ID:</label>
+                                <span>${order.id}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Date:</label>
+                                <span>${new Date(order.date).toLocaleString()}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Status:</label>
+                                <span class="status-badge status-${order.status}">${order.status}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Total:</label>
+                                <span>${order.total} EGP</span>
+                            </div>
+                        </div>
+                        
+                        <h4>Customer Information</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Name:</label>
+                                <span>${order.customer?.name || 'Unknown'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Phone:</label>
+                                <span>${order.customer?.phone || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Email:</label>
+                                <span>${order.customer?.email || 'N/A'}</span>
+                            </div>
+                        </div>
+                        
+                        <h4>Order Items</h4>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${order.items?.map(item => `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${item.price} EGP</td>
+                                        <td>${item.quantity * item.price} EGP</td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="4">No items</td></tr>'}
+                            </tbody>
+                        </table>
+                        
+                        <div class="order-actions">
+                            <button onclick="adminSystem.updateOrderStatus('${orderId}')" class="btn bp">Update Status</button>
+                            ${order.status === 'pending' ? `<button onclick="adminSystem.confirmOrder('${orderId}')" class="btn success">Confirm Order</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            this.showAdminModal(`Order #${orderId}`, content);
+        } catch (error) {
+            console.error('Error viewing order:', error);
+            this.showNotification('Error loading order details', 'error');
+        }
     },
 
     updateOrderStatus(orderId) {
-        alert(`Update order ${orderId} status feature coming soon!`);
+        try {
+            const orders = this.getOrdersData();
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) {
+                this.showNotification('Order not found', 'error');
+                return;
+            }
+            
+            const content = `
+                <div class="update-status-form">
+                    <h3>Update Order Status</h3>
+                    <p>Current Status: <span class="status-badge status-${order.status}">${order.status}</span></p>
+                    <form onsubmit="adminSystem.saveOrderStatus(event, '${orderId}')">
+                        <div class="form-group">
+                            <label>New Status</label>
+                            <select class="form-control" name="status" required>
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn bp">Update Status</button>
+                    </form>
+                </div>
+            `;
+            
+            this.showAdminModal('Update Order Status', content);
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            this.showNotification('Error updating order status', 'error');
+        }
+    },
+    
+    // Save order status
+    saveOrderStatus(event, orderId) {
+        event.preventDefault();
+        try {
+            const newStatus = event.target.status.value;
+            const orders = this.getOrdersData();
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                localStorage.setItem('admin_orders', JSON.stringify(orders));
+                this.showNotification('Order status updated successfully!', 'success');
+                this.closeAdminModal();
+                
+                // Refresh the orders view if open
+                if (document.querySelector('.admin-orders')) {
+                    this.showOrderManager();
+                }
+            }
+        } catch (error) {
+            console.error('Error saving order status:', error);
+            this.showNotification('Error saving order status', 'error');
+        }
     },
 
     confirmOrder(orderId) {
-        alert(`Confirm order ${orderId} feature coming soon!`);
+        try {
+            const orders = this.getOrdersData();
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'confirmed';
+                localStorage.setItem('admin_orders', JSON.stringify(orders));
+                this.showNotification('Order confirmed successfully!', 'success');
+                
+                // Refresh the orders view if open
+                if (document.querySelector('.admin-orders')) {
+                    this.showOrderManager();
+                }
+            }
+        } catch (error) {
+            console.error('Error confirming order:', error);
+            this.showNotification('Error confirming order', 'error');
+        }
     },
 
     editProduct(productId) {
@@ -1532,17 +1912,22 @@ const adminSystem = {
     },
 
     dismissAlert(alertId) {
-        document.querySelector(`[onclick*="${alertId}"]`).parentElement.remove();
+        // Sanitize the alertId to prevent XSS
+        const sanitizedId = alertId.replace(/[^a-zA-Z0-9-_]/g, '');
+        const alertElement = document.querySelector(`[onclick*="dismissAlert('${sanitizedId}')"]`);
+        if (alertElement && alertElement.parentElement) {
+            alertElement.parentElement.remove();
+        }
     },
 
     showCustomerManager() {
-        this.setActiveNav('customers');
-        document.getElementById('adminMainContent').innerHTML = '<div class="admin-section"><h2>Customer Management</h2><p>Coming soon...</p></div>';
+        const content = '<div class="admin-section"><h2>Customer Management</h2><p>Coming soon...</p></div>';
+        this.showAdminModal('Customer Management', content);
     },
 
     showInventoryManager() {
-        this.setActiveNav('inventory');
-        document.getElementById('adminMainContent').innerHTML = '<div class="admin-section"><h2>Inventory Management</h2><p>Coming soon...</p></div>';
+        const content = '<div class="admin-section"><h2>Inventory Management</h2><p>Coming soon...</p></div>';
+        this.showAdminModal('Inventory Management', content);
     },
 
     showAnalytics() {
@@ -1628,11 +2013,9 @@ const adminSystem = {
 
     // Show livestock management
     showLivestockManager() {
-        this.setActiveNav('livestock');
-        const content = document.getElementById('adminMainContent');
         const livestock = this.getLivestockData();
         
-        content.innerHTML = `
+        const content = `
             <div class="admin-livestock">
                 <div class="section-header">
                     <h2>Livestock Management</h2>
@@ -1736,6 +2119,8 @@ const adminSystem = {
                 </div>
             </div>
         `;
+        
+        this.showAdminModal('Livestock Management', content);
     },
 
     // Show farm operations
@@ -1845,11 +2230,9 @@ const adminSystem = {
 
     // Show financial management
     showFinancialManager() {
-        this.setActiveNav('financial');
-        const content = document.getElementById('adminMainContent');
         const financial = this.getFinancialData();
         
-        content.innerHTML = `
+        const content = `
             <div class="admin-financial">
                 <div class="section-header">
                     <h2>Financial Management</h2>
@@ -1960,6 +2343,8 @@ const adminSystem = {
                 </div>
             </div>
         `;
+        
+        this.showAdminModal('Financial Management', content);
     },
 
     // Show business reports
@@ -2045,11 +2430,9 @@ const adminSystem = {
 
     // Show supplier management
     showSupplierManager() {
-        this.setActiveNav('suppliers');
-        const content = document.getElementById('adminMainContent');
         const suppliers = this.getSupplierData();
         
-        content.innerHTML = `
+        const content = `
             <div class="admin-suppliers">
                 <div class="section-header">
                     <h2>Supplier Management</h2>
@@ -2162,6 +2545,8 @@ const adminSystem = {
                 </div>
             </div>
         `;
+        
+        this.showAdminModal('Supplier Management', content);
     },
 
     // Show farm calendar
@@ -4384,6 +4769,190 @@ const adminSystem = {
         });
         
         return csv;
+    },
+
+    // Toggle admin mode on/off
+    toggleAdminMode() {
+        const isEnabled = localStorage.getItem('admin_mode') === 'true';
+        if (isEnabled) {
+            localStorage.removeItem('admin_mode');
+            document.querySelector('.main-admin-bar')?.remove();
+            document.querySelector('.admin-modal-overlay')?.remove();
+            document.body.classList.remove('admin-mode');
+            window.location.hash = '';
+            alert('Admin mode disabled. Refresh page to see changes.');
+        } else {
+            localStorage.setItem('admin_mode', 'true');
+            window.location.hash = '#admin';
+            this.init();
+            alert('Admin mode enabled!');
+        }
+    },
+
+    // View user details
+    viewUser(userId) {
+        const user = this.getUserById(userId);
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+        
+        const content = `
+            <div class="user-details">
+                <h3>User Details</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Name:</label>
+                        <span>${user.name}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Email:</label>
+                        <span>${user.email}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Phone:</label>
+                        <span>${user.phone}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Total Orders:</label>
+                        <span>${user.orderCount}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Total Spent:</label>
+                        <span>${user.totalSpent} EGP</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Member Since:</label>
+                        <span>${user.joinDate}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        this.showAdminModal(`User: ${user.name}`, content);
+    },
+
+    // Contact user
+    contactUser(userId) {
+        const user = this.getUserById(userId);
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+        
+        const content = `
+            <div class="contact-user">
+                <h3>Contact ${user.name}</h3>
+                <form onsubmit="adminSystem.sendUserMessage(event, '${userId}')">
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea class="form-control" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Send via:</label>
+                        <select class="form-control">
+                            <option value="email">Email (${user.email})</option>
+                            <option value="sms">SMS (${user.phone})</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn bp">Send Message</button>
+                </form>
+            </div>
+        `;
+        
+        this.showAdminModal('Contact User', content);
+    },
+
+    // Helper to get user by ID
+    getUserById(userId) {
+        const usersData = this.getUsersData();
+        return usersData.users.find(u => u.id === userId);
+    },
+
+    // Send message to user
+    sendUserMessage(event, userId) {
+        event.preventDefault();
+        // In real implementation, this would send via backend
+        this.showNotification('Message sent successfully!', 'success');
+        this.closeAdminModal();
+    },
+
+    // Show notification
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `admin-notification ${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()">×</button>
+        `;
+        
+        // Add styles if not present
+        if (!document.querySelector('#adminNotificationStyles')) {
+            const styles = `
+                <style id="adminNotificationStyles">
+                    .admin-notification {
+                        position: fixed;
+                        top: 80px;
+                        right: 20px;
+                        padding: 15px 20px;
+                        background: #333;
+                        color: white;
+                        border-radius: 4px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        z-index: 10001;
+                        animation: slideIn 0.3s ease;
+                    }
+                    
+                    .admin-notification.success {
+                        background: #28a745;
+                    }
+                    
+                    .admin-notification.error {
+                        background: #dc3545;
+                    }
+                    
+                    .admin-notification.warning {
+                        background: #ffc107;
+                        color: #333;
+                    }
+                    
+                    .admin-notification button {
+                        background: none;
+                        border: none;
+                        color: inherit;
+                        font-size: 20px;
+                        cursor: pointer;
+                        padding: 0;
+                        margin-left: 10px;
+                    }
+                    
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                </style>
+            `;
+            document.head.insertAdjacentHTML('beforeend', styles);
+        }
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => notification.remove(), 5000);
     },
 };
 

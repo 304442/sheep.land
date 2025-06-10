@@ -4733,3 +4733,145 @@ body.admin-mode .promo-bar {
     background-color: rgba(0,0,0,0.05);
 }
 
+/* Admin System Styles */
+.admin-mode {
+    padding-top: 120px; /* Account for admin bar */
+}
+
+.admin-top-bar {
+    position: fixed;
+    top: 60px; /* Below main header */
+    left: 0;
+    right: 0;
+    background: #2c3e50;
+    color: white;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.admin-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    gap: 15px;
+}
+
+.admin-bar-label {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-bar-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.admin-bar-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-bar-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+}
+
+.admin-bar-btn.admin-bar-close {
+    background: rgba(231,76,60,0.8);
+    border-color: rgba(231,76,60,0.9);
+}
+
+.admin-bar-btn.admin-bar-close:hover {
+    background: #e74c3c;
+}
+
+.admin-btn-icon {
+    font-size: 16px;
+}
+
+.admin-btn-text {
+    display: inline;
+}
+
+/* Admin Bar Responsive */
+@media (max-width: 768px) {
+    .admin-mode {
+        padding-top: auto;
+    }
+    
+    .admin-bar-content {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    .admin-bar-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .admin-bar-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    
+    .admin-btn-text {
+        display: none;
+    }
+    
+    .admin-btn-icon {
+        font-size: 18px;
+    }
+}
+
+/* Admin Modal Responsive Tables */
+@media (max-width: 768px) {
+    .admin-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .admin-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Detail Grid Responsive */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.detail-item label {
+    font-weight: 600;
+    color: #666;
+    font-size: 12px;
+}
+
+.detail-item span {
+    color: #333;
+}
+
