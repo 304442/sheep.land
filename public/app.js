@@ -81,6 +81,8 @@ document.addEventListener('alpine:init', () => {
         showSearch: false,
         showAccountDropdown: false,
         showAuthDropdown: false,
+        showWishlistDropdown: false,
+        showCart: false,
         showWhatsAppChat: false,
         chatMessage: '',
         chatMessages: [],
@@ -90,6 +92,7 @@ document.addEventListener('alpine:init', () => {
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false,
+        showAuth: false, cartOpen: false,
         wishlistCount: 0,
         wishlistItems: [],
         currentPage: 'home', currLang: "en", curr: "EGP",
@@ -283,11 +286,11 @@ document.addEventListener('alpine:init', () => {
                 this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(allProducts, 'gathering_package'));
                 
                 // console.log('Product categories loaded:', {
-                    udheya: this.prodOpts.udheya.length,
-                    livesheep: this.prodOpts.livesheep_general.length,
-                    meat: this.prodOpts.meat_cuts.length,
-                    gathering: this.prodOpts.gathering_package.length
-                });
+                //     udheya: this.prodOpts.udheya.length,
+                //     livesheep: this.prodOpts.livesheep_general.length,
+                //     meat: this.prodOpts.meat_cuts.length,
+                //     gathering: this.prodOpts.gathering_package.length
+                // });
                 
                 // Verify data structure integrity
                 const allCategories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package'];
@@ -416,14 +419,18 @@ document.addEventListener('alpine:init', () => {
         },
 
         toggleCart() { 
-            this.isCartOpen = !this.isCartOpen; 
+            const wasOpen = this.isCartOpen;
+            this.closeAllDropdowns();
+            this.isCartOpen = !wasOpen; 
         },
         closeCart() { 
             this.isCartOpen = false; 
         },
         
         toggleWishlistDropdown() {
-            this.isWishlistOpen = !this.isWishlistOpen;
+            const wasOpen = this.isWishlistOpen;
+            this.closeAllDropdowns();
+            this.isWishlistOpen = !wasOpen;
         },
         closeWishlist() {
             this.isWishlistOpen = false;
@@ -806,8 +813,19 @@ document.addEventListener('alpine:init', () => {
         // All product data now comes from database via PocketBase
         // No hardcoded products or prices
 
+        closeAllDropdowns() {
+            this.showSearch = false;
+            this.showAccountDropdown = false;
+            this.showAuthDropdown = false;
+            this.showWhatsAppChat = false;
+            this.isCartOpen = false;
+            this.isWishlistOpen = false;
+        },
+
         toggleSearch() {
-            this.showSearch = !this.showSearch;
+            const wasOpen = this.showSearch;
+            this.closeAllDropdowns();
+            this.showSearch = !wasOpen;
             if (this.showSearch) {
                 this.$nextTick(() => {
                     this.$refs.searchInput?.focus();
@@ -816,18 +834,24 @@ document.addEventListener('alpine:init', () => {
         },
 
         toggleAccountDropdown() {
-            this.showAccountDropdown = !this.showAccountDropdown;
+            const wasOpen = this.showAccountDropdown;
+            this.closeAllDropdowns();
+            this.showAccountDropdown = !wasOpen;
         },
 
         toggleAuthDropdown() {
-            this.showAuthDropdown = !this.showAuthDropdown;
+            const wasOpen = this.showAuthDropdown;
+            this.closeAllDropdowns();
+            this.showAuthDropdown = !wasOpen;
             if (this.showAuthDropdown) {
                 this.auth.view = 'welcome';
             }
         },
 
         toggleWhatsAppChat() {
-            this.showWhatsAppChat = !this.showWhatsAppChat;
+            const wasOpen = this.showWhatsAppChat;
+            this.closeAllDropdowns();
+            this.showWhatsAppChat = !wasOpen;
         },
 
         sendWhatsAppMessage() {

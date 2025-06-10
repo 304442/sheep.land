@@ -1798,7 +1798,7 @@
                             </div>
                             <p class="auth-toggle-link bil-row">
                                 <span class="en">New to Sheep Land?</span><span class="ar">جديد في أرض الأغنام؟</span>
-                                <button type="button" @click="auth.view = 'register'; clrAllErrs();" class="link-style bil-inline"><span class="en">Create account</span><span class="ar">إنشاء حساب</span></button>
+                                <button type="button" @click="auth.view = 'register'; clearAllErrors();" class="link-style bil-inline"><span class="en">Create account</span><span class="ar">إنشاء حساب</span></button>
                             </p>
                         </form>
 
@@ -1835,7 +1835,7 @@
                             </div>
                             <p class="auth-toggle-link bil-row">
                                 <span class="en">Already have an account?</span><span class="ar">لديك حساب بالفعل؟</span>
-                                <button type="button" @click="auth.view = 'login'; clrAllErrs();" class="link-style bil-inline"><span class="en">Sign in</span><span class="ar">تسجيل دخول</span></button>
+                                <button type="button" @click="auth.view = 'login'; clearAllErrors();" class="link-style bil-inline"><span class="en">Sign in</span><span class="ar">تسجيل دخول</span></button>
                             </p>
                         </form>
                     </div>
@@ -1969,12 +1969,12 @@
 </footer>
 
 <script src="vendor/pocketbase.umd.js"></script>
+<script src="vendor/alpine-collapse.min.js"></script>
+<script src="vendor/alpine.min.js"></script>
 <script src="wishlist.js"></script>
 <script src="feedback.js"></script>
 <script src="admin.js"></script>
 <script src="app.js"></script>
-<script defer src="vendor/alpine-collapse.min.js"></script>
-<script defer src="vendor/alpine.min.js"></script>
 
 </body>
 </html>
