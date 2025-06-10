@@ -1188,7 +1188,7 @@
                                                     :disabled="!item.isActive || item.stock <= 0">
                                                 <span class="bil-inline">
                                                     <span class="en" x-text="category === 'udheya' ? 'Configure' : 'Add to Cart'"></span>
-                                                    <span class="ar" x-text="category === 'udheya' ? 'تكوين' : 'أضف للسلة'"></span>
+                                                    <span class="ar" x-text="category === 'udheya' ? 'تخصيص' : 'أضف للسلة'"></span>
                                                 </span>
                                             </button>
                                         </div>
@@ -1248,7 +1248,7 @@
                                             :disabled="!item.isActive || item.stock <= 0">
                                         <span class="bil-inline">
                                             <span class="en">Configure & Order</span>
-                                            <span class="ar">تكوين وطلب</span>
+                                            <span class="ar">تخصيص وطلب</span>
                                         </span>
                                     </button>
                                     <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}">
