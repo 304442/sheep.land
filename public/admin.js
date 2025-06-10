@@ -5,7 +5,7 @@ const adminSystem = {
         console.log('🐑 Admin System: Initializing...');
         console.log('🐑 Admin System: Current URL hash:', window.location.hash);
         this.setupMainAdminPanel();
-        this.loadDashboardData();
+        // this.loadDashboardData(); // Removed - function doesn't exist yet
         console.log('🐑 Admin System: Initialization complete');
     },
 
@@ -219,7 +219,7 @@ const adminSystem = {
         prompt.innerHTML = `
             <h3 style="margin: 0 0 15px 0; color: #2c3e50;">Admin Access Required</h3>
             <p style="margin: 0 0 15px 0; color: #666;">Please login to access the admin panel.</p>
-            <button onclick="adminSystem.showAdminLogin()" style="
+            <button onclick="window.location.href='#login'" style="
                 padding: 10px 20px;
                 background: #007bff;
                 color: white;
