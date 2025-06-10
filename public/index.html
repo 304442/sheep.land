@@ -983,65 +983,14 @@
                     <p class="en">From farm-fresh cuts to live animals, Udheya services, and event catering - we deliver authentic quality for your family's needs</p>
                     <p class="ar">من القطعيات الطازجة إلى الحيوانات الحية وخدمات الأضاحي وتجهيز المناسبات - نقدم الجودة الأصيلة لاحتياجات عائلتك</p>
                 </div>
-                <div class="hero-collections">
-                    <h2 class="hero-collections-title bil-spread">
-                        <span class="en">Our Premium Collections</span>
-                        <span class="ar">مجموعاتنا المميزة</span>
-                    </h2>
-                    <div class="hero-collections-grid">
-                        <template x-if="settings.enable_udheya_section">
-                            <div class="hero-collection-card" @click="navigateToOrScroll('udheya')">
-                                <div class="collection-icon">🐑</div>
-                                <h3 class="bil-inline">
-                                    <span class="en">Udheya</span>
-                                    <span class="ar">الأضحية والقرباني</span>
-                                </h3>
-                                <p class="bil-row">
-                                    <span class="en">Complete religious sacrifice with certified halal processing</span>
-                                    <span class="ar">أضحية كاملة مع ذبح حلال معتمد</span>
-                                </p>
-                            </div>
-                        </template>
-                        <template x-if="settings.enable_meat_section">
-                            <div class="hero-collection-card" @click="navigateToOrScroll('meat')">
-                                <div class="collection-icon">🥩</div>
-                                <h3 class="bil-inline">
-                                    <span class="en">Fresh Meat & Cuts</span>
-                                    <span class="ar">اللحوم والقطعيات</span>
-                                </h3>
-                                <p class="bil-row">
-                                    <span class="en">Premium quality cuts delivered fresh daily to your door</span>
-                                    <span class="ar">قطعيات فاخرة توصل طازجة يومياً لبابك</span>
-                                </p>
-                            </div>
-                        </template>
-                        <template x-if="settings.enable_livesheep_section">
-                            <div class="hero-collection-card" @click="navigateToOrScroll('livesheep')">
-                                <div class="collection-icon">🐏</div>
-                                <h3 class="bil-inline">
-                                    <span class="en">Live Sheep & Rams</span>
-                                    <span class="ar">الأغنام والكباش</span>
-                                </h3>
-                                <p class="bil-row">
-                                    <span class="en">Healthy animals for breeding, fattening or home slaughter</span>
-                                    <span class="ar">حيوانات صحية للتربية أو التسمين أو الذبح المنزلي</span>
-                                </p>
-                            </div>
-                        </template>
-                        <template x-if="settings.enable_gatherings_section">
-                            <div class="hero-collection-card" @click="navigateToOrScroll('gatherings')">
-                                <div class="collection-icon">🎉</div>
-                                <h3 class="bil-inline">
-                                    <span class="en">Events & Gatherings</span>
-                                    <span class="ar">المناسبات والولائم</span>
-                                </h3>
-                                <p class="bil-row">
-                                    <span class="en">Complete catering solutions for weddings and celebrations</span>
-                                    <span class="ar">حلول متكاملة للولائم والأفراح والمناسبات</span>
-                                </p>
-                            </div>
-                        </template>
-                    </div>
+                <!-- Hero CTA Button -->
+                <div class="hero-cta">
+                    <button @click="document.querySelector('.category-cards-grid').scrollIntoView({behavior: 'smooth'})" class="btn bp btn-xl">
+                        <span class="bil-inline">
+                            <span class="en">Explore Our Services</span>
+                            <span class="ar">استكشف خدماتنا</span>
+                        </span>
+                    </button>
                 </div>
                 
                 <!-- Trust badges in hero -->
@@ -1139,66 +1088,172 @@
         </div>
     </section>
 
-    <!-- All Products Section for Home Page -->
-    <section class="all-products-section main-page-sec" x-show="currentPage === 'home'" x-transition>
+    <!-- Main Category Sections for Home Page -->
+    <section class="main-category-sections main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="c">
             <div class="section-header centered">
                 <h2 class="bil-spread">
-                    <span class="en">All Our Products</span>
-                    <span class="ar">جميع منتجاتنا</span>
+                    <span class="en">Choose Your Service</span>
+                    <span class="ar">اختر خدمتك</span>
                 </h2>
+                <p class="section-subtitle bil-row">
+                    <span class="en">Select from our range of premium halal meat services</span>
+                    <span class="ar">اختر من مجموعة خدماتنا للحوم الحلال الفاخرة</span>
+                </p>
             </div>
-            
-            <!-- Show all product categories -->
-            <template x-for="category in Object.keys(prodOpts)" :key="category">
-                <div x-show="prodOpts[category] && prodOpts[category].length > 0" class="category-section">
-                    <h3 class="category-title bil-spread">
-                        <span class="en" x-text="getCategoryDisplayName(category, 'en')"></span>
-                        <span class="ar" x-text="getCategoryDisplayName(category, 'ar')"></span>
-                    </h3>
-                    <div class="prod-grid grid3">
-                        <template x-for="productType in prodOpts[category]" :key="productType.valKey">
-                            <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
-                                <div class="card card-compact" :class="{'card-sel': item.is_premium}">
-                                    <div class="card-img">
-                                        <img :src="getProductImage(item, category)" :alt="item.nameENSpec" loading="lazy">
-                                        <div class="badge" :class="getBadgeClass(category, item)" x-text="getBadgeText(category, item)"></div>
-                                        <button @click="toggleWishlist(item)" 
-                                                class="wishlist-icon" 
-                                                :class="{ 'active': isInWishlist(item.itemKey) }"
-                                                :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="card-b">
-                                        <div class="card-content">
-                                            <h4 class="card-h bil-spread">
-                                                <span class="en" x-text="item.nameENSpec"></span>
-                                                <span class="ar" x-text="item.nameARSpec"></span>
-                                            </h4>
-                                        </div>
-                                        <div class="card-foot">
-                                            <div class="price-line">
-                                                <strong x-text="fmtPrice(item.priceEGP)"></strong>
-                                            </div>
-                                            <button type="button" @click="handleProductClick(item, category)" 
-                                                    class="btn bp btn-sm btn-block" 
-                                                    :disabled="!item.isActive || item.stock <= 0">
-                                                <span class="bil-inline">
-                                                    <span class="en" x-text="category === 'udheya' ? 'Configure' : 'Add to Cart'"></span>
-                                                    <span class="ar" x-text="category === 'udheya' ? 'تخصيص' : 'أضف للسلة'"></span>
-                                                </span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </template>
+            <div class="category-cards-grid">
+                <!-- Udheya Section Card -->
+                <template x-if="settings.enable_udheya_section">
+                    <div class="category-main-card">
+                        <div class="category-icon-large">🕌</div>
+                        <h2 class="category-main-title bil-spread">
+                            <span class="en">Udheya & Religious Services</span>
+                            <span class="ar">الأضاحي والخدمات الدينية</span>
+                        </h2>
+                        <div class="category-main-desc bil-row">
+                            <p class="en">Complete religious sacrifice services with certified halal processing. Perfect for Eid al-Adha, with distribution to those in need.</p>
+                            <p class="ar">خدمات الأضاحي الدينية الكاملة مع الذبح الحلال المعتمد. مثالية لعيد الأضحى، مع التوزيع على المحتاجين.</p>
+                        </div>
+                        <div class="category-features">
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">100% Halal Certified</span>
+                                <span class="ar">حلال معتمد 100%</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Free Distribution Service</span>
+                                <span class="ar">خدمة توزيع مجانية</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Video Documentation</span>
+                                <span class="ar">توثيق بالفيديو</span>
+                            </div>
+                        </div>
+                        <button @click="navigateToOrScroll('udheya')" class="btn bp btn-lg btn-block">
+                            <span class="bil-inline">
+                                <span class="en">Explore Udheya Options</span>
+                                <span class="ar">استكشف خيارات الأضاحي</span>
+                            </span>
+                        </button>
                     </div>
-                </div>
-            </template>
+                </template>
+
+                <!-- Live Sheep Section Card -->
+                <template x-if="settings.enable_livesheep_section">
+                    <div class="category-main-card">
+                        <div class="category-icon-large">🐏</div>
+                        <h2 class="category-main-title bil-spread">
+                            <span class="en">Live Sheep & Rams</span>
+                            <span class="ar">الأغنام والكباش الحية</span>
+                        </h2>
+                        <div class="category-main-desc bil-row">
+                            <p class="en">Healthy live animals for breeding, fattening, or home slaughter. Hand-picked from trusted farms across Egypt.</p>
+                            <p class="ar">حيوانات حية صحية للتربية أو التسمين أو الذبح المنزلي. منتقاة يدوياً من مزارع موثوقة في جميع أنحاء مصر.</p>
+                        </div>
+                        <div class="category-features">
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Health Guaranteed</span>
+                                <span class="ar">صحة مضمونة</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Farm Direct</span>
+                                <span class="ar">مباشر من المزرعة</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Veterinary Checked</span>
+                                <span class="ar">فحص بيطري</span>
+                            </div>
+                        </div>
+                        <button @click="navigateToOrScroll('livesheep')" class="btn bp btn-lg btn-block">
+                            <span class="bil-inline">
+                                <span class="en">Browse Live Animals</span>
+                                <span class="ar">تصفح الحيوانات الحية</span>
+                            </span>
+                        </button>
+                    </div>
+                </template>
+
+                <!-- Fresh Meat Section Card -->
+                <template x-if="settings.enable_meat_section">
+                    <div class="category-main-card">
+                        <div class="category-icon-large">🥩</div>
+                        <h2 class="category-main-title bil-spread">
+                            <span class="en">Fresh Meat & Cuts</span>
+                            <span class="ar">اللحوم الطازجة والقطعيات</span>
+                        </h2>
+                        <div class="category-main-desc bil-row">
+                            <p class="en">Premium quality fresh meat cuts delivered daily. From tender lamb chops to family packs, all 100% halal.</p>
+                            <p class="ar">قطعيات لحوم طازجة فاخرة توصل يومياً. من ريش الضأن الطري إلى العبوات العائلية، كلها حلال 100%.</p>
+                        </div>
+                        <div class="category-features">
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Daily Fresh</span>
+                                <span class="ar">طازج يومياً</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Premium Cuts</span>
+                                <span class="ar">قطعيات فاخرة</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Same Day Delivery</span>
+                                <span class="ar">توصيل نفس اليوم</span>
+                            </div>
+                        </div>
+                        <button @click="navigateToOrScroll('meat')" class="btn bp btn-lg btn-block">
+                            <span class="bil-inline">
+                                <span class="en">Shop Fresh Meat</span>
+                                <span class="ar">تسوق اللحوم الطازجة</span>
+                            </span>
+                        </button>
+                    </div>
+                </template>
+
+                <!-- Events & Catering Section Card -->
+                <template x-if="settings.enable_gatherings_section">
+                    <div class="category-main-card">
+                        <div class="category-icon-large">🎉</div>
+                        <h2 class="category-main-title bil-spread">
+                            <span class="en">Events & Catering</span>
+                            <span class="ar">المناسبات والولائم</span>
+                        </h2>
+                        <div class="category-main-desc bil-row">
+                            <p class="en">Complete catering solutions for weddings, family gatherings, and special occasions. Traditional cooking, modern service.</p>
+                            <p class="ar">حلول كاملة للولائم للأفراح والتجمعات العائلية والمناسبات الخاصة. طبخ تقليدي، خدمة عصرية.</p>
+                        </div>
+                        <div class="category-features">
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Full Service Catering</span>
+                                <span class="ar">خدمة كاملة</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Expert Chefs</span>
+                                <span class="ar">طهاة خبراء</span>
+                            </div>
+                            <div class="feature-item bil-inline">
+                                <span class="feature-icon">✓</span>
+                                <span class="en">Customizable Menus</span>
+                                <span class="ar">قوائم مخصصة</span>
+                            </div>
+                        </div>
+                        <button @click="navigateToOrScroll('gatherings')" class="btn bp btn-lg btn-block">
+                            <span class="bil-inline">
+                                <span class="en">Plan Your Event</span>
+                                <span class="ar">خطط لمناسبتك</span>
+                            </span>
+                        </button>
+                    </div>
+                </template>
+            </div>
         </div>
     </section>
 
