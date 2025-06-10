@@ -929,7 +929,7 @@ const adminSystem = {
                     <div class="contact-bar-content">
                         <div class="contact-bar-items">
                             <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-right: 15px;">🔒 Admin access required. Your account (${user.email}) does not have admin privileges.</span>
-                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAccountDropdown = true;" class="track-order-btn">
+                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const el = document.querySelector('[x-data]'); if(el && window.Alpine) { const app = Alpine.$data(el); if(app) app.showAccountDropdown = true; }" class="track-order-btn">
                                 <span>👤 My Account</span>
                             </button>
                             <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); window.location.hash = '';" class="feedback-top-btn" title="Cancel">
@@ -946,7 +946,7 @@ const adminSystem = {
                     <div class="contact-bar-content">
                         <div class="contact-bar-items">
                             <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-right: 15px;">🔒 Please login to access the admin panel</span>
-                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAuthDropdown = true; app.auth.view = 'login';" class="track-order-btn">
+                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const el = document.querySelector('[x-data]'); if(el && window.Alpine) { const app = Alpine.$data(el); if(app) { app.showAuthDropdown = true; app.auth.view = 'login'; } }" class="track-order-btn">
                                 <span>🔑 Login</span>
                             </button>
                             <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); window.location.hash = '';" class="feedback-top-btn" title="Cancel">

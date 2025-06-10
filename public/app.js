@@ -160,19 +160,28 @@ Alpine.data('sheepLand', () => ({
         async initApp() {
             // Check if PocketBase is set up FIRST before doing anything else
             let isPocketBaseSetUp = false;
+            let collectionsExist = false;
+            
             try {
                 const healthCheck = await fetch('/api/health');
                 isPocketBaseSetUp = healthCheck.ok;
+                
+                if (isPocketBaseSetUp) {
+                    // Also check if collections exist
+                    const settingsCheck = await fetch('/api/collections/settings/records?perPage=1');
+                    collectionsExist = settingsCheck.ok;
+                }
             } catch (e) {
                 isPocketBaseSetUp = false;
+                collectionsExist = false;
             }
             
-            if (!isPocketBaseSetUp) {
+            if (!isPocketBaseSetUp || !collectionsExist) {
                 // Redirect immediately without initializing anything
-                console.error('PocketBase not configured. Redirecting to setup...');
+                // console.error('Database not initialized. Redirecting to setup...');
                 this.load.init = false;
-                this.apiErr = "PocketBase not configured";
-                this.usrApiErr = "Setting up database...";
+                this.apiErr = "Database not initialized";
+                this.usrApiErr = "Please complete setup...";
                 window.location.href = '/setup.html';
                 return;
             }
@@ -234,7 +243,7 @@ Alpine.data('sheepLand', () => ({
                 
                 const categorizeProducts = (products, categoryFilter) => {
                     if (!products || !Array.isArray(products)) {
-                        console.warn(`Products is not an array for category ${categoryFilter}:`, products);
+                        // console.warn(`Products is not an array for category ${categoryFilter}:`, products);
                         return [];
                     }
                     const categoryProducts = products.filter(p => p.product_category === categoryFilter);
@@ -298,7 +307,7 @@ Alpine.data('sheepLand', () => ({
                 allCategories.forEach(cat => {
                     const valid = this.prodOpts[cat].every(pt => pt && pt.wps && Array.isArray(pt.wps));
                     if (!valid) {
-                        console.warn(`Data structure issue in ${cat} - some products missing wps array`);
+                        // console.warn(`Data structure issue in ${cat} - some products missing wps array`);
                     }
                 });
                 
@@ -328,7 +337,7 @@ Alpine.data('sheepLand', () => ({
                 this.allCities = cities.sort((a,b) => a.nameEn.localeCompare(b.nameEn));
                 
             } catch (e) { 
-                console.error("Failed to load products from database:", e);
+                // console.error("Failed to load products from database:", e);
                 this.apiErr = String(e.message || "Could not load initial application data."); 
                 this.usrApiErr = "Database connection error. Redirecting to setup...";
                 // Redirect to setup page after a short delay to show the message
@@ -669,7 +678,7 @@ Alpine.data('sheepLand', () => ({
             try { 
                 localStorage.setItem('sheepLandCart-' + (this.currentUser?.id || 'guest'), JSON.stringify(this.cartItems)); 
             } catch(e){ 
-                console.error("Error saving cart to localStorage", e); 
+                // console.error("Error saving cart to localStorage", e); 
             } 
         },
 
@@ -682,7 +691,7 @@ Alpine.data('sheepLand', () => ({
                     this.cartItems = [];
                 } 
             } catch(e){ 
-                console.error("Error loading cart from localStorage", e); 
+                // console.error("Error loading cart from localStorage", e); 
                 this.cartItems = []; 
                 localStorage.removeItem('sheepLandCart-' + (this.currentUser?.id || 'guest'));
             } 
@@ -1121,7 +1130,7 @@ Alpine.data('sheepLand', () => ({
                         try{ 
                             target.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}); 
                         }catch(e){ 
-                            console.warn("ScrollIntoView failed for:", r, e); 
+                            // console.warn("ScrollIntoView failed for:", r, e); 
                         } 
                     },50); 
                 } 
@@ -1294,7 +1303,7 @@ Alpine.data('sheepLand', () => ({
                     }
                     localStorage.removeItem('sheepLandBuyNowItem'); 
                 } catch (e) { 
-                    console.error("Error loading Buy Now item", e); 
+                    // console.error("Error loading Buy Now item", e); 
                 }
             } else {
                 this.loadCartFromStorage();
@@ -1690,7 +1699,7 @@ Alpine.data('businessStats', () => ({
                 const topItem = Object.entries(itemCounts).sort((a, b) => b[1] - a[1])[0];
                 this.popularItem = topItem ? topItem[0] : '-';
             } catch (error) {
-                console.error('Failed to fetch stats:', error);
+                // console.error('Failed to fetch stats:', error);
                 // Silently fail - stats are not critical
             }
         },
@@ -1705,7 +1714,8 @@ Alpine.data('businessStats', () => ({
 document.addEventListener('DOMContentLoaded', () => {
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        const app = document.querySelector('[x-data="sheepLand"]')?._x_dataStack?.[0];
+        const el = document.querySelector('[x-data="sheepLand"]');
+        const app = el ? Alpine.$data(el) : null;
         if (!app) return;
         if (e.target.matches('input, textarea, select')) return;
         
@@ -1734,7 +1744,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!e.metaKey && !e.ctrlKey) {
                     e.preventDefault();
                     // Get Alpine component directly from the page
-                    const alpineApp = document.querySelector('[x-data="sheepLand"]')?._x_dataStack?.[0];
+                    const el = document.querySelector('[x-data="sheepLand"]');
+                    const alpineApp = el ? Alpine.$data(el) : null;
                     if (alpineApp) {
                         alpineApp.showSearch = true;
                         setTimeout(() => {
@@ -1750,7 +1761,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let exitIntentShown = false;
     document.addEventListener('mouseleave', (e) => {
         if (e.clientY <= 0 && !exitIntentShown) {
-            const app = document.querySelector('[x-data="sheepLand"]')?._x_dataStack?.[0];
+            const el = document.querySelector('[x-data="sheepLand"]');
+            const app = el ? Alpine.$data(el) : null;
             if (app && app.cartItems.length > 0 && !app.isCartOpen) {
                 exitIntentShown = true;
                 app.showExitOffer = true;
