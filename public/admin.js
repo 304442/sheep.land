@@ -89,17 +89,33 @@ const adminSystem = {
                         <span class="admin-btn-icon">📊</span>
                         <span class="admin-btn-text">Dashboard</span>
                     </button>
-                    <button onclick="adminSystem.showOrdersManager()" class="admin-bar-btn" title="Orders">
+                    <button onclick="adminSystem.showOrderManager()" class="admin-bar-btn" title="Orders">
                         <span class="admin-btn-icon">📦</span>
                         <span class="admin-btn-text">Orders</span>
                     </button>
-                    <button onclick="adminSystem.showProductsManager()" class="admin-bar-btn" title="Products">
+                    <button onclick="adminSystem.showProductManager()" class="admin-bar-btn" title="Products">
                         <span class="admin-btn-icon">🛍️</span>
                         <span class="admin-btn-text">Products</span>
                     </button>
-                    <button onclick="adminSystem.showUsersManager()" class="admin-bar-btn" title="Users">
+                    <button onclick="adminSystem.showCustomerManager()" class="admin-bar-btn" title="Customers">
                         <span class="admin-btn-icon">👥</span>
-                        <span class="admin-btn-text">Users</span>
+                        <span class="admin-btn-text">Customers</span>
+                    </button>
+                    <button onclick="adminSystem.showInventoryManager()" class="admin-bar-btn" title="Inventory">
+                        <span class="admin-btn-icon">📦</span>
+                        <span class="admin-btn-text">Inventory</span>
+                    </button>
+                    <button onclick="adminSystem.showLivestockManager()" class="admin-bar-btn" title="Livestock">
+                        <span class="admin-btn-icon">🐑</span>
+                        <span class="admin-btn-text">Livestock</span>
+                    </button>
+                    <button onclick="adminSystem.showFinancialManager()" class="admin-bar-btn" title="Financial">
+                        <span class="admin-btn-icon">💰</span>
+                        <span class="admin-btn-text">Financial</span>
+                    </button>
+                    <button onclick="adminSystem.showSupplierManager()" class="admin-bar-btn" title="Suppliers">
+                        <span class="admin-btn-icon">🚚</span>
+                        <span class="admin-btn-text">Suppliers</span>
                     </button>
                     <button onclick="adminSystem.showSettings()" class="admin-bar-btn" title="Settings">
                         <span class="admin-btn-icon">⚙️</span>
