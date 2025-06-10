@@ -202,36 +202,30 @@ const adminSystem = {
 
     // Show admin login prompt
     showAdminLoginPrompt() {
-        const prompt = document.createElement('div');
-        prompt.className = 'admin-login-prompt';
-        prompt.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 9999;
-            background: white;
-            border: 2px solid #007bff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            padding: 20px;
-            font-family: 'Inter', sans-serif;
+        // Add admin class to body for styling adjustments
+        document.body.classList.add('admin-mode');
+        
+        const adminBar = document.createElement('div');
+        adminBar.className = 'admin-top-bar admin-login-bar';
+        adminBar.innerHTML = `
+            <div class="admin-bar-content">
+                <div class="admin-bar-label">
+                    <span>🔒 Admin Access Required</span>
+                </div>
+                <div class="admin-bar-actions">
+                    <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-right: 15px;">Please login to access the admin panel</span>
+                    <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAuthDropdown = true; app.auth.view = 'login';" class="admin-bar-btn" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4);">
+                        <span class="admin-btn-icon">🔑</span>
+                        <span class="admin-btn-text">Login as Admin</span>
+                    </button>
+                    <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode');" class="admin-bar-btn admin-bar-close" title="Cancel">
+                        <span class="admin-btn-icon">❌</span>
+                        <span class="admin-btn-text">Cancel</span>
+                    </button>
+                </div>
+            </div>
         `;
-        prompt.innerHTML = `
-            <button onclick="document.querySelector('.admin-login-prompt')?.remove()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
-            <h3 style="margin: 0 0 15px 0; color: #2c3e50;">Admin Access Required</h3>
-            <p style="margin: 0 0 15px 0; color: #666;">Please login to access the admin panel.</p>
-            <button onclick="document.querySelector('.admin-login-prompt')?.remove(); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAuthDropdown = true; app.auth.view = 'login';" style="
-                padding: 10px 20px;
-                background: #007bff;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: bold;
-                width: 100%;
-            ">Login as Admin</button>
-        `;
-        document.body.appendChild(prompt);
+        document.body.insertBefore(adminBar, document.body.firstChild);
     },
 
     // Toggle admin panel visibility
