@@ -1,5 +1,5 @@
-document.addEventListener('alpine:init', () => {
-    const initForm = {
+// Initialize constants before Alpine starts
+const initForm = {
         customer_name: "", customer_phone: "", customer_email: "", customer_country: "Egypt",
         delivery_option: "self_pickup_or_internal_distribution",
         delivery_city_id: "", delivery_address: "", delivery_instructions: "", 
@@ -44,7 +44,8 @@ document.addEventListener('alpine:init', () => {
         "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" }
     };
 
-    Alpine.data('sheepLand', () => ({
+// Register Alpine component before Alpine starts
+Alpine.data('sheepLand', () => ({
         load: { init: true, status: false, checkout: false, auth: false, orders: false, addingToCart: null },
         settings: {
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
@@ -1642,10 +1643,10 @@ document.addEventListener('alpine:init', () => {
                 this.load.status = false; 
             }
         }
-    }));
+}));
 
-    // Business Stats Component
-    Alpine.data('businessStats', () => ({
+// Business Stats Component
+Alpine.data('businessStats', () => ({
         todayOrders: 0,
         todayRevenue: 0,
         activeCustomers: 0,
@@ -1698,10 +1699,10 @@ document.addEventListener('alpine:init', () => {
             // Use parent component's fmtPrice method
             return this.$root.fmtPrice ? this.$root.fmtPrice(amount) : `${amount} EGP`;
         }
-    }));
+}));
 
-    // Auto-save cart functionality is handled within the main component
-
+// Initialize after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         const app = document.querySelector('[x-data="sheepLand"]')?._x_dataStack?.[0];
