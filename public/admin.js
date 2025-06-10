@@ -908,24 +908,47 @@ const adminSystem = {
         
         const adminBar = document.createElement('div');
         adminBar.className = 'top-contact-bar admin-login-bar';
-        adminBar.innerHTML = `
-            <div class="admin-bar-content">
-                <div class="admin-bar-label">
-                    <span>🔒 Admin Access Required</span>
+        
+        // Check if user is logged in
+        const isLoggedIn = window.pb && window.pb.authStore.isValid;
+        const user = isLoggedIn ? window.pb.authStore.record : null;
+        
+        if (isLoggedIn) {
+            // User is logged in but not admin
+            adminBar.innerHTML = `
+                <div class="c">
+                    <div class="contact-bar-content">
+                        <div class="contact-bar-items">
+                            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-right: 15px;">🔒 Admin access required. Your account (${user.email}) does not have admin privileges.</span>
+                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAccountDropdown = true;" class="track-order-btn">
+                                <span>👤 My Account</span>
+                            </button>
+                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); window.location.hash = '';" class="feedback-top-btn" title="Cancel">
+                                <span>❌ Cancel</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="admin-bar-actions">
-                    <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-right: 15px;">Please login to access the admin panel</span>
-                    <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAuthDropdown = true; app.auth.view = 'login';" class="admin-bar-btn" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4);">
-                        <span class="admin-btn-icon">🔑</span>
-                        <span class="admin-btn-text">Login as Admin</span>
-                    </button>
-                    <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); window.location.hash = '';" class="admin-bar-btn admin-bar-close" title="Cancel">
-                        <span class="admin-btn-icon">❌</span>
-                        <span class="admin-btn-text">Cancel</span>
-                    </button>
+            `;
+        } else {
+            // User is not logged in
+            adminBar.innerHTML = `
+                <div class="c">
+                    <div class="contact-bar-content">
+                        <div class="contact-bar-items">
+                            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-right: 15px;">🔒 Please login to access the admin panel</span>
+                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); const app = document.querySelector('[x-data]')._x_dataStack[0]; app.showAuthDropdown = true; app.auth.view = 'login';" class="track-order-btn">
+                                <span>🔑 Login</span>
+                            </button>
+                            <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); window.location.hash = '';" class="feedback-top-btn" title="Cancel">
+                                <span>❌ Cancel</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
+        
         document.body.insertBefore(adminBar, document.body.firstChild);
         console.log('🐑 Admin System: Admin login bar created');
     },
