@@ -57,10 +57,24 @@ document.addEventListener('alpine:init', () => {
             site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
         },
         prodOpts: { 
-            udheya: [], 
+            // Religious/Occasions (ولائم/عزومات/مناسبات)
+            aqiqah: [],           // عقيقة
+            charity: [],          // صدقات  
+            vow: [],              // نذر
+            expiation: [],        // كفارة
+            ready_to_eat: [],     // خراف جاهزة للأكل
+            
+            // Sacrificial (أضاحى)
+            udheya: [],           // أضحية
+            live_sheep: [],       // خراف حية
+            
+            // Processed Options
+            slaughtered: [],      // خراف مذبوحة ومجزأة
+            meat_cuts: [],        // قطعيات
+            
+            // Legacy categories for compatibility
             livesheep_general: [], 
-            meat_cuts: [], 
-            gathering_package: [] 
+            gathering_package: []
         },
         selectedMeatWeights: {},
         searchQuery: '',
@@ -253,9 +267,19 @@ document.addEventListener('alpine:init', () => {
                     return productTypes.filter(pt => pt && pt.wps && Array.isArray(pt.wps));
                 };
                 
+                // Map products to new categories based on product tags or type
                 this.prodOpts.udheya = ensureValidStructure(categorizeProducts(allProducts, 'udheya'));
-                this.prodOpts.livesheep_general = ensureValidStructure(categorizeProducts(allProducts, 'livesheep_general'));
+                this.prodOpts.aqiqah = ensureValidStructure(categorizeProducts(allProducts, 'aqiqah'));
+                this.prodOpts.charity = ensureValidStructure(categorizeProducts(allProducts, 'charity'));
+                this.prodOpts.vow = ensureValidStructure(categorizeProducts(allProducts, 'vow'));
+                this.prodOpts.expiation = ensureValidStructure(categorizeProducts(allProducts, 'expiation'));
+                this.prodOpts.ready_to_eat = ensureValidStructure(categorizeProducts(allProducts, 'ready_to_eat'));
+                this.prodOpts.live_sheep = ensureValidStructure(categorizeProducts(allProducts, 'livesheep_general'));
+                this.prodOpts.slaughtered = ensureValidStructure(categorizeProducts(allProducts, 'slaughtered'));
                 this.prodOpts.meat_cuts = ensureValidStructure(categorizeProducts(allProducts, 'meat_cuts'));
+                
+                // Legacy compatibility
+                this.prodOpts.livesheep_general = this.prodOpts.live_sheep;
                 this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(allProducts, 'gathering_package'));
                 
                 console.log('Product categories loaded:', {

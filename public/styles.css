@@ -156,6 +156,47 @@ body.has-promo-bar .promo-bar{display:flex!important;opacity:1!important;visibil
 
 nav.nav-main.nav-desk{flex-grow:1;display:flex;justify-content:center}
 nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
+
+/* Dropdown navigation */
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+    display: block;
+}
+
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    margin-top: 8px;
+    z-index: 100;
+    list-style: none;
+}
+
+.nav-dropdown-menu li {
+    list-style: none;
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 10px 20px;
+    color: var(--text1);
+    text-decoration: none;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.nav-dropdown-menu a:hover {
+    background-color: var(--bg2);
+}
 .nav-main.nav-desk .nav-link{font-size:1rem;color:var(--tm);font-weight:600;padding:var(--s2) var(--s3);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em;line-height:1;transition:all .3s ease}
 .nav-main.nav-desk .nav-link:hover,.nav-main.nav-desk .nav-link.active-nav{color:var(--c1d);background:rgba(62,39,35,.1);font-weight:700;transform:translateY(-1px)}
 
@@ -182,6 +223,22 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .mobile-nav-content{padding:var(--s3) 0;background:linear-gradient(135deg,var(--b1),#faf8f5)}
 @media(min-width:769px){.mobile-nav-dropdown{display:none!important}}
 .nav-list-mob{display:flex;flex-direction:column;gap:var(--s1);padding:0}
+
+/* Mobile nav section headers */
+.nav-section-header {
+    font-weight: 700;
+    color: var(--prim);
+    padding: 12px 0 8px 0;
+    margin-top: 16px;
+    border-bottom: 2px solid var(--prim);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-section-header:first-child {
+    margin-top: 0;
+}
 .nav-link-mob{font-size:1rem;color:var(--c1);font-weight:600;padding:var(--s3) var(--s4);display:flex;align-items:center;justify-content:center;gap:.5em;text-decoration:none;line-height:1;transition:all .2s ease;background:white;margin:0 var(--s3);border-radius:var(--rad);border:1px solid var(--bs)}
 .nav-link-mob:hover,.nav-link-mob.active-nav{color:var(--c1d);background:var(--b2);border-color:var(--c2);transform:translateY(-2px);box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .nav-link-mob.as-button{background:white;border:1px solid var(--bs);width:calc(100% - var(--s3) * 2);cursor:pointer;font-size:inherit;font-family:inherit}

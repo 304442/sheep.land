@@ -240,19 +240,44 @@
 
         <nav class="nav-main nav-desk">
             <ul class="nav-list">
-                <template x-if="settings.enable_udheya_section">
-                    <li><a href="#udheya" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'udheya'}" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
-                </template>
-                <template x-if="settings.enable_livesheep_section">
-                    <li><a href="#livesheep" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'livesheep'}" @click.prevent="navigateToOrScroll('livesheep')"><span class="en">Live Sheep</span><span class="ar">الأغنام الحية</span></a></li>
-                </template>
-                <template x-if="settings.enable_meat_section">
-                    <li><a href="#meat" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'meat'}" @click.prevent="navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
-                </template>
-                <template x-if="settings.enable_gatherings_section">
-                    <li><a href="#gatherings" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'gatherings'}" @click.prevent="navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
-                </template>
-                <!-- Removed My Account and Logout from nav - now only in account dropdown -->
+                <!-- Sacrificial (أضاحى) -->
+                <li class="nav-dropdown">
+                    <a href="#sacrificial" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'sacrificial'}" @click.prevent="navigateToOrScroll('sacrificial')">
+                        <span class="en">Sacrificial</span>
+                        <span class="ar">أضاحى</span>
+                    </a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="#udheya" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">أضحية</span></a></li>
+                        <li><a href="#live-sheep" @click.prevent="navigateToOrScroll('live-sheep')"><span class="en">Live Sheep</span><span class="ar">خراف حية</span></a></li>
+                    </ul>
+                </li>
+                
+                <!-- Religious/Occasions (ولائم/عزومات/مناسبات) -->
+                <li class="nav-dropdown">
+                    <a href="#occasions" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'occasions'}" @click.prevent="navigateToOrScroll('occasions')">
+                        <span class="en">Occasions</span>
+                        <span class="ar">مناسبات</span>
+                    </a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="#aqiqah" @click.prevent="navigateToOrScroll('aqiqah')"><span class="en">Aqiqah</span><span class="ar">عقيقة</span></a></li>
+                        <li><a href="#charity" @click.prevent="navigateToOrScroll('charity')"><span class="en">Charity</span><span class="ar">صدقات</span></a></li>
+                        <li><a href="#vow" @click.prevent="navigateToOrScroll('vow')"><span class="en">Vow</span><span class="ar">نذر</span></a></li>
+                        <li><a href="#expiation" @click.prevent="navigateToOrScroll('expiation')"><span class="en">Expiation</span><span class="ar">كفارة</span></a></li>
+                        <li><a href="#ready-to-eat" @click.prevent="navigateToOrScroll('ready-to-eat')"><span class="en">Ready to Eat</span><span class="ar">خراف جاهزة للأكل</span></a></li>
+                    </ul>
+                </li>
+                
+                <!-- Processed/Meat -->
+                <li class="nav-dropdown">
+                    <a href="#processed" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'processed'}" @click.prevent="navigateToOrScroll('processed')">
+                        <span class="en">Processed Meat</span>
+                        <span class="ar">لحوم مجهزة</span>
+                    </a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="#slaughtered" @click.prevent="navigateToOrScroll('slaughtered')"><span class="en">Slaughtered & Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
+                        <li><a href="#meat-cuts" @click.prevent="navigateToOrScroll('meat-cuts')"><span class="en">Meat Cuts</span><span class="ar">قطعيات</span></a></li>
+                    </ul>
+                </li>
             </ul>
         </nav>
 
@@ -555,19 +580,32 @@
         <div class="mobile-nav-content">
             <nav>
                 <ul class="nav-list-mob">
-                    <template x-if="settings.enable_udheya_section">
-                        <li><a href="#udheya" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">الأضحية</span></a></li>
-                    </template>
-                    <template x-if="settings.enable_livesheep_section">
-                        <li><a href="#livesheep" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('livesheep')"><span class="en">Live Sheep</span><span class="ar">الأغنام الحية</span></a></li>
-                    </template>
-                    <template x-if="settings.enable_meat_section">
-                        <li><a href="#meat" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat')"><span class="en">Fresh Meat</span><span class="ar">اللحوم الطازجة</span></a></li>
-                    </template>
-                    <template x-if="settings.enable_gatherings_section">
-                        <li><a href="#gatherings" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('gatherings')"><span class="en">Gatherings</span><span class="ar">الولائم</span></a></li>
-                    </template>
-                    <!-- Removed My Account and Logout from mobile nav - now only in account dropdown -->
+                    <!-- Sacrificial Section -->
+                    <li class="nav-section-header">
+                        <span class="en">Sacrificial</span>
+                        <span class="ar">أضاحى</span>
+                    </li>
+                    <li><a href="#udheya" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">أضحية</span></a></li>
+                    <li><a href="#live-sheep" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('live-sheep')"><span class="en">Live Sheep</span><span class="ar">خراف حية</span></a></li>
+                    
+                    <!-- Occasions Section -->
+                    <li class="nav-section-header">
+                        <span class="en">Occasions</span>
+                        <span class="ar">مناسبات</span>
+                    </li>
+                    <li><a href="#aqiqah" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('aqiqah')"><span class="en">Aqiqah</span><span class="ar">عقيقة</span></a></li>
+                    <li><a href="#charity" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('charity')"><span class="en">Charity</span><span class="ar">صدقات</span></a></li>
+                    <li><a href="#vow" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('vow')"><span class="en">Vow</span><span class="ar">نذر</span></a></li>
+                    <li><a href="#expiation" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('expiation')"><span class="en">Expiation</span><span class="ar">كفارة</span></a></li>
+                    <li><a href="#ready-to-eat" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('ready-to-eat')"><span class="en">Ready to Eat</span><span class="ar">خراف جاهزة للأكل</span></a></li>
+                    
+                    <!-- Processed Section -->
+                    <li class="nav-section-header">
+                        <span class="en">Processed Meat</span>
+                        <span class="ar">لحوم مجهزة</span>
+                    </li>
+                    <li><a href="#slaughtered" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('slaughtered')"><span class="en">Slaughtered & Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
+                    <li><a href="#meat-cuts" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat-cuts')"><span class="en">Meat Cuts</span><span class="ar">قطعيات</span></a></li>
                 </ul>
             </nav>
         </div>
