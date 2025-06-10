@@ -14,7 +14,10 @@
 <body x-data="sheepLand" x-init="initApp()" x-cloak :class="{'has-promo-bar': settings.promoActive && !cd.ended && !isPromoBarDismissed}">
 
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
-<div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
+<div x-show="apiErr" class="err-ind" role="alert" aria-live="assertive" tabindex="-1">
+    <span x-show="!setupRequired" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'"></span>
+    <a x-show="setupRequired" href="/setup.html" class="err-link" x-text="usrApiErr"></a>
+</div>
 
 
 

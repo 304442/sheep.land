@@ -99,7 +99,7 @@ document.addEventListener('alpine:init', () => {
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
         checkoutForm: JSON.parse(JSON.stringify(initForm)),
         tempUdheyaConfig: JSON.parse(JSON.stringify(initUdheya)), 
-        apiErr: null, usrApiErr: "", addedToCartMsg: { text: null, isError: false, pageContext: '' },
+        apiErr: null, usrApiErr: "", setupRequired: false, addedToCartMsg: { text: null, isError: false, pageContext: '' },
         statRes: null, statNotFound: false, lookupOrderID: "",
         orderConf: { show: false, orderID: "", totalEgp: 0, items: [], paymentInstructions: "", customerEmail: "" },
         currentUser: null, 
@@ -180,8 +180,8 @@ document.addEventListener('alpine:init', () => {
                 // console.error('Database not initialized. Redirecting to setup...');
                 this.load.init = false;
                 this.apiErr = "Database not initialized";
-                this.usrApiErr = "Please complete setup...";
-                window.location.href = '/setup.html';
+                this.usrApiErr = "Database not initialized. Click here to go to setup.";
+                this.setupRequired = true;
                 return;
             }
             
@@ -336,11 +336,8 @@ document.addEventListener('alpine:init', () => {
             } catch (e) { 
                 // console.error("Failed to load products from database:", e);
                 this.apiErr = String(e.message || "Could not load initial application data."); 
-                this.usrApiErr = "Database connection error. Redirecting to setup...";
-                // Redirect to setup page after a short delay to show the message
-                setTimeout(() => {
-                    window.location.href = '/setup.html';
-                }, 1000);
+                this.usrApiErr = "Database connection error. Click here to go to setup.";
+                this.setupRequired = true;
                 return; // Stop further execution
             }
             
