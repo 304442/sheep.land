@@ -5,6 +5,8 @@ const feedbackSystem = {
         // this.setupFeedbackWidget(); // Removed - using top bar button instead
         this.setupEventListeners();
         this.checkForDirectFeedbackLink();
+        // Check for admin mode and setup controls if needed
+        this.setupAdminControls();
     },
 
     // Check if page was loaded with feedback parameters

@@ -4,9 +4,8 @@ const adminSystem = {
     init() {
         console.log('🐑 Admin System: Initializing...');
         console.log('🐑 Admin System: Current URL hash:', window.location.hash);
-        // Remove any existing admin UI first
-        document.querySelectorAll('.admin-top-bar, .admin-login-bar').forEach(el => el.remove());
-        document.body.classList.remove('admin-mode');
+        // Remove any existing admin panels (but not the top bars from feedback system)
+        document.querySelectorAll('.main-admin-panel').forEach(el => el.remove());
         
         this.setupMainAdminPanel();
         // this.loadDashboardData(); // Removed - function doesn't exist yet
@@ -40,28 +39,31 @@ const adminSystem = {
     // Create main admin interface
     setupMainAdminPanel() {
         // Check if admin mode should be enabled
-        const isAdminMode = this.checkAdminAuth();
+        const hasAdminHash = window.location.hash.includes('admin');
+        const hasAdminStorage = localStorage.getItem('admin_mode') === 'true';
+        const isAdminMode = hasAdminHash || hasAdminStorage;
+        
         console.log('🐑 Admin System: Admin mode check:', isAdminMode);
-        console.log('🐑 Admin System: Hash check:', window.location.hash.includes('admin'));
-        console.log('🐑 Admin System: LocalStorage check:', localStorage.getItem('admin_mode'));
+        console.log('🐑 Admin System: Hash check:', hasAdminHash);
+        console.log('🐑 Admin System: LocalStorage check:', hasAdminStorage);
         
         if (isAdminMode) {
             console.log('🐑 Admin System: Admin mode detected');
             
             // Check if user is authenticated as admin
-            if (this.checkAdminAuth() && window.pb && window.pb.authStore.isValid) {
+            if (window.pb && window.pb.authStore.isValid) {
                 const user = window.pb.authStore.record;
                 const adminEmails = ['admin@sheep.land', 'admin@example.com'];
                 
                 if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true || adminEmails.includes(user?.email)) {
                     console.log('🐑 Admin System: User is authenticated admin, creating panel...');
                     this.createAdminPanel();
-                } else if (window.location.hash.includes('admin')) {
-                    console.log('🐑 Admin System: Admin hash detected but user not admin, showing login prompt...');
+                } else {
+                    console.log('🐑 Admin System: User authenticated but not admin, showing login prompt...');
                     this.showAdminLoginPrompt();
                 }
-            } else if (window.location.hash.includes('admin')) {
-                console.log('🐑 Admin System: Admin hash detected, showing login prompt...');
+            } else {
+                console.log('🐑 Admin System: No authentication, showing login prompt...');
                 this.showAdminLoginPrompt();
             }
         } else {
@@ -71,22 +73,53 @@ const adminSystem = {
 
     // Create the actual admin panel
     createAdminPanel() {
-        // Remove old feedback admin panel
-        document.querySelector('.admin-feedback-panel')?.remove();
+        // Add admin class to body for styling adjustments
+        document.body.classList.add('admin-mode');
         
-        const adminPanel = document.createElement('div');
-        adminPanel.className = 'main-admin-panel';
-        adminPanel.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 9999;
-            background: white;
-            border: 2px solid #007bff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-family: 'Inter', sans-serif;
+        // Create admin top bar (not floating panel)
+        const adminBar = document.createElement('div');
+        adminBar.className = 'admin-top-bar main-admin-bar';
+        adminBar.innerHTML = `
+            <div class="admin-bar-content">
+                <div class="admin-bar-label">
+                    <span>🛡️ Admin Dashboard</span>
+                </div>
+                <div class="admin-bar-actions">
+                    <button onclick="adminSystem.showDashboard()" class="admin-bar-btn" title="Dashboard">
+                        <span class="admin-btn-icon">📊</span>
+                        <span class="admin-btn-text">Dashboard</span>
+                    </button>
+                    <button onclick="adminSystem.showOrdersManager()" class="admin-bar-btn" title="Orders">
+                        <span class="admin-btn-icon">📦</span>
+                        <span class="admin-btn-text">Orders</span>
+                    </button>
+                    <button onclick="adminSystem.showProductsManager()" class="admin-bar-btn" title="Products">
+                        <span class="admin-btn-icon">🛍️</span>
+                        <span class="admin-btn-text">Products</span>
+                    </button>
+                    <button onclick="adminSystem.showUsersManager()" class="admin-bar-btn" title="Users">
+                        <span class="admin-btn-icon">👥</span>
+                        <span class="admin-btn-text">Users</span>
+                    </button>
+                    <button onclick="adminSystem.showSettings()" class="admin-bar-btn" title="Settings">
+                        <span class="admin-btn-icon">⚙️</span>
+                        <span class="admin-btn-text">Settings</span>
+                    </button>
+                    <button onclick="adminSystem.toggleAdminMode()" class="admin-bar-btn admin-bar-close" title="Exit Admin">
+                        <span class="admin-btn-icon">❌</span>
+                        <span class="admin-btn-text">Exit</span>
+                    </button>
+                </div>
+            </div>
         `;
+        document.body.insertBefore(adminBar, document.body.firstChild);
+        
+        console.log('🐑 Admin System: Admin bar created successfully');
+    },
+    
+    // Old floating panel code removed - keeping for reference
+    OLD_createAdminPanel() {
+        const adminPanel = document.createElement('div');
         adminPanel.innerHTML = `
             <div class="admin-toggle" onclick="adminSystem.toggleAdminPanel()" style="
                 background: linear-gradient(135deg, #007bff, #0056b3);
@@ -206,6 +239,11 @@ const adminSystem = {
 
     // Show admin login prompt
     showAdminLoginPrompt() {
+        console.log('🐑 Admin System: Creating admin login prompt bar...');
+        
+        // Remove any existing admin bars first
+        document.querySelectorAll('.admin-top-bar, .admin-login-bar').forEach(el => el.remove());
+        
         // Add admin class to body for styling adjustments
         document.body.classList.add('admin-mode');
         
@@ -222,7 +260,7 @@ const adminSystem = {
                         <span class="admin-btn-icon">🔑</span>
                         <span class="admin-btn-text">Login as Admin</span>
                     </button>
-                    <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode');" class="admin-bar-btn admin-bar-close" title="Cancel">
+                    <button onclick="document.querySelector('.admin-login-bar')?.remove(); document.body.classList.remove('admin-mode'); window.location.hash = '';" class="admin-bar-btn admin-bar-close" title="Cancel">
                         <span class="admin-btn-icon">❌</span>
                         <span class="admin-btn-text">Cancel</span>
                     </button>
@@ -230,6 +268,7 @@ const adminSystem = {
             </div>
         `;
         document.body.insertBefore(adminBar, document.body.firstChild);
+        console.log('🐑 Admin System: Admin login bar created');
     },
 
     // Toggle admin panel visibility
@@ -3460,7 +3499,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash.includes('admin') || localStorage.getItem('admin_mode') === 'true') {
         console.log('🐑 Admin System: Admin mode activated');
         localStorage.setItem('admin_mode', 'true');
-        adminSystem.init();
+        // Wait a bit for other systems to initialize
+        setTimeout(() => {
+            adminSystem.init();
+        }, 100);
     }
 });
 
