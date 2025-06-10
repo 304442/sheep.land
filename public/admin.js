@@ -158,7 +158,7 @@ const adminSystem = {
                     <h2 id="adminModalTitle">${title || 'Admin Panel'}</h2>
                     <button class="admin-modal-close" onclick="adminSystem.closeAdminModal()" aria-label="Close modal">&times;</button>
                 </div>
-                <div class="admin-modal-content" role="document">
+                <div class="admin-modal-body" role="document">
                     ${content || ''}
                 </div>
             </div>
@@ -181,37 +181,50 @@ const adminSystem = {
         if (!document.querySelector('#adminModalStyles')) {
             const styles = `
                 <style id="adminModalStyles">
-                    .admin-modal {
+                    /* Modal Overlay - Fixed positioning for full screen coverage */
+                    .admin-modal-overlay {
                         position: fixed;
                         top: 0;
                         left: 0;
-                        width: 100%;
-                        height: 100%;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.7);
                         z-index: 10000;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        backdrop-filter: blur(2px);
+                        animation: fadeIn 0.2s ease;
                     }
                     
-                    .admin-modal-overlay {
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0, 0, 0, 0.5);
-                    }
-                    
-                    .admin-modal-content {
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
+                    /* Modal Container - Centered with flexbox */
+                    .admin-modal {
                         background: white;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                        border-radius: 12px;
+                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
                         width: 90%;
                         max-width: 1200px;
                         max-height: 90vh;
                         display: flex;
                         flex-direction: column;
+                        position: relative;
+                        animation: slideIn 0.3s ease;
+                    }
+                    
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    
+                    @keyframes slideIn {
+                        from {
+                            opacity: 0;
+                            transform: translateY(-20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
                     }
                     
                     .admin-modal-header {
