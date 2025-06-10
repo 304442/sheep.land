@@ -248,7 +248,6 @@
                     </a>
                     <ul class="nav-dropdown-menu">
                         <li><a href="#udheya" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">أضحية</span></a></li>
-                        <li><a href="#live-sheep" @click.prevent="navigateToOrScroll('live-sheep')"><span class="en">Live Sheep</span><span class="ar">خراف حية</span></a></li>
                     </ul>
                 </li>
                 
@@ -586,7 +585,6 @@
                         <span class="ar">أضاحى</span>
                     </li>
                     <li><a href="#udheya" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">أضحية</span></a></li>
-                    <li><a href="#live-sheep" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('live-sheep')"><span class="en">Live Sheep</span><span class="ar">خراف حية</span></a></li>
                     
                     <!-- Occasions Section -->
                     <li class="nav-section-header">
@@ -976,12 +974,12 @@
                 <div class="hero-content">
             <div class="c">
                 <h1 class="hero-title bil-spread">
-                    <span class="en">Premium Halal Meat & Live Sheep</span>
-                    <span class="ar">لحوم حلال وأغنام فاخرة</span>
+                    <span class="en">Premium Halal Meat & Services</span>
+                    <span class="ar">لحوم حلال وخدمات فاخرة</span>
                 </h1>
                 <div class="hero-subtitle bil-row">
-                    <p class="en">From farm-fresh cuts to live animals, Udheya services, and event catering - we deliver authentic quality for your family's needs</p>
-                    <p class="ar">من القطعيات الطازجة إلى الحيوانات الحية وخدمات الأضاحي وتجهيز المناسبات - نقدم الجودة الأصيلة لاحتياجات عائلتك</p>
+                    <p class="en">From farm-fresh cuts to Udheya services and event catering - we deliver authentic quality for your family's needs</p>
+                    <p class="ar">من القطعيات الطازجة إلى خدمات الأضاحي وتجهيز المناسبات - نقدم الجودة الأصيلة لاحتياجات عائلتك</p>
                 </div>
                 
                 <!-- Trust badges in hero -->
@@ -1138,61 +1136,6 @@
                 </div>
             </div>
 
-            <!-- Live Sheep Products -->
-            <div x-show="settings.enable_livesheep_section && prodOpts.livesheep_general && prodOpts.livesheep_general.length > 0" class="home-category-section">
-                <div class="section-header">
-                    <h2 class="bil-spread">
-                        <span class="en">🐏 Live Sheep & Rams</span>
-                        <span class="ar">🐏 الأغنام والكباش الحية</span>
-                    </h2>
-                </div>
-                <div class="prod-grid grid3">
-                    <template x-for="productType in prodOpts.livesheep_general" :key="productType.valKey">
-                        <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
-                            <div class="card card-compact" :class="{'card-sel': item.is_premium}">
-                                <div class="card-img">
-                                    <img :src="getProductImage(item, 'livesheep')" :alt="item.nameENSpec" loading="lazy">
-                                    <div class="badge live-badge">LIVE</div>
-                                    <button @click="toggleWishlist(item)" 
-                                            class="wishlist-icon" 
-                                            :class="{ 'active': isInWishlist(item.itemKey) }"
-                                            :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="card-b">
-                                    <div class="card-content">
-                                        <h4 class="card-h bil-spread">
-                                            <span class="en" x-text="item.nameENSpec"></span>
-                                            <span class="ar" x-text="item.nameARSpec"></span>
-                                        </h4>
-                                        <p class="card-desc bil-row">
-                                            <span class="en" x-text="item.descEn || productType.descEn"></span>
-                                            <span class="ar" x-text="item.descAr || productType.descAr"></span>
-                                        </p>
-                                    </div>
-                                    <div class="card-foot">
-                                        <div class="price-line">
-                                            <strong x-text="fmtPrice(item.priceEGP)"></strong>
-                                            <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
-                                        </div>
-                                        <button type="button" @click="addItemToCart(item)" 
-                                                class="btn bp btn-sm btn-block" 
-                                                :disabled="!item.isActive || item.stock <= 0">
-                                            <span class="bil-inline">
-                                                <span class="en">Add to Cart</span>
-                                                <span class="ar">أضف للسلة</span>
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </template>
-                </div>
-            </div>
 
             <!-- Fresh Meat Products -->
             <div x-show="settings.enable_meat_section && prodOpts.meat_cuts && prodOpts.meat_cuts.length > 0" class="home-category-section">

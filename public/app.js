@@ -68,14 +68,12 @@ document.addEventListener('alpine:init', () => {
             
             // Sacrificial (أضاحى)
             udheya: [],           // أضحية
-            live_sheep: [],       // خراف حية
             
             // Processed Options
             slaughtered: [],      // خراف مذبوحة ومجزأة
             meat_cuts: [],        // قطعيات
             
             // Legacy categories for compatibility
-            livesheep_general: [], 
             gathering_package: []
         },
         selectedMeatWeights: {},
@@ -288,12 +286,10 @@ document.addEventListener('alpine:init', () => {
                 this.prodOpts.vow = ensureValidStructure(categorizeProducts(allProducts, 'vow'));
                 this.prodOpts.expiation = ensureValidStructure(categorizeProducts(allProducts, 'expiation'));
                 this.prodOpts.ready_to_eat = ensureValidStructure(categorizeProducts(allProducts, 'ready_to_eat'));
-                this.prodOpts.live_sheep = ensureValidStructure(categorizeProducts(allProducts, 'livesheep_general'));
                 this.prodOpts.slaughtered = ensureValidStructure(categorizeProducts(allProducts, 'slaughtered'));
                 this.prodOpts.meat_cuts = ensureValidStructure(categorizeProducts(allProducts, 'meat_cuts'));
                 
                 // Legacy compatibility
-                this.prodOpts.livesheep_general = this.prodOpts.live_sheep;
                 this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(allProducts, 'gathering_package'));
                 
                 // console.log('Product categories loaded:', {
@@ -304,7 +300,7 @@ document.addEventListener('alpine:init', () => {
                 // });
                 
                 // Verify data structure integrity
-                const allCategories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package'];
+                const allCategories = ['udheya', 'meat_cuts', 'gathering_package'];
                 allCategories.forEach(cat => {
                     const valid = this.prodOpts[cat].every(pt => pt && pt.wps && Array.isArray(pt.wps));
                     if (!valid) {
@@ -498,7 +494,7 @@ document.addEventListener('alpine:init', () => {
         moveToCart(item) {
             // Find the actual product data
             let product = null;
-            const categories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package'];
+            const categories = ['udheya', 'meat_cuts', 'gathering_package'];
             
             for (const cat of categories) {
                 if (this.prodOpts[cat] && Array.isArray(this.prodOpts[cat])) {
@@ -921,7 +917,6 @@ document.addEventListener('alpine:init', () => {
             };
             
             return [
-                {key: 'livesheep', name: {en: 'Live Sheep', ar: 'الأغنام الحية'}, products: ensureValidProducts(this.prodOpts.livesheep_general), badge: 'LIVE'},
                 {key: 'meat', name: {en: 'Fresh Meat & Cuts', ar: 'اللحوم الطازجة والقطعيات'}, products: ensureValidProducts(this.prodOpts.meat_cuts), badge: 'FRESH'},
                 {key: 'gatherings', name: {en: 'Event & Gathering Packages', ar: 'باقات المناسبات والولائم'}, products: ensureValidProducts(this.prodOpts.gathering_package), badge: 'EVENT'}
             ];
@@ -935,7 +930,6 @@ document.addEventListener('alpine:init', () => {
             
             const categoryNames = {
                 udheya: { en: 'Udheya', ar: 'الأضحية' },
-                livesheepGeneral: { en: 'Live Sheep', ar: 'الأغنام الحية' },
                 meatCuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
                 gatheringPackage: { en: 'Gatherings', ar: 'الولائم' }
             };
@@ -973,7 +967,6 @@ document.addEventListener('alpine:init', () => {
         getCategoryDisplayName(category) {
             const names = {
                 udheya: { en: 'Udheya', ar: 'الأضحية' },
-                livesheepGeneral: { en: 'Live Sheep', ar: 'الأغنام الحية' },
                 meatCuts: { en: 'Fresh Meat', ar: 'اللحوم الطازجة' },
                 gatheringPackage: { en: 'Gatherings', ar: 'الولائم' }
             };
@@ -1003,10 +996,8 @@ document.addEventListener('alpine:init', () => {
                 vow: { en: 'Vow', ar: 'نذر' },
                 expiation: { en: 'Expiation', ar: 'كفارة' },
                 ready_to_eat: { en: 'Ready to Eat', ar: 'جاهز للأكل' },
-                live_sheep: { en: 'Live Sheep', ar: 'خراف حية' },
                 slaughtered: { en: 'Slaughtered & Portioned', ar: 'مذبوحة ومجزأة' },
                 meat_cuts: { en: 'Meat Cuts', ar: 'قطعيات' },
-                livesheep_general: { en: 'Live Sheep & Breeding', ar: 'أغنام حية وتربية' },
                 gathering_package: { en: 'Events & Gatherings', ar: 'مناسبات وولائم' }
             };
             return names[category] ? names[category][lang] : category;
@@ -1023,7 +1014,6 @@ document.addEventListener('alpine:init', () => {
             const badges = {
                 udheya: 'UDHEYA',
                 aqiqah: 'AQIQAH',
-                live_sheep: 'LIVE',
                 charity: 'CHARITY',
                 vow: 'VOW',
                 meat_cuts: 'FRESH'
@@ -1343,7 +1333,7 @@ document.addEventListener('alpine:init', () => {
                     const splitOpt = item.udheya_details?.distribution?.splitOption; 
                     return distChoice === 'me' || (distChoice === 'split' && ["1/3_me_2/3_charity_sl", "1/2_me_1/2_charity_sl", "2/3_me_1/3_charity_sl", "all_me_custom_distro"].includes(splitOpt));
                 } 
-                return ['meat_cuts', 'livesheep_general', 'gathering_package'].includes(item.product_category);
+                return ['meat_cuts', 'gathering_package'].includes(item.product_category);
             });
         },
 

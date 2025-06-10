@@ -455,8 +455,8 @@
     
     const defaultRefundPolicyHTML = `
         <div class="bil-row">
-            <p class="en">Welcome to Sheep Land. We are committed to providing premium quality sheep, livesheep, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>
-            <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام الحية واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
+            <p class="en">Welcome to Sheep Land. We are committed to providing premium quality meat products and services with full Sharia compliance. Please read our comprehensive policy.</p>
+            <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات اللحوم والخدمات عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
         </div>
         <h3 class="bil-spread modal-section-title">
             <span class="en">Udheya Orders</span><span class="ar" dir="rtl">طلبات الأضاحي</span>
@@ -584,12 +584,6 @@
                         },
                         {
                                 "name": "enable_udheya_section",
-                                "type": "bool",
-                                "required": false,
-                                "presentable": true
-                        },
-                        {
-                                "name": "enable_livesheep_section",
                                 "type": "bool",
                                 "required": false,
                                 "presentable": true
@@ -1472,12 +1466,11 @@
                                 "moneygram_details": "Available at all Egypt Post offices"
                         },
                         "enable_udheya_section": true,
-                        "enable_livesheep_section": true,
                         "enable_meat_section": true,
                         "enable_gatherings_section": true,
                         "slaughter_location_gmaps_url": "https://maps.app.goo.gl/SheepLandEgyptFarm123",
                         "online_payment_fee_egp": 50,
-                        "refund_policy_html": "\n        <div class=\"bil-row\">\n            <p class=\"en\">Welcome to Sheep Land. We are committed to providing premium quality sheep, livesheep, and meat products with full Sharia compliance. Please read our comprehensive policy.</p>\n            <p class=\"ar\" dir=\"rtl\">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام الحية واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>\n        </div>\n        <h3 class=\"bil-spread modal-section-title\">\n            <span class=\"en\">Udheya Orders</span><span class=\"ar\" dir=\"rtl\">طلبات الأضاحي</span>\n        </h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Due to the religious nature and specific timing of Udheya, our policies are designed to ensure proper fulfillment while accommodating genuine needs:</p>\n            <p class=\"ar\" dir=\"rtl\">نظراً للطبيعة الدينية والتوقيت المحدد للأضاحي، تم تصميم سياساتنا لضمان التنفيذ السليم مع مراعاة الاحتياجات الحقيقية:</p>\n        </div>\n        <h4 class=\"bil-spread\"><span class=\"en\">Cancellation Policy</span><span class=\"ar\" dir=\"rtl\">سياسة الإلغاء</span></h4>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>Before Animal Selection (5+ days before Eid):</strong> Full refund minus 3% processing fee</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>قبل اختيار الحيوان (5+ أيام قبل العيد):</strong> استرداد كامل ناقص 3% رسوم معالجة</p>\n        </div>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>After Animal Selection (2-4 days before):</strong> 50% refund if suitable replacement buyer found</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>بعد اختيار الحيوان (2-4 أيام قبل):</strong> استرداد 50% إذا تم العثور على مشترٍ بديل مناسب</p>\n        </div>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>Day of Eid:</strong> No refunds (animal prepared for slaughter)</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>يوم العيد:</strong> لا يوجد استرداد (الحيوان محضر للذبح)</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Live Sheep</span><span class=\"ar\" dir=\"rtl\">الأغنام الحية</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Live animals require 48-72 hours advance notice for cancellation. Health-guaranteed animals cannot be returned unless veterinary defects are proven within 24 hours of delivery.</p>\n            <p class=\"ar\" dir=\"rtl\">الحيوانات الحية تتطلب إشعار مسبق 48-72 ساعة للإلغاء. الحيوانات المضمونة صحياً لا يمكن إرجاعها إلا إذا تم إثبات عيوب بيطرية خلال 24 ساعة من التسليم.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Fresh Meat & Cuts</span><span class=\"ar\" dir=\"rtl\">اللحوم الطازجة والقطعيات</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Fresh meat orders can be cancelled up to 24 hours before preparation. Quality issues must be reported within 4 hours of delivery with photographic evidence.</p>\n            <p class=\"ar\" dir=\"rtl\">يمكن إلغاء طلبات اللحوم الطازجة حتى 24 ساعة قبل التحضير. يجب الإبلاغ عن مشاكل الجودة خلال 4 ساعات من التوصيل مع دليل فوتوغرافي.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Gathering Packages & Events</span><span class=\"ar\" dir=\"rtl\">باقات المناسبات والولائم</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Event packages require 7 days notice for full refund, 3 days for 50% refund. Same-day cancellations incur full charges due to preparation costs.</p>\n            <p class=\"ar\" dir=\"rtl\">باقات المناسبات تتطلب إشعار 7 أيام للاسترداد الكامل، 3 أيام لاسترداد 50%. إلغاء نفس اليوم يتحمل الرسوم كاملة بسبب تكاليف التحضير.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">International Orders</span><span class=\"ar\" dir=\"rtl\">الطلبات الدولية</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">International customers enjoy the same quality guarantees. Shipping costs are non-refundable unless we fail to fulfill confirmed orders.</p>\n            <p class=\"ar\" dir=\"rtl\">العملاء الدوليون يتمتعون بنفس ضمانات الجودة. تكاليف الشحن غير قابلة للاسترداد إلا إذا فشلنا في تلبية الطلبات المؤكدة.</p>\n        </div>\n    ",
+                        "refund_policy_html": "\n        <div class=\"bil-row\">\n            <p class=\"en\">Welcome to Sheep Land. We are committed to providing premium quality meat products and services with full Sharia compliance. Please read our comprehensive policy.</p>\n            <p class=\"ar\" dir=\"rtl\">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات اللحوم والخدمات عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>\n        </div>\n        <h3 class=\"bil-spread modal-section-title\">\n            <span class=\"en\">Udheya Orders</span><span class=\"ar\" dir=\"rtl\">طلبات الأضاحي</span>\n        </h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Due to the religious nature and specific timing of Udheya, our policies are designed to ensure proper fulfillment while accommodating genuine needs:</p>\n            <p class=\"ar\" dir=\"rtl\">نظراً للطبيعة الدينية والتوقيت المحدد للأضاحي، تم تصميم سياساتنا لضمان التنفيذ السليم مع مراعاة الاحتياجات الحقيقية:</p>\n        </div>\n        <h4 class=\"bil-spread\"><span class=\"en\">Cancellation Policy</span><span class=\"ar\" dir=\"rtl\">سياسة الإلغاء</span></h4>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>Before Animal Selection (5+ days before Eid):</strong> Full refund minus 3% processing fee</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>قبل اختيار الحيوان (5+ أيام قبل العيد):</strong> استرداد كامل ناقص 3% رسوم معالجة</p>\n        </div>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>After Animal Selection (2-4 days before):</strong> 50% refund if suitable replacement buyer found</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>بعد اختيار الحيوان (2-4 أيام قبل):</strong> استرداد 50% إذا تم العثور على مشترٍ بديل مناسب</p>\n        </div>\n        <div class=\"bil-row\">\n            <p class=\"en\"><strong>Day of Eid:</strong> No refunds (animal prepared for slaughter)</p>\n            <p class=\"ar\" dir=\"rtl\"><strong>يوم العيد:</strong> لا يوجد استرداد (الحيوان محضر للذبح)</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Fresh Meat & Cuts</span><span class=\"ar\" dir=\"rtl\">اللحوم الطازجة والقطعيات</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Fresh meat orders can be cancelled up to 24 hours before preparation. Quality issues must be reported within 4 hours of delivery with photographic evidence.</p>\n            <p class=\"ar\" dir=\"rtl\">يمكن إلغاء طلبات اللحوم الطازجة حتى 24 ساعة قبل التحضير. يجب الإبلاغ عن مشاكل الجودة خلال 4 ساعات من التوصيل مع دليل فوتوغرافي.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">Gathering Packages & Events</span><span class=\"ar\" dir=\"rtl\">باقات المناسبات والولائم</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">Event packages require 7 days notice for full refund, 3 days for 50% refund. Same-day cancellations incur full charges due to preparation costs.</p>\n            <p class=\"ar\" dir=\"rtl\">باقات المناسبات تتطلب إشعار 7 أيام للاسترداد الكامل، 3 أيام لاسترداد 50%. إلغاء نفس اليوم يتحمل الرسوم كاملة بسبب تكاليف التحضير.</p>\n        </div>\n\n        <h3 class=\"bil-spread modal-section-title\"><span class=\"en\">International Orders</span><span class=\"ar\" dir=\"rtl\">الطلبات الدولية</span></h3>\n        <div class=\"bil-row\">\n            <p class=\"en\">International customers enjoy the same quality guarantees. Shipping costs are non-refundable unless we fail to fulfill confirmed orders.</p>\n            <p class=\"ar\" dir=\"rtl\">العملاء الدوليون يتمتعون بنفس ضمانات الجودة. تكاليف الشحن غير قابلة للاسترداد إلا إذا فشلنا في تلبية الطلبات المؤكدة.</p>\n        </div>\n    ",
                         "app_email_sender_address": "noreply@sheep.land",
                         "app_email_sender_name": "Sheep Land",
                         "site_title_en": "Sheep Land",
@@ -1630,75 +1623,6 @@
                         "breed_info_ar": "سلالة بدوية متكيفة مع الصحراء",
                         "sort_order_type": 2,
                         "sort_order_variant": 3
-                },
-                {
-                        "item_key": "live_ram_baladi_breeding",
-                        "product_category": "livesheep_general",
-                        "type_key": "breeding_rams",
-                        "type_name_en": "Rams",
-                        "type_name_ar": "كباش",
-                        "type_description_en": "Breeding rams.",
-                        "type_description_ar": "كباش تربية للمزارع.",
-                        "variant_name_en": "Baladi Ram (80-100kg)",
-                        "variant_name_ar": "كبش بلدي (٨٠-١٠٠ كجم)",
-                        "weight_range_text_en": "80-100kg",
-                        "weight_range_text_ar": "٨٠-١٠٠ كجم",
-                        "avg_weight_kg": 90,
-                        "base_price_egp": 18000,
-                        "stock_available_pb": 6,
-                        "is_active": true,
-                        "is_premium": false,
-                        "origin_farm": "Selection Breeding Center",
-                        "breed_info_en": "Breeding genetics",
-                        "breed_info_ar": "وراثة تربية",
-                        "sort_order_type": 5,
-                        "sort_order_variant": 1
-                },
-                {
-                        "item_key": "live_ewe_saidi_breeding",
-                        "product_category": "livesheep_general",
-                        "type_key": "breeding_ewes",
-                        "type_name_en": "Ewes",
-                        "type_name_ar": "نعاج",
-                        "type_description_en": "Breeding ewes with fertility records.",
-                        "type_description_ar": "نعاج تربية مع سجلات خصوبة. أمهات مع إنتاج حليب جيد.",
-                        "variant_name_en": "Saidi Ewe (55-70kg)",
-                        "variant_name_ar": "نعجة صعيدي (٥٥-٧٠ كجم)",
-                        "weight_range_text_en": "55-70kg",
-                        "weight_range_text_ar": "٥٥-٧٠ كجم",
-                        "avg_weight_kg": 62,
-                        "base_price_egp": 12000,
-                        "stock_available_pb": 10,
-                        "is_active": true,
-                        "is_premium": true,
-                        "origin_farm": "Elite Breeding Center",
-                        "breed_info_en": "High fertility proven lines",
-                        "breed_info_ar": "سلالات عالية الخصوبة مثبتة",
-                        "sort_order_type": 5,
-                        "sort_order_variant": 2
-                },
-                {
-                        "item_key": "live_lambs_weaned",
-                        "product_category": "livesheep_general",
-                        "type_key": "young_lambs",
-                        "type_name_en": "Weaned Lambs",
-                        "type_name_ar": "حملان مفطومة",
-                        "type_description_en": "Weaned lambs, 3-6 months old. Vaccinated and health-checked.",
-                        "type_description_ar": "حملان مفطومة، عمر ٣-٦ أشهر، للتربية أو التسمين. محصنة ومفحوصة صحياً.",
-                        "variant_name_en": "Weaned Lamb (15-25kg)",
-                        "variant_name_ar": "حمل مفطوم (١٥-٢٥ كجم)",
-                        "weight_range_text_en": "15-25kg",
-                        "weight_range_text_ar": "١٥-٢٥ كجم",
-                        "avg_weight_kg": 20,
-                        "base_price_egp": 4500,
-                        "stock_available_pb": 35,
-                        "is_active": true,
-                        "is_premium": false,
-                        "origin_farm": "Young Stock Farms",
-                        "breed_info_en": "3-6 months weaned",
-                        "breed_info_ar": "مفطوم ٣-٦ أشهر",
-                        "sort_order_type": 6,
-                        "sort_order_variant": 1
                 },
                 {
                         "item_key": "lamb_chops_premium",
@@ -2553,7 +2477,7 @@
                     return { valid: false, message: `❌ Product ${i + 1} base_price_egp must be positive number`, details: product };
                 }
                 
-                const validCategories = ['udheya', 'livesheep_general', 'meat_cuts', 'gathering_package', 'breeding_stock', 'feed_supplies'];
+                const validCategories = ['udheya', 'meat_cuts', 'gathering_package', 'breeding_stock', 'feed_supplies'];
                 if (!validCategories.includes(product.product_category)) {
                     return { valid: false, message: `❌ Product ${i + 1} invalid product_category: ${product.product_category}`, details: product };
                 }
