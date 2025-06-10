@@ -1,41 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Egypt's premier destination for premium sheep, livesheep, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers with quality guaranteed.">
     <title x-text="pageTitle()">Sheep Land</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;family=Noto+Kufi+Arabic:wght@400;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>[x-cloak]{display:none!important}</style>
 </head>
-<body x-data="sheepLand" x-init="initApp()" x-cloak :class="{'has-promo-bar': settings.promoActive && !cd.ended && !isPromoBarDismissed}">
+<body x-data="sheepLand" x-init="initApp()" :class="{'has-promo-bar': settings.promoActive &amp;&amp; !cd.ended &amp;&amp; !isPromoBarDismissed}" class="">
 
-<div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
-<div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'" role="alert" aria-live="assertive" tabindex="-1"></div>
+<div x-show="load.init &amp;&amp; !apiErr" class="load-ind" aria-live="polite" style="display: none;">Loading Sheep Land...</div>
+<div x-show="apiErr" class="err-ind" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'" role="alert" aria-live="assertive" tabindex="-1" style="display: none;"></div>
 
 
 
-<div x-show="isRefundModalOpen" class="modal-overlay" @click="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
-<div x-show="isRefundModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title" @keydown.escape.window="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4">
+<div x-show="isRefundModalOpen" class="modal-overlay" @click="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" style="display: none;"></div>
+<div x-show="isRefundModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="refund-modal-title" @keydown.escape.window="closeRefundModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4" style="display: none;">
     <div class="modal-header">
         <h2 id="refund-modal-title" class="bil-spread modal-title">
-            <span class="en">Refund & Cancellation Policy</span><span class="ar" dir="rtl">سياسة الاسترداد والإلغاء</span>
+            <span class="en">Refund &amp; Cancellation Policy</span><span class="ar" dir="rtl">سياسة الاسترداد والإلغاء</span>
         </h2>
         <button @click="closeRefundModal()" class="modal-close-btn">×</button>
     </div>
     <div class="modal-content policy-container">
-         <div x-html="settings.refundPolicyHTMLContent || '<p>Loading refund policy...</p>'"></div>
+         <div x-html="settings.refundPolicyHTMLContent || '<p>Loading refund policy...</p>'">undefined</div>
     </div>
     <div class="modal-footer">
         <button @click="closeRefundModal()" class="btn bp">Close</button>
     </div>
 </div>
 
-<div x-show="isOrderStatusModalOpen" class="modal-overlay" @click="closeOrderStatusModal()"></div>
-<div x-show="isOrderStatusModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="order-status-modal-title" @keydown.escape.window="closeOrderStatusModal()">
+<div x-show="isOrderStatusModalOpen" class="modal-overlay" @click="closeOrderStatusModal()" style="display: none;"></div>
+<div x-show="isOrderStatusModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="order-status-modal-title" @keydown.escape.window="closeOrderStatusModal()" style="display: none;">
     <div class="modal-header">
         <h2 id="order-status-modal-title" class="bil-spread modal-title">
             <span class="en">Check Order Status</span><span class="ar">تحقق من حالة الطلب</span>
@@ -43,28 +41,28 @@
         <button @click="closeOrderStatusModal()" class="modal-close-btn">×</button>
     </div>
     <div class="modal-content">
-        <form @submit.prevent="submitStatValid()" novalidate>
+        <form @submit.prevent="submitStatValid()" novalidate="">
             <div class="fg">
                 <label for="order_id_lookup_modal" class="bil-spread lbl-req"><span class="en">Enter Order ID *</span><span class="ar">أدخل رقم الطلب *</span></label>
                 <input type="text" id="order_id_lookup_modal" class="input" x-model="lookupOrderID" placeholder="e.g., A1B2C3D4E5" x-ref="lookupOrderIdInputModal" @input="clrErr('lookupOrderID')">
-                <div class="err-msg" x-show="errs.lookupOrderID" x-text="errs.lookupOrderID ? (currLang === 'ar' ? errs.lookupOrderID.ar : errs.lookupOrderID.en) : ''"></div>
+                <div class="err-msg" x-show="errs.lookupOrderID" x-text="errs.lookupOrderID ? (currLang === 'ar' ? errs.lookupOrderID.ar : errs.lookupOrderID.en) : ''" style="display: none;"></div>
             </div>
             <div class="card-act">
-                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.status">
-                    <span x-show="!load.status"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></span>
-                    <span x-show="load.status"><span class="en">Checking...</span><span class="ar">جاري...</span></span>
+                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.status" disabled="disabled">
+                    <span x-show="!load.status" style="display: none;"><span class="en">Check Status</span><span class="ar">تحقق من الحالة</span></span>
+                    <span x-show="load.status" style="display: none;"><span class="en">Checking...</span><span class="ar">جاري...</span></span>
                 </button>
             </div>
         </form>
-        <div class="order-stat-res" x-show="load.status || statRes || statNotFound">
-            <div x-show="load.status && !statRes && !statNotFound" class="load-text tc">Checking...</div>
-            <div x-show="statRes && !load.status">
+        <div class="order-stat-res" x-show="load.status || statRes || statNotFound" style="display: none;">
+            <div x-show="load.status &amp;&amp; !statRes &amp;&amp; !statNotFound" class="load-text tc" style="display: none;">Checking...</div>
+            <div x-show="statRes &amp;&amp; !load.status" style="display: none;">
                 <h4 class="form-subh bil-spread"><span class="en">Order Details</span><span class="ar">تفاصيل الطلب</span></h4>
                 <div class="sum-item bil-row"><div class="en"><strong>ID:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div><div class="ar"><strong>رقم الطلب:</strong> <span x-text="statRes?.orderIdTxt || ''"></span></div></div>
                 <div class="sum-item bil-row"><div class="en"><strong>Status:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div><div class="ar"><strong>حالة الطلب:</strong> <span class="stat-hl" x-text="statRes?.order_status || ''"></span></div></div>
                 <div class="sum-item"><div><strong>Total:</strong> <span x-text="fmtPrice(statRes?.total_amount_due_egp)"></span></div></div>
             </div>
-            <div class="stat-no-res bil-row tc" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب أو اتصل بالدعم.</p></div>
+            <div class="stat-no-res bil-row tc" x-show="statNotFound &amp;&amp; !statRes &amp;&amp; !load.status" style="display: none;"><p class="en">No order found. Check ID or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب أو اتصل بالدعم.</p></div>
         </div>
     </div>
     <div class="modal-footer">
@@ -73,8 +71,8 @@
 </div>
 
 
-<div x-show="isUdheyaConfigModalOpen" class="modal-overlay" @click="closeUdheyaConfiguration()"></div>
-<div x-show="isUdheyaConfigModalOpen" class="modal udheya-config-modal" role="dialog" aria-modal="true" @keydown.escape.window="closeUdheyaConfiguration()">
+<div x-show="isUdheyaConfigModalOpen" class="modal-overlay" @click="closeUdheyaConfiguration()" style="display: none;"></div>
+<div x-show="isUdheyaConfigModalOpen" class="modal udheya-config-modal" role="dialog" aria-modal="true" @keydown.escape.window="closeUdheyaConfiguration()" style="display: none;">
     <div class="modal-header">
         <h2 class="bil-spread modal-title">
             <span class="en">Configure Your Udheya</span><span class="ar" dir="rtl">تخصيص الأضحية</span>
@@ -82,7 +80,7 @@
         <button @click="closeUdheyaConfiguration()" class="modal-close-btn">×</button>
     </div>
     <div class="modal-content">
-        <div x-show="configuringUdheyaItem">
+        <div x-show="configuringUdheyaItem" style="display: none;">
             <h3 class="bil-spread modal-section-title"><span x-text="configuringUdheyaItem?.nameENSpec"></span><span x-text="configuringUdheyaItem?.nameARSpec"></span></h3>
             <div class="fg">
                 <label class="bil-spread lbl-req"><span class="en">Service Option *</span><span class="ar">خيار الخدمة *</span></label>
@@ -102,9 +100,9 @@
                         </div>
                     </label>
                 </div>
-                <div class="err-msg" x-show="errs.udheya_service_config" x-text="getUdheyaConfigErrorText()"></div>
+                <div class="err-msg" x-show="errs.udheya_service_config" x-text="getUdheyaConfigErrorText()" style="display: none;"></div>
             </div>
-            <div class="fg" x-show="tempUdheyaConfig.serviceOption === 'standard_service'">
+            <div class="fg" x-show="tempUdheyaConfig.serviceOption === 'standard_service'" style="display: none;">
                 <label class="bil-spread lbl-req"><span class="en">Sacrifice Day *</span><span class="ar">يوم الذبح *</span></label>
                 <select class="input" x-model="tempUdheyaConfig.sacrificeDay" @change="clrErr('udheya_sacrifice_day_config')">
                     <option value="">-- Select Day --</option>
@@ -126,7 +124,7 @@
                         </label>
                     </template>
                 </div>
-                <div x-show="tempUdheyaConfig.distribution.choice === 'split'">
+                <div x-show="tempUdheyaConfig.distribution.choice === 'split'" style="display: none;">
                     <template x-for="opt in splitOptsList()" :key="opt.val">
                         <label class="bil-radio">
                             <input type="radio" name="split_option_udh_conf" :value="opt.val" x-model="tempUdheyaConfig.distribution.splitOption">
@@ -136,7 +134,7 @@
                             </div>
                         </label>
                     </template>
-                    <textarea x-show="tempUdheyaConfig.distribution.splitOption === 'custom'" class="input" rows="2" x-model="tempUdheyaConfig.distribution.customSplitText" placeholder="Specify custom distribution"></textarea>
+                    <textarea x-show="tempUdheyaConfig.distribution.splitOption === 'custom'" class="input" rows="2" x-model="tempUdheyaConfig.distribution.customSplitText" placeholder="Specify custom distribution" style="display: none;"></textarea>
                 </div>
             </div>
         </div>
@@ -144,7 +142,7 @@
     <div class="modal-footer">
         <button type="button" @click="closeUdheyaConfiguration()" class="btn bp-alt"><span class="en">Cancel</span><span class="ar">إلغاء</span></button>
         <button type="button" @click="confirmUdheyaConfigurationAndProceed()" class="btn bac">
-            <span x-text="tempUdheyaConfig.isBuyNowIntent ? 'Confirm & Buy Now' : 'Confirm & Add to Cart'"></span>
+            <span x-text="tempUdheyaConfig.isBuyNowIntent ? 'Confirm &amp; Buy Now' : 'Confirm &amp; Add to Cart'"></span>
         </button>
     </div>
 </div>
@@ -157,14 +155,14 @@
                 <div class="wa-contact-top">
                     <button @click="toggleWhatsAppChat()" class="wa-contact-btn" title="WhatsApp Chat">
                         <svg class="wa-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"></path>
                         </svg>
                         <span x-text="settings.waNumDisp"></span>
                     </button>
                 </div>
                 <button @click="feedbackSystem.openFeedbackModal()" class="feedback-top-btn" title="Give Feedback">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                     </svg>
                     <span class="bil-inline">
                         <span class="en">Feedback</span>
@@ -173,7 +171,7 @@
                 </button>
                 <button @click="openOrderStatusModal()" class="track-order-btn" title="Track Your Order">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
                     </svg>
                     <span class="bil-inline">
                         <span class="en">Track Order</span>
@@ -186,7 +184,7 @@
 </div>
 
 <!-- Promo Bar -->
-<div x-show="settings.promoActive && !cd.ended && !isPromoBarDismissed" class="promo-bar" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform -translate-y-full">
+<div x-show="settings.promoActive &amp;&amp; !cd.ended &amp;&amp; !isPromoBarDismissed" class="promo-bar" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform -translate-y-full" style="display: none;">
     <div class="c">
         <div class="promo-bar-content">
             <div class="promo-bar-text">
@@ -198,7 +196,7 @@
                     <span x-text="settings.promoDiscPc + '%'"></span> OFF
                 </span>
             </div>
-            <div class="promo-bar-countdown" x-show="!cd.ended">
+            <div class="promo-bar-countdown" x-show="!cd.ended" style="display: none;">
                 <div class="cd-mini">
                     <span class="cd-mini-item">
                         <span class="cd-mini-val" x-text="cd.days"></span>
@@ -223,15 +221,15 @@
             </div>
             <button @click="isPromoBarDismissed = true" class="promo-bar-close" aria-label="Close promo">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                    <line x1="6" y1="6" x2="18" y2="18"/>
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
         </div>
     </div>
 </div>
 
-<header class="site-head" :class="{'with-promo': settings.promoActive && !cd.ended && !isPromoBarDismissed}">
+<header class="site-head" :class="{'with-promo': settings.promoActive &amp;&amp; !cd.ended &amp;&amp; !isPromoBarDismissed}">
     <div class="c nav-cont">
         <a href="#home" class="logo bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('home')">
             <span class="en" x-text="settings.site_title_en || 'Sheep Land Egypt'"></span>
@@ -274,7 +272,7 @@
                         <span class="ar">لحوم مجهزة</span>
                     </a>
                     <ul class="nav-dropdown-menu">
-                        <li><a href="#slaughtered" @click.prevent="navigateToOrScroll('slaughtered')"><span class="en">Slaughtered & Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
+                        <li><a href="#slaughtered" @click.prevent="navigateToOrScroll('slaughtered')"><span class="en">Slaughtered &amp; Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
                         <li><a href="#meat-cuts" @click.prevent="navigateToOrScroll('meat-cuts')"><span class="en">Meat Cuts</span><span class="ar">قطعيات</span></a></li>
                     </ul>
                 </li>
@@ -284,39 +282,39 @@
         <div class="head-extras desk-extras">
             <button @click="toggleSearch()" class="header-action-btn" title="Search">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.35-4.35"/>
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
                 </svg>
             </button>
             <template x-if="!currentUser">
                 <button @click="toggleAuthDropdown()" class="header-action-btn" title="Login">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </button>
             </template>
             <template x-if="currentUser">
                 <button @click="toggleAccountDropdown()" class="header-action-btn" title="My Account">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </button>
             </template>
             <button @click="toggleWishlistDropdown()" class="header-action-btn wishlist-btn" title="Wishlist">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
-                <span x-show="wishlistCount > 0" class="wishlist-badge" x-text="wishlistCount"></span>
+                <span x-show="wishlistCount > 0" class="wishlist-badge" x-text="wishlistCount" style="display: none;"></span>
             </button>
             <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="9" cy="21" r="1"/>
-                    <circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                 </svg>
-                <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
+                <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount" style="display: none;"></span>
             </button>
             <div class="curr-sel">
                 <select x-model="curr" title="Currency">
@@ -331,39 +329,39 @@
         <div class="head-extras mob-extras">
             <button @click="toggleSearch()" class="header-action-btn" title="Search">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.35-4.35"/>
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
                 </svg>
             </button>
             <template x-if="!currentUser">
                 <button @click="toggleAuthDropdown()" class="header-action-btn" title="Login">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </button>
             </template>
             <template x-if="currentUser">
                 <button @click="toggleAccountDropdown()" class="header-action-btn" title="My Account">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </button>
             </template>
             <button @click="toggleWishlistDropdown()" class="header-action-btn wishlist-btn" title="Wishlist">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
-                <span x-show="wishlistCount > 0" class="wishlist-badge" x-text="wishlistCount"></span>
+                <span x-show="wishlistCount > 0" class="wishlist-badge" x-text="wishlistCount" style="display: none;"></span>
             </button>
             <button @click="toggleCart()" class="header-action-btn" title="Shopping Cart">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="9" cy="21" r="1"/>
-                    <circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                 </svg>
-                <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount"></span>
+                <span x-show="cartItems.length > 0" class="cart-count-badge" x-text="cartItemCount" style="display: none;"></span>
             </button>
             <div class="curr-sel">
                 <select x-model="curr" title="Currency">
@@ -380,22 +378,13 @@
 </header>
 
 <!-- Search Dropdown -->
-<div class="search-dropdown" x-show="showSearch" x-transition @click.outside="closeAllDropdowns()">
+<div class="search-dropdown" x-show="showSearch" x-transition="" @click.outside="closeAllDropdowns()" style="display: none;">
     <div class="c">
         <div class="search-dropdown-content">
-            <input 
-                type="text" 
-                id="searchBar"
-                class="search-input-header" 
-                x-model="searchQuery"
-                @input="filterProducts()"
-                :placeholder="currLang === 'en' ? 'Search products...' : 'ابحث عن المنتجات...'"
-                x-ref="searchInput"
-                @keydown.escape="showSearch = false"
-            >
-            <div class="search-results" x-show="searchQuery.length > 1">
+            <input type="text" id="searchBar" class="search-input-header" x-model="searchQuery" @input="filterProducts()" :placeholder="currLang === 'en' ? 'Search products...' : 'ابحث عن المنتجات...'" x-ref="searchInput" @keydown.escape="showSearch = false" placeholder="">
+            <div class="search-results" x-show="searchQuery.length > 1" style="display: none;">
                 <template x-for="category in Object.keys(filteredProducts)" :key="category">
-                    <template x-if="filteredProducts[category] && filteredProducts[category].length > 0">
+                    <template x-if="filteredProducts[category] &amp;&amp; filteredProducts[category].length > 0">
                         <div class="search-category">
                             <h4 class="bil-inline">
                                 <span class="en" x-text="getCategoryDisplayName(category).en"></span>
@@ -412,7 +401,7 @@
                         </div>
                     </template>
                 </template>
-                <div x-show="Object.keys(filteredProducts).length === 0 && searchQuery.length > 1" class="empty-state tc">
+                <div x-show="Object.keys(filteredProducts).length === 0 &amp;&amp; searchQuery.length > 1" class="empty-state tc" style="display: none;">
                     <p class="bil-row">
                         <span class="en">No products found</span>
                         <span class="ar">لم يتم العثور على منتجات</span>
@@ -424,13 +413,13 @@
 </div>
 
 <!-- WhatsApp Dropdown -->
-<div class="whatsapp-dropdown" x-show="showWhatsAppChat" x-transition @click.outside="closeAllDropdowns()">
+<div class="whatsapp-dropdown" x-show="showWhatsAppChat" x-transition="" @click.outside="closeAllDropdowns()" style="display: none;">
     <div class="c">
         <div class="whatsapp-dropdown-content">
             <div class="whatsapp-header">
                 <div class="whatsapp-info">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="#25D366">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"></path>
                     </svg>
                     <div>
                         <h3 class="bil-row">
@@ -485,16 +474,10 @@
             </div>
             
             <form @submit.prevent="sendWhatsAppMessage()" class="whatsapp-input-form">
-                <input 
-                    type="text" 
-                    x-model="chatMessage" 
-                    class="whatsapp-input" 
-                    :placeholder="currLang === 'en' ? 'Type a message...' : 'اكتب رسالة...'"
-                    x-ref="whatsappInput"
-                >
+                <input type="text" x-model="chatMessage" class="whatsapp-input" :placeholder="currLang === 'en' ? 'Type a message...' : 'اكتب رسالة...'" x-ref="whatsappInput" placeholder="">
                 <button type="submit" class="whatsapp-send-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                     </svg>
                 </button>
             </form>
@@ -503,14 +486,14 @@
 </div>
 
 <!-- Account Dropdown -->
-<div class="account-dropdown" x-show="showAccountDropdown" x-transition @click.outside="closeAllDropdowns()">
+<div class="account-dropdown" x-show="showAccountDropdown" x-transition="" @click.outside="closeAllDropdowns()" style="display: none;">
     <div class="c">
         <div class="account-dropdown-content">
             <div class="account-info">
                 <div class="account-header">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="account-avatar">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                     <div class="account-details">
                         <h3 class="account-name" x-text="currentUser?.name || 'Welcome'"></h3>
@@ -520,7 +503,7 @@
                 <div class="account-menu">
                     <a href="#account" @click="closeAllDropdowns(); navigateToOrScroll('account')" class="account-menu-item">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 11H3v10h6V11zm5 0h6v10h-6V11zM10 3h4v5h-4V3z"/>
+                            <path d="M9 11H3v10h6V11zm5 0h6v10h-6V11zM10 3h4v5h-4V3z"></path>
                         </svg>
                         <span class="bil-inline">
                             <span class="en">My Orders</span>
@@ -529,8 +512,8 @@
                     </a>
                     <a href="#account" @click="closeAllDropdowns(); navigateToOrScroll('account')" class="account-menu-item">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                         <span class="bil-inline">
                             <span class="en">Profile Settings</span>
@@ -540,16 +523,16 @@
                     <template x-if="currentUser?.is_admin === true">
                         <a href="#admin" @click="closeAllDropdowns(); window.location.hash = 'admin'" class="account-menu-item admin-menu-item">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <path d="M9 9h6v6h-6z"/>
-                                <path d="M9 3v6"/>
-                                <path d="M15 3v6"/>
-                                <path d="M9 15v6"/>
-                                <path d="M15 15v6"/>
-                                <path d="M3 9h6"/>
-                                <path d="M15 9h6"/>
-                                <path d="M3 15h6"/>
-                                <path d="M15 15h6"/>
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <path d="M9 9h6v6h-6z"></path>
+                                <path d="M9 3v6"></path>
+                                <path d="M15 3v6"></path>
+                                <path d="M9 15v6"></path>
+                                <path d="M15 15v6"></path>
+                                <path d="M3 9h6"></path>
+                                <path d="M15 9h6"></path>
+                                <path d="M3 15h6"></path>
+                                <path d="M15 15h6"></path>
                             </svg>
                             <span class="bil-inline">
                                 <span class="en">Admin Dashboard</span>
@@ -559,9 +542,9 @@
                     </template>
                     <button @click="logoutUser(); closeAllDropdowns();" class="account-menu-item logout-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                            <polyline points="16 17 21 12 16 7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
                         </svg>
                         <span class="bil-inline">
                             <span class="en">Logout</span>
@@ -575,7 +558,7 @@
 </div>
 
 <!-- Mobile Navigation Dropdown -->
-<div class="mobile-nav-dropdown" x-show="isMobNavOpen" x-transition @click.outside="closeAllDropdowns()">
+<div class="mobile-nav-dropdown" x-show="isMobNavOpen" x-transition="" @click.outside="closeAllDropdowns()" style="display: none;">
     <div class="c">
         <div class="mobile-nav-content">
             <nav>
@@ -604,7 +587,7 @@
                         <span class="en">Processed Meat</span>
                         <span class="ar">لحوم مجهزة</span>
                     </li>
-                    <li><a href="#slaughtered" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('slaughtered')"><span class="en">Slaughtered & Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
+                    <li><a href="#slaughtered" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('slaughtered')"><span class="en">Slaughtered &amp; Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
                     <li><a href="#meat-cuts" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat-cuts')"><span class="en">Meat Cuts</span><span class="ar">قطعيات</span></a></li>
                 </ul>
             </nav>
@@ -613,11 +596,11 @@
 </div>
 
 <!-- Auth/Login Dropdown -->
-<div class="auth-dropdown" x-show="showAuthDropdown" x-transition @click.outside="closeAllDropdowns()">
+<div class="auth-dropdown" x-show="showAuthDropdown" x-transition="" @click.outside="closeAllDropdowns()" style="display: none;">
     <div class="c">
         <div class="auth-dropdown-content">
             <!-- Welcome/Choice View -->
-            <div x-show="auth.view === 'welcome'" class="auth-view">
+            <div x-show="auth.view === 'welcome'" class="auth-view" style="display: none;">
                 <div class="auth-header">
                     <h2 class="bil-spread">
                         <span class="en">Welcome</span>
@@ -631,9 +614,9 @@
                 <div class="auth-quick-actions">
                     <button @click="auth.view = 'login'" class="auth-action-btn primary">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                            <polyline points="10 17 15 12 10 7"/>
-                            <line x1="15" y1="12" x2="3" y2="12"/>
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
                         </svg>
                         <span class="bil-inline">
                             <span class="en">Sign In</span>
@@ -642,10 +625,10 @@
                     </button>
                     <button @click="auth.view = 'register'" class="auth-action-btn secondary">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                            <circle cx="8.5" cy="7" r="4"/>
-                            <line x1="20" y1="8" x2="20" y2="14"/>
-                            <line x1="23" y1="11" x2="17" y2="11"/>
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                            <line x1="23" y1="11" x2="17" y2="11"></line>
                         </svg>
                         <span class="bil-inline">
                             <span class="en">Create Account</span>
@@ -661,8 +644,8 @@
                 </div>
                 <button @click="showAuthDropdown = false; navigateToOrScroll('checkout')" class="auth-action-btn guest">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                     <span class="bil-inline">
                         <span class="en">Guest Checkout</span>
@@ -672,11 +655,11 @@
             </div>
 
             <!-- Login View -->
-            <div x-show="auth.view === 'login'" class="auth-view">
+            <div x-show="auth.view === 'login'" class="auth-view" style="display: none;">
                 <div class="auth-header">
                     <button @click="auth.view = 'welcome'" class="auth-back-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="15 18 9 12 15 6"/>
+                            <polyline points="15 18 9 12 15 6"></polyline>
                         </svg>
                     </button>
                     <h2 class="bil-spread">
@@ -685,27 +668,27 @@
                     </h2>
                 </div>
                 <form @submit.prevent="loginUser()" class="auth-form">
-                    <div x-show="errs.auth_login" class="err-msg" x-text="errs.auth_login ? (currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en) : ''"></div>
+                    <div x-show="errs.auth_login" class="err-msg" x-text="errs.auth_login ? (currLang === 'ar' ? errs.auth_login.ar : errs.auth_login.en) : ''" style="display: none;"></div>
                     <div class="fg">
                         <label for="login_email_dropdown" class="bil-spread lbl-req">
                             <span class="en">Email *</span>
                             <span class="ar">البريد الإلكتروني *</span>
                         </label>
-                        <input type="email" id="login_email_dropdown" class="input" x-model="auth.email" required>
+                        <input type="email" id="login_email_dropdown" class="input" x-model="auth.email" required="">
                     </div>
                     <div class="fg">
                         <label for="login_password_dropdown" class="bil-spread lbl-req">
                             <span class="en">Password *</span>
                             <span class="ar">كلمة المرور *</span>
                         </label>
-                        <input type="password" id="login_password_dropdown" class="input" x-model="auth.password" required>
+                        <input type="password" id="login_password_dropdown" class="input" x-model="auth.password" required="">
                     </div>
-                    <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
-                        <span x-show="!load.auth">
+                    <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth" disabled="disabled">
+                        <span x-show="!load.auth" style="display: none;">
                             <span class="en">Sign In</span>
                             <span class="ar">دخول</span>
                         </span>
-                        <span x-show="load.auth">
+                        <span x-show="load.auth" style="display: none;">
                             <span class="en">Signing in...</span>
                             <span class="ar">جاري الدخول...</span>
                         </span>
@@ -724,11 +707,11 @@
             </div>
 
             <!-- Register View -->
-            <div x-show="auth.view === 'register'" class="auth-view">
+            <div x-show="auth.view === 'register'" class="auth-view" style="display: none;">
                 <div class="auth-header">
                     <button @click="auth.view = 'welcome'" class="auth-back-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="15 18 9 12 15 6"/>
+                            <polyline points="15 18 9 12 15 6"></polyline>
                         </svg>
                     </button>
                     <h2 class="bil-spread">
@@ -737,42 +720,42 @@
                     </h2>
                 </div>
                 <form @submit.prevent="registerUser()" class="auth-form">
-                    <div x-show="errs.auth_register" class="err-msg" x-text="errs.auth_register ? (currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en) : ''"></div>
-                    <div x-show="errs.auth_form_success" class="success-msg" x-text="errs.auth_form_success ? (currLang === 'ar' ? errs.auth_form_success.ar : errs.auth_form_success.en) : ''"></div>
+                    <div x-show="errs.auth_register" class="err-msg" x-text="errs.auth_register ? (currLang === 'ar' ? errs.auth_register.ar : errs.auth_register.en) : ''" style="display: none;"></div>
+                    <div x-show="errs.auth_form_success" class="success-msg" x-text="errs.auth_form_success ? (currLang === 'ar' ? errs.auth_form_success.ar : errs.auth_form_success.en) : ''" style="display: none;"></div>
                     <div class="fg">
                         <label for="register_name_dropdown" class="bil-spread lbl-req">
                             <span class="en">Name *</span>
                             <span class="ar">الاسم *</span>
                         </label>
-                        <input type="text" id="register_name_dropdown" class="input" x-model="auth.name" required>
+                        <input type="text" id="register_name_dropdown" class="input" x-model="auth.name" required="">
                     </div>
                     <div class="fg">
                         <label for="register_email_dropdown" class="bil-spread lbl-req">
                             <span class="en">Email *</span>
                             <span class="ar">البريد الإلكتروني *</span>
                         </label>
-                        <input type="email" id="register_email_dropdown" class="input" x-model="auth.email" required>
+                        <input type="email" id="register_email_dropdown" class="input" x-model="auth.email" required="">
                     </div>
                     <div class="fg">
                         <label for="register_password_dropdown" class="bil-spread lbl-req">
                             <span class="en">Password *</span>
                             <span class="ar">كلمة المرور *</span>
                         </label>
-                        <input type="password" id="register_password_dropdown" class="input" x-model="auth.password" required>
+                        <input type="password" id="register_password_dropdown" class="input" x-model="auth.password" required="">
                     </div>
                     <div class="fg">
                         <label for="register_password_confirm_dropdown" class="bil-spread lbl-req">
                             <span class="en">Confirm Password *</span>
                             <span class="ar">تأكيد كلمة المرور *</span>
                         </label>
-                        <input type="password" id="register_password_confirm_dropdown" class="input" x-model="auth.passwordConfirm" required>
+                        <input type="password" id="register_password_confirm_dropdown" class="input" x-model="auth.passwordConfirm" required="">
                     </div>
-                    <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
-                        <span x-show="!load.auth">
+                    <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth" disabled="disabled">
+                        <span x-show="!load.auth" style="display: none;">
                             <span class="en">Create Account</span>
                             <span class="ar">إنشاء حساب</span>
                         </span>
-                        <span x-show="load.auth">
+                        <span x-show="load.auth" style="display: none;">
                             <span class="en">Creating...</span>
                             <span class="ar">جاري الإنشاء...</span>
                         </span>
@@ -794,7 +777,7 @@
 </div>
 
 <!-- Cart Dropdown -->
-<div class="cart-dropdown" x-show="isCartOpen" x-transition @click.outside="closeCart()">
+<div class="cart-dropdown" x-show="isCartOpen" x-transition="" @click.outside="closeCart()" style="display: none;">
     <div class="c">
         <div class="cart-dropdown-content">
             <div class="cart-header">
@@ -803,11 +786,11 @@
                 </h2>
             </div>
             <div class="cart-items-container">
-                <div x-show="cartItems.length === 0" class="cart-empty-state">
+                <div x-show="cartItems.length === 0" class="cart-empty-state" style="display: none;">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-cart-icon">
-                        <circle cx="9" cy="21" r="1"/>
-                        <circle cx="20" cy="21" r="1"/>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                     </svg>
                     <p class="bil-spread cart-empty-text">
                         <span class="en">Your cart is empty</span>
@@ -818,7 +801,7 @@
                         <span class="ar">ابدأ التسوق</span>
                     </button>
                 </div>
-                <div x-show="cartItems.length > 0" class="cart-items-list">
+                <div x-show="cartItems.length > 0" class="cart-items-list" style="display: none;">
                     <template x-for="(cartItem) in cartItems.slice(0, 3)" :key="cartItem.uniqueIdInCart">
                         <div class="cart-dropdown-item">
                             <div class="cart-item-info">
@@ -830,13 +813,13 @@
                             </div>
                             <button @click="removeFromCart(cartItem.uniqueIdInCart)" class="cart-item-remove" title="Remove">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
                             </button>
                         </div>
                     </template>
-                    <div x-show="cartItems.length > 3" class="cart-more-items">
+                    <div x-show="cartItems.length > 3" class="cart-more-items" style="display: none;">
                         <span class="bil-inline">
                             <span class="en">+ <span x-text="cartItems.length - 3"></span> more items</span>
                             <span class="ar">+ <span x-text="cartItems.length - 3"></span> عناصر أخرى</span>
@@ -844,7 +827,7 @@
                     </div>
                 </div>
             </div>
-            <div class="cart-dropdown-footer" x-show="cartItems.length > 0">
+            <div class="cart-dropdown-footer" x-show="cartItems.length > 0" style="display: none;">
                 <div class="cart-total-row">
                     <span class="cart-total-label en">Total</span>
                     <span class="cart-total-amount" x-text="fmtPrice(calculateCartTotal())"></span>
@@ -867,7 +850,7 @@
 
 <!-- Wishlist Modal -->
 <!-- Wishlist Dropdown -->
-<div class="wishlist-dropdown" x-show="isWishlistOpen" x-transition @click.outside="closeWishlist()">
+<div class="wishlist-dropdown" x-show="isWishlistOpen" x-transition="" @click.outside="closeWishlist()" style="display: none;">
     <div class="c">
         <div class="wishlist-dropdown-content">
             <div class="wishlist-header">
@@ -876,9 +859,9 @@
                 </h2>
             </div>
             <div class="wishlist-items-container">
-                <div x-show="wishlistItems.length === 0" class="wishlist-empty-state">
+                <div x-show="wishlistItems.length === 0" class="wishlist-empty-state" style="display: none;">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-wishlist-icon">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                     </svg>
                     <p class="bil-spread wishlist-empty-text">
                         <span class="en">Your wishlist is empty</span>
@@ -889,7 +872,7 @@
                         <span class="ar">ابدأ التسوق</span>
                     </button>
                 </div>
-                <div x-show="wishlistItems.length > 0" class="wishlist-items-list">
+                <div x-show="wishlistItems.length > 0" class="wishlist-items-list" style="display: none;">
                     <template x-for="(item) in wishlistItems.slice(0, 4)" :key="item.item_key">
                         <div class="wishlist-dropdown-item">
                             <img :src="item.image" :alt="item.name_en" class="wishlist-item-image">
@@ -903,21 +886,21 @@
                             <div class="wishlist-item-actions">
                                 <button @click="moveToCart(item)" class="wishlist-item-add" title="Add to Cart">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="9" cy="21" r="1"/>
-                                        <circle cx="20" cy="21" r="1"/>
-                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                                     </svg>
                                 </button>
                                 <button @click="removeFromWishlist(item.item_key)" class="wishlist-item-remove" title="Remove">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="18" y1="6" x2="6" y2="18"/>
-                                        <line x1="6" y1="6" x2="18" y2="18"/>
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
                                 </button>
                             </div>
                         </div>
                     </template>
-                    <div x-show="wishlistItems.length > 4" class="wishlist-more-items">
+                    <div x-show="wishlistItems.length > 4" class="wishlist-more-items" style="display: none;">
                         <span class="bil-inline">
                             <span class="en">+ <span x-text="wishlistItems.length - 4"></span> more items</span>
                             <span class="ar">+ <span x-text="wishlistItems.length - 4"></span> عناصر أخرى</span>
@@ -925,7 +908,7 @@
                     </div>
                 </div>
             </div>
-            <div class="wishlist-dropdown-footer" x-show="wishlistItems.length > 0">
+            <div class="wishlist-dropdown-footer" x-show="wishlistItems.length > 0" style="display: none;">
                 <div class="wishlist-count-row">
                     <span class="wishlist-count-label en">Total Items</span>
                     <span class="wishlist-count-number" x-text="wishlistItems.length"></span>
@@ -969,14 +952,12 @@
         </div>
     </template>
 
-    <section class="main-page-sec" x-show="currentPage === 'home'" x-transition>
-        <div class="c">
-            <div class="hero">
-                <div class="hero-overlay"></div>
-                <div class="hero-content">
+    <section class="hero main-page-sec" x-show="currentPage === 'home'" x-transition="" style="display: none;">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
             <div class="c">
                 <h1 class="hero-title bil-spread">
-                    <span class="en">Premium Halal Meat & Live Sheep</span>
+                    <span class="en">Premium Halal Meat &amp; Live Sheep</span>
                     <span class="ar">لحوم حلال وأغنام فاخرة</span>
                 </h1>
                 <div class="hero-subtitle bil-row">
@@ -993,7 +974,7 @@
                             <div class="hero-collection-card" @click="navigateToOrScroll('udheya')">
                                 <div class="collection-icon">🐑</div>
                                 <h3 class="bil-inline">
-                                    <span class="en">Udheya & Qurbani</span>
+                                    <span class="en">Udheya &amp; Qurbani</span>
                                     <span class="ar">الأضحية والقرباني</span>
                                 </h3>
                                 <p class="bil-row">
@@ -1006,7 +987,7 @@
                             <div class="hero-collection-card" @click="navigateToOrScroll('meat')">
                                 <div class="collection-icon">🥩</div>
                                 <h3 class="bil-inline">
-                                    <span class="en">Fresh Meat & Cuts</span>
+                                    <span class="en">Fresh Meat &amp; Cuts</span>
                                     <span class="ar">اللحوم والقطعيات</span>
                                 </h3>
                                 <p class="bil-row">
@@ -1019,7 +1000,7 @@
                             <div class="hero-collection-card" @click="navigateToOrScroll('livesheep')">
                                 <div class="collection-icon">🐏</div>
                                 <h3 class="bil-inline">
-                                    <span class="en">Live Sheep & Rams</span>
+                                    <span class="en">Live Sheep &amp; Rams</span>
                                     <span class="ar">الأغنام والكباش</span>
                                 </h3>
                                 <p class="bil-row">
@@ -1032,7 +1013,7 @@
                             <div class="hero-collection-card" @click="navigateToOrScroll('gatherings')">
                                 <div class="collection-icon">🎉</div>
                                 <h3 class="bil-inline">
-                                    <span class="en">Events & Gatherings</span>
+                                    <span class="en">Events &amp; Gatherings</span>
                                     <span class="ar">المناسبات والولائم</span>
                                 </h3>
                                 <p class="bil-row">
@@ -1068,7 +1049,7 @@
                             <span class="ar">توصيل سريع</span>
                         </h4>
                         <p class="bil-inline">
-                            <span class="en">Same day across Cairo & Giza</span>
+                            <span class="en">Same day across Cairo &amp; Giza</span>
                             <span class="ar">نفس اليوم في القاهرة والجيزة</span>
                         </p>
                     </div>
@@ -1102,6 +1083,10 @@
                 
                 <!-- Why Choose Us in hero -->
                 <div class="hero-why-choose">
+                    <h2 class="bil-spread">
+                        <span class="en">Why Egypt Trusts Sheep.Land</span>
+                        <span class="ar">لماذا تثق مصر في أرض الأغنام</span>
+                    </h2>
                     <div class="hero-features-grid">
                         <div class="hero-feature">
                             <div class="feature-icon">🕌</div>
@@ -1135,12 +1120,10 @@
                 </div>
             </div>
         </div>
-            </div>
-        </div>
-    </section>
+    </div></div></section>
 
     <!-- All Products Section for Home Page -->
-    <section class="all-products-section main-page-sec" x-show="currentPage === 'home'" x-transition>
+    <section class="all-products-section main-page-sec" x-show="currentPage === 'home'" x-transition="" style="display: none;">
         <div class="c">
             <div class="section-header centered">
                 <h2 class="bil-spread">
@@ -1151,7 +1134,7 @@
             
             <!-- Show all product categories -->
             <template x-for="category in Object.keys(prodOpts)" :key="category">
-                <div x-show="prodOpts[category] && prodOpts[category].length > 0" class="category-section">
+                <div x-show="prodOpts[category] &amp;&amp; prodOpts[category].length > 0" class="category-section">
                     <h3 class="category-title bil-spread">
                         <span class="en" x-text="getCategoryDisplayName(category, 'en')"></span>
                         <span class="ar" x-text="getCategoryDisplayName(category, 'ar')"></span>
@@ -1163,12 +1146,9 @@
                                     <div class="card-img">
                                         <img :src="getProductImage(item, category)" :alt="item.nameENSpec" loading="lazy">
                                         <div class="badge" :class="getBadgeClass(category, item)" x-text="getBadgeText(category, item)"></div>
-                                        <button @click="toggleWishlist(item)" 
-                                                class="wishlist-icon" 
-                                                :class="{ 'active': isInWishlist(item.itemKey) }"
-                                                :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
+                                        <button @click="toggleWishlist(item)" class="wishlist-icon" :class="{ 'active': isInWishlist(item.itemKey) }" :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
+                                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"></path>
                                             </svg>
                                         </button>
                                     </div>
@@ -1183,9 +1163,7 @@
                                             <div class="price-line">
                                                 <strong x-text="fmtPrice(item.priceEGP)"></strong>
                                             </div>
-                                            <button type="button" @click="handleProductClick(item, category)" 
-                                                    class="btn bp btn-sm btn-block" 
-                                                    :disabled="!item.isActive || item.stock <= 0">
+                                            <button type="button" @click="handleProductClick(item, category)" class="btn bp btn-sm btn-block" :disabled="!item.isActive || item.stock <= 0">
                                                 <span class="bil-inline">
                                                     <span class="en" x-text="category === 'udheya' ? 'Configure' : 'Add to Cart'"></span>
                                                     <span class="ar" x-text="category === 'udheya' ? 'تكوين' : 'أضف للسلة'"></span>
@@ -1203,7 +1181,7 @@
     </section>
 
     <!-- Udheya Section -->
-    <section id="udheya" class="main-page-sec sec" x-show="currentPage === 'udheya' && settings.enable_udheya_section" x-transition>
+    <section id="udheya" class="main-page-sec sec" x-show="currentPage === 'udheya' &amp;&amp; settings.enable_udheya_section" x-transition="" style="display: none;">
         <div class="c">
             <div class="sec-head">
                 <h1 class="bil-spread" tabindex="-1">
@@ -1211,19 +1189,16 @@
                     <span class="ar">مجموعة الأضاحي الفاخرة</span>
                 </h1>
             </div>
-            <div x-show="prodOpts.udheya && prodOpts.udheya.length > 0" class="prod-grid grid2">
+            <div x-show="prodOpts.udheya &amp;&amp; prodOpts.udheya.length > 0" class="prod-grid grid2" style="display: none;">
                 <template x-for="productType in prodOpts.udheya" :key="productType.valKey">
                     <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                         <div class="card card-live" :class="{'card-sel': item.is_premium}">
                             <div class="card-img">
                                 <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec || 'Udheya sheep'" loading="lazy">
                                 <div class="badge udheya-badge">UDHEYA</div>
-                                <button @click="toggleWishlist(item)" 
-                                        class="wishlist-icon" 
-                                        :class="{ 'active': isInWishlist(item.itemKey) }"
-                                        :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
+                                <button @click="toggleWishlist(item)" class="wishlist-icon" :class="{ 'active': isInWishlist(item.itemKey) }" :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"></path>
                                     </svg>
                                 </button>
                             </div>
@@ -1243,15 +1218,13 @@
                                         <strong x-text="fmtPrice(item.priceEGP)"></strong>
                                         <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
                                     </div>
-                                    <button type="button" @click="openUdheyaConfiguration(item)" 
-                                            class="btn bp btn-lg btn-block" 
-                                            :disabled="!item.isActive || item.stock <= 0">
+                                    <button type="button" @click="openUdheyaConfiguration(item)" class="btn bp btn-lg btn-block" :disabled="!item.isActive || item.stock <= 0">
                                         <span class="bil-inline">
-                                            <span class="en">Configure & Order</span>
+                                            <span class="en">Configure &amp; Order</span>
                                             <span class="ar">تكوين وطلب</span>
                                         </span>
                                     </button>
-                                    <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}">
+                                    <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 &amp;&amp; item.stock <= 5}">
                                         <span class="bil-inline">
                                             <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
                                             <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
@@ -1263,7 +1236,7 @@
                         </template>
                     </template>
             </div>
-            <div x-show="!prodOpts.udheya || prodOpts.udheya.length === 0" class="empty-state">
+            <div x-show="!prodOpts.udheya || prodOpts.udheya.length === 0" class="empty-state" style="display: none;">
                 <p class="bil-row">
                     <span class="en">No Udheya products available at the moment.</span>
                     <span class="ar">لا توجد منتجات أضحية متاحة حالياً.</span>
@@ -1274,26 +1247,23 @@
 
     <!-- Other Sections -->
     <template x-for="section in productSections" :key="section.key">
-        <section class="main-page-sec sec" x-show="currentPage === section.key && settings['enable_' + section.key + '_section']" x-transition>
+        <section class="main-page-sec sec" x-show="currentPage === section.key &amp;&amp; settings['enable_' + section.key + '_section']" x-transition="">
             <div class="c">
                 <div class="sec-head">
                     <h1 class="bil-spread" tabindex="-1">
                         <span class="en" x-text="section.name.en"></span><span class="ar" x-text="section.name.ar"></span>
                     </h1>
                 </div>
-                <div x-show="section && section.products && section.products.length > 0" class="prod-grid grid2">
+                <div x-show="section &amp;&amp; section.products &amp;&amp; section.products.length > 0" class="prod-grid grid2">
                     <template x-for="productType in section.products" :key="productType.valKey">
                         <template x-for="item in productType.wps" :key="productType.valKey + '_' + item.itemKey">
                             <div class="card card-live" :class="{'card-sel': item.is_premium}">
                                 <div class="card-img">
                                     <img :src="getProductImage(item, section.key)" :alt="item.nameENSpec || section.name.en" loading="lazy">
                                     <div class="badge" :class="{'udheya-badge': section.key === 'udheya', 'premium-badge': item.is_premium}" x-text="item.is_premium ? 'PREMIUM' : section.badge"></div>
-                                    <button @click="toggleWishlist(item)" 
-                                            class="wishlist-icon" 
-                                            :class="{ 'active': isInWishlist(item.itemKey) }"
-                                            :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
+                                    <button @click="toggleWishlist(item)" class="wishlist-icon" :class="{ 'active': isInWishlist(item.itemKey) }" :title="isInWishlist(item.itemKey) ? 'Remove from wishlist' : 'Add to wishlist'">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"/>
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" :fill="isInWishlist(item.itemKey) ? 'currentColor' : 'none'"></path>
                                         </svg>
                                     </button>
                                 </div>
@@ -1313,7 +1283,7 @@
                                             <div>
                                                 <div class="price-line-with-dropdown">
                                                     <select class="size-dropdown-inline" x-model="selectedMeatWeights[item.itemKey]" x-init="selectedMeatWeights[item.itemKey] = '1'">
-                                                        <option value="1" selected>1 kg</option>
+                                                        <option value="1" selected="">1 kg</option>
                                                         <option value="2">2 kg</option>
                                                         <option value="3">3 kg</option>
                                                         <option value="5">5 kg</option>
@@ -1328,7 +1298,7 @@
                                                 </button>
                                             </div>
                                         </template>
-                                        <template x-if="section.key !== 'meat' && section.key !== 'udheya'">
+                                        <template x-if="section.key !== 'meat' &amp;&amp; section.key !== 'udheya'">
                                             <div>
                                                 <div class="price-line">
                                                     <strong x-text="fmtPrice(item.priceEGP)"></strong>
@@ -1339,7 +1309,7 @@
                                                 </button>
                                             </div>
                                         </template>
-                                        <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 && item.stock <= 5}">
+                                        <span class="stock-display" :class="{'out-of-stock': !item.isActive || item.stock <= 0, 'low-stock': item.stock > 0 &amp;&amp; item.stock <= 5}">
                                             <span class="bil-inline">
                                                 <span class="en" x-text="getStockDisplayInfo(item.stock, item.isActive, 'en')"></span>
                                                 <span class="ar" x-text="getStockDisplayInfo(item.stock, item.isActive, 'ar')"></span>
@@ -1348,50 +1318,50 @@
                                     </div>
                                     </div>
                                 </div>
-                            </div>
+                            
                             </template>
                         </template>
-                    </template>
-                </div>
-                <p class="succ-msg bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section?.key && !addedToCartMsg.isError">
+                    </div></div></section></template>
+                
+                <p class="succ-msg bil-row tc" x-show="addedToCartMsg.text &amp;&amp; addedToCartMsg.pageContext === section?.key &amp;&amp; !addedToCartMsg.isError" style="display: none;">
                     <span class="en" x-text="addedToCartMsg.text ? (addedToCartMsg.text.en || addedToCartMsg.text) : ''"></span>
                     <span class="ar" x-text="addedToCartMsg.text ? (addedToCartMsg.text.ar || addedToCartMsg.text) : ''"></span>
                 </p>
-                <p class="err-msg bil-row tc" x-show="addedToCartMsg.text && addedToCartMsg.pageContext === section?.key && addedToCartMsg.isError">
+                <p class="err-msg bil-row tc" x-show="addedToCartMsg.text &amp;&amp; addedToCartMsg.pageContext === section?.key &amp;&amp; addedToCartMsg.isError" style="display: none;">
                     <span class="en" x-text="addedToCartMsg.text ? (addedToCartMsg.text.en || addedToCartMsg.text) : ''"></span>
                     <span class="ar" x-text="addedToCartMsg.text ? (addedToCartMsg.text.ar || addedToCartMsg.text) : ''"></span>
                 </p>
-            </div>
-        </section>
-    </template>
+            
+        
+    
 
     <!-- Collective Sheep Section -->
 
     <!-- Monthly Subscription Box Section -->
 
-    <section class="sec main-page-sec" x-show="currentPage === 'checkout'" x-transition>
+    <section class="sec main-page-sec" x-show="currentPage === 'checkout'" x-transition="" style="display: none;">
         <div class="c">
             <div class="sec-head">
                 <h1 class="bil-spread" x-ref="checkoutTitle" tabindex="-1">
                     <span class="en">Secure Checkout</span><span class="ar">إتمام الطلب الآمن</span>
                 </h1>
             </div>
-            <div x-show="cartItems.length === 0 && !orderConf.show" class="empty-state tc">
+            <div x-show="cartItems.length === 0 &amp;&amp; !orderConf.show" class="empty-state tc" style="display: none;">
                 <p class="bil-row"><span class="en">Your cart is empty. Please add items to proceed.</span><span class="ar">سلتك فارغة. يرجى إضافة منتجات للمتابعة.</span></p>
                 <button @click="navigateToOrScroll('udheya')" class="btn bp">
                     <span class="bil-inline"><span class="en">Continue Shopping</span><span class="ar">متابعة التسوق</span></span>
                 </button>
             </div>
             
-            <div x-show="cartItems.length > 0 && !orderConf.show" class="checkout-layout">
+            <div x-show="cartItems.length > 0 &amp;&amp; !orderConf.show" class="checkout-layout" style="display: none;">
                 <div class="checkout-form-col">
-                    <form @submit.prevent="processOrder()" novalidate>
+                    <form @submit.prevent="processOrder()" novalidate="">
                         <div class="card form-panel">
                             <div class="card-b">
                                 <h2 class="form-subh bil-spread"><span class="en">Contact Information</span><span class="ar">معلومات الاتصال</span></h2>
                                 
                                 <!-- Guest Checkout Notice -->
-                                <div class="guest-checkout-notice" x-show="!currentUser">
+                                <div class="guest-checkout-notice" x-show="!currentUser" style="display: none;">
                                     <div class="bil-row">
                                         <p class="en">👤 Checking out as guest - No account required!</p>
                                         <p class="ar">👤 الدفع كضيف - لا حاجة لحساب!</p>
@@ -1403,7 +1373,7 @@
                                 </div>
                                 
                                 <!-- Logged In Notice -->
-                                <div class="logged-in-notice" x-show="currentUser">
+                                <div class="logged-in-notice" x-show="currentUser" style="display: none;">
                                     <p class="bil-inline">
                                         <span class="en">✅ Logged in as <strong x-text="currentUser?.name || currentUser?.email"></strong></span>
                                         <span class="ar">✅ مسجل الدخول كـ <strong x-text="currentUser?.name || currentUser?.email"></strong></span>
@@ -1412,17 +1382,17 @@
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
                                     <input type="text" class="input" x-model="checkoutForm.customer_name" @input="clrErr('customer_name')">
-                                    <div class="err-msg" x-show="errs.customer_name" x-text="errs.customer_name ? (currLang === 'ar' ? errs.customer_name.ar : errs.customer_name.en) : ''"></div>
+                                    <div class="err-msg" x-show="errs.customer_name" x-text="errs.customer_name ? (currLang === 'ar' ? errs.customer_name.ar : errs.customer_name.en) : ''" style="display: none;"></div>
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Phone Number *</span><span class="ar">رقم الهاتف *</span></label>
                                     <input type="tel" class="input" x-model="checkoutForm.customer_phone" @input="clrErr('customer_phone')">
-                                    <div class="err-msg" x-show="errs.customer_phone" x-text="errs.customer_phone ? (currLang === 'ar' ? errs.customer_phone.ar : errs.customer_phone.en) : ''"></div>
+                                    <div class="err-msg" x-show="errs.customer_phone" x-text="errs.customer_phone ? (currLang === 'ar' ? errs.customer_phone.ar : errs.customer_phone.en) : ''" style="display: none;"></div>
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Email Address *</span><span class="ar">البريد الإلكتروني *</span></label>
                                     <input type="email" class="input" x-model="checkoutForm.customer_email" @input="clrErr('customer_email')">
-                                    <div class="err-msg" x-show="errs.customer_email" x-text="errs.customer_email ? (currLang === 'ar' ? errs.customer_email.ar : errs.customer_email.en) : ''"></div>
+                                    <div class="err-msg" x-show="errs.customer_email" x-text="errs.customer_email ? (currLang === 'ar' ? errs.customer_email.ar : errs.customer_email.en) : ''" style="display: none;"></div>
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread"><span class="en">Country</span><span class="ar">البلد</span></label>
@@ -1626,7 +1596,7 @@
                             </div>
                         </div>
 
-                        <div class="card form-panel" x-show="deliveryNeededForCart()">
+                        <div class="card form-panel" x-show="deliveryNeededForCart()" style="display: none;">
                             <div class="card-b">
                                 <h2 class="form-subh bil-spread"><span class="en">Delivery Information</span><span class="ar">معلومات التوصيل</span></h2>
                                 <div class="fg">
@@ -1637,12 +1607,12 @@
                                             <option :value="city.id" x-text="city.nameEn + ' / ' + city.nameAr"></option>
                                         </template>
                                     </select>
-                                    <div class="err-msg" x-show="errs.delivery_city_id" x-text="errs.delivery_city_id ? (currLang === 'ar' ? errs.delivery_city_id.ar : errs.delivery_city_id.en) : ''"></div>
+                                    <div class="err-msg" x-show="errs.delivery_city_id" x-text="errs.delivery_city_id ? (currLang === 'ar' ? errs.delivery_city_id.ar : errs.delivery_city_id.en) : ''" style="display: none;"></div>
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Full Address *</span><span class="ar">العنوان الكامل *</span></label>
                                     <textarea class="input" x-model="checkoutForm.delivery_address" @input="clrErr('delivery_address')" placeholder="Building, street, landmarks..."></textarea>
-                                    <div class="err-msg" x-show="errs.delivery_address" x-text="errs.delivery_address ? (currLang === 'ar' ? errs.delivery_address.ar : errs.delivery_address.en) : ''"></div>
+                                    <div class="err-msg" x-show="errs.delivery_address" x-text="errs.delivery_address ? (currLang === 'ar' ? errs.delivery_address.ar : errs.delivery_address.en) : ''" style="display: none;"></div>
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread"><span class="en">Delivery Instructions</span><span class="ar">تعليمات التوصيل</span></label>
@@ -1656,7 +1626,7 @@
                                             <option :value="slot.value" x-text="slot.label"></option>
                                         </template>
                                     </select>
-                                    <div class="err-msg" x-show="errs.delivery_time_slot" x-text="errs.delivery_time_slot ? (currLang === 'ar' ? errs.delivery_time_slot.ar : errs.delivery_time_slot.en) : ''"></div>
+                                    <div class="err-msg" x-show="errs.delivery_time_slot" x-text="errs.delivery_time_slot ? (currLang === 'ar' ? errs.delivery_time_slot.ar : errs.delivery_time_slot.en) : ''" style="display: none;"></div>
                                 </div>
                             </div>
                         </div>
@@ -1674,20 +1644,20 @@
                                         </div>
                                     </template>
                                 </div>
-                                <div class="err-msg" x-show="errs.payment_method" x-text="errs.payment_method ? (currLang === 'ar' ? errs.payment_method.ar : errs.payment_method.en) : ''"></div>
+                                <div class="err-msg" x-show="errs.payment_method" x-text="errs.payment_method ? (currLang === 'ar' ? errs.payment_method.ar : errs.payment_method.en) : ''" style="display: none;"></div>
                             </div>
                         </div>
                         
                         <div class="form-act tc page-act final-submit">
                              <label class="lbl-chk bil-inline">
-                                <input type="checkbox" x-model="checkoutForm.terms_agreed" @change="clrErr('terms_agreed')">
-                                <span class="en">I agree to the <button type="button" class="link-style" @click.prevent="openRefundModal()">Terms & Refund Policy</button> *</span>
+                                <input type="checkbox" x-model="checkoutForm.terms_agreed" @change="clrErr('terms_agreed')" value="">
+                                <span class="en">I agree to the <button type="button" class="link-style" @click.prevent="openRefundModal()">Terms &amp; Refund Policy</button> *</span>
                                 <span class="ar">أوافق على <button type="button" class="link-style" @click.prevent="openRefundModal()">الشروط وسياسة الاسترداد</button> *</span>
                             </label>
-                            <div class="err-msg" x-show="errs.terms_agreed" x-text="errs.terms_agreed ? (currLang === 'ar' ? errs.terms_agreed.ar : errs.terms_agreed.en) : ''"></div>
-                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.checkout">
-                                <span x-show="!load.checkout"><span class="en">Complete Order</span><span class="ar">إتمام الطلب</span></span>
-                                <span x-show="load.checkout"><span class="en">Processing...</span><span class="ar">جاري المعالجة...</span></span>
+                            <div class="err-msg" x-show="errs.terms_agreed" x-text="errs.terms_agreed ? (currLang === 'ar' ? errs.terms_agreed.ar : errs.terms_agreed.en) : ''" style="display: none;"></div>
+                            <button type="submit" class="btn bac btn-lg btn-block bil-inline" :disabled="load.checkout" disabled="disabled">
+                                <span x-show="!load.checkout" style="display: none;"><span class="en">Complete Order</span><span class="ar">إتمام الطلب</span></span>
+                                <span x-show="load.checkout" style="display: none;"><span class="en">Processing...</span><span class="ar">جاري المعالجة...</span></span>
                             </button>
                         </div>
                     </form>
@@ -1732,7 +1702,7 @@
                 </div>
             </div>
 
-            <section class="sec conf-sect-wide" x-show="orderConf.show" x-transition>
+            <section class="sec conf-sect-wide" x-show="orderConf.show" x-transition="" style="display: none;">
                 <div class="c tc">
                     <h2 class="bil-spread conf-h" x-ref="orderConfTitle" tabindex="-1">
                         <span class="en">Order Confirmed! JazakAllah Khairan.</span>
@@ -1757,7 +1727,7 @@
                                 <span class="en">Payment Instructions</span>
                                 <span class="ar">تعليمات الدفع</span>
                             </h4>
-                            <div x-html="orderConf.paymentInstructions"></div>
+                            <div x-html="orderConf.paymentInstructions">undefined</div>
                         </div>
                     </div>
                     <div class="form-act tc page-act">
@@ -1770,7 +1740,7 @@
         </div>
     </section>
     
-    <section class="sec main-page-sec" x-show="currentPage === 'auth'" x-transition>
+    <section class="sec main-page-sec" x-show="currentPage === 'auth'" x-transition="" style="display: none;">
         <div class="c">
             <div class="sec-head">
                 <h1 class="bil-spread" tabindex="-1">
@@ -1781,7 +1751,7 @@
             <div class="auth-form-container">
                 <div class="card form-panel">
                     <div class="card-b">
-                        <form @submit.prevent="auth.view === 'login' ? loginUser() : registerUser()" novalidate x-show="auth.view === 'login'">
+                        <form @submit.prevent="auth.view === 'login' ? loginUser() : registerUser()" novalidate="" x-show="auth.view === 'login'" style="display: none;">
                             <div class="fg">
                                 <label class="bil-spread lbl-req"><span class="en">Email *</span><span class="ar">البريد الإلكتروني *</span></label>
                                 <input type="email" class="input" x-model="auth.email">
@@ -1791,9 +1761,9 @@
                                 <input type="password" class="input" x-model="auth.password">
                             </div>
                             <div class="card-act">
-                                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
-                                    <span x-show="!load.auth"><span class="en">Login</span><span class="ar">دخول</span></span>
-                                    <span x-show="load.auth"><span class="en">Logging in...</span><span class="ar">جاري الدخول...</span></span>
+                                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth" disabled="disabled">
+                                    <span x-show="!load.auth" style="display: none;"><span class="en">Login</span><span class="ar">دخول</span></span>
+                                    <span x-show="load.auth" style="display: none;"><span class="en">Logging in...</span><span class="ar">جاري الدخول...</span></span>
                                 </button>
                             </div>
                             <p class="auth-toggle-link bil-row">
@@ -1802,7 +1772,7 @@
                             </p>
                         </form>
 
-                        <form @submit.prevent="registerUser()" novalidate x-show="auth.view === 'register'">
+                        <form @submit.prevent="registerUser()" novalidate="" x-show="auth.view === 'register'" style="display: none;">
                             <div class="fg">
                                 <label class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
                                 <input type="text" class="input" x-model="auth.name">
@@ -1828,9 +1798,9 @@
                                 <input type="password" class="input" x-model="auth.passwordConfirm">
                             </div>
                             <div class="card-act">
-                                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth">
-                                    <span x-show="!load.auth"><span class="en">Create Account</span><span class="ar">إنشاء حساب</span></span>
-                                    <span x-show="load.auth"><span class="en">Creating...</span><span class="ar">جاري الإنشاء...</span></span>
+                                <button type="submit" class="btn bp btn-block bil-inline" :disabled="load.auth" disabled="disabled">
+                                    <span x-show="!load.auth" style="display: none;"><span class="en">Create Account</span><span class="ar">إنشاء حساب</span></span>
+                                    <span x-show="load.auth" style="display: none;"><span class="en">Creating...</span><span class="ar">جاري الإنشاء...</span></span>
                                 </button>
                             </div>
                             <p class="auth-toggle-link bil-row">
@@ -1844,20 +1814,20 @@
         </div>
     </section>
     
-    <section class="sec main-page-sec" x-show="currentPage === 'account'" x-transition>
+    <section class="sec main-page-sec" x-show="currentPage === 'account'" x-transition="" style="display: none;">
         <div class="c">
             <div class="sec-head">
                 <h1 class="bil-spread" tabindex="-1">
                     <span class="en">My Account</span><span class="ar">حسابي</span>
                 </h1>
             </div>
-            <div x-show="!currentUser" class="empty-state tc">
+            <div x-show="!currentUser" class="empty-state tc" style="display: none;">
                 <p class="bil-row">
                     <span class="en">Please <a href="#auth" @click.prevent="navigateToOrScroll('auth')" class="link-style">login or register</a> to access your account.</span>
                     <span class="ar">يرجى <a href="#auth" @click.prevent="navigateToOrScroll('auth')" class="link-style">تسجيل الدخول أو إنشاء حساب</a> للوصول لحسابك.</span>
                 </p>
             </div>
-            <div x-show="currentUser">
+            <div x-show="currentUser" style="display: none;">
                 <div class="card form-panel">
                     <div class="card-b">
                         <h2 class="form-subh bil-spread"><span class="en">Account Information</span><span class="ar">معلومات الحساب</span></h2>
@@ -1871,14 +1841,14 @@
                 <div class="card form-panel">
                     <div class="card-b">
                         <h2 class="form-subh bil-spread"><span class="en">Order History</span><span class="ar">سجل الطلبات</span></h2>
-                        <div x-show="load.orders" class="load-text tc">Loading orders...</div>
-                        <div x-show="!load.orders && userOrders.length === 0" class="empty-state tc">
+                        <div x-show="load.orders" class="load-text tc" style="display: none;">Loading orders...</div>
+                        <div x-show="!load.orders &amp;&amp; userOrders.length === 0" class="empty-state tc" style="display: none;">
                             <p class="bil-row"><span class="en">No orders yet.</span><span class="ar">لا توجد طلبات بعد.</span></p>
                             <button @click="navigateToOrScroll('udheya')" class="btn bp">
                                 <span class="bil-inline"><span class="en">Start Shopping</span><span class="ar">ابدأ التسوق</span></span>
                             </button>
                         </div>
-                        <div x-show="!load.orders && userOrders.length > 0">
+                        <div x-show="!load.orders &amp;&amp; userOrders.length > 0" style="display: none;">
                             <template x-for="order in userOrders" :key="order.id">
                                 <div class="card order-history-item">
                                     <div class="card-b">
@@ -1913,8 +1883,8 @@
 <!-- Social Proof Notifications - Removed -->
 
 <!-- Exit Intent Popup -->
-<div class="exit-popup-overlay" x-show="showExitOffer" x-transition @click="showExitOffer = false">
-    <div class="exit-popup" @click.stop>
+<div class="exit-popup-overlay" x-show="showExitOffer" x-transition="" @click="showExitOffer = false" style="display: none;">
+    <div class="exit-popup" @click.stop="">
         <button @click="showExitOffer = false" class="modal-close-btn">×</button>
         <h2 class="bil-spread"><span class="en">Wait! Don't leave empty-handed 🛍️</span><span class="ar">انتظر! لا تغادر خالي الوفاض 🛍️</span></h2>
         <p class="bil-row">
@@ -1959,7 +1929,7 @@
             </div>
         </div>
         <hr class="foot-div">
-        <p class="foot-copy">© <span x-text="new Date().getFullYear()"></span> Sheep Land Egypt.
+        <p class="foot-copy">© <span x-text="new Date().getFullYear()">2025</span> Sheep Land Egypt.
             <span class="bil-copy">
                 <span class="en">All rights reserved.</span><span class="ar">جميع الحقوق محفوظة.</span>
             </span>
@@ -1969,12 +1939,13 @@
 </footer>
 
 <script src="vendor/pocketbase.umd.js"></script>
-<script src="app.js"></script>
-<script src="wishlist.js"></script>
-<script src="feedback.js"></script>
-<script src="admin.js"></script>
-<script src="vendor/alpine-collapse.min.js" defer></script>
-<script src="vendor/alpine.min.js" defer></script>
+<script src="vendor/alpine-collapse.min.js" defer=""></script>
+<script src="vendor/alpine.min.js" defer=""></script>
+<script src="wishlist.js" defer=""></script>
+<script src="feedback.js" defer=""></script>
+<script src="admin.js" defer=""></script>
+<script src="app.js" defer=""></script>
 
-</body>
-</html>
+
+
+</body></html>
