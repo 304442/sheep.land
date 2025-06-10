@@ -10,11 +10,11 @@ const defaultRefundPolicyHTML = `
             <p class="ar" dir="rtl">أهلاً بكم في أرض الأغنام. نحن ملتزمون بتقديم منتجات الأغنام الحية واللحوم عالية الجودة مع الامتثال الكامل للشريعة الإسلامية.</p>
         </div>
         <h3 class="bil-spread modal-section-title">
-            <span class="en">Udheya & Qurbani Orders</span><span class="ar" dir="rtl">طلبات الأضاحي والقرباني</span>
+            <span class="en">Udheya Orders</span><span class="ar" dir="rtl">طلبات الأضاحي</span>
         </h3>
         <div class="bil-row">
-            <p class="en">Due to the religious nature and specific timing of Udheya/Qurbani, our policies are designed to ensure proper fulfillment while accommodating genuine needs:</p>
-            <p class="ar" dir="rtl">نظراً للطبيعة الدينية والتوقيت المحدد للأضاحي والقرباني، تم تصميم سياساتنا لضمان التنفيذ السليم مع مراعاة الاحتياجات الحقيقية:</p>
+            <p class="en">Due to the religious nature and specific timing of Udheya, our policies are designed to ensure proper fulfillment while accommodating genuine needs:</p>
+            <p class="ar" dir="rtl">نظراً للطبيعة الدينية والتوقيت المحدد للأضاحي، تم تصميم سياساتنا لضمان التنفيذ السليم مع مراعاة الاحتياجات الحقيقية:</p>
         </div>
         <h4 class="bil-spread"><span class="en">Cancellation Policy</span><span class="ar" dir="rtl">سياسة الإلغاء</span></h4>
         <div class="bil-row">

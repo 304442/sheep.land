@@ -997,7 +997,7 @@ document.addEventListener('alpine:init', () => {
 
         getCategoryDisplayName(category, lang) {
             const names = {
-                udheya: { en: 'Udheya & Qurbani', ar: 'الأضحية والقرباني' },
+                udheya: { en: 'Udheya', ar: 'الأضحية' },
                 aqiqah: { en: 'Aqiqah', ar: 'عقيقة' },
                 charity: { en: 'Charity', ar: 'صدقات' },
                 vow: { en: 'Vow', ar: 'نذر' },
