@@ -512,7 +512,7 @@
                             <span class="ar">إعدادات الحساب</span>
                         </span>
                     </a>
-                    <template x-if="currentUser?.email === 'admin@sheep.land'">
+                    <template x-if="currentUser?.is_admin === true">
                         <a href="#admin" @click="showAccountDropdown = false; window.location.hash = 'admin'" class="account-menu-item admin-menu-item">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>

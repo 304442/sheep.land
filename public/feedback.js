@@ -340,6 +340,13 @@ const feedbackSystem = {
         `;
         document.body.appendChild(modal);
         
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeFeedbackModal();
+            }
+        });
+        
         // Add fade-in animation
         requestAnimationFrame(() => {
             modal.classList.add('show');
