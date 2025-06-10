@@ -1766,6 +1766,17 @@ body.has-promo-bar .wishlist-dropdown {
     z-index: 1100 !important; /* Ensure admin bar is always on top */
 }
 
+/* Mobile - show only icons for admin bar buttons */
+@media (max-width: 768px) {
+    .admin-contact-bar .admin-text {
+        display: none;
+    }
+    
+    .admin-contact-bar .admin-icon {
+        font-size: 1.1rem;
+    }
+}
+
 /* Admin bar overlays on top - no content adjustment */
 
 /* Admin bar mobile - uses contact bar responsive styles */

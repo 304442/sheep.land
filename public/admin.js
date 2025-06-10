@@ -83,34 +83,44 @@ const adminSystem = {
                 <div class="contact-bar-content">
                     <div class="contact-bar-items">
                     <button onclick="adminSystem.showDashboard()" class="track-order-btn" title="Dashboard">
-                        <span>📊 Dashboard</span>
+                        <span class="admin-icon">📊</span>
+                        <span class="admin-text">Dashboard</span>
                     </button>
                     <button onclick="adminSystem.showOrderManager()" class="track-order-btn" title="Orders">
-                        <span>📦 Orders</span>
+                        <span class="admin-icon">📦</span>
+                        <span class="admin-text">Orders</span>
                     </button>
                     <button onclick="adminSystem.showProductManager()" class="track-order-btn" title="Products">
-                        <span>🛍️ Products</span>
+                        <span class="admin-icon">🛍️</span>
+                        <span class="admin-text">Products</span>
                     </button>
                     <button onclick="adminSystem.showCustomerManager()" class="track-order-btn" title="Customers">
-                        <span>👥 Customers</span>
+                        <span class="admin-icon">👥</span>
+                        <span class="admin-text">Customers</span>
                     </button>
                     <button onclick="adminSystem.showInventoryManager()" class="track-order-btn" title="Inventory">
-                        <span>📦 Inventory</span>
+                        <span class="admin-icon">📦</span>
+                        <span class="admin-text">Inventory</span>
                     </button>
                     <button onclick="adminSystem.showLivestockManager()" class="track-order-btn" title="Livestock">
-                        <span>🐑 Livestock</span>
+                        <span class="admin-icon">🐑</span>
+                        <span class="admin-text">Livestock</span>
                     </button>
                     <button onclick="adminSystem.showFinancialManager()" class="track-order-btn" title="Financial">
-                        <span>💰 Financial</span>
+                        <span class="admin-icon">💰</span>
+                        <span class="admin-text">Financial</span>
                     </button>
                     <button onclick="adminSystem.showSupplierManager()" class="track-order-btn" title="Suppliers">
-                        <span>🚚 Suppliers</span>
+                        <span class="admin-icon">🚚</span>
+                        <span class="admin-text">Suppliers</span>
                     </button>
                     <button onclick="adminSystem.showSettings()" class="track-order-btn" title="Settings">
-                        <span>⚙️ Settings</span>
+                        <span class="admin-icon">⚙️</span>
+                        <span class="admin-text">Settings</span>
                     </button>
                     <button onclick="adminSystem.toggleAdminMode()" class="feedback-top-btn" title="Exit Admin">
-                        <span>❌ Exit</span>
+                        <span class="admin-icon">❌</span>
+                        <span class="admin-text">Exit</span>
                     </button>
                     </div>
                 </div>
