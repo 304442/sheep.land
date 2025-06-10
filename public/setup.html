@@ -71,8 +71,343 @@
             <button id="runFullSetup">🚀 Complete Setup</button>
             <button id="runSchemaOnly">📋 Schema Only</button>
             <button id="runSeedOnly" disabled>🌱 Seed Only</button>
+            <button id="showHelp" style="background:#2196f3">📚 Help & Docs</button>
         </div>
         <div id="out"></div>
+    </div>
+    
+    <!-- Help Modal -->
+    <div id="helpModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:800px;max-height:90vh;background:white;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);overflow:hidden;display:flex;flex-direction:column">
+            <div style="padding:12px 16px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;background:#f8f9fa">
+                <h2 style="margin:0;font-size:16px;color:#2C5F41">📚 PocketBase Setup Documentation</h2>
+                <button onclick="document.getElementById('helpModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;padding:0;width:24px;height:24px">&times;</button>
+            </div>
+            <div style="padding:16px;overflow-y:auto;flex:1">
+                <div style="background:#e8f4fd;padding:10px;border-radius:4px;margin-bottom:16px;border-left:3px solid #2196f3">
+                    <h3 style="margin:0 0 8px 0;font-size:14px;color:#1976d2">🎯 Collection Structure (MANDATORY FORMAT)</h3>
+                    <pre style="background:#f5f5f5;padding:8px;border-radius:4px;overflow-x:auto;font-size:11px;line-height:1.4;margin:0">{
+  "name": "collection_name",        // REQUIRED: string, alphanumeric + underscore only
+  "type": "base",                   // REQUIRED: "base" | "auth" | "view"
+  "listRule": "",                   // REQUIRED: string | null (see API Rules section)
+  "viewRule": "",                   // REQUIRED: string | null
+  "createRule": "",                 // REQUIRED: string | null
+  "updateRule": "",                 // REQUIRED: string | null
+  "deleteRule": "",                 // REQUIRED: string | null
+  "fields": [                       // REQUIRED: array of field objects
+    {
+      "name": "field_name",         // REQUIRED: string, valid field name
+      "type": "text",               // REQUIRED: valid field type (see Field Types)
+      "required": true,             // REQUIRED: boolean
+      "presentable": true,          // REQUIRED: boolean
+      // Additional properties based on field type
+    }
+  ]
+}</pre>
+                </div>
+
+                <h3 style="font-size:14px;margin:16px 0 8px 0;color:#2C5F41">🔧 Field Types Reference</h3>
+                
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">📝 Text Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "name": "title",
+  "type": "text",
+  "required": true,
+  "presentable": true,
+  "max": 200,                // optional: max length
+  "min": 1,                  // optional: min length
+  "pattern": "^[a-zA-Z0-9_\\-\\s]+$"  // optional: regex pattern
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">🔢 Number Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "name": "price",
+  "type": "number",
+  "required": true,
+  "presentable": true,
+  "min": 0,                  // optional: minimum value
+  "max": 999999,             // optional: maximum value
+  "noDecimal": false         // optional: integers only if true
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">✅ Boolean Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "name": "is_active",
+  "type": "bool",
+  "required": false,
+  "presentable": true
+  // No additional properties for boolean fields
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">📧 Email Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "name": "email",
+  "type": "email",
+  "required": true,
+  "presentable": true,
+  "exceptDomains": ["tempmail.com"],     // optional: blocked domains
+  "onlyDomains": ["company.com"]         // optional: allowed domains only
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">🌐 URL Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "name": "website",
+  "type": "url",
+  "required": false,
+  "presentable": true
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">📅 Date Fields</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">// Simple date
+{
+  "name": "birth_date",
+  "type": "date",
+  "required": false,
+  "presentable": true
+}
+
+// Date with time
+{
+  "name": "event_time",
+  "type": "datetime",
+  "required": true,
+  "presentable": true
+}
+
+// Auto-date (created/updated timestamps)
+{
+  "name": "created_at",
+  "type": "autodate",
+  "required": false,
+  "presentable": false,
+  "onCreate": true,        // Set on record creation
+  "onUpdate": false        // Don't update on record update
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">📋 Select Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">// Single select
+{
+  "name": "status",
+  "type": "select",
+  "required": true,
+  "presentable": true,
+  "maxSelect": 1,                    // REQUIRED: 1 for single select
+  "values": ["active", "inactive"]   // REQUIRED: array of options
+}
+
+// Multiple select
+{
+  "name": "tags",
+  "type": "select",
+  "required": false,
+  "presentable": true,
+  "maxSelect": 5,                    // REQUIRED: max selections
+  "values": ["urgent", "feature", "bug", "enhancement"]
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">📁 File Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">// Single file
+{
+  "name": "avatar",
+  "type": "file",
+  "required": false,
+  "presentable": true,
+  "maxSelect": 1,                    // REQUIRED: max files
+  "maxSize": 5242880,                // optional: bytes (5MB)
+  "mimeTypes": [                     // optional: allowed MIME types
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp"
+  ]
+}
+
+// Multiple files
+{
+  "name": "attachments",
+  "type": "file",
+  "required": false,
+  "presentable": true,
+  "maxSelect": 10,
+  "maxSize": 10485760,               // 10MB per file
+  "mimeTypes": [
+    "image/jpeg",
+    "image/png",
+    "application/pdf"
+  ]
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">🔗 Relation Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">// One-to-One relation
+{
+  "name": "user_id",
+  "type": "relation",
+  "required": true,
+  "presentable": true,
+  "collectionId": "actual_collection_uuid",    // REQUIRED: target collection ID
+  "cascadeDelete": false,                      // REQUIRED: boolean
+  "minSelect": 1,                             // REQUIRED: number | null
+  "maxSelect": 1,                             // REQUIRED: number | null
+  "displayFields": ["email", "name"]          // REQUIRED: array of field names
+}
+
+// Many-to-Many
+{
+  "name": "tags",
+  "type": "relation",
+  "required": false,
+  "presentable": true,
+  "collectionId": "tags_collection_uuid",
+  "cascadeDelete": false,
+  "minSelect": null,                          // null = optional
+  "maxSelect": null,                          // null = unlimited
+  "displayFields": ["name", "color"]
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">🗃️ JSON Field</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "name": "metadata",
+  "type": "json",
+  "required": false,
+  "presentable": true
+  // Stores any valid JSON data structure
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">📝 Editor Field (Rich Text)</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "name": "content",
+  "type": "editor",
+  "required": false,
+  "presentable": true
+  // Rich text editor with HTML support
+}</pre>
+                </details>
+
+                <h3 style="font-size:14px;margin:16px 0 8px 0;color:#2C5F41">🔐 API Rules Reference</h3>
+                
+                <div style="background:#f5f5f5;padding:10px;border-radius:4px;margin-bottom:12px">
+                    <h4 style="margin:0 0 8px 0;font-size:12px">Rule Values:</h4>
+                    <code style="display:block;margin:2px 0">""</code> - Empty string = PUBLIC ACCESS (anyone can perform action)<br>
+                    <code style="display:block;margin:2px 0">null</code> - null = ADMIN ONLY (only admin users can perform action)<br>
+                    <code style="display:block;margin:2px 0">"rule"</code> - String = CUSTOM RULE (filter expression)
+                </div>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">Public Access Rules</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "listRule": "",      // Anyone can list/read records
+  "viewRule": "",      // Anyone can view individual records
+  "createRule": "",    // Anyone can create records
+  "updateRule": "",    // Anyone can update records
+  "deleteRule": ""     // Anyone can delete records
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">Admin Only Rules</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "listRule": null,    // Only admins can list records
+  "viewRule": null,    // Only admins can view records
+  "createRule": null,  // Only admins can create records
+  "updateRule": null,  // Only admins can update records
+  "deleteRule": null   // Only admins can delete records
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">Authenticated User Rules</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">{
+  "listRule": "@request.auth.id != ''",      // Only logged-in users
+  "viewRule": "@request.auth.id != ''",      
+  "createRule": "@request.auth.id != ''",    
+  "updateRule": "@request.auth.id != ''",    
+  "deleteRule": "@request.auth.id != ''"     
+}</pre>
+                </details>
+
+                <details style="margin-bottom:8px">
+                    <summary style="cursor:pointer;padding:8px;background:#f5f5f5;border-radius:4px;font-weight:bold">Owner-Only Rules</summary>
+                    <pre style="background:#f9f9f9;padding:8px;margin:4px 0;border-radius:4px;font-size:11px">// Assuming records have a "user" field pointing to the owner
+{
+  "listRule": "user = @request.auth.id",     // List own records only
+  "viewRule": "user = @request.auth.id",     // View own records only
+  "createRule": "@request.auth.id != ''",    // Any auth user can create
+  "updateRule": "user = @request.auth.id",   // Update own records only
+  "deleteRule": "user = @request.auth.id"    // Delete own records only
+}</pre>
+                </details>
+
+                <h3 style="font-size:14px;margin:16px 0 8px 0;color:#dc3545">❌ Common Errors to Avoid</h3>
+                
+                <div style="background:#fee;padding:10px;border-radius:4px;margin-bottom:12px;border-left:3px solid #dc3545">
+                    <h4 style="margin:0 0 8px 0;font-size:12px;color:#dc3545">🚫 NEVER Use These Patterns:</h4>
+                    <pre style="background:#fff5f5;padding:8px;border-radius:4px;font-size:11px;margin:4px 0">// ❌ WRONG: Nested options structure
+{
+  "name": "title",
+  "type": "text",
+  "required": true,
+  "options": {              // ❌ DON'T USE "options" wrapper
+    "max": 100,
+    "min": 1
+  }
+}
+
+// ❌ WRONG: Schema key instead of fields
+{
+  "name": "posts",
+  "schema": [...]           // ❌ DON'T USE "schema" key
+}
+
+// ❌ WRONG: Invalid field names
+{
+  "name": "field name",     // ❌ No spaces
+  "name": "field-name",     // ❌ No hyphens
+  "name": "123field",       // ❌ Can't start with number
+}</pre>
+                </div>
+
+                <div style="background:#d4edda;padding:10px;border-radius:4px;margin-bottom:12px;border-left:3px solid #28a745">
+                    <h4 style="margin:0 0 8px 0;font-size:12px;color:#155724">✅ CORRECT Patterns:</h4>
+                    <pre style="background:#f1f8f4;padding:8px;border-radius:4px;font-size:11px;margin:4px 0">// ✅ CORRECT: Direct properties
+{
+  "name": "title",
+  "type": "text",
+  "required": true,
+  "presentable": true,
+  "max": 100,               // ✅ Direct property
+  "min": 1                  // ✅ Direct property
+}
+
+// ✅ CORRECT: Valid field names
+{
+  "name": "field_name",     // ✅ Underscores OK
+  "name": "fieldName",      // ✅ camelCase OK
+  "name": "field123",       // ✅ Numbers at end OK
+}</pre>
+                </div>
+            </div>
+        </div>
     </div>
 <script>
     let pbUrl = '/';
@@ -2802,6 +3137,25 @@
             [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = false);
         }
     };
+    
+    // Help button event listener
+    document.getElementById('showHelp').onclick = () => {
+        document.getElementById('helpModal').style.display = 'block';
+    };
+    
+    // Close modal when clicking outside
+    document.getElementById('helpModal').onclick = (e) => {
+        if (e.target.id === 'helpModal') {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+    };
+    
+    // ESC key to close modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('helpModal').style.display === 'block') {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+    });
 </script>
 </body>
 </html>
