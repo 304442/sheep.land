@@ -44,8 +44,9 @@ const initForm = {
         "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" }
     };
 
-// Register Alpine component before Alpine starts
-Alpine.data('sheepLand', () => ({
+// Register Alpine component when Alpine initializes
+document.addEventListener('alpine:init', () => {
+    Alpine.data('sheepLand', () => ({
         load: { init: true, status: false, checkout: false, auth: false, orders: false, addingToCart: null },
         settings: {
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
@@ -1654,8 +1655,8 @@ Alpine.data('sheepLand', () => ({
         }
 }));
 
-// Business Stats Component
-Alpine.data('businessStats', () => ({
+    // Business Stats Component
+    Alpine.data('businessStats', () => ({
         todayOrders: 0,
         todayRevenue: 0,
         activeCustomers: 0,
@@ -1708,7 +1709,8 @@ Alpine.data('businessStats', () => ({
             // Use parent component's fmtPrice method
             return this.$root.fmtPrice ? this.$root.fmtPrice(amount) : `${amount} EGP`;
         }
-}));
+    }));
+});
 
 // Initialize after DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
