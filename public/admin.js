@@ -82,9 +82,8 @@ const adminSystem = {
             <div class="c">
                 <div class="contact-bar-content">
                     <div class="contact-bar-items">
-                    <button onclick="adminSystem.showDashboard()" class="wa-contact-btn" title="Dashboard">
-                        <span class="admin-btn-icon">📊</span>
-                        <span>Dashboard</span>
+                    <button onclick="adminSystem.showDashboard()" class="track-order-btn" title="Dashboard">
+                        <span>📊 Dashboard</span>
                     </button>
                     <button onclick="adminSystem.showOrderManager()" class="track-order-btn" title="Orders">
                         <span>📦 Orders</span>
