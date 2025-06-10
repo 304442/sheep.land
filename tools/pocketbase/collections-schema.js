@@ -50,7 +50,7 @@ const collectionsDefinition = [
         deleteRule: "@request.auth.id != '' && @request.auth.verified = true",
         fields: [
             { name: "item_key", type: "text", required: true, presentable: true, unique: true, max: 100, min: 1, pattern: "^[a-z0-9_]+$" },
-            { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livesheep_general", "meat_cuts", "gathering_package", "breeding_stock", "feed_supplies"] },
+            { name: "product_category", type: "select", required: true, presentable: true, maxSelect: 1, values: ["udheya", "livesheep_general", "meat_cuts", "gathering_package", "breeding_stock", "feed_supplies", "aqiqah", "charity", "vow", "expiation", "ready_to_eat", "live_sheep", "slaughtered"] },
             { name: "type_key", type: "text", required: true, presentable: true, max: 50, min: 1, pattern: "^[a-z0-9_]+$" },
             { name: "type_name_en", type: "text", required: true, presentable: true, max: 100, min: 1 }, 
             { name: "type_name_ar", type: "text", required: true, presentable: true, max: 100, min: 1 },

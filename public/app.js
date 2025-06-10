@@ -226,7 +226,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const allProducts = await pb.collection('products').getFullList({ filter: 'is_active = true', sort:'+sort_order_type,+sort_order_variant'});
-                console.log('Loaded products from PocketBase:', allProducts.length, 'items');
+                // console.log('Loaded products from PocketBase:', allProducts.length, 'items');
                 
                 const categorizeProducts = (products, categoryFilter) => {
                     if (!products || !Array.isArray(products)) {
@@ -282,7 +282,7 @@ document.addEventListener('alpine:init', () => {
                 this.prodOpts.livesheep_general = this.prodOpts.live_sheep;
                 this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(allProducts, 'gathering_package'));
                 
-                console.log('Product categories loaded:', {
+                // console.log('Product categories loaded:', {
                     udheya: this.prodOpts.udheya.length,
                     livesheep: this.prodOpts.livesheep_general.length,
                     meat: this.prodOpts.meat_cuts.length,
@@ -300,9 +300,9 @@ document.addEventListener('alpine:init', () => {
                 
                 // Debug: Check structure of first udheya product
                 if (this.prodOpts.udheya.length > 0) {
-                    console.log('First udheya product structure:', this.prodOpts.udheya[0]);
-                    console.log('Has wps?', this.prodOpts.udheya[0].hasOwnProperty('wps'));
-                    console.log('wps is array?', Array.isArray(this.prodOpts.udheya[0].wps));
+                    // console.log('First udheya product structure:', this.prodOpts.udheya[0]);
+                    // console.log('Has wps?', this.prodOpts.udheya[0].hasOwnProperty('wps'));
+                    // console.log('wps is array?', Array.isArray(this.prodOpts.udheya[0].wps));
                 }
             
                 let cities = []; 
@@ -959,6 +959,58 @@ document.addEventListener('alpine:init', () => {
             return lang === 'ar' ? `متوفر: ${stock}` : `${stock} Available`;
         },
 
+        getCategoryDisplayName(category, lang) {
+            const names = {
+                udheya: { en: 'Udheya & Qurbani', ar: 'الأضحية والقرباني' },
+                aqiqah: { en: 'Aqiqah', ar: 'عقيقة' },
+                charity: { en: 'Charity', ar: 'صدقات' },
+                vow: { en: 'Vow', ar: 'نذر' },
+                expiation: { en: 'Expiation', ar: 'كفارة' },
+                ready_to_eat: { en: 'Ready to Eat', ar: 'جاهز للأكل' },
+                live_sheep: { en: 'Live Sheep', ar: 'خراف حية' },
+                slaughtered: { en: 'Slaughtered & Portioned', ar: 'مذبوحة ومجزأة' },
+                meat_cuts: { en: 'Meat Cuts', ar: 'قطعيات' },
+                livesheep_general: { en: 'Live Sheep & Breeding', ar: 'أغنام حية وتربية' },
+                gathering_package: { en: 'Events & Gatherings', ar: 'مناسبات وولائم' }
+            };
+            return names[category] ? names[category][lang] : category;
+        },
+
+        getBadgeClass(category, item) {
+            if (item.is_premium) return 'premium-badge';
+            if (category === 'udheya') return 'udheya-badge';
+            return '';
+        },
+
+        getBadgeText(category, item) {
+            if (item.is_premium) return 'PREMIUM';
+            const badges = {
+                udheya: 'UDHEYA',
+                aqiqah: 'AQIQAH',
+                live_sheep: 'LIVE',
+                charity: 'CHARITY',
+                vow: 'VOW',
+                meat_cuts: 'FRESH'
+            };
+            return badges[category] || 'NEW';
+        },
+
+        handleProductClick(item, category) {
+            if (category === 'udheya') {
+                this.openUdheyaConfiguration(item);
+            } else if (category === 'meat_cuts') {
+                // For meat cuts, add with 1kg default
+                const meatItem = {
+                    ...item,
+                    selectedWeight: 1,
+                    priceEGP: item.priceEGP || item.base_price_egp
+                };
+                this.addItemToCart(meatItem);
+            } else {
+                this.addItemToCart(item);
+            }
+        },
+
         getProductImage(item, sectionKey) {
             // Most accurate mapping based on actual product data
             const itemKey = (item.itemKey || '').toLowerCase();
@@ -1090,7 +1142,7 @@ document.addEventListener('alpine:init', () => {
                 
                 // Check if admin mode is active and reinitialize admin system
                 if (window.location.hash.includes('admin') && window.adminSystem) {
-                    console.log('🐑 Admin login detected, reinitializing admin system...');
+                    // console.log('🐑 Admin login detected, reinitializing admin system...');
                     // Remove any existing admin bars
                     document.querySelectorAll('.admin-top-bar').forEach(el => el.remove());
                     document.body.classList.remove('admin-mode');

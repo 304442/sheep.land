@@ -116,6 +116,30 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 
 .grid2,.prod-grid{display:grid;gap:8px}.grid2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
 .prod-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.grid3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+
+/* All Products Section */
+.all-products-section{padding:var(--s4) 0}
+.all-products-section .section-header{margin-bottom:var(--s4)}
+.all-products-section .section-header h2{font-size:2rem;color:var(--c1d)}
+.category-section{margin-bottom:var(--s4)}
+.category-title{font-size:1.3rem;margin-bottom:var(--s3);color:var(--c1);position:relative;padding-bottom:var(--s2)}
+.category-title::after{content:'';display:block;width:60px;height:3px;background:var(--c2l);position:absolute;bottom:0;left:0;border-radius:2px}
+.category-title .ar::after{right:0;left:auto}
+
+/* Compact Card Style */
+.card-compact{background:var(--bc);border-radius:var(--rad);box-shadow:0 2px 6px rgba(0,0,0,.06);border:1px solid var(--bs);overflow:hidden;transition:all .3s ease}
+.card-compact:hover{box-shadow:0 6px 20px rgba(0,0,0,.12);transform:translateY(-2px)}
+.card-compact .card-img{padding-top:60%;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--b2),#e8e8e8)}
+.card-compact .card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.card-compact .badge{position:absolute;top:var(--s1);right:var(--s1);background:var(--c2);color:white;padding:2px 8px;border-radius:var(--rad);font-size:0.65rem;font-weight:600;text-transform:uppercase}
+.card-compact .wishlist-icon{position:absolute;top:var(--s1);left:var(--s1);background:rgba(255,255,255,0.9);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s ease;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.card-compact .card-b{padding:var(--s2)}
+.card-compact .card-content{margin-bottom:var(--s1)}
+.card-compact .card-h{font-size:0.85rem;margin-bottom:var(--s1)}
+.card-compact .card-foot{border-top:none;padding:0;margin-top:var(--s1)}
+.card-compact .price-line{font-size:0.9rem;margin-bottom:var(--s1)}
+.card-compact .btn-sm{font-size:0.7rem;padding:4px 10px}
 
 /* Top Contact Bar */
 .top-contact-bar{background:var(--c1);color:white;padding:var(--s1) 0;position:fixed;top:0;left:0;width:100%;z-index:1001;height:32px;display:flex;align-items:center}
@@ -274,6 +298,24 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .collection-icon{font-size:3rem;margin-bottom:var(--s2);line-height:1}
 .hero-collection-card h3{color:white;font-size:1.1rem;margin:0 0 var(--s1);font-weight:700}
 .hero-collection-card p{color:rgba(255,255,255,0.9);font-size:0.85rem;margin:0;line-height:1.4}
+
+/* Hero Trust Badges */
+.hero-trust-badges{margin-top:var(--s4);padding-top:var(--s4);border-top:1px solid rgba(255,255,255,0.2)}
+.hero-trust-badges .trust-badges-modern{display:flex;justify-content:center;gap:var(--s3);flex-wrap:wrap}
+.hero-trust-badges .trust-badge-modern{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);padding:var(--s2) var(--s3);border-radius:var(--rad);display:flex;align-items:center;gap:var(--s2);flex:0 1 auto;min-width:200px;transition:all 0.3s ease}
+.hero-trust-badges .trust-badge-modern:hover{background:rgba(255,255,255,0.15);transform:translateY(-2px)}
+.hero-trust-badges .badge-icon-modern{font-size:1.5rem;flex-shrink:0}
+.hero-trust-badges .badge-content h4{color:white;font-size:0.9rem;margin:0 0 2px}
+.hero-trust-badges .badge-content p{color:rgba(255,255,255,0.85);font-size:0.75rem;margin:0}
+
+/* Hero Why Choose */
+.hero-why-choose{margin-top:var(--s4);padding-top:var(--s4);border-top:1px solid rgba(255,255,255,0.2)}
+.hero-why-choose h2{color:white;font-size:1.5rem;margin-bottom:var(--s3);text-align:center}
+.hero-features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--s2);max-width:800px;margin:0 auto}
+.hero-feature{background:rgba(255,255,255,0.08);padding:var(--s2);border-radius:var(--rad);text-align:center;transition:all 0.3s ease}
+.hero-feature:hover{background:rgba(255,255,255,0.12);transform:translateY(-2px)}
+.hero-feature .feature-icon{font-size:1.8rem;margin-bottom:var(--s1)}
+.hero-feature h4{color:white;font-size:0.85rem;margin:0}
 
 /* Hero Promo Banner */
 .hero-promo-banner{margin-top:var(--s4);max-width:800px;margin-left:auto;margin-right:auto}
