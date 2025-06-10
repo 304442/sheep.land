@@ -154,6 +154,15 @@
     <div class="c">
         <div class="contact-bar-content">
             <div class="contact-bar-items">
+                <button @click="openOrderStatusModal()" class="track-order-btn" title="Track Your Order">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    <span class="bil-inline">
+                        <span class="en">Track Order</span>
+                        <span class="ar">تتبع الطلب</span>
+                    </span>
+                </button>
                 <div class="wa-contact-top">
                     <button @click="toggleWhatsAppChat()" class="wa-contact-btn" title="WhatsApp Chat">
                         <svg class="wa-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -169,15 +178,6 @@
                     <span class="bil-inline">
                         <span class="en">Feedback</span>
                         <span class="ar">رأيك</span>
-                    </span>
-                </button>
-                <button @click="openOrderStatusModal()" class="track-order-btn" title="Track Your Order">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                    <span class="bil-inline">
-                        <span class="en">Track Order</span>
-                        <span class="ar">تتبع الطلب</span>
                     </span>
                 </button>
             </div>
@@ -240,42 +240,23 @@
 
         <nav class="nav-main nav-desk">
             <ul class="nav-list">
-                <!-- Sacrificial (أضاحى) -->
-                <li class="nav-dropdown">
-                    <a href="#sacrificial" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'sacrificial'}" @click.prevent="navigateToOrScroll('sacrificial')">
-                        <span class="en">Sacrificial</span>
-                        <span class="ar">أضاحى</span>
+                <li>
+                    <a href="#sacrifices" class="nav-link nav-bil-inline" @click.prevent="navigateToOrScroll('sacrifices')">
+                        <span class="en">Sacrifices</span>
+                        <span class="ar">ذبائح</span>
                     </a>
-                    <ul class="nav-dropdown-menu">
-                        <li><a href="#udheya" @click.prevent="navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">أضحية</span></a></li>
-                    </ul>
                 </li>
-                
-                <!-- Religious/Occasions (ولائم/عزومات/مناسبات) -->
-                <li class="nav-dropdown">
-                    <a href="#occasions" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'occasions'}" @click.prevent="navigateToOrScroll('occasions')">
-                        <span class="en">Occasions</span>
-                        <span class="ar">مناسبات</span>
+                <li>
+                    <a href="#fresh-meat" class="nav-link nav-bil-inline" @click.prevent="navigateToOrScroll('fresh-meat')">
+                        <span class="en">Fresh Meat</span>
+                        <span class="ar">لحوم طازجة</span>
                     </a>
-                    <ul class="nav-dropdown-menu">
-                        <li><a href="#aqiqah" @click.prevent="navigateToOrScroll('aqiqah')"><span class="en">Aqiqah</span><span class="ar">عقيقة</span></a></li>
-                        <li><a href="#charity" @click.prevent="navigateToOrScroll('charity')"><span class="en">Charity</span><span class="ar">صدقات</span></a></li>
-                        <li><a href="#vow" @click.prevent="navigateToOrScroll('vow')"><span class="en">Vow</span><span class="ar">نذر</span></a></li>
-                        <li><a href="#expiation" @click.prevent="navigateToOrScroll('expiation')"><span class="en">Expiation</span><span class="ar">كفارة</span></a></li>
-                        <li><a href="#ready-to-eat" @click.prevent="navigateToOrScroll('ready-to-eat')"><span class="en">Ready to Eat</span><span class="ar">خراف جاهزة للأكل</span></a></li>
-                    </ul>
                 </li>
-                
-                <!-- Processed/Meat -->
-                <li class="nav-dropdown">
-                    <a href="#processed" class="nav-link nav-bil-inline" :class="{'active-nav': currentPage === 'processed'}" @click.prevent="navigateToOrScroll('processed')">
-                        <span class="en">Processed Meat</span>
-                        <span class="ar">لحوم مجهزة</span>
+                <li>
+                    <a href="#events-catering" class="nav-link nav-bil-inline" @click.prevent="navigateToOrScroll('events-catering')">
+                        <span class="en">Events & Catering</span>
+                        <span class="ar">مناسبات وولائم</span>
                     </a>
-                    <ul class="nav-dropdown-menu">
-                        <li><a href="#slaughtered" @click.prevent="navigateToOrScroll('slaughtered')"><span class="en">Slaughtered & Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
-                        <li><a href="#meat-cuts" @click.prevent="navigateToOrScroll('meat-cuts')"><span class="en">Meat Cuts</span><span class="ar">قطعيات</span></a></li>
-                    </ul>
                 </li>
             </ul>
         </nav>
@@ -579,31 +560,10 @@
         <div class="mobile-nav-content">
             <nav>
                 <ul class="nav-list-mob">
-                    <!-- Sacrificial Section -->
-                    <li class="nav-section-header">
-                        <span class="en">Sacrificial</span>
-                        <span class="ar">أضاحى</span>
-                    </li>
-                    <li><a href="#udheya" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('udheya')"><span class="en">Udheya</span><span class="ar">أضحية</span></a></li>
-                    
-                    <!-- Occasions Section -->
-                    <li class="nav-section-header">
-                        <span class="en">Occasions</span>
-                        <span class="ar">مناسبات</span>
-                    </li>
-                    <li><a href="#aqiqah" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('aqiqah')"><span class="en">Aqiqah</span><span class="ar">عقيقة</span></a></li>
-                    <li><a href="#charity" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('charity')"><span class="en">Charity</span><span class="ar">صدقات</span></a></li>
-                    <li><a href="#vow" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('vow')"><span class="en">Vow</span><span class="ar">نذر</span></a></li>
-                    <li><a href="#expiation" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('expiation')"><span class="en">Expiation</span><span class="ar">كفارة</span></a></li>
-                    <li><a href="#ready-to-eat" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('ready-to-eat')"><span class="en">Ready to Eat</span><span class="ar">خراف جاهزة للأكل</span></a></li>
-                    
-                    <!-- Processed Section -->
-                    <li class="nav-section-header">
-                        <span class="en">Processed Meat</span>
-                        <span class="ar">لحوم مجهزة</span>
-                    </li>
-                    <li><a href="#slaughtered" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('slaughtered')"><span class="en">Slaughtered & Portioned</span><span class="ar">مذبوحة ومجزأة</span></a></li>
-                    <li><a href="#meat-cuts" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('meat-cuts')"><span class="en">Meat Cuts</span><span class="ar">قطعيات</span></a></li>
+                    <li><a href="#home" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('home')"><span class="en">Home</span><span class="ar">الرئيسية</span></a></li>
+                    <li><a href="#sacrifices" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('sacrifices')"><span class="en">Sacrifices</span><span class="ar">ذبائح</span></a></li>
+                    <li><a href="#fresh-meat" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('fresh-meat')"><span class="en">Fresh Meat</span><span class="ar">لحوم طازجة</span></a></li>
+                    <li><a href="#events-catering" class="nav-link-mob nav-bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('events-catering')"><span class="en">Events & Catering</span><span class="ar">مناسبات وولائم</span></a></li>
                 </ul>
             </nav>
         </div>
@@ -974,12 +934,12 @@
                 <div class="hero-content">
             <div class="c">
                 <h1 class="hero-title bil-spread">
-                    <span class="en">Premium Halal Meat & Services</span>
-                    <span class="ar">لحوم حلال وخدمات فاخرة</span>
+                    <span class="en">Halal Meat & Services</span>
+                    <span class="ar">لحوم حلال وخدمات</span>
                 </h1>
                 <div class="hero-subtitle bil-row">
-                    <p class="en">From farm-fresh cuts to Udheya services and event catering - we deliver authentic quality for your family's needs</p>
-                    <p class="ar">من القطعيات الطازجة إلى خدمات الأضاحي وتجهيز المناسبات - نقدم الجودة الأصيلة لاحتياجات عائلتك</p>
+                    <p class="en">From our farm to your table</p>
+                    <p class="ar">من مزرعتنا إلى مائدتك</p>
                 </div>
                 
                 <!-- Trust badges in hero -->
@@ -1080,12 +1040,12 @@
     <!-- All Products on Home Page -->
     <section class="all-products-home main-page-sec" x-show="currentPage === 'home'" x-transition>
         <div class="c">
-            <!-- Udheya Products -->
-            <div x-show="settings.enable_udheya_section && prodOpts.udheya && prodOpts.udheya.length > 0" class="home-category-section">
+            <!-- Sacrifices Section -->
+            <div id="sacrifices" x-show="settings.enable_udheya_section && prodOpts.udheya && prodOpts.udheya.length > 0" class="home-category-section">
                 <div class="section-header">
                     <h2 class="bil-spread">
-                        <span class="en">🕌 Udheya & Religious Services</span>
-                        <span class="ar">🕌 الأضاحي والخدمات الدينية</span>
+                        <span class="en">Sacrifices</span>
+                        <span class="ar">ذبائح</span>
                     </h2>
                 </div>
                 <div class="prod-grid grid3">
@@ -1137,12 +1097,12 @@
             </div>
 
 
-            <!-- Fresh Meat Products -->
-            <div x-show="settings.enable_meat_section && prodOpts.meat_cuts && prodOpts.meat_cuts.length > 0" class="home-category-section">
+            <!-- Fresh Meat Section -->
+            <div id="fresh-meat" x-show="settings.enable_meat_section && prodOpts.meat_cuts && prodOpts.meat_cuts.length > 0" class="home-category-section">
                 <div class="section-header">
                     <h2 class="bil-spread">
-                        <span class="en">🥩 Fresh Meat & Cuts</span>
-                        <span class="ar">🥩 اللحوم الطازجة والقطعيات</span>
+                        <span class="en">Fresh Meat Cuts</span>
+                        <span class="ar">قطعيات طازجة</span>
                     </h2>
                 </div>
                 <div class="prod-grid grid3">
@@ -1201,12 +1161,12 @@
                 </div>
             </div>
 
-            <!-- Events & Catering Products -->
-            <div x-show="settings.enable_gatherings_section && prodOpts.gathering_package && prodOpts.gathering_package.length > 0" class="home-category-section">
+            <!-- Events & Catering Section -->
+            <div id="events-catering" x-show="settings.enable_gatherings_section && prodOpts.gathering_package && prodOpts.gathering_package.length > 0" class="home-category-section">
                 <div class="section-header">
                     <h2 class="bil-spread">
-                        <span class="en">🎉 Events & Catering</span>
-                        <span class="ar">🎉 المناسبات والولائم</span>
+                        <span class="en">Events & Catering</span>
+                        <span class="ar">مناسبات وولائم</span>
                     </h2>
                 </div>
                 <div class="prod-grid grid3">
@@ -1998,8 +1958,8 @@
     <div class="c">
         <div class="foot-grid">
             <div class="bil-row foot-brand-desc">
-                <p class="en">Egypt's trusted partner for premium, Sharia-compliant sheep, livesheep, fresh meat, and Udheya services. Serving Egypt and international customers with guaranteed quality and authentic farm-to-table experience.</p>
-                <p class="ar">الشريك الموثوق في مصر للأغنام الحية واللحوم الطازجة وخدمات الأضاحي المتوافقة مع الشريعة. نخدم مصر والعملاء الدوليين مع ضمان الجودة وتجربة أصيلة من المزرعة للمائدة.</p>
+                <p class="en">Halal meat, sacrifice services, and event catering in Egypt. Farm-to-table quality.</p>
+                <p class="ar">لحوم حلال وخدمات ذبائح وولائم في مصر. جودة من المزرعة للمائدة.</p>
             </div>
         </div>
         <div class="foot-payments">
@@ -2016,11 +1976,7 @@
             </div>
         </div>
         <hr class="foot-div">
-        <p class="foot-copy">© <span x-text="new Date().getFullYear()"></span> Sheep Land Egypt.
-            <span class="bil-copy">
-                <span class="en">All rights reserved.</span><span class="ar">جميع الحقوق محفوظة.</span>
-            </span>
-             | <button @click.prevent="openRefundModal()" class="footer-link-btn bil-inline"><span class="en">Refund Policy</span><span class="ar">سياسة الاسترداد</span></button>
+        <p class="foot-copy">© <span x-text="new Date().getFullYear()"></span> Sheep Land أرض الأغنام | <button @click.prevent="openRefundModal()" class="footer-link-btn bil-inline"><span class="en">Refund Policy</span><span class="ar">سياسة الاسترداد</span></button>
         </p>
     </div>
 </footer>
