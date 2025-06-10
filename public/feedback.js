@@ -48,49 +48,14 @@ const feedbackSystem = {
         const isAdminMode = window.location.hash.includes('admin') || localStorage.getItem('feedback_admin_mode') === 'true';
         
         if (isAdminMode) {
-            // Add admin class to body for styling adjustments
-            document.body.classList.add('admin-mode');
-            
-            const adminBar = document.createElement('div');
-            adminBar.className = 'admin-top-bar';
-            adminBar.innerHTML = `
-                <div class="admin-bar-content">
-                    <div class="admin-bar-label">
-                        <span>🛡️ Admin Mode</span>
-                    </div>
-                    <div class="admin-bar-actions">
-                        <button onclick="feedbackSystem.showDashboard()" class="admin-bar-btn" title="Analytics">
-                            <span class="admin-btn-icon">📊</span>
-                            <span class="admin-btn-text">Analytics</span>
-                        </button>
-                        <button onclick="feedbackSystem.showLinkGenerator()" class="admin-bar-btn" title="Generate Links">
-                            <span class="admin-btn-icon">🔗</span>
-                            <span class="admin-btn-text">Links</span>
-                        </button>
-                        <button onclick="feedbackSystem.showTestimonialManager()" class="admin-bar-btn" title="Manage Testimonials">
-                            <span class="admin-btn-icon">⭐</span>
-                            <span class="admin-btn-text">Testimonials</span>
-                        </button>
-                        <button onclick="feedbackSystem.showFeedbackManager()" class="admin-bar-btn" title="Manage Feedback">
-                            <span class="admin-btn-icon">💬</span>
-                            <span class="admin-btn-text">Feedback</span>
-                        </button>
-                        <button onclick="feedbackSystem.showSettingsPanel()" class="admin-bar-btn" title="Settings">
-                            <span class="admin-btn-icon">⚙️</span>
-                            <span class="admin-btn-text">Settings</span>
-                        </button>
-                        <button onclick="feedbackSystem.exportFeedback()" class="admin-bar-btn" title="Export Data">
-                            <span class="admin-btn-icon">💾</span>
-                            <span class="admin-btn-text">Export</span>
-                        </button>
-                        <button onclick="feedbackSystem.toggleAdminMode()" class="admin-bar-btn admin-bar-close" title="Exit Admin Mode">
-                            <span class="admin-btn-icon">❌</span>
-                            <span class="admin-btn-text">Exit</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.insertBefore(adminBar, document.body.firstChild);
+            // Feedback admin mode is disabled - using main admin system instead
+            console.log('✨ Feedback Admin: Admin mode detected but disabled - use main admin system');
+            // Remove any feedback admin bar if it exists
+            document.querySelectorAll('.admin-top-bar').forEach(el => {
+                if (el.innerHTML.includes('Feedback Admin')) {
+                    el.remove();
+                }
+            });
         }
     },
 
