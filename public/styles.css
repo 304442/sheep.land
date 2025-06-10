@@ -1942,50 +1942,64 @@ body.has-promo-bar .wishlist-dropdown {
 }
 
 .admin-modal-header {
-    background: #2c3e50;
-    color: white;
-    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: var(--s2);
+    border-bottom: 2px solid var(--bs);
+    background: linear-gradient(135deg, var(--b2), #f0ebe3);
     flex-shrink: 0;
 }
 
 .admin-modal-header h2 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--c1d);
 }
 
 .admin-modal-close {
     background: none;
     border: none;
-    color: white;
-    font-size: 24px;
+    font-size: 1.5rem;
     cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
+    color: var(--tm);
+    padding: var(--s1);
+    line-height: 1;
+    transition: all .3s ease;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: background 0.2s;
 }
 
 .admin-modal-close:hover {
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--c1d);
+    background: rgba(0, 0, 0, .1);
+    transform: rotate(90deg);
 }
 
 .admin-modal-content {
-    padding: 20px;
+    padding: var(--s4);
     overflow-y: auto;
     flex: 1;
 }
 
 .admin-modal-body {
-    padding: 20px;
+    padding: var(--s4);
     overflow-y: auto;
     flex: 1;
+}
+
+.admin-modal-footer {
+    padding: var(--s2);
+    border-top: 2px solid var(--bs);
+    background: linear-gradient(135deg, var(--b2), #f0ebe3);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--s1);
 }
 
 /* Admin Modal Components */

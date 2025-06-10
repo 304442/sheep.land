@@ -155,11 +155,14 @@ const adminSystem = {
         modal.innerHTML = `
             <div class="admin-modal">
                 <div class="admin-modal-header">
-                    <h2 id="adminModalTitle">${title || 'Admin Panel'}</h2>
-                    <button class="admin-modal-close" onclick="adminSystem.closeAdminModal()" aria-label="Close modal">&times;</button>
+                    <h2 id="adminModalTitle" class="modal-title">${title || 'Admin Panel'}</h2>
+                    <button class="admin-modal-close modal-close-btn" onclick="adminSystem.closeAdminModal()" aria-label="Close modal">&times;</button>
                 </div>
-                <div class="admin-modal-body" role="document">
+                <div class="admin-modal-body modal-content" role="document">
                     ${content || ''}
+                </div>
+                <div class="admin-modal-footer modal-footer">
+                    <button onclick="adminSystem.closeAdminModal()" class="btn bp">Close</button>
                 </div>
             </div>
         `;
