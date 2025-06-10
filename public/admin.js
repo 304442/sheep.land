@@ -140,21 +140,21 @@ const adminSystem = {
         document.getElementById('adminModal')?.remove();
         
         const modal = document.createElement('div');
-        modal.className = 'admin-modal-overlay';
+        modal.className = 'modal-overlay admin-modal-overlay';
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('aria-modal', 'true');
         modal.setAttribute('aria-labelledby', 'adminModalTitle');
         
         modal.innerHTML = `
-            <div class="admin-modal">
-                <div class="admin-modal-header">
+            <div class="modal admin-modal">
+                <div class="modal-header">
                     <h2 id="adminModalTitle" class="modal-title">${title || 'Admin Panel'}</h2>
-                    <button class="admin-modal-close modal-close-btn" onclick="adminSystem.closeAdminModal()" aria-label="Close modal">&times;</button>
+                    <button class="modal-close-btn" onclick="adminSystem.closeAdminModal()" aria-label="Close modal">&times;</button>
                 </div>
-                <div class="admin-modal-body modal-content" role="document">
+                <div class="modal-content" role="document">
                     ${content || ''}
                 </div>
-                <div class="admin-modal-footer modal-footer">
+                <div class="modal-footer">
                     <button onclick="adminSystem.closeAdminModal()" class="btn bp">Close</button>
                 </div>
             </div>
