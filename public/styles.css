@@ -1856,10 +1856,10 @@ body.has-promo-bar .wishlist-dropdown {
     top: 0;
     left: 0;
     right: 0;
-    height: 40px;
+    height: 32px;
     background: #2c3e50;
     color: white;
-    z-index: 10000;
+    z-index: 1100;
     box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     display: flex;
     align-items: center;
@@ -1891,6 +1891,25 @@ body.has-promo-bar .wishlist-dropdown {
     overflow-x: auto;
     flex: 1;
     padding-right: var(--s2);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.admin-bar-actions::-webkit-scrollbar {
+    height: 4px;
+}
+
+.admin-bar-actions::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-bar-actions::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.admin-bar-actions::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .admin-bar-btn {
@@ -1907,6 +1926,8 @@ body.has-promo-bar .wishlist-dropdown {
     align-items: center;
     gap: var(--s1);
     font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .admin-bar-btn:hover {
@@ -1927,28 +1948,49 @@ body.has-promo-bar .wishlist-dropdown {
     font-size: 1rem;
 }
 
-/* Adjust body when admin bar is active */
-body.admin-mode {
-    padding-top: 40px;
-}
-
-body.admin-mode .top-contact-bar {
-    top: 40px;
-}
-
-body.admin-mode .promo-bar {
-    top: 72px;
-}
+/* No body adjustment - admin bar overlays */
 
 /* Mobile admin bar */
 @media (max-width: 768px) {
     .admin-top-bar {
-        height: 36px;
+        height: 32px;
+        overflow: visible;
+    }
+    
+    .admin-bar-content {
+        padding: 0 8px;
+        gap: 8px;
+    }
+    
+    .admin-bar-label {
+        font-size: 0.8rem;
+        min-width: fit-content;
+    }
+    
+    .admin-bar-label span {
+        display: none;
+    }
+    
+    .admin-bar-label::after {
+        content: '🛡️ Admin';
+    }
+    
+    .admin-bar-actions {
+        gap: 4px;
+        padding-right: 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    
+    .admin-bar-actions::-webkit-scrollbar {
+        display: none;
     }
     
     .admin-bar-btn {
-        padding: 2px 8px;
+        padding: 6px 10px;
         font-size: 0.75rem;
+        min-width: fit-content;
+        flex-shrink: 0;
     }
     
     .admin-btn-text {
@@ -1956,20 +1998,10 @@ body.admin-mode .promo-bar {
     }
     
     .admin-btn-icon {
-        font-size: 0.9rem;
+        font-size: 1.1rem;
     }
     
-    body.admin-mode {
-        padding-top: 36px;
-    }
-    
-    body.admin-mode .top-contact-bar {
-        top: 36px;
-    }
-    
-    body.admin-mode .promo-bar {
-        top: 64px;
-    }
+    /* No body adjustment on mobile either */
 }
 
 /* Admin Modal Styles */
@@ -5078,25 +5110,7 @@ body.admin-mode .promo-bar {
     background-color: rgba(0,0,0,0.05);
 }
 
-/* Admin System Styles */
-/* No body padding adjustment - admin bar overlays on top */
-
-.admin-top-bar {
-    position: fixed;
-    top: 0; /* At the very top */
-    left: 0;
-    right: 0;
-    background: #2c3e50;
-    color: white;
-    z-index: 1100; /* Higher than nav bars */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    height: 32px; /* Same as contact bar */
-}
-
-.admin-bar-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* Admin System Styles - Removed duplicate */
     padding: 0 20px;
     gap: 15px;
     height: 100%;
