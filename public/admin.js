@@ -114,7 +114,501 @@ const adminSystem = {
         `;
         document.body.insertBefore(adminBar, document.body.firstChild);
         
+        // Create admin modal container
+        this.createAdminModal();
+        
         console.log('🐑 Admin System: Admin bar created successfully');
+    },
+    
+    // Create modal for admin content
+    createAdminModal() {
+        // Remove any existing admin modals
+        const existingModal = document.getElementById('adminModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        const modalHTML = `
+            <div id="adminModal" class="admin-modal" style="display: none;">
+                <div class="admin-modal-overlay" onclick="adminSystem.closeAdminModal()"></div>
+                <div class="admin-modal-content">
+                    <div class="admin-modal-header">
+                        <h2 id="adminModalTitle">Admin Panel</h2>
+                        <button class="admin-modal-close" onclick="adminSystem.closeAdminModal()">×</button>
+                    </div>
+                    <div class="admin-modal-body" id="adminModalContent">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Add modal styles if not already present
+        if (!document.querySelector('#adminModalStyles')) {
+            const styles = `
+                <style id="adminModalStyles">
+                    .admin-modal {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        z-index: 10000;
+                    }
+                    
+                    .admin-modal-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                    }
+                    
+                    .admin-modal-content {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: white;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                        width: 90%;
+                        max-width: 1200px;
+                        max-height: 90vh;
+                        display: flex;
+                        flex-direction: column;
+                    }
+                    
+                    .admin-modal-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 20px;
+                        border-bottom: 1px solid #e0e0e0;
+                    }
+                    
+                    .admin-modal-header h2 {
+                        margin: 0;
+                        font-size: 24px;
+                        color: #333;
+                    }
+                    
+                    .admin-modal-close {
+                        background: none;
+                        border: none;
+                        font-size: 28px;
+                        cursor: pointer;
+                        color: #666;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    
+                    .admin-modal-close:hover {
+                        color: #000;
+                    }
+                    
+                    .admin-modal-body {
+                        padding: 20px;
+                        overflow-y: auto;
+                        flex: 1;
+                    }
+                    
+                    /* Admin table styles */
+                    .admin-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }
+                    
+                    .admin-table th,
+                    .admin-table td {
+                        padding: 12px;
+                        text-align: left;
+                        border-bottom: 1px solid #e0e0e0;
+                    }
+                    
+                    .admin-table th {
+                        background: #f8f9fa;
+                        font-weight: 600;
+                        color: #333;
+                    }
+                    
+                    .admin-table tr:hover {
+                        background: #f8f9fa;
+                    }
+                    
+                    /* Section headers */
+                    .section-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 20px;
+                    }
+                    
+                    /* Status badges */
+                    .status-badge {
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                    
+                    .status-badge.status-pending {
+                        background: #fff3cd;
+                        color: #856404;
+                    }
+                    
+                    .status-badge.status-processing {
+                        background: #cce5ff;
+                        color: #004085;
+                    }
+                    
+                    .status-badge.status-delivered {
+                        background: #d4edda;
+                        color: #155724;
+                    }
+                    
+                    .status-badge.status-active {
+                        background: #d4edda;
+                        color: #155724;
+                    }
+                    
+                    .status-badge.status-inactive {
+                        background: #f8d7da;
+                        color: #721c24;
+                    }
+                    
+                    /* Stat badges */
+                    .stat-badge {
+                        padding: 6px 12px;
+                        background: #e9ecef;
+                        border-radius: 4px;
+                        margin-right: 10px;
+                        font-size: 14px;
+                    }
+                    
+                    .stat-badge.pending {
+                        background: #fff3cd;
+                        color: #856404;
+                    }
+                    
+                    .stat-badge.processing {
+                        background: #cce5ff;
+                        color: #004085;
+                    }
+                    
+                    .stat-badge.delivered {
+                        background: #d4edda;
+                        color: #155724;
+                    }
+                    
+                    /* Small buttons */
+                    .btn-small {
+                        padding: 4px 8px;
+                        font-size: 12px;
+                        border: none;
+                        background: #007bff;
+                        color: white;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        margin-right: 4px;
+                    }
+                    
+                    .btn-small:hover {
+                        background: #0056b3;
+                    }
+                    
+                    .btn-small.danger {
+                        background: #dc3545;
+                    }
+                    
+                    .btn-small.danger:hover {
+                        background: #c82333;
+                    }
+                    
+                    .btn-small.success {
+                        background: #28a745;
+                    }
+                    
+                    .btn-small.success:hover {
+                        background: #218838;
+                    }
+                    
+                    /* Products grid */
+                    .products-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                        gap: 20px;
+                        margin-top: 20px;
+                    }
+                    
+                    .product-card {
+                        border: 1px solid #e0e0e0;
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
+                    
+                    .product-card img {
+                        width: 100%;
+                        height: 200px;
+                        object-fit: cover;
+                    }
+                    
+                    .product-info {
+                        padding: 15px;
+                    }
+                    
+                    .product-info h3 {
+                        margin: 0 0 10px 0;
+                        font-size: 18px;
+                    }
+                    
+                    .product-category {
+                        color: #666;
+                        font-size: 14px;
+                        margin: 5px 0;
+                    }
+                    
+                    .product-price {
+                        font-size: 18px;
+                        font-weight: bold;
+                        color: #007bff;
+                        margin: 5px 0;
+                    }
+                    
+                    .product-stock {
+                        font-size: 14px;
+                        color: #666;
+                    }
+                    
+                    .product-actions {
+                        margin-top: 10px;
+                    }
+                    
+                    /* Settings forms */
+                    .settings-section {
+                        background: #f8f9fa;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                    }
+                    
+                    .settings-section h3 {
+                        margin-top: 0;
+                        margin-bottom: 15px;
+                        color: #333;
+                    }
+                    
+                    .form-group {
+                        margin-bottom: 15px;
+                    }
+                    
+                    .form-group label {
+                        display: block;
+                        margin-bottom: 5px;
+                        font-weight: 500;
+                        color: #333;
+                    }
+                    
+                    .form-control {
+                        width: 100%;
+                        padding: 8px 12px;
+                        border: 1px solid #ced4da;
+                        border-radius: 4px;
+                        font-size: 14px;
+                    }
+                    
+                    .checkbox-group label {
+                        display: block;
+                        margin-bottom: 8px;
+                        font-weight: normal;
+                    }
+                    
+                    .checkbox-group input[type="checkbox"] {
+                        margin-right: 8px;
+                    }
+                    
+                    /* Dashboard styles */
+                    .admin-dashboard h2 {
+                        margin-bottom: 20px;
+                    }
+                    
+                    .metrics-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 20px;
+                        margin-bottom: 30px;
+                    }
+                    
+                    .metric-card {
+                        background: #f8f9fa;
+                        padding: 20px;
+                        border-radius: 8px;
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                    }
+                    
+                    .metric-icon {
+                        font-size: 32px;
+                    }
+                    
+                    .metric-info h3 {
+                        margin: 0;
+                        font-size: 14px;
+                        color: #666;
+                    }
+                    
+                    .metric-value {
+                        margin: 5px 0;
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #333;
+                    }
+                    
+                    .metric-change {
+                        font-size: 12px;
+                        color: #666;
+                    }
+                    
+                    .metric-change.positive {
+                        color: #28a745;
+                    }
+                    
+                    .metric-change.warning {
+                        color: #ffc107;
+                    }
+                    
+                    .quick-actions,
+                    .recent-activity {
+                        margin-bottom: 30px;
+                    }
+                    
+                    .action-buttons {
+                        display: flex;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                        margin-top: 15px;
+                    }
+                    
+                    .action-btn {
+                        padding: 10px 20px;
+                        background: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                    }
+                    
+                    .action-btn:hover {
+                        background: #0056b3;
+                    }
+                    
+                    .activity-list {
+                        margin-top: 15px;
+                    }
+                    
+                    .activity-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                        padding: 10px 0;
+                        border-bottom: 1px solid #e0e0e0;
+                    }
+                    
+                    .activity-item:last-child {
+                        border-bottom: none;
+                    }
+                    
+                    .activity-icon {
+                        font-size: 24px;
+                    }
+                    
+                    .activity-details {
+                        flex: 1;
+                    }
+                    
+                    .activity-text {
+                        margin: 0;
+                        color: #333;
+                    }
+                    
+                    .activity-time {
+                        font-size: 12px;
+                        color: #666;
+                    }
+                    
+                    .admin-alerts {
+                        margin-top: 20px;
+                    }
+                    
+                    .alert {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 12px;
+                        border-radius: 4px;
+                        margin-bottom: 10px;
+                    }
+                    
+                    .alert-warning {
+                        background: #fff3cd;
+                        color: #856404;
+                    }
+                    
+                    .alert-info {
+                        background: #cce5ff;
+                        color: #004085;
+                    }
+                    
+                    .alert-dismiss {
+                        margin-left: auto;
+                        background: none;
+                        border: none;
+                        font-size: 20px;
+                        cursor: pointer;
+                        color: inherit;
+                        opacity: 0.5;
+                    }
+                    
+                    .alert-dismiss:hover {
+                        opacity: 1;
+                    }
+                </style>
+            `;
+            document.head.insertAdjacentHTML('beforeend', styles);
+        }
+    },
+    
+    // Show admin modal with content
+    showAdminModal(title, content) {
+        const modal = document.getElementById('adminModal');
+        const modalTitle = document.getElementById('adminModalTitle');
+        const modalContent = document.getElementById('adminModalContent');
+        
+        if (modal && modalTitle && modalContent) {
+            modalTitle.textContent = title;
+            modalContent.innerHTML = content;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent body scroll
+        }
+    },
+    
+    // Close admin modal
+    closeAdminModal() {
+        const modal = document.getElementById('adminModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore body scroll
+        }
     },
     
     // Old floating panel code removed - keeping for reference
@@ -282,23 +776,50 @@ const adminSystem = {
         }
     },
 
-    // Set active navigation
+    // Set active navigation (no longer needed with modal approach)
     setActiveNav(tab) {
-        document.querySelectorAll('.admin-nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.tab === tab) {
-                btn.classList.add('active');
-            }
-        });
+        // This function is kept for compatibility but does nothing
+        // since we're using modals instead of the old panel navigation
     },
 
     // Show main dashboard
+    // Create admin modal for displaying content
+    createAdminModal(title, content) {
+        // Remove any existing modal
+        document.querySelector('.admin-modal-overlay')?.remove();
+        
+        const modal = document.createElement('div');
+        modal.className = 'admin-modal-overlay';
+        modal.innerHTML = `
+            <div class="admin-modal">
+                <div class="admin-modal-header">
+                    <h2>${title}</h2>
+                    <button onclick="adminSystem.closeAdminModal()" class="admin-modal-close">&times;</button>
+                </div>
+                <div class="admin-modal-content">
+                    ${content}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeAdminModal();
+            }
+        });
+    },
+    
+    // Close admin modal
+    closeAdminModal() {
+        document.querySelector('.admin-modal-overlay')?.remove();
+    },
+    
     showDashboard() {
-        this.setActiveNav('dashboard');
-        const content = document.getElementById('adminMainContent');
         const dashboardData = this.getDashboardData();
         
-        content.innerHTML = `
+        const content = `
             <div class="admin-dashboard">
                 <h2>Business Overview</h2>
                 
@@ -391,6 +912,154 @@ const adminSystem = {
                 ` : ''}
             </div>
         `;
+        
+        this.showAdminModal('Dashboard', content);
+    },
+    
+    // Show orders manager (for top bar)
+    showOrdersManager() {
+        const ordersData = this.getOrdersData();
+        
+        const content = `
+            <div class="admin-orders">
+                <div class="section-header">
+                    <h2>Order Management</h2>
+                    <div class="order-stats">
+                        <span class="stat-badge">Total: ${ordersData.total}</span>
+                        <span class="stat-badge pending">Pending: ${ordersData.pending}</span>
+                        <span class="stat-badge processing">Processing: ${ordersData.processing}</span>
+                        <span class="stat-badge delivered">Delivered: ${ordersData.delivered}</span>
+                    </div>
+                </div>
+                
+                <div class="orders-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${ordersData.orders.map(order => `
+                                <tr>
+                                    <td>#${order.id}</td>
+                                    <td>${order.customerName}</td>
+                                    <td>${order.products}</td>
+                                    <td>${order.total} EGP</td>
+                                    <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                                    <td>${order.date}</td>
+                                    <td>
+                                        <button onclick="adminSystem.viewOrder('${order.id}')" class="btn-small">View</button>
+                                        <button onclick="adminSystem.updateOrderStatus('${order.id}')" class="btn-small">Update</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        this.showAdminModal('Orders Management', content);
+    },
+    
+    // Show products manager (for top bar)
+    showProductsManager() {
+        const productsData = this.getProductsData();
+        
+        const content = `
+            <div class="admin-products">
+                <div class="section-header">
+                    <h2>Product Management</h2>
+                    <button onclick="adminSystem.addNewProduct()" class="btn bp">+ Add New Product</button>
+                </div>
+                
+                <div class="products-grid">
+                    ${productsData.products.map(product => `
+                        <div class="product-card">
+                            <img src="${product.image}" alt="${product.name}">
+                            <div class="product-info">
+                                <h3>${product.name}</h3>
+                                <p class="product-category">${product.category}</p>
+                                <p class="product-price">${product.price} EGP</p>
+                                <p class="product-stock">Stock: ${product.stock}</p>
+                                <div class="product-actions">
+                                    <button onclick="adminSystem.editProduct('${product.id}')" class="btn-small">Edit</button>
+                                    <button onclick="adminSystem.updateStock('${product.id}')" class="btn-small">Update Stock</button>
+                                    <button onclick="adminSystem.toggleProductStatus('${product.id}')" class="btn-small ${product.active ? 'danger' : 'success'}">
+                                        ${product.active ? 'Deactivate' : 'Activate'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        this.showAdminModal('Products Management', content);
+    },
+    
+    // Show users manager (for top bar)
+    showUsersManager() {
+        const usersData = this.getUsersData();
+        
+        const content = `
+            <div class="admin-users">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <div class="user-stats">
+                        <span class="stat-badge">Total Users: ${usersData.total}</span>
+                        <span class="stat-badge">Active Today: ${usersData.activeToday}</span>
+                        <span class="stat-badge">New This Month: ${usersData.newThisMonth}</span>
+                    </div>
+                </div>
+                
+                <div class="users-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Orders</th>
+                                <th>Total Spent</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${usersData.users.map(user => `
+                                <tr>
+                                    <td>#${user.id}</td>
+                                    <td>${user.name}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.phone}</td>
+                                    <td>${user.orderCount}</td>
+                                    <td>${user.totalSpent} EGP</td>
+                                    <td><span class="status-badge status-${user.status}">${user.status}</span></td>
+                                    <td>${user.joinDate}</td>
+                                    <td>
+                                        <button onclick="adminSystem.viewUser('${user.id}')" class="btn-small">View</button>
+                                        <button onclick="adminSystem.contactUser('${user.id}')" class="btn-small">Contact</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        this.showAdminModal('Users Management', content);
     },
 
     // Show order management
@@ -653,6 +1322,75 @@ const adminSystem = {
         localStorage.setItem('admin_products', JSON.stringify(mockProducts));
         return mockProducts;
     },
+    
+    // Get users data (mock for now)
+    getUsersData() {
+        // Check localStorage first
+        const storedUsers = localStorage.getItem('admin_users');
+        if (storedUsers) {
+            const users = JSON.parse(storedUsers);
+            return {
+                total: users.length,
+                activeToday: users.filter(u => u.lastActive === new Date().toISOString().split('T')[0]).length,
+                newThisMonth: users.filter(u => {
+                    const joinDate = new Date(u.joinDate);
+                    const now = new Date();
+                    return joinDate.getMonth() === now.getMonth() && joinDate.getFullYear() === now.getFullYear();
+                }).length,
+                users: users
+            };
+        }
+        
+        // Mock data
+        const mockUsers = [
+            {
+                id: '1',
+                name: 'Ahmed Hassan',
+                email: 'ahmed@example.com',
+                phone: '+20 10 1234 5678',
+                orderCount: 5,
+                totalSpent: 15000,
+                status: 'active',
+                joinDate: '2024-01-15',
+                lastActive: new Date().toISOString().split('T')[0]
+            },
+            {
+                id: '2',
+                name: 'Fatima Ali',
+                email: 'fatima@example.com',
+                phone: '+20 11 9876 5432',
+                orderCount: 3,
+                totalSpent: 8500,
+                status: 'active',
+                joinDate: '2024-02-20',
+                lastActive: new Date().toISOString().split('T')[0]
+            },
+            {
+                id: '3',
+                name: 'Mohamed Ibrahim',
+                email: 'mohamed@example.com',
+                phone: '+20 12 5555 5555',
+                orderCount: 1,
+                totalSpent: 2500,
+                status: 'inactive',
+                joinDate: '2024-03-01',
+                lastActive: '2024-03-15'
+            }
+        ];
+        
+        localStorage.setItem('admin_users', JSON.stringify(mockUsers));
+        
+        return {
+            total: mockUsers.length,
+            activeToday: mockUsers.filter(u => u.lastActive === new Date().toISOString().split('T')[0]).length,
+            newThisMonth: mockUsers.filter(u => {
+                const joinDate = new Date(u.joinDate);
+                const now = new Date();
+                return joinDate.getMonth() === now.getMonth() && joinDate.getFullYear() === now.getFullYear();
+            }).length,
+            users: mockUsers
+        };
+    },
 
     // Helper functions
     isToday(dateString) {
@@ -728,8 +1466,79 @@ const adminSystem = {
     },
 
     showSettings() {
-        this.setActiveNav('settings');
-        document.getElementById('adminMainContent').innerHTML = '<div class="admin-section"><h2>System Settings</h2><p>Coming soon...</p></div>';
+        const content = `
+            <div class="admin-settings">
+                <h2>System Settings</h2>
+                
+                <div class="settings-section">
+                    <h3>Business Information</h3>
+                    <form id="businessSettingsForm">
+                        <div class="form-group">
+                            <label>Business Name</label>
+                            <input type="text" class="form-control" value="Sheep Land Egypt" />
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Email</label>
+                            <input type="email" class="form-control" value="info@sheep.land" />
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Phone</label>
+                            <input type="tel" class="form-control" value="+20 123 456 7890" />
+                        </div>
+                        <button type="button" class="btn bp">Save Business Settings</button>
+                    </form>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Payment Settings</h3>
+                    <form id="paymentSettingsForm">
+                        <div class="form-group">
+                            <label>Accepted Payment Methods</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" checked> Cash on Delivery</label>
+                                <label><input type="checkbox" checked> Bank Transfer</label>
+                                <label><input type="checkbox" checked> InstaPay</label>
+                                <label><input type="checkbox"> Credit Card</label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn bp">Save Payment Settings</button>
+                    </form>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Delivery Settings</h3>
+                    <form id="deliverySettingsForm">
+                        <div class="form-group">
+                            <label>Delivery Fee (EGP)</label>
+                            <input type="number" class="form-control" value="50" />
+                        </div>
+                        <div class="form-group">
+                            <label>Free Delivery Above (EGP)</label>
+                            <input type="number" class="form-control" value="1000" />
+                        </div>
+                        <button type="button" class="btn bp">Save Delivery Settings</button>
+                    </form>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>System Preferences</h3>
+                    <form id="systemSettingsForm">
+                        <div class="form-group">
+                            <label><input type="checkbox" checked> Enable Order Notifications</label>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" checked> Enable Low Stock Alerts</label>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox"> Maintenance Mode</label>
+                        </div>
+                        <button type="button" class="btn bp">Save System Settings</button>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+        this.showAdminModal('Settings', content);
     },
 
     // Show livestock management
