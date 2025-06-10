@@ -498,8 +498,10 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 /* Modern Section Styling */
 .section-header{text-align:center;margin-bottom:var(--s4);width:100%}
 .section-header.centered{width:100%;margin:0 0 var(--s4)}
-.section-header h2{font-size:2.5rem;font-weight:800;color:var(--c1d);margin-bottom:var(--s2);line-height:1.2;width:100%}
-.section-header h2.bil-spread{display:flex;width:100%}
+.section-header h2{font-size:1.5rem;font-weight:600;color:var(--c1d);margin-bottom:var(--s2);line-height:1.2;width:100%;position:relative;display:inline-block;padding-bottom:12px}
+.section-header h2::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--c2);border-radius:2px}
+.section-header h2.bil-spread{display:flex;width:100%;justify-content:center}
+.section-header h2.bil-spread::after{display:none}
 .section-subtitle{font-size:1.1rem;color:var(--tm);line-height:1.6;width:100%}
 .section-subtitle.bil-row{display:flex;width:100%}
 
@@ -3852,14 +3854,56 @@ tr.out-of-stock {
 
 .home-category-section .section-header {
     margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
+    text-align: center;
+    position: relative;
 }
 
 .home-category-section .section-header h2 {
-    font-size: 32px;
-    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--c1d);
     margin: 0;
+    display: inline-block;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.home-category-section .section-header h2.bil-spread {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 0;
+}
+
+.home-category-section .section-header h2.bil-spread .en,
+.home-category-section .section-header h2.bil-spread .ar {
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.home-category-section .section-header h2.bil-spread .en::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 2px;
+    background: var(--c2);
+    border-radius: 1px;
+}
+
+.home-category-section .section-header h2.bil-spread .ar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 2px;
+    background: var(--c2);
+    border-radius: 1px;
 }
 
 .card-desc {
