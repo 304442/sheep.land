@@ -292,8 +292,33 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .sum-total-label.ar{font-family:var(--fa);direction:rtl;text-align:right}
 .sum-total-amount{font-size:1.1rem;font-weight:800;color:var(--c1);text-align:center;flex:0 1 auto}
 
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:1040;backdrop-filter:blur(4px)}
-.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--b1);border-radius:calc(var(--rad)*2);box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:1050;width:90vw;max-width:var(--modal-max-width);display:flex;flex-direction:column;max-height:85vh;overflow:hidden}
+.modal-overlay{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1040;
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.modal{
+    position: relative;
+    background: var(--b1);
+    border-radius: calc(var(--rad)*2);
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    z-index: 1050;
+    width: 90vw;
+    max-width: var(--modal-max-width);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+    overflow: hidden;
+}
 .modal-header{
     display: flex;
     justify-content: space-between;
