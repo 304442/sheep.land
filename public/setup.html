@@ -669,46 +669,49 @@
                 ]
         },
         {
-                "name": "products",
+                "name": "service_inquiries",
                 "type": "base",
                 "system": false,
-                "listRule": "",
-                "viewRule": "",
-                "createRule": "@request.auth.id != '' && @request.auth.verified = true",
+                "listRule": "@request.auth.id != '' && @request.auth.verified = true",
+                "viewRule": "@request.auth.id != '' && @request.auth.verified = true",
+                "createRule": "",
                 "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
                 "deleteRule": "@request.auth.id != '' && @request.auth.verified = true",
                 "fields": [
                         {
-                                "name": "item_key",
-                                "type": "text",
-                                "required": true,
-                                "presentable": true,
-                                "unique": true,
-                                "max": 100,
-                                "min": 1,
-                                "pattern": "^[a-z0-9_]+$"
-                        },
-                        {
-                                "name": "product_category",
+                                "name": "service_type",
                                 "type": "select",
                                 "required": true,
                                 "presentable": true,
                                 "maxSelect": 1,
                                 "values": [
                                         "udheya",
-                                        "livesheep_general",
-                                        "meat_cuts",
-                                        "gathering_package",
-                                        "breeding_stock",
-                                        "feed_supplies",
-                                        "aqiqah",
-                                        "charity",
-                                        "vow",
-                                        "expiation",
-                                        "ready_to_eat",
                                         "live_sheep",
-                                        "slaughtered"
+                                        "fresh_meat",
+                                        "events_catering"
                                 ]
+                        },
+                        {
+                                "name": "customer_name",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "max": 100,
+                                "min": 1
+                        },
+                        {
+                                "name": "customer_phone",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "max": 20,
+                                "min": 10
+                        },
+                        {
+                                "name": "customer_email",
+                                "type": "email",
+                                "required": true,
+                                "presentable": true
                         },
                         {
                                 "name": "type_key",

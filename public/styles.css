@@ -3843,87 +3843,46 @@ tr.out-of-stock {
     text-align: center;
 }
 
-/* Main Category Cards for Home Page */
-.category-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin: 40px 0;
+/* Home Category Sections */
+.home-category-section {
+    margin-bottom: 60px;
 }
 
-.category-main-card {
-    background: white;
-    border-radius: 16px;
-    padding: 40px;
-    text-align: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid #e0e0e0;
-}
-
-.category-main-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
-}
-
-.category-icon-large {
-    font-size: 64px;
-    margin-bottom: 20px;
-    display: inline-block;
-}
-
-.category-main-title {
-    font-size: 28px;
-    margin-bottom: 20px;
-    color: #2c3e50;
-}
-
-.category-main-desc {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #666;
+.home-category-section .section-header {
     margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
 }
 
-.category-features {
-    margin: 30px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
+.home-category-section .section-header h2 {
+    font-size: 32px;
+    color: #2c3e50;
+    margin: 0;
 }
 
-.feature-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #27ae60;
-    font-weight: 500;
+.card-desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+    margin: 8px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-.feature-icon {
-    color: #27ae60;
-    font-size: 18px;
+.fresh-badge {
+    background: #27ae60;
 }
 
-@media (max-width: 768px) {
-    .category-cards-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .category-main-card {
-        padding: 30px 20px;
-    }
-    
-    .category-icon-large {
-        font-size: 48px;
-    }
-    
-    .category-main-title {
-        font-size: 24px;
-    }
+.live-badge {
+    background: #e74c3c;
 }
+
+.event-badge {
+    background: #9b59b6;
+}
+
 
 /* Livestock Table */
 .livestock-table {
