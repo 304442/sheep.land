@@ -1288,7 +1288,16 @@ const adminSystem = {
     getProductsData() {
         const stored = localStorage.getItem('admin_products');
         if (stored) {
-            return JSON.parse(stored);
+            const data = JSON.parse(stored);
+            // Handle old format (array) vs new format (object with products array)
+            if (Array.isArray(data)) {
+                return {
+                    products: data,
+                    total: data.length,
+                    categories: [...new Set(data.map(p => p.category))].length
+                };
+            }
+            return data;
         }
         
         // Mock products data
@@ -1325,8 +1334,14 @@ const adminSystem = {
             }
         ];
         
-        localStorage.setItem('admin_products', JSON.stringify(mockProducts));
-        return mockProducts;
+        const productsData = {
+            products: mockProducts,
+            total: mockProducts.length,
+            categories: [...new Set(mockProducts.map(p => p.category))].length
+        };
+        
+        localStorage.setItem('admin_products', JSON.stringify(productsData));
+        return productsData;
     },
     
     // Get users data (mock for now)
