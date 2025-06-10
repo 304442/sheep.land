@@ -77,53 +77,43 @@ const adminSystem = {
         
         // Create admin top bar (not floating panel)
         const adminBar = document.createElement('div');
-        adminBar.className = 'admin-top-bar main-admin-bar';
+        adminBar.className = 'top-contact-bar admin-contact-bar';
         adminBar.innerHTML = `
-            <div class="admin-bar-content">
-                <div class="admin-bar-label">
-                    <span>🛡️ Admin Dashboard</span>
-                </div>
-                <div class="admin-bar-actions">
-                    <button onclick="adminSystem.showDashboard()" class="admin-bar-btn" title="Dashboard">
+            <div class="c">
+                <div class="contact-bar-content">
+                    <div class="contact-bar-items">
+                    <button onclick="adminSystem.showDashboard()" class="wa-contact-btn" title="Dashboard">
                         <span class="admin-btn-icon">📊</span>
-                        <span class="admin-btn-text">Dashboard</span>
+                        <span>Dashboard</span>
                     </button>
-                    <button onclick="adminSystem.showOrderManager()" class="admin-bar-btn" title="Orders">
-                        <span class="admin-btn-icon">📦</span>
-                        <span class="admin-btn-text">Orders</span>
+                    <button onclick="adminSystem.showOrderManager()" class="track-order-btn" title="Orders">
+                        <span>📦 Orders</span>
                     </button>
-                    <button onclick="adminSystem.showProductManager()" class="admin-bar-btn" title="Products">
-                        <span class="admin-btn-icon">🛍️</span>
-                        <span class="admin-btn-text">Products</span>
+                    <button onclick="adminSystem.showProductManager()" class="track-order-btn" title="Products">
+                        <span>🛍️ Products</span>
                     </button>
-                    <button onclick="adminSystem.showCustomerManager()" class="admin-bar-btn" title="Customers">
-                        <span class="admin-btn-icon">👥</span>
-                        <span class="admin-btn-text">Customers</span>
+                    <button onclick="adminSystem.showCustomerManager()" class="track-order-btn" title="Customers">
+                        <span>👥 Customers</span>
                     </button>
-                    <button onclick="adminSystem.showInventoryManager()" class="admin-bar-btn" title="Inventory">
-                        <span class="admin-btn-icon">📦</span>
-                        <span class="admin-btn-text">Inventory</span>
+                    <button onclick="adminSystem.showInventoryManager()" class="track-order-btn" title="Inventory">
+                        <span>📦 Inventory</span>
                     </button>
-                    <button onclick="adminSystem.showLivestockManager()" class="admin-bar-btn" title="Livestock">
-                        <span class="admin-btn-icon">🐑</span>
-                        <span class="admin-btn-text">Livestock</span>
+                    <button onclick="adminSystem.showLivestockManager()" class="track-order-btn" title="Livestock">
+                        <span>🐑 Livestock</span>
                     </button>
-                    <button onclick="adminSystem.showFinancialManager()" class="admin-bar-btn" title="Financial">
-                        <span class="admin-btn-icon">💰</span>
-                        <span class="admin-btn-text">Financial</span>
+                    <button onclick="adminSystem.showFinancialManager()" class="track-order-btn" title="Financial">
+                        <span>💰 Financial</span>
                     </button>
-                    <button onclick="adminSystem.showSupplierManager()" class="admin-bar-btn" title="Suppliers">
-                        <span class="admin-btn-icon">🚚</span>
-                        <span class="admin-btn-text">Suppliers</span>
+                    <button onclick="adminSystem.showSupplierManager()" class="track-order-btn" title="Suppliers">
+                        <span>🚚 Suppliers</span>
                     </button>
-                    <button onclick="adminSystem.showSettings()" class="admin-bar-btn" title="Settings">
-                        <span class="admin-btn-icon">⚙️</span>
-                        <span class="admin-btn-text">Settings</span>
+                    <button onclick="adminSystem.showSettings()" class="track-order-btn" title="Settings">
+                        <span>⚙️ Settings</span>
                     </button>
-                    <button onclick="adminSystem.toggleAdminMode()" class="admin-bar-btn admin-bar-close" title="Exit Admin">
-                        <span class="admin-btn-icon">❌</span>
-                        <span class="admin-btn-text">Exit</span>
+                    <button onclick="adminSystem.toggleAdminMode()" class="feedback-top-btn" title="Exit Admin">
+                        <span>❌ Exit</span>
                     </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -911,13 +901,13 @@ const adminSystem = {
         console.log('🐑 Admin System: Creating admin login prompt bar...');
         
         // Remove any existing admin bars first
-        document.querySelectorAll('.admin-top-bar, .admin-login-bar').forEach(el => el.remove());
+        document.querySelectorAll('.admin-contact-bar, .admin-login-bar').forEach(el => el.remove());
         
         // Add admin class to body for styling adjustments
         document.body.classList.add('admin-mode');
         
         const adminBar = document.createElement('div');
-        adminBar.className = 'admin-top-bar admin-login-bar';
+        adminBar.className = 'top-contact-bar admin-login-bar';
         adminBar.innerHTML = `
             <div class="admin-bar-content">
                 <div class="admin-bar-label">
@@ -4783,7 +4773,7 @@ const adminSystem = {
         const isEnabled = localStorage.getItem('admin_mode') === 'true';
         if (isEnabled) {
             localStorage.removeItem('admin_mode');
-            document.querySelector('.main-admin-bar')?.remove();
+            document.querySelector('.admin-contact-bar')?.remove();
             document.querySelector('.admin-modal-overlay')?.remove();
             document.body.classList.remove('admin-mode');
             window.location.hash = '';
