@@ -155,11 +155,14 @@ const feedbackSystem = {
         modal.className = 'feedback-modal-overlay';
         modal.innerHTML = `
             <div class="feedback-modal">
-                <button class="feedback-close" onclick="feedbackSystem.closeFeedbackModal()">×</button>
-                <h2 class="feedback-title bil-row">
-                    <span class="en">We'd love your feedback!</span>
-                    <span class="ar">نحب أن نسمع رأيك!</span>
-                </h2>
+                <div class="modal-header">
+                    <h2 class="modal-title bil-row">
+                        <span class="en">We'd love your feedback!</span>
+                        <span class="ar">نحب أن نسمع رأيك!</span>
+                    </h2>
+                    <button class="modal-close-btn" onclick="feedbackSystem.closeFeedbackModal()">×</button>
+                </div>
+                <div class="modal-content">
                 
                 <!-- Quick CSAT Rating -->
                 <div class="csat-section">
@@ -329,6 +332,10 @@ const feedbackSystem = {
                 <input type="hidden" id="feedbackCategory" value="">
                 <input type="hidden" id="feedbackContext" value="${context}">
                 <input type="hidden" id="feedbackOrderId" value="${orderId || ''}">
+                </div>
+                <div class="modal-footer">
+                    <button onclick="feedbackSystem.closeFeedbackModal()" class="btn bp">Close</button>
+                </div>
             </div>
         `;
         document.body.appendChild(modal);
