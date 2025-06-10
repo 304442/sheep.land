@@ -2,7 +2,7 @@
 const feedbackSystem = {
     // Initialize feedback system
     init() {
-        this.setupFeedbackWidget();
+        // this.setupFeedbackWidget(); // Removed - using top bar button instead
         this.setupEventListeners();
         this.checkForDirectFeedbackLink();
     },
