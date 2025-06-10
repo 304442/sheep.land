@@ -590,6 +590,12 @@ const adminSystem = {
     
     // Show admin modal with content
     showAdminModal(title, content) {
+        // Call the createAdminModal function with the parameters
+        this.createAdminModal(title, content);
+    },
+    
+    // Legacy showAdminModal for compatibility
+    OLD_showAdminModal(title, content) {
         const modal = document.getElementById('adminModal');
         const modalTitle = document.getElementById('adminModalTitle');
         const modalContent = document.getElementById('adminModalContent');
