@@ -1279,6 +1279,194 @@
                         "CREATE INDEX `idx_feedback_rating` ON `feedback` (`rating`)",
                         "CREATE INDEX `idx_feedback_published` ON `feedback` (`isPublished`)"
                 ]
+        },
+        {
+                "name": "products",
+                "type": "base",
+                "system": false,
+                "listRule": "",
+                "viewRule": "",
+                "createRule": null,
+                "updateRule": null,
+                "deleteRule": null,
+                "fields": [
+                        {
+                                "name": "item_key",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "unique": true,
+                                "max": 100,
+                                "min": 1,
+                                "pattern": "^[a-z0-9_]+$"
+                        },
+                        {
+                                "name": "product_category",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": [
+                                        "udheya",
+                                        "meat_cuts",
+                                        "gathering_package"
+                                ]
+                        },
+                        {
+                                "name": "type_key",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "max": 50,
+                                "min": 1,
+                                "pattern": "^[a-z0-9_]+$"
+                        },
+                        {
+                                "name": "type_name_en",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "max": 100,
+                                "min": 1
+                        },
+                        {
+                                "name": "type_name_ar",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "max": 100,
+                                "min": 1
+                        },
+                        {
+                                "name": "type_description_en",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 500
+                        },
+                        {
+                                "name": "type_description_ar",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 500
+                        },
+                        {
+                                "name": "variant_name_en",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 200
+                        },
+                        {
+                                "name": "variant_name_ar",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 200
+                        },
+                        {
+                                "name": "weight_range_text_en",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 50
+                        },
+                        {
+                                "name": "weight_range_text_ar",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 50
+                        },
+                        {
+                                "name": "avg_weight_kg",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "max": 999
+                        },
+                        {
+                                "name": "price_per_kg_egp",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "max": 99999
+                        },
+                        {
+                                "name": "base_price_egp",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0,
+                                "max": 999999
+                        },
+                        {
+                                "name": "stock_available_pb",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0,
+                                "max": 9999
+                        },
+                        {
+                                "name": "is_active",
+                                "type": "bool",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "is_premium",
+                                "type": "bool",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "origin_farm",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 200
+                        },
+                        {
+                                "name": "breed_info_en",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 300
+                        },
+                        {
+                                "name": "breed_info_ar",
+                                "type": "text",
+                                "required": false,
+                                "presentable": true,
+                                "max": 300
+                        },
+                        {
+                                "name": "sort_order_type",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "max": 999
+                        },
+                        {
+                                "name": "sort_order_variant",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "max": 999
+                        }
+                ],
+                "indexes": [
+                        "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)",
+                        "CREATE INDEX `idx_products_category` ON `products` (`product_category`)",
+                        "CREATE INDEX `idx_products_type_key` ON `products` (`type_key`)",
+                        "CREATE INDEX `idx_products_is_active` ON `products` (`is_active`)"
+                ]
         }
 ];
 
