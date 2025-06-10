@@ -49,7 +49,7 @@ const feedbackSystem = {
         
         if (isAdminMode) {
             // Feedback admin mode is disabled - using main admin system instead
-            console.log('✨ Feedback Admin: Admin mode detected but disabled - use main admin system');
+            // console.log('✨ Feedback Admin: Admin mode detected but disabled - use main admin system');
             // Remove any feedback admin bar if it exists
             document.querySelectorAll('.admin-top-bar').forEach(el => {
                 if (el.innerHTML.includes('Feedback Admin')) {
@@ -91,7 +91,7 @@ const feedbackSystem = {
             feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
             testimonials = JSON.parse(localStorage.getItem('sheepland_testimonials') || '[]');
         } catch (error) {
-            console.error('Error loading data for export:', error);
+            // console.error('Error loading data for export:', error);
             feedbacks = [];
             testimonials = [];
         }
@@ -389,15 +389,15 @@ const feedbackSystem = {
             // Store in PocketBase
             if (window.pb) {
                 try {
-                    console.log('Attempting to save feedback to PocketBase:', feedbackData);
-                    console.log('PocketBase auth status:', window.pb.authStore.isValid);
+                    // console.log('Attempting to save feedback to PocketBase:', feedbackData);
+                    // console.log('PocketBase auth status:', window.pb.authStore.isValid);
                     const record = await window.pb.collection('feedback').create(feedbackData);
-                    console.log('Feedback saved to PocketBase:', record);
+                    // console.log('Feedback saved to PocketBase:', record);
                 } catch (pbError) {
-                    console.error('PocketBase error:', pbError);
-                    console.error('PocketBase error details:', pbError.response);
+                    // console.error('PocketBase error:', pbError);
+                    // console.error('PocketBase error details:', pbError.response);
                     if (pbError.response && pbError.response.data) {
-                        console.error('Validation errors:', pbError.response.data);
+                        // console.error('Validation errors:', pbError.response.data);
                     }
                     // Continue to save in localStorage
                 }
@@ -407,7 +407,7 @@ const feedbackSystem = {
                 feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
                 localStorage.setItem('sheepland_feedbacks', JSON.stringify(feedbacks));
             } else {
-                console.log('PocketBase not available, saving to localStorage only');
+                // console.log('PocketBase not available, saving to localStorage only');
                 // Fallback to localStorage only
                 const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
                 feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
@@ -436,7 +436,7 @@ const feedbackSystem = {
             }
 
         } catch (error) {
-            console.error('Error submitting feedback:', error);
+            // console.error('Error submitting feedback:', error);
             alert('Sorry, there was an error submitting your feedback. Please try again.');
         }
     },
@@ -512,7 +512,7 @@ const feedbackSystem = {
             // Always use localStorage for statistics
             feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
         } catch (error) {
-            console.error('Error loading feedback for statistics:', error);
+            // console.error('Error loading feedback for statistics:', error);
             feedbacks = [];
         }
         
@@ -1108,7 +1108,7 @@ feedbackSystem.showFeedbackManager = async function() {
         // Always use localStorage for feedback management
         feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
     } catch (error) {
-        console.error('Error loading feedback:', error);
+        // console.error('Error loading feedback:', error);
         feedbacks = [];
     }
     

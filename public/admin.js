@@ -2,14 +2,14 @@
 const adminSystem = {
     // Initialize admin system
     init() {
-        console.log('🐑 Admin System: Initializing...');
-        console.log('🐑 Admin System: Current URL hash:', window.location.hash);
+        // console.log('🐑 Admin System: Initializing...');
+        // console.log('🐑 Admin System: Current URL hash:', window.location.hash);
         // Remove any existing admin panels (but not the top bars from feedback system)
         document.querySelectorAll('.main-admin-panel').forEach(el => el.remove());
         
         this.setupMainAdminPanel();
         // this.loadDashboardData(); // Removed - function doesn't exist yet
-        console.log('🐑 Admin System: Initialization complete');
+        // console.log('🐑 Admin System: Initialization complete');
     },
 
     // Check if user is authenticated as admin
@@ -19,7 +19,7 @@ const adminSystem = {
             const user = window.pb.authStore.record;
             // Check if user has admin field set to true
             if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true) {
-                console.log('🐑 Admin System: User is admin');
+                // console.log('🐑 Admin System: User is admin');
                 return true;
             }
         }
@@ -28,7 +28,7 @@ const adminSystem = {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             const isDevAdmin = window.location.hash.includes('admin') && localStorage.getItem('admin_mode') === 'true';
             if (isDevAdmin) {
-                console.warn('🐑 Admin System: Development mode - admin access granted');
+                // console.warn('🐑 Admin System: Development mode - admin access granted');
                 return true;
             }
         }
@@ -43,30 +43,30 @@ const adminSystem = {
         const hasAdminStorage = localStorage.getItem('admin_mode') === 'true';
         const isAdminMode = hasAdminHash || hasAdminStorage;
         
-        console.log('🐑 Admin System: Admin mode check:', isAdminMode);
-        console.log('🐑 Admin System: Hash check:', hasAdminHash);
-        console.log('🐑 Admin System: LocalStorage check:', hasAdminStorage);
+        // console.log('🐑 Admin System: Admin mode check:', isAdminMode);
+        // console.log('🐑 Admin System: Hash check:', hasAdminHash);
+        // console.log('🐑 Admin System: LocalStorage check:', hasAdminStorage);
         
         if (isAdminMode) {
-            console.log('🐑 Admin System: Admin mode detected');
+            // console.log('🐑 Admin System: Admin mode detected');
             
             // Check if user is authenticated as admin
             if (window.pb && window.pb.authStore.isValid) {
                 const user = window.pb.authStore.record;
                 
                 if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true) {
-                    console.log('🐑 Admin System: User is authenticated admin, creating panel...');
+                    // console.log('🐑 Admin System: User is authenticated admin, creating panel...');
                     this.createAdminPanel();
                 } else {
-                    console.log('🐑 Admin System: User authenticated but not admin, showing login prompt...');
+                    // console.log('🐑 Admin System: User authenticated but not admin, showing login prompt...');
                     this.showAdminLoginPrompt();
                 }
             } else {
-                console.log('🐑 Admin System: No authentication, showing login prompt...');
+                // console.log('🐑 Admin System: No authentication, showing login prompt...');
                 this.showAdminLoginPrompt();
             }
         } else {
-            console.log('🐑 Admin System: Admin mode not enabled, skipping panel creation');
+            // console.log('🐑 Admin System: Admin mode not enabled, skipping panel creation');
         }
     },
 
@@ -128,7 +128,7 @@ const adminSystem = {
         `;
         document.body.insertBefore(adminBar, document.body.firstChild);
         
-        console.log('🐑 Admin System: Admin bar created successfully');
+        // console.log('🐑 Admin System: Admin bar created successfully');
         // No automatic modal display - user must click a button
     },
     
@@ -902,12 +902,12 @@ const adminSystem = {
             `;
             document.head.appendChild(adminStyles);
             
-            console.log('🐑 Admin System: Admin panel added to DOM');
+            // console.log('🐑 Admin System: Admin panel added to DOM');
     },
 
     // Show admin login prompt
     showAdminLoginPrompt() {
-        console.log('🐑 Admin System: Creating admin login prompt bar...');
+        // console.log('🐑 Admin System: Creating admin login prompt bar...');
         
         // Remove any existing admin bars first
         document.querySelectorAll('.admin-contact-bar, .admin-login-bar').forEach(el => el.remove());
@@ -959,7 +959,7 @@ const adminSystem = {
         }
         
         document.body.insertBefore(adminBar, document.body.firstChild);
-        console.log('🐑 Admin System: Admin login bar created');
+        // console.log('🐑 Admin System: Admin login bar created');
     },
 
     // Toggle admin panel visibility
@@ -1403,7 +1403,7 @@ const adminSystem = {
             ]
         };
         } catch (error) {
-            console.error('Error getting dashboard data:', error);
+            // console.error('Error getting dashboard data:', error);
             return {
                 todaySales: '0.00',
                 pendingOrders: 0,
@@ -1508,7 +1508,7 @@ const adminSystem = {
         
         return ordersData;
         } catch (error) {
-            console.error('Error getting orders data:', error);
+            // console.error('Error getting orders data:', error);
             // Return empty data structure on error
             if (returnFormat === 'array') {
                 return [];
@@ -1583,7 +1583,7 @@ const adminSystem = {
         localStorage.setItem('admin_products', JSON.stringify(productsData));
         return productsData;
         } catch (error) {
-            console.error('Error getting products data:', error);
+            // console.error('Error getting products data:', error);
             return {
                 products: [],
                 total: 0,
@@ -1736,7 +1736,7 @@ const adminSystem = {
                 this.showProductManager();
             }
         } catch (error) {
-            console.error('Error saving product:', error);
+            // console.error('Error saving product:', error);
             this.showNotification('Error saving product', 'error');
         }
     },
@@ -1830,7 +1830,7 @@ const adminSystem = {
             
             this.showAdminModal(`Order #${orderId}`, content);
         } catch (error) {
-            console.error('Error viewing order:', error);
+            // console.error('Error viewing order:', error);
             this.showNotification('Error loading order details', 'error');
         }
     },
@@ -1867,7 +1867,7 @@ const adminSystem = {
             
             this.showAdminModal('Update Order Status', content);
         } catch (error) {
-            console.error('Error updating order status:', error);
+            // console.error('Error updating order status:', error);
             this.showNotification('Error updating order status', 'error');
         }
     },
@@ -1892,7 +1892,7 @@ const adminSystem = {
                 }
             }
         } catch (error) {
-            console.error('Error saving order status:', error);
+            // console.error('Error saving order status:', error);
             this.showNotification('Error saving order status', 'error');
         }
     },
@@ -1913,7 +1913,7 @@ const adminSystem = {
                 }
             }
         } catch (error) {
-            console.error('Error confirming order:', error);
+            // console.error('Error confirming order:', error);
             this.showNotification('Error confirming order', 'error');
         }
     },
@@ -1932,12 +1932,12 @@ const adminSystem = {
 
     filterOrders() {
         // Implementation for filtering orders
-        console.log('Filtering orders...');
+        // console.log('Filtering orders...');
     },
 
     filterProducts() {
         // Implementation for filtering products
-        console.log('Filtering products...');
+        // console.log('Filtering products...');
     },
 
     dismissAlert(alertId) {
@@ -2072,7 +2072,7 @@ const adminSystem = {
                 }
             ];
         } catch (error) {
-            console.error('Error loading customers:', error);
+            // console.error('Error loading customers:', error);
             return [];
         }
     },
@@ -2296,7 +2296,7 @@ const adminSystem = {
                 }
             ];
         } catch (error) {
-            console.error('Error loading inventory:', error);
+            // console.error('Error loading inventory:', error);
             return [];
         }
     },
@@ -2355,7 +2355,7 @@ const adminSystem = {
                 this.showNotification('Quantity updated successfully!', 'success');
             }
         } catch (error) {
-            console.error('Error updating quantity:', error);
+            // console.error('Error updating quantity:', error);
             this.showNotification('Failed to update quantity', 'error');
         }
     },
@@ -2382,7 +2382,7 @@ const adminSystem = {
                 this.showInventoryManager();
                 this.showNotification('Item deleted successfully!', 'success');
             } catch (error) {
-                console.error('Error deleting item:', error);
+                // console.error('Error deleting item:', error);
                 this.showNotification('Failed to delete item', 'error');
             }
         }
@@ -5418,7 +5418,7 @@ const adminSystem = {
 document.addEventListener('DOMContentLoaded', () => {
     // Check if admin mode is enabled
     if (window.location.hash.includes('admin') || localStorage.getItem('admin_mode') === 'true') {
-        console.log('🐑 Admin System: Admin mode activated');
+        // console.log('🐑 Admin System: Admin mode activated');
         localStorage.setItem('admin_mode', 'true');
         // Wait a bit for other systems to initialize
         setTimeout(() => {
@@ -5430,7 +5430,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Listen for hash changes to enable admin mode
 window.addEventListener('hashchange', () => {
     if (window.location.hash.includes('admin') && localStorage.getItem('admin_mode') !== 'true') {
-        console.log('🐑 Admin System: Admin mode activated via URL');
+        // console.log('🐑 Admin System: Admin mode activated via URL');
         localStorage.setItem('admin_mode', 'true');
         adminSystem.init();
     }
