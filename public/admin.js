@@ -12,8 +12,8 @@ const adminSystem = {
     // Check if user is authenticated as admin
     checkAdminAuth() {
         // Check PocketBase auth first
-        if (window.pb && pb.authStore.isValid) {
-            const user = pb.authStore.record;
+        if (window.pb && window.pb.authStore.isValid) {
+            const user = window.pb.authStore.record;
             // Check if user has admin field set to true
             if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true) {
                 console.log('🐑 Admin System: User is admin');
@@ -45,8 +45,8 @@ const adminSystem = {
             console.log('🐑 Admin System: Admin mode detected');
             
             // Check if user is authenticated as admin
-            if (this.checkAdminAuth() && pb.authStore.isValid) {
-                const user = pb.authStore.record;
+            if (this.checkAdminAuth() && window.pb && window.pb.authStore.isValid) {
+                const user = window.pb.authStore.record;
                 const adminEmails = ['admin@sheep.land', 'admin@example.com'];
                 
                 if (user?.is_admin === true || user?.admin === true || user?.isAdmin === true || adminEmails.includes(user?.email)) {
