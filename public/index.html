@@ -380,7 +380,7 @@
 </header>
 
 <!-- Search Dropdown -->
-<div class="search-dropdown" x-show="showSearch" x-transition @click.outside="showSearch = false">
+<div class="search-dropdown" x-show="showSearch" x-transition @click.outside="closeAllDropdowns()">
     <div class="c">
         <div class="search-dropdown-content">
             <input 
@@ -424,7 +424,7 @@
 </div>
 
 <!-- WhatsApp Dropdown -->
-<div class="whatsapp-dropdown" x-show="showWhatsAppChat" x-transition @click.outside="showWhatsAppChat = false">
+<div class="whatsapp-dropdown" x-show="showWhatsAppChat" x-transition @click.outside="closeAllDropdowns()">
     <div class="c">
         <div class="whatsapp-dropdown-content">
             <div class="whatsapp-header">
@@ -503,7 +503,7 @@
 </div>
 
 <!-- Account Dropdown -->
-<div class="account-dropdown" x-show="showAccountDropdown" x-transition @click.outside="showAccountDropdown = false">
+<div class="account-dropdown" x-show="showAccountDropdown" x-transition @click.outside="closeAllDropdowns()">
     <div class="c">
         <div class="account-dropdown-content">
             <div class="account-info">
@@ -518,7 +518,7 @@
                     </div>
                 </div>
                 <div class="account-menu">
-                    <a href="#account" @click="showAccountDropdown = false; navigateToOrScroll('account')" class="account-menu-item">
+                    <a href="#account" @click="closeAllDropdowns(); navigateToOrScroll('account')" class="account-menu-item">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 11H3v10h6V11zm5 0h6v10h-6V11zM10 3h4v5h-4V3z"/>
                         </svg>
@@ -527,7 +527,7 @@
                             <span class="ar">طلباتي</span>
                         </span>
                     </a>
-                    <a href="#account" @click="showAccountDropdown = false; navigateToOrScroll('account')" class="account-menu-item">
+                    <a href="#account" @click="closeAllDropdowns(); navigateToOrScroll('account')" class="account-menu-item">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                             <circle cx="12" cy="7" r="4"/>
@@ -538,7 +538,7 @@
                         </span>
                     </a>
                     <template x-if="currentUser?.is_admin === true">
-                        <a href="#admin" @click="showAccountDropdown = false; window.location.hash = 'admin'" class="account-menu-item admin-menu-item">
+                        <a href="#admin" @click="closeAllDropdowns(); window.location.hash = 'admin'" class="account-menu-item admin-menu-item">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <path d="M9 9h6v6h-6z"/>
@@ -557,7 +557,7 @@
                             </span>
                         </a>
                     </template>
-                    <button @click="logoutUser(); showAccountDropdown = false;" class="account-menu-item logout-btn">
+                    <button @click="logoutUser(); closeAllDropdowns();" class="account-menu-item logout-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                             <polyline points="16 17 21 12 16 7"/>
@@ -575,7 +575,7 @@
 </div>
 
 <!-- Mobile Navigation Dropdown -->
-<div class="mobile-nav-dropdown" x-show="isMobNavOpen" x-transition @click.outside="isMobNavOpen = false">
+<div class="mobile-nav-dropdown" x-show="isMobNavOpen" x-transition @click.outside="closeAllDropdowns()">
     <div class="c">
         <div class="mobile-nav-content">
             <nav>
@@ -613,7 +613,7 @@
 </div>
 
 <!-- Auth/Login Dropdown -->
-<div class="auth-dropdown" x-show="showAuthDropdown" x-transition @click.outside="showAuthDropdown = false">
+<div class="auth-dropdown" x-show="showAuthDropdown" x-transition @click.outside="closeAllDropdowns()">
     <div class="c">
         <div class="auth-dropdown-content">
             <!-- Welcome/Choice View -->

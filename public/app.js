@@ -820,6 +820,7 @@ document.addEventListener('alpine:init', () => {
             this.showWhatsAppChat = false;
             this.isCartOpen = false;
             this.isWishlistOpen = false;
+            this.isMobNavOpen = false;
         },
 
         toggleSearch() {
