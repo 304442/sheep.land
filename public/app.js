@@ -1063,6 +1063,18 @@ document.addEventListener('alpine:init', () => {
                 this.loadCartFromStorage(); 
                 this.load.auth = false;
                 this.showAuthDropdown = false; // Close dropdown on successful login
+                
+                // Check if admin mode is active and reinitialize admin system
+                if (window.location.hash.includes('admin') && window.adminSystem) {
+                    console.log('🐑 Admin login detected, reinitializing admin system...');
+                    // Remove any existing admin bars
+                    document.querySelectorAll('.admin-top-bar').forEach(el => el.remove());
+                    document.body.classList.remove('admin-mode');
+                    // Reinitialize admin system
+                    setTimeout(() => {
+                        window.adminSystem.init();
+                    }, 100);
+                }
                 if (this.redirectAfterLogin) {
                     this.navigateToOrScroll(this.redirectAfterLogin);
                     this.redirectAfterLogin = null;

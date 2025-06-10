@@ -4,6 +4,10 @@ const adminSystem = {
     init() {
         console.log('🐑 Admin System: Initializing...');
         console.log('🐑 Admin System: Current URL hash:', window.location.hash);
+        // Remove any existing admin UI first
+        document.querySelectorAll('.admin-top-bar, .admin-login-bar').forEach(el => el.remove());
+        document.body.classList.remove('admin-mode');
+        
         this.setupMainAdminPanel();
         // this.loadDashboardData(); // Removed - function doesn't exist yet
         console.log('🐑 Admin System: Initialization complete');
