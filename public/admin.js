@@ -1072,7 +1072,7 @@ const adminSystem = {
     showOrderManager() {
         this.setActiveNav('orders');
         const content = document.getElementById('adminMainContent');
-        const orders = this.getOrdersData();
+        const orders = this.getOrdersData('array');
         
         content.innerHTML = `
             <div class="admin-orders">
@@ -1245,43 +1245,91 @@ const adminSystem = {
     },
 
     // Get orders data (mock for now)
-    getOrdersData() {
+    getOrdersData(returnFormat = 'object') {
         const stored = localStorage.getItem('admin_orders');
+        let orders = [];
+        
         if (stored) {
-            return JSON.parse(stored);
+            const parsedData = JSON.parse(stored);
+            // Handle both old format (array) and new format (object with orders array)
+            if (Array.isArray(parsedData)) {
+                orders = parsedData;
+            } else if (parsedData.orders && Array.isArray(parsedData.orders)) {
+                // Extract original orders from the stored format
+                orders = parsedData.orders.map(o => o._original || o);
+            }
+        } else {
+            // Mock orders data
+            orders = [
+                {
+                    id: 'ORD-12345',
+                    customer: { name: 'Ahmed Hassan', phone: '+20123456789', email: 'ahmed@email.com' },
+                    items: [
+                        { name: 'Premium Udheya Sheep', quantity: 1, price: 250 },
+                        { name: 'Fresh Meat Package', quantity: 2, price: 80 }
+                    ],
+                    total: 410,
+                    status: 'pending',
+                    date: new Date().toISOString(),
+                    paymentMethod: 'cash',
+                    deliveryAddress: 'Cairo, Egypt'
+                },
+                {
+                    id: 'ORD-12344',
+                    customer: { name: 'Fatima Ali', phone: '+20123456788', email: 'fatima@email.com' },
+                    items: [
+                        { name: 'Live Sheep', quantity: 1, price: 200 }
+                    ],
+                    total: 200,
+                    status: 'confirmed',
+                    date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+                    paymentMethod: 'online',
+                    deliveryAddress: 'Alexandria, Egypt'
+                }
+            ];
         }
         
-        // Mock orders data
-        const mockOrders = [
-            {
-                id: 'ORD-12345',
-                customer: { name: 'Ahmed Hassan', phone: '+20123456789', email: 'ahmed@email.com' },
-                items: [
-                    { name: 'Premium Udheya Sheep', quantity: 1, price: 250 },
-                    { name: 'Fresh Meat Package', quantity: 2, price: 80 }
-                ],
-                total: 410,
-                status: 'pending',
-                date: new Date().toISOString(),
-                paymentMethod: 'cash',
-                deliveryAddress: 'Cairo, Egypt'
-            },
-            {
-                id: 'ORD-12344',
-                customer: { name: 'Fatima Ali', phone: '+20123456788', email: 'fatima@email.com' },
-                items: [
-                    { name: 'Live Sheep', quantity: 1, price: 200 }
-                ],
-                total: 200,
-                status: 'confirmed',
-                date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-                paymentMethod: 'online',
-                deliveryAddress: 'Alexandria, Egypt'
-            }
-        ];
+        // If returnFormat is 'array', return the raw orders array for showOrderManager
+        if (returnFormat === 'array') {
+            return orders;
+        }
         
-        localStorage.setItem('admin_orders', JSON.stringify(mockOrders));
-        return mockOrders;
+        // Otherwise, return the formatted object for showOrdersManager
+        // Transform orders to match expected format in showOrdersManager
+        const transformedOrders = orders.map(order => ({
+            id: order.id,
+            customerName: order.customer ? order.customer.name : 'Unknown',
+            products: order.items ? order.items.map(item => `${item.name} (${item.quantity})`).join(', ') : '',
+            total: order.total,
+            status: order.status,
+            date: new Date(order.date).toLocaleDateString(),
+            // Keep original data for other uses
+            _original: order
+        }));
+        
+        // Count orders by status
+        const statusCounts = {
+            pending: 0,
+            processing: 0,
+            confirmed: 0,
+            delivered: 0
+        };
+        
+        orders.forEach(order => {
+            if (statusCounts.hasOwnProperty(order.status)) {
+                statusCounts[order.status]++;
+            }
+        });
+        
+        const ordersData = {
+            total: orders.length,
+            pending: statusCounts.pending,
+            processing: statusCounts.processing,
+            delivered: statusCounts.delivered + statusCounts.confirmed, // Count confirmed as delivered
+            orders: transformedOrders
+        };
+        
+        return ordersData;
     },
 
     // Get products data (mock for now)
