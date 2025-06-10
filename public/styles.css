@@ -4745,7 +4745,7 @@ body.admin-mode .promo-bar {
     color: white;
     z-index: 1100; /* Higher than nav bars */
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    height: 50px;
+    height: 32px; /* Same as contact bar */
 }
 
 .admin-bar-content {
@@ -4775,14 +4775,15 @@ body.admin-mode .promo-bar {
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.2);
     color: white;
-    padding: 6px 12px;
+    padding: 4px 8px; /* Smaller padding for 32px bar */
     border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px; /* Slightly smaller font */
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px; /* Smaller gap */
+    height: 24px; /* Fixed height to fit in bar */
 }
 
 .admin-bar-btn:hover {
@@ -4800,7 +4801,7 @@ body.admin-mode .promo-bar {
 }
 
 .admin-btn-icon {
-    font-size: 16px;
+    font-size: 14px; /* Smaller icons for 32px bar */
 }
 
 .admin-btn-text {

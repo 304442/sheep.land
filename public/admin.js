@@ -136,14 +136,8 @@ const adminSystem = {
         `;
         document.body.insertBefore(adminBar, document.body.firstChild);
         
-        // Don't create empty modal - wait for user to click a button
-        
         console.log('🐑 Admin System: Admin bar created successfully');
-        
-        // Show dashboard by default
-        setTimeout(() => {
-            this.showDashboard();
-        }, 100);
+        // No automatic modal display - user must click a button
     },
     
     // Create modal for admin content
