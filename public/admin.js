@@ -1950,13 +1950,442 @@ const adminSystem = {
     },
 
     showCustomerManager() {
-        const content = '<div class="admin-section"><h2>Customer Management</h2><p>Coming soon...</p></div>';
+        const customers = this.getCustomersData();
+        
+        const content = `
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Customer Management</h2>
+                    <div class="header-actions">
+                        <input type="text" placeholder="Search customers..." class="search-input" onkeyup="adminSystem.filterCustomers(this.value)">
+                        <button class="admin-btn admin-btn-primary" onclick="adminSystem.exportCustomers()">
+                            <span>💾 Export</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="customer-stats">
+                    <div class="stat-card">
+                        <h4>Total Customers</h4>
+                        <div class="stat-number">${customers.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Active Today</h4>
+                        <div class="stat-number">${customers.filter(c => {
+                            const lastActive = new Date(c.lastActive || c.created);
+                            const today = new Date();
+                            return lastActive.toDateString() === today.toDateString();
+                        }).length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>With Orders</h4>
+                        <div class="stat-number">${customers.filter(c => c.totalOrders > 0).length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Revenue</h4>
+                        <div class="stat-number">EGP ${customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0).toLocaleString()}</div>
+                    </div>
+                </div>
+                
+                <div class="admin-table" id="customersTable">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Orders</th>
+                                <th>Total Spent</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${customers.map(customer => `
+                                <tr>
+                                    <td>${customer.name || 'Guest'}</td>
+                                    <td>${customer.email || 'N/A'}</td>
+                                    <td>${customer.phone || 'N/A'}</td>
+                                    <td>${customer.totalOrders || 0}</td>
+                                    <td>EGP ${(customer.totalSpent || 0).toLocaleString()}</td>
+                                    <td>${new Date(customer.created).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="admin-btn admin-btn-primary" onclick="adminSystem.viewCustomer('${customer.id}')" title="View Details">
+                                            👁️
+                                        </button>
+                                        <button class="admin-btn admin-btn-secondary" onclick="adminSystem.contactCustomer('${customer.id}')" title="Contact">
+                                            📧
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    ${customers.length === 0 ? '<p class="no-data">No customers found</p>' : ''}
+                </div>
+            </div>
+        `;
+        
         this.showAdminModal('Customer Management', content);
+    },
+    
+    // Get customers data
+    getCustomersData() {
+        try {
+            // Get from localStorage or return sample data
+            const storedCustomers = localStorage.getItem('sheepland_customers');
+            if (storedCustomers) {
+                return JSON.parse(storedCustomers);
+            }
+            
+            // Sample data for demo
+            return [
+                {
+                    id: 'cust001',
+                    name: 'Ahmed Hassan',
+                    email: 'ahmed.hassan@example.com',
+                    phone: '+201012345678',
+                    totalOrders: 3,
+                    totalSpent: 15000,
+                    created: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    lastActive: new Date().toISOString()
+                },
+                {
+                    id: 'cust002',
+                    name: 'Fatma Ali',
+                    email: 'fatma.ali@example.com',
+                    phone: '+201098765432',
+                    totalOrders: 2,
+                    totalSpent: 8500,
+                    created: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                    lastActive: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                },
+                {
+                    id: 'cust003',
+                    name: 'Mohamed Ibrahim',
+                    email: 'mohamed.ibrahim@example.com',
+                    phone: '+201123456789',
+                    totalOrders: 5,
+                    totalSpent: 25000,
+                    created: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+                    lastActive: new Date().toISOString()
+                }
+            ];
+        } catch (error) {
+            console.error('Error loading customers:', error);
+            return [];
+        }
+    },
+    
+    // Filter customers
+    filterCustomers(searchTerm) {
+        const customers = this.getCustomersData();
+        const filtered = customers.filter(c => {
+            const term = searchTerm.toLowerCase();
+            return (c.name && c.name.toLowerCase().includes(term)) ||
+                   (c.email && c.email.toLowerCase().includes(term)) ||
+                   (c.phone && c.phone.includes(term));
+        });
+        
+        // Update table
+        const tbody = document.querySelector('#customersTable tbody');
+        if (tbody) {
+            tbody.innerHTML = filtered.map(customer => `
+                <tr>
+                    <td>${customer.name || 'Guest'}</td>
+                    <td>${customer.email || 'N/A'}</td>
+                    <td>${customer.phone || 'N/A'}</td>
+                    <td>${customer.totalOrders || 0}</td>
+                    <td>EGP ${(customer.totalSpent || 0).toLocaleString()}</td>
+                    <td>${new Date(customer.created).toLocaleDateString()}</td>
+                    <td>
+                        <button class="admin-btn admin-btn-primary" onclick="adminSystem.viewCustomer('${customer.id}')" title="View Details">
+                            👁️
+                        </button>
+                        <button class="admin-btn admin-btn-secondary" onclick="adminSystem.contactCustomer('${customer.id}')" title="Contact">
+                            📧
+                        </button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="7" class="no-data">No customers found</td></tr>';
+        }
+    },
+    
+    // Export customers
+    exportCustomers() {
+        const customers = this.getCustomersData();
+        const csv = [
+            ['Name', 'Email', 'Phone', 'Orders', 'Total Spent', 'Joined'],
+            ...customers.map(c => [
+                c.name || 'Guest',
+                c.email || 'N/A',
+                c.phone || 'N/A',
+                c.totalOrders || 0,
+                c.totalSpent || 0,
+                new Date(c.created).toLocaleDateString()
+            ])
+        ].map(row => row.join(',')).join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `customers_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        
+        this.showNotification('Customers exported successfully!', 'success');
     },
 
     showInventoryManager() {
-        const content = '<div class="admin-section"><h2>Inventory Management</h2><p>Coming soon...</p></div>';
+        const inventory = this.getInventoryData();
+        
+        const content = `
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Inventory Management</h2>
+                    <div class="header-actions">
+                        <select onchange="adminSystem.filterInventoryByCategory(this.value)" class="filter-select">
+                            <option value="">All Categories</option>
+                            <option value="livestock">Livestock</option>
+                            <option value="meat">Meat Products</option>
+                            <option value="feed">Feed & Supplies</option>
+                        </select>
+                        <button class="admin-btn admin-btn-primary" onclick="adminSystem.addInventoryItem()">
+                            <span>➕ Add Item</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="inventory-stats">
+                    <div class="stat-card">
+                        <h4>Total Items</h4>
+                        <div class="stat-number">${inventory.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Low Stock</h4>
+                        <div class="stat-number text-warning">${inventory.filter(item => item.quantity <= item.minStock).length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Out of Stock</h4>
+                        <div class="stat-number text-danger">${inventory.filter(item => item.quantity === 0).length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Value</h4>
+                        <div class="stat-number">EGP ${inventory.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0).toLocaleString()}</div>
+                    </div>
+                </div>
+                
+                <div class="admin-table" id="inventoryTable">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Min Stock</th>
+                                <th>Unit Price</th>
+                                <th>Total Value</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${inventory.map(item => `
+                                <tr class="${item.quantity === 0 ? 'out-of-stock' : item.quantity <= item.minStock ? 'low-stock' : ''}">
+                                    <td>${item.sku}</td>
+                                    <td>${item.name}</td>
+                                    <td>${item.category}</td>
+                                    <td>
+                                        <input type="number" value="${item.quantity}" 
+                                               onchange="adminSystem.updateInventoryQuantity('${item.id}', this.value)"
+                                               class="quantity-input" min="0">
+                                    </td>
+                                    <td>${item.minStock}</td>
+                                    <td>EGP ${item.unitPrice.toLocaleString()}</td>
+                                    <td>EGP ${(item.quantity * item.unitPrice).toLocaleString()}</td>
+                                    <td>
+                                        <span class="status-badge ${item.quantity === 0 ? 'status-danger' : item.quantity <= item.minStock ? 'status-warning' : 'status-success'}">
+                                            ${item.quantity === 0 ? 'Out of Stock' : item.quantity <= item.minStock ? 'Low Stock' : 'In Stock'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="admin-btn admin-btn-primary" onclick="adminSystem.editInventoryItem('${item.id}')" title="Edit">
+                                            ✏️
+                                        </button>
+                                        <button class="admin-btn admin-btn-danger" onclick="adminSystem.deleteInventoryItem('${item.id}')" title="Delete">
+                                            🗑️
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    ${inventory.length === 0 ? '<p class="no-data">No inventory items found</p>' : ''}
+                </div>
+            </div>
+        `;
+        
         this.showAdminModal('Inventory Management', content);
+    },
+    
+    // Get inventory data
+    getInventoryData() {
+        try {
+            // Get from localStorage or return sample data
+            const storedInventory = localStorage.getItem('sheepland_inventory');
+            if (storedInventory) {
+                return JSON.parse(storedInventory);
+            }
+            
+            // Sample data for demo
+            return [
+                {
+                    id: 'inv001',
+                    sku: 'LS-RAM-001',
+                    name: 'Breeding Ram - Premium',
+                    category: 'livestock',
+                    quantity: 15,
+                    minStock: 5,
+                    unitPrice: 8000
+                },
+                {
+                    id: 'inv002',
+                    sku: 'LS-EWE-001',
+                    name: 'Breeding Ewe - Baladi',
+                    category: 'livestock',
+                    quantity: 45,
+                    minStock: 20,
+                    unitPrice: 5000
+                },
+                {
+                    id: 'inv003',
+                    sku: 'MT-LEG-001',
+                    name: 'Lamb Leg - Fresh',
+                    category: 'meat',
+                    quantity: 3,
+                    minStock: 10,
+                    unitPrice: 180
+                },
+                {
+                    id: 'inv004',
+                    sku: 'MT-SHD-001',
+                    name: 'Lamb Shoulder - Fresh',
+                    category: 'meat',
+                    quantity: 0,
+                    minStock: 10,
+                    unitPrice: 160
+                },
+                {
+                    id: 'inv005',
+                    sku: 'FD-HAY-001',
+                    name: 'Premium Hay Bales',
+                    category: 'feed',
+                    quantity: 200,
+                    minStock: 50,
+                    unitPrice: 50
+                },
+                {
+                    id: 'inv006',
+                    sku: 'FD-GRN-001',
+                    name: 'Sheep Feed Grain Mix',
+                    category: 'feed',
+                    quantity: 150,
+                    minStock: 100,
+                    unitPrice: 35
+                }
+            ];
+        } catch (error) {
+            console.error('Error loading inventory:', error);
+            return [];
+        }
+    },
+    
+    // Filter inventory by category
+    filterInventoryByCategory(category) {
+        const inventory = this.getInventoryData();
+        const filtered = category ? inventory.filter(item => item.category === category) : inventory;
+        
+        // Update table
+        const tbody = document.querySelector('#inventoryTable tbody');
+        if (tbody) {
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="${item.quantity === 0 ? 'out-of-stock' : item.quantity <= item.minStock ? 'low-stock' : ''}">
+                    <td>${item.sku}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>
+                        <input type="number" value="${item.quantity}" 
+                               onchange="adminSystem.updateInventoryQuantity('${item.id}', this.value)"
+                               class="quantity-input" min="0">
+                    </td>
+                    <td>${item.minStock}</td>
+                    <td>EGP ${item.unitPrice.toLocaleString()}</td>
+                    <td>EGP ${(item.quantity * item.unitPrice).toLocaleString()}</td>
+                    <td>
+                        <span class="status-badge ${item.quantity === 0 ? 'status-danger' : item.quantity <= item.minStock ? 'status-warning' : 'status-success'}">
+                            ${item.quantity === 0 ? 'Out of Stock' : item.quantity <= item.minStock ? 'Low Stock' : 'In Stock'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="admin-btn admin-btn-primary" onclick="adminSystem.editInventoryItem('${item.id}')" title="Edit">
+                            ✏️
+                        </button>
+                        <button class="admin-btn admin-btn-danger" onclick="adminSystem.deleteInventoryItem('${item.id}')" title="Delete">
+                            🗑️
+                        </button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="9" class="no-data">No items found in this category</td></tr>';
+        }
+    },
+    
+    // Update inventory quantity
+    updateInventoryQuantity(itemId, newQuantity) {
+        try {
+            let inventory = this.getInventoryData();
+            const itemIndex = inventory.findIndex(item => item.id === itemId);
+            
+            if (itemIndex !== -1) {
+                inventory[itemIndex].quantity = parseInt(newQuantity) || 0;
+                localStorage.setItem('sheepland_inventory', JSON.stringify(inventory));
+                
+                // Refresh the display
+                this.showInventoryManager();
+                this.showNotification('Quantity updated successfully!', 'success');
+            }
+        } catch (error) {
+            console.error('Error updating quantity:', error);
+            this.showNotification('Failed to update quantity', 'error');
+        }
+    },
+    
+    // Add inventory item (placeholder)
+    addInventoryItem() {
+        this.showNotification('Add item feature coming soon!', 'info');
+    },
+    
+    // Edit inventory item (placeholder)
+    editInventoryItem(itemId) {
+        this.showNotification('Edit item feature coming soon!', 'info');
+    },
+    
+    // Delete inventory item
+    deleteInventoryItem(itemId) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            try {
+                let inventory = this.getInventoryData();
+                inventory = inventory.filter(item => item.id !== itemId);
+                localStorage.setItem('sheepland_inventory', JSON.stringify(inventory));
+                
+                // Refresh the display
+                this.showInventoryManager();
+                this.showNotification('Item deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                this.showNotification('Failed to delete item', 'error');
+            }
+        }
     },
 
     showAnalytics() {
