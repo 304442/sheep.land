@@ -264,7 +264,8 @@ document.addEventListener('alpine:init', () => {
                             isActive: p.is_active, is_premium: p.is_premium, origin_farm: p.origin_farm,
                             product_category: p.product_category, type_key: p.type_key, type_name_en: p.type_name_en, 
                             type_name_ar: p.type_name_ar, descEn: p.type_description_en, 
-                            descAr: p.type_description_ar, breed_info_en: p.breed_info_en, breed_info_ar: p.breed_info_ar
+                            descAr: p.type_description_ar, breed_info_en: p.breed_info_en, breed_info_ar: p.breed_info_ar,
+                            discount_percentage: p.discount_percentage || 0
                         });
                     });
                     // Ensure all returned objects have valid wps arrays
