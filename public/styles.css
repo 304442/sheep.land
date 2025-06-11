@@ -180,8 +180,18 @@ body.has-promo-bar{padding-top:calc(var(--head-h) + 32px + 44px)}
 /* Ensure promo bar is visible and not covered by header */
 body.has-promo-bar .promo-bar{display:flex!important;opacity:1!important;visibility:visible!important}
 
+/* Hero Promo Bar Styles */
+.hero-promo-bar{position:relative!important;top:auto!important;left:auto!important;width:100%!important;max-width:800px;margin:0 auto var(--s3);border-radius:var(--rad);height:auto!important;padding:var(--s2) 0;z-index:3}
+.hero-promo-bar .promo-bar-content{padding:0 var(--s3);flex-wrap:wrap;gap:var(--s2)}
+.hero-promo-bar .promo-bar-text{justify-content:center;width:100%}
+.hero-promo-bar .promo-bar-countdown{margin:var(--s1) 0}
+.hero-promo-bar .promo-bar-close{position:absolute;right:var(--s2);top:var(--s2);transform:none}
+@media (max-width:768px){
+    .hero-promo-bar .promo-bar-text{flex-direction:column;gap:var(--s1)}
+    .hero-promo-bar .promo-bar-countdown{font-size:0.8rem}
+}
+
 .site-head{background:linear-gradient(135deg,#FFFFFF,#F1F8E9);padding:var(--s2) 0;box-shadow:0 2px 12px rgba(0,0,0,.08);position:fixed;top:32px;left:0;width:100%;z-index:1002;height:var(--head-h);color:var(--c1d);backdrop-filter:blur(10px);transition:top 0.2s ease}
-.site-head.with-promo{top:76px}
 .nav-cont{display:flex;justify-content:space-between;align-items:center;height:100%;position:relative}
 
 .logo{font-size:1rem;font-weight:800;color:var(--c1d);display:inline-flex;align-items:baseline;gap:.5em;flex-shrink:0;margin-right:var(--s2);text-shadow:1px 1px 2px rgba(0,0,0,.1)}
