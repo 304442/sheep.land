@@ -1374,7 +1374,8 @@ document.addEventListener('alpine:init', () => {
                 deliveryFee = this.checkoutForm.delivery_fee_egp; 
             } 
             let onlinePaymentFee = 0; 
-            if (this.checkoutForm.payment_method === 'online_card' && this.settings.online_payment_fee_egp > 0) { 
+            const onlinePaymentMethods = ['online_card', 'mastercard', 'google_pay', 'apple_pay', 'paypal', 'bitcoin', 'ethereum', 'usdt'];
+            if (onlinePaymentMethods.includes(this.checkoutForm.payment_method) && this.settings.online_payment_fee_egp > 0) { 
                 onlinePaymentFee = this.settings.online_payment_fee_egp; 
             } 
             this.checkoutForm.online_payment_fee_applied_egp = onlinePaymentFee; 
