@@ -93,7 +93,7 @@ document.addEventListener('alpine:init', () => {
         isPromoBarDismissed: false,
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
-        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false, isSetupModalOpen: false,
+        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false,
         showAuth: false, cartOpen: false,
         wishlistCount: 0,
         wishlistItems: [],
@@ -784,19 +784,6 @@ document.addEventListener('alpine:init', () => {
         closeRefundModal() { this.isRefundModalOpen = false; document.body.classList.remove('overflow-hidden'); },
         openOrderStatusModal() { this.isOrderStatusModalOpen = true; document.body.classList.add('overflow-hidden'); this.$nextTick(() => this.$refs.lookupOrderIdInputModal?.focus()); },
         closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderID = ''; this.statRes = null; this.statNotFound = false; this.clrErr('lookupOrderID');},
-        
-        openSetupModal() { 
-            this.isSetupModalOpen = true; 
-            document.body.classList.add('overflow-hidden');
-            // Initialize setup system if available
-            if (window.setupSystem && window.setupSystem.initializeSetupData) {
-                window.setupSystem.initializeSetupData();
-            }
-        },
-        closeSetupModal() { 
-            this.isSetupModalOpen = false; 
-            document.body.classList.remove('overflow-hidden'); 
-        },
 
         startCd() { 
             if(this.cdTimer) clearInterval(this.cdTimer); 
