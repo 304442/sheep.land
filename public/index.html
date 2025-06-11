@@ -110,7 +110,7 @@
                     </template>
                 </select>
             </div>
-            <div class="fg">
+            <div class="fg" x-show="tempUdheyaConfig.serviceOption === 'standard_service'">
                 <label class="bil-spread lbl-req"><span class="en">Distribution Choice *</span><span class="ar">خيار التوزيع *</span></label>
                 <div class="rgrp">
                     <template x-for="opt in distrOpts()" :key="opt.val">
