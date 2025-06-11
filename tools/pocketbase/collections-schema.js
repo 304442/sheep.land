@@ -70,7 +70,8 @@ const collectionsDefinition = [
             { name: "breed_info_en", type: "text", required: false, presentable: true, max: 200 },
             { name: "breed_info_ar", type: "text", required: false, presentable: true, max: 200 },
             { name: "sort_order_type", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
-            { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true }
+            { name: "sort_order_variant", type: "number", required: false, presentable: true, min: 0, noDecimal: true },
+            { name: "discount_percentage", type: "number", required: false, presentable: true, min: 0, max: 100 }
         ],
         indexes: [ "CREATE UNIQUE INDEX `idx_products_item_key` ON `products` (`item_key`)", "CREATE INDEX `idx_products_category` ON `products` (`product_category`)" ]
     },
@@ -135,7 +136,9 @@ const collectionsDefinition = [
             { name: "online_payment_fee_applied_egp", type: "number", required: false, presentable: true, min: 0 },
             { name: "international_shipping_fee_egp", type: "number", required: false, presentable: true, min: 0 },
             { name: "total_amount_due_egp", type: "number", required: true, presentable: true, min: 0 },
-            { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 }
+            { name: "selected_display_currency", type: "text", required: false, presentable: true, max: 5 },
+            { name: "promo_code", type: "text", required: false, presentable: true, max: 50 },
+            { name: "promo_discount_amount_egp", type: "number", required: false, presentable: true, min: 0 }
         ],
         indexes: [ "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)" ]
     },

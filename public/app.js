@@ -1519,7 +1519,9 @@ document.addEventListener('alpine:init', () => {
                 total_udheya_service_fee_egp: this.checkoutForm.total_service_fee_egp, 
                 delivery_fee_applied_egp: this.checkoutForm.delivery_fee_egp, 
                 online_payment_fee_applied_egp: this.checkoutForm.online_payment_fee_applied_egp, 
-                total_amount_due_egp: this.checkoutForm.final_total_egp, 
+                total_amount_due_egp: this.checkoutForm.final_total_egp,
+                promo_code: this.checkoutForm.promo_code || null,
+                promo_discount_amount_egp: this.checkoutForm.promo_discount_amount || 0
             };
             
             try { 
