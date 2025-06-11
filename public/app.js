@@ -1062,9 +1062,10 @@ document.addEventListener('alpine:init', () => {
                     'lamb_mince_fresh': 'images/products/minced-meat.jpg',
                     'roasted_lamb_ready': 'images/products/lamb-chops.jpg',
                     'shank_okra_tajin': 'images/products/meat-banner.png',
-                    'whole_baladi_chicken': 'images/products/whole-baladi-chicken.jpg',
                     'lamb_ribs_rack': 'images/products/lamb-chops.jpg',
-                    'minced_meat': 'images/products/minced-meat.jpg'
+                    'minced_meat': 'images/products/minced-meat.jpg',
+                    'lamb_shank': 'images/products/meat-banner.png',
+                    'lamb_liver_fresh': 'images/products/minced-meat.jpg'
                 };
                 
                 if (productImages[item.item_key]) {
