@@ -16,7 +16,7 @@
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" role="alert" aria-live="assertive" tabindex="-1">
     <span x-show="!setupRequired" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'"></span>
-    <a x-show="setupRequired" href="/setup.html" class="err-link" x-text="usrApiErr"></a>
+    <button x-show="setupRequired" @click="window.setupSystem.openSetupModal()" class="err-link" x-text="usrApiErr"></button>
 </div>
 
 
@@ -145,6 +145,80 @@
     </div>
 </div>
 
+<!-- Setup Modal -->
+<div x-data="setupSystem" x-show="isSetupModalOpen" class="modal-overlay" @click="closeSetupModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+<div x-data="setupSystem" x-show="isSetupModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="setup-modal-title" @keydown.escape.window="closeSetupModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4">
+    <div class="modal-header">
+        <h2 id="setup-modal-title" class="bil-spread modal-title">
+            <span class="en">🚀 Database Setup</span><span class="ar" dir="rtl">🚀 إعداد قاعدة البيانات</span>
+        </h2>
+        <button @click="closeSetupModal()" class="modal-close-btn">×</button>
+    </div>
+    <div class="modal-content setup-content">
+        <div class="setup-form">
+            <div class="setup-grid">
+                <div class="setup-field">
+                    <label for="setup-pb-url">PocketBase URL:</label>
+                    <input type="text" id="setup-pb-url" x-model="setupConfig.pbUrl" value="/">
+                </div>
+                <div class="setup-field">
+                    <label for="setup-admin-email">Admin Email:</label>
+                    <input type="email" id="setup-admin-email" x-model="setupConfig.adminEmail" value="admin@example.com">
+                </div>
+                <div class="setup-field">
+                    <label for="setup-admin-password">Admin Password:</label>
+                    <input type="password" id="setup-admin-password" x-model="setupConfig.adminPassword" value="unifiedpassword">
+                </div>
+            </div>
+            
+            <div class="setup-grid-2">
+                <div class="setup-field">
+                    <label for="setup-collections">Collections JSON:</label>
+                    <textarea id="setup-collections" x-model="setupConfig.collections" @input="validateCollections()" rows="8" placeholder="Collections schema will be loaded..."></textarea>
+                    <div class="validation-message" x-show="setupValidation.collections.message" 
+                         :class="setupValidation.collections.valid ? 'validation-success' : 'validation-error'"
+                         x-text="setupValidation.collections.message"></div>
+                </div>
+                <div class="setup-field">
+                    <label for="setup-seed-data">Seed Data JSON:</label>
+                    <textarea id="setup-seed-data" x-model="setupConfig.seedData" @input="validateSeedData()" rows="8" placeholder="Seed data will be loaded..."></textarea>
+                    <div class="validation-message" x-show="setupValidation.seedData.message"
+                         :class="setupValidation.seedData.valid ? 'validation-success' : 'validation-error'"
+                         x-text="setupValidation.seedData.message"></div>
+                </div>
+            </div>
+            
+            <div class="setup-buttons">
+                <button @click="runFullSetup()" :disabled="setupLoading || !canRunSetup()" class="btn-setup btn-primary">
+                    <span x-show="!setupLoading">🚀 Complete Setup</span>
+                    <span x-show="setupLoading">⏳ Setting up...</span>
+                </button>
+                <button @click="runSchemaOnly()" :disabled="setupLoading || !setupValidation.collections.valid" class="btn-setup btn-secondary">
+                    <span x-show="!setupLoading">📋 Schema Only</span>
+                    <span x-show="setupLoading">⏳ Processing...</span>
+                </button>
+                <button @click="clearDatabase()" :disabled="setupLoading" class="btn-setup btn-danger">
+                    <span x-show="!setupLoading">🗑️ Clear Database</span>
+                    <span x-show="setupLoading">⏳ Clearing...</span>
+                </button>
+            </div>
+            
+            <div x-show="setupOutput.length > 0" class="setup-output">
+                <h4>Setup Output:</h4>
+                <div class="output-container">
+                    <template x-for="entry in setupOutput" :key="entry.id">
+                        <div class="output-entry" :class="'output-' + entry.type">
+                            <span class="output-time" x-text="entry.time"></span>
+                            <span class="output-message" x-text="entry.message"></span>
+                            <pre x-show="entry.data" class="output-data" x-text="entry.data"></pre>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Top Contact Bar -->
 <div class="top-contact-bar">
     <div class="c">
@@ -174,6 +248,15 @@
                     <span class="bil-inline">
                         <span class="en">Feedback</span>
                         <span class="ar">رأيك</span>
+                    </span>
+                </button>
+                <button @click="window.setupSystem.openSetupModal()" class="setup-admin-btn" title="Database Setup (Admin)" style="margin-left: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="bil-inline">
+                        <span class="en">Setup</span>
+                        <span class="ar">إعداد</span>
                     </span>
                 </button>
             </div>
@@ -1888,6 +1971,7 @@
 <script src="app.js"></script>
 <script src="wishlist.js"></script>
 <script src="feedback.js"></script>
+<script src="setup.js"></script>
 <script src="admin.js"></script>
 <script src="vendor/alpine-collapse.min.js" defer></script>
 <script src="vendor/alpine.min.js" defer></script>
