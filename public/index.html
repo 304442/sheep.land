@@ -16,7 +16,7 @@
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" role="alert" aria-live="assertive" tabindex="-1">
     <span x-show="!setupRequired" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'"></span>
-    <button x-show="setupRequired" @click="window.setupSystem.openSetupModal()" class="err-link" x-text="usrApiErr"></button>
+    <button x-show="setupRequired" @click="openSetupModal()" class="err-link" x-text="usrApiErr"></button>
 </div>
 
 
@@ -252,7 +252,7 @@
                         <span class="ar">رأيك</span>
                     </span>
                 </button>
-                <button @click="window.setupSystem.openSetupModal()" class="setup-admin-btn" title="Database Setup (Admin)" style="margin-left: 8px;">
+                <button @click="openSetupModal()" class="setup-admin-btn" title="Database Setup (Admin)" style="margin-left: 8px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
