@@ -90,6 +90,9 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 .card-content{margin-bottom:6px;flex-grow:1}
 .card-h.bil-spread>.en,.card-h.bil-spread>.ar{font-size:.9rem;margin:0 0 4px;font-weight:600}
 .card-p{font-size:.8rem;color:var(--tm);margin:0;line-height:1.3}
+.card-desc{display:flex;justify-content:space-between;gap:var(--s2);margin-bottom:6px}
+.card-desc>.en{flex:0 0 48%;text-align:left;font-size:.8rem;color:var(--tm);line-height:1.3}
+.card-desc>.ar{flex:0 0 48%;text-align:right;font-family:var(--fa);direction:rtl;font-size:.8rem;color:var(--tm);line-height:1.3}
 
 .card-foot{margin-top:auto;padding:6px 8px 8px;border-top:1px solid var(--b2);display:flex;flex-direction:column;gap:6px}
 .card-foot .price{font-size:1rem;font-weight:700;color:var(--c1);margin-bottom:6px;line-height:1;text-align:center}
@@ -120,14 +123,19 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 .stock-display.out-of-stock{color:#dc3545;font-weight:700}
 .stock-display.low-stock{color:#ff8c00;font-weight:600}
 
-.grid2,.prod-grid{display:grid;gap:8px}.grid2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
-.prod-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
-.grid3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.grid2,.prod-grid{display:grid;gap:var(--s3)}.grid2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.prod-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--s3)}
+.grid3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--s3)}
 
 /* All Products Section */
 .all-products-section{padding:var(--s4) 0}
 .all-products-section .section-header{margin-bottom:var(--s4)}
 .all-products-section .section-header h2{font-size:2rem;color:var(--c1d)}
+
+/* Home Category Sections */
+.home-category-section{margin-bottom:calc(var(--s4) * 2)}
+.home-category-section .section-header{margin-bottom:calc(var(--s4) * 1.5);padding-bottom:var(--s3)}
+.home-category-section .section-header h2{font-size:1.8rem;color:var(--c1d);margin-bottom:0}
 .category-section{margin-bottom:var(--s4)}
 .category-title{font-size:1.3rem;margin-bottom:var(--s3);color:var(--c1);position:relative;padding-bottom:var(--s2)}
 .category-title::after{content:'';display:block;width:60px;height:3px;background:var(--c2l);position:absolute;bottom:0;left:0;border-radius:2px}
