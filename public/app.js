@@ -359,7 +359,7 @@ document.addEventListener('alpine:init', () => {
 
         determineCurrentPageFromURL() {
             const hash = window.location.hash.replace(/^#/, '');
-            const validPages = ['home', 'udheya', 'livesheep', 'meat', 'gatherings', 'checkout', 'auth', 'account'];
+            const validPages = ['home', 'sacrifices', 'fresh-meat', 'events-catering', 'checkout', 'auth', 'account'];
             if (hash && validPages.includes(hash.split('?')[0])) {
                 this.currentPage = hash.split('?')[0];
             } else {
@@ -1288,7 +1288,7 @@ document.addEventListener('alpine:init', () => {
             }
             
             if (this.cartItems.length === 0 && !this.orderConf.show) { 
-                this.navigateToOrScroll('udheya'); 
+                this.navigateToOrScroll('sacrifices'); 
                 return; 
             }
             
