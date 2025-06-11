@@ -77,6 +77,7 @@ document.addEventListener('alpine:init', () => {
             gathering_package: []
         },
         selectedMeatWeights: {},
+        selectedSacrificeVariants: {},
         searchQuery: '',
         showSearch: false,
         showAccountDropdown: false,
@@ -902,6 +903,21 @@ document.addEventListener('alpine:init', () => {
             const weight = this.selectedMeatWeights[item.itemKey] || 1;
             const pricePerKg = item.pricePerKg || item.priceEGP;
             return pricePerKg * weight;
+        },
+
+        getSacrificeVariant(productType) {
+            // Get the selected variant index for this product type, default to 0 (first variant)
+            const selectedIndex = this.selectedSacrificeVariants[productType.valKey] || 0;
+            return productType.wps[selectedIndex] || productType.wps[0];
+        },
+
+        getSacrificePrice(productType) {
+            const variant = this.getSacrificeVariant(productType);
+            return variant ? variant.priceEGP : 0;
+        },
+
+        updateSacrificeVariant(productType, variantIndex) {
+            this.selectedSacrificeVariants[productType.valKey] = parseInt(variantIndex);
         },
 
 
