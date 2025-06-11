@@ -1049,20 +1049,26 @@ document.addEventListener('alpine:init', () => {
         },
 
         getProductImage(item, sectionKey) {
-            // Use placeholder images with appropriate colors for each section
-            if (sectionKey === 'udheya') {
-                return 'https://placehold.co/400x300/8B4513/FFFFFF?text=Udheya';
+            // Use black and white vector-style sheep images
+            const sheepSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNjAgMTIwQzE2MCAxMDMuNDMxIDE3My40MzEgOTAgMTkwIDkwSDIxMEMyMjYuNTY5IDkwIDI0MCAxMDMuNDMxIDI0MCAxMjBWMTQwQzI0MCAxNTYuNTY5IDIyNi41NjkgMTcwIDIxMCAxNzBIMTkwQzE3My40MzEgMTcwIDE2MCAxNTYuNTY5IDE2MCAxNDBWMTIwWiIgZmlsbD0iIzMzMzMzMyIvPgo8ZWxsaXBzZSBjeD0iMTQwIiBjeT0iMTMwIiByeD0iMjAiIHJ5PSIzMCIgZmlsbD0iIzMzMzMzMyIvPgo8ZWxsaXBzZSBjeD0iMjYwIiBjeT0iMTMwIiByeD0iMjAiIHJ5PSIzMCIgZmlsbD0iIzMzMzMzMyIvPgo8cmVjdCB4PSIxNzAiIHk9IjE3MCIgd2lkdGg9IjE1IiBoZWlnaHQ9IjQwIiBmaWxsPSIjMzMzMzMzIi8+CjxyZWN0IHg9IjIxNSIgeT0iMTcwIiB3aWR0aD0iMTUiIGhlaWdodD0iNDAiIGZpbGw9IiMzMzMzMzMiLz4KPGNpcmNsZSBjeD0iMTgwIiBjeT0iMTIwIiBmaWxsPSJ3aGl0ZSIgcj0iNSIvPgo8Y2lyY2xlIGN4PSIyMjAiIGN5PSIxMjAiIGZpbGw9IndoaXRlIiByPSI1Ii8+Cjwvc3ZnPg==';
+            
+            const meatSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNTAgMTAwQzE1MCA4My40MzE1IDE2My40MzEgNzAgMTgwIDcwSDIyMEMyMzYuNTY5IDcwIDI1MCA4My40MzE1IDI1MCAxMDBWMTgwQzI1MCAxOTYuNTY5IDIzNi41NjkgMjEwIDIyMCAyMTBIMTgwQzE2My40MzEgMjEwIDE1MCAxOTYuNTY5IDE1MCAxODBWMTAwWiIgZmlsbD0iIzMzMzMzMyIvPgo8cGF0aCBkPSJNMTcwIDEwMEgyMzBWMTIwSDE3MFYxMDBaIiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC4zIi8+CjxwYXRoIGQ9Ik0xNzAgMTQwSDIzMFYxNjBIMTcwVjE0MFoiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjMiLz4KPHBhdGggZD0iTTE3MCAxODBIMjMwVjIwMEgxNzBWMTgwWiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuMyIvPgo8L3N2Zz4=';
+            
+            const eventSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjIwMCIgY3k9IjE1MCIgcj0iODAiIGZpbGw9IiMzMzMzMzMiLz4KPGNpcmNsZSBjeD0iMjAwIiBjeT0iMTUwIiByPSI2MCIgZmlsbD0id2hpdGUiLz4KPGNpcmNsZSBjeD0iMjAwIiBjeT0iMTUwIiByPSI0MCIgZmlsbD0iIzMzMzMzMyIvPgo8cmVjdCB4PSIxOTAiIHk9IjEwMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMzMzMyIvPgo8cmVjdCB4PSIxNTAiIHk9IjE0MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzMzMzMzMyIvPgo8L3N2Zz4=';
+
+            if (sectionKey === 'udheya' || sectionKey === 'sacrifices') {
+                return sheepSvg;
             }
             else if (sectionKey === 'livesheep') {
-                return 'https://placehold.co/400x300/228B22/FFFFFF?text=Live+Sheep';
+                return sheepSvg;
             }
-            else if (sectionKey === 'meat') {
-                return 'https://placehold.co/400x300/DC143C/FFFFFF?text=Fresh+Meat';
+            else if (sectionKey === 'meat' || sectionKey === 'fresh-meat') {
+                return meatSvg;
             }
-            else if (sectionKey === 'gatherings') {
-                return 'https://placehold.co/400x300/9370DB/FFFFFF?text=Events';
+            else if (sectionKey === 'gatherings' || sectionKey === 'events-catering') {
+                return eventSvg;
             }
-            return 'https://placehold.co/400x300/696969/FFFFFF?text=Product';
+            return sheepSvg;
         },
 
         isEmailValid: (e) => e?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
