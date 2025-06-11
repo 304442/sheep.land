@@ -158,7 +158,7 @@ const collectionsDefinition = [
             { name: "orderNumber", type: "text", required: false, presentable: true, max: 50 },
             { name: "orderType", type: "select", required: false, presentable: true, maxSelect: 1, values: ["udheya", "livesheep", "meat", "gatherings", "general", "not_specified"] },
             { name: "rating", type: "number", required: true, presentable: true, min: 1, max: 5, noDecimal: true },
-            { name: "category", type: "select", required: false, presentable: true, maxSelect: 1, values: ["product", "delivery", "service", "website", "price", "other"] },
+            { name: "category", type: "select", required: false, presentable: true, maxSelect: 6, values: ["product", "delivery", "service", "website", "price", "other"] },
             { name: "message", type: "text", required: false, presentable: false, max: 2000 },
             { name: "wouldRecommend", type: "select", required: false, presentable: true, maxSelect: 1, values: ["yes", "maybe", "no"] },
             { name: "allowTestimonial", type: "bool", required: false, presentable: true },

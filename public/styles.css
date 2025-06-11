@@ -1435,6 +1435,41 @@ body.has-promo-bar .wishlist-dropdown {
     background: var(--prim-light);
 }
 
+/* Category Checkboxes */
+.category-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.category-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg2);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.category-checkbox:hover {
+    background: var(--bg3);
+}
+
+.category-checkbox input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.category-checkbox:has(input:checked) {
+    border-color: var(--prim);
+    background: var(--prim-light);
+}
+
 /* Feedback Form */
 .feedback-form .form-group {
     margin-bottom: 16px;

@@ -175,53 +175,59 @@ const feedbackSystem = {
                 </div>
 
                 <!-- Feedback Categories -->
-                <div class="feedback-categories" id="feedbackCategories" style="display:none;">
+                <div class="feedback-categories" id="feedbackCategories">
                     <p class="category-question bil-row">
-                        <span class="en">What's your feedback about?</span>
-                        <span class="ar">ما هو موضوع ملاحظاتك؟</span>
+                        <span class="en">What's your feedback about? (Select all that apply)</span>
+                        <span class="ar">ما هو موضوع ملاحظاتك؟ (اختر كل ما ينطبق)</span>
                     </p>
-                    <div class="category-buttons">
-                        <button class="category-btn" onclick="feedbackSystem.selectCategory('product')">
+                    <div class="category-checkboxes">
+                        <label class="category-checkbox">
+                            <input type="checkbox" value="product" onchange="feedbackSystem.updateCategories()">
                             <span class="bil-inline">
                                 <span class="en">Product Quality</span>
                                 <span class="ar">جودة المنتج</span>
                             </span>
-                        </button>
-                        <button class="category-btn" onclick="feedbackSystem.selectCategory('delivery')">
+                        </label>
+                        <label class="category-checkbox">
+                            <input type="checkbox" value="delivery" onchange="feedbackSystem.updateCategories()">
                             <span class="bil-inline">
                                 <span class="en">Delivery</span>
                                 <span class="ar">التوصيل</span>
                             </span>
-                        </button>
-                        <button class="category-btn" onclick="feedbackSystem.selectCategory('service')">
+                        </label>
+                        <label class="category-checkbox">
+                            <input type="checkbox" value="service" onchange="feedbackSystem.updateCategories()">
                             <span class="bil-inline">
                                 <span class="en">Customer Service</span>
                                 <span class="ar">خدمة العملاء</span>
                             </span>
-                        </button>
-                        <button class="category-btn" onclick="feedbackSystem.selectCategory('website')">
+                        </label>
+                        <label class="category-checkbox">
+                            <input type="checkbox" value="website" onchange="feedbackSystem.updateCategories()">
                             <span class="bil-inline">
                                 <span class="en">Website</span>
                                 <span class="ar">الموقع</span>
                             </span>
-                        </button>
-                        <button class="category-btn" onclick="feedbackSystem.selectCategory('price')">
+                        </label>
+                        <label class="category-checkbox">
+                            <input type="checkbox" value="price" onchange="feedbackSystem.updateCategories()">
                             <span class="bil-inline">
                                 <span class="en">Pricing</span>
                                 <span class="ar">الأسعار</span>
                             </span>
-                        </button>
-                        <button class="category-btn" onclick="feedbackSystem.selectCategory('other')">
+                        </label>
+                        <label class="category-checkbox">
+                            <input type="checkbox" value="other" onchange="feedbackSystem.updateCategories()">
                             <span class="bil-inline">
                                 <span class="en">Other</span>
                                 <span class="ar">أخرى</span>
                             </span>
-                        </button>
+                        </label>
                     </div>
                 </div>
 
                 <!-- Detailed Feedback Form -->
-                <div class="feedback-form" id="feedbackForm" style="display:none;">
+                <div class="feedback-form" id="feedbackForm">
                     <form onsubmit="feedbackSystem.submitFeedback(event)">
                         <div class="form-group">
                             <label class="bil-row">
@@ -294,7 +300,7 @@ const feedbackSystem = {
 
                 <!-- Hidden fields -->
                 <input type="hidden" id="feedbackRating" value="">
-                <input type="hidden" id="feedbackCategory" value="">
+                <input type="hidden" id="feedbackCategories" value="">
                 <input type="hidden" id="feedbackContext" value="${context}">
                 <input type="hidden" id="feedbackOrderId" value="${orderId || ''}">
                 </div>
@@ -333,32 +339,13 @@ const feedbackSystem = {
         
         // Store rating
         document.getElementById('feedbackRating').value = rating;
-        
-        // Show categories
-        document.getElementById('feedbackCategories').style.display = 'block';
-        
-        // Auto-scroll to categories
-        const categories = document.getElementById('feedbackCategories');
-        categories.scrollIntoView({ behavior: 'smooth', block: 'center' });
     },
 
-    // Handle category selection
-    selectCategory(category) {
-        // Update category buttons
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            const btnCategory = btn.onclick.toString().match(/'([^']+)'/)[1];
-            btn.classList.toggle('selected', btnCategory === category);
-        });
-        
-        // Store category
-        document.getElementById('feedbackCategory').value = category;
-        
-        // Show form
-        document.getElementById('feedbackForm').style.display = 'block';
-        
-        // Auto-scroll to form
-        const form = document.getElementById('feedbackForm');
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Handle category updates
+    updateCategories() {
+        const checkboxes = document.querySelectorAll('.category-checkboxes input[type="checkbox"]:checked');
+        const categories = Array.from(checkboxes).map(cb => cb.value);
+        document.getElementById('feedbackCategories').value = categories.join(',');
     },
 
     // Submit feedback
@@ -366,9 +353,13 @@ const feedbackSystem = {
         event.preventDefault();
         
         const rating = parseInt(document.getElementById('feedbackRating').value);
+        const categoriesValue = document.getElementById('feedbackCategories').value;
+        const categories = categoriesValue ? categoriesValue.split(',') : [];
+        
         const feedbackData = {
             rating: rating,
-            category: document.getElementById('feedbackCategory').value || 'general',
+            category: categories.length > 0 ? categories.join(',') : 'general',
+            categories: categories,
             message: document.getElementById('feedbackText').value || '',
             name: document.getElementById('feedbackName').value || '',
             email: document.getElementById('feedbackEmail').value || '',
