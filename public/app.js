@@ -5,7 +5,8 @@ const initForm = {
         delivery_city_id: "", delivery_address: "", delivery_instructions: "", 
         delivery_time_slot: "9AM-11AM", payment_method: "vodafone_cash", terms_agreed: false,
         total_service_fee_egp: 0, delivery_fee_egp: 0, online_payment_fee_applied_egp: 0,
-        final_total_egp: 0, user_id: null
+        final_total_egp: 0, user_id: null,
+        promo_code: "", promo_applied: false, promo_discount_amount: 0
     };
 
     const initUdheya = {
@@ -1344,6 +1345,25 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
+        applyPromoCode() {
+            this.clearError('promo_code');
+            const code = this.checkoutForm.promo_code.toUpperCase().trim();
+            
+            // Check if code is valid
+            if (code === 'SAVE5') {
+                this.checkoutForm.promo_applied = true;
+                this.calculateFinalTotal();
+            } else if (this.settings.promoActive && code === 'PROMO' + this.settings.promoDiscPc) {
+                this.checkoutForm.promo_applied = true;
+                this.calculateFinalTotal();
+            } else {
+                this.setErr('promo_code', 'Invalid promo code');
+                this.checkoutForm.promo_applied = false;
+                this.checkoutForm.promo_discount_amount = 0;
+                this.calculateFinalTotal();
+            }
+        },
+
         updateDeliveryFeeForCheckout() { 
             this.checkoutForm.delivery_fee_egp = 0; 
             this.isDelFeeVar = false; 
@@ -1379,7 +1399,20 @@ document.addEventListener('alpine:init', () => {
                 onlinePaymentFee = this.settings.online_payment_fee_egp; 
             } 
             this.checkoutForm.online_payment_fee_applied_egp = onlinePaymentFee; 
-            this.checkoutForm.final_total_egp = cartSubtotal + totalServiceFee + deliveryFee + onlinePaymentFee; 
+            
+            // Calculate promo discount
+            let promoDiscount = 0;
+            if (this.checkoutForm.promo_applied) {
+                // Apply promo discount to subtotal before fees
+                if (this.checkoutForm.promo_code === 'SAVE5') {
+                    promoDiscount = cartSubtotal * 0.05;
+                } else if (this.settings.promoActive && this.checkoutForm.promo_code === 'PROMO' + this.settings.promoDiscPc) {
+                    promoDiscount = cartSubtotal * (this.settings.promoDiscPc / 100);
+                }
+                this.checkoutForm.promo_discount_amount = promoDiscount;
+            }
+            
+            this.checkoutForm.final_total_egp = cartSubtotal + totalServiceFee + deliveryFee + onlinePaymentFee - promoDiscount; 
         },
 
         validateCheckoutForm() { 

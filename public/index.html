@@ -193,6 +193,9 @@
                 <span class="promo-bar-discount">
                     <span x-text="settings.promoDiscPc + '%'"></span> OFF
                 </span>
+                <span class="promo-bar-code" style="margin-left: 10px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 4px;">
+                    Code: PROMO<span x-text="settings.promoDiscPc"></span>
+                </span>
             </div>
             <div class="promo-bar-countdown" x-show="!cd.ended">
                 <div class="cd-mini">
@@ -1549,6 +1552,29 @@
 
                         <div class="card form-panel">
                             <div class="card-b">
+                                <h2 class="form-subh bil-spread"><span class="en">Promo Code</span><span class="ar">كود الخصم</span></h2>
+                                <div class="promo-code-section">
+                                    <div class="promo-input-group">
+                                        <input type="text" class="input promo-input" x-model="checkoutForm.promo_code" @input="clrErr('promo_code')" placeholder="Enter promo code">
+                                        <button type="button" class="btn bs btn-sm" @click="applyPromoCode()" :disabled="!checkoutForm.promo_code || checkoutForm.promo_applied">
+                                            <span x-show="!checkoutForm.promo_applied" class="bil-inline"><span class="en">Apply</span><span class="ar">تطبيق</span></span>
+                                            <span x-show="checkoutForm.promo_applied" class="bil-inline"><span class="en">Applied ✓</span><span class="ar">تم التطبيق ✓</span></span>
+                                        </button>
+                                    </div>
+                                    <div class="promo-success" x-show="checkoutForm.promo_applied">
+                                        <span class="bil-inline">
+                                            <span class="en">Promo code applied! You saved</span>
+                                            <span class="ar">تم تطبيق كود الخصم! وفرت</span>
+                                        </span>
+                                        <strong x-text="fmtPrice(checkoutForm.promo_discount_amount)"></strong>
+                                    </div>
+                                    <div class="err-msg" x-show="errs.promo_code" x-text="errs.promo_code"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card form-panel">
+                            <div class="card-b">
                                 <h2 class="form-subh bil-spread"><span class="en">Payment Method</span><span class="ar">طريقة الدفع</span></h2>
                                 <div class="pay-meths-all">
                                     <template x-for="method in availPayMeths" :key="method.id">
@@ -1604,6 +1630,14 @@
                                             <span class="en">Online Payment Fee</span><span class="ar">رسوم الدفع الإلكتروني</span>
                                         </div>
                                         <div class="sum-item-price" x-text="fmtPrice(checkoutForm.online_payment_fee_applied_egp)"></div>
+                                    </div>
+                                </template>
+                                <template x-if="checkoutForm.promo_applied && checkoutForm.promo_discount_amount > 0">
+                                    <div class="sum-item">
+                                        <div class="sum-item-content bil-spread">
+                                            <span class="en">Promo Discount</span><span class="ar">خصم الكود</span>
+                                        </div>
+                                        <div class="sum-item-price" style="color: #28a745">-<span x-text="fmtPrice(checkoutForm.promo_discount_amount)"></span></div>
                                     </div>
                                 </template>
                                 <hr class="sum-hr">
@@ -1804,12 +1838,12 @@
         <button @click="showExitOffer = false" class="modal-close-btn">×</button>
         <h2 class="bil-spread"><span class="en">Wait! Don't leave empty-handed 🛍️</span><span class="ar">انتظر! لا تغادر خالي الوفاض 🛍️</span></h2>
         <p class="bil-row">
-            <span class="en">Your cart is waiting for you!</span>
-            <span class="ar">سلتك في انتظارك!</span>
+            <span class="en">Get 5% OFF your order right now!</span>
+            <span class="ar">احصل على خصم 5% على طلبك الآن!</span>
         </p>
         <p class="bil-row">
-            <span class="en">Complete your order now before items go out of stock.</span>
-            <span class="ar">أكمل طلبك الآن قبل نفاد المخزون.</span>
+            <span class="en">Use code SAVE5 at checkout</span>
+            <span class="ar">استخدم كود SAVE5 عند الدفع</span>
         </p>
         <button @click="showExitOffer = false; isCartOpen = true" class="btn bp btn-lg btn-block">
             <span class="bil-inline"><span class="en">Continue Shopping</span><span class="ar">متابعة التسوق</span></span>
