@@ -3862,13 +3862,15 @@ tr.out-of-stock {
 }
 
 .home-category-section .section-header h2 {
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--tm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--c1d);
     margin: 0;
     padding: 0;
-    letter-spacing: 1.5px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
+    position: relative;
+    display: inline-block;
 }
 
 .home-category-section .section-header h2.bil-spread {
@@ -3876,16 +3878,33 @@ tr.out-of-stock {
     justify-content: center;
     align-items: center;
     gap: 20px;
+    position: relative;
 }
 
 .home-category-section .section-header h2.bil-spread .en {
     font-family: var(--fe);
+    position: relative;
 }
 
 .home-category-section .section-header h2.bil-spread .ar {
     font-family: var(--fa);
     direction: rtl;
+    position: relative;
 }
+
+.home-category-section .section-header h2.bil-spread .en::after,
+.home-category-section .section-header h2.bil-spread .ar::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--c2);
+    opacity: 0.5;
+}
+
+/* Individual underlines for bilingual headers defined above */
 
 
 .card-desc {
