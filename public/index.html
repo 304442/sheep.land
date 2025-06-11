@@ -1051,6 +1051,9 @@
                                 <div class="card-img">
                                     <img :src="getProductImage(item, 'udheya')" :alt="item.nameENSpec" loading="lazy">
                                     <div class="badge udheya-badge">HALAL</div>
+                                    <div class="sale-badge" x-show="item.discount_percentage > 0">
+                                        <span x-text="'-' + item.discount_percentage + '%'"></span>
+                                    </div>
                                     <button @click="toggleWishlist(item)" 
                                             class="wishlist-icon" 
                                             :class="{ 'active': isInWishlist(item.itemKey) }"
@@ -1073,7 +1076,15 @@
                                     </div>
                                     <div class="card-foot">
                                         <div class="price-line">
-                                            <strong x-text="fmtPrice(item.priceEGP)"></strong>
+                                            <template x-if="item.discount_percentage > 0">
+                                                <div class="price-with-discount">
+                                                    <span class="original-price" x-text="fmtPrice(item.priceEGP)"></span>
+                                                    <strong class="sale-price" x-text="fmtPrice(item.priceEGP * (1 - item.discount_percentage / 100))"></strong>
+                                                </div>
+                                            </template>
+                                            <template x-if="!item.discount_percentage || item.discount_percentage === 0">
+                                                <strong x-text="fmtPrice(item.priceEGP)"></strong>
+                                            </template>
                                             <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
                                         </div>
                                         <button type="button" @click="openUdheyaConfiguration(item)" 
@@ -1108,6 +1119,9 @@
                                 <div class="card-img">
                                     <img :src="getProductImage(item, 'meat')" :alt="item.nameENSpec" loading="lazy">
                                     <div class="badge fresh-badge">FRESH</div>
+                                    <div class="sale-badge" x-show="item.discount_percentage > 0">
+                                        <span x-text="'-' + item.discount_percentage + '%'"></span>
+                                    </div>
                                     <button @click="toggleWishlist(item)" 
                                             class="wishlist-icon" 
                                             :class="{ 'active': isInWishlist(item.itemKey) }"
@@ -1172,6 +1186,9 @@
                                 <div class="card-img">
                                     <img :src="getProductImage(item, 'gatherings')" :alt="item.nameENSpec" loading="lazy">
                                     <div class="badge event-badge">EVENT</div>
+                                    <div class="sale-badge" x-show="item.discount_percentage > 0">
+                                        <span x-text="'-' + item.discount_percentage + '%'"></span>
+                                    </div>
                                     <button @click="toggleWishlist(item)" 
                                             class="wishlist-icon" 
                                             :class="{ 'active': isInWishlist(item.itemKey) }"
@@ -1194,7 +1211,15 @@
                                     </div>
                                     <div class="card-foot">
                                         <div class="price-line">
-                                            <strong x-text="fmtPrice(item.priceEGP)"></strong>
+                                            <template x-if="item.discount_percentage > 0">
+                                                <div class="price-with-discount">
+                                                    <span class="original-price" x-text="fmtPrice(item.priceEGP)"></span>
+                                                    <strong class="sale-price" x-text="fmtPrice(item.priceEGP * (1 - item.discount_percentage / 100))"></strong>
+                                                </div>
+                                            </template>
+                                            <template x-if="!item.discount_percentage || item.discount_percentage === 0">
+                                                <strong x-text="fmtPrice(item.priceEGP)"></strong>
+                                            </template>
                                             <span class="weight-info" x-show="item.wtRangeEn" x-text="item.wtRangeEn"></span>
                                         </div>
                                         <button type="button" @click="addItemToCart(item)" 
