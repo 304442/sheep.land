@@ -298,9 +298,6 @@ const feedbackSystem = {
                 <input type="hidden" id="feedbackContext" value="${context}">
                 <input type="hidden" id="feedbackOrderId" value="${orderId || ''}">
                 </div>
-                <div class="modal-footer">
-                    <button onclick="feedbackSystem.closeFeedbackModal()" class="btn bp">Close</button>
-                </div>
             </div>
         `;
         document.body.appendChild(modal);
