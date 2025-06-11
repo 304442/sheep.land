@@ -499,15 +499,13 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 
-// Global setup system access for compatibility
-document.addEventListener('alpine:initialized', () => {
-    window.setupSystem = {
-        openSetupModal() {
-            // Find the Alpine component instance and call openSetupModal
-            const setupElement = document.querySelector('[x-data="setupSystem"]');
-            if (setupElement && setupElement.__x) {
-                setupElement.__x.$data.openSetupModal();
-            }
+// Make setup system available globally for the main app
+window.setupSystem = {
+    initializeSetupData() {
+        // Find the setup modal component and initialize it
+        const setupElement = document.querySelector('[x-data="setupSystem"]');
+        if (setupElement && setupElement.__x) {
+            setupElement.__x.$data.initializeSetupData();
         }
-    };
-});
+    }
+};

@@ -93,7 +93,7 @@ document.addEventListener('alpine:init', () => {
         isPromoBarDismissed: false,
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
-        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false,
+        isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false, isSetupModalOpen: false,
         showAuth: false, cartOpen: false,
         wishlistCount: 0,
         wishlistItems: [],
@@ -785,25 +785,17 @@ document.addEventListener('alpine:init', () => {
         openOrderStatusModal() { this.isOrderStatusModalOpen = true; document.body.classList.add('overflow-hidden'); this.$nextTick(() => this.$refs.lookupOrderIdInputModal?.focus()); },
         closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderID = ''; this.statRes = null; this.statNotFound = false; this.clrErr('lookupOrderID');},
         
-        // Helper to open setup modal
-        openSetupModal() {
-            if (window.setupSystem && window.setupSystem.openSetupModal) {
-                window.setupSystem.openSetupModal();
-            } else {
-                // Fallback: try to find and trigger the setup modal directly
-                const setupElement = document.querySelector('[x-data="setupSystem"]');
-                if (setupElement && setupElement.__x) {
-                    setupElement.__x.$data.openSetupModal();
-                } else {
-                    console.error('Setup system not initialized yet');
-                    // Try again after a short delay
-                    setTimeout(() => {
-                        if (window.setupSystem && window.setupSystem.openSetupModal) {
-                            window.setupSystem.openSetupModal();
-                        }
-                    }, 500);
-                }
+        openSetupModal() { 
+            this.isSetupModalOpen = true; 
+            document.body.classList.add('overflow-hidden');
+            // Initialize setup system if available
+            if (window.setupSystem && window.setupSystem.initializeSetupData) {
+                window.setupSystem.initializeSetupData();
             }
+        },
+        closeSetupModal() { 
+            this.isSetupModalOpen = false; 
+            document.body.classList.remove('overflow-hidden'); 
         },
 
         startCd() { 
