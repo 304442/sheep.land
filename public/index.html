@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="styles.css">
     <style>[x-cloak]{display:none!important}</style>
 </head>
-<body x-data="sheepLand" x-init="initApp()" x-cloak>
+<body x-data="sheepLand" x-init="initApp()" x-cloak :class="{'has-promo-bar': settings.promoActive && !cd.ended && !isPromoBarDismissed}">
 
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" role="alert" aria-live="assertive" tabindex="-1">
@@ -181,7 +181,56 @@
     </div>
 </div>
 
-<header class="site-head">
+<!-- Promo Bar -->
+<div x-show="settings.promoActive && !cd.ended && !isPromoBarDismissed" class="promo-bar" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform -translate-y-full">
+    <div class="c">
+        <div class="promo-bar-content">
+            <div class="promo-bar-text">
+                <span class="promo-bar-title bil-inline">
+                    <span class="en">🎉 Limited Time Offer!</span>
+                    <span class="ar">🎉 عرض لفترة محدودة!</span>
+                </span>
+                <span class="promo-bar-discount">
+                    <span x-text="settings.promoDiscPc + '%'"></span> OFF
+                </span>
+                <span class="promo-bar-code" style="margin-left: 10px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 4px;">
+                    Code: PROMO<span x-text="settings.promoDiscPc"></span>
+                </span>
+            </div>
+            <div class="promo-bar-countdown" x-show="!cd.ended">
+                <div class="cd-mini">
+                    <span class="cd-mini-item">
+                        <span class="cd-mini-val" x-text="cd.days"></span>
+                        <span class="cd-mini-lbl">d</span>
+                    </span>
+                    <span class="cd-mini-sep">:</span>
+                    <span class="cd-mini-item">
+                        <span class="cd-mini-val" x-text="cd.hours"></span>
+                        <span class="cd-mini-lbl">h</span>
+                    </span>
+                    <span class="cd-mini-sep">:</span>
+                    <span class="cd-mini-item">
+                        <span class="cd-mini-val" x-text="cd.mins"></span>
+                        <span class="cd-mini-lbl">m</span>
+                    </span>
+                    <span class="cd-mini-sep">:</span>
+                    <span class="cd-mini-item">
+                        <span class="cd-mini-val" x-text="cd.secs"></span>
+                        <span class="cd-mini-lbl">s</span>
+                    </span>
+                </div>
+            </div>
+            <button @click="isPromoBarDismissed = true" class="promo-bar-close" aria-label="Close promo">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<header class="site-head" :class="{'with-promo': settings.promoActive && !cd.ended && !isPromoBarDismissed}">
     <div class="c nav-cont">
         <a href="#home" class="logo bil-inline" @click.prevent="isMobNavOpen = false; navigateToOrScroll('home')">
             <span class="en" x-text="settings.site_title_en || 'Sheep Land Egypt'"></span>
@@ -882,52 +931,6 @@
             <div class="hero">
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
-                    <!-- Promo Bar Inside Hero -->
-                    <div x-show="settings.promoActive && !cd.ended && !isPromoBarDismissed" class="promo-bar hero-promo-bar" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform -translate-y-4">
-                        <div class="promo-bar-content">
-                            <div class="promo-bar-text">
-                                <span class="promo-bar-title bil-inline">
-                                    <span class="en">🎉 Limited Time Offer!</span>
-                                    <span class="ar">🎉 عرض لفترة محدودة!</span>
-                                </span>
-                                <span class="promo-bar-discount">
-                                    <span x-text="settings.promoDiscPc + '%'"></span> OFF
-                                </span>
-                                <span class="promo-bar-code" style="margin-left: 10px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 4px;">
-                                    Code: PROMO<span x-text="settings.promoDiscPc"></span>
-                                </span>
-                            </div>
-                            <div class="promo-bar-countdown" x-show="!cd.ended">
-                                <div class="cd-mini">
-                                    <span class="cd-mini-item">
-                                        <span class="cd-mini-val" x-text="cd.days"></span>
-                                        <span class="cd-mini-lbl">d</span>
-                                    </span>
-                                    <span class="cd-mini-sep">:</span>
-                                    <span class="cd-mini-item">
-                                        <span class="cd-mini-val" x-text="cd.hours"></span>
-                                        <span class="cd-mini-lbl">h</span>
-                                    </span>
-                                    <span class="cd-mini-sep">:</span>
-                                    <span class="cd-mini-item">
-                                        <span class="cd-mini-val" x-text="cd.mins"></span>
-                                        <span class="cd-mini-lbl">m</span>
-                                    </span>
-                                    <span class="cd-mini-sep">:</span>
-                                    <span class="cd-mini-item">
-                                        <span class="cd-mini-val" x-text="cd.secs"></span>
-                                        <span class="cd-mini-lbl">s</span>
-                                    </span>
-                                </div>
-                            </div>
-                            <button @click="isPromoBarDismissed = true" class="promo-bar-close" aria-label="Close promo">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
             <div class="c">
                 <h1 class="hero-title bil-spread">
                     <span class="en">Halal Meat & Services</span>
