@@ -1049,51 +1049,20 @@ document.addEventListener('alpine:init', () => {
         },
 
         getProductImage(item, sectionKey) {
-            // Most accurate mapping based on actual product data
-            const itemKey = (item.itemKey || '').toLowerCase();
-            const nameEN = (item.nameENSpec || '').toLowerCase();
-            const typeNameEN = (item.type_name_en || '').toLowerCase();
-            
+            // Use placeholder images with appropriate colors for each section
             if (sectionKey === 'udheya') {
-                // Specific Udheya breeds
-                if (itemKey.includes('barki') || nameEN.includes('barki')) return 'images/products/sheep-barki.jpg';
-                if (itemKey.includes('baladi') || nameEN.includes('baladi')) return 'images/products/sheep-baladi.jpg';
-                // Premium vs standard
-                if (item.is_premium || nameEN.includes('premium')) return 'images/products/sheep-barki.jpg'; // Barki is premium breed
-                return 'images/products/sheep-baladi.jpg'; // Default to Baladi for standard
+                return 'https://placehold.co/400x300/8B4513/FFFFFF?text=Udheya';
             }
             else if (sectionKey === 'livesheep') {
-                // Breeding animals by type
-                if (itemKey.includes('ram') || nameEN.includes('ram') || nameEN.includes('كبش')) return 'images/products/sheep-ram.jpg';
-                if (itemKey.includes('ewe') || nameEN.includes('ewe') || nameEN.includes('نعجة')) return 'images/products/sheep-ewe.jpg';
-                if (itemKey.includes('lamb') || nameEN.includes('weaned') || nameEN.includes('حملان')) return 'images/products/sheep-lamb.jpg';
-                // Specific breeds
-                if (itemKey.includes('barki') || nameEN.includes('barki')) return 'images/products/sheep-barki.jpg';
-                if (itemKey.includes('baladi') || nameEN.includes('baladi')) return 'images/products/sheep-baladi.jpg';
-                if (itemKey.includes('import')) return 'images/products/sheep-imported.jpg';
-                return 'images/products/sheep-flock.jpg'; // Default to flock
+                return 'https://placehold.co/400x300/228B22/FFFFFF?text=Live+Sheep';
             }
             else if (sectionKey === 'meat') {
-                // Specific meat cuts
-                if (itemKey.includes('chop') || nameEN.includes('chop') || nameEN.includes('ريش')) return 'images/products/lamb-ribs.jpg';
-                if (itemKey.includes('whole_leg') || nameEN.includes('whole leg') || nameEN.includes('فخذة كاملة')) return 'images/products/lamb-leg.jpg';
-                if (itemKey.includes('shoulder') || nameEN.includes('shoulder') || nameEN.includes('كتف')) return 'images/products/lamb-shoulder.jpg';
-                if (itemKey.includes('mince') || nameEN.includes('minced') || nameEN.includes('مفروم')) return 'images/products/lamb-minced.jpg';
-                if (itemKey.includes('stew') || nameEN.includes('stew') || nameEN.includes('مقطع')) return 'images/products/lamb-shoulder.jpg';
-                if (itemKey.includes('rib') || nameEN.includes('rib')) return 'images/products/lamb-ribs.jpg';
-                if (itemKey.includes('steak') || nameEN.includes('steak')) return 'images/products/meat-steak.jpg';
-                if (itemKey.includes('leg') || nameEN.includes('leg')) return 'images/products/lamb-leg.jpg';
-                return 'images/products/lamb-shoulder.jpg'; // Default
+                return 'https://placehold.co/400x300/DC143C/FFFFFF?text=Fresh+Meat';
             }
             else if (sectionKey === 'gatherings') {
-                // Event packages by size/type
-                if (itemKey.includes('wedding') || nameEN.includes('wedding') || nameEN.includes('زفاف')) return 'images/products/event-large-gathering.jpg';
-                if (itemKey.includes('bbq') || nameEN.includes('bbq') || nameEN.includes('شواء')) return 'images/products/event-catering.jpg';
-                if (itemKey.includes('family') || nameEN.includes('family') || itemKey.includes('small')) return 'images/products/event-small-gathering.jpg';
-                if (itemKey.includes('large') || itemKey.includes('celebration')) return 'images/products/event-large-gathering.jpg';
-                return 'images/products/event-catering.jpg'; // Default
+                return 'https://placehold.co/400x300/9370DB/FFFFFF?text=Events';
             }
-            return 'images/products/sheep-flock.jpg'; // Global fallback
+            return 'https://placehold.co/400x300/696969/FFFFFF?text=Product';
         },
 
         isEmailValid: (e) => e?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
