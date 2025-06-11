@@ -147,12 +147,12 @@
 
 <!-- Setup Modal -->
 <div x-show="isSetupModalOpen" class="modal-overlay" @click="closeSetupModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
-<div x-show="isSetupModalOpen" class="modal" role="dialog" aria-modal="true" aria-labelledby="setup-modal-title" @keydown.escape.window="closeSetupModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4" x-data="setupSystem">
+<div x-show="isSetupModalOpen" x-data="setupSystem" class="modal" role="dialog" aria-modal="true" aria-labelledby="setup-modal-title" @keydown.escape.window="$parent.closeSetupModal()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-y-0" x-transition:leave-end="opacity-0 transform translate-y-4">
     <div class="modal-header">
         <h2 id="setup-modal-title" class="bil-spread modal-title">
             <span class="en">🚀 Database Setup</span><span class="ar" dir="rtl">🚀 إعداد قاعدة البيانات</span>
         </h2>
-        <button @click="closeSetupModal()" class="modal-close-btn">×</button>
+        <button @click="$parent.closeSetupModal()" class="modal-close-btn">×</button>
     </div>
     <div class="modal-content setup-content">
         <div class="setup-form">
