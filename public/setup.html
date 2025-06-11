@@ -16,6 +16,8 @@
         button{padding:4px 8px;background:#2C5F41;color:white;border:0;border-radius:3px;cursor:pointer;font-size:10px;margin:2px;font-weight:600;white-space:nowrap}
         button:disabled{background:#ccc;cursor:not-allowed} 
         button:hover:not(:disabled){background:#1A3B2B;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+        #clearDatabase{background:#f44336}
+        #clearDatabase:hover:not(:disabled){background:#d32f2f;box-shadow:0 1px 3px rgba(244,67,54,0.4)}
         #out{margin-top:4px;padding:4px;background:#1a1a1a;color:#e0e0e0;border-radius:3px;font-family:monospace;font-size:8px;line-height:1.15;max-height:40vh;overflow-y:auto;border:1px solid #333}
         .ls{color:#4ade80} .le{color:#f87171} .li{color:#60a5fa} .lw{color:#fbbf24} .ld{color:#9ca3af}
         #out p{margin:1px 0;padding:0}
@@ -71,6 +73,7 @@
             <button id="runFullSetup">🚀 Complete Setup</button>
             <button id="runSchemaOnly">📋 Schema Only</button>
             <button id="runSeedOnly" disabled>🌱 Seed Only</button>
+            <button id="clearDatabase" style="background:#f44336">🗑️ Clear Database</button>
             <button id="showHelp" style="background:#2196f3">📚 Help & Docs</button>
         </div>
         <div id="out"></div>
@@ -415,6 +418,7 @@
     const runFullSetupButton = document.getElementById('runFullSetup');
     const runSchemaOnlyButton = document.getElementById('runSchemaOnly');
     const runSeedOnlyButton = document.getElementById('runSeedOnly');
+    const clearDatabaseButton = document.getElementById('clearDatabase');
     const pbUrlInput = document.getElementById('pbUrlInput');
     const adminEmailInput = document.getElementById('adminEmail');
     const adminPasswordInput = document.getElementById('adminPassword');
@@ -3516,6 +3520,88 @@
             document.getElementById('helpModal').style.display = 'none';
         }
     });
+
+    // Clear Database function
+    async function clearDatabase(pb) {
+        const collections = ['products', 'orders', 'order_items', 'payment_confirmations', 'feedback', 'users'];
+        let clearedCount = 0;
+        
+        for (const collectionName of collections) {
+            try {
+                // Get all records
+                const records = await pb.collection(collectionName).getFullList({
+                    batch: 500
+                });
+                
+                if (records.length === 0) {
+                    log(`📭 ${collectionName}: Already empty`, 'i');
+                    continue;
+                }
+                
+                log(`🗑️ Clearing ${records.length} records from ${collectionName}...`, 'i');
+                
+                // Delete all records
+                for (const record of records) {
+                    try {
+                        await pb.collection(collectionName).delete(record.id);
+                    } catch (deleteError) {
+                        log(`⚠️ Failed to delete record ${record.id} from ${collectionName}: ${deleteError.message}`, 'w');
+                    }
+                }
+                
+                clearedCount++;
+                log(`✅ Cleared ${collectionName} (${records.length} records)`, 's');
+                
+            } catch (error) {
+                log(`⚠️ Error clearing ${collectionName}: ${error.message}`, 'w');
+            }
+        }
+        
+        return clearedCount;
+    }
+
+    clearDatabaseButton.onclick = async () => {
+        if (!confirm('⚠️ WARNING: This will DELETE ALL DATA from the database!\n\nThis includes:\n• All products\n• All orders\n• All users\n• All feedback\n• All payment confirmations\n\nAre you absolutely sure you want to continue?')) {
+            return;
+        }
+        
+        if (!confirm('🚨 FINAL WARNING: This action CANNOT be undone!\n\nType "DELETE" to confirm you want to clear the entire database.')) {
+            return;
+        }
+        
+        const userInput = prompt('Type "DELETE" to confirm:');
+        if (userInput !== 'DELETE') {
+            log('❌ Clear database cancelled - confirmation text did not match', 'w');
+            return;
+        }
+        
+        [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton, clearDatabaseButton].forEach(b => b.disabled = true);
+        outputDiv.innerHTML = ''; 
+        log('🗑️ === DATABASE CLEAR STARTED ===', 'i');
+        pbUrl = pbUrlInput.value;
+        const pb = new PocketBase(pbUrl);
+        
+        try {
+            if (!await authenticateAdmin(pb)) {
+                log('❌ Admin authentication required to clear database', 'e');
+                return;
+            }
+            
+            const clearedCount = await clearDatabase(pb);
+            log(`🧹 === DATABASE CLEAR COMPLETED ===`, 's');
+            log(`Cleared ${clearedCount} collections`, 's');
+            log(`ℹ️ Note: Settings collection is preserved`, 'i');
+            
+            // Enable seed button since database is now empty
+            runSeedOnlyButton.disabled = false;
+            
+        } catch (error) {
+            log(`❌ ERROR during database clear: ${error.message}`, 'e');
+        } finally {
+            if (pb.authStore.isValid && pb.authStore.record?.collectionName === '_superusers') pb.authStore.clear();
+            [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton, clearDatabaseButton].forEach(b => b.disabled = false);
+        }
+    };
 </script>
 </body>
 </html>
