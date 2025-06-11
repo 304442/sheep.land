@@ -1065,52 +1065,30 @@ document.addEventListener('alpine:init', () => {
         },
 
         getProductImage(item, sectionKey) {
-            // Use professional local images
-            const sheepImage1 = 'images/sheep-1.jpg';
-            const sheepImage2 = 'images/barki-sheep.png';
-            const meatImage = 'images/sheep-meat.jpg';
-            const eventImage = 'images/catering-service.jpg';
-            
-            // Specific product images from Radifarms
-            if (item && item.item_key) {
-                const productImages = {
-                    'lamb_chops_premium': 'images/products/lamb-chops-full.jpg',
-                    'lamb_mince_fresh': 'images/products/minced-meat.jpg',
-                    'roasted_lamb_ready': 'images/products/lamb-chops.jpg',
-                    'shank_okra_tajin': 'images/products/meat-banner.png',
-                    'lamb_ribs_rack': 'images/products/lamb-chops.jpg',
-                    'minced_meat': 'images/products/minced-meat.jpg',
-                    'lamb_shank': 'images/products/meat-banner.png',
-                    'lamb_liver_fresh': 'images/products/minced-meat.jpg'
-                };
-                
-                if (productImages[item.item_key]) {
-                    return productImages[item.item_key];
-                }
-            }
-
+            // Keep real images only for sacrifices/udheya section
             if (sectionKey === 'udheya' || sectionKey === 'sacrifices') {
+                const sheepImage1 = 'images/sheep-1.jpg';
+                const sheepImage2 = 'images/barki-sheep.png';
                 // Alternate between the two sheep images for variety
                 return item && item.type_key && item.type_key.includes('barki') ? sheepImage2 : sheepImage1;
             }
-            else if (sectionKey === 'livesheep') {
-                return sheepImage1;
+            
+            // Use placeholder images for all other sections
+            if (sectionKey === 'meat' || sectionKey === 'fresh-meat' || sectionKey === 'meat_cuts') {
+                return 'https://placehold.co/400x300/8B4513/FFFFFF?text=Fresh+Meat';
             }
-            else if (sectionKey === 'meat' || sectionKey === 'fresh-meat' || sectionKey === 'meat_cuts') {
-                // Check for specific meat type
-                if (item && item.item_key) {
-                    if (item.item_key.includes('mince')) return 'images/products/minced-meat.jpg';
-                    if (item.item_key.includes('chop') || item.item_key.includes('rib')) return 'images/products/lamb-chops.jpg';
-                }
-                return meatImage;
-            }
-            else if (sectionKey === 'gatherings' || sectionKey === 'events-catering') {
-                return eventImage;
+            else if (sectionKey === 'gatherings' || sectionKey === 'events-catering' || sectionKey === 'gathering_package') {
+                return 'https://placehold.co/400x300/FF6B35/FFFFFF?text=Events';
             }
             else if (sectionKey === 'ready_to_eat') {
-                return 'images/products/meat-banner.png';
+                return 'https://placehold.co/400x300/2E7D32/FFFFFF?text=Ready+to+Eat';
             }
-            return sheepImage1;
+            else if (sectionKey === 'livesheep' || sectionKey === 'livesheep_general') {
+                return 'https://placehold.co/400x300/558B2F/FFFFFF?text=Live+Sheep';
+            }
+            
+            // Default placeholder
+            return 'https://placehold.co/400x300/cccccc/666666?text=Product+Image';
         },
 
         isEmailValid: (e) => e?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e),
