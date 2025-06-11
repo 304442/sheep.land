@@ -500,12 +500,14 @@ document.addEventListener('alpine:init', () => {
 });
 
 // Global setup system access for compatibility
-window.setupSystem = {
-    openSetupModal() {
-        // Find the Alpine component instance and call openSetupModal
-        const setupComponent = Alpine.$data(document.querySelector('[x-data*="setupSystem"]'));
-        if (setupComponent && setupComponent.openSetupModal) {
-            setupComponent.openSetupModal();
+document.addEventListener('alpine:initialized', () => {
+    window.setupSystem = {
+        openSetupModal() {
+            // Find the Alpine component instance and call openSetupModal
+            const setupElement = document.querySelector('[x-data="setupSystem"]');
+            if (setupElement && setupElement.__x) {
+                setupElement.__x.$data.openSetupModal();
+            }
         }
-    }
-};
+    };
+});
