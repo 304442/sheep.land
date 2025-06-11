@@ -32,9 +32,6 @@
     <div class="modal-content policy-container">
          <div x-html="settings.refundPolicyHTMLContent || '<p>Loading refund policy...</p>'"></div>
     </div>
-    <div class="modal-footer">
-        <button @click="closeRefundModal()" class="btn bp">Close</button>
-    </div>
 </div>
 
 <div x-show="isOrderStatusModalOpen" class="modal-overlay" @click="closeOrderStatusModal()"></div>
@@ -69,9 +66,6 @@
             </div>
             <div class="stat-no-res bil-row tc" x-show="statNotFound && !statRes && !load.status"><p class="en">No order found. Check ID or contact support.</p><p class="ar">لم يتم العثور على طلب. تحقق من رقم الطلب أو اتصل بالدعم.</p></div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <button @click="closeOrderStatusModal()" class="btn bp">Close</button>
     </div>
 </div>
 
@@ -145,7 +139,6 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" @click="closeUdheyaConfiguration()" class="btn bp-alt"><span class="en">Cancel</span><span class="ar">إلغاء</span></button>
         <button type="button" @click="confirmUdheyaConfigurationAndProceed()" class="btn bac">
             <span x-text="tempUdheyaConfig.isBuyNowIntent ? 'Confirm & Buy Now' : 'Confirm & Add to Cart'"></span>
         </button>
