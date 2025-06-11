@@ -3853,7 +3853,7 @@ tr.out-of-stock {
 }
 
 .home-category-section .section-header {
-    margin: 0 0 var(--s3) 0;
+    margin: 0 0 var(--s2) 0;
     text-align: center;
     position: relative;
     background: none;
@@ -3862,13 +3862,11 @@ tr.out-of-stock {
 }
 
 .home-category-section .section-header h2 {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--c1d);
     margin: 0;
     padding: 0;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
     position: relative;
     display: inline-block;
 }
@@ -3892,19 +3890,30 @@ tr.out-of-stock {
     position: relative;
 }
 
-.home-category-section .section-header h2.bil-spread .en::after,
-.home-category-section .section-header h2.bil-spread .ar::after {
+.home-category-section .section-header h2.bil-spread .en::after {
     content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: var(--c2l);
     position: absolute;
-    bottom: -5px;
+    bottom: -10px;
     left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--c2);
-    opacity: 0.5;
+    border-radius: 2px;
 }
 
-/* Individual underlines for bilingual headers defined above */
+.home-category-section .section-header h2.bil-spread .ar::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: var(--c2l);
+    position: absolute;
+    bottom: -10px;
+    right: 0;
+    border-radius: 2px;
+}
+
 
 
 .card-desc {
