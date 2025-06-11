@@ -576,11 +576,12 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 .foot{background:var(--c1d);color:var(--td);padding:var(--s2) 0;margin-top:auto;flex-shrink:0}
 .foot-grid{text-align:center;gap:var(--s3)}
 .foot-brand-desc{font-size:.85rem;line-height:1.4;margin-bottom:var(--s2)}
-.foot-payments{text-align:center;margin:var(--s3) 0}
-.foot-payments-title{font-size:1rem;font-weight:600;margin-bottom:var(--s2);color:var(--c2l);text-transform:uppercase;letter-spacing:1px}
-.foot-payment-logos{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s3);align-items:center}
-.foot-pay-logo-wrapper{display:flex;align-items:center;justify-content:center;width:70px;height:30px}
-.foot-pay-icon{max-height:100%;max-width:100%;width:auto;height:auto;object-fit:contain;opacity:0.7;display:block;filter:grayscale(100%) brightness(1.5)}
+.foot-payments{text-align:center;margin:var(--s4) 0;padding:var(--s3) 0;background:rgba(255,255,255,0.05);border-radius:12px}
+.foot-payments-title{font-size:0.85rem;font-weight:500;margin-bottom:var(--s3);color:var(--b2);opacity:0.8;text-transform:uppercase;letter-spacing:0.5px}
+.foot-payment-logos{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;align-items:center;padding:0 var(--s3)}
+.foot-pay-logo-wrapper{display:flex;align-items:center;justify-content:center;width:48px;height:32px;background:white;border-radius:6px;padding:6px;transition:transform 0.2s ease}
+.foot-pay-logo-wrapper:hover{transform:translateY(-2px)}
+.foot-pay-icon{max-height:20px;max-width:36px;width:auto;height:auto;object-fit:contain;display:block;filter:grayscale(100%) contrast(0.8)}
 .foot-div{border-color:rgba(255,255,255,.3);margin:var(--s2) 0 var(--s1)}
 .foot-copy{font-size:.85em;text-align:center;color:var(--b2);opacity:.8;margin-bottom:0;line-height:1.6}
 .footer-link-btn{background:none;border:none;color:var(--c2l);text-decoration:underline;padding:0;font-size:inherit;cursor:pointer;font-family:inherit;font-weight:600}
@@ -5252,3 +5253,11 @@ tr.out-of-stock {
     color: #333;
 }
 
+
+/* Footer Payment Icons Mobile */
+@media (max-width: 768px) {
+    .foot-payments{margin:var(--s3) 0;padding:var(--s2) 0}
+    .foot-payment-logos{gap:12px;padding:0 var(--s2)}
+    .foot-pay-logo-wrapper{width:42px;height:28px;padding:4px;border-radius:4px}
+    .foot-pay-icon{max-height:16px;max-width:30px}
+}
