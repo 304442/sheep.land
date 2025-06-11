@@ -279,32 +279,18 @@ document.addEventListener('alpine:init', () => {
                     return productTypes.filter(pt => pt && pt.wps && Array.isArray(pt.wps));
                 };
                 
-                // Add random discounts for demonstration (10%, 20%, 30% on some products)
-                const addRandomDiscounts = (products) => {
-                    return products.map((product, index) => {
-                        // Add discount to every 3rd product
-                        if (index % 3 === 0) {
-                            const discounts = [10, 15, 20, 25, 30];
-                            product.discount_percentage = discounts[Math.floor(Math.random() * discounts.length)];
-                        } else {
-                            product.discount_percentage = 0;
-                        }
-                        return product;
-                    });
-                };
-                
                 // Map products to new categories based on product tags or type
-                this.prodOpts.udheya = ensureValidStructure(categorizeProducts(addRandomDiscounts(allProducts), 'udheya'));
+                this.prodOpts.udheya = ensureValidStructure(categorizeProducts(allProducts, 'udheya'));
                 this.prodOpts.aqiqah = ensureValidStructure(categorizeProducts(allProducts, 'aqiqah'));
                 this.prodOpts.charity = ensureValidStructure(categorizeProducts(allProducts, 'charity'));
                 this.prodOpts.vow = ensureValidStructure(categorizeProducts(allProducts, 'vow'));
                 this.prodOpts.expiation = ensureValidStructure(categorizeProducts(allProducts, 'expiation'));
                 this.prodOpts.ready_to_eat = ensureValidStructure(categorizeProducts(allProducts, 'ready_to_eat'));
                 this.prodOpts.slaughtered = ensureValidStructure(categorizeProducts(allProducts, 'slaughtered'));
-                this.prodOpts.meat_cuts = ensureValidStructure(categorizeProducts(addRandomDiscounts(allProducts), 'meat_cuts'));
+                this.prodOpts.meat_cuts = ensureValidStructure(categorizeProducts(allProducts, 'meat_cuts'));
                 
                 // Legacy compatibility
-                this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(addRandomDiscounts(allProducts), 'gathering_package'));
+                this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(allProducts, 'gathering_package'));
                 
                 // console.log('Product categories loaded:', {
                 //     udheya: this.prodOpts.udheya.length,
