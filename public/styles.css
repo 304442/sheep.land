@@ -420,7 +420,7 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
 
 .modal-title{
     margin-bottom: 0;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--c1d);
 }
@@ -1313,9 +1313,9 @@ body.has-promo-bar .wishlist-dropdown {
 .feedback-modal {
     background: white;
     border-radius: 12px;
-    max-width: 420px;
+    max-width: 380px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 75vh;
     position: relative;
     transform: scale(0.9);
     transition: transform 0.3s ease;
@@ -1330,7 +1330,7 @@ body.has-promo-bar .wishlist-dropdown {
 
 .feedback-modal .modal-header {
     background: linear-gradient(135deg, var(--b2), #f0ebe3);
-    padding: var(--s2);
+    padding: 12px 16px;
     border-bottom: 2px solid var(--bs);
     display: flex;
     justify-content: space-between;
@@ -1338,7 +1338,7 @@ body.has-promo-bar .wishlist-dropdown {
 }
 
 .feedback-modal .modal-content {
-    padding: var(--s3);
+    padding: 16px;
     overflow-y: auto;
     flex: 1;
 }
@@ -1354,35 +1354,36 @@ body.has-promo-bar .wishlist-dropdown {
 
 /* CSAT Section */
 .csat-section {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .csat-question {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     color: var(--text2);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 .csat-ratings {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 4px;
+    flex-wrap: nowrap;
 }
 
 .csat-emoji {
     background: var(--bg2);
     border: 2px solid transparent;
-    border-radius: 10px;
-    padding: 8px;
+    border-radius: 8px;
+    padding: 4px 6px;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    font-size: 20px;
+    gap: 1px;
+    font-size: 16px;
+    min-width: 50px;
 }
 
 .csat-emoji:hover {
@@ -1396,20 +1397,20 @@ body.has-promo-bar .wishlist-dropdown {
 }
 
 .csat-label {
-    font-size: 10px;
+    font-size: 8px;
     color: var(--text2);
 }
 
 /* Feedback Categories */
 .feedback-categories {
-    margin-bottom: 18px;
+    margin-bottom: 12px;
 }
 
 .category-question {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     color: var(--text2);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 .category-buttons {
@@ -1440,20 +1441,20 @@ body.has-promo-bar .wishlist-dropdown {
 /* Category Checkboxes */
 .category-checkboxes {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
 }
 
 .category-checkbox {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
+    gap: 4px;
+    padding: 6px 10px;
     background: var(--bg2);
     border: 2px solid transparent;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
     transition: all 0.2s;
 }
 
@@ -1463,8 +1464,8 @@ body.has-promo-bar .wishlist-dropdown {
 
 .category-checkbox input[type="checkbox"] {
     cursor: pointer;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
 }
 
 .category-checkbox:has(input:checked) {
@@ -1474,24 +1475,24 @@ body.has-promo-bar .wishlist-dropdown {
 
 /* Feedback Form */
 .feedback-form .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .feedback-form label {
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     font-weight: 500;
     color: var(--text1);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 .feedback-textarea,
 .feedback-input {
     width: 100%;
-    padding: 8px;
+    padding: 6px;
     border: 1px solid var(--bord);
-    border-radius: 8px;
-    font-size: 13px;
+    border-radius: 6px;
+    font-size: 11px;
     transition: border-color 0.2s;
 }
 
@@ -1504,40 +1505,43 @@ body.has-promo-bar .wishlist-dropdown {
 .feedback-checkbox {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .feedback-checkbox input {
     cursor: pointer;
+    width: 14px;
+    height: 14px;
 }
 
 .feedback-submit {
     width: 100%;
-    margin-top: 16px;
-    font-size: 13px;
-    padding: 10px 16px;
+    margin-top: 12px;
+    font-size: 11px;
+    padding: 8px 12px;
 }
 
 /* Success Message */
 .feedback-success {
     text-align: center;
-    padding: 40px 20px;
+    padding: 30px 16px;
 }
 
 .success-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
+    font-size: 36px;
+    margin-bottom: 12px;
 }
 
 .feedback-success h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
+    font-size: 14px;
+    margin-bottom: 6px;
 }
 
 .feedback-success p {
     color: var(--text2);
+    font-size: 11px;
 }
 
 /* Feedback Prompt */
@@ -1643,12 +1647,13 @@ body.has-promo-bar .wishlist-dropdown {
     }
     
     .csat-ratings {
-        gap: 8px;
+        gap: 3px;
     }
     
     .csat-emoji {
-        padding: 8px;
-        font-size: 20px;
+        padding: 4px;
+        font-size: 14px;
+        min-width: 45px;
     }
     
     .category-buttons {
