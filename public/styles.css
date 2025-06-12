@@ -231,7 +231,7 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .nav-dropdown-menu a:hover {
     background-color: var(--bg2);
 }
-.nav-main.nav-desk .nav-link{font-size:1rem;color:var(--tm);font-weight:600;padding:var(--s2) var(--s3);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em;line-height:1;transition:all .3s ease}
+.nav-main.nav-desk .nav-link{font-size:1rem;color:var(--tm);font-weight:600;padding:var(--s2) var(--s3);border-radius:var(--rad);display:inline-flex;align-items:center;gap:.5em;line-height:1;transition:all .3s ease;white-space:nowrap}
 .nav-main.nav-desk .nav-link:hover,.nav-main.nav-desk .nav-link.active-nav{color:var(--c1d);background:rgba(62,39,35,.1);font-weight:700;transform:translateY(-1px)}
 
 .head-extras.desk-extras{display:flex;align-items:center;gap:2px;margin-left:auto;flex-shrink:0}
@@ -423,6 +423,7 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
     font-size: 1rem;
     font-weight: 700;
     color: var(--c1d);
+    width: 100%;
 }
 
 .modal-close-btn{
@@ -830,14 +831,45 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
     .feedback-modal .bil-inline > span {
         white-space: nowrap !important;
     }
-    .nav-bil-inline{gap:6px;font-size:0.85rem}
+    
+    /* Header Bilingual - Never Stack on Mobile */
+    .logo.bil-inline {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .logo.bil-inline > span {
+        white-space: nowrap !important;
+    }
+    
+    .nav-bil-inline {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    .nav-bil-inline > span {
+        white-space: nowrap !important;
+    }
+    
+    /* Modal Title on Mobile */
+    .modal-title.bil-row > span {
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+    }
+    .nav-bil-inline{gap:6px;font-size:0.85rem;display:inline-flex;flex-direction:row;flex-wrap:nowrap}
     .nav-bil-inline>.en,.nav-bil-inline>.ar{white-space:nowrap}
     .grid2:not(.prod-grid){grid-template-columns:1fr}
     .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
     .site-head{top:28px;height:var(--head-h-mob);transition:top 0.2s ease}
     body:not(.has-promo-bar) .site-head{top:28px}
     body.has-promo-bar .site-head{top:68px}
-    .logo{margin-right:0;font-size:0.9rem;flex:1}
+    .logo{margin-right:0;font-size:0.9rem;flex:1;overflow:hidden}
     .nav-main.nav-desk{display:none!important}
     .head-extras.desk-extras{display:none!important}
     .head-extras.mob-extras{display:flex;align-items:center;gap:2px;flex-shrink:0;margin-left:auto}
@@ -1326,8 +1358,8 @@ body.has-promo-bar .wishlist-dropdown {
 .feedback-modal {
     background: white;
     border-radius: 12px;
-    max-width: 380px;
-    width: 90%;
+    max-width: 440px;
+    width: 95%;
     max-height: 75vh;
     position: relative;
     transform: scale(0.9);
@@ -1584,6 +1616,46 @@ body.has-promo-bar .wishlist-dropdown {
 
 .feedback-modal .category-checkbox .bil-inline > span {
     font-size: 10px !important;
+}
+
+/* Header Bilingual Text - Always Side by Side */
+.logo.bil-inline {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+}
+
+.logo.bil-inline > span {
+    white-space: nowrap !important;
+}
+
+.nav-bil-inline {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+}
+
+.nav-bil-inline > span {
+    white-space: nowrap !important;
+}
+
+/* Modal Title Bilingual - Always Side by Side */
+.modal-title.bil-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.modal-title.bil-row > span {
+    flex: 0 0 48% !important;
+    font-size: 0.85rem !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
 }
 
 /* Feedback Prompt */
