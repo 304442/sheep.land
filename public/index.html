@@ -186,14 +186,14 @@
     <div class="c">
         <div class="promo-bar-content">
             <span class="promo-bar-title-en">🎉 Limited Time Offer!</span>
-            <div class="promo-bar-center">
-                <span class="promo-bar-discount">
-                    <span x-text="settings.promoDiscPc + '%'"></span> OFF
-                </span>
-                <span class="promo-bar-code">
-                    Code: PROMO<span x-text="settings.promoDiscPc"></span>
-                </span>
-                <span class="promo-bar-countdown" x-show="!cd.ended">
+            <span class="promo-bar-title-ar">🎉 عرض لفترة محدودة!</span>
+            <span class="promo-bar-discount">
+                <span x-text="settings.promoDiscPc + '%'"></span> OFF
+            </span>
+            <span class="promo-bar-code">
+                Code: PROMO<span x-text="settings.promoDiscPc"></span>
+            </span>
+            <span class="promo-bar-countdown" x-show="!cd.ended">
                 <div class="cd-mini">
                     <span class="cd-mini-item">
                         <span class="cd-mini-val" x-text="cd.days"></span>
@@ -216,8 +216,6 @@
                     </span>
                 </div>
             </span>
-            </div>
-            <span class="promo-bar-title-ar">🎉 عرض لفترة محدودة!</span>
             <button @click="isPromoBarDismissed = true" class="promo-bar-close" aria-label="Close promo">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/>
