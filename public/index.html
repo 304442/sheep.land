@@ -186,16 +186,20 @@
     <div class="c">
         <div class="promo-bar-content">
             <div class="promo-bar-text">
-                <span class="promo-bar-title bil-inline">
-                    <span class="en">🎉 Limited Time Offer!</span>
-                    <span class="ar">🎉 عرض لفترة محدودة!</span>
-                </span>
-                <span class="promo-bar-discount">
-                    <span x-text="settings.promoDiscPc + '%'"></span> OFF
-                </span>
-                <span class="promo-bar-code" style="margin-left: 10px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 4px;">
-                    Code: PROMO<span x-text="settings.promoDiscPc"></span>
-                </span>
+                <div class="promo-title-wrapper">
+                    <span class="promo-bar-title bil-inline">
+                        <span class="en">🎉 Limited Time!</span>
+                        <span class="ar">🎉 فترة محدودة!</span>
+                    </span>
+                </div>
+                <div class="promo-details">
+                    <span class="promo-bar-discount">
+                        <span x-text="settings.promoDiscPc + '%'"></span> OFF
+                    </span>
+                    <span class="promo-bar-code">
+                        PROMO<span x-text="settings.promoDiscPc"></span>
+                    </span>
+                </div>
             </div>
             <div class="promo-bar-countdown" x-show="!cd.ended">
                 <div class="cd-mini">

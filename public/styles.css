@@ -169,6 +169,18 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 .promo-bar-title{font-size:0.9rem;font-weight:600}
 .promo-bar-discount{background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:12px;font-weight:700;font-size:0.85rem}
 .promo-bar-countdown{display:flex;justify-content:center;flex-shrink:0}
+
+/* Promo bar mobile fixes */
+@media (max-width: 480px) {
+    .promo-bar{height:auto;padding:8px 12px}
+    .promo-bar-content{flex-direction:column;gap:4px}
+    .promo-bar-text{flex-direction:column;gap:2px}
+    .promo-title-wrapper{display:flex;justify-content:center;white-space:nowrap}
+    .promo-bar-title{font-size:0.85rem}
+    .promo-details{display:flex;gap:12px;align-items:center;justify-content:center}
+    .promo-bar-discount,.promo-bar-code{font-size:0.8rem}
+    .promo-bar-close{right:8px}
+}
 .cd-mini{display:flex;align-items:center;gap:4px;font-size:0.9rem;font-weight:600}
 .cd-mini-item{display:flex;align-items:baseline;gap:2px}
 .cd-mini-val{font-weight:700;font-size:1rem}
