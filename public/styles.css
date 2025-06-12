@@ -859,7 +859,8 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
     
     /* Modal Title on Mobile */
     .modal-title.bil-row > span {
-        font-size: 0.8rem !important;
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
     }
     .nav-bil-inline{gap:6px;font-size:0.85rem;display:inline-flex;flex-direction:row;flex-wrap:nowrap}
     .nav-bil-inline>.en,.nav-bil-inline>.ar{white-space:nowrap}
@@ -1652,10 +1653,11 @@ body.has-promo-bar .wishlist-dropdown {
 
 .modal-title.bil-row > span {
     flex: 0 0 48% !important;
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
     line-height: 1.2 !important;
-    white-space: normal !important;
-    word-break: break-word !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 /* Feedback Prompt */
