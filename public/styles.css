@@ -423,6 +423,7 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 76px)}
     font-size: 1rem;
     font-weight: 700;
     color: var(--c1d);
+    width: 100%;
 }
 
 .modal-close-btn{
@@ -854,6 +855,11 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
     
     .nav-bil-inline > span {
         white-space: nowrap !important;
+    }
+    
+    /* Modal Title on Mobile */
+    .modal-title.bil-row > span {
+        font-size: 0.8rem !important;
     }
     .nav-bil-inline{gap:6px;font-size:0.85rem;display:inline-flex;flex-direction:row;flex-wrap:nowrap}
     .nav-bil-inline>.en,.nav-bil-inline>.ar{white-space:nowrap}
@@ -1632,6 +1638,24 @@ body.has-promo-bar .wishlist-dropdown {
 
 .nav-bil-inline > span {
     white-space: nowrap !important;
+}
+
+/* Modal Title Bilingual - Always Side by Side */
+.modal-title.bil-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.modal-title.bil-row > span {
+    flex: 0 0 48% !important;
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
 }
 
 /* Feedback Prompt */
