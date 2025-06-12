@@ -164,24 +164,27 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 
 /* Promo Bar */
 .promo-bar{background:linear-gradient(135deg,#795548,#6D4C41);color:white;position:fixed;top:32px;left:0;width:100%;z-index:1003;height:44px;display:flex;align-items:center;box-shadow:0 2px 10px rgba(121,85,72,0.3);transition:all 0.2s ease}
-.promo-bar-content{display:flex;align-items:center;justify-content:center;width:100%;gap:var(--s2);position:relative;flex-wrap:nowrap}
+.promo-bar-content{display:flex;align-items:center;justify-content:center;width:100%;gap:var(--s2);position:relative;flex-wrap:nowrap;overflow:hidden}
 .promo-bar-text{display:inline-flex;align-items:center;gap:var(--s2);flex-shrink:0;white-space:nowrap;flex-wrap:nowrap}
 .promo-bar-title{font-size:0.9rem;font-weight:600}
 .promo-bar-discount{display:inline-block;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:12px;font-weight:700;font-size:0.85rem;white-space:nowrap}
 .promo-bar-code{display:inline-block;white-space:nowrap;background:rgba(255,255,255,0.95);color:#795548;padding:4px 12px;border-radius:16px;font-weight:800;font-size:0.9rem;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.3)}
+.promo-bar-separator{color:rgba(255,255,255,0.5);font-size:0.8rem;margin:0 2px}
 .promo-bar-countdown{display:flex;justify-content:center;flex-shrink:0}
 
 /* Promo bar mobile fixes */
 @media (max-width: 480px) {
-    .promo-bar{height:44px;padding:0 8px}
-    .promo-bar-content{gap:6px;flex-wrap:nowrap}
-    .promo-bar-text{gap:6px;flex-wrap:nowrap;display:inline-flex}
-    .promo-bar-discount{font-size:0.75rem}
-    .promo-bar-code{font-size:0.8rem;padding:3px 10px}
-    .promo-bar-close{right:8px}
-    .cd-mini{font-size:0.75rem}
-    .cd-mini-val{font-size:0.85rem}
-    .cd-mini-lbl{font-size:0.6rem}
+    .promo-bar{height:44px;padding:0 4px;overflow-x:auto;overflow-y:hidden}
+    .promo-bar-content{gap:4px;flex-wrap:nowrap;min-width:0}
+    .promo-bar-text{gap:4px;flex-wrap:nowrap;display:flex;flex-direction:row}
+    .promo-bar-discount{font-size:0.7rem;padding:2px 6px}
+    .promo-bar-code{font-size:0.75rem;padding:2px 8px}
+    .promo-bar-close{right:4px;padding:2px}
+    .promo-bar-countdown{flex-shrink:1}
+    .cd-mini{font-size:0.7rem;gap:2px}
+    .cd-mini-val{font-size:0.8rem}
+    .cd-mini-lbl{font-size:0.55rem}
+    .cd-mini-sep{font-size:0.6rem}
 }
 .cd-mini{display:flex;align-items:center;gap:4px;font-size:0.9rem;font-weight:600}
 .cd-mini-item{display:flex;align-items:baseline;gap:2px}
