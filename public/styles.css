@@ -164,7 +164,7 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 
 /* Promo Bar */
 .promo-bar{background:linear-gradient(135deg,#795548,#6D4C41);color:white;position:fixed;top:32px;left:0;width:100%;z-index:1003;height:44px;display:flex;align-items:center;box-shadow:0 2px 10px rgba(121,85,72,0.3);transition:all 0.2s ease}
-.promo-bar-content{display:flex;align-items:center;justify-content:center;width:100%;gap:var(--s2);position:relative}
+.promo-bar-content{display:flex;align-items:center;justify-content:center;width:100%;gap:var(--s2);position:relative;flex-wrap:nowrap}
 .promo-bar-text{display:flex;align-items:center;gap:var(--s2);flex-shrink:0;white-space:nowrap}
 .promo-bar-title{font-size:0.9rem;font-weight:600}
 .promo-bar-discount{background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:12px;font-weight:700;font-size:0.85rem;white-space:nowrap}
@@ -173,13 +173,14 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 
 /* Promo bar mobile fixes */
 @media (max-width: 480px) {
-    .promo-bar{height:44px}
-    .promo-bar-content{gap:8px}
-    .promo-bar-text{gap:8px}
-    .promo-bar-discount,.promo-bar-code{font-size:0.8rem}
+    .promo-bar{height:44px;padding:0 8px}
+    .promo-bar-content{gap:8px;flex-wrap:nowrap}
+    .promo-bar-text{gap:8px;flex-wrap:nowrap}
+    .promo-bar-discount,.promo-bar-code{font-size:0.75rem}
     .promo-bar-close{right:8px}
-    .cd-mini{font-size:0.8rem}
-    .cd-mini-val{font-size:0.9rem}
+    .cd-mini{font-size:0.75rem}
+    .cd-mini-val{font-size:0.85rem}
+    .cd-mini-lbl{font-size:0.6rem}
 }
 .cd-mini{display:flex;align-items:center;gap:4px;font-size:0.9rem;font-weight:600}
 .cd-mini-item{display:flex;align-items:baseline;gap:2px}
