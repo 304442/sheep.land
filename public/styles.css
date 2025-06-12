@@ -44,8 +44,8 @@ a{text-decoration:none;color:var(--c2);transition:all .3s ease}a:hover{color:var
 .bil-radio .radio-text>.ar{text-align:right;font-family:var(--fa);direction:rtl;flex:0 0 48%;line-height:1.4}
 
 .bil-inline{display:inline-flex;justify-content:center;align-items:baseline;gap:var(--s2);flex-wrap:nowrap}
-.bil-inline>.en{margin-right:0;padding-right:0}
-.bil-inline>.ar{margin-left:0;padding-left:0;font-family:var(--fa);direction:rtl}
+.bil-inline>.en{margin-right:0;padding-right:0;white-space:nowrap}
+.bil-inline>.ar{margin-left:0;padding-left:0;font-family:var(--fa);direction:rtl;white-space:nowrap}
 
 .nav-bil-inline{display:inline-flex;justify-content:center;align-items:baseline;gap:var(--s2)}
 .nav-bil-inline>.en{margin-right:0;padding-right:0}
@@ -817,6 +817,19 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 76px)}
     .bil-spread>.en{flex:0 0 48%;text-align:left;font-size:0.85rem}
     .bil-spread>.ar{flex:0 0 48%;text-align:right;direction:rtl;font-family:var(--fa);font-size:0.85rem}
     .bil-inline{flex-direction:row;gap:8px;font-size:0.85rem}
+    
+    /* Feedback Modal Bilingual - Never Stack on Mobile */
+    .feedback-modal .bil-row,
+    .feedback-modal .bil-inline {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
+    .feedback-modal .bil-row > span {
+        flex: 0 0 48% !important;
+    }
+    .feedback-modal .bil-inline > span {
+        white-space: nowrap !important;
+    }
     .nav-bil-inline{gap:6px;font-size:0.85rem}
     .nav-bil-inline>.en,.nav-bil-inline>.ar{white-space:nowrap}
     .grid2:not(.prod-grid){grid-template-columns:1fr}
@@ -1542,6 +1555,35 @@ body.has-promo-bar .wishlist-dropdown {
 .feedback-success p {
     color: var(--text2);
     font-size: 11px;
+}
+
+/* Feedback Modal Bilingual Text - Always Side by Side */
+.feedback-modal .bil-row,
+.feedback-modal .bil-inline {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+}
+
+.feedback-modal .bil-row > .en,
+.feedback-modal .bil-row > .ar {
+    flex: 0 0 48% !important;
+    font-size: inherit !important;
+}
+
+.feedback-modal .bil-inline > .en,
+.feedback-modal .bil-inline > .ar {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+.feedback-modal .csat-label.bil-inline {
+    gap: 3px !important;
+}
+
+.feedback-modal .category-checkbox .bil-inline > span {
+    font-size: 10px !important;
 }
 
 /* Feedback Prompt */
