@@ -931,107 +931,31 @@
             <div class="hero">
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
-            <div class="c">
-                <h1 class="hero-title bil-spread">
-                    <span class="en">Halal Meat & Services</span>
-                    <span class="ar">لحوم حلال وخدمات</span>
-                </h1>
-                <div class="hero-subtitle bil-row">
-                    <p class="en">From our farm to your table</p>
-                    <p class="ar">من مزرعتنا إلى مائدتك</p>
-                </div>
-                
-                <!-- Trust badges in hero -->
-                <div class="hero-trust-badges">
-                    <div class="trust-badges-modern">
-                        <div class="trust-badge-modern">
-                    <div class="badge-icon-modern">🏅</div>
-                    <div class="badge-content">
-                        <h4 class="bil-inline">
-                            <span class="en">Certified Quality</span>
-                            <span class="ar">جودة معتمدة</span>
-                        </h4>
-                        <p class="bil-inline">
-                            <span class="en">Government approved facilities</span>
-                            <span class="ar">منشآت معتمدة حكومياً</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="trust-badge-modern">
-                    <div class="badge-icon-modern">🚚</div>
-                    <div class="badge-content">
-                        <h4 class="bil-inline">
-                            <span class="en">Fast Delivery</span>
-                            <span class="ar">توصيل سريع</span>
-                        </h4>
-                        <p class="bil-inline">
-                            <span class="en">Same day across Cairo & Giza</span>
-                            <span class="ar">نفس اليوم في القاهرة والجيزة</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="trust-badge-modern">
-                    <div class="badge-icon-modern">🔒</div>
-                    <div class="badge-content">
-                        <h4 class="bil-inline">
-                            <span class="en">Secure Payment</span>
-                            <span class="ar">دفع آمن</span>
-                        </h4>
-                        <p class="bil-inline">
-                            <span class="en">Multiple trusted methods</span>
-                            <span class="ar">طرق متعددة موثوقة</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="trust-badge-modern">
-                    <div class="badge-icon-modern">📞</div>
-                    <div class="badge-content">
-                        <h4 class="bil-inline">
-                            <span class="en">24/7 Support</span>
-                            <span class="ar">دعم 24/7</span>
-                        </h4>
-                        <p class="bil-inline">
-                            <span class="en">Always here to help</span>
-                            <span class="ar">دائماً هنا للمساعدة</span>
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Why Choose Us in hero -->
-                <div class="hero-why-choose">
-                    <div class="hero-features-grid">
-                        <div class="hero-feature">
-                            <div class="feature-icon">🕌</div>
-                            <h4 class="bil-inline">
-                                <span class="en">100% Halal</span>
-                                <span class="ar">حلال 100%</span>
-                            </h4>
+                    <div class="c">
+                        <h1 class="hero-title bil-spread">
+                            <span class="en">Fresh Lamb & Sacrifice Services</span>
+                            <span class="ar">لحوم ضأن طازجة وخدمات الذبائح</span>
+                        </h1>
+                        <div class="hero-subtitle bil-row">
+                            <p class="en">Premium quality meat delivered to your door</p>
+                            <p class="ar">لحوم عالية الجودة توصل إلى بابك</p>
                         </div>
-                        <div class="hero-feature">
-                            <div class="feature-icon">🏆</div>
-                            <h4 class="bil-inline">
-                                <span class="en">Premium Quality</span>
-                                <span class="ar">جودة فائقة</span>
-                            </h4>
-                        </div>
-                        <div class="hero-feature">
-                            <div class="feature-icon">👨‍👩‍👧‍👦</div>
-                            <h4 class="bil-inline">
-                                <span class="en">Family Tradition</span>
-                                <span class="ar">تقاليد عائلية</span>
-                            </h4>
-                        </div>
-                        <div class="hero-feature">
-                            <div class="feature-icon">🌍</div>
-                            <h4 class="bil-inline">
-                                <span class="en">International Service</span>
-                                <span class="ar">خدمة دولية</span>
-                            </h4>
+                        <div class="hero-cta-group">
+                            <button @click="scrollToSection('sacrifices')" class="hero-btn-primary bil-inline">
+                                <span class="en">Sacrifices</span>
+                                <span class="ar">ذبائح</span>
+                            </button>
+                            <button @click="scrollToSection('fresh-meat')" class="hero-btn-primary bil-inline">
+                                <span class="en">Fresh Meat</span>
+                                <span class="ar">لحوم طازجة</span>
+                            </button>
+                            <button @click="scrollToSection('events-catering')" class="hero-btn-primary bil-inline">
+                                <span class="en">Events</span>
+                                <span class="ar">مناسبات</span>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
             </div>
         </div>
     </section>
@@ -1052,7 +976,7 @@
                         <div class="card card-compact" :class="{'card-sel': getSacrificeVariant(productType).is_premium}">
                             <div class="card-img">
                                 <img :src="getProductImage(getSacrificeVariant(productType), 'udheya')" :alt="productType.nameEn" loading="lazy">
-                                <div class="badge udheya-badge">HALAL</div>
+                                <div class="badge udheya-badge">PREMIUM</div>
                                 <div class="sale-badge" x-show="getSacrificeVariant(productType).discount_percentage > 0">
                                     <span x-text="'-' + getSacrificeVariant(productType).discount_percentage + '%'"></span>
                                 </div>
