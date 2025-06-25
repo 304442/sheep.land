@@ -39,6 +39,12 @@ let sfmData = {
     }
 };
 
+// Helper functions for backward compatibility
+function getSfmVal(id, isCheckbox = false, isSelect = false) { return getVal(id, isCheckbox, isSelect); }
+function getSfmStrVal(id, required = false) { return getStrVal(id, required); }
+function setSfmVal(id, value) { return setVal(id, value); }
+function setSfmContent(id, content) { return setContent(id, content); }
+
 function getVal(id, isCheckbox = false, isSelect = false) {
     const el = document.getElementById(id);
     if (!el) { console.warn(`getVal: Element with ID '${id}' not found.`); return isCheckbox ? false : (isSelect ? '' : 0); }
@@ -134,7 +140,7 @@ function refreshCurrentSectionData() {
         case 'inventoryManagement': renderInventoryList(); break;
         case 'taskManagement': renderTaskList(); break;
         case 'salesPurchases': renderTransactionList(); break;
-        case 'reports': setSfmContent('reportOutputArea', '<p class="list-empty-message" style="padding:20px;">اختر تقريراً لعرضه.</p>'); break;
+        case 'reports': setContent('reportOutputArea', '<p class="list-empty-message" style="padding:20px;">اختر تقريراً لعرضه.</p>'); break;
         case 'settings': loadFarmSettingsToUI(); renderEquipmentList(); break;
     }
 }
@@ -153,7 +159,7 @@ function loadSfmDataFromLocalStorage() {
 function createDefaultSfmData(){ return { animals: [], matings: [], lambings: [], weanings: [], healthRecords: [], feedRations: [], feedConsumptionLog:[], waterLog:[], inventory: [], equipment:[], tasks: [], transactions: [], settings: { farmName: "مزرعتي النموذجية", farmOwner: "اسم المالك", defaultCurrency: "ج.م", customBreeds: ["بلدي", "رحماني", "عسافي", "برقي"], customFeedTypes: ["علف تسمين", "علف حلاب", "ذرة", "شعير"], photoUploadMaxSizeMB: 2, lowStockWarningPercentage:20, defaultAnimalStatus: "active", defaultTaskPriority: "medium", defaultTaskStatus: "pending" }};}
 
 function openSfmFormModal(title, formHTML, onSubmitCallbackName, entityId = null, modalSize = 'medium') {
-    setSfmContent('formModalTitle', title); const modalBody = document.getElementById('formModalBody'); const modalContent = document.getElementById('formModalContainer');
+    setContent('formModalTitle', title); const modalBody = document.getElementById('formModalBody'); const modalContent = document.getElementById('formModalContainer');
     sfmCurrentlyEditingId = entityId;
     if (modalBody && modalContent) {
         modalBody.innerHTML = formHTML + `<div class="modal-footer-sfms"><button class="btn btn-primary" onclick="${onSubmitCallbackName}()">حفظ</button><button class="btn btn-secondary" onclick="closeSfmFormModal()">إلغاء</button></div>`;
@@ -161,7 +167,7 @@ function openSfmFormModal(title, formHTML, onSubmitCallbackName, entityId = null
     }
     const overlay = document.getElementById('formModalOverlay'); if (overlay) overlay.classList.add('active');
 }
-function closeSfmFormModal() { const overlay = document.getElementById('formModalOverlay'); if(overlay) overlay.classList.remove('active'); setSfmContent('formModalBody', ''); sfmCurrentlyEditingId = null;}
+function closeSfmFormModal() { const overlay = document.getElementById('formModalOverlay'); if(overlay) overlay.classList.remove('active'); setContent('formModalBody', ''); sfmCurrentlyEditingId = null;}
 
 function renderDashboard() {
     const statsContainer = document.getElementById('dashboardStats'); const tasksContainer = document.getElementById('dashboardTasks'); const noTasksMsg = document.getElementById('noDashboardTasksMessage');
@@ -191,21 +197,101 @@ function createDashboardCharts() {
         const totalEwesOldEnough = sfmData.animals.filter(a=>a.sex==='female' && !isAnimalLamb(a.birthDate, 12)).length || 1;
         const totalLambsBornEver = sfmData.lambings.reduce((sum, l)=> sum + (l.lambsBorn ||0) ,0);
         const lambingRate = (totalLambsBornEver / totalEwesOldEnough * 100);
-        appCharts.dashboardPerformance = new Chart(perfCtx, { type: 'bar', data: { labels: ['معدل النفوق (%)', 'نسبة الولادة للنعاج (%)'], datasets: [{ label: 'أداء', data: [mortalityRate.toFixed(1), lambingRate.toFixed(1)], backgroundColor: ['#fa383e', '#5cb85c'] }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales:{x:{beginAtZero:true, suggestedMax:120}}, plugins:{title:{display:true, text:'مؤشرات أداء رئيسية'}}} });
+        sfmAppCharts.dashboardPerformance = new Chart(perfCtx, { type: 'bar', data: { labels: ['معدل النفوق (%)', 'نسبة الولادة للنعاج (%)'], datasets: [{ label: 'أداء', data: [mortalityRate.toFixed(1), lambingRate.toFixed(1)], backgroundColor: ['#fa383e', '#5cb85c'] }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales:{x:{beginAtZero:true, suggestedMax:120}}, plugins:{title:{display:true, text:'مؤشرات أداء رئيسية'}}} });
     }
     destroyChart('dashboardBreeding'); const breedCtx = document.getElementById('dashboardBreedingChart')?.getContext('2d');
     if (breedCtx) {
         const pregnantCount = sfmData.matings.filter(m => m.status === 'pregnant').length;
         const openEwes = sfmData.animals.filter(a => a.sex === 'female' && !isAnimalLamb(a.birthDate) && a.status === 'active' && !sfmData.matings.find(m => m.eweId === a.id && (m.status === 'pregnant' || m.status === 'mated'))).length;
         const matedNotConfirmed = sfmData.matings.filter(m=> m.status === 'mated').length;
-        appCharts.dashboardBreeding = new Chart(breedCtx, { type: 'doughnut', data: { labels: ['نعاج عشار', 'نعاج فارغة (متاحة)', 'تم تلقيحها'], datasets: [{ data: [pregnantCount, openEwes, matedNotConfirmed], backgroundColor: ['#4CAF50', '#FFC107', '#2196F3'], borderColor: '#fff', borderWidth: 2}]}, options: { responsive: true, maintainAspectRatio: false, plugins:{title:{display:true, text:'حالة التناسل للنعاج البالغة'}} } });
+        sfmAppCharts.dashboardBreeding = new Chart(breedCtx, { type: 'doughnut', data: { labels: ['نعاج عشار', 'نعاج فارغة (متاحة)', 'تم تلقيحها'], datasets: [{ data: [pregnantCount, openEwes, matedNotConfirmed], backgroundColor: ['#4CAF50', '#FFC107', '#2196F3'], borderColor: '#fff', borderWidth: 2}]}, options: { responsive: true, maintainAspectRatio: false, plugins:{title:{display:true, text:'حالة التناسل للنعاج البالغة'}} } });
     }
 }
 function filterAnimalListBySex(sex) { const el = document.getElementById('animalFilterSex'); if(el) el.value = sex; renderAnimalList(); }
-function filterAnimalListByAge(ageGroup) { showSfmAppNotification("فلترة حسب العمر قيد التطوير.", "info"); }
-function filterHealthByUpcoming() { showSfmAppNotification("فلترة السجلات الصحية القادمة قيد التطوير.", "info"); showSfmSection('healthManagement'); }
-function filterInventoryByLowStock() { showSfmAppNotification("فلترة المخزون المنخفض قيد التطوير.", "info"); showSfmSection('inventoryManagement'); }
-function filterMatingsByPregnant() { showSfmAppNotification("فلترة النعاج العشار قيد التطوير.", "info"); showSfmSection('breedingManagement'); }
+function filterAnimalListByAge(ageGroup) { 
+    const filterStatus = document.getElementById('animalFilterStatus');
+    if (filterStatus) {
+        // Reset other filters
+        document.getElementById('animalFilterBreed').value = '';
+        document.getElementById('animalFilterSex').value = '';
+        filterStatus.value = '';
+    }
+    // Filter by age group
+    const tableBody = document.getElementById('animalListTableBody');
+    if (tableBody) {
+        const animals = sfmData.animals.filter(a => ageGroup === 'lamb' ? isAnimalLamb(a.birthDate) : !isAnimalLamb(a.birthDate));
+        if (animals.length === 0) {
+            tableBody.innerHTML = '';
+            document.getElementById('noAnimalsMessage').style.display = 'block';
+        } else {
+            renderAnimalList();
+        }
+    }
+}
+function filterHealthByUpcoming() { 
+    showSfmSection('healthManagement');
+    // Filter health records to show only upcoming ones
+    const searchInput = document.getElementById('healthSearchInput');
+    if (searchInput) searchInput.value = '';
+    const now = new Date();
+    const oneWeekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const upcomingRecords = sfmData.healthRecords.filter(hr => 
+        hr.nextDueDate && new Date(hr.nextDueDate) >= now && new Date(hr.nextDueDate) <= oneWeekFromNow
+    );
+    
+    const tableBody = document.getElementById('healthRecordsTableBody');
+    const noMsg = document.getElementById('noHealthRecordsMessage');
+    if (tableBody && noMsg) {
+        if (upcomingRecords.length === 0) {
+            tableBody.innerHTML = '';
+            noMsg.style.display = 'block';
+            noMsg.textContent = 'لا توجد سجلات صحية قادمة خلال الأسبوع القادم.';
+        } else {
+            renderHealthRecords();
+        }
+    }
+}
+function filterInventoryByLowStock() { 
+    showSfmSection('inventoryManagement');
+    // Filter to show only low stock items
+    const filterType = document.getElementById('inventoryFilterType');
+    if (filterType) filterType.value = '';
+    const searchInput = document.getElementById('inventorySearchInput');
+    if (searchInput) searchInput.value = 'low-stock-filter';
+    
+    const lowStockItems = sfmData.inventory.filter(item => 
+        item.reorderLevel > 0 && item.currentStock < item.reorderLevel
+    );
+    
+    const tableBody = document.getElementById('inventoryTableBody');
+    const noMsg = document.getElementById('noInventoryMessage');
+    if (tableBody && noMsg && lowStockItems.length === 0) {
+        tableBody.innerHTML = '';
+        noMsg.style.display = 'block';
+        noMsg.textContent = 'لا توجد عناصر بمخزون منخفض.';
+    } else {
+        renderInventoryList();
+    }
+    if (searchInput) searchInput.value = '';
+}
+function filterMatingsByPregnant() { 
+    showSfmSection('breedingManagement');
+    // Highlight pregnant ewes in the mating records
+    setTimeout(() => {
+        const pregnantMatings = sfmData.matings.filter(m => m.status === 'pregnant');
+        const tableRows = document.querySelectorAll('#matingRecordsTableBody tr');
+        tableRows.forEach(row => {
+            const cells = row.cells;
+            if (cells[4] && cells[4].textContent.includes('عشار')) {
+                row.style.backgroundColor = '#e8f5e9';
+                row.style.fontWeight = 'bold';
+            }
+        });
+        if (pregnantMatings.length > 0) {
+            showSfmAppNotification(`يوجد ${pregnantMatings.length} نعجة عشار (مظللة بالأخضر)`, "info");
+        }
+    }, 100);
+}
 
 function openAnimalFormModal(animalId = null) {
     sfmCurrentlyEditingId = animalId; const animal = animalId ? sfmData.animals.find(a => a.id === animalId) : {}; const title = animalId ? "تعديل بيانات حيوان" : "إضافة حيوان جديد";
@@ -245,7 +331,142 @@ function renderAnimalList() {
 function filterAnimalList() { renderAnimalList(); } function sortAndRenderAnimalList() { renderAnimalList(); }
 function toggleSelectAllAnimals(checked) { document.querySelectorAll('.animal-select-checkbox').forEach(cb => cb.checked = checked); updateBatchActionsBarVisibility(); }
 function updateBatchActionsBarVisibility() { const selectedCount = document.querySelectorAll('.animal-select-checkbox:checked').length; const bar = document.getElementById('animalBatchActionsBar'); if(bar) bar.style.display = selectedCount > 0 ? 'flex' : 'none'; }
-function handleAnimalBatchAction(action) { const selectedAnimalIds = Array.from(document.querySelectorAll('.animal-select-checkbox:checked')).map(cb => cb.dataset.animalId); if (selectedAnimalIds.length === 0) { showSfmAppNotification("يرجى تحديد حيوان واحد على الأقل.", "warn"); return; } showSfmAppNotification(`تم تنفيذ "${action}" على ${selectedAnimalIds.length} حيوان (وظيفة قيد التطوير الكامل).`, "info"); }
+function handleAnimalBatchAction(action) { 
+    const selectedAnimalIds = Array.from(document.querySelectorAll('.animal-select-checkbox:checked')).map(cb => cb.dataset.animalId); 
+    if (selectedAnimalIds.length === 0) { 
+        showSfmAppNotification("يرجى تحديد حيوان واحد على الأقل.", "warn"); 
+        return; 
+    }
+    
+    switch(action) {
+        case 'vaccinate':
+            openBatchHealthRecordModal(selectedAnimalIds, 'vaccination');
+            break;
+        case 'treat':
+            openBatchHealthRecordModal(selectedAnimalIds, 'treatment');
+            break;
+        case 'moveGroup':
+            openBatchMovementModal(selectedAnimalIds);
+            break;
+        case 'sellGroup':
+            if (confirm(`هل أنت متأكد من بيع ${selectedAnimalIds.length} حيوان؟`)) {
+                selectedAnimalIds.forEach(id => {
+                    const animal = sfmData.animals.find(a => a.id === id);
+                    if (animal) animal.status = 'sold';
+                });
+                saveSfmDataToLocalStorage();
+                renderAnimalList();
+                renderDashboard();
+                showSfmAppNotification(`تم تسجيل بيع ${selectedAnimalIds.length} حيوان.`, "success");
+                // Uncheck all
+                document.querySelectorAll('.animal-select-checkbox').forEach(cb => cb.checked = false);
+                updateBatchActionsBarVisibility();
+            }
+            break;
+        default:
+            showSfmAppNotification(`عملية "${action}" قيد التنفيذ.`, "info");
+    }
+}
+
+// Batch operation helper functions
+function openBatchHealthRecordModal(animalIds, recordType) {
+    const title = recordType === 'vaccination' ? "تحصين جماعي" : "علاج جماعي";
+    const formHTML = `<h4>${title} لـ ${animalIds.length} حيوان</h4>
+        <div class="input-field"><label for="batchHealthDate">التاريخ:</label><input type="date" id="batchHealthDate" value="${new Date().toISOString().split('T')[0]}"></div>
+        <div class="input-field"><label for="batchHealthCondition">التشخيص/التحصين:</label><input type="text" id="batchHealthCondition" required></div>
+        <div class="input-field"><label for="batchHealthMedication">الدواء:</label><input type="text" id="batchHealthMedication"></div>
+        <div class="input-field"><label for="batchHealthDosage">الجرعة:</label><input type="text" id="batchHealthDosage"></div>
+        <div class="input-field"><label for="batchHealthWithdrawal">فترة السحب (أيام):</label><input type="number" id="batchHealthWithdrawal" value="0" min="0"></div>
+        <div class="input-field"><label for="batchHealthNextDue">المتابعة/الجرعة التالية:</label><input type="date" id="batchHealthNextDue"></div>
+        <div class="input-field"><label for="batchHealthNotes">ملاحظات:</label><textarea id="batchHealthNotes" rows="2"></textarea></div>`;
+    
+    openSfmFormModal(title, formHTML, () => saveBatchHealthRecords(animalIds, recordType));
+}
+
+function saveBatchHealthRecords(animalIds, recordType) {
+    try {
+        const date = getStrVal('batchHealthDate', true);
+        const condition = getStrVal('batchHealthCondition', true);
+        const medication = getStrVal('batchHealthMedication');
+        const dosage = getStrVal('batchHealthDosage');
+        const withdrawalPeriod = getVal('batchHealthWithdrawal');
+        const nextDueDate = getStrVal('batchHealthNextDue') || null;
+        const notes = getStrVal('batchHealthNotes');
+        
+        animalIds.forEach(animalId => {
+            const healthData = {
+                id: generateUUID(),
+                animalId: animalId,
+                date: date,
+                type: recordType,
+                condition: condition,
+                medication: medication,
+                dosage: dosage,
+                withdrawalPeriod: withdrawalPeriod,
+                nextDueDate: nextDueDate,
+                notes: notes
+            };
+            sfmData.healthRecords.push(healthData);
+        });
+        
+        saveSfmDataToLocalStorage();
+        renderHealthRecords();
+        closeSfmFormModal();
+        renderDashboard();
+        showSfmAppNotification(`تم تسجيل ${recordType === 'vaccination' ? 'التحصين' : 'العلاج'} لـ ${animalIds.length} حيوان.`, "success");
+        
+        // Uncheck all
+        document.querySelectorAll('.animal-select-checkbox').forEach(cb => cb.checked = false);
+        updateBatchActionsBarVisibility();
+    } catch(e) {
+        showSfmAppNotification("خطأ في حفظ السجلات الصحية.", "error");
+    }
+}
+
+function openBatchMovementModal(animalIds) {
+    const formHTML = `<h4>نقل جماعي لـ ${animalIds.length} حيوان</h4>
+        <div class="input-field"><label for="batchMovementDate">تاريخ النقل:</label><input type="date" id="batchMovementDate" value="${new Date().toISOString().split('T')[0]}"></div>
+        <div class="input-field"><label for="batchMovementFrom">من (مجموعة/حظيرة):</label><input type="text" id="batchMovementFrom" placeholder="اتركه فارغاً إذا كانت من مواقع مختلفة"></div>
+        <div class="input-field"><label for="batchMovementTo">إلى (مجموعة/حظيرة):</label><input type="text" id="batchMovementTo" required></div>
+        <div class="input-field"><label for="batchMovementReason">السبب:</label><input type="text" id="batchMovementReason"></div>`;
+    
+    openSfmFormModal("نقل جماعي", formHTML, () => saveBatchMovement(animalIds));
+}
+
+function saveBatchMovement(animalIds) {
+    try {
+        const date = getStrVal('batchMovementDate', true);
+        const from = getStrVal('batchMovementFrom');
+        const to = getStrVal('batchMovementTo', true);
+        const reason = getStrVal('batchMovementReason');
+        
+        animalIds.forEach(animalId => {
+            const animal = sfmData.animals.find(a => a.id === animalId);
+            if (animal) {
+                const movementData = {
+                    date: date,
+                    from: from || animal.currentLocation || '',
+                    to: to,
+                    reason: reason
+                };
+                if (!animal.movementLog) animal.movementLog = [];
+                animal.movementLog.push(movementData);
+                animal.currentLocation = to;
+            }
+        });
+        
+        saveSfmDataToLocalStorage();
+        renderAnimalList();
+        closeSfmFormModal();
+        showSfmAppNotification(`تم نقل ${animalIds.length} حيوان إلى ${to}.`, "success");
+        
+        // Uncheck all
+        document.querySelectorAll('.animal-select-checkbox').forEach(cb => cb.checked = false);
+        updateBatchActionsBarVisibility();
+    } catch(e) {
+        showSfmAppNotification("خطأ في تسجيل النقل.", "error");
+    }
+}
 
 function populateAnimalFilterDropdowns() {
     const breedSelect = document.getElementById('animalFilterBreed'); const statusSelect = document.getElementById('animalFilterStatus');
