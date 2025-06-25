@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>نظام إدارة مزرعة الأغنام</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container" id="app-container-sfms">
+        <div class="app-header">
+            <div class="header-content">
+                <h1 class="app-title" id="sfmFarmNameTitle">🐑 نظام إدارة مزرعة الأغنام</h1>
+                <div class="header-actions">
+                    <button class="header-btn" id="sfmsSyncBtn" onclick="syncSfmData()" title="مزامنة البيانات">🔄</button>
+                    <button class="header-btn" id="sfmsMenuBtn" onclick="showSfmBottomSheet('sfmsMenuSheet')">☰</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" id="sfmsContentArea">
+            <div class="section-page active" id="dashboard">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">📊</span> لوحة التحكم الرئيسية</h2></div>
+                    <div class="stats-grid-dynamic" id="dashboardStats">
+                        <div class="stat-card"><div class="stat-value" id="dashTotalAnimals">0</div><div class="stat-label">إجمالي الحيوانات</div></div>
+                        <div class="stat-card"><div class="stat-value" id="dashEwesCount">0</div><div class="stat-label">النعاج</div></div>
+                        <div class="stat-card"><div class="stat-value" id="dashRamsCount">0</div><div class="stat-label">الكباش</div></div>
+                        <div class="stat-card"><div class="stat-value" id="dashLambsCount">0</div><div class="stat-label">الحملان</div></div>
+                        <div class="stat-card alert-card" id="dashHealthAlertsCard"><div class="stat-value" id="dashHealthAlerts">0</div><div class="stat-label">تنبيهات صحية</div></div>
+                        <div class="stat-card alert-card" id="dashFeedStockLowCard"><div class="stat-value" id="dashFeedStockLow">0</div><div class="stat-label">نقص مخزون العلف</div></div>
+                        <div class="stat-card"><div class="stat-value" id="dashUpcomingLambings">0</div><div class="stat-label">ولادات متوقعة</div></div>
+                        <div class="stat-card"><div class="stat-value" id="dashAvgDailyGain">0 كجم</div><div class="stat-label">متوسط прирост يومي</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">🔔</span> تنبيهات ومهام قادمة</h2><button class="btn btn-sm btn-secondary" onclick="showSfmSection('taskManagement')">عرض الكل</button></div>
+                    <ul class="task-list" id="dashboardTasks"></ul>
+                    <p id="noDashboardTasksMessage" class="list-empty-message" style="display:none;">لا توجد مهام أو تنبيهات عاجلة.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">📈</span> مؤشرات أداء سريعة</h2></div>
+                    <div class="chart-container" style="height: 220px;"><canvas id="dashboardPerformanceChart"></canvas></div>
+                    <div class="chart-container" style="height: 220px; margin-top:20px;"><canvas id="dashboardBreedingChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="section-page" id="animalManagement">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><span class="card-icon">🐏</span> إدارة القطيع</h2>
+                        <button class="btn btn-primary btn-sm" onclick="openAnimalFormModal(null)">إضافة حيوان</button>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" id="animalSearchInput" oninput="filterAnimalList()" placeholder="بحث بالرقم، الاسم، السلالة...">
+                    </div>
+                    <div class="input-grid-4" style="margin-bottom: 10px;">
+                        <div class="input-field-sm"><label for="animalFilterBreed" class="input-label-sm">السلالة:</label><select id="animalFilterBreed" onchange="filterAnimalList()"><option value="">الكل</option></select></div>
+                        <div class="input-field-sm"><label for="animalFilterSex" class="input-label-sm">الجنس:</label><select id="animalFilterSex" onchange="filterAnimalList()"><option value="">الكل</option><option value="male">ذكر</option><option value="female">أنثى</option></select></div>
+                        <div class="input-field-sm"><label for="animalFilterStatus" class="input-label-sm">الحالة:</label><select id="animalFilterStatus" onchange="filterAnimalList()"><option value="">الكل</option></select></div>
+                        <div class="input-field-sm"><label for="animalSortBy" class="input-label-sm">ترتيب حسب:</label><select id="animalSortBy" onchange="sortAndRenderAnimalList()"><option value="tagId">الرقم التعريفي</option><option value="birthDate">تاريخ الميلاد</option><option value="breed">السلالة</option></select></div>
+                    </div>
+                    <div class="batch-actions-bar" id="animalBatchActionsBar" style="display:none; margin-bottom:10px;">
+                        <button class="btn btn-sm btn-secondary" onclick="handleAnimalBatchAction('vaccinate')">تحصين جماعي</button>
+                        <button class="btn btn-sm btn-secondary" onclick="handleAnimalBatchAction('treat')">علاج جماعي</button>
+                        <button class="btn btn-sm btn-secondary" onclick="handleAnimalBatchAction('move')">نقل مجموعة</button>
+                        <button class="btn btn-sm btn-warning" onclick="handleAnimalBatchAction('sell')">بيع مجموعة</button>
+                    </div>
+                    <div class="table-responsive-container">
+                        <table class="data-table" id="animalListTable">
+                            <thead><tr><th><input type="checkbox" id="selectAllAnimalsCheckbox" onchange="toggleSelectAllAnimals(this.checked)"></th><th>الرقم</th><th>صورة</th><th>السلالة</th><th>الجنس</th><th>العمر</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                            <tbody id="animalListTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="noAnimalsMessage" class="list-empty-message" style="display:none;">لا توجد حيوانات مسجلة.</p>
+                </div>
+            </div>
+
+            <div class="section-page" id="breedingManagement">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">⚭</span> سجلات التزاوج</h2><button class="btn btn-primary btn-sm" onclick="openMatingFormModal(null)">تسجيل تزاوج</button></div>
+                    <div class="table-responsive-container">
+                        <table class="data-table" id="matingRecordsTable">
+                            <thead><tr><th>النعجة (ID)</th><th>الكبش (ID)</th><th>تاريخ التزاوج</th><th>ولادة متوقعة</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                            <tbody id="matingRecordsTableBody"></tbody>
+                        </table>
+                    </div>
+                     <p id="noMatingsMessage" class="list-empty-message" style="display:none;">لا توجد سجلات تزاوج.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">🍼</span> سجلات الولادة</h2><button class="btn btn-primary btn-sm" onclick="openLambingFormModal(null)">تسجيل ولادة</button></div>
+                     <div class="table-responsive-container">
+                        <table class="data-table" id="lambingRecordsTable">
+                            <thead><tr><th>الأم (ID)</th><th>تاريخ الولادة</th><th>عدد المواليد</th><th>مواليد (IDs)</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
+                            <tbody id="lambingRecordsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="noLambingsMessage" class="list-empty-message" style="display:none;">لا توجد سجلات ولادة.</p>
+                </div>
+                 <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">🌿</span> سجلات الفطام</h2><button class="btn btn-primary btn-sm" onclick="openWeaningFormModal(null)">تسجيل فطام</button></div>
+                     <div class="table-responsive-container">
+                        <table class="data-table" id="weaningRecordsTable">
+                            <thead><tr><th>المولود (ID)</th><th>تاريخ الفطام</th><th>وزن الفطام (كجم)</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
+                            <tbody id="weaningRecordsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="noWeaningsMessage" class="list-empty-message" style="display:none;">لا توجد سجلات فطام.</p>
+                </div>
+            </div>
+
+            <div class="section-page" id="healthManagement">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">⚕️</span> السجل الصحي</h2><button class="btn btn-primary btn-sm" onclick="openHealthRecordFormModal(null)">إضافة سجل</button></div>
+                    <div class="input-field"><input type="text" id="healthSearchInput" oninput="filterHealthRecords()" placeholder="بحث بالحيوان، التشخيص، الدواء..."></div>
+                     <div class="table-responsive-container">
+                        <table class="data-table" id="healthRecordsTable">
+                            <thead><tr><th>الحيوان (ID)</th><th>التاريخ</th><th>النوع</th><th>التفاصيل</th><th>الدواء</th><th>فترة السحب</th><th>إجراءات</th></tr></thead>
+                            <tbody id="healthRecordsTableBody"></tbody>
+                        </table>
+                    </div>
+                     <p id="noHealthRecordsMessage" class="list-empty-message" style="display:none;">لا توجد سجلات صحية.</p>
+                </div>
+            </div>
+
+            <div class="section-page" id="feedingManagement">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">🌾</span> إدارة التغذية والخلطات</h2> <button class="btn btn-primary btn-sm" onclick="openFeedRationFormModal(null)">خلطة جديدة</button></div>
+                    <div class="input-field"><label class="input-label" for="feedRationSelect">اختر الخلطة/المجموعة:</label><select id="feedRationSelect" onchange="displaySelectedRation()"><option value="">-- اختر --</option></select></div>
+                    <div id="feedRationDetailsDisplay" class="card" style="background-color: #f9f9f9; min-height:100px;"></div>
+                    <button class="btn btn-secondary" onclick="openFeedConsumptionLogModal()">تسجيل استهلاك علف</button>
+                </div>
+                 <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">💧</span> استهلاك المياه</h2></div>
+                    <div class="input-field"><label class="input-label" for="waterConsumptionDate">التاريخ:</label><input type="date" id="waterConsumptionDate"></div>
+                    <div class="input-field"><label class="input-label" for="waterConsumptionAmount">استهلاك المياه اليوم (لتر):</label><input type="number" id="waterConsumptionAmount" value="0" inputmode="numeric" min="0"></div>
+                    <button class="btn btn-primary" onclick="logWaterConsumption()">تسجيل الاستهلاك</button>
+                     <div id="waterLogDisplay" style="margin-top:15px; max-height: 150px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            
+            <div class="section-page" id="inventoryManagement">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">📦</span> إدارة المخزون</h2><button class="btn btn-primary btn-sm" onclick="openInventoryItemFormModal(null)">إضافة عنصر</button></div>
+                    <div class="input-field"><input type="text" id="inventorySearchInput" oninput="filterInventoryList()" placeholder="بحث باسم العنصر أو النوع..."></div>
+                     <div class="input-field"><label for="inventoryFilterType" class="input-label-sm">فلترة بالنوع:</label><select id="inventoryFilterType" onchange="filterInventoryList()"><option value="">الكل</option><option value="feed">علف</option><option value="medication">دواء</option><option value="supply">مستلزمات</option><option value="product">منتج للبيع</option></select></div>
+                    <div class="table-responsive-container">
+                        <table class="data-table" id="inventoryTable">
+                            <thead><tr><th>العنصر</th><th>النوع</th><th>الكمية</th><th>الوحدة</th><th>حد الطلب</th><th>إجراءات</th></tr></thead>
+                            <tbody id="inventoryTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="noInventoryMessage" class="list-empty-message" style="display:none;">المخزون فارغ.</p>
+                </div>
+            </div>
+
+             <div class="section-page" id="taskManagement">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">📅</span> إدارة المهام</h2><button class="btn btn-primary btn-sm" onclick="openTaskFormModal(null)">مهمة جديدة</button></div>
+                    <div class="input-grid-3" style="margin-bottom: 10px;">
+                        <div class="input-field-sm"><label for="taskFilterStatus" class="input-label-sm">الحالة:</label><select id="taskFilterStatus" onchange="renderTaskList()"><option value="all">الكل</option><option value="pending">معلقة</option><option value="in_progress">قيد التنفيذ</option><option value="completed">مكتملة</option></select></div>
+                        <div class="input-field-sm"><label for="taskFilterPriority" class="input-label-sm">الأولوية:</label><select id="taskFilterPriority" onchange="renderTaskList()"><option value="all">الكل</option><option value="high">عالية</option><option value="medium">متوسطة</option><option value="low">منخفضة</option></select></div>
+                        <div class="input-field-sm"><label for="taskSortByDate" class="input-label-sm">الترتيب:</label><select id="taskSortByDate" onchange="renderTaskList()"><option value="dueDateAsc">تاريخ الاستحقاق (تصاعدي)</option><option value="dueDateDesc">تاريخ الاستحقاق (تنازلي)</option></select></div>
+                    </div>
+                    <div id="taskListContainer" class="task-list-container"></div>
+                    <p id="noTasksToListMessage" class="list-empty-message" style="display:none;">لا توجد مهام بهذه الفلاتر.</p>
+                </div>
+            </div>
+
+            <div class="section-page" id="salesPurchases">
+                 <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">💸</span> السجلات المالية</h2></div>
+                     <div class="input-grid-3" style="margin-bottom: 15px;">
+                        <button class="btn btn-sm btn-success" style="background-color:#28a745;" onclick="openTransactionFormModal(null, 'sale')">تسجيل بيع</button>
+                        <button class="btn btn-sm btn-warning" style="background-color:#ffc107; color:#212529;" onclick="openTransactionFormModal(null, 'purchase')">تسجيل شراء</button>
+                        <button class="btn btn-sm btn-danger" style="background-color:#dc3545;" onclick="openTransactionFormModal(null, 'expense')">تسجيل مصروف</button>
+                     </div>
+                     <div class="input-field"><label class="input-label" for="transactionFilterType">عرض حسب النوع:</label><select id="transactionFilterType" onchange="renderTransactionList()"><option value="all">الكل</option><option value="sale">مبيعات</option><option value="purchase">مشتريات</option><option value="expense">مصروفات أخرى</option></select></div>
+                    <div class="table-responsive-container">
+                        <table class="data-table" id="transactionsTable">
+                             <thead><tr><th>التاريخ</th><th>النوع</th><th>الوصف</th><th>المبلغ</th><th>الطرف الآخر</th><th>إجراءات</th></tr></thead>
+                            <tbody id="transactionsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="noTransactionsMessage" class="list-empty-message" style="display:none;">لا توجد معاملات مسجلة.</p>
+                </div>
+            </div>
+
+            <div class="section-page" id="reports">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">📄</span> التقارير التحليلية</h2></div>
+                    <div class="input-grid-3">
+                        <button class="btn btn-secondary" onclick="generateSfmReport('flockSummary')">ملخص القطيع</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('breedingPerformance')">أداء التناسل</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('healthSummary')">ملخص السجل الصحي</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('feedConsumption')">استهلاك الأعلاف</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('financialActuals')">الماليات الفعلية</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('inventoryStatus')">حالة المخزون</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('mortalityReport')">تقرير النفوق</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('cullingReport')">تقرير الاستبعاد</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('growthPerformance')">أداء النمو</button>
+                    </div>
+                    <div id="reportOutputArea" class="card" style="margin-top: 20px; background-color: #f9f9f9; min-height: 200px; padding:15px;">
+                        <p class="list-empty-message" style="padding:20px;">اختر تقريراً لعرضه.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-page" id="settings">
+                <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">⚙️</span> الإعدادات العامة</h2></div>
+                    <div class="input-field"><label class="input-label" for="farmNameSetting">اسم المزرعة:</label><input type="text" id="farmNameSetting" placeholder="ادخل اسم المزرعة"></div>
+                    <div class="input-field"><label class="input-label" for="farmOwnerSetting">اسم المالك:</label><input type="text" id="farmOwnerSetting" placeholder="ادخل اسم المالك"></div>
+                    <div class="input-field"><label class="input-label" for="defaultCurrencySetting">العملة الافتراضية:</label><input type="text" id="defaultCurrencySetting" value="ج.م" placeholder="ج.م"></div>
+                    <button class="btn btn-primary" onclick="saveFarmSettings()">حفظ الإعدادات</button>
+                </div>
+                 <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">🧬</span> تخصيص السلالات وأنواع الأعلاف</h2></div>
+                    <div class="input-field"><label class="input-label" for="customBreedsSetting">السلالات (مفصولة بفاصلة):</label><textarea id="customBreedsSetting" placeholder="بلدي, رحماني, برقي..." rows="2"></textarea></div>
+                    <div class="input-field"><label class="input-label" for="customFeedTypesSetting">أنواع الأعلاف (مفصولة بفاصلة):</label><textarea id="customFeedTypesSetting" placeholder="علف تسمين, علف حلاب..." rows="2"></textarea></div>
+                     <button class="btn btn-secondary" onclick="saveCustomTypes()">حفظ الأنواع المخصصة</button>
+                </div>
+                 <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">💾</span> إدارة البيانات</h2></div>
+                    <button class="btn btn-secondary" onclick="backupSfmData()">نسخ احتياطي للبيانات</button>
+                    <label class="btn btn-secondary" for="restoreSfmDataFile" style="margin-top:10px;">استعادة البيانات من ملف</label>
+                    <input type="file" id="restoreSfmDataFile" style="display:none;" onchange="restoreSfmData(event)" accept=".json">
+                    <button class="btn btn-danger" onclick="confirmClearAllData()" style="margin-top:10px;">مسح جميع بيانات المزرعة</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav" id="sfmsBottomNav">
+            <div class="nav-item active" onclick="showSfmSection('dashboard')"><span class="nav-icon">📊</span><span class="nav-label">الرئيسية</span></div>
+            <div class="nav-item" onclick="showSfmSection('animalManagement')"><span class="nav-icon">🐏</span><span class="nav-label">الحيوانات</span></div>
+            <div class="nav-item" onclick="showSfmSection('breedingManagement')"><span class="nav-icon">⚭</span><span class="nav-label">التناسل</span></div>
+            <div class="nav-item" onclick="showSfmSection('healthManagement')"><span class="nav-icon">⚕️</span><span class="nav-label">الصحة</span></div>
+            <div class="nav-item" id="sfmsMoreNavBtn" onclick="showSfmBottomSheet('sfmsMoreSheet')"><span class="nav-icon">⋯</span><span class="nav-label">المزيد</span></div>
+        </div>
+        
+        <button class="fab" id="sfmMainFab" onclick="handleSfmFabClick()">
+            <span>➕</span>
+        </button>
+
+        <div class="bottom-sheet" id="sfmsMenuSheet">
+            <div class="sheet-header"><h2 class="sheet-title">قائمة النظام</h2><button class="sheet-close" onclick="hideSfmBottomSheet('sfmsMenuSheet')">✕</button></div>
+            <div class="sheet-content">
+                <button class="btn btn-secondary" onclick="showSfmSection('settings'); hideSfmBottomSheet('sfmsMenuSheet');">⚙️ الإعدادات</button>
+                <button class="btn btn-secondary" onclick="backupSfmData()">💾 نسخ احتياطي</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('restoreSfmDataFileMenu').click()">📂 استعادة بيانات</button>
+                <input type="file" id="restoreSfmDataFileMenu" accept=".json" onchange="restoreSfmData(event); hideSfmBottomSheet('sfmsMenuSheet');" style="display: none;">
+            </div>
+        </div>
+        
+        <div class="bottom-sheet" id="sfmsMoreSheet">
+            <div class="sheet-header"><h2 class="sheet-title">أقسام إضافية</h2><button class="sheet-close" onclick="hideSfmBottomSheet('sfmsMoreSheet')">✕</button></div>
+            <div class="sheet-content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                    <button class="nav-item" onclick="showSfmSection('feedingManagement'); hideSfmBottomSheet('sfmsMoreSheet');"><span class="nav-icon">🌾</span><span class="nav-label">التغذية</span></button>
+                    <button class="nav-item" onclick="showSfmSection('inventoryManagement'); hideSfmBottomSheet('sfmsMoreSheet');"><span class="nav-icon">📦</span><span class="nav-label">المخزون</span></button>
+                    <button class="nav-item" onclick="showSfmSection('taskManagement'); hideSfmBottomSheet('sfmsMoreSheet');"><span class="nav-icon">📅</span><span class="nav-label">المهام</span></button>
+                    <button class="nav-item" onclick="showSfmSection('salesPurchases'); hideSfmBottomSheet('sfmsMoreSheet');"><span class="nav-icon">💸</span><span class="nav-label">المعاملات</span></button>
+                    <button class="nav-item" onclick="showSfmSection('reports'); hideSfmBottomSheet('sfmsMoreSheet');"><span class="nav-icon">📄</span><span class="nav-label">التقارير</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="overlay" id="sfmsPageOverlay" onclick="hideAllSfmSheets()"></div>
+
+        <div class="modal-overlay" id="formModalOverlay" style="display:none;">
+            <div class="modal-content-sfms" id="formModalContainer">
+                <div class="modal-header-sfms">
+                    <h3 id="formModalTitle"></h3>
+                    <button class="modal-close-btn-sfms" onclick="closeSfmFormModal()">✕</button>
+                </div>
+                <div class="modal-body-sfms" id="formModalBody">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
