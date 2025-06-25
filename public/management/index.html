@@ -31,7 +31,7 @@
                         <div class="stat-card"><div class="stat-value" id="dashRamsCount">0</div><div class="stat-label">الكباش</div></div>
                         <div class="stat-card"><div class="stat-value" id="dashLambsCount">0</div><div class="stat-label">الحملان</div></div>
                         <div class="stat-card alert-card" id="dashHealthAlertsCard"><div class="stat-value" id="dashHealthAlerts">0</div><div class="stat-label">تنبيهات صحية</div></div>
-                        <div class="stat-card alert-card" id="dashFeedStockLowCard"><div class="stat-value" id="dashFeedStockLow">0</div><div class="stat-label">نقص مخزون العلف</div></div>
+                        <div class="stat-card alert-card" id="dashFeedStockLowCard"><div class="stat-value" id="dashFeedStockLow">0</div><div class="stat-label">نقص مخزون علف</div></div>
                         <div class="stat-card"><div class="stat-value" id="dashUpcomingLambings">0</div><div class="stat-label">ولادات متوقعة</div></div>
                         <div class="stat-card"><div class="stat-value" id="dashAvgDailyGain">0 كجم</div><div class="stat-label">متوسط прирост يومي</div></div>
                     </div>
@@ -66,8 +66,8 @@
                     <div class="batch-actions-bar" id="animalBatchActionsBar" style="display:none; margin-bottom:10px;">
                         <button class="btn btn-sm btn-secondary" onclick="handleAnimalBatchAction('vaccinate')">تحصين جماعي</button>
                         <button class="btn btn-sm btn-secondary" onclick="handleAnimalBatchAction('treat')">علاج جماعي</button>
-                        <button class="btn btn-sm btn-secondary" onclick="handleAnimalBatchAction('move')">نقل مجموعة</button>
-                        <button class="btn btn-sm btn-warning" onclick="handleAnimalBatchAction('sell')">بيع مجموعة</button>
+                        <button class="btn btn-sm btn-secondary" onclick="handleAnimalBatchAction('moveGroup')">نقل مجموعة</button>
+                        <button class="btn btn-sm btn-warning" onclick="handleAnimalBatchAction('sellGroup')">بيع مجموعة</button>
                     </div>
                     <div class="table-responsive-container">
                         <table class="data-table" id="animalListTable">
@@ -174,9 +174,9 @@
                  <div class="card">
                     <div class="card-header"><h2 class="card-title"><span class="card-icon">💸</span> السجلات المالية</h2></div>
                      <div class="input-grid-3" style="margin-bottom: 15px;">
-                        <button class="btn btn-sm btn-success" style="background-color:#28a745;" onclick="openTransactionFormModal(null, 'sale')">تسجيل بيع</button>
-                        <button class="btn btn-sm btn-warning" style="background-color:#ffc107; color:#212529;" onclick="openTransactionFormModal(null, 'purchase')">تسجيل شراء</button>
-                        <button class="btn btn-sm btn-danger" style="background-color:#dc3545;" onclick="openTransactionFormModal(null, 'expense')">تسجيل مصروف</button>
+                        <button class="btn btn-sm btn-success" onclick="openTransactionFormModal(null, 'sale')">تسجيل بيع</button>
+                        <button class="btn btn-sm btn-warning" onclick="openTransactionFormModal(null, 'purchase')">تسجيل شراء</button>
+                        <button class="btn btn-sm btn-danger" onclick="openTransactionFormModal(null, 'expense')">تسجيل مصروف</button>
                      </div>
                      <div class="input-field"><label class="input-label" for="transactionFilterType">عرض حسب النوع:</label><select id="transactionFilterType" onchange="renderTransactionList()"><option value="all">الكل</option><option value="sale">مبيعات</option><option value="purchase">مشتريات</option><option value="expense">مصروفات أخرى</option></select></div>
                     <div class="table-responsive-container">
@@ -202,6 +202,7 @@
                         <button class="btn btn-secondary" onclick="generateSfmReport('mortalityReport')">تقرير النفوق</button>
                         <button class="btn btn-secondary" onclick="generateSfmReport('cullingReport')">تقرير الاستبعاد</button>
                         <button class="btn btn-secondary" onclick="generateSfmReport('growthPerformance')">أداء النمو</button>
+                        <button class="btn btn-secondary" onclick="generateSfmReport('equipmentMaintenance')">صيانة المعدات</button>
                     </div>
                     <div id="reportOutputArea" class="card" style="margin-top: 20px; background-color: #f9f9f9; min-height: 200px; padding:15px;">
                         <p class="list-empty-message" style="padding:20px;">اختر تقريراً لعرضه.</p>
@@ -215,6 +216,8 @@
                     <div class="input-field"><label class="input-label" for="farmNameSetting">اسم المزرعة:</label><input type="text" id="farmNameSetting" placeholder="ادخل اسم المزرعة"></div>
                     <div class="input-field"><label class="input-label" for="farmOwnerSetting">اسم المالك:</label><input type="text" id="farmOwnerSetting" placeholder="ادخل اسم المالك"></div>
                     <div class="input-field"><label class="input-label" for="defaultCurrencySetting">العملة الافتراضية:</label><input type="text" id="defaultCurrencySetting" value="ج.م" placeholder="ج.م"></div>
+                    <div class="input-field"><label class="input-label" for="photoUploadMaxSizeMBSetting">الحد الأقصى لحجم الصورة (MB):</label><input type="number" id="photoUploadMaxSizeMBSetting" value="2" min="1" max="10"></div>
+                    <div class="input-field"><label class="input-label" for="lowStockWarningPercentageSetting">تنبيه نقص المخزون (% من حد الطلب):</label><input type="number" id="lowStockWarningPercentageSetting" value="20" min="0" max="100"></div>
                     <button class="btn btn-primary" onclick="saveFarmSettings()">حفظ الإعدادات</button>
                 </div>
                  <div class="card">
@@ -223,6 +226,16 @@
                     <div class="input-field"><label class="input-label" for="customFeedTypesSetting">أنواع الأعلاف (مفصولة بفاصلة):</label><textarea id="customFeedTypesSetting" placeholder="علف تسمين, علف حلاب..." rows="2"></textarea></div>
                      <button class="btn btn-secondary" onclick="saveCustomTypes()">حفظ الأنواع المخصصة</button>
                 </div>
+                 <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">🛠️</span> إدارة المعدات</h2><button class="btn btn-primary btn-sm" onclick="openEquipmentFormModal(null)">إضافة معدة</button></div>
+                    <div class="table-responsive-container">
+                        <table class="data-table" id="equipmentListTable">
+                            <thead><tr><th>اسم المعدة</th><th>تاريخ الشراء</th><th>التكلفة</th><th>آخر صيانة</th><th>إجراءات</th></tr></thead>
+                            <tbody id="equipmentListTableBody"></tbody>
+                        </table>
+                    </div>
+                    <p id="noEquipmentMessage" class="list-empty-message" style="display:none;">لا توجد معدات مسجلة.</p>
+                 </div>
                  <div class="card">
                     <div class="card-header"><h2 class="card-title"><span class="card-icon">💾</span> إدارة البيانات</h2></div>
                     <button class="btn btn-secondary" onclick="backupSfmData()">نسخ احتياطي للبيانات</button>
