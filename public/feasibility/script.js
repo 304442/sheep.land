@@ -7,6 +7,7 @@ let isPullingToRefresh = false;
 let appCharts = {}; 
 let isInitialAppLoad = true;
 let isLoading = false;
+let calculationDebounceTimer = null;
 
 const appSectionOrder = ['market', 'livestock', 'infrastructure', 'operations', 'breeding', 'risks', 'seasonal', 'financial', 'multiyear', 'feedOptimizer', 'breedingCalendar', 'sensitivity', 'marketIntel', 'compliance', 'currencyConverter', 'operationalTools'];
 
@@ -25,9 +26,27 @@ function getVal(id, isCheckbox = false, isSelect = false) {
     if (!el) { console.warn(`getVal: Element with ID '${id}' not found.`); return isCheckbox ? false : (isSelect ? '' : 0); }
     if (isCheckbox) return el.checked;
     if (isSelect) return el.value;
-    const value = parseFloat(el.value);
-    if (el.hasAttribute('min') && parseFloat(el.getAttribute('min')) >= 0 && value < 0) { return 0; }
-    return isNaN(value) ? 0 : value;
+    
+    let value = parseFloat(el.value);
+    if (isNaN(value)) return 0;
+    
+    // Apply min/max constraints if they exist
+    if (el.hasAttribute('min')) {
+        const min = parseFloat(el.getAttribute('min'));
+        if (!isNaN(min) && value < min) {
+            value = min;
+            el.value = min; // Update the input to show the corrected value
+        }
+    }
+    if (el.hasAttribute('max')) {
+        const max = parseFloat(el.getAttribute('max'));
+        if (!isNaN(max) && value > max) {
+            value = max;
+            el.value = max; // Update the input to show the corrected value
+        }
+    }
+    
+    return value;
 }
 
 function getStrVal(id) {
@@ -58,6 +77,215 @@ function formatCurrency(num, kFormat = false, noSymbol = false) {
     return noSymbol ? formattedNum : formattedNum + (noSymbol ? '' : ' ج.م');
 }
 
+// Validation function for percentage inputs (0-100)
+function validatePercentage(id, showWarning = true) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    
+    let value = parseFloat(el.value);
+    if (isNaN(value)) {
+        value = 0;
+    } else if (value < 0) {
+        value = 0;
+        if (showWarning) showAppNotification(`النسبة المئوية لا يمكن أن تكون سالبة`, 'warn');
+    } else if (value > 100) {
+        value = 100;
+        if (showWarning) showAppNotification(`النسبة المئوية لا يمكن أن تتجاوز 100%`, 'warn');
+    }
+    
+    el.value = value;
+    return value;
+}
+
+// Validation function for financial/currency inputs (non-negative)
+function validateFinancial(id, showWarning = true) {
+    const el = document.getElementById(id);
+    if (!el) return 0;
+    
+    let value = parseFloat(el.value);
+    if (isNaN(value)) {
+        value = 0;
+    } else if (value < 0) {
+        value = 0;
+        if (showWarning) showAppNotification(`القيمة المالية لا يمكن أن تكون سالبة`, 'warn');
+    }
+    
+    el.value = value;
+    return value;
+}
+
+// Validate that feed portions sum to 100%
+function validateFeedPortions() {
+    const concentrate = getVal('concentrateFeedPortion');
+    const green = getVal('greenFeedPortion');
+    const roughage = getVal('roughageFeedPortion');
+    const total = concentrate + green + roughage;
+    
+    if (Math.abs(total - 100) > 0.1 && total > 0) { // Allow 0.1% tolerance
+        showAppNotification(`مجموع نسب الأعلاف يجب أن يساوي 100% (الحالي: ${total.toFixed(1)}%)`, 'warn');
+        // Normalize to 100%
+        if (total > 0) {
+            setVal('concentrateFeedPortion', (concentrate / total * 100).toFixed(1));
+            setVal('greenFeedPortion', (green / total * 100).toFixed(1));
+            setVal('roughageFeedPortion', (roughage / total * 100).toFixed(1));
+        }
+    }
+}
+
+// Validate that meat quality percentages sum to 100%
+function validateMeatQuality() {
+    const premium = getVal('premiumMeatPercent');
+    const good = getVal('goodMeatPercent');
+    const regular = getVal('regularMeatPercent');
+    const total = premium + good + regular;
+    
+    if (Math.abs(total - 100) > 0.1 && total > 0) { // Allow 0.1% tolerance
+        showAppNotification(`مجموع نسب جودة اللحوم يجب أن يساوي 100% (الحالي: ${total.toFixed(1)}%)`, 'warn');
+        // Normalize to 100%
+        if (total > 0) {
+            setVal('premiumMeatPercent', (premium / total * 100).toFixed(1));
+            setVal('goodMeatPercent', (good / total * 100).toFixed(1));
+            setVal('regularMeatPercent', (regular / total * 100).toFixed(1));
+        }
+    }
+}
+
+// Add input validation listeners on blur events
+function addValidationListeners() {
+    // Percentage fields (0-100)
+    const percentageFields = [
+        'fertilityRatePercent', 'maleRatioPercent', 'twinRatePercent', 'overallMortalityRate',
+        'heatWaveMortalityPercent', 'percentMalesForUdheyaInput', 'sacrificePercentageInput',
+        'cashPayingCustomersPercent', 'creditPayingCustomersPercent', 'premiumMeatPercent',
+        'goodMeatPercent', 'regularMeatPercent', 'competitiveAdvantagePercent', 'marketShareTarget',
+        'improvedBreedPercentage', 'meatYieldPercentInput', 'incomeTaxRate', 'vatRatePercent',
+        'eidSalesPercent', 'ramadanPriceIncreasePercent', 'hajjPriceIncreasePercent',
+        'summerPriceDecreasePercent', 'summerCateringIncreasePercent', 'winterDemandDecreasePercent',
+        'opInfectionRate', 'opDiseaseMortalityRate', 'opWeightLossDueToDisease', 'opOvertimePayRatePercent',
+        'artificialInseminationSuccessRate', 'productivityIncreaseFromGenetics', 'healthEmergencyReservePercent',
+        'feedPriceVolatilityPercent', 'sellingPriceVariationPercent', 'demandVariationPercent',
+        'requiredCashReservePercentOfOps', 'concentrateFeedPortion', 'greenFeedPortion', 'roughageFeedPortion'
+    ];
+    
+    percentageFields.forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.addEventListener('blur', () => validatePercentage(fieldId));
+            // Also add real-time validation on input
+            el.addEventListener('input', () => {
+                const value = parseFloat(el.value);
+                if (!isNaN(value) && (value < 0 || value > 100)) {
+                    validatePercentage(fieldId, false); // Don't show warning on every keystroke
+                }
+            });
+        }
+    });
+    
+    // Financial fields (non-negative)
+    const financialFields = [
+        'udheyaPriceInput', 'meatPriceInput', 'liveAnimalPriceInput', 'cateringPricePerPerson',
+        'eventRentalPricePerDay', 'manurePricePerTon', 'hidePricePerPiece', 'exportPriceGulf',
+        'purchaseEwePrice', 'purchaseRamPrice', 'improvedRamPurchaseCost', 'feedPricePerTon',
+        'alfalfaPricePerKg', 'barleyPricePerKg', 'cornPricePerKg', 'soybeanPricePerKg',
+        'wheatBranPricePerKg', 'concentratePricePerKg', 'annualLandRent', 'landPurchasePriceInput',
+        'shelterConstructionCost', 'fencingCost', 'coveredBarnsCost', 'openBarnsCost',
+        'birthingRoomsCost', 'vetClinicCost', 'feedStorageShedCost', 'waterSystemCost',
+        'feedingEquipmentCost', 'refrigeratorsCost', 'freezersCost', 'biogasSystemCost',
+        'waterRecyclingSystemCost', 'packagingEquipmentCost', 'barnCoolingSystemsCost',
+        'otherMiscellaneousEquipmentCost', 'cateringGrillsCost', 'cateringFurnitureCost',
+        'cateringServingWareCost', 'portableGeneratorCost', 'productPhotographyCost',
+        'standardVehicleCost', 'refrigeratedVehicleCost', 'websiteDevelopmentCost',
+        'mobileAppDevelopmentCost', 'paymentGatewaySetupCost', 'inventorySystemCost',
+        'workerMonthlySalary', 'managerMonthlySalary', 'vaccinesCostPerHeadAnnual',
+        'vetEmergencyMonthlyBudget', 'vetCheckupMonthlyCost', 'utilitiesMonthlyCost',
+        'waterPricePerCubicMeter', 'marketingMonthlyCost', 'digitalMarketingMonthlyCost',
+        'insuranceAnnualCost', 'licensesAnnualCost', 'halalCertificateAnnualCost',
+        'qualityCertificatesAnnualCost', 'slaughterFeePerSheep', 'processingFeePerSheep',
+        'packagingMonthlySupplyCost', 'cateringStaffPerEventCost', 'deliveryMonthlyCost',
+        'monthlyTransportCost', 'artificialInseminationCostPerEwe', 'annualMunicipalFees',
+        'annualChamberFees', 'annualProducerUnionFees', 'naturalDisasterInsuranceCost',
+        'cashReserveFixed', 'exportCertificatesCostAnnual', 'isoCertificateCostAnnual',
+        'onlinePlatformFeesAnnual', 'shippingPerHeadExport', 'opTreatmentCostPerHead'
+    ];
+    
+    financialFields.forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.addEventListener('blur', () => validateFinancial(fieldId));
+            // Also add real-time validation on input
+            el.addEventListener('input', () => {
+                const value = parseFloat(el.value);
+                if (!isNaN(value) && value < 0) {
+                    validateFinancial(fieldId, false); // Don't show warning on every keystroke
+                }
+            });
+        }
+    });
+    
+    // Special validation for feed portions
+    ['concentrateFeedPortion', 'greenFeedPortion', 'roughageFeedPortion'].forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.addEventListener('blur', validateFeedPortions);
+        }
+    });
+    
+    // Special validation for meat quality percentages
+    ['premiumMeatPercent', 'goodMeatPercent', 'regularMeatPercent'].forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.addEventListener('blur', validateMeatQuality);
+        }
+    });
+}
+
+// Calculate Net Present Value (NPV)
+function calculateNPV(cashFlows, discountRate) {
+    let npv = 0;
+    for (let t = 0; t < cashFlows.length; t++) {
+        npv += cashFlows[t] / Math.pow(1 + discountRate, t);
+    }
+    return npv;
+}
+
+// Calculate Internal Rate of Return (IRR) using Newton-Raphson method
+function calculateIRR(cashFlows, maxIterations = 100, tolerance = 0.0001) {
+    if (!cashFlows || cashFlows.length === 0) return null;
+    
+    // Initial guess (use 10%)
+    let rate = 0.1;
+    
+    for (let i = 0; i < maxIterations; i++) {
+        let npv = 0;
+        let dnpv = 0; // derivative of NPV
+        
+        for (let t = 0; t < cashFlows.length; t++) {
+            const pv = cashFlows[t] / Math.pow(1 + rate, t);
+            npv += pv;
+            dnpv -= t * pv / (1 + rate);
+        }
+        
+        if (Math.abs(npv) < tolerance) {
+            return rate * 100; // Return as percentage
+        }
+        
+        // Newton-Raphson update
+        const newRate = rate - npv / dnpv;
+        
+        // Prevent unrealistic rates
+        if (newRate < -0.99) {
+            rate = -0.99;
+        } else if (newRate > 10) {
+            rate = 10;
+        } else {
+            rate = newRate;
+        }
+    }
+    
+    // If no convergence, return null
+    return Math.abs(rate) < 10 ? rate * 100 : null;
+}
+
 function showAppNotification(message, type = 'success') {
     const existingNotif = document.querySelector('.app-notification');
     if (existingNotif) existingNotif.remove();
@@ -86,16 +314,69 @@ function toggleLoading(show) {
             fab.disabled = false;
         }
     }
+    
+    // Add loading overlay for better UX
+    const loadingOverlay = document.getElementById('calculationLoadingOverlay');
+    if (loadingOverlay) {
+        if (show) {
+            loadingOverlay.classList.add('active');
+        } else {
+            setTimeout(() => loadingOverlay.classList.remove('active'), 200);
+        }
+    } else if (show) {
+        // Create loading overlay if it doesn't exist
+        const overlay = document.createElement('div');
+        overlay.id = 'calculationLoadingOverlay';
+        overlay.className = 'calculation-loading-overlay active';
+        overlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>جاري حساب الجدوى...</p>
+            </div>
+        `;
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            .calculation-loading-overlay.active { opacity: 1; visibility: visible; }
+            .loading-content { text-align: center; }
+            .loading-spinner {
+                width: 50px; height: 50px; margin: 0 auto 16px;
+                border: 4px solid #f3f3f3; border-top: 4px solid #667eea;
+                border-radius: 50%; animation: spin 1s linear infinite;
+            }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            .loading-content p { color: #667eea; font-size: 16px; font-weight: 500; }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(overlay);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeAppControls();
     setupGlobalEventListeners();
     initializeComplianceData(); 
+    addValidationListeners(); // Add validation listeners for all inputs
     try { calculateAllFinancials(); } catch(e){ console.error("Initial calc error:",e); }
     setDefaultCurrencyValues();
     updateComplianceOverview();
     updateRamsNeededDisplay();
+    
+    // Add listener for discount rate to recalculate NPV/IRR
+    const discountRateEl = document.getElementById('discountRatePercent');
+    if (discountRateEl) {
+        discountRateEl.addEventListener('change', () => {
+            if (currentProjectData.multiYearProjections) {
+                calculateAndDisplayMultiYearProjections();
+            }
+        });
+    }
     const dateInputs = document.querySelectorAll('input[type="date"]');
     dateInputs.forEach(input => {
         if (!input.value) {
@@ -114,21 +395,21 @@ function initializeAppControls() {
     });
     const allInputs = document.querySelectorAll('input[type="number"], input[type="date"], select, input[type="checkbox"]');
     allInputs.forEach(element => {
-        let debounceTimer;
         const eventType = (element.type === 'checkbox' || element.tagName === 'SELECT' || element.type === 'date') ? 'change' : 'input';
         element.addEventListener(eventType, () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                try {
-                    if (element.id.startsWith('converter')) {
-                        if(element.id.includes('ToEgp')) { const currencyType = element.id.includes('Usd') ? 'usd' : (element.id.includes('Eur') ? 'eur' : 'sar'); convertForeignToEGP(currencyType); }
-                        else { convertCurrencyFromEGP(); }
-                    } else if (element.id.startsWith('compliance')) { updateComplianceOverview(); }
-                    else if (element.id === 'cashPayingCustomersPercent') { const cashPercent = getVal('cashPayingCustomersPercent'); setVal('creditPayingCustomersPercent', Math.max(0, 100 - cashPercent)); calculateAllFinancials(); }
-                    else if (element.id === 'initialEwes') { updateRamsNeededDisplay(); calculateAllFinancials(); }
-                    else { calculateAllFinancials(); }
-                } catch (e) { console.error("Error during input event handling for " + element.id + ":", e); showAppNotification("خطأ في تحديث البيانات.", "error");}
-            }, element.type === 'number' ? 400 : 30);
+            try {
+                if (element.id.startsWith('converter')) {
+                    if(element.id.includes('ToEgp')) { const currencyType = element.id.includes('Usd') ? 'usd' : (element.id.includes('Eur') ? 'eur' : 'sar'); convertForeignToEGP(currencyType); }
+                    else { convertCurrencyFromEGP(); }
+                } else if (element.id.startsWith('compliance')) { updateComplianceOverview(); }
+                else if (element.id === 'cashPayingCustomersPercent') { const cashPercent = getVal('cashPayingCustomersPercent'); setVal('creditPayingCustomersPercent', Math.max(0, 100 - cashPercent)); debouncedCalculation(); }
+                else if (element.id === 'initialEwes') { updateRamsNeededDisplay(); debouncedCalculation(); }
+                else if (element.id.startsWith('op') || element.id.includes('Disease') || element.id.includes('Labor')) { 
+                    // Skip debouncing for operational tools inputs
+                } else { 
+                    debouncedCalculation(); 
+                }
+            } catch (e) { console.error("Error during input event handling for " + element.id + ":", e); showAppNotification("خطأ في تحديث البيانات.", "error");}
         });
     });
     const landTenureEl = document.getElementById('landTenureType');
@@ -138,7 +419,7 @@ function initializeAppControls() {
 
 function toggleLandPurchaseInput() {
     const landTenure = getStrVal('landTenureType');
-    const purchasePriceField = document.getElementById('landPurchasePriceInput')?.closest('.input-field');
+    const purchasePriceField = document.getElementById('landPurchasePriceField');
     if(purchasePriceField) {
         purchasePriceField.style.display = (landTenure === 'owned') ? 'block' : 'none';
         if(landTenure !== 'owned') setVal('landPurchasePriceInput', 0);
@@ -298,6 +579,32 @@ function hideAllSheets() {
     const overlayEl = document.getElementById('pageOverlay'); if(overlayEl) overlayEl.classList.remove('active');
 }
 
+// Debounced calculation function
+function debouncedCalculation(fromFAB = false) {
+    // Clear any existing timer
+    if (calculationDebounceTimer) {
+        clearTimeout(calculationDebounceTimer);
+    }
+    
+    // Don't debounce if it's from FAB or initial load
+    if (fromFAB || isInitialAppLoad) {
+        calculateAllFinancials(fromFAB);
+        return;
+    }
+    
+    // Show a subtle indicator that calculation is pending
+    const statusEl = document.getElementById('projectStatus');
+    if (statusEl) {
+        statusEl.textContent = '⏳ جاري التحديث...';
+        statusEl.style.color = '#95a5a6';
+    }
+    
+    // Set a new timer
+    calculationDebounceTimer = setTimeout(() => {
+        calculateAllFinancials(false);
+    }, 500); // 500ms delay for better responsiveness
+}
+
 async function calculateAllFinancials(fromFAB = false) {
     if (isLoading) return;
     toggleLoading(true);
@@ -389,7 +696,16 @@ async function calculateAllFinancials(fromFAB = false) {
         opWeightLossDueToDisease: getVal('opWeightLossDueToDisease'), opRecoveryDays: getVal('opRecoveryDays'),
         opCurrentWorkers: getVal('opCurrentWorkers'), opWorkHoursPerDay: getVal('opWorkHoursPerDay'),
         opWorkDaysPerWeek: getVal('opWorkDaysPerWeek'), opSheepPerWorkerRatio: getVal('opSheepPerWorkerRatio'),
-        opOvertimeHoursPerWeek: getVal('opOvertimeHoursPerWeek'), opOvertimePayRatePercent: getVal('opOvertimePayRatePercent')
+        opOvertimeHoursPerWeek: getVal('opOvertimeHoursPerWeek'), opOvertimePayRatePercent: getVal('opOvertimePayRatePercent'),
+        discountRatePercent: getVal('discountRatePercent'),
+        annualFlockGrowthRate: getVal('annualFlockGrowthRate'),
+        annualCostInflationRate: getVal('annualCostInflationRate'),
+        annualProductivityImprovement: getVal('annualProductivityImprovement'),
+        annualPriceInflationRate: getVal('annualPriceInflationRate'),
+        expansionYear2Cost: getVal('expansionYear2Cost'),
+        expansionYear3Cost: getVal('expansionYear3Cost'),
+        expansionYear5Cost: getVal('expansionYear5Cost'),
+        fiveYearTargetSheepCount: getVal('fiveYearTargetSheepCount')
     };
     const i = currentProjectData.inputs;
 
@@ -424,6 +740,32 @@ async function calculateAllFinancials(fromFAB = false) {
         const maleLambs = sellableLambsPerYear * (i.maleRatioPercent / 100);
         const udheyaCandidates = maleLambs * (i.percentMalesForUdheyaInput / 100);
         const udheyaSold = Math.min(udheyaCandidates, i.udheyaCustomersInput);
+        
+        // Calculate and update breeding success rate
+        const baseBreedingSuccess = i.fertilityRatePercent || 0;
+        const birthRate = i.birthsPerEwePerYear || 0;
+        const survivalRate = 100 - ((i.overallMortalityRate || 0) + (i.heatWaveMortalityPercent || 0));
+        const geneticBonus = i.productivityIncreaseFromGenetics || 0;
+        
+        // Calculate overall breeding success rate (normalized to 0-100)
+        let breedingSuccessRate = 0;
+        if (baseBreedingSuccess > 0 && birthRate > 0 && survivalRate > 0) {
+            // Success rate = fertility * (births per year normalized) * survival rate * genetic bonus
+            // Normalize births per year (max expected ~2.5 births/year = 100%)
+            const normalizedBirthRate = Math.min((birthRate / 2.5) * 100, 100);
+            breedingSuccessRate = (baseBreedingSuccess / 100) * (normalizedBirthRate / 100) * (survivalRate / 100) * (1 + geneticBonus / 100) * 100;
+            breedingSuccessRate = Math.min(breedingSuccessRate, 100); // Cap at 100%
+        }
+        
+        // Update breeding success progress bar and display
+        const progressFillEl = document.getElementById('breedingSuccessFill');
+        if (progressFillEl) {
+            progressFillEl.style.width = breedingSuccessRate.toFixed(0) + '%';
+        }
+        const successRateEl = document.getElementById('overallBreedingSuccessRate');
+        if (successRateEl) {
+            successRateEl.textContent = breedingSuccessRate.toFixed(1);
+        }
         const annuallySlaughteredForUdheya = udheyaSold * 0.8;
         const annuallySlaughteredForExport = i.exportSheepMonthly * 12 * 0.5;
         const totalAnnualSlaughtered = annuallySlaughteredForMeat + annuallySlaughteredForUdheya + annuallySlaughteredForExport;
@@ -512,8 +854,48 @@ async function calculateAllFinancials(fromFAB = false) {
         handleSectionSpecificLogic(currentSectionId, true);
         if (!isInitialAppLoad) { showAppNotification('تم تحديث الحسابات ✓', 'success'); if (fromFAB && currentSectionId !== 'financial') { setTimeout(() => navigateToSection('financial'), 300); } }
         isInitialAppLoad = false;
-    } catch (error) { console.error('Error in calculateAllFinancials:', error, error.stack); showAppNotification('خطأ في الحسابات. تحقق من المدخلات.', 'error'); }
-    finally { toggleLoading(false); }
+    } catch (error) { 
+        console.error('Error in calculateAllFinancials:', error, error.stack); 
+        
+        // More specific error messages based on error type
+        let errorMessage = 'خطأ في الحسابات. تحقق من المدخلات.';
+        
+        if (error.message && error.message.includes('Cannot read')) {
+            errorMessage = 'خطأ: بعض الحقول المطلوبة مفقودة.';
+        } else if (error.message && error.message.includes('Invalid')) {
+            errorMessage = 'خطأ: قيم غير صالحة في المدخلات.';
+        } else if (error.message && error.message.includes('NaN')) {
+            errorMessage = 'خطأ: قيم غير رقمية في الحقول الرقمية.';
+        }
+        
+        showAppNotification(errorMessage, 'error');
+        
+        // Update project status to show error
+        const statusEl = document.getElementById('projectStatus');
+        if (statusEl) {
+            statusEl.textContent = '❌ خطأ في الحسابات';
+            statusEl.style.color = '#e74c3c';
+        }
+        
+        // Reset financial displays to show error state
+        const errorDisplay = '---';
+        ['quickROI', 'quickBreakEven', 'quickProfit', 'quickInvestment', 
+         'quickTotalRevenue', 'quickProfitMargin', 'quickRequiredCashReserve',
+         'financialTotalInvestment', 'financialAnnualRevenue', 'financialAnnualProfit',
+         'financialROI', 'financialBreakevenMonths', 'financialProfitMargin',
+         'financialAnnualOperatingCosts', 'financialPaybackPeriod'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = errorDisplay;
+        });
+    }
+    finally { 
+        toggleLoading(false); 
+        // Clear debounce timer if calculation failed
+        if (calculationDebounceTimer) {
+            clearTimeout(calculationDebounceTimer);
+            calculationDebounceTimer = null;
+        }
+    }
 }
 
 function handleSectionSpecificLogic(sectionId, forceRefresh = false) {
@@ -544,10 +926,17 @@ function updateMarketOverviewStats() {
 function destroyChart(chartName) { if (appCharts[chartName]) { appCharts[chartName].destroy(); delete appCharts[chartName]; }}
 
 function createMainFinancialCharts() {
-    const calc = currentProjectData.calculations; if (!calc) {destroyChart('cumulativeBreakEven'); destroyChart('mainCostBreakdown'); return;}
-    destroyChart('cumulativeBreakEven');
-    const cbeCtx = document.getElementById('cumulativeBreakEvenChart')?.getContext('2d');
-    if (cbeCtx) {
+    try {
+        const calc = currentProjectData.calculations; 
+        if (!calc) {
+            destroyChart('cumulativeBreakEven'); 
+            destroyChart('mainCostBreakdown'); 
+            return;
+        }
+        
+        destroyChart('cumulativeBreakEven');
+        const cbeCtx = document.getElementById('cumulativeBreakEvenChart')?.getContext('2d');
+        if (cbeCtx) {
         const paybackMonths = calc.paybackPeriodMonths === "N/A" ? 48 : parseInt(calc.paybackPeriodMonths);
         const monthsToDisplay = Math.max(24, paybackMonths + 12);
         const months = Array.from({length: monthsToDisplay}, (_, idx) => idx + 1);
@@ -566,6 +955,10 @@ function createMainFinancialCharts() {
     const mcbCtx = document.getElementById('mainCostBreakdownChart')?.getContext('2d');
     if (mcbCtx) {
         appCharts.mainCostBreakdown = new Chart(mcbCtx, { type: 'pie', data: { labels: ['شراء القطيع', 'أصول ثابتة', 'رأس مال عامل', 'تشغيل سنوي'], datasets: [{ data: [calc.flockPurchaseCost || 0, calc.totalFixedAssets || 0, calc.recommendedWorkingCapital || 0, calc.totalAnnualOperatingCosts || 0], backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe'], borderColor: '#fff', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, title:{display:true, text:'توزيع هيكل التكاليف والاستثمار'}, tooltip: { callbacks: { label: function(context) { let label = context.label || ''; if (label) { label += ': '; } if (context.parsed !== null) { label += formatCurrency(context.parsed, false, false) ; } return label; }}}}} });
+    }
+    } catch (error) {
+        console.error('Error creating financial charts:', error);
+        // Don't show notification for chart errors, just log them
     }
 }
 
@@ -611,21 +1004,48 @@ function createSeasonalAnalysisCharts() {
 }
 
 function calculateAndDisplayMultiYearProjections() {
-    const calc = currentProjectData.calculations; const inputs = currentProjectData.inputs; if (!calc || !inputs) { showAppNotification("يرجى حساب التحليل المالي أولاً.", "warn"); return; }
+    try {
+        const calc = currentProjectData.calculations; const inputs = currentProjectData.inputs; 
+        if (!calc || !inputs) { 
+            showAppNotification("يرجى حساب التحليل المالي أولاً.", "warn"); 
+            return; 
+        }
     const growthRate = inputs.annualFlockGrowthRate / 100; const costInflation = inputs.annualCostInflationRate / 100;
     const prodImprovement = inputs.annualProductivityImprovement / 100; const priceInflation = inputs.annualPriceInflationRate / 100;
     let currentFlock = inputs.initialEwes + inputs.initialRams + inputs.improvedRamsCountUsed;
     let currentRevenue = calc.totalAnnualRevenue; let currentOpCosts = calc.totalAnnualOperatingCosts;
-    const projections = { years: [], flock: [], revenue: [], opCosts: [], netProfit: [], investment: [] };
-    projections.years.push(`السنة 1`); projections.flock.push(Math.round(currentFlock)); projections.revenue.push(Math.round(currentRevenue)); projections.opCosts.push(Math.round(currentOpCosts)); projections.netProfit.push(Math.round(calc.netAnnualProfit)); projections.investment.push(calc.totalFixedAssets);
+    const projections = { years: [], flock: [], revenue: [], opCosts: [], netProfit: [], investment: [], cashFlows: [] };
+    
+    // Year 0 (initial investment)
+    const initialInvestment = calc.finalTotalInvestment;
+    projections.cashFlows.push(-initialInvestment);
+    
+    projections.years.push(`السنة 1`); projections.flock.push(Math.round(currentFlock)); projections.revenue.push(Math.round(currentRevenue)); projections.opCosts.push(Math.round(currentOpCosts)); projections.netProfit.push(Math.round(calc.netAnnualProfit)); projections.investment.push(0); // No additional investment in year 1
+    projections.cashFlows.push(calc.netAnnualProfit); // Year 1 cash flow
+    
     for (let y = 2; y <= 5; y++) {
         currentFlock *= (1 + growthRate); currentRevenue *= (1 + growthRate + prodImprovement + priceInflation); currentOpCosts *= (1 + growthRate + costInflation);
         let yearInvestment = 0; if (y === 2) yearInvestment = inputs.expansionYear2Cost; if (y === 3) yearInvestment = inputs.expansionYear3Cost; if (y === 5) yearInvestment = inputs.expansionYear5Cost;
-        let grossProfitY = currentRevenue - currentOpCosts - yearInvestment; let zakatY = 0;
+        let grossProfitY = currentRevenue - currentOpCosts; let zakatY = 0;
         if (inputs.calculateZakatToggle) { const zakatDueSheepY = currentFlock >= 40 ? Math.floor(currentFlock / 40) : 0; zakatY = zakatDueSheepY * inputs.purchaseEwePrice; }
         let profitBeforeTaxY = grossProfitY - zakatY; let taxY = profitBeforeTaxY > 0 ? profitBeforeTaxY * (inputs.incomeTaxRate/100) : 0; let netProfitY = profitBeforeTaxY - taxY;
+        
+        // Cash flow = Net Profit - Additional Investment
+        const yearCashFlow = netProfitY - yearInvestment;
+        
         projections.years.push(`السنة ${y}`); projections.flock.push(Math.round(currentFlock)); projections.revenue.push(Math.round(currentRevenue)); projections.opCosts.push(Math.round(currentOpCosts)); projections.netProfit.push(Math.round(netProfitY)); projections.investment.push(yearInvestment);
+        projections.cashFlows.push(yearCashFlow);
     }
+    
+    // Calculate NPV and IRR
+    const discountRate = (inputs.discountRatePercent || 10) / 100; // Default 10% discount rate
+    const npv = calculateNPV(projections.cashFlows, discountRate);
+    const irr = calculateIRR(projections.cashFlows);
+    
+    projections.npv = npv;
+    projections.irr = irr;
+    projections.discountRate = discountRate;
+    
     currentProjectData.multiYearProjections = projections;
     destroyChart('multiYearFlockGrowth');
     const mfgCtx = document.getElementById('multiYearFlockGrowthChart')?.getContext('2d');
@@ -637,31 +1057,262 @@ function calculateAndDisplayMultiYearProjections() {
     const expansionProgressFill = document.getElementById('expansionProgressFill');
     if (expansionProgressFill) expansionProgressFill.style.width = Math.min(100, progress).toFixed(0) + '%';
     setContent('expansionProgressPercent', Math.round(progress));
+    
+    // Display NPV and IRR
+    const npvEl = document.getElementById('multiYearNPV');
+    const irrEl = document.getElementById('multiYearIRR');
+    
+    if (npvEl) {
+        npvEl.textContent = formatCurrency(projections.npv || 0);
+        npvEl.style.color = projections.npv > 0 ? '#27ae60' : '#e74c3c';
+    }
+    
+    if (irrEl) {
+        if (projections.irr !== null && !isNaN(projections.irr)) {
+            irrEl.textContent = projections.irr.toFixed(1) + '%';
+            irrEl.style.color = projections.irr > (projections.discountRate * 100) ? '#27ae60' : '#e74c3c';
+        } else {
+            irrEl.textContent = 'غير محدد';
+            irrEl.style.color = '#6c757d';
+        }
+    }
+    
+    // Also update the summary card if it exists
+    const financialMetricsEl = document.getElementById('multiYearFinancialMetrics');
+    if (financialMetricsEl) {
+        let metricsHTML = '<div class="stats-grid-dynamic" style="margin-top: 16px;">';
+        metricsHTML += `<div class="stat-card" style="background: ${projections.npv > 0 ? 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' : 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)'};">`;
+        metricsHTML += `<div class="stat-value">${formatCurrency(projections.npv || 0, true)}</div>`;
+        metricsHTML += `<div class="stat-label">صافي القيمة الحالية (NPV)</div></div>`;
+        
+        metricsHTML += `<div class="stat-card" style="background: ${projections.irr > (projections.discountRate * 100) ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'};">`;
+        metricsHTML += `<div class="stat-value">${projections.irr !== null ? projections.irr.toFixed(1) + '%' : 'غير محدد'}</div>`;
+        metricsHTML += `<div class="stat-label">معدل العائد الداخلي (IRR)</div></div>`;
+        
+        metricsHTML += `<div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">`;
+        metricsHTML += `<div class="stat-value">${(projections.discountRate * 100).toFixed(0)}%</div>`;
+        metricsHTML += `<div class="stat-label">معدل الخصم المستخدم</div></div>`;
+        
+        metricsHTML += '</div>';
+        financialMetricsEl.innerHTML = metricsHTML;
+    }
+    } catch (error) {
+        console.error('Error in multi-year projections:', error);
+        showAppNotification('خطأ في حساب التوقعات متعددة السنوات', 'error');
+    }
 }
 
 function optimizeFeedMix() {
-    const i = currentProjectData.inputs; if(!i || Object.keys(i).length === 0) {
+    const i = currentProjectData.inputs; 
+    if(!i || Object.keys(i).length === 0) {
         setContent('optimizedFeedResults', '<p class="alert-info">يرجى إدخال بيانات المشروع أولاً.</p>');
-        createFeedMixCompositionChart(); return;
+        createFeedMixCompositionChart(); 
+        return;
     }
-    const proteinReq = i.feedRequiredProtein; const energyReq = i.feedRequiredEnergy;
-    const exampleMix = { feedCornPriceTon: 50, feedSoybeanPriceTon: 20, feedWheatBranPriceTon: 15, feedBarleyPriceTon: 10, feedConcentratePriceTon: 5 };
-    let totalCostPerTonExample = 0; let calculatedProtein = 0; let calculatedEnergy = 0; let calculatedFiber = 0;
-    const feedsData = { feedCornPriceTon: { name: 'ذرة صفراء', price: i.feedCornPriceTon, protein: 8, energy: 3.2, fiber: 2 }, feedSoybeanPriceTon: { name: 'كسب فول صويا', price: i.feedSoybeanPriceTon, protein: 44, energy: 2.2, fiber: 6 }, feedWheatBranPriceTon: { name: 'نخالة قمح', price: i.feedWheatBranPriceTon, protein: 15, energy: 2.0, fiber: 12 }, feedBarleyPriceTon: { name: 'شعير', price: i.feedBarleyPriceTon, protein: 11, energy: 2.8, fiber: 5 }, feedConcentratePriceTon: { name: 'علف مركز', price: i.feedConcentratePriceTon, protein: 18, energy: 2.7, fiber: 8 }, feedAlfalfaPriceTon: { name: 'دريس برسيم', price: i.feedAlfalfaPriceTon, protein: 17, energy: 2.2, fiber: 28 } };
-    let formulaHTML = `<h4>متطلبات الخلطة:</h4> <p>بروتين خام: ${proteinReq}% | طاقة: ${energyReq} ميجا كالوري/كجم | ألياف قصوى: ${i.feedMaxFiber}%</p> <p class="alert-info">ملاحظة: هذا مثال توضيحي لخلطة شائعة، وليس حسابًا ديناميكيًا دقيقًا.</p> <p><strong>مثال لخلطة تسمين (قيم تقريبية):</strong></p> <ul style="padding-right:20px;">`;
-    for (const [feedId, percent] of Object.entries(exampleMix)) {
-        const feedInfo = feedsData[feedId];
-        if (feedInfo) {
-            formulaHTML += `<li>${feedInfo.name}: ${percent}% (سعر الطن: ${formatCurrency(feedInfo.price, false, false)})</li>`;
-            totalCostPerTonExample += (percent / 100) * feedInfo.price; calculatedProtein += (percent / 100) * feedInfo.protein;
-            calculatedEnergy += (percent / 100) * feedInfo.energy; calculatedFiber += (percent / 100) * feedInfo.fiber;
+    
+    const proteinReq = parseFloat(i.feedRequiredProtein) || 17;
+    const energyReq = parseFloat(i.feedRequiredEnergy) || 2.9;
+    const maxFiber = parseFloat(i.feedMaxFiber) || 16;
+    
+    // Feed ingredients data with nutritional values per 100%
+    const feedsData = {
+        feedCornPriceTon: { 
+            name: 'ذرة صفراء', 
+            price: parseFloat(i.feedCornPriceTon) || 8200, 
+            protein: 8.5, 
+            energy: 3.35, 
+            fiber: 2.2,
+            maxInclusion: 60,
+            minInclusion: 20
+        },
+        feedSoybeanPriceTon: { 
+            name: 'كسب فول صويا', 
+            price: parseFloat(i.feedSoybeanPriceTon) || 15500, 
+            protein: 44, 
+            energy: 2.23, 
+            fiber: 6.0,
+            maxInclusion: 30,
+            minInclusion: 5
+        },
+        feedWheatBranPriceTon: { 
+            name: 'نخالة قمح', 
+            price: parseFloat(i.feedWheatBranPriceTon) || 6200, 
+            protein: 15.5, 
+            energy: 1.85, 
+            fiber: 11.0,
+            maxInclusion: 25,
+            minInclusion: 5
+        },
+        feedBarleyPriceTon: { 
+            name: 'شعير', 
+            price: parseFloat(i.feedBarleyPriceTon) || 7200, 
+            protein: 11.5, 
+            energy: 2.85, 
+            fiber: 5.0,
+            maxInclusion: 40,
+            minInclusion: 10
+        },
+        feedConcentratePriceTon: { 
+            name: 'علف مركز', 
+            price: parseFloat(i.feedConcentratePriceTon) || 12000, 
+            protein: 18, 
+            energy: 2.7, 
+            fiber: 8.0,
+            maxInclusion: 15,
+            minInclusion: 0
+        },
+        feedAlfalfaPriceTon: { 
+            name: 'دريس برسيم', 
+            price: parseFloat(i.feedAlfalfaPriceTon) || 4500, 
+            protein: 17, 
+            energy: 2.2, 
+            fiber: 28.0,
+            maxInclusion: 20,
+            minInclusion: 0
+        }
+    };
+    
+    // Simplified optimization algorithm using weighted scoring
+    let optimizedMix = optimizeFeedFormula(feedsData, proteinReq, energyReq, maxFiber);
+    
+    // Calculate actual nutritional values
+    let totalCost = 0;
+    let totalProtein = 0;
+    let totalEnergy = 0;
+    let totalFiber = 0;
+    
+    for (const [feedId, percent] of Object.entries(optimizedMix)) {
+        const feed = feedsData[feedId];
+        if (feed && percent > 0) {
+            totalCost += (percent / 100) * feed.price;
+            totalProtein += (percent / 100) * feed.protein;
+            totalEnergy += (percent / 100) * feed.energy;
+            totalFiber += (percent / 100) * feed.fiber;
         }
     }
-    formulaHTML += `</ul> <hr> <p><strong>إجمالي البروتين للمثال:</strong> ${calculatedProtein.toFixed(1)}%</p> <p><strong>إجمالي الطاقة للمثال:</strong> ${calculatedEnergy.toFixed(1)} MJ</p> <p><strong>إجمالي الألياف للمثال:</strong> ${calculatedFiber.toFixed(1)}%</p> <p><strong>التكلفة/طن للمثال:</strong> ${formatCurrency(totalCostPerTonExample, false, false)}</p>`;
-    currentProjectData.currentFeedMixData = { mix: exampleMix, totalCostPerTon: totalCostPerTonExample, protein: calculatedProtein, energy: calculatedEnergy, fiber: calculatedFiber };
-    setContent('optimizedFeedResults', formulaHTML); createFeedMixCompositionChart();
-    const useOptimizedCostToggleField = document.getElementById('useOptimizedFeedCostToggleField');
+    
+    // Generate results HTML
+    let formulaHTML = `<h4>متطلبات الخلطة المطلوبة:</h4>
+    <p>بروتين خام: ${proteinReq}% | طاقة: ${energyReq} ميجا كالوري/كجم | ألياف قصوى: ${maxFiber}%</p>
+    <p class="alert-success">الخلطة المُحسَّنة (أقل تكلفة مع تحقيق المتطلبات الغذائية):</p>
+    <ul style="padding-right:20px;">`;
+    
+    for (const [feedId, percent] of Object.entries(optimizedMix)) {
+        const feed = feedsData[feedId];
+        if (feed && percent > 0) {
+            formulaHTML += `<li>${feed.name}: ${percent.toFixed(1)}% (سعر الطن: ${formatCurrency(feed.price)})</li>`;
+        }
+    }
+    
+    const proteinStatus = totalProtein >= proteinReq ? '✅' : '⚠️';
+    const energyStatus = totalEnergy >= energyReq ? '✅' : '⚠️';
+    const fiberStatus = totalFiber <= maxFiber ? '✅' : '⚠️';
+    
+    formulaHTML += `</ul><hr>
+    <p><strong>نتائج التحليل الغذائي:</strong></p>
+    <p>${proteinStatus} البروتين الفعلي: ${totalProtein.toFixed(1)}% (المطلوب: ${proteinReq}%)</p>
+    <p>${energyStatus} الطاقة الفعلية: ${totalEnergy.toFixed(2)} MJ/kg (المطلوب: ${energyReq} MJ/kg)</p>
+    <p>${fiberStatus} الألياف الفعلية: ${totalFiber.toFixed(1)}% (الحد الأقصى: ${maxFiber}%)</p>
+    <p><strong>التكلفة المُحسَّنة/طن: ${formatCurrency(totalCost)}</strong></p>
+    <p class="alert-info">💡 نصيحة: هذه الخلطة محسوبة لتحقيق أقل تكلفة ممكنة مع الالتزام بالمتطلبات الغذائية.</p>`;
+    
+    currentProjectData.currentFeedMixData = { 
+        mix: optimizedMix, 
+        totalCostPerTon: totalCost, 
+        protein: totalProtein, 
+        energy: totalEnergy, 
+        fiber: totalFiber 
+    };
+    
+    setContent('optimizedFeedResults', formulaHTML);
+    createFeedMixCompositionChart();
+    
+    const useOptimizedCostToggleField = document.getElementById('useOptimizedFeedCostToggle')?.closest('.input-field');
     if (useOptimizedCostToggleField) useOptimizedCostToggleField.style.display = 'block';
+}
+
+// Simplified feed optimization algorithm
+function optimizeFeedFormula(feeds, targetProtein, targetEnergy, maxFiber) {
+    let bestMix = {};
+    let bestCost = Infinity;
+    
+    // Initialize with minimum inclusions
+    for (const [id, feed] of Object.entries(feeds)) {
+        bestMix[id] = feed.minInclusion || 0;
+    }
+    
+    // Simple iterative optimization
+    for (let iteration = 0; iteration < 100; iteration++) {
+        let currentMix = {...bestMix};
+        let totalPercent = Object.values(currentMix).reduce((a, b) => a + b, 0);
+        
+        // Normalize to 100%
+        if (totalPercent !== 100) {
+            const factor = 100 / totalPercent;
+            for (const id in currentMix) {
+                currentMix[id] = Math.min(feeds[id].maxInclusion, currentMix[id] * factor);
+            }
+        }
+        
+        // Calculate nutritional values
+        let protein = 0, energy = 0, fiber = 0, cost = 0;
+        for (const [id, percent] of Object.entries(currentMix)) {
+            const feed = feeds[id];
+            protein += (percent / 100) * feed.protein;
+            energy += (percent / 100) * feed.energy;
+            fiber += (percent / 100) * feed.fiber;
+            cost += (percent / 100) * feed.price;
+        }
+        
+        // Check if mix meets requirements
+        if (protein >= targetProtein && energy >= targetEnergy && fiber <= maxFiber) {
+            if (cost < bestCost) {
+                bestCost = cost;
+                bestMix = {...currentMix};
+            }
+        }
+        
+        // Adjust mix based on deficiencies
+        if (protein < targetProtein) {
+            // Increase high-protein feeds
+            adjustMixForNutrient(currentMix, feeds, 'protein', 5);
+        }
+        if (energy < targetEnergy) {
+            // Increase high-energy feeds
+            adjustMixForNutrient(currentMix, feeds, 'energy', 5);
+        }
+        if (fiber > maxFiber) {
+            // Decrease high-fiber feeds
+            adjustMixForNutrient(currentMix, feeds, 'fiber', -5);
+        }
+        
+        // Update best mix for next iteration
+        bestMix = {...currentMix};
+    }
+    
+    // Final normalization to exactly 100%
+    let total = Object.values(bestMix).reduce((a, b) => a + b, 0);
+    if (total > 0) {
+        for (const id in bestMix) {
+            bestMix[id] = (bestMix[id] / total) * 100;
+        }
+    }
+    
+    return bestMix;
+}
+
+function adjustMixForNutrient(mix, feeds, nutrient, adjustment) {
+    // Find feeds with highest/lowest nutrient content
+    const sortedFeeds = Object.entries(feeds).sort((a, b) => {
+        return adjustment > 0 ? b[1][nutrient] - a[1][nutrient] : a[1][nutrient] - b[1][nutrient];
+    });
+    
+    // Adjust top feeds
+    for (let i = 0; i < 2 && i < sortedFeeds.length; i++) {
+        const [id, feed] = sortedFeeds[i];
+        const newValue = mix[id] + adjustment;
+        mix[id] = Math.max(feed.minInclusion || 0, Math.min(feed.maxInclusion || 100, newValue));
+    }
 }
 
 function createFeedMixCompositionChart() {

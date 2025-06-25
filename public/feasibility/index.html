@@ -471,6 +471,26 @@
                     <p style="text-align: center; color: #6c757d; font-size: 14px;">التقدم نحو الهدف: <span id="expansionProgressPercent">0</span>%</p>
                 </div>
                 <div class="card">
+                    <div class="card-header"><h2 class="card-title"><span class="card-icon">💎</span>مؤشرات القيمة الاستثمارية</h2></div>
+                    <div id="multiYearFinancialMetrics">
+                        <div class="stats-grid-dynamic" style="margin-top: 16px;">
+                            <div class="stat-card">
+                                <div class="stat-value" id="multiYearNPV">0 ج.م</div>
+                                <div class="stat-label">صافي القيمة الحالية (NPV)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="multiYearIRR">0%</div>
+                                <div class="stat-label">معدل العائد الداخلي (IRR)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-field" style="margin-top: 16px;">
+                        <label class="input-label" for="discountRatePercent">معدل الخصم % (لحساب NPV)</label>
+                        <input type="number" id="discountRatePercent" value="10" inputmode="numeric" min="0" max="100">
+                        <div class="input-hint">معدل العائد المطلوب أو تكلفة رأس المال</div>
+                    </div>
+                </div>
+                <div class="card">
                     <div class="card-header"><h2 class="card-title"><span class="card-icon">📊</span>نمو القطيع المتوقع (5 سنوات)</h2></div>
                     <div class="chart-container"><canvas id="multiYearFlockGrowthChart"></canvas></div>
                 </div>
