@@ -188,6 +188,14 @@ function renderDashboard() {
 }
 function isAnimalLamb(birthDateStr, monthsThreshold = 6) { if (!birthDateStr) return true; const birthDate = new Date(birthDateStr); const ageInMilliseconds = new Date() - birthDate; const ageInMonths = ageInMilliseconds / (1000 * 60 * 60 * 24 * 30.4375); return ageInMonths < monthsThreshold && ageInMonths >= 0; }
 
+// Destroy chart helper function
+function destroyChart(chartName) {
+    if (sfmAppCharts[chartName]) {
+        sfmAppCharts[chartName].destroy();
+        delete sfmAppCharts[chartName];
+    }
+}
+
 function createDashboardCharts() {
     destroyChart('dashboardPerformance'); const perfCtx = document.getElementById('dashboardPerformanceChart')?.getContext('2d');
     if (perfCtx) {
