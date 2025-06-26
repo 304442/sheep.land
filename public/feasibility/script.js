@@ -1,3 +1,21 @@
+// App Drawer Functions
+window.toggleAppDrawer = function() {
+    const drawer = document.getElementById('appDrawer');
+    const overlay = document.getElementById('appDrawerOverlay');
+    
+    if (!drawer || !overlay) return;
+    
+    const isActive = drawer.classList.contains('active');
+    
+    if (isActive) {
+        drawer.classList.remove('active');
+        overlay.classList.remove('active');
+    } else {
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+    }
+}
+
 let currentSectionId = 'market';
 let touchStartXCoord = 0;
 let touchEndXCoord = 0;

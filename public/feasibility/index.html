@@ -15,9 +15,10 @@
     <div class="app-container" id="app-container">
         <div class="app-header">
             <div class="header-content">
+                <button class="header-btn hamburger-btn" onclick="toggleAppDrawer()" title="القائمة الرئيسية">☰</button>
                 <h1 class="app-title">🐑 حاسبة مشروع الأغنام</h1>
                 <div class="header-actions">
-                    <button class="header-btn" id="menuBtnOpen" onclick="showBottomSheet('menu')">☰</button>
+                    <button class="header-btn" id="menuBtnOpen" onclick="showBottomSheet('menu')" title="خيارات إضافية">⋯</button>
                 </div>
             </div>
         </div>
@@ -745,6 +746,42 @@
             </div>
         </div>
         
+        <!-- App Navigation Drawer -->
+        <div class="app-drawer" id="appDrawer">
+            <div class="drawer-header">
+                <div class="drawer-logo">
+                    <span class="drawer-logo-icon">🐑</span>
+                    <span class="drawer-logo-text">Sheep.Land</span>
+                </div>
+                <button class="drawer-close" onclick="toggleAppDrawer()">✕</button>
+            </div>
+            <div class="drawer-content">
+                <nav class="drawer-nav">
+                    <a href="../index.html" class="drawer-nav-item">
+                        <span class="drawer-nav-icon">🏠</span>
+                        <span class="drawer-nav-label">الصفحة الرئيسية</span>
+                        <span class="drawer-nav-arrow">←</span>
+                    </a>
+                    <a href="../management/index.html" class="drawer-nav-item">
+                        <span class="drawer-nav-icon">🐑</span>
+                        <span class="drawer-nav-label">إدارة المزرعة</span>
+                        <span class="drawer-nav-arrow">←</span>
+                    </a>
+                    <a href="index.html" class="drawer-nav-item active">
+                        <span class="drawer-nav-icon">📊</span>
+                        <span class="drawer-nav-label">دراسة الجدوى</span>
+                        <span class="drawer-nav-badge">نشط</span>
+                    </a>
+                </nav>
+                <div class="drawer-footer">
+                    <div class="drawer-version">
+                        <span>الإصدار 1.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-drawer-overlay" id="appDrawerOverlay" onclick="toggleAppDrawer()"></div>
         <div class="overlay" id="pageOverlay" onclick="hideAllSheets()"></div>
         
         <div class="swipe-indicator left" id="navSwipeLeft">←</div>

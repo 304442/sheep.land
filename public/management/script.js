@@ -81,7 +81,49 @@ function toggleSfmLoading(show) {
     if (fab) { if (show) { fab.innerHTML = '<div class="fab-spinner"></div>'; fab.disabled = true; } else { fab.innerHTML = '<span>➕</span>'; fab.disabled = false; } }
 }
 
-// Global toggle function will be defined in initializeSmartQuickActions
+// App Drawer Functions
+window.toggleAppDrawer = function() {
+    const drawer = document.getElementById('appDrawer');
+    const overlay = document.getElementById('appDrawerOverlay');
+    
+    if (!drawer || !overlay) return;
+    
+    const isActive = drawer.classList.contains('active');
+    
+    if (isActive) {
+        drawer.classList.remove('active');
+        overlay.classList.remove('active');
+    } else {
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+    }
+}
+
+// Ensure toggleQuickActions is available immediately
+if (typeof window.toggleQuickActions === 'undefined') {
+    window.toggleQuickActions = function() {
+        console.log('FAB clicked - simple fallback');
+        const quickActionsFab = document.getElementById('quickActionsFab');
+        const fab = document.getElementById('sfmMainFab');
+        if (!quickActionsFab || !fab) {
+            console.log('Elements not found');
+            return;
+        }
+        
+        const isActive = quickActionsFab.classList.contains('active');
+        console.log('Current state:', isActive ? 'active' : 'inactive');
+        
+        if (isActive) {
+            quickActionsFab.classList.remove('active');
+            fab.classList.remove('actions-active');
+            console.log('Hiding quick actions');
+        } else {
+            quickActionsFab.classList.add('active');
+            fab.classList.add('actions-active');
+            console.log('Showing quick actions');
+        }
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeAppControls(); setupSfmGlobalEventListeners(); loadSfmDataFromLocalStorage();

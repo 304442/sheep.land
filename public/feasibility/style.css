@@ -805,6 +805,163 @@ input:checked + .toggle-slider:before {
 }
 .haptic-feedback { animation: haptic 0.1s; }
 
+/* App Navigation Drawer */
+.app-drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 320px;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: -2px 0 20px rgba(0,0,0,0.1);
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+}
+
+.app-drawer.active {
+    right: 0;
+}
+
+.drawer-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 80px;
+}
+
+.drawer-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.drawer-logo-icon {
+    font-size: 32px;
+}
+
+.drawer-logo-text {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.drawer-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.2s;
+}
+
+.drawer-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.drawer-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+.drawer-nav {
+    flex: 1;
+}
+
+.drawer-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 16px;
+    position: relative;
+}
+
+.drawer-nav-item:hover {
+    background: #f8f9fa;
+    color: #667eea;
+}
+
+.drawer-nav-item.active {
+    background: #e3f2fd;
+    color: #667eea;
+    border-right: 4px solid #667eea;
+}
+
+.drawer-nav-icon {
+    font-size: 24px;
+    width: 32px;
+    text-align: center;
+}
+
+.drawer-nav-label {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.drawer-nav-arrow {
+    font-size: 14px;
+    color: #999;
+}
+
+.drawer-nav-badge {
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.drawer-footer {
+    padding: 20px;
+    border-top: 1px solid #f0f0f0;
+    text-align: center;
+}
+
+.drawer-version {
+    font-size: 12px;
+    color: #999;
+}
+
+.app-drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1040;
+}
+
+.app-drawer-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.hamburger-btn {
+    order: -1;
+}
+
 #detailedReportTable {
     width: 100%;
     border-collapse: collapse;
