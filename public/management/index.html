@@ -11,6 +11,12 @@
 </head>
 <body>
     <div class="app-container" id="app-container-sfms">
+        <div class="pull-to-refresh" id="pagePullToRefresh">
+            <div class="ptr-content">
+                <span class="ptr-icon">↓</span>
+                <span class="ptr-text">اسحب للتحديث</span>
+            </div>
+        </div>
         <div class="app-header">
             <div class="header-content">
                 <h1 class="app-title" id="sfmFarmNameTitle">🐑 نظام إدارة مزرعة الأغنام</h1>
@@ -22,6 +28,8 @@
         </div>
 
         <div class="content-area" id="sfmsContentArea">
+            <div class="swipe-indicator swipe-left" id="navSwipeLeft">←</div>
+            <div class="swipe-indicator swipe-right" id="navSwipeRight">→</div>
             <div class="section-page active" id="dashboard">
                 <div class="card">
                     <div class="card-header"><h2 class="card-title"><span class="card-icon">📊</span> لوحة التحكم الرئيسية</h2></div>
@@ -283,7 +291,7 @@
 
         <div class="overlay" id="sfmsPageOverlay" onclick="hideAllSfmSheets()"></div>
 
-        <div class="modal-overlay" id="formModalOverlay" style="display:none;">
+        <div class="modal-overlay" id="formModalOverlay">
             <div class="modal-content-sfms" id="formModalContainer">
                 <div class="modal-header-sfms">
                     <h3 id="formModalTitle"></h3>
