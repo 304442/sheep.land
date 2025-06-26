@@ -71,12 +71,13 @@ function sfmFormatDate(dateStrOrDate, type = 'short') { if (!dateStrOrDate) retu
 function generateUUID() { return crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)); }
 
 function showSfmAppNotification(message, type = 'success') {
-    const existingNotif = document.querySelector('.app-notification'); if (existingNotif) existingNotif.remove();
-    const notif = document.createElement('div'); notif.className = 'app-notification'; notif.textContent = message;
-    notif.style.cssText = `position: fixed; top: calc(env(safe-area-inset-top) + 70px + 10px); left: 50%; transform: translateX(-50%) translateY(-40px); background: ${type === 'success' ? '#4CAF50' : (type === 'warn' ? '#FFC107' : '#F44336')}; color: white; padding: 10px 20px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 13px; font-weight: 500; z-index: 2000; opacity: 0; transition: opacity 0.25s ease-out, transform 0.25s ease-out; text-align: center; max-width: 90%;`;
+    const existingNotif = document.querySelector('.notification'); if (existingNotif) existingNotif.remove();
+    const notif = document.createElement('div'); 
+    notif.className = `notification ${type} auto-hide`; 
+    notif.textContent = message;
     document.body.appendChild(notif);
-    setTimeout(() => { notif.style.opacity = '1'; notif.style.transform = 'translateX(-50%) translateY(0px)'; }, 10);
-    setTimeout(() => { notif.style.opacity = '0'; notif.style.transform = 'translateX(-50%) translateY(-40px)'; setTimeout(() => notif.remove(), 300); }, type === 'error' ? 4000 : 2500);
+    setTimeout(() => { notif.classList.add('show'); }, 10);
+    setTimeout(() => { notif.classList.remove('show'); setTimeout(() => notif.remove(), 300); }, type === 'error' ? 4000 : 2500);
 }
 
 function toggleSfmLoading(show) {
