@@ -88,6 +88,7 @@ function toggleSfmLoading(show) {
 document.addEventListener('DOMContentLoaded', function() {
     initializeAppControls(); setupSfmGlobalEventListeners(); loadSfmDataFromLocalStorage();
     refreshAllSfmDataViews(); loadFarmSettingsToUI();
+    initializeSmartQuickActions();
     const dateInputs = document.querySelectorAll('input[type="date"]');
     dateInputs.forEach(input => { if (!input.value) { input.valueAsDate = new Date(); }});
     if (typeof Chart !== 'undefined') { Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif"; Chart.defaults.font.size = 11; Chart.defaults.color = '#606770'; Chart.defaults.plugins.legend.position = 'bottom'; Chart.defaults.plugins.tooltip.rtl = true; Chart.defaults.plugins.tooltip.titleFont = { weight: 'bold' }; Chart.defaults.plugins.title.display = true; Chart.defaults.plugins.title.color = '#050505'; Chart.defaults.plugins.title.font = { weight: '600', size: 14}; }
@@ -99,6 +100,139 @@ function initializeAppControls() {
         element.addEventListener('click', function() { this.classList.add('haptic-feedback'); setTimeout(() => this.classList.remove('haptic-feedback'), 150); });
     });
 }
+
+// Smart Quick Actions System
+function initializeSmartQuickActions() {
+    const quickActionsFab = document.getElementById('quickActionsFab');
+    if (!quickActionsFab) return;
+    
+    let isQuickActionsVisible = false;
+    let hideTimeout;
+    
+    // Show quick actions on hover or after a delay
+    document.addEventListener('mousemove', (e) => {
+        const rightEdge = window.innerWidth - e.clientX;
+        const bottomEdge = window.innerHeight - e.clientY;
+        
+        if (rightEdge < 100 && bottomEdge < 300 && bottomEdge > 50) {
+            showQuickActions();
+        }
+    });
+    
+    // Touch support - swipe from right edge
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+    });
+    
+    document.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const swipeDistance = touchStartX - touchEndX;
+        
+        if (touchStartX > window.innerWidth - 50 && swipeDistance > 50) {
+            toggleQuickActions();
+        }
+    });
+    
+    // Show/hide functions
+    function showQuickActions() {
+        isQuickActionsVisible = true;
+        quickActionsFab.classList.add('active');
+        clearTimeout(hideTimeout);
+        
+        // Update actions based on current section
+        updateContextualActions();
+        
+        // Auto-hide after 5 seconds
+        hideTimeout = setTimeout(() => {
+            hideQuickActions();
+        }, 5000);
+    }
+    
+    function hideQuickActions() {
+        isQuickActionsVisible = false;
+        quickActionsFab.classList.remove('active');
+    }
+    
+    function toggleQuickActions() {
+        if (isQuickActionsVisible) {
+            hideQuickActions();
+        } else {
+            showQuickActions();
+        }
+    }
+    
+    // Update actions based on current context
+    function updateContextualActions() {
+        const buttons = quickActionsFab.querySelectorAll('.quick-action-btn');
+        
+        // Context-aware actions based on current section
+        switch(currentSfmSectionId) {
+            case 'animalManagement':
+                buttons[0].onclick = () => openAnimalFormModal(null);
+                buttons[0].querySelector('span:first-child').textContent = '🐑';
+                buttons[0].querySelector('.quick-action-label').textContent = 'إضافة حيوان';
+                
+                buttons[1].onclick = () => generateSfmReport('flockSummary');
+                buttons[1].querySelector('span:first-child').textContent = '📊';
+                buttons[1].querySelector('.quick-action-label').textContent = 'ملخص القطيع';
+                break;
+                
+            case 'healthManagement':
+                buttons[0].onclick = () => openHealthRecordFormModal(null);
+                buttons[0].querySelector('span:first-child').textContent = '💊';
+                buttons[0].querySelector('.quick-action-label').textContent = 'سجل صحي';
+                
+                buttons[1].onclick = () => generateSfmReport('healthSummary');
+                buttons[1].querySelector('span:first-child').textContent = '📋';
+                buttons[1].querySelector('.quick-action-label').textContent = 'تقرير صحي';
+                break;
+                
+            case 'inventoryManagement':
+                buttons[0].onclick = () => openInventoryItemFormModal(null);
+                buttons[0].querySelector('span:first-child').textContent = '📦';
+                buttons[0].querySelector('.quick-action-label').textContent = 'إضافة مخزون';
+                
+                buttons[1].onclick = () => generateSfmReport('inventoryStatus');
+                buttons[1].querySelector('span:first-child').textContent = '📊';
+                buttons[1].querySelector('.quick-action-label').textContent = 'حالة المخزون';
+                break;
+                
+            default:
+                // Default actions
+                buttons[0].onclick = () => backupSfmData();
+                buttons[0].querySelector('span:first-child').textContent = '💾';
+                buttons[0].querySelector('.quick-action-label').textContent = 'نسخ احتياطي';
+                
+                buttons[1].onclick = () => generateQuickReport();
+                buttons[1].querySelector('span:first-child').textContent = '📊';
+                buttons[1].querySelector('.quick-action-label').textContent = 'تقرير سريع';
+        }
+    }
+    
+    // Keep actions visible when hovering over them
+    quickActionsFab.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+    });
+    
+    quickActionsFab.addEventListener('mouseleave', () => {
+        hideTimeout = setTimeout(() => {
+            hideQuickActions();
+        }, 2000);
+    });
+}
+
+// Quick helper functions for smart actions
+function generateQuickReport() {
+    showSfmSection('reports');
+    generateSfmReport('flockSummary');
+}
+
+function quickAddAnimal() {
+    showSfmSection('animalManagement');
+    setTimeout(() => openAnimalFormModal(null), 300);
+}
+
 function setupSfmGlobalEventListeners() {
     const contentAreaEl = document.getElementById('sfmsContentArea'); if (!contentAreaEl) return;
     contentAreaEl.addEventListener('touchstart', handleSfmPageTouchStart, { passive: false });
