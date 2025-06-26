@@ -39,15 +39,11 @@ let sfmData = {
     }
 };
 
-// Helper functions for backward compatibility
-function getSfmVal(id, isCheckbox = false, isSelect = false) { return getVal(id, isCheckbox, isSelect); }
-function getSfmStrVal(id, required = false) { return getStrVal(id, required); }
-function setSfmVal(id, value) { return setVal(id, value); }
-function setSfmContent(id, content) { return setContent(id, content); }
+// Utility functions
 
 function getVal(id, isCheckbox = false, isSelect = false) {
     const el = document.getElementById(id);
-    if (!el) { console.warn(`getVal: Element with ID '${id}' not found.`); return isCheckbox ? false : (isSelect ? '' : 0); }
+    if (!el) { return isCheckbox ? false : (isSelect ? '' : 0); }
     if (isCheckbox) return el.checked;
     if (isSelect) return el.value;
     const value = parseFloat(el.value);
@@ -59,7 +55,7 @@ function getVal(id, isCheckbox = false, isSelect = false) {
 }
 function getStrVal(id, required = false) {
     const el = document.getElementById(id);
-    if (!el) { console.warn(`getStrVal: Element with ID '${id}' not found.`); return ''; }
+    if (!el) { return ''; }
     const val = el.value.trim();
     if (required && !val) { showSfmAppNotification(`حقل "${el.labels && el.labels[0] && el.labels[0].innerText ? el.labels[0].innerText.replace(':','') : id}" مطلوب.`, 'error'); throw new Error("Required field missing: " + id); }
     return val;
@@ -85,6 +81,8 @@ function toggleSfmLoading(show) {
     if (fab) { if (show) { fab.innerHTML = '<div class="fab-spinner"></div>'; fab.disabled = true; } else { fab.innerHTML = '<span>➕</span>'; fab.disabled = false; } }
 }
 
+// Global toggle function will be defined in initializeSmartQuickActions
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeAppControls(); setupSfmGlobalEventListeners(); loadSfmDataFromLocalStorage();
     refreshAllSfmDataViews(); loadFarmSettingsToUI();
@@ -104,7 +102,9 @@ function initializeAppControls() {
 // Smart Quick Actions System
 function initializeSmartQuickActions() {
     const quickActionsFab = document.getElementById('quickActionsFab');
-    if (!quickActionsFab) return;
+    if (!quickActionsFab) {
+        return;
+    }
     
     let isQuickActionsVisible = false;
     let hideTimeout;
@@ -138,6 +138,7 @@ function initializeSmartQuickActions() {
     function showQuickActions() {
         isQuickActionsVisible = true;
         quickActionsFab.classList.add('active');
+        document.getElementById('sfmMainFab').classList.add('actions-active');
         clearTimeout(hideTimeout);
         
         // Update actions based on current section
@@ -152,9 +153,10 @@ function initializeSmartQuickActions() {
     function hideQuickActions() {
         isQuickActionsVisible = false;
         quickActionsFab.classList.remove('active');
+        document.getElementById('sfmMainFab').classList.remove('actions-active');
     }
     
-    function toggleQuickActions() {
+    window.toggleQuickActions = function() {
         if (isQuickActionsVisible) {
             hideQuickActions();
         } else {
@@ -162,8 +164,15 @@ function initializeSmartQuickActions() {
         }
     }
     
+    // Make functions available globally
+    window.showQuickActions = showQuickActions;
+    window.hideQuickActions = hideQuickActions;
+    
     // Update actions based on current context
-    function updateContextualActions() {
+    window.updateContextualActions = function() {
+        const quickActionsFab = document.getElementById('quickActionsFab');
+        if (!quickActionsFab) return;
+        
         const buttons = quickActionsFab.querySelectorAll('.quick-action-btn');
         
         // Context-aware actions based on current section
@@ -256,6 +265,10 @@ function navigateToSfmSection(sectionId, direction = null) {
     currentSfmSectionId = sectionId; updateSfmActiveNavigation();
     const contentArea = document.getElementById('sfmsContentArea'); if(contentArea) contentArea.scrollTop = 0;
     refreshCurrentSectionData(); sfmIsInitialAppLoad = false;
+    // Update quick actions for the new section
+    if (typeof window.updateContextualActions === 'function') {
+        window.updateContextualActions();
+    }
 }
 function showSfmSection(sectionId, direction = null) { const oldSectionEl = document.querySelector('#sfmsContentArea .section-page.active'); if (oldSectionEl && oldSectionEl.id === sectionId && !direction && !sfmIsInitialAppLoad) return; navigateToSfmSection(sectionId, direction); }
 
@@ -277,6 +290,11 @@ function refreshCurrentSectionData() {
         case 'salesPurchases': renderTransactionList(); break;
         case 'reports': setContent('reportOutputArea', '<p class="list-empty-message" style="padding:20px;">اختر تقريراً لعرضه.</p>'); break;
         case 'settings': loadFarmSettingsToUI(); renderEquipmentList(); break;
+    }
+    
+    // Update quick actions for the current section
+    if (typeof updateContextualActions === 'function') {
+        updateContextualActions();
     }
 }
 function refreshAllSfmDataViews(){ renderDashboard(); renderAnimalList(); populateAnimalFilterDropdowns(); renderMatingRecords(); renderLambingRecords(); renderWeaningRecords(); renderHealthRecords(); populateFeedRationSelect(); displaySelectedRation(); renderWaterLog(); renderInventoryList(); renderTaskList(); renderTransactionList(); loadFarmSettingsToUI(); renderEquipmentList(); }

@@ -312,7 +312,7 @@
             <div class="nav-item" id="sfmsMoreNavBtn" onclick="showSfmBottomSheet('sfmsMoreSheet')"><span class="nav-icon">⋯</span><span class="nav-label">المزيد</span></div>
         </div>
         
-        <button class="fab" id="sfmMainFab" onclick="handleSfmFabClick()">
+        <button class="fab" id="sfmMainFab" onclick="toggleQuickActions()">
             <span>➕</span>
         </button>
         
@@ -338,24 +338,28 @@
             <div class="sheet-content">
                 <div class="more-menu-grid">
                     <div class="more-menu-item" onclick="showSfmSection('feedingManagement'); hideSfmBottomSheet('sfmsMoreSheet');">
-                        <div class="more-menu-icon" style="background: linear-gradient(135deg, #f39c12, #f1c40f);">🌾</div>
+                        <div class="more-menu-icon" style="background: #f39c12;">🌾</div>
                         <div class="more-menu-label">التغذية</div>
                     </div>
                     <div class="more-menu-item" onclick="showSfmSection('inventoryManagement'); hideSfmBottomSheet('sfmsMoreSheet');">
-                        <div class="more-menu-icon" style="background: linear-gradient(135deg, #3498db, #2ecc71);">📦</div>
+                        <div class="more-menu-icon" style="background: #3498db;">📦</div>
                         <div class="more-menu-label">المخزون</div>
                     </div>
                     <div class="more-menu-item" onclick="showSfmSection('taskManagement'); hideSfmBottomSheet('sfmsMoreSheet');">
-                        <div class="more-menu-icon" style="background: linear-gradient(135deg, #e74c3c, #e67e22);">📅</div>
+                        <div class="more-menu-icon" style="background: #e74c3c;">📅</div>
                         <div class="more-menu-label">المهام</div>
                     </div>
                     <div class="more-menu-item" onclick="showSfmSection('salesPurchases'); hideSfmBottomSheet('sfmsMoreSheet');">
-                        <div class="more-menu-icon" style="background: linear-gradient(135deg, #16a085, #27ae60);">💸</div>
+                        <div class="more-menu-icon" style="background: #27ae60;">💸</div>
                         <div class="more-menu-label">المعاملات</div>
                     </div>
                     <div class="more-menu-item" onclick="showSfmSection('reports'); hideSfmBottomSheet('sfmsMoreSheet');">
-                        <div class="more-menu-icon" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);">📄</div>
+                        <div class="more-menu-icon" style="background: #8e44ad;">📄</div>
                         <div class="more-menu-label">التقارير</div>
+                    </div>
+                    <div class="more-menu-item" onclick="showSfmSection('settings'); hideSfmBottomSheet('sfmsMoreSheet');">
+                        <div class="more-menu-icon" style="background: #6c757d;">⚙️</div>
+                        <div class="more-menu-label">الإعدادات</div>
                     </div>
                 </div>
             </div>
