@@ -127,15 +127,37 @@ document.addEventListener('alpine:init', () => {
             vetCostPerMonth: 1000,
             sellingPricePerSheep: 5000,
             projectDuration: 6,
+            selectedBreed: 'Barki',
+            selectedSeason: 'Regular',
+            includeBreeding: false,
+            breedingRate: 0.3,
+            lambPrice: 2000,
             showResults: false,
             results: {
                 totalInitialCost: 0,
                 monthlyOperatingCost: 0,
                 totalOperatingCost: 0,
                 totalRevenue: 0,
+                breedingRevenue: 0,
                 netProfit: 0,
                 roi: 0,
+                monthlyProfit: 0,
+                breakEvenMonths: 0,
                 isViable: false
+            }
+        },
+        // Market data based on actual product catalog
+        marketData: {
+            breeds: {
+                'Barki': { avgWeight: 45, pricePerKg: 320, growthRate: 1.2, description: { en: 'Barki - Desert breed', ar: 'برقي - سلالة صحراوية' } },
+                'Rahmani': { avgWeight: 52, pricePerKg: 280, growthRate: 1.1, description: { en: 'Rahmani - Egyptian breed', ar: 'رحماني - سلالة مصرية' } },
+                'Ossimi': { avgWeight: 58, pricePerKg: 300, growthRate: 1.15, description: { en: 'Ossimi - Upper Egypt breed', ar: 'أوسيمي - سلالة الصعيد' } },
+                'Saidi': { avgWeight: 65, pricePerKg: 350, growthRate: 1.3, description: { en: 'Saidi - Premium breed', ar: 'صعيدي - سلالة ممتازة' } }
+            },
+            seasonalFactors: {
+                'Eid': { multiplier: 1.4, description: { en: 'Eid Season (+40%)', ar: 'موسم العيد (+40%)' } },
+                'Regular': { multiplier: 1.0, description: { en: 'Regular Season', ar: 'موسم عادي' } },
+                'OffSeason': { multiplier: 0.85, description: { en: 'Off Season (-15%)', ar: 'خارج الموسم (-15%)' } }
             }
         },
         savedAnalyses: [],
@@ -152,13 +174,27 @@ document.addEventListener('alpine:init', () => {
             weight: '',
             status: 'healthy',
             lastVaccination: '',
-            notes: ''
+            notes: '',
+            purchasePrice: 0,
+            purchaseDate: '',
+            motherTagId: '',
+            fatherTagId: ''
         },
         farmStats: {
             totalSheep: 0,
             healthy: 0,
             pregnant: 0,
-            needAttention: 0
+            needAttention: 0,
+            totalValue: 0,
+            readyForMarket: 0,
+            averageWeight: 0,
+            monthlyExpenses: 0
+        },
+        vaccinationSchedule: {
+            'FMD': { name: { en: 'Foot & Mouth Disease', ar: 'الحمى القلاعية' }, frequency: 180, cost: 50 },
+            'PPR': { name: { en: 'Peste des Petits', ar: 'طاعون المجترات' }, frequency: 365, cost: 75 },
+            'Clostridial': { name: { en: 'Clostridial Diseases', ar: 'الأمراض الكلوستريدية' }, frequency: 180, cost: 40 },
+            'Brucellosis': { name: { en: 'Brucellosis', ar: 'البروسيلا' }, frequency: 365, cost: 60 }
         },
         
         get sacrificeDayMapInternal() { return sacrificeDayMapInternal; },
@@ -859,29 +895,74 @@ document.addEventListener('alpine:init', () => {
         // Feasibility Calculator Methods
         calculateFeasibility() {
             const f = this.feasibility;
+            const breedData = this.marketData.breeds[f.selectedBreed] || this.marketData.breeds['Barki'];
+            const seasonFactor = this.marketData.seasonalFactors[f.selectedSeason].multiplier;
             
-            // Calculate costs
-            const sheepCost = f.numSheep * f.pricePerSheep;
+            // Calculate initial costs based on breed
+            const youngSheepWeight = breedData.avgWeight * 0.6; // Young sheep are 60% of adult weight
+            const sheepCost = f.numSheep * youngSheepWeight * breedData.pricePerKg;
             f.results.totalInitialCost = sheepCost + f.facilityCosts;
             
+            // Calculate operating costs
             f.results.monthlyOperatingCost = f.feedCostPerMonth + f.laborCostPerMonth + f.vetCostPerMonth;
             f.results.totalOperatingCost = f.results.monthlyOperatingCost * f.projectDuration;
             
-            // Calculate revenue
-            f.results.totalRevenue = f.numSheep * f.sellingPricePerSheep;
+            // Calculate final weight after growth
+            const growthFactor = Math.pow(breedData.growthRate, f.projectDuration / 12);
+            const finalWeight = breedData.avgWeight * growthFactor;
             
-            // Calculate profit
+            // Calculate revenue with seasonal adjustment
+            f.results.totalRevenue = f.numSheep * finalWeight * breedData.pricePerKg * seasonFactor;
+            
+            // Calculate breeding revenue if enabled
+            f.results.breedingRevenue = 0;
+            if (f.includeBreeding && f.projectDuration >= 12) {
+                const breedingCycles = Math.floor(f.projectDuration / 6); // Sheep can breed every 6 months
+                const totalLambs = Math.floor(f.numSheep * f.breedingRate * breedingCycles);
+                f.results.breedingRevenue = totalLambs * f.lambPrice;
+            }
+            
+            // Calculate profit metrics
             const totalCost = f.results.totalInitialCost + f.results.totalOperatingCost;
-            f.results.netProfit = f.results.totalRevenue - totalCost;
+            const totalRevenue = f.results.totalRevenue + f.results.breedingRevenue;
+            f.results.netProfit = totalRevenue - totalCost;
+            f.results.monthlyProfit = f.results.netProfit / f.projectDuration;
             
             // Calculate ROI
             f.results.roi = (f.results.netProfit / f.results.totalInitialCost) * 100;
             
-            // Determine viability
-            f.results.isViable = f.results.netProfit > 0 && f.results.roi > 10;
+            // Calculate break-even
+            if (f.results.monthlyProfit > 0) {
+                f.results.breakEvenMonths = Math.ceil(f.results.totalInitialCost / (totalRevenue / f.projectDuration - f.results.monthlyOperatingCost));
+            } else {
+                f.results.breakEvenMonths = 999; // Never breaks even
+            }
+            
+            // Determine viability (consider breed-specific thresholds)
+            f.results.isViable = f.results.netProfit > 0 && f.results.roi > 15 && f.results.breakEvenMonths <= 24;
             
             // Show results
             f.showResults = true;
+        },
+        
+        // Load market prices from products
+        async loadMarketPrices() {
+            try {
+                const products = await this.pb.collection('products').getList(1, 50, {
+                    filter: 'is_active = true && product_category = "live_sheep"',
+                    sort: '-price_per_kg_egp'
+                });
+                
+                // Update market data with real prices
+                products.items.forEach(product => {
+                    if (product.breed_info_en && this.marketData.breeds[product.breed_info_en]) {
+                        this.marketData.breeds[product.breed_info_en].pricePerKg = product.price_per_kg_egp;
+                        this.marketData.breeds[product.breed_info_en].avgWeight = product.avg_weight_kg;
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to load market prices:', err);
+            }
         },
 
         async saveFeasibilityAnalysis() {
@@ -904,12 +985,18 @@ document.addEventListener('alpine:init', () => {
                     vet_cost_monthly: this.feasibility.vetCostPerMonth,
                     selling_price_per_sheep: this.feasibility.sellingPricePerSheep,
                     project_duration_months: this.feasibility.projectDuration,
+                    selected_breed: this.feasibility.selectedBreed,
+                    selected_season: this.feasibility.selectedSeason,
+                    include_breeding: this.feasibility.includeBreeding,
+                    breeding_revenue: this.feasibility.results.breedingRevenue,
                     total_initial_cost: this.feasibility.results.totalInitialCost,
                     monthly_operating_cost: this.feasibility.results.monthlyOperatingCost,
                     total_operating_cost: this.feasibility.results.totalOperatingCost,
                     total_revenue: this.feasibility.results.totalRevenue,
                     net_profit: this.feasibility.results.netProfit,
                     roi_percentage: this.feasibility.results.roi,
+                    monthly_profit: this.feasibility.results.monthlyProfit,
+                    break_even_months: this.feasibility.results.breakEvenMonths,
                     is_viable: this.feasibility.results.isViable
                 };
                 
@@ -943,6 +1030,20 @@ document.addEventListener('alpine:init', () => {
         async initFeasibility() {
             if (this.pb && this.currentUser?.is_admin) {
                 await this.loadSavedAnalyses();
+                await this.loadMarketPrices();
+            }
+        },
+        
+        updateBreedPrices() {
+            const breed = this.marketData.breeds[this.feasibility.selectedBreed];
+            if (breed) {
+                // Auto-update price per sheep based on breed
+                const youngSheepWeight = breed.avgWeight * 0.6;
+                this.feasibility.pricePerSheep = Math.round(youngSheepWeight * breed.pricePerKg);
+                
+                // Update selling price projection
+                const matureWeight = breed.avgWeight;
+                this.feasibility.sellingPricePerSheep = Math.round(matureWeight * breed.pricePerKg);
             }
         },
 
@@ -980,6 +1081,31 @@ document.addEventListener('alpine:init', () => {
             this.farmStats.healthy = this.farmSheep.filter(s => s.status === 'healthy').length;
             this.farmStats.pregnant = this.farmSheep.filter(s => s.status === 'pregnant').length;
             this.farmStats.needAttention = this.farmSheep.filter(s => s.status === 'sick' || this.needsVaccination(s)).length;
+            
+            // Calculate total value based on current market prices
+            this.farmStats.totalValue = this.farmSheep.reduce((sum, sheep) => {
+                const breed = this.marketData.breeds[sheep.breed] || this.marketData.breeds['Barki'];
+                return sum + (sheep.weight_kg * breed.pricePerKg);
+            }, 0);
+            
+            // Count sheep ready for market (healthy and weight >= 40kg)
+            this.farmStats.readyForMarket = this.farmSheep.filter(s => 
+                s.status === 'healthy' && s.weight_kg >= 40
+            ).length;
+            
+            // Calculate average weight
+            if (this.farmSheep.length > 0) {
+                this.farmStats.averageWeight = Math.round(
+                    this.farmSheep.reduce((sum, s) => sum + s.weight_kg, 0) / this.farmSheep.length
+                );
+            } else {
+                this.farmStats.averageWeight = 0;
+            }
+            
+            // Estimate monthly expenses
+            const feedCostPerSheep = 250; // EGP per month
+            const vetCostPerSheep = 50;   // EGP per month
+            this.farmStats.monthlyExpenses = this.farmSheep.length * (feedCostPerSheep + vetCostPerSheep);
         },
 
         needsVaccination(sheep) {
@@ -1049,7 +1175,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async recordSheepHealth(sheep) {
-            const action = prompt('Enter health action:\\n1 - Mark as Healthy\\n2 - Mark as Sick\\n3 - Record Vaccination\\n4 - Mark as Pregnant');
+            const action = prompt('Enter health action:\\n1 - Mark as Healthy\\n2 - Mark as Sick\\n3 - Record Vaccination\\n4 - Mark as Pregnant\\n5 - Record Weight Update\\n6 - Mark for Sale');
             
             let updateData = {};
             let healthRecord = {
@@ -1072,11 +1198,35 @@ document.addEventListener('alpine:init', () => {
                 case '3':
                     updateData.last_vaccination = new Date().toISOString();
                     healthRecord.action = 'Vaccination recorded';
+                    // Record which vaccines were given
+                    const vaccines = prompt('Which vaccines? (FMD, PPR, Clostridial, Brucellosis)');
+                    if (vaccines) healthRecord.notes = `Vaccines: ${vaccines}`;
                     alert('Vaccination recorded / تم تسجيل التطعيم');
                     break;
                 case '4':
                     updateData.status = 'pregnant';
                     healthRecord.action = 'Marked as pregnant';
+                    const dueDate = prompt('Expected delivery date (YYYY-MM-DD)?');
+                    if (dueDate) healthRecord.notes = `Due: ${dueDate}`;
+                    break;
+                case '5':
+                    const newWeight = prompt(`Current weight: ${sheep.weight_kg}kg. Enter new weight (kg):`);
+                    if (newWeight && !isNaN(newWeight)) {
+                        updateData.weight_kg = parseFloat(newWeight);
+                        healthRecord.action = 'Weight updated';
+                        healthRecord.notes = `${sheep.weight_kg}kg → ${newWeight}kg`;
+                    }
+                    break;
+                case '6':
+                    if (sheep.weight_kg >= 40 && sheep.status === 'healthy') {
+                        updateData.notes = (sheep.notes || '') + ' [READY FOR SALE]';
+                        healthRecord.action = 'Marked for sale';
+                        healthRecord.notes = `Weight: ${sheep.weight_kg}kg, Market value: EGP ${Math.round(sheep.weight_kg * (this.marketData.breeds[sheep.breed]?.pricePerKg || 300))}`;
+                        alert('Marked for sale! / تم وضع علامة للبيع!');
+                    } else {
+                        alert('Sheep must be healthy and at least 40kg / يجب أن تكون الأغنام بصحة جيدة وبوزن 40 كجم على الأقل');
+                        return;
+                    }
                     break;
                 default:
                     return;
