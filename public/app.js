@@ -94,6 +94,7 @@ document.addEventListener('alpine:init', () => {
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false,
+        showFeasibilityModal: false, showFarmModal: false, showAddSheepForm: false,
         showAuth: false, cartOpen: false,
         wishlistCount: 0,
         wishlistItems: [],
@@ -115,6 +116,50 @@ document.addEventListener('alpine:init', () => {
             terms_agreed: { en: "You must agree to the terms and refund policy.", ar: "يجب أن توافق على الشروط وسياسة الاسترداد." }
         },
         allCities: [], isDelFeeVar: false, configuringUdheyaItem: null,
+        
+        // Feasibility Calculator Data
+        feasibility: {
+            numSheep: 10,
+            pricePerSheep: 3000,
+            facilityCosts: 50000,
+            feedCostPerMonth: 5000,
+            laborCostPerMonth: 3000,
+            vetCostPerMonth: 1000,
+            sellingPricePerSheep: 5000,
+            projectDuration: 6,
+            showResults: false,
+            results: {
+                totalInitialCost: 0,
+                monthlyOperatingCost: 0,
+                totalOperatingCost: 0,
+                totalRevenue: 0,
+                netProfit: 0,
+                roi: 0,
+                isViable: false
+            }
+        },
+        savedAnalyses: [],
+        
+        // Farm Management Data
+        farmSheep: [],
+        filteredFarmSheep: [],
+        farmFilterStatus: '',
+        editingSheepId: null,
+        sheepForm: {
+            tagId: '',
+            breed: '',
+            age: '',
+            weight: '',
+            status: 'healthy',
+            lastVaccination: '',
+            notes: ''
+        },
+        farmStats: {
+            totalSheep: 0,
+            healthy: 0,
+            pregnant: 0,
+            needAttention: 0
+        },
         
         get sacrificeDayMapInternal() { return sacrificeDayMapInternal; },
         get availPayMeths() { return payMethods; },
@@ -784,6 +829,319 @@ document.addEventListener('alpine:init', () => {
         closeRefundModal() { this.isRefundModalOpen = false; document.body.classList.remove('overflow-hidden'); },
         openOrderStatusModal() { this.isOrderStatusModalOpen = true; document.body.classList.add('overflow-hidden'); this.$nextTick(() => this.$refs.lookupOrderIdInputModal?.focus()); },
         closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderID = ''; this.statRes = null; this.statNotFound = false; this.clrErr('lookupOrderID');},
+        
+        // Feasibility Calculator Modal
+        openFeasibilityModal() { 
+            this.showFeasibilityModal = true; 
+            document.body.classList.add('overflow-hidden');
+            if (this.initFeasibility) {
+                this.initFeasibility();
+            }
+        },
+        closeFeasibilityModal() { 
+            this.showFeasibilityModal = false; 
+            document.body.classList.remove('overflow-hidden'); 
+        },
+        
+        // Farm Management Modal
+        openFarmModal() { 
+            this.showFarmModal = true; 
+            document.body.classList.add('overflow-hidden');
+            if (this.initFarmManagement) {
+                this.initFarmManagement();
+            }
+        },
+        closeFarmModal() { 
+            this.showFarmModal = false; 
+            document.body.classList.remove('overflow-hidden'); 
+        },
+        
+        // Feasibility Calculator Methods
+        calculateFeasibility() {
+            const f = this.feasibility;
+            
+            // Calculate costs
+            const sheepCost = f.numSheep * f.pricePerSheep;
+            f.results.totalInitialCost = sheepCost + f.facilityCosts;
+            
+            f.results.monthlyOperatingCost = f.feedCostPerMonth + f.laborCostPerMonth + f.vetCostPerMonth;
+            f.results.totalOperatingCost = f.results.monthlyOperatingCost * f.projectDuration;
+            
+            // Calculate revenue
+            f.results.totalRevenue = f.numSheep * f.sellingPricePerSheep;
+            
+            // Calculate profit
+            const totalCost = f.results.totalInitialCost + f.results.totalOperatingCost;
+            f.results.netProfit = f.results.totalRevenue - totalCost;
+            
+            // Calculate ROI
+            f.results.roi = (f.results.netProfit / f.results.totalInitialCost) * 100;
+            
+            // Determine viability
+            f.results.isViable = f.results.netProfit > 0 && f.results.roi > 10;
+            
+            // Show results
+            f.showResults = true;
+        },
+
+        async saveFeasibilityAnalysis() {
+            if (!this.pb || !this.currentUser) {
+                alert('Please login to save analyses / يرجى تسجيل الدخول لحفظ التحليلات');
+                return;
+            }
+
+            try {
+                this.loading = true;
+                this.loadingMessage = 'Saving analysis...';
+                
+                const analysisData = {
+                    user: this.currentUser.id,
+                    num_sheep: this.feasibility.numSheep,
+                    price_per_sheep: this.feasibility.pricePerSheep,
+                    facility_costs: this.feasibility.facilityCosts,
+                    feed_cost_monthly: this.feasibility.feedCostPerMonth,
+                    labor_cost_monthly: this.feasibility.laborCostPerMonth,
+                    vet_cost_monthly: this.feasibility.vetCostPerMonth,
+                    selling_price_per_sheep: this.feasibility.sellingPricePerSheep,
+                    project_duration_months: this.feasibility.projectDuration,
+                    total_initial_cost: this.feasibility.results.totalInitialCost,
+                    monthly_operating_cost: this.feasibility.results.monthlyOperatingCost,
+                    total_operating_cost: this.feasibility.results.totalOperatingCost,
+                    total_revenue: this.feasibility.results.totalRevenue,
+                    net_profit: this.feasibility.results.netProfit,
+                    roi_percentage: this.feasibility.results.roi,
+                    is_viable: this.feasibility.results.isViable
+                };
+                
+                await this.pb.collection('feasibility_analyses').create(analysisData);
+                
+                alert('Analysis saved successfully! / تم حفظ التحليل بنجاح!');
+                await this.loadSavedAnalyses();
+                
+            } catch (err) {
+                console.error('Save analysis error:', err);
+                alert('Failed to save analysis. Please try again.');
+            } finally {
+                this.loading = false;
+                this.loadingMessage = '';
+            }
+        },
+
+        async loadSavedAnalyses() {
+            try {
+                const records = await this.pb.collection('feasibility_analyses').getList(1, 10, {
+                    sort: '-created',
+                    filter: `user = "${this.currentUser.id}"`
+                });
+                
+                this.savedAnalyses = records.items;
+            } catch (err) {
+                console.error('Load analyses error:', err);
+            }
+        },
+
+        async initFeasibility() {
+            if (this.pb && this.currentUser?.is_admin) {
+                await this.loadSavedAnalyses();
+            }
+        },
+
+        // Farm Management Methods
+        async initFarmManagement() {
+            if (this.pb && this.currentUser?.is_admin) {
+                await this.loadFarmSheep();
+            }
+        },
+
+        async loadFarmSheep() {
+            try {
+                this.loading = true;
+                this.loadingMessage = 'Loading sheep data...';
+                
+                const records = await this.pb.collection('farm_sheep').getList(1, 500, {
+                    sort: '-created',
+                    filter: `user = "${this.currentUser.id}"`
+                });
+                
+                this.farmSheep = records.items;
+                this.filteredFarmSheep = [...this.farmSheep];
+                this.updateFarmStats();
+            } catch (err) {
+                console.error('Load sheep error:', err);
+                this.error = 'Failed to load sheep data.';
+            } finally {
+                this.loading = false;
+                this.loadingMessage = '';
+            }
+        },
+
+        updateFarmStats() {
+            this.farmStats.totalSheep = this.farmSheep.length;
+            this.farmStats.healthy = this.farmSheep.filter(s => s.status === 'healthy').length;
+            this.farmStats.pregnant = this.farmSheep.filter(s => s.status === 'pregnant').length;
+            this.farmStats.needAttention = this.farmSheep.filter(s => s.status === 'sick' || this.needsVaccination(s)).length;
+        },
+
+        needsVaccination(sheep) {
+            if (!sheep.last_vaccination) return true;
+            const lastVac = new Date(sheep.last_vaccination);
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            return lastVac < sixMonthsAgo;
+        },
+
+        filterFarmSheep() {
+            if (this.farmFilterStatus) {
+                this.filteredFarmSheep = this.farmSheep.filter(s => s.status === this.farmFilterStatus);
+            } else {
+                this.filteredFarmSheep = [...this.farmSheep];
+            }
+        },
+
+        async saveFarmSheep() {
+            try {
+                this.loading = true;
+                this.loadingMessage = 'Saving sheep data...';
+                
+                const data = {
+                    user: this.currentUser.id,
+                    tag_id: this.sheepForm.tagId,
+                    breed: this.sheepForm.breed,
+                    age_months: parseInt(this.sheepForm.age),
+                    weight_kg: parseFloat(this.sheepForm.weight),
+                    status: this.sheepForm.status,
+                    last_vaccination: this.sheepForm.lastVaccination || null,
+                    notes: this.sheepForm.notes || ''
+                };
+                
+                if (this.editingSheepId) {
+                    await this.pb.collection('farm_sheep').update(this.editingSheepId, data);
+                } else {
+                    await this.pb.collection('farm_sheep').create(data);
+                }
+                
+                await this.loadFarmSheep();
+                this.resetSheepForm();
+                this.showAddSheepForm = false;
+                
+                alert('Sheep data saved successfully! / تم حفظ بيانات الأغنام بنجاح!');
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Failed to save sheep data. Please try again.');
+            } finally {
+                this.loading = false;
+                this.loadingMessage = '';
+            }
+        },
+
+        editFarmSheep(sheep) {
+            this.editingSheepId = sheep.id;
+            this.sheepForm = {
+                tagId: sheep.tag_id,
+                breed: sheep.breed,
+                age: sheep.age_months.toString(),
+                weight: sheep.weight_kg.toString(),
+                status: sheep.status,
+                lastVaccination: sheep.last_vaccination ? sheep.last_vaccination.split('T')[0] : '',
+                notes: sheep.notes || ''
+            };
+            this.showAddSheepForm = true;
+        },
+
+        async recordSheepHealth(sheep) {
+            const action = prompt('Enter health action:\\n1 - Mark as Healthy\\n2 - Mark as Sick\\n3 - Record Vaccination\\n4 - Mark as Pregnant');
+            
+            let updateData = {};
+            let healthRecord = {
+                date: new Date().toISOString(),
+                action: '',
+                notes: ''
+            };
+            
+            switch(action) {
+                case '1':
+                    updateData.status = 'healthy';
+                    healthRecord.action = 'Marked as healthy';
+                    break;
+                case '2':
+                    updateData.status = 'sick';
+                    healthRecord.action = 'Marked as sick';
+                    const symptoms = prompt('Enter symptoms / أدخل الأعراض:');
+                    if (symptoms) healthRecord.notes = symptoms;
+                    break;
+                case '3':
+                    updateData.last_vaccination = new Date().toISOString();
+                    healthRecord.action = 'Vaccination recorded';
+                    alert('Vaccination recorded / تم تسجيل التطعيم');
+                    break;
+                case '4':
+                    updateData.status = 'pregnant';
+                    healthRecord.action = 'Marked as pregnant';
+                    break;
+                default:
+                    return;
+            }
+            
+            try {
+                this.loading = true;
+                
+                let healthRecords = sheep.health_records || [];
+                if (typeof healthRecords === 'string') {
+                    healthRecords = JSON.parse(healthRecords);
+                }
+                healthRecords.push(healthRecord);
+                
+                updateData.health_records = healthRecords;
+                await this.pb.collection('farm_sheep').update(sheep.id, updateData);
+                
+                await this.loadFarmSheep();
+            } catch (err) {
+                console.error('Health record error:', err);
+                alert('Failed to update health record.');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async deleteFarmSheep(id) {
+            if (!confirm('Are you sure you want to delete this sheep record? / هل أنت متأكد من حذف سجل هذه الأغنام؟')) {
+                return;
+            }
+            
+            try {
+                this.loading = true;
+                await this.pb.collection('farm_sheep').delete(id);
+                await this.loadFarmSheep();
+            } catch (err) {
+                console.error('Delete error:', err);
+                alert('Failed to delete sheep record.');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        resetSheepForm() {
+            this.editingSheepId = null;
+            this.sheepForm = {
+                tagId: '',
+                breed: '',
+                age: '',
+                weight: '',
+                status: 'healthy',
+                lastVaccination: '',
+                notes: ''
+            };
+        },
+
+        formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        },
 
         startCd() { 
             if(this.cdTimer) clearInterval(this.cdTimer); 

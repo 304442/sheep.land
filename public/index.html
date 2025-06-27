@@ -515,7 +515,7 @@
                                 <span class="en">Admin Tools</span>
                                 <span class="ar">أدوات الإدارة</span>
                             </h4>
-                            <a href="feasibility/index.html" @click="closeAllDropdowns()" class="account-menu-item admin-menu-item">
+                            <button @click="closeAllDropdowns(); openFeasibilityModal()" class="account-menu-item admin-menu-item">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M9 11l3 3L22 4"/>
                                     <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
@@ -524,8 +524,8 @@
                                     <span class="en">Feasibility Calculator</span>
                                     <span class="ar">حاسبة الجدوى</span>
                                 </span>
-                            </a>
-                            <a href="farm-management/index.html" @click="closeAllDropdowns()" class="account-menu-item admin-menu-item">
+                            </button>
+                            <button @click="closeAllDropdowns(); openFarmModal()" class="account-menu-item admin-menu-item">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                                     <polyline points="9 22 9 12 15 12 15 22"/>
@@ -534,7 +534,7 @@
                                     <span class="en">Farm Management</span>
                                     <span class="ar">إدارة المزرعة</span>
                                 </span>
-                            </a>
+                            </button>
                         </div>
                     </template>
                     <button @click="logoutUser(); closeAllDropdowns();" class="account-menu-item logout-btn">
@@ -1780,6 +1780,452 @@
 <!-- Quick View Modal - Removed -->
 
 <!-- Meat Calculator Modal - Removed -->
+
+<!-- Feasibility Calculator Modal -->
+<div x-show="showFeasibilityModal" class="modal-overlay" @click.self="showFeasibilityModal = false" x-cloak>
+    <div class="modal-lg">
+        <div class="modal-header">
+            <h2 class="bil-spread">
+                <span class="en">Feasibility Calculator</span>
+                <span class="ar">حاسبة الجدوى</span>
+            </h2>
+            <button @click="showFeasibilityModal = false" class="modal-close-btn">×</button>
+        </div>
+        <div class="modal-content">
+            <div class="calc-section">
+                <h3 class="section-title bil-spread">
+                    <span class="en">Project Parameters</span>
+                    <span class="ar">معاملات المشروع</span>
+                </h3>
+                
+                <div class="calc-grid">
+                    <div class="calc-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Initial Investment</span>
+                            <span class="ar">الاستثمار الأولي</span>
+                        </h4>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Number of Sheep</span>
+                                <span class="ar">عدد الأغنام</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.numSheep" min="1" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Price per Sheep (EGP)</span>
+                                <span class="ar">سعر الرأس (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.pricePerSheep" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Facility Costs (EGP)</span>
+                                <span class="ar">تكاليف المنشآت (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.facilityCosts" min="0" class="calc-input">
+                        </div>
+                    </div>
+                    
+                    <div class="calc-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Operating Costs</span>
+                            <span class="ar">التكاليف التشغيلية</span>
+                        </h4>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Feed Cost per Month (EGP)</span>
+                                <span class="ar">تكلفة العلف شهريا (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.feedCostPerMonth" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Labor Cost per Month (EGP)</span>
+                                <span class="ar">تكلفة العمالة شهريا (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.laborCostPerMonth" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Veterinary Cost per Month (EGP)</span>
+                                <span class="ar">تكلفة الرعاية البيطرية شهريا (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.vetCostPerMonth" min="0" class="calc-input">
+                        </div>
+                    </div>
+                    
+                    <div class="calc-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Revenue Projections</span>
+                            <span class="ar">توقعات الإيرادات</span>
+                        </h4>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Selling Price per Sheep (EGP)</span>
+                                <span class="ar">سعر البيع للرأس (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.sellingPricePerSheep" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Project Duration (months)</span>
+                                <span class="ar">مدة المشروع (شهور)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.projectDuration" min="1" class="calc-input">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="calc-actions">
+                    <button @click="calculateFeasibility()" class="btn bp btn-lg bil-inline">
+                        <span class="en">Calculate Feasibility</span>
+                        <span class="ar">احسب الجدوى</span>
+                    </button>
+                    <button @click="saveFeasibilityAnalysis()" x-show="feasibility.showResults" class="btn bp-alt btn-lg bil-inline">
+                        <span class="en">Save Analysis</span>
+                        <span class="ar">حفظ التحليل</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div x-show="feasibility.showResults" class="results-section" x-cloak>
+                <h3 class="section-title bil-spread">
+                    <span class="en">Analysis Results</span>
+                    <span class="ar">نتائج التحليل</span>
+                </h3>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Initial Investment</span>
+                            <span class="ar">الاستثمار الأولي</span>
+                        </h4>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Total Initial Cost</span>
+                                <span class="ar">إجمالي التكلفة الأولية</span>
+                            </span>
+                            <span class="result-value">EGP <span x-text="feasibility.results.totalInitialCost?.toLocaleString()">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Operating Summary</span>
+                            <span class="ar">ملخص التشغيل</span>
+                        </h4>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Monthly Operating Cost</span>
+                                <span class="ar">تكلفة التشغيل الشهرية</span>
+                            </span>
+                            <span class="result-value">EGP <span x-text="feasibility.results.monthlyOperatingCost?.toLocaleString()">0</span></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Total Operating Cost</span>
+                                <span class="ar">إجمالي تكلفة التشغيل</span>
+                            </span>
+                            <span class="result-value">EGP <span x-text="feasibility.results.totalOperatingCost?.toLocaleString()">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Profitability</span>
+                            <span class="ar">الربحية</span>
+                        </h4>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Total Revenue</span>
+                                <span class="ar">إجمالي الإيرادات</span>
+                            </span>
+                            <span class="result-value">EGP <span x-text="feasibility.results.totalRevenue?.toLocaleString()">0</span></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Net Profit</span>
+                                <span class="ar">صافي الربح</span>
+                            </span>
+                            <span class="result-value" :class="feasibility.results.netProfit > 0 ? 'text-success' : 'text-danger'">
+                                EGP <span x-text="feasibility.results.netProfit?.toLocaleString()">0</span>
+                            </span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">ROI</span>
+                                <span class="ar">العائد على الاستثمار</span>
+                            </span>
+                            <span class="result-value" :class="feasibility.results.roi > 0 ? 'text-success' : 'text-danger'">
+                                <span x-text="feasibility.results.roi?.toFixed(1)">0</span>%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recommendation-box">
+                    <h3 class="bil-spread">
+                        <span class="en">Recommendation</span>
+                        <span class="ar">التوصية</span>
+                    </h3>
+                    <p class="recommendation-status" :class="feasibility.results.isViable ? 'positive' : 'negative'">
+                        <span x-show="feasibility.results.isViable" class="bil-inline">
+                            <span class="en">✓ Project is Viable</span>
+                            <span class="ar">✓ المشروع مجدي</span>
+                        </span>
+                        <span x-show="!feasibility.results.isViable" class="bil-inline">
+                            <span class="en">✗ Project Needs Review</span>
+                            <span class="ar">✗ المشروع يحتاج مراجعة</span>
+                        </span>
+                    </p>
+                    <p class="recommendation-text bil-row">
+                        <span x-show="feasibility.results.isViable" class="en">
+                            Based on your inputs, this project shows positive returns with a <span x-text="feasibility.results.roi?.toFixed(1)">0</span>% ROI. 
+                            The projected profit of EGP <span x-text="feasibility.results.netProfit?.toLocaleString()">0</span> indicates a viable investment opportunity.
+                        </span>
+                        <span x-show="feasibility.results.isViable" class="ar">
+                            بناءً على المدخلات، يُظهر هذا المشروع عوائد إيجابية بنسبة <span x-text="feasibility.results.roi?.toFixed(1)">0</span>% عائد على الاستثمار.
+                            الربح المتوقع البالغ <span x-text="feasibility.results.netProfit?.toLocaleString()">0</span> جنيه يشير إلى فرصة استثمارية مجدية.
+                        </span>
+                        <span x-show="!feasibility.results.isViable" class="en">
+                            The current projections show a negative return. Consider adjusting your parameters such as reducing costs, 
+                            increasing selling price, or extending the project duration to improve viability.
+                        </span>
+                        <span x-show="!feasibility.results.isViable" class="ar">
+                            التوقعات الحالية تُظهر عائداً سلبياً. فكر في تعديل المعاملات مثل تقليل التكاليف،
+                            زيادة سعر البيع، أو تمديد مدة المشروع لتحسين الجدوى.
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Farm Management Modal -->
+<div x-show="showFarmModal" class="modal-overlay" @click.self="showFarmModal = false" x-cloak>
+    <div class="modal-lg">
+        <div class="modal-header">
+            <h2 class="bil-spread">
+                <span class="en">Farm Management System</span>
+                <span class="ar">نظام إدارة المزرعة</span>
+            </h2>
+            <button @click="showFarmModal = false" class="modal-close-btn">×</button>
+        </div>
+        <div class="modal-content">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🐑</div>
+                    <div class="stat-content">
+                        <h3 class="bil-inline">
+                            <span class="en">Total Sheep</span>
+                            <span class="ar">إجمالي الأغنام</span>
+                        </h3>
+                        <p class="stat-value" x-text="farmStats.totalSheep">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">💚</div>
+                    <div class="stat-content">
+                        <h3 class="bil-inline">
+                            <span class="en">Healthy</span>
+                            <span class="ar">بصحة جيدة</span>
+                        </h3>
+                        <p class="stat-value" x-text="farmStats.healthy">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🤰</div>
+                    <div class="stat-content">
+                        <h3 class="bil-inline">
+                            <span class="en">Pregnant</span>
+                            <span class="ar">حامل</span>
+                        </h3>
+                        <p class="stat-value" x-text="farmStats.pregnant">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-content">
+                        <h3 class="bil-inline">
+                            <span class="en">Need Attention</span>
+                            <span class="ar">تحتاج رعاية</span>
+                        </h3>
+                        <p class="stat-value" x-text="farmStats.needAttention">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sheep List -->
+            <div class="sheep-section">
+                <div class="section-header">
+                    <h3 class="bil-spread">
+                        <span class="en">Sheep Inventory</span>
+                        <span class="ar">قائمة الأغنام</span>
+                    </h3>
+                    <div class="header-actions">
+                        <select x-model="farmFilterStatus" @change="filterFarmSheep()" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="healthy">Healthy</option>
+                            <option value="sick">Sick</option>
+                            <option value="pregnant">Pregnant</option>
+                        </select>
+                        <button @click="showAddSheepForm = true" class="btn bp bil-inline">
+                            <span class="en">+ Add Sheep</span>
+                            <span class="ar">+ إضافة رأس</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sheep-grid">
+                    <template x-for="sheep in filteredFarmSheep" :key="sheep.id">
+                        <div class="sheep-card" :class="'status-' + sheep.status">
+                            <div class="sheep-header">
+                                <h3 x-text="sheep.tag_id"></h3>
+                                <span class="sheep-status" x-text="sheep.status"></span>
+                            </div>
+                            <div class="sheep-details">
+                                <p class="detail-row">
+                                    <span class="bil-inline">
+                                        <span class="en">Breed:</span>
+                                        <span class="ar">السلالة:</span>
+                                    </span>
+                                    <span x-text="sheep.breed"></span>
+                                </p>
+                                <p class="detail-row">
+                                    <span class="bil-inline">
+                                        <span class="en">Age:</span>
+                                        <span class="ar">العمر:</span>
+                                    </span>
+                                    <span x-text="sheep.age_months + ' months'"></span>
+                                </p>
+                                <p class="detail-row">
+                                    <span class="bil-inline">
+                                        <span class="en">Weight:</span>
+                                        <span class="ar">الوزن:</span>
+                                    </span>
+                                    <span x-text="sheep.weight_kg + ' kg'"></span>
+                                </p>
+                                <p class="detail-row" x-show="sheep.last_vaccination">
+                                    <span class="bil-inline">
+                                        <span class="en">Last Vaccination:</span>
+                                        <span class="ar">آخر تطعيم:</span>
+                                    </span>
+                                    <span x-text="formatDate(sheep.last_vaccination)"></span>
+                                </p>
+                            </div>
+                            <div class="sheep-actions">
+                                <button @click="editFarmSheep(sheep)" class="btn btn-sm bac bil-inline">
+                                    <span class="en">Edit</span>
+                                    <span class="ar">تعديل</span>
+                                </button>
+                                <button @click="recordSheepHealth(sheep)" class="btn btn-sm bp-alt bil-inline">
+                                    <span class="en">Health</span>
+                                    <span class="ar">الصحة</span>
+                                </button>
+                                <button @click="deleteFarmSheep(sheep.id)" class="btn btn-sm danger bil-inline">
+                                    <span class="en">Delete</span>
+                                    <span class="ar">حذف</span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="filteredFarmSheep.length === 0" class="empty-state">
+                    <p class="bil-spread">
+                        <span class="en">No sheep found</span>
+                        <span class="ar">لا توجد أغنام</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Sheep Form Modal -->
+<div x-show="showAddSheepForm" class="modal-overlay" @click.self="showAddSheepForm = false" x-cloak>
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="bil-spread">
+                <span class="en" x-text="editingSheepId ? 'Edit Sheep' : 'Add New Sheep'"></span>
+                <span class="ar" x-text="editingSheepId ? 'تعديل البيانات' : 'إضافة رأس جديد'"></span>
+            </h2>
+            <button @click="showAddSheepForm = false" class="modal-close-btn">×</button>
+        </div>
+        <form @submit.prevent="saveFarmSheep()" class="modal-content">
+            <div class="form-group">
+                <label class="bil-spread">
+                    <span class="en">Tag ID</span>
+                    <span class="ar">رقم العلامة</span>
+                </label>
+                <input type="text" x-model="sheepForm.tagId" required class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="bil-spread">
+                    <span class="en">Breed</span>
+                    <span class="ar">السلالة</span>
+                </label>
+                <select x-model="sheepForm.breed" required class="form-input">
+                    <option value="">Select Breed</option>
+                    <option value="Barki">Barki / برقي</option>
+                    <option value="Rahmani">Rahmani / رحماني</option>
+                    <option value="Ossimi">Ossimi / أوسيمي</option>
+                    <option value="Saidi">Saidi / صعيدي</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="bil-spread">
+                        <span class="en">Age (months)</span>
+                        <span class="ar">العمر (شهور)</span>
+                    </label>
+                    <input type="number" x-model="sheepForm.age" min="0" required class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="bil-spread">
+                        <span class="en">Weight (kg)</span>
+                        <span class="ar">الوزن (كجم)</span>
+                    </label>
+                    <input type="number" x-model="sheepForm.weight" min="0" step="0.1" required class="form-input">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="bil-spread">
+                    <span class="en">Status</span>
+                    <span class="ar">الحالة</span>
+                </label>
+                <select x-model="sheepForm.status" required class="form-input">
+                    <option value="healthy">Healthy / بصحة جيدة</option>
+                    <option value="sick">Sick / مريض</option>
+                    <option value="pregnant">Pregnant / حامل</option>
+                    <option value="nursing">Nursing / مرضع</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" @click="showAddSheepForm = false" class="btn bp-alt bil-inline">
+                    <span class="en">Cancel</span>
+                    <span class="ar">إلغاء</span>
+                </button>
+                <button type="submit" class="btn bp bil-inline">
+                    <span class="en" x-text="editingSheepId ? 'Update' : 'Add'"></span>
+                    <span class="ar" x-text="editingSheepId ? 'تحديث' : 'إضافة'"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <footer class="foot main-page-sec">
     <div class="c">
