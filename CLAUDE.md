@@ -48,7 +48,6 @@ npx playwright test
 - `/pb_migrations/` - Database schema migrations
 - `/public/` - Frontend application
   - `app.js` - Main e-commerce logic with Alpine.js components
-  - `admin.js` - Admin dashboard functionality
   - `/management/` - Arabic-only farm management system (separate SPA)
   - `/feasibility/` - Arabic-only feasibility calculator
   - `/vendor/` - Third-party libraries (Alpine.js, PocketBase SDK, Chart.js)

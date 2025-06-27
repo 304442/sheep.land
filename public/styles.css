@@ -625,9 +625,6 @@ body.has-promo-bar .account-dropdown{top:calc(var(--head-h) + 64px)}
 .account-menu-item{display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3);background:white;border-radius:var(--rad);transition:all .2s ease;text-decoration:none;color:var(--c1);font-weight:600;border:1px solid transparent}
 .account-menu-item:hover{background:var(--b2);border-color:var(--c2);transform:translateX(4px)}
 .account-menu-item svg{width:20px;height:20px;flex-shrink:0;opacity:.8}
-.admin-menu-item{background:linear-gradient(135deg,#2c3e50,#34495e);color:white;border:1px solid #1a252f}
-.admin-menu-item:hover{background:linear-gradient(135deg,#34495e,#2c3e50);color:white;border-color:#2c3e50}
-.admin-menu-item svg{opacity:1}
 .logout-btn{width:100%;background:none;border:1px solid var(--bs);cursor:pointer;font-size:inherit;font-family:inherit}
 .logout-btn:hover{background:#fee;border-color:#dc3545;color:#dc3545}
 
@@ -2037,25 +2034,17 @@ body.has-promo-bar .wishlist-dropdown {
     }
 }
 
-/* Admin Panel Styles */
-/* Admin Top Bar */
-/* Admin bar uses same styles as contact bar */
-.admin-contact-bar {
     z-index: 1100 !important; /* Ensure admin bar is always on top */
 }
 
-/* Mobile - show only icons for admin bar buttons */
 @media (max-width: 768px) {
-    .admin-contact-bar .admin-text {
         display: none;
     }
     
-    .admin-contact-bar .admin-icon {
         font-size: 1.1rem;
     }
 }
 
-/* Admin bar overlays on top - no content adjustment */
 
 /* Admin bar mobile - uses contact bar responsive styles */
 
@@ -2114,14 +2103,12 @@ tr.out-of-stock {
 }
 
 /* Admin Modal - Specific centering for admin modals */
-.admin-modal-overlay {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 20px !important;
 }
 
-.admin-modal {
     position: relative !important;
     top: auto !important;
     left: auto !important;
@@ -2129,7 +2116,6 @@ tr.out-of-stock {
 }
 
 /* Admin Modal Components - Consistent with website styling */
-.admin-section {
     background: linear-gradient(135deg, var(--b1), #faf8f5);
     border-radius: var(--rad);
     overflow: hidden;
@@ -2220,7 +2206,6 @@ tr.out-of-stock {
 }
 
 /* Admin Tables */
-.admin-table {
     background: var(--bc);
     border-radius: var(--rad);
     overflow: hidden;
@@ -2229,12 +2214,10 @@ tr.out-of-stock {
     box-shadow: 0 4px 20px rgba(0,0,0,.15);
 }
 
-.admin-table table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.admin-table th {
     background: linear-gradient(135deg, var(--c1), var(--c1d));
     color: var(--td);
     padding: var(--s2) var(--s3);
@@ -2245,23 +2228,19 @@ tr.out-of-stock {
     text-transform: uppercase;
 }
 
-.admin-table td {
     padding: var(--s2) var(--s3);
     border-bottom: 1px solid var(--bs);
     font-size: 0.9rem;
     color: var(--c1d);
 }
 
-.admin-table tr:last-child td {
     border-bottom: none;
 }
 
-.admin-table tr:hover {
     background: linear-gradient(135deg, var(--b2), #f0ebe3);
 }
 
 /* Admin Buttons - Consistent with website */
-.admin-btn {
     padding: var(--s1) var(--s3);
     border: none;
     border-radius: var(--rad);
@@ -2275,46 +2254,38 @@ tr.out-of-stock {
     text-decoration: none;
 }
 
-.admin-btn-primary {
     background: var(--c1);
     color: var(--td);
 }
 
-.admin-btn-primary:hover {
     background: var(--c1d);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(62, 39, 35, 0.3);
 }
 
-.admin-btn-success {
     background: #25D366;
     color: white;
 }
 
-.admin-btn-success:hover {
     background: #1da851;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
-.admin-btn-danger {
     background: #dc3545;
     color: white;
 }
 
-.admin-btn-danger:hover {
     background: #c82333;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
-.admin-btn-secondary {
     background: transparent;
     color: var(--c1);
     border: 1px solid var(--c1);
 }
 
-.admin-btn-secondary:hover {
     background: var(--c1);
     color: var(--td);
     transform: translateY(-2px);
@@ -2329,7 +2300,6 @@ tr.out-of-stock {
 }
 
 /* Dashboard styles */
-.admin-dashboard h2 {
     margin-top: 0;
 }
 
@@ -2363,7 +2333,6 @@ tr.out-of-stock {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-    .admin-modal {
         max-width: 100%;
         margin: 10px;
     }
@@ -2374,14 +2343,12 @@ tr.out-of-stock {
 }
 
 /* Old floating panel - replaced with top bar
-.admin-feedback-panel {
     position: fixed;
     bottom: 90px;
     right: 20px;
     z-index: 1001;
 }
 
-.admin-panel-toggle {
     background: #ff6b35;
     color: white;
     padding: 8px 12px;
@@ -2393,12 +2360,10 @@ tr.out-of-stock {
     transition: all 0.3s ease;
 }
 
-.admin-panel-toggle:hover {
     background: #e55a2b;
     transform: translateY(-1px);
 }
 
-.admin-panel-content {
     position: absolute;
     bottom: 100%;
     right: 0;
@@ -2410,7 +2375,6 @@ tr.out-of-stock {
     min-width: 160px;
 }
 
-.admin-btn {
     display: block;
     width: 100%;
     background: var(--bg2);
@@ -2424,28 +2388,23 @@ tr.out-of-stock {
     transition: all 0.2s;
 }
 
-.admin-btn:last-child {
     margin-bottom: 0;
 }
 
-.admin-btn:hover {
     background: var(--prim);
     color: white;
 }
 
-.admin-btn.small {
     font-size: 11px;
     padding: 6px 8px;
     opacity: 0.7;
 }
 
 @media (max-width: 768px) {
-    .admin-feedback-panel {
         bottom: 80px;
         right: 10px;
     }
     
-    .admin-panel-content {
         right: -60px;
     }
 }
@@ -2719,7 +2678,6 @@ tr.out-of-stock {
     z-index: 2000;
 }
 
-.admin-toggle {
     background: #1a73e8;
     color: white;
     padding: 12px 16px;
@@ -2731,13 +2689,11 @@ tr.out-of-stock {
     transition: all 0.3s ease;
 }
 
-.admin-toggle:hover {
     background: #1557b0;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4);
 }
 
-.admin-content {
     position: absolute;
     top: 100%;
     right: 0;
@@ -2752,7 +2708,6 @@ tr.out-of-stock {
     overflow: hidden;
 }
 
-.admin-nav {
     width: 200px;
     background: #f8f9fa;
     border-right: 1px solid #e9ecef;
@@ -2760,7 +2715,6 @@ tr.out-of-stock {
     overflow-y: auto;
 }
 
-.admin-nav-btn {
     display: block;
     width: 100%;
     padding: 12px 20px;
@@ -2773,25 +2727,21 @@ tr.out-of-stock {
     color: #495057;
 }
 
-.admin-nav-btn:hover {
     background: #e9ecef;
     color: #1a73e8;
 }
 
-.admin-nav-btn.active {
     background: #1a73e8;
     color: white;
     border-radius: 0;
 }
 
-.admin-main-content {
     flex: 1;
     padding: 24px;
     overflow-y: auto;
 }
 
 /* Dashboard Styles */
-.admin-dashboard h2 {
     margin-bottom: 24px;
     color: #2c3e50;
 }
@@ -2941,11 +2891,9 @@ tr.out-of-stock {
 }
 
 /* Alerts */
-.admin-alerts {
     margin-bottom: 32px;
 }
 
-.admin-alerts h3 {
     margin-bottom: 16px;
     color: #2c3e50;
 }
@@ -2989,7 +2937,6 @@ tr.out-of-stock {
 }
 
 /* Orders Management */
-.admin-orders .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -3166,7 +3113,6 @@ tr.out-of-stock {
 }
 
 /* Products Management */
-.admin-products .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -3303,7 +3249,6 @@ tr.out-of-stock {
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .admin-content {
         width: 95vw;
     }
 }
@@ -3314,13 +3259,11 @@ tr.out-of-stock {
         right: 10px;
     }
     
-    .admin-content {
         width: 95vw;
         height: 85vh;
         flex-direction: column;
     }
     
-    .admin-nav {
         width: 100%;
         height: auto;
         display: flex;
@@ -3328,12 +3271,10 @@ tr.out-of-stock {
         padding: 8px;
     }
     
-    .admin-nav-btn {
         white-space: nowrap;
         padding: 8px 16px;
     }
     
-    .admin-main-content {
         padding: 16px;
     }
     
@@ -3870,38 +3811,29 @@ tr.out-of-stock {
 /* Mobile Responsive for Farm Management */
 /* Admin Modal Responsive */
 @media (max-width: 768px) {
-    .admin-modal {
         width: 95%;
         max-height: 90vh;
         margin: 10px;
     }
     
-    .admin-modal-header {
         padding: 16px 20px;
     }
     
-    .admin-modal-header h2 {
         font-size: 1.1rem;
     }
     
-    .admin-modal-content,
-    .admin-modal-body {
         padding: 16px;
     }
     
-    .admin-table {
         overflow-x: auto;
     }
     
-    .admin-table table {
         min-width: 600px;
     }
     
-    .admin-actions {
         justify-content: stretch;
     }
     
-    .admin-btn {
         flex: 1;
         justify-content: center;
     }
@@ -4318,7 +4250,6 @@ tr.out-of-stock {
 }
 
 /* Notifications */
-.admin-notification {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -4333,19 +4264,16 @@ tr.out-of-stock {
     animation: slideInRight 0.3s ease;
 }
 
-.admin-notification.success {
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
 
-.admin-notification.info {
     background: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
 }
 
-.admin-notification.warning {
     background: #fff3cd;
     color: #856404;
     border: 1px solid #ffeaa7;
@@ -5302,21 +5230,18 @@ tr.out-of-stock {
     height: 100%;
 }
 
-.admin-bar-label {
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.admin-bar-actions {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     align-items: center;
 }
 
-.admin-bar-btn {
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.2);
     color: white;
@@ -5331,67 +5256,54 @@ tr.out-of-stock {
     height: 24px; /* Fixed height to fit in bar */
 }
 
-.admin-bar-btn:hover {
     background: rgba(255,255,255,0.2);
     transform: translateY(-1px);
 }
 
-.admin-bar-btn.admin-bar-close {
     background: rgba(231,76,60,0.8);
     border-color: rgba(231,76,60,0.9);
 }
 
-.admin-bar-btn.admin-bar-close:hover {
     background: #e74c3c;
 }
 
-.admin-btn-icon {
     font-size: 14px; /* Smaller icons for 32px bar */
 }
 
-.admin-btn-text {
     display: inline;
 }
 
 /* Admin Bar Responsive */
 @media (max-width: 768px) {
-    .admin-mode {
         padding-top: auto;
     }
     
-    .admin-bar-content {
         flex-direction: column;
         padding: 10px;
     }
     
-    .admin-bar-actions {
         width: 100%;
         justify-content: center;
     }
     
-    .admin-bar-btn {
         padding: 5px 8px;
         font-size: 12px;
     }
     
-    .admin-btn-text {
         display: none;
     }
     
-    .admin-btn-icon {
         font-size: 18px;
     }
 }
 
 /* Admin Modal Responsive Tables */
 @media (max-width: 768px) {
-    .admin-table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
     }
     
-    .admin-table-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }

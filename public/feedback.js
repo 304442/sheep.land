@@ -5,8 +5,6 @@ const feedbackSystem = {
         // this.setupFeedbackWidget(); // Removed - using top bar button instead
         this.setupEventListeners();
         this.checkForDirectFeedbackLink();
-        // Check for admin mode and setup controls if needed
-        this.setupAdminControls();
     },
 
     // Check if page was loaded with feedback parameters
@@ -37,49 +35,8 @@ const feedbackSystem = {
             </button>
         `;
         document.body.appendChild(widget);
-        
-        // Add admin controls (hidden by default)
-        this.setupAdminControls();
     },
 
-    // Setup admin controls
-    setupAdminControls() {
-        // Check if admin mode should be enabled (you can add authentication later)
-        const isAdminMode = window.location.hash.includes('admin') || localStorage.getItem('feedback_admin_mode') === 'true';
-        
-        if (isAdminMode) {
-            // Feedback admin mode is disabled - using main admin system instead
-            // console.log('✨ Feedback Admin: Admin mode detected but disabled - use main admin system');
-            // Remove any feedback admin bar if it exists
-            document.querySelectorAll('.admin-top-bar').forEach(el => {
-                if (el.innerHTML.includes('Feedback Admin')) {
-                    el.remove();
-                }
-            });
-        }
-    },
-
-    // Toggle admin panel visibility
-    toggleAdminPanel() {
-        const content = document.getElementById('adminPanelContent');
-        const isVisible = content.style.display !== 'none';
-        content.style.display = isVisible ? 'none' : 'block';
-    },
-
-    // Toggle admin mode on/off
-    toggleAdminMode() {
-        const isEnabled = localStorage.getItem('feedback_admin_mode') === 'true';
-        if (isEnabled) {
-            localStorage.removeItem('feedback_admin_mode');
-            document.querySelector('.admin-top-bar')?.remove();
-            document.body.classList.remove('admin-mode');
-            alert('Admin mode disabled. Refresh page to see changes.');
-        } else {
-            localStorage.setItem('feedback_admin_mode', 'true');
-            this.setupAdminControls();
-            alert('Admin mode enabled!');
-        }
-    },
 
     // Export feedback data
     async exportFeedback() {
