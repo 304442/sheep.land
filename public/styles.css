@@ -254,12 +254,12 @@ nav.nav-main.nav-desk .nav-list{display:flex;gap:var(--s0);align-items:center}
 .menu-btn:hover{color:var(--c2);transform:scale(1.1)}
 
 /* Mobile Navigation Dropdown */
-.mobile-nav-dropdown{position:fixed;left:0;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-bottom:2px solid var(--c2);overflow:hidden;transition:top 0.2s ease}
+.mobile-nav-dropdown{position:fixed;left:0;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-bottom:3px solid var(--c2);overflow:hidden;transition:top 0.2s ease}
 body:not(.has-promo-bar) .mobile-nav-dropdown{top:calc(var(--head-h) + 32px)}
 body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 96px)}
-.mobile-nav-content{padding:var(--s3) 0;background:linear-gradient(135deg,var(--b1),#faf8f5);text-align:center}
+.mobile-nav-content{padding:var(--s4) 0;background:linear-gradient(135deg,var(--b1),#faf8f5);text-align:center}
 @media(min-width:769px){.mobile-nav-dropdown{display:none!important}}
-.nav-list-mob{display:flex;flex-direction:column;gap:var(--s1);padding:0;align-items:center;width:100%}
+.nav-list-mob{display:flex;flex-direction:column;gap:var(--s2);padding:0 var(--s2);align-items:center;width:100%}
 
 /* Mobile nav section headers */
 .nav-section-header {
@@ -276,9 +276,9 @@ body.has-promo-bar .mobile-nav-dropdown{top:calc(var(--head-h) + 96px)}
 .nav-section-header:first-child {
     margin-top: 0;
 }
-.nav-link-mob{font-size:1rem;color:var(--c1);font-weight:600;padding:var(--s3) var(--s4);display:flex;align-items:center;justify-content:center;gap:.5em;text-decoration:none;line-height:1;transition:all .2s ease;background:white;margin:0 auto;border-radius:var(--rad);border:1px solid var(--bs);width:80%;max-width:300px}
-.nav-link-mob:hover,.nav-link-mob.active-nav{color:var(--c1d);background:var(--b2);border-color:var(--c2);transform:translateY(-2px);box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.nav-link-mob.as-button{background:white;border:1px solid var(--bs);width:80%;max-width:300px;cursor:pointer;font-size:inherit;font-family:inherit;margin:0 auto}
+.nav-link-mob{font-size:1.1rem;color:var(--c1);font-weight:600;padding:var(--s3) var(--s4);display:flex;align-items:center;justify-content:center;gap:.5em;text-decoration:none;line-height:1.4;transition:all .2s ease;background:white;margin:0 auto;border-radius:var(--rad);border:1px solid var(--bs);width:90%;max-width:400px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.nav-link-mob:hover,.nav-link-mob.active-nav{color:white;background:var(--c2);border-color:var(--c2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(139,195,74,0.3)}
+.nav-link-mob.as-button{background:white;border:1px solid var(--bs);width:90%;max-width:400px;cursor:pointer;font-size:inherit;font-family:inherit;margin:0 auto}
 .nav-link-mob.as-button.logout:hover{background:#fee;border-color:#dc3545;color:#dc3545}
 
 .hero{background:url(images/hero-sheep-farm.jpg);background-size:cover;background-position:center;background-repeat:no-repeat;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:var(--s4) 0;margin:var(--s3) auto;max-width:1200px;border-radius:var(--rad);box-shadow:0 4px 20px rgba(0,0,0,0.1)}
@@ -863,7 +863,7 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 96px)}
         font-size: 0.75rem !important;
         white-space: nowrap !important;
     }
-    .nav-bil-inline{gap:6px;font-size:0.85rem;display:inline-flex;flex-direction:row;flex-wrap:nowrap}
+    .nav-bil-inline{gap:8px;font-size:0.95rem;display:inline-flex;flex-direction:row;flex-wrap:nowrap}
     .nav-bil-inline>.en,.nav-bil-inline>.ar{white-space:nowrap}
     .grid2:not(.prod-grid){grid-template-columns:1fr}
     .prod-grid.grid2{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
@@ -5411,5 +5411,38 @@ img,video,iframe{max-width:100%;height:auto}
     .promo-bar-row.promo-bar-text > span{
         flex-shrink:1!important;
         min-width:0!important;
+    }
+}
+
+/* Enhanced Mobile Hamburger Menu Styling */
+@media(max-width:768px){
+    .nav-link-mob{
+        font-size:1.15rem!important;
+        padding:18px 30px!important;
+        width:94%!important;
+        max-width:none!important;
+        background:linear-gradient(135deg, white, #f8f9fa)!important;
+        border:2px solid #e0e0e0!important;
+        font-weight:700!important;
+        text-transform:capitalize;
+        letter-spacing:0.3px;
+    }
+    .nav-link-mob:active{
+        transform:scale(0.98);
+    }
+    .nav-list-mob{
+        gap:14px!important;
+        padding:8px 12px!important;
+    }
+    .mobile-nav-content{
+        padding:28px 0 32px 0!important;
+        background:linear-gradient(180deg, #fafbfc, #f5f6f7)!important;
+    }
+    .nav-bil-inline{
+        font-size:1.05rem!important;
+        gap:12px!important;
+    }
+    .nav-bil-inline .ar{
+        font-size:1.1rem!important;
     }
 }
