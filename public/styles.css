@@ -5353,15 +5353,45 @@ tr.out-of-stock {
 /* Global Overflow Fixes */
 /* Prevent horizontal scrolling and fix overflow issues */
 
-/* Remove old dropdown width constraints */
-.account-dropdown,
-.wishlist-dropdown,
-.cart-dropdown,
+/* Revert dropdowns to boxed style */
+.account-dropdown {
+    left: auto !important;
+    right: 100px !important;
+    width: 320px !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: var(--rad) !important;
+    border: 2px solid var(--c2) !important;
+    border-bottom: 2px solid var(--c2) !important;
+}
+
+.wishlist-dropdown {
+    left: auto !important;
+    right: 60px !important;
+    width: 400px !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: var(--rad) !important;
+    border: 2px solid var(--c2) !important;
+    border-bottom: 2px solid var(--c2) !important;
+}
+
+.cart-dropdown {
+    left: auto !important;
+    right: 20px !important;
+    width: 400px !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: var(--rad) !important;
+    border: 2px solid var(--c2) !important;
+    border-bottom: 2px solid var(--c2) !important;
+}
+
 .auth-dropdown {
-    width: auto !important;
-    max-width: none !important;
-    left: 0 !important;
-    right: 0 !important;
+    left: auto !important;
+    right: 100px !important;
+    width: 360px !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: var(--rad) !important;
+    border: 2px solid var(--c2) !important;
+    border-bottom: 2px solid var(--c2) !important;
 }
 
 
@@ -5407,15 +5437,6 @@ img,video,iframe{max-width:100%;height:auto}
 }
 
 
-/* Make all dropdowns full-width like search */
-.account-dropdown .c,
-.wishlist-dropdown .c,
-.cart-dropdown .c,
-.auth-dropdown .c {
-    max-width: 100% !important;
-    width: 100% !important;
-    padding: 0 !important;
-}
 
 /* Enhanced Mobile Hamburger Menu Styling */
 @media(max-width:768px){
