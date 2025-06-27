@@ -9,8 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="style.css">
+    <style>[x-cloak]{display:none!important}</style>
+    <script src="../vendor/pocketbase.umd.js"></script>
 </head>
-<body x-data="farmManagement" x-init="init()">
+<body x-data="farmManagement" x-init="init()" x-cloak>
     <div class="management-container">
         <header class="management-header">
             <div class="header-content">
@@ -142,6 +144,10 @@
                                     <span class="en">Health</span>
                                     <span class="ar">الصحة</span>
                                 </button>
+                                <button @click="deleteSheep(sheep.id)" class="btn btn-sm danger bil-inline">
+                                    <span class="en">Delete</span>
+                                    <span class="ar">حذف</span>
+                                </button>
                             </div>
                         </div>
                     </template>
@@ -232,6 +238,33 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Loading and error indicators -->
+    <div x-show="loading" class="load-ind" x-cloak>
+        <span x-text="loadingMessage || 'Loading...'"></span>
+    </div>
+    
+    <div x-show="error" class="err-ind" x-cloak>
+        <span x-text="error"></span>
+    </div>
+
+    <!-- Auth check modal -->
+    <div x-show="!isAuthenticated" class="modal-overlay" x-cloak>
+        <div class="auth-modal">
+            <h2 class="bil-spread">
+                <span class="en">Admin Access Required</span>
+                <span class="ar">مطلوب صلاحيات المشرف</span>
+            </h2>
+            <p class="bil-spread">
+                <span class="en">Please login as admin to access this tool</span>
+                <span class="ar">يرجى تسجيل الدخول كمشرف للوصول لهذه الأداة</span>
+            </p>
+            <a href="../index.html" class="btn bp bil-inline">
+                <span class="en">Go to Login</span>
+                <span class="ar">الذهاب لتسجيل الدخول</span>
+            </a>
         </div>
     </div>
 

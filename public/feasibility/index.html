@@ -9,8 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="style.css">
+    <style>[x-cloak]{display:none!important}</style>
+    <script src="../vendor/pocketbase.umd.js"></script>
 </head>
-<body>
+<body x-data="feasibilityApp" x-init="init()">
     <div class="feasibility-container">
         <header class="feasibility-header">
             <div class="header-content">
@@ -155,10 +157,32 @@
                 </div>
 
                 <div class="calc-actions">
-                    <button onclick="calculateFeasibility()" class="btn bp btn-lg bil-inline">
+                    <button @click="calculateFeasibility()" class="btn bp btn-lg bil-inline" :disabled="loading">
                         <span class="en">Calculate Feasibility</span>
                         <span class="ar">احسب الجدوى</span>
                     </button>
+                    <button x-show="canSave" @click="saveAnalysis()" class="btn bac btn-lg bil-inline" :disabled="loading">
+                        <span class="en">Save Analysis</span>
+                        <span class="ar">حفظ التحليل</span>
+                    </button>
+                </div>
+                
+                <!-- Saved Analyses -->
+                <div x-show="savedAnalyses.length > 0" class="saved-section">
+                    <h3 class="bil-spread">
+                        <span class="en">Saved Analyses</span>
+                        <span class="ar">التحليلات المحفوظة</span>
+                    </h3>
+                    <div class="saved-grid">
+                        <template x-for="analysis in savedAnalyses" :key="analysis.id">
+                            <div class="saved-item">
+                                <h4 x-text="analysis.title"></h4>
+                                <p class="saved-date" x-text="formatDate(analysis.created)"></p>
+                                <button @click="loadAnalysis(analysis)" class="btn btn-sm bp-alt">Load</button>
+                                <button @click="deleteAnalysis(analysis.id)" class="btn btn-sm danger">Delete</button>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
 
@@ -244,6 +268,34 @@
         </main>
     </div>
 
+    <!-- Loading and error indicators -->
+    <div x-show="loading" class="load-ind" x-cloak>
+        <span x-text="loadingMessage || 'Loading...'"></span>
+    </div>
+    
+    <div x-show="error" class="err-ind" x-cloak>
+        <span x-text="error"></span>
+    </div>
+
+    <!-- Auth check modal -->
+    <div x-show="!isAuthenticated" class="modal-overlay" x-cloak>
+        <div class="auth-modal">
+            <h2 class="bil-spread">
+                <span class="en">Admin Access Required</span>
+                <span class="ar">مطلوب صلاحيات المشرف</span>
+            </h2>
+            <p class="bil-spread">
+                <span class="en">Please login as admin to access this tool</span>
+                <span class="ar">يرجى تسجيل الدخول كمشرف للوصول لهذه الأداة</span>
+            </p>
+            <a href="../index.html" class="btn bp bil-inline">
+                <span class="en">Go to Login</span>
+                <span class="ar">الذهاب لتسجيل الدخول</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="../vendor/alpine.min.js" defer></script>
     <script src="script.js"></script>
 </body>
 </html>
