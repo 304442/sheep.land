@@ -1782,14 +1782,14 @@
 <!-- Meat Calculator Modal - Removed -->
 
 <!-- Feasibility Calculator Modal -->
-<div x-show="showFeasibilityModal" class="modal-overlay" @click.self="showFeasibilityModal = false" x-cloak>
-    <div class="modal-lg">
+<div x-show="showFeasibilityModal" class="modal-overlay" @click="closeFeasibilityModal()"></div>
+<div x-show="showFeasibilityModal" class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="feasibility-modal-title" @keydown.escape.window="closeFeasibilityModal()" x-cloak>
         <div class="modal-header">
-            <h2 class="bil-spread">
+            <h2 id="feasibility-modal-title" class="bil-spread modal-title">
                 <span class="en">Feasibility Calculator</span>
                 <span class="ar">حاسبة الجدوى</span>
             </h2>
-            <button @click="showFeasibilityModal = false" class="modal-close-btn">×</button>
+            <button @click="closeFeasibilityModal()" class="modal-close-btn">×</button>
         </div>
         <div class="modal-content">
             <div class="calc-section">
@@ -2001,18 +2001,17 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <!-- Farm Management Modal -->
-<div x-show="showFarmModal" class="modal-overlay" @click.self="showFarmModal = false" x-cloak>
-    <div class="modal-lg">
+<div x-show="showFarmModal" class="modal-overlay" @click="closeFarmModal()"></div>
+<div x-show="showFarmModal" class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="farm-modal-title" @keydown.escape.window="closeFarmModal()" x-cloak>
         <div class="modal-header">
-            <h2 class="bil-spread">
+            <h2 id="farm-modal-title" class="bil-spread modal-title">
                 <span class="en">Farm Management System</span>
                 <span class="ar">نظام إدارة المزرعة</span>
             </h2>
-            <button @click="showFarmModal = false" class="modal-close-btn">×</button>
+            <button @click="closeFarmModal()" class="modal-close-btn">×</button>
         </div>
         <div class="modal-content">
             <!-- Stats Overview -->
@@ -2146,14 +2145,13 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <!-- Add/Edit Sheep Form Modal -->
-<div x-show="showAddSheepForm" class="modal-overlay" @click.self="showAddSheepForm = false" x-cloak>
-    <div class="modal">
+<div x-show="showAddSheepForm" class="modal-overlay" @click="showAddSheepForm = false"></div>
+<div x-show="showAddSheepForm" class="modal" role="dialog" aria-modal="true" aria-labelledby="add-sheep-modal-title" @keydown.escape.window="showAddSheepForm = false" x-cloak>
         <div class="modal-header">
-            <h2 class="bil-spread">
+            <h2 id="add-sheep-modal-title" class="bil-spread modal-title">
                 <span class="en" x-text="editingSheepId ? 'Edit Sheep' : 'Add New Sheep'"></span>
                 <span class="ar" x-text="editingSheepId ? 'تعديل البيانات' : 'إضافة رأس جديد'"></span>
             </h2>
@@ -2224,7 +2222,6 @@
                 </button>
             </div>
         </form>
-    </div>
 </div>
 
 <footer class="foot main-page-sec">
