@@ -614,13 +614,9 @@ body.has-promo-bar .search-dropdown{top:calc(var(--head-h) + 96px);max-height:ca
 .search-result-item:hover{background:var(--b2);border-color:var(--c2);transform:translateX(5px)}
 
 /* Account Dropdown */
-.account-dropdown{position:fixed;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-radius:var(--rad);border:2px solid var(--c2);overflow:hidden;transition:all 0.2s ease;width:320px;max-width:calc(100vw - 20px)}
-/* Position account dropdown under account icon */
-body:not(.has-promo-bar) .account-dropdown{top:calc(var(--head-h) + 32px);right:100px}
-body.has-promo-bar .account-dropdown{top:calc(var(--head-h) + 96px);right:100px}
-/* Adjust for smaller screens */
-@media(max-width:1200px){.account-dropdown{right:80px!important}}
-@media(max-width:992px){.account-dropdown{right:60px!important}}
+.account-dropdown{position:fixed;left:0;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-bottom:2px solid var(--c2);overflow:hidden;transition:top 0.2s ease}
+body:not(.has-promo-bar) .account-dropdown{top:calc(var(--head-h) + 32px)}
+body.has-promo-bar .account-dropdown{top:calc(var(--head-h) + 96px)}
 .account-dropdown-content{background:linear-gradient(135deg,var(--b1),#faf8f5)}
 .account-info{padding:0}
 .account-header{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);background:linear-gradient(135deg,var(--c1),var(--c1d));color:var(--td)}
@@ -657,13 +653,9 @@ body.has-promo-bar .whatsapp-dropdown{top:calc(32px + 64px)}
 .whatsapp-input:focus{border-color:#25D366}
 .whatsapp-send-btn{width:40px;height:40px;border-radius:50%;background:#25D366;color:white;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s}
 .whatsapp-send-btn:hover{background:#128C7E}
-.auth-dropdown{position:fixed;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-radius:var(--rad);border:2px solid var(--c2);overflow:hidden;transition:all 0.2s ease;width:360px;max-width:calc(100vw - 20px)}
-/* Position auth dropdown under auth icon */
-body:not(.has-promo-bar) .auth-dropdown{top:calc(var(--head-h) + 32px);right:100px}
-body.has-promo-bar .auth-dropdown{top:calc(var(--head-h) + 96px);right:100px}
-/* Adjust for smaller screens */
-@media(max-width:1200px){.auth-dropdown{right:80px!important}}
-@media(max-width:992px){.auth-dropdown{right:60px!important}}
+.auth-dropdown{position:fixed;left:0;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-bottom:2px solid var(--c2);overflow:hidden;transition:top 0.2s ease}
+body:not(.has-promo-bar) .auth-dropdown{top:calc(var(--head-h) + 32px)}
+body.has-promo-bar .auth-dropdown{top:calc(var(--head-h) + 96px)}
 .auth-dropdown-content{padding:var(--s4);background:linear-gradient(135deg,var(--b1),#faf8f5)}
 .auth-header{text-align:center;margin-bottom:var(--s4)}
 .auth-header h2{margin:0 0 var(--s2);color:var(--c1d);font-size:1.25rem}
@@ -694,13 +686,9 @@ body.has-promo-bar .auth-dropdown{top:calc(var(--head-h) + 96px);right:100px}
 .link-btn:hover{color:var(--c1d)}
 
 /* Cart Dropdown */
-.cart-dropdown{position:fixed;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-radius:var(--rad);border:2px solid var(--c2);overflow:hidden;transition:all 0.2s ease;width:400px;max-width:calc(100vw - 20px)}
-/* Position cart dropdown under cart icon */
-body:not(.has-promo-bar) .cart-dropdown{top:calc(var(--head-h) + 32px);right:20px}
-body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 96px);right:20px}
-/* Adjust for smaller screens */
-@media(max-width:1200px){.cart-dropdown{right:15px!important}}
-@media(max-width:992px){.cart-dropdown{right:10px!important}}
+.cart-dropdown{position:fixed;left:0;right:0;background:white;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1006;border-bottom:2px solid var(--c2);overflow:hidden;transition:top 0.2s ease}
+body:not(.has-promo-bar) .cart-dropdown{top:calc(var(--head-h) + 32px)}
+body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 96px)}
 .cart-dropdown-content{background:linear-gradient(135deg,var(--b1),#faf8f5)}
 .cart-header{padding:var(--s3);border-bottom:1px solid var(--bs);text-align:center}
 .cart-header h2{margin:0;color:var(--c1d);font-size:1.1rem}
@@ -976,13 +964,7 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 96px);right:20px}
     .cd-mini{font-size:0.65rem;gap:2px}
     .cd-mini-val{font-size:0.7rem}
     
-    /* Mobile Dropdowns - Full width on mobile */
-    .account-dropdown,.wishlist-dropdown,.cart-dropdown{
-        width:calc(100vw - 20px)!important;
-        max-width:none!important;
-        left:10px!important;
-        right:auto!important;
-    }
+    /* Mobile Dropdowns - Already full width, no changes needed */
     body:not(.has-promo-bar) .account-dropdown,
     body:not(.has-promo-bar) .wishlist-dropdown,
     body:not(.has-promo-bar) .cart-dropdown{
@@ -1076,30 +1058,23 @@ body.has-promo-bar .cart-dropdown{top:calc(var(--head-h) + 96px);right:20px}
 /* Wishlist Dropdown Styles */
 .wishlist-dropdown {
     position: fixed;
+    left: 0;
+    right: 0;
     background: white;
     box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
     z-index: 1006;
-    border-radius: var(--rad);
-    border: 2px solid var(--c2);
+    border-bottom: 2px solid var(--c2);
     overflow: hidden;
-    transition: all 0.2s ease;
-    width: 400px;
-    max-width: calc(100vw - 20px);
+    transition: top 0.2s ease;
 }
 
-/* Position wishlist dropdown under wishlist icon */
 body:not(.has-promo-bar) .wishlist-dropdown {
     top: calc(var(--head-h) + 32px);
-    right: 60px;
 }
 
 body.has-promo-bar .wishlist-dropdown {
     top: calc(var(--head-h) + 96px);
-    right: 60px;
 }
-/* Adjust for smaller screens */
-@media(max-width:1200px){.wishlist-dropdown{right:40px!important}}
-@media(max-width:992px){.wishlist-dropdown{right:30px!important}}
 
 .wishlist-dropdown-content {
     background: linear-gradient(135deg, var(--b1), #faf8f5);
@@ -5433,69 +5408,6 @@ img,video,iframe{max-width:100%;height:auto}
     }
 }
 
-/* Add dropdown arrows/carets */
-.account-dropdown::before,
-.wishlist-dropdown::before,
-.cart-dropdown::before,
-.auth-dropdown::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    right: 20px;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid var(--c2);
-}
-
-.account-dropdown::after,
-.wishlist-dropdown::after,
-.cart-dropdown::after,
-.auth-dropdown::after {
-    content: '';
-    position: absolute;
-    top: -6px;
-    right: 22px;
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 6px solid white;
-}
-
-/* Adjust arrow positions for each dropdown */
-.account-dropdown::before,
-.account-dropdown::after {
-    right: 40px;
-}
-.account-dropdown::after {
-    right: 42px;
-}
-
-.wishlist-dropdown::before,
-.wishlist-dropdown::after {
-    right: 40px;
-}
-.wishlist-dropdown::after {
-    right: 42px;
-}
-
-.cart-dropdown::before,
-.cart-dropdown::after {
-    right: 30px;
-}
-.cart-dropdown::after {
-    right: 32px;
-}
-
-.auth-dropdown::before,
-.auth-dropdown::after {
-    right: 40px;
-}
-.auth-dropdown::after {
-    right: 42px;
-}
 
 /* Enhanced Mobile Hamburger Menu Styling */
 @media(max-width:768px){
