@@ -977,27 +977,34 @@ document.addEventListener('alpine:init', () => {
                 
                 const analysisData = {
                     user: this.currentUser.id,
-                    num_sheep: this.feasibility.numSheep,
-                    price_per_sheep: this.feasibility.pricePerSheep,
-                    facility_costs: this.feasibility.facilityCosts,
-                    feed_cost_monthly: this.feasibility.feedCostPerMonth,
-                    labor_cost_monthly: this.feasibility.laborCostPerMonth,
-                    vet_cost_monthly: this.feasibility.vetCostPerMonth,
-                    selling_price_per_sheep: this.feasibility.sellingPricePerSheep,
-                    project_duration_months: this.feasibility.projectDuration,
-                    selected_breed: this.feasibility.selectedBreed,
-                    selected_season: this.feasibility.selectedSeason,
-                    include_breeding: this.feasibility.includeBreeding,
-                    breeding_revenue: this.feasibility.results.breedingRevenue,
-                    total_initial_cost: this.feasibility.results.totalInitialCost,
-                    monthly_operating_cost: this.feasibility.results.monthlyOperatingCost,
-                    total_operating_cost: this.feasibility.results.totalOperatingCost,
-                    total_revenue: this.feasibility.results.totalRevenue,
-                    net_profit: this.feasibility.results.netProfit,
-                    roi_percentage: this.feasibility.results.roi,
-                    monthly_profit: this.feasibility.results.monthlyProfit,
-                    break_even_months: this.feasibility.results.breakEvenMonths,
-                    is_viable: this.feasibility.results.isViable
+                    title: `Analysis - ${this.feasibility.selectedBreed} - ${new Date().toLocaleDateString()}`,
+                    sheep_count: this.feasibility.numSheep,
+                    sheep_price: this.feasibility.pricePerSheep,
+                    land_cost: this.feasibility.facilityCosts,
+                    equipment_cost: 0, // Not separately tracked, included in facility costs
+                    feed_cost: this.feasibility.feedCostPerMonth,
+                    vet_cost: this.feasibility.vetCostPerMonth,
+                    labor_cost: this.feasibility.laborCostPerMonth,
+                    other_cost: 0,
+                    breeding_rate: this.feasibility.breedingRate,
+                    lamb_price: this.feasibility.lambPrice,
+                    wool_revenue: 0, // Not calculated in current version
+                    analysis_period: this.feasibility.projectDuration,
+                    results: {
+                        breed: this.feasibility.selectedBreed,
+                        season: this.feasibility.selectedSeason,
+                        includeBreeding: this.feasibility.includeBreeding,
+                        totalInitialCost: this.feasibility.results.totalInitialCost,
+                        monthlyOperatingCost: this.feasibility.results.monthlyOperatingCost,
+                        totalOperatingCost: this.feasibility.results.totalOperatingCost,
+                        totalRevenue: this.feasibility.results.totalRevenue,
+                        breedingRevenue: this.feasibility.results.breedingRevenue,
+                        netProfit: this.feasibility.results.netProfit,
+                        roi: this.feasibility.results.roi,
+                        monthlyProfit: this.feasibility.results.monthlyProfit,
+                        breakEvenMonths: this.feasibility.results.breakEvenMonths,
+                        isViable: this.feasibility.results.isViable
+                    }
                 };
                 
                 await this.pb.collection('feasibility_analyses').create(analysisData);
