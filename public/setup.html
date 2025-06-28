@@ -3275,10 +3275,10 @@
         ],
         "health_checkups": [
                 {
-                        "sheep_id": "",
+                        "sheep_id": "ewe_002",
                         "checkup_date": new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
                         "checkup_type": "routine",
-                        "weight_kg": 45.5,
+                        "weight_kg": 52,
                         "temperature_c": 38.5,
                         "veterinarian": "Dr. Ahmed Hassan",
                         "symptoms": "None - routine checkup",
@@ -3291,10 +3291,10 @@
                         "cost": 250
                 },
                 {
-                        "sheep_id": "",
+                        "sheep_id": "lamb_001",
                         "checkup_date": new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
                         "checkup_type": "treatment",
-                        "weight_kg": 38.2,
+                        "weight_kg": 24.5,
                         "temperature_c": 40.2,
                         "veterinarian": "Dr. Ahmed Hassan",
                         "symptoms": "Elevated temperature, rapid breathing, nasal discharge",
@@ -3371,6 +3371,139 @@
                         "order_count": 45,
                         "customer_count": 38,
                         "notes": "Weekly performance showing consistent growth"
+                }
+        ],
+        "farm_sheep": [
+                {
+                        "tag_id": "ram_001",
+                        "breed": "Barki",
+                        "age_months": 24,
+                        "weight_kg": 85,
+                        "status": "healthy",
+                        "gender": "male",
+                        "location": "barn1",
+                        "feeding_plan": "enhanced",
+                        "purchase_price": 15000,
+                        "purchase_date": new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+                        "notes": "Prime breeding ram, excellent genetics"
+                },
+                {
+                        "tag_id": "ram_002",
+                        "breed": "Rahmani",
+                        "age_months": 18,
+                        "weight_kg": 78,
+                        "status": "healthy",
+                        "gender": "male",
+                        "location": "barn2",
+                        "feeding_plan": "standard",
+                        "purchase_price": 12000,
+                        "purchase_date": new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString(),
+                        "notes": "Good breeding ram"
+                },
+                {
+                        "tag_id": "ewe_001",
+                        "breed": "Barki",
+                        "age_months": 36,
+                        "weight_kg": 55,
+                        "status": "nursing",
+                        "gender": "female",
+                        "location": "barn1",
+                        "feeding_plan": "enhanced",
+                        "mother_tag_id": "ewe_legacy_01",
+                        "notes": "Excellent mother, twins born 3 days ago"
+                },
+                {
+                        "tag_id": "ewe_002",
+                        "breed": "Rahmani",
+                        "age_months": 30,
+                        "weight_kg": 52,
+                        "status": "healthy",
+                        "gender": "female",
+                        "location": "field",
+                        "feeding_plan": "standard",
+                        "notes": "Ready for next breeding cycle"
+                },
+                {
+                        "tag_id": "ewe_003",
+                        "breed": "Ossimi",
+                        "age_months": 28,
+                        "weight_kg": 58,
+                        "status": "pregnant",
+                        "gender": "female",
+                        "location": "barn2",
+                        "feeding_plan": "enhanced",
+                        "notes": "Expected to lamb in 60 days"
+                },
+                {
+                        "tag_id": "lamb_001",
+                        "breed": "Barki",
+                        "age_months": 4,
+                        "weight_kg": 25,
+                        "status": "healthy",
+                        "gender": "male",
+                        "location": "field",
+                        "feeding_plan": "standard",
+                        "mother_tag_id": "ewe_002",
+                        "father_tag_id": "ram_001",
+                        "notes": "Growing well, potential breeding stock"
+                },
+                {
+                        "tag_id": "lamb_002",
+                        "breed": "Barki",
+                        "age_months": 4,
+                        "weight_kg": 23,
+                        "status": "healthy",
+                        "gender": "female",
+                        "location": "field",
+                        "feeding_plan": "standard",
+                        "mother_tag_id": "ewe_002",
+                        "father_tag_id": "ram_001",
+                        "notes": "Twin sister of lamb_001"
+                }
+        ],
+        "feasibility_analyses": [
+                {
+                        "analysis_name": "Small Farm Startup - 50 Sheep",
+                        "initial_sheep_count": 50,
+                        "analysis_currency": "EGP",
+                        "sheep_purchase_price": 280,
+                        "feed_cost_per_day": 15,
+                        "labor_monthly_cost": 5000,
+                        "vet_cost_per_sheep": 100,
+                        "other_monthly_costs": 2000,
+                        "avg_sale_price": 350,
+                        "avg_sale_weight_kg": 50,
+                        "wool_revenue": 50,
+                        "analysis_period": 3,
+                        "land_type": "rented",
+                        "land_area": 5,
+                        "infrastructure_costs": {
+                                "shelter": 50000,
+                                "fencing": 30000,
+                                "water_system": 20000,
+                                "equipment": 15000
+                        },
+                        "breeding_params": {
+                                "ewes_percentage": 70,
+                                "rams_percentage": 30,
+                                "fertility_rate": 85,
+                                "mortality_rate": 5,
+                                "lambs_per_birth": 1.3
+                        },
+                        "market_params": {
+                                "demand_growth_rate": 5,
+                                "price_volatility": 10,
+                                "seasonal_factor": 1.2
+                        },
+                        "financial_params": {
+                                "interest_rate": 12,
+                                "loan_amount": 200000,
+                                "loan_term_years": 5
+                        },
+                        "npv": 125000,
+                        "irr": 18.5,
+                        "payback_period": 2.8,
+                        "profit_margin": 22
                 }
         ]
 };
