@@ -3188,8 +3188,123 @@
                         "verified": true
                 }
         ],
+        "farm_sheep": [
+                {
+                        "tag_id": "ram_001",
+                        "name": "Sultan",
+                        "user": "admin@sheep.land",
+                        "breed": "Rahmani",
+                        "sex": "Male",
+                        "birth_date": new Date(Date.now() - 730 * 24 * 60 * 60 * 1000).toISOString(),
+                        "weight_kg": 85,
+                        "status": "active",
+                        "purpose": "breeding",
+                        "dam_tag": null,
+                        "sire_tag": null,
+                        "purchase_date": new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+                        "purchase_price": 25000,
+                        "notes": "Prime breeding ram, excellent genetics"
+                },
+                {
+                        "tag_id": "ram_002",
+                        "name": "Thunder",
+                        "user": "admin@sheep.land",
+                        "breed": "Barki",
+                        "sex": "Male",
+                        "birth_date": new Date(Date.now() - 545 * 24 * 60 * 60 * 1000).toISOString(),
+                        "weight_kg": 78,
+                        "status": "active",
+                        "purpose": "breeding",
+                        "dam_tag": null,
+                        "sire_tag": null,
+                        "purchase_date": new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
+                        "purchase_price": 22000,
+                        "notes": "Young breeding ram with strong build"
+                },
+                {
+                        "tag_id": "ewe_001",
+                        "name": "Zahra",
+                        "user": "admin@sheep.land",
+                        "breed": "Rahmani",
+                        "sex": "Female",
+                        "birth_date": new Date(Date.now() - 910 * 24 * 60 * 60 * 1000).toISOString(),
+                        "weight_kg": 62,
+                        "status": "active",
+                        "purpose": "breeding",
+                        "dam_tag": null,
+                        "sire_tag": null,
+                        "purchase_date": new Date(Date.now() - 730 * 24 * 60 * 60 * 1000).toISOString(),
+                        "purchase_price": 18000,
+                        "notes": "Excellent mother, consistent twins"
+                },
+                {
+                        "tag_id": "ewe_002",
+                        "name": "Nour",
+                        "user": "admin@sheep.land",
+                        "breed": "Rahmani",
+                        "sex": "Female",
+                        "birth_date": new Date(Date.now() - 820 * 24 * 60 * 60 * 1000).toISOString(),
+                        "weight_kg": 58,
+                        "status": "active",
+                        "purpose": "breeding",
+                        "dam_tag": "ewe_001",
+                        "sire_tag": "ram_001",
+                        "purchase_date": null,
+                        "purchase_price": 0,
+                        "notes": "Born on farm, good milk production"
+                },
+                {
+                        "tag_id": "ewe_003",
+                        "name": "Layla",
+                        "user": "admin@sheep.land",
+                        "breed": "Barki",
+                        "sex": "Female",
+                        "birth_date": new Date(Date.now() - 640 * 24 * 60 * 60 * 1000).toISOString(),
+                        "weight_kg": 55,
+                        "status": "active",
+                        "purpose": "breeding",
+                        "dam_tag": null,
+                        "sire_tag": null,
+                        "purchase_date": new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+                        "purchase_price": 16000,
+                        "notes": "Good maternal instincts"
+                },
+                {
+                        "tag_id": "lamb_001",
+                        "name": "Flash",
+                        "user": "admin@sheep.land",
+                        "breed": "Rahmani",
+                        "sex": "Male",
+                        "birth_date": new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+                        "weight_kg": 25,
+                        "status": "active",
+                        "purpose": "market",
+                        "dam_tag": "ewe_001",
+                        "sire_tag": "ram_001",
+                        "purchase_date": null,
+                        "purchase_price": 0,
+                        "notes": "Fast growing lamb, ready for market soon"
+                },
+                {
+                        "tag_id": "lamb_002",
+                        "name": "Star",
+                        "user": "admin@sheep.land",
+                        "breed": "Rahmani",
+                        "sex": "Female",
+                        "birth_date": new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+                        "weight_kg": 23,
+                        "status": "active",
+                        "purpose": "breeding",
+                        "dam_tag": "ewe_001",
+                        "sire_tag": "ram_001",
+                        "purchase_date": null,
+                        "purchase_price": 0,
+                        "notes": "Twin sister to Flash, kept for breeding"
+                }
+        ],
         "breeding_records": [
                 {
+                        "user": "admin@sheep.land",
                         "ram_id": "ram_001",
                         "ewe_id": "ewe_001",
                         "breeding_date": new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString(),
@@ -3200,6 +3315,7 @@
                         "notes": "Successful breeding, twins born healthy"
                 },
                 {
+                        "user": "admin@sheep.land",
                         "ram_id": "ram_002",
                         "ewe_id": "ewe_003",
                         "breeding_date": new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
@@ -3210,6 +3326,7 @@
         ],
         "feed_inventory": [
                 {
+                        "user": "admin@sheep.land",
                         "feed_type": "concentrate",
                         "quantity_kg": 500,
                         "unit_price": 12.5,
@@ -3220,6 +3337,7 @@
                         "notes": "High Protein Concentrate - For lactating ewes and growing lambs"
                 },
                 {
+                        "user": "admin@sheep.land",
                         "feed_type": "hay",
                         "quantity_kg": 1200,
                         "unit_price": 4.5,
@@ -3230,6 +3348,7 @@
                         "notes": "Alfalfa Hay - Premium quality, first cut"
                 },
                 {
+                        "user": "admin@sheep.land",
                         "feed_type": "grains",
                         "quantity_kg": 300,
                         "unit_price": 8.0,
@@ -3242,6 +3361,7 @@
         ],
         "farm_tasks": [
                 {
+                        "user": "admin@sheep.land",
                         "title": "Vaccinate Spring Lambs",
                         "category": "health",
                         "priority": "high",
@@ -3249,9 +3369,11 @@
                         "due_date": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                         "assigned_to": "Farm Manager",
                         "description": "Annual vaccination for all spring-born lambs",
+                        "sheep_ids": ["lamb_001", "lamb_002"],
                         "notes": "Use CDT vaccine, check with vet for dosage"
                 },
                 {
+                        "user": "admin@sheep.land",
                         "title": "Repair North Fence",
                         "category": "maintenance",
                         "priority": "medium",
@@ -3262,6 +3384,7 @@
                         "notes": "Need 20 fence posts and wire mesh"
                 },
                 {
+                        "user": "admin@sheep.land",
                         "title": "Weekly Feed Inventory Check",
                         "category": "feeding",
                         "priority": "medium",
@@ -3275,6 +3398,7 @@
         ],
         "health_checkups": [
                 {
+                        "user": "admin@sheep.land",
                         "sheep_id": "ewe_002",
                         "checkup_date": new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
                         "checkup_type": "routine",
@@ -3291,6 +3415,7 @@
                         "cost": 250
                 },
                 {
+                        "user": "admin@sheep.land",
                         "sheep_id": "lamb_001",
                         "checkup_date": new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
                         "checkup_type": "treatment",
@@ -3309,12 +3434,14 @@
         ],
         "sync_logs": [
                 {
+                        "user": "admin@sheep.land",
                         "sync_type": "inventory_to_ecommerce",
                         "sync_status": "success",
                         "records_synced": 15,
                         "summary": "Successfully synced 15 sheep from farm inventory to e-commerce products"
                 },
                 {
+                        "user": "admin@sheep.land",
                         "sync_type": "financial_dashboard",
                         "sync_status": "success",
                         "records_synced": 1,
@@ -3323,6 +3450,7 @@
         ],
         "financial_metrics": [
                 {
+                        "user": "admin@sheep.land",
                         "metric_date": new Date().toISOString().split('T')[0],
                         "metric_type": "daily",
                         "revenue_total": 125000,
@@ -3348,6 +3476,7 @@
                         "notes": "Strong sales performance during pre-Eid period"
                 },
                 {
+                        "user": "admin@sheep.land",
                         "metric_date": new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                         "metric_type": "weekly",
                         "revenue_total": 450000,
@@ -3372,14 +3501,29 @@
                         "customer_count": 38,
                         "notes": "Weekly performance showing consistent growth"
                 }
+        ],
+        "feasibility_analyses": [
+                {
+                        "user": "admin@sheep.land",
+                        "analysis_name": "Spring 2024 Expansion",
+                        "start_date": new Date().toISOString().split('T')[0],
+                        "end_date": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        "initial_investment": 500000,
+                        "herd_size": 150,
+                        "target_revenue": 2000000,
+                        "expected_expenses": 800000,
+                        "break_even_months": 8,
+                        "roi_percentage": 150,
+                        "status": "active",
+                        "parameters": {
+                                "price_per_kg": 320,
+                                "feed_cost_per_day": 15,
+                                "mortality_rate": 3,
+                                "birth_rate": 180
+                        },
+                        "notes": "Expansion plan focusing on premium breeding stock"
+                }
         ]
-        // NOTE: Farm management collections (farm_sheep, breeding_records, feed_inventory, 
-        // farm_tasks, health_checkups, sync_logs, financial_metrics, feasibility_analyses) 
-        // all require user relation fields that cannot be automatically seeded.
-        // After setup, use PocketBase admin panel to:
-        // 1. Create farm_sheep records with proper user relations
-        // 2. Create breeding_records with user and sheep relations
-        // 3. Add other farm management data as needed
 };
 
     // PocketBase API-compliant validation functions
@@ -4457,6 +4601,12 @@
         return overallSuccess;
     }
 
+    // Global maps to store ID mappings for relations
+    const idMappings = {
+        users: {},      // email -> record ID
+        farm_sheep: {}  // tag_id -> record ID
+    };
+    
     async function seedCollectionData(pb, collectionName, seedItems, uniqueKeyField = null) {
         log(`🌱 Seeding data for ${collectionName}...`, 'i');
         let createdCount = 0, updatedCount = 0, errorCount = 0;
@@ -4476,7 +4626,16 @@
                 if (existingRecord) {
                     await pb.collection(collectionName).update(existingRecord.id, item);
                     updatedCount++;
+                    
+                    // Store ID mapping for existing records
+                    if (collectionName === "users" && item.email) {
+                        idMappings.users[item.email] = existingRecord.id;
+                    } else if (collectionName === "farm_sheep" && item.tag_id) {
+                        idMappings.farm_sheep[item.tag_id] = existingRecord.id;
+                    }
                 } else {
+                    let createdRecord;
+                    
                     // Special handling for auth collections (users)
                     if (collectionName === "users") {
                         // For auth collections, we need to ensure password fields are handled correctly
@@ -4484,9 +4643,23 @@
                         if (userData.password && !userData.passwordConfirm) {
                             userData.passwordConfirm = userData.password;
                         }
-                        await pb.collection(collectionName).create(userData);
+                        createdRecord = await pb.collection(collectionName).create(userData);
+                        
+                        // Store ID mapping
+                        if (userData.email) {
+                            idMappings.users[userData.email] = createdRecord.id;
+                            log(`   📝 Mapped user: ${userData.email} -> ${createdRecord.id}`, 'd');
+                        }
                     } else {
-                        await pb.collection(collectionName).create(item);
+                        // Transform relation fields before creating
+                        const transformedItem = transformRelationFields(item, collectionName);
+                        createdRecord = await pb.collection(collectionName).create(transformedItem);
+                        
+                        // Store ID mapping for farm_sheep
+                        if (collectionName === "farm_sheep" && item.tag_id) {
+                            idMappings.farm_sheep[item.tag_id] = createdRecord.id;
+                            log(`   📝 Mapped sheep: ${item.tag_id} -> ${createdRecord.id}`, 'd');
+                        }
                     }
                     createdCount++;
                 }
@@ -4501,10 +4674,70 @@
         log(`📊 Seeding ${collectionName} complete. Created: ${createdCount}, Updated: ${updatedCount}, Errors: ${errorCount}`, errorCount > 0 ? 'w' : 's');
         return { created: createdCount, updated: updatedCount, errors: errorCount };
     }
+    
+    // Transform relation fields from text identifiers to actual record IDs
+    function transformRelationFields(item, collectionName) {
+        const transformed = { ...item };
+        
+        // Transform user relation fields
+        if (transformed.user && typeof transformed.user === 'string') {
+            const userId = idMappings.users[transformed.user];
+            if (userId) {
+                transformed.user = userId;
+                log(`   🔄 Transformed user relation: ${item.user} -> ${userId}`, 'd');
+            } else {
+                log(`   ⚠️ User not found for email: ${item.user}`, 'w');
+            }
+        }
+        
+        // Transform sheep relation fields for breeding_records
+        if (collectionName === 'breeding_records') {
+            if (transformed.ram_id && typeof transformed.ram_id === 'string') {
+                const ramId = idMappings.farm_sheep[transformed.ram_id];
+                if (ramId) {
+                    transformed.ram_id = ramId;
+                    log(`   🔄 Transformed ram_id: ${item.ram_id} -> ${ramId}`, 'd');
+                }
+            }
+            if (transformed.ewe_id && typeof transformed.ewe_id === 'string') {
+                const eweId = idMappings.farm_sheep[transformed.ewe_id];
+                if (eweId) {
+                    transformed.ewe_id = eweId;
+                    log(`   🔄 Transformed ewe_id: ${item.ewe_id} -> ${eweId}`, 'd');
+                }
+            }
+        }
+        
+        // Transform sheep relation fields for health_checkups
+        if (collectionName === 'health_checkups' && transformed.sheep_id && typeof transformed.sheep_id === 'string') {
+            const sheepId = idMappings.farm_sheep[transformed.sheep_id];
+            if (sheepId) {
+                transformed.sheep_id = sheepId;
+                log(`   🔄 Transformed sheep_id: ${item.sheep_id} -> ${sheepId}`, 'd');
+            }
+        }
+        
+        // Transform sheep relation fields for farm_tasks (array of IDs)
+        if (collectionName === 'farm_tasks' && transformed.sheep_ids && Array.isArray(transformed.sheep_ids)) {
+            transformed.sheep_ids = transformed.sheep_ids
+                .map(tagId => idMappings.farm_sheep[tagId])
+                .filter(id => id); // Remove any undefined mappings
+            if (transformed.sheep_ids.length > 0) {
+                log(`   🔄 Transformed sheep_ids: [${item.sheep_ids.join(', ')}] -> [${transformed.sheep_ids.join(', ')}]`, 'd');
+            }
+        }
+        
+        return transformed;
+    }
 
     async function setupSeedData(pb) {
         log('🌱 === SEED DATA PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
+
+        // Clear ID mappings for fresh start
+        idMappings.users = {};
+        idMappings.farm_sheep = {};
+        log('🔄 Cleared ID mappings for fresh seeding', 'i');
 
         log('⏳ Pausing for 1 second before seeding...', 'i');
         await new Promise(resolve => setTimeout(resolve, 1000));
