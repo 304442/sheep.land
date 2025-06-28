@@ -5811,3 +5811,227 @@ img,video,iframe{max-width:100%;height:auto}
         grid-template-columns: 1fr;
     }
 }
+
+/* Tab Navigation Styles for Farm Management */
+.tab-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    border-bottom: 2px solid var(--bs);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.tab-btn:hover {
+    background: var(--b2);
+}
+
+.tab-btn.active {
+    border-bottom-color: var(--c1);
+    color: var(--c1);
+    font-weight: 600;
+}
+
+/* Section-specific styles */
+.breeding-section,
+.health-section,
+.feed-section,
+.tasks-section,
+.reports-section {
+    padding: 1rem 0;
+}
+
+.vaccination-alert,
+.feed-alert {
+    background: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: var(--rad);
+    margin-bottom: 1rem;
+    border: 1px solid #ffeaa7;
+}
+
+.health-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+}
+
+.health-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--b2);
+    border-radius: var(--rad);
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.vaccine-card {
+    background: var(--b2);
+    padding: 1rem;
+    border-radius: var(--rad);
+    border: 1px solid var(--bs);
+}
+
+.vaccine-card h5 {
+    margin-bottom: 0.5rem;
+    color: var(--c1d);
+}
+
+.feed-inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.feed-type-card {
+    background: var(--b2);
+    padding: 1.5rem;
+    border-radius: var(--rad);
+    text-align: center;
+    border: 1px solid var(--bs);
+}
+
+.feed-quantity {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--c1);
+    margin: 1rem 0;
+}
+
+.task-item {
+    background: var(--b2);
+    padding: 1rem;
+    border-radius: var(--rad);
+    margin-bottom: 0.5rem;
+    border-left: 4px solid var(--bs);
+}
+
+.task-item h5 {
+    margin-bottom: 0.5rem;
+}
+
+.task-item.overdue {
+    border-left-color: #dc3545;
+    background: #f8d7da;
+}
+
+.task-item.priority-high {
+    border-left-color: #dc3545;
+}
+
+.task-item.priority-medium {
+    border-left-color: #ffc107;
+}
+
+.task-item.priority-low {
+    border-left-color: #28a745;
+}
+
+.task-date {
+    font-size: 0.85rem;
+    color: var(--tm);
+}
+
+.task-priority {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--b2);
+    margin-left: 0.5rem;
+}
+
+.stats-summary {
+    background: var(--b2);
+    padding: 1.5rem;
+    border-radius: var(--rad);
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--bs);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.breeding-records,
+.records-list {
+    margin-top: 1rem;
+}
+
+.record-item {
+    background: var(--b2);
+    padding: 0.75rem;
+    border-radius: var(--rad);
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.report-actions {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.feed-consumption {
+    background: var(--b2);
+    padding: 1rem;
+    border-radius: var(--rad);
+    margin-top: 1rem;
+}
+
+.overdue-tasks,
+.upcoming-tasks {
+    margin-bottom: 2rem;
+}
+
+.quick-stats {
+    margin-top: 2rem;
+}
+
+/* Mobile adjustments for tabs */
+@media(max-width:768px) {
+    .tab-nav {
+        margin: 0.5rem -1rem;
+        padding: 0 1rem;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .feed-inventory-grid,
+    .schedule-grid {
+        grid-template-columns: 1fr;
+    }
+}

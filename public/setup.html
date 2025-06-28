@@ -1415,6 +1415,74 @@
                                 "name": "results",
                                 "type": "json",
                                 "required": false
+                        },
+                        {
+                                "name": "land_type",
+                                "type": "select",
+                                "required": false,
+                                "presentable": false,
+                                "maxSelect": 1,
+                                "values": ["owned", "rented"]
+                        },
+                        {
+                                "name": "land_area",
+                                "type": "number",
+                                "required": false,
+                                "min": 0
+                        },
+                        {
+                                "name": "infrastructure_costs",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "breeding_params",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "market_params",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "risk_factors",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "financial_params",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "npv",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "irr",
+                                "type": "number",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "payback_period",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "profit_margin",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true
                         }
                 ]
         },
@@ -1488,11 +1556,450 @@
                                 "name": "health_records",
                                 "type": "json",
                                 "required": false
+                        },
+                        {
+                                "name": "gender",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["male", "female"]
+                        },
+                        {
+                                "name": "location",
+                                "type": "select",
+                                "required": false,
+                                "presentable": false,
+                                "maxSelect": 1,
+                                "values": ["barn1", "barn2", "field", "quarantine"]
+                        },
+                        {
+                                "name": "feeding_plan",
+                                "type": "select",
+                                "required": false,
+                                "presentable": false,
+                                "maxSelect": 1,
+                                "values": ["standard", "enhanced", "special", "restricted"]
+                        },
+                        {
+                                "name": "purchase_price",
+                                "type": "number",
+                                "required": false,
+                                "min": 0
+                        },
+                        {
+                                "name": "purchase_date",
+                                "type": "date",
+                                "required": false
+                        },
+                        {
+                                "name": "mother_tag_id",
+                                "type": "text",
+                                "required": false,
+                                "max": 50
+                        },
+                        {
+                                "name": "father_tag_id",
+                                "type": "text",
+                                "required": false,
+                                "max": 50
                         }
                 ],
                 "indexes": [
                         "CREATE INDEX `idx_farm_sheep_user` ON `farm_sheep` (`user`)",
-                        "CREATE INDEX `idx_farm_sheep_status` ON `farm_sheep` (`status`)"
+                        "CREATE INDEX `idx_farm_sheep_status` ON `farm_sheep` (`status`)",
+                        "CREATE INDEX `idx_farm_sheep_gender` ON `farm_sheep` (`gender`)",
+                        "CREATE INDEX `idx_farm_sheep_tag_id` ON `farm_sheep` (`tag_id`)"
+                ]
+        },
+        {
+                "name": "breeding_records",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "viewRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "ewe_id",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": true,
+                                "collectionId": "farm_sheep",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["tag_id"]
+                        },
+                        {
+                                "name": "ram_id",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": true,
+                                "collectionId": "farm_sheep",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["tag_id"]
+                        },
+                        {
+                                "name": "breeding_date",
+                                "type": "date",
+                                "required": true,
+                                "presentable": true
+                        },
+                        {
+                                "name": "expected_lambing",
+                                "type": "date",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "actual_lambing",
+                                "type": "date",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "lambs_count",
+                                "type": "number",
+                                "required": false,
+                                "min": 0,
+                                "max": 5
+                        },
+                        {
+                                "name": "status",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["confirmed", "successful", "failed", "aborted"]
+                        },
+                        {
+                                "name": "notes",
+                                "type": "editor",
+                                "required": false
+                        }
+                ],
+                "indexes": [
+                        "CREATE INDEX `idx_breeding_records_user` ON `breeding_records` (`user`)",
+                        "CREATE INDEX `idx_breeding_records_ewe` ON `breeding_records` (`ewe_id`)",
+                        "CREATE INDEX `idx_breeding_records_date` ON `breeding_records` (`breeding_date`)"
+                ]
+        },
+        {
+                "name": "feed_inventory",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "viewRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "feed_type",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["alfalfa", "concentrate", "grains", "hay", "minerals", "supplements"]
+                        },
+                        {
+                                "name": "quantity_kg",
+                                "type": "number",
+                                "required": true,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "unit_price",
+                                "type": "number",
+                                "required": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "supplier",
+                                "type": "text",
+                                "required": false,
+                                "max": 200
+                        },
+                        {
+                                "name": "batch_number",
+                                "type": "text",
+                                "required": false,
+                                "max": 100
+                        },
+                        {
+                                "name": "purchase_date",
+                                "type": "date",
+                                "required": true,
+                                "presentable": true
+                        },
+                        {
+                                "name": "expiry_date",
+                                "type": "date",
+                                "required": false
+                        },
+                        {
+                                "name": "storage_location",
+                                "type": "text",
+                                "required": false,
+                                "max": 100
+                        },
+                        {
+                                "name": "notes",
+                                "type": "editor",
+                                "required": false
+                        }
+                ],
+                "indexes": [
+                        "CREATE INDEX `idx_feed_inventory_user` ON `feed_inventory` (`user`)",
+                        "CREATE INDEX `idx_feed_inventory_type` ON `feed_inventory` (`feed_type`)",
+                        "CREATE INDEX `idx_feed_inventory_date` ON `feed_inventory` (`purchase_date`)"
+                ]
+        },
+        {
+                "name": "farm_tasks",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "viewRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "title",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "min": 1,
+                                "max": 200
+                        },
+                        {
+                                "name": "description",
+                                "type": "editor",
+                                "required": false
+                        },
+                        {
+                                "name": "category",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["feeding", "health", "breeding", "maintenance", "administrative", "general"]
+                        },
+                        {
+                                "name": "priority",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["low", "medium", "high", "urgent"]
+                        },
+                        {
+                                "name": "status",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["pending", "in_progress", "completed", "cancelled"]
+                        },
+                        {
+                                "name": "due_date",
+                                "type": "date",
+                                "required": true,
+                                "presentable": true
+                        },
+                        {
+                                "name": "completed_date",
+                                "type": "date",
+                                "required": false
+                        },
+                        {
+                                "name": "assigned_to",
+                                "type": "text",
+                                "required": false,
+                                "max": 100
+                        },
+                        {
+                                "name": "sheep_ids",
+                                "type": "relation",
+                                "required": false,
+                                "presentable": false,
+                                "collectionId": "farm_sheep",
+                                "cascadeDelete": false,
+                                "minSelect": 0,
+                                "maxSelect": 50,
+                                "displayFields": ["tag_id"]
+                        },
+                        {
+                                "name": "notes",
+                                "type": "editor",
+                                "required": false
+                        }
+                ],
+                "indexes": [
+                        "CREATE INDEX `idx_farm_tasks_user` ON `farm_tasks` (`user`)",
+                        "CREATE INDEX `idx_farm_tasks_status` ON `farm_tasks` (`status`)",
+                        "CREATE INDEX `idx_farm_tasks_due_date` ON `farm_tasks` (`due_date`)",
+                        "CREATE INDEX `idx_farm_tasks_priority` ON `farm_tasks` (`priority`)"
+                ]
+        },
+        {
+                "name": "health_checkups",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "viewRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "sheep_id",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": true,
+                                "collectionId": "farm_sheep",
+                                "cascadeDelete": true,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["tag_id"]
+                        },
+                        {
+                                "name": "checkup_date",
+                                "type": "datetime",
+                                "required": true,
+                                "presentable": true
+                        },
+                        {
+                                "name": "checkup_type",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["routine", "vaccination", "treatment", "pregnancy", "emergency"]
+                        },
+                        {
+                                "name": "weight_kg",
+                                "type": "number",
+                                "required": false,
+                                "min": 0
+                        },
+                        {
+                                "name": "temperature_c",
+                                "type": "number",
+                                "required": false,
+                                "min": 35,
+                                "max": 45
+                        },
+                        {
+                                "name": "symptoms",
+                                "type": "editor",
+                                "required": false
+                        },
+                        {
+                                "name": "diagnosis",
+                                "type": "text",
+                                "required": false,
+                                "max": 500
+                        },
+                        {
+                                "name": "treatment",
+                                "type": "editor",
+                                "required": false
+                        },
+                        {
+                                "name": "medications",
+                                "type": "json",
+                                "required": false
+                        },
+                        {
+                                "name": "vaccines_given",
+                                "type": "json",
+                                "required": false
+                        },
+                        {
+                                "name": "veterinarian",
+                                "type": "text",
+                                "required": false,
+                                "max": 100
+                        },
+                        {
+                                "name": "cost",
+                                "type": "number",
+                                "required": false,
+                                "min": 0
+                        },
+                        {
+                                "name": "follow_up_required",
+                                "type": "bool",
+                                "required": false
+                        },
+                        {
+                                "name": "follow_up_date",
+                                "type": "date",
+                                "required": false
+                        },
+                        {
+                                "name": "notes",
+                                "type": "editor",
+                                "required": false
+                        }
+                ],
+                "indexes": [
+                        "CREATE INDEX `idx_health_checkups_user` ON `health_checkups` (`user`)",
+                        "CREATE INDEX `idx_health_checkups_sheep` ON `health_checkups` (`sheep_id`)",
+                        "CREATE INDEX `idx_health_checkups_date` ON `health_checkups` (`checkup_date`)",
+                        "CREATE INDEX `idx_health_checkups_type` ON `health_checkups` (`checkup_type`)"
                 ]
         }
 ];
@@ -2477,6 +2984,136 @@
                         "preferred_currency": "EGP",
                         "is_admin": false,
                         "verified": true
+                }
+        ],
+        "breeding_records": [
+                {
+                        "ram_id": "ram_001",
+                        "ewe_id": "ewe_001",
+                        "breeding_date": new Date(Date.now() - 150 * 24 * 60 * 60 * 1000).toISOString(),
+                        "breeding_method": "natural",
+                        "expected_lambing_date": new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                        "actual_lambing_date": new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        "lambs_born": 2,
+                        "lambs_survived": 2,
+                        "breeding_notes": "Successful breeding, twins born healthy",
+                        "breeding_season": "Fall 2024"
+                },
+                {
+                        "ram_id": "ram_002",
+                        "ewe_id": "ewe_003",
+                        "breeding_date": new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+                        "breeding_method": "natural",
+                        "expected_lambing_date": new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+                        "breeding_notes": "Currently pregnant, expected twins",
+                        "breeding_season": "Fall 2024"
+                }
+        ],
+        "feed_inventory": [
+                {
+                        "feed_type": "concentrate_mix",
+                        "feed_name": "High Protein Concentrate",
+                        "quantity_kg": 500,
+                        "cost_per_kg": 12.5,
+                        "supplier": "Egyptian Feed Co.",
+                        "purchase_date": new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        "expiry_date": new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+                        "storage_location": "Barn A - Section 1",
+                        "notes": "For lactating ewes and growing lambs"
+                },
+                {
+                        "feed_type": "hay",
+                        "feed_name": "Alfalfa Hay",
+                        "quantity_kg": 1200,
+                        "cost_per_kg": 4.5,
+                        "supplier": "Local Hay Supplier",
+                        "purchase_date": new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+                        "expiry_date": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+                        "storage_location": "Hay Storage Shed",
+                        "notes": "Premium quality, first cut"
+                },
+                {
+                        "feed_type": "grain",
+                        "feed_name": "Barley Grain",
+                        "quantity_kg": 300,
+                        "cost_per_kg": 8.0,
+                        "supplier": "Grain Merchants Ltd",
+                        "purchase_date": new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+                        "expiry_date": new Date(Date.now() + 270 * 24 * 60 * 60 * 1000).toISOString(),
+                        "storage_location": "Grain Silo 1",
+                        "notes": "For finishing market lambs"
+                }
+        ],
+        "farm_tasks": [
+                {
+                        "task_name": "Vaccinate Spring Lambs",
+                        "task_type": "health",
+                        "priority": "high",
+                        "status": "pending",
+                        "due_date": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        "assigned_to": "Farm Manager",
+                        "description": "Annual vaccination for all spring-born lambs",
+                        "notes": "Use CDT vaccine, check with vet for dosage",
+                        "estimated_hours": 4
+                },
+                {
+                        "task_name": "Repair North Fence",
+                        "task_type": "maintenance",
+                        "priority": "medium",
+                        "status": "in_progress",
+                        "due_date": new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        "assigned_to": "Maintenance Team",
+                        "description": "Fix damaged section of north pasture fence",
+                        "notes": "Need 20 fence posts and wire mesh",
+                        "estimated_hours": 8,
+                        "completion_percentage": 60
+                },
+                {
+                        "task_name": "Weekly Feed Inventory Check",
+                        "task_type": "feeding",
+                        "priority": "medium",
+                        "status": "completed",
+                        "due_date": new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        "assigned_to": "Feed Manager",
+                        "description": "Check all feed stocks and reorder if needed",
+                        "completion_date": new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        "estimated_hours": 2,
+                        "actual_hours": 1.5,
+                        "completion_percentage": 100
+                }
+        ],
+        "health_checkups": [
+                {
+                        "sheep_id": "",
+                        "checkup_date": new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                        "checkup_type": "routine",
+                        "weight_kg": 45.5,
+                        "body_condition_score": 3.5,
+                        "temperature_celsius": 38.5,
+                        "heart_rate_bpm": 75,
+                        "respiratory_rate_bpm": 20,
+                        "veterinarian": "Dr. Ahmed Hassan",
+                        "treatments_given": "Deworming medication administered",
+                        "health_issues": "None",
+                        "follow_up_required": false,
+                        "next_checkup_date": new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+                        "notes": "Healthy animal, good body condition"
+                },
+                {
+                        "sheep_id": "",
+                        "checkup_date": new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        "checkup_type": "illness",
+                        "weight_kg": 38.2,
+                        "body_condition_score": 2.5,
+                        "temperature_celsius": 40.2,
+                        "heart_rate_bpm": 95,
+                        "respiratory_rate_bpm": 35,
+                        "veterinarian": "Dr. Ahmed Hassan",
+                        "treatments_given": "Antibiotics prescribed, fluid therapy",
+                        "health_issues": "Respiratory infection",
+                        "follow_up_required": true,
+                        "next_checkup_date": new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        "notes": "Monitor closely, isolate from herd"
                 }
         ]
 };
@@ -3636,6 +4273,34 @@
             }
         }
         
+        // Seed breeding records (if present in seed data)
+        if (seedDataToUse.breeding_records && Array.isArray(seedDataToUse.breeding_records)) {
+            log('🐑 Seeding breeding records...', 'i');
+            const breedingResult = await seedCollectionData(pb, 'breeding_records', seedDataToUse.breeding_records);
+            if(breedingResult.errors > 0) anySeedErrors = true;
+        }
+        
+        // Seed feed inventory (if present in seed data)
+        if (seedDataToUse.feed_inventory && Array.isArray(seedDataToUse.feed_inventory)) {
+            log('🌾 Seeding feed inventory...', 'i');
+            const feedResult = await seedCollectionData(pb, 'feed_inventory', seedDataToUse.feed_inventory);
+            if(feedResult.errors > 0) anySeedErrors = true;
+        }
+        
+        // Seed farm tasks (if present in seed data)
+        if (seedDataToUse.farm_tasks && Array.isArray(seedDataToUse.farm_tasks)) {
+            log('📋 Seeding farm tasks...', 'i');
+            const tasksResult = await seedCollectionData(pb, 'farm_tasks', seedDataToUse.farm_tasks);
+            if(tasksResult.errors > 0) anySeedErrors = true;
+        }
+        
+        // Seed health checkups (if present in seed data)
+        if (seedDataToUse.health_checkups && Array.isArray(seedDataToUse.health_checkups)) {
+            log('🏥 Seeding health checkups...', 'i');
+            const healthResult = await seedCollectionData(pb, 'health_checkups', seedDataToUse.health_checkups);
+            if(healthResult.errors > 0) anySeedErrors = true;
+        }
+        
         if (anySeedErrors) {
             log('⚠️ Seed data setup completed with errors.', 'w');
             return false; 
@@ -3731,7 +4396,9 @@
 
     // Clear Database function
     async function clearDatabase(pb) {
-        const collections = ['products', 'orders', 'order_items', 'payment_confirmations', 'feedback', 'users'];
+        const collections = ['products', 'orders', 'order_items', 'payment_confirmations', 'feedback', 'users', 
+                           'breeding_records', 'feed_inventory', 'farm_tasks', 'health_checkups', 
+                           'feasibility_analyses', 'farm_sheep'];
         let clearedCount = 0;
         
         for (const collectionName of collections) {
@@ -3769,7 +4436,7 @@
     }
 
     clearDatabaseButton.onclick = async () => {
-        if (!confirm('⚠️ WARNING: This will DELETE ALL DATA from the database!\n\nThis includes:\n• All products\n• All orders\n• All users\n• All feedback\n• All payment confirmations\n\nAre you absolutely sure you want to continue?')) {
+        if (!confirm('⚠️ WARNING: This will DELETE ALL DATA from the database!\n\nThis includes:\n• All products\n• All orders\n• All users\n• All feedback\n• All payment confirmations\n• All breeding records\n• All feed inventory\n• All farm tasks\n• All health checkups\n• All feasibility analyses\n• All farm sheep\n\nAre you absolutely sure you want to continue?')) {
             return;
         }
         

@@ -1897,6 +1897,150 @@
                             <input type="number" x-model.number="feasibility.lambPrice" min="0" class="calc-input">
                         </div>
                     </div>
+                    
+                    <!-- Enhanced Input Fields -->
+                    <div class="calc-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Land & Infrastructure</span>
+                            <span class="ar">الأرض والبنية التحتية</span>
+                        </h4>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Land Type</span>
+                                <span class="ar">نوع الأرض</span>
+                            </label>
+                            <select x-model="feasibility.landType" class="calc-input">
+                                <option value="rented">Rented / إيجار</option>
+                                <option value="owned">Owned / ملك</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Land Area (m²)</span>
+                                <span class="ar">مساحة الأرض (م²)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.landArea" min="100" class="calc-input">
+                        </div>
+                        <div class="input-group" x-show="feasibility.landType === 'owned'">
+                            <label class="bil-spread">
+                                <span class="en">Land Cost (EGP)</span>
+                                <span class="ar">تكلفة الأرض (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.landCost" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group" x-show="feasibility.landType === 'rented'">
+                            <label class="bil-spread">
+                                <span class="en">Annual Rent (EGP)</span>
+                                <span class="ar">الإيجار السنوي (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.annualLandRent" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Shelter Construction (EGP)</span>
+                                <span class="ar">بناء الحظائر (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.shelterCost" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Fencing Cost (EGP)</span>
+                                <span class="ar">تكلفة السياج (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.fencingCost" min="0" class="calc-input">
+                        </div>
+                    </div>
+                    
+                    <div class="calc-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Advanced Breeding Parameters</span>
+                            <span class="ar">معاملات التربية المتقدمة</span>
+                        </h4>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Fertility Rate (%)</span>
+                                <span class="ar">معدل الخصوبة (%)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.fertilityRate" min="50" max="100" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Births per Ewe per Year</span>
+                                <span class="ar">الولادات لكل نعجة سنويا</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.birthsPerEwePerYear" min="1" max="2.5" step="0.1" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Offspring per Birth</span>
+                                <span class="ar">المواليد في كل ولادة</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.avgOffspringPerBirth" min="1" max="3" step="0.1" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Mortality Rate (%)</span>
+                                <span class="ar">معدل النفوق (%)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.mortalityRate" min="0" max="20" class="calc-input">
+                        </div>
+                    </div>
+                    
+                    <div class="calc-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Market & Competition</span>
+                            <span class="ar">السوق والمنافسة</span>
+                        </h4>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Number of Competitors</span>
+                                <span class="ar">عدد المنافسين</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.competitorCount" min="0" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Competitor Avg Price/kg (EGP)</span>
+                                <span class="ar">متوسط سعر المنافسين/كجم (جنيه)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.competitorAvgPrice" min="100" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Price Advantage (%)</span>
+                                <span class="ar">ميزة السعر (%)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.priceAdvantage" min="-20" max="20" class="calc-input">
+                        </div>
+                    </div>
+                    
+                    <div class="calc-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Risk Factors</span>
+                            <span class="ar">عوامل المخاطر</span>
+                        </h4>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Feed Price Volatility (%)</span>
+                                <span class="ar">تقلب أسعار الأعلاف (%)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.feedPriceVolatility" min="0" max="50" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Disease Risk Factor (%)</span>
+                                <span class="ar">عامل مخاطر الأمراض (%)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.diseaseRiskFactor" min="0" max="30" class="calc-input">
+                        </div>
+                        <div class="input-group">
+                            <label class="bil-spread">
+                                <span class="en">Market Demand Variation (%)</span>
+                                <span class="ar">تباين طلب السوق (%)</span>
+                            </label>
+                            <input type="number" x-model.number="feasibility.marketDemandVariation" min="0" max="50" class="calc-input">
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="calc-actions">
@@ -2012,6 +2156,128 @@
                                     <span class="ar">شهر</span>
                                 </span>
                             </span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Profit Margin</span>
+                                <span class="ar">هامش الربح</span>
+                            </span>
+                            <span class="result-value" :class="feasibility.results.profitMargin > 0 ? 'text-success' : 'text-danger'">
+                                <span x-text="feasibility.results.profitMargin?.toFixed(1)">0</span>%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Results - Financial Analysis -->
+                    <div class="result-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Financial Analysis</span>
+                            <span class="ar">التحليل المالي</span>
+                        </h4>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Net Present Value (NPV)</span>
+                                <span class="ar">صافي القيمة الحالية</span>
+                            </span>
+                            <span class="result-value" :class="feasibility.results.npv > 0 ? 'text-success' : 'text-danger'">
+                                EGP <span x-text="Math.round(feasibility.results.npv || 0).toLocaleString()">0</span>
+                            </span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Payback Period</span>
+                                <span class="ar">فترة الاسترداد</span>
+                            </span>
+                            <span class="result-value">
+                                <span x-text="feasibility.results.paybackPeriod < 999 ? feasibility.results.paybackPeriod : 'N/A'">0</span>
+                                <span x-show="feasibility.results.paybackPeriod < 999" class="bil-inline">
+                                    <span class="en">months</span>
+                                    <span class="ar">شهر</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Risk Assessment -->
+                    <div class="result-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Risk Assessment</span>
+                            <span class="ar">تقييم المخاطر</span>
+                        </h4>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Feed Price Risk</span>
+                                <span class="ar">مخاطر أسعار الأعلاف</span>
+                            </span>
+                            <span class="result-value" :class="{
+                                'text-success': feasibility.results.riskAssessment?.feedPriceRisk === 'Low',
+                                'text-warning': feasibility.results.riskAssessment?.feedPriceRisk === 'Medium',
+                                'text-danger': feasibility.results.riskAssessment?.feedPriceRisk === 'High'
+                            }" x-text="feasibility.results.riskAssessment?.feedPriceRisk || 'N/A'"></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Disease Risk</span>
+                                <span class="ar">مخاطر الأمراض</span>
+                            </span>
+                            <span class="result-value" :class="{
+                                'text-success': feasibility.results.riskAssessment?.diseaseRisk === 'Low',
+                                'text-warning': feasibility.results.riskAssessment?.diseaseRisk === 'Medium',
+                                'text-danger': feasibility.results.riskAssessment?.diseaseRisk === 'High'
+                            }" x-text="feasibility.results.riskAssessment?.diseaseRisk || 'N/A'"></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Market Risk</span>
+                                <span class="ar">مخاطر السوق</span>
+                            </span>
+                            <span class="result-value" :class="{
+                                'text-success': feasibility.results.riskAssessment?.marketRisk === 'Low',
+                                'text-warning': feasibility.results.riskAssessment?.marketRisk === 'Medium',
+                                'text-danger': feasibility.results.riskAssessment?.marketRisk === 'High'
+                            }" x-text="feasibility.results.riskAssessment?.marketRisk || 'N/A'"></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Overall Risk</span>
+                                <span class="ar">المخاطر الإجمالية</span>
+                            </span>
+                            <span class="result-value" :class="{
+                                'text-success': feasibility.results.riskAssessment?.overallRisk === 'Low',
+                                'text-warning': feasibility.results.riskAssessment?.overallRisk === 'Medium',
+                                'text-danger': feasibility.results.riskAssessment?.overallRisk === 'High'
+                            }" x-text="feasibility.results.riskAssessment?.overallRisk || 'N/A'"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Market Analysis -->
+                    <div class="result-card">
+                        <h4 class="card-title bil-spread">
+                            <span class="en">Market Analysis</span>
+                            <span class="ar">تحليل السوق</span>
+                        </h4>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Estimated Market Share</span>
+                                <span class="ar">الحصة السوقية المتوقعة</span>
+                            </span>
+                            <span class="result-value">
+                                <span x-text="feasibility.results.marketAnalysis?.estimatedMarketShare?.toFixed(1) || '0'">0</span>%
+                            </span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Price Competitiveness</span>
+                                <span class="ar">تنافسية السعر</span>
+                            </span>
+                            <span class="result-value" x-text="feasibility.results.marketAnalysis?.priceCompetitiveness || 'N/A'"></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label bil-inline">
+                                <span class="en">Demand Outlook</span>
+                                <span class="ar">توقعات الطلب</span>
+                            </span>
+                            <span class="result-value" x-text="feasibility.results.marketAnalysis?.demandOutlook || 'N/A'"></span>
                         </div>
                     </div>
                 </div>
@@ -2159,8 +2425,36 @@
                 </div>
             </div>
 
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button @click="farmActiveTab = 'inventory'" :class="{'active': farmActiveTab === 'inventory'}" class="tab-btn bil-inline">
+                    <span class="en">Inventory</span>
+                    <span class="ar">المخزون</span>
+                </button>
+                <button @click="farmActiveTab = 'breeding'" :class="{'active': farmActiveTab === 'breeding'}" class="tab-btn bil-inline">
+                    <span class="en">Breeding</span>
+                    <span class="ar">التربية</span>
+                </button>
+                <button @click="farmActiveTab = 'health'" :class="{'active': farmActiveTab === 'health'}" class="tab-btn bil-inline">
+                    <span class="en">Health</span>
+                    <span class="ar">الصحة</span>
+                </button>
+                <button @click="farmActiveTab = 'feed'" :class="{'active': farmActiveTab === 'feed'}" class="tab-btn bil-inline">
+                    <span class="en">Feed</span>
+                    <span class="ar">الأعلاف</span>
+                </button>
+                <button @click="farmActiveTab = 'tasks'" :class="{'active': farmActiveTab === 'tasks'}" class="tab-btn bil-inline">
+                    <span class="en">Tasks</span>
+                    <span class="ar">المهام</span>
+                </button>
+                <button @click="farmActiveTab = 'reports'" :class="{'active': farmActiveTab === 'reports'}" class="tab-btn bil-inline">
+                    <span class="en">Reports</span>
+                    <span class="ar">التقارير</span>
+                </button>
+            </div>
+
             <!-- Sheep List -->
-            <div class="sheep-section">
+            <div class="sheep-section" x-show="farmActiveTab === 'inventory'">
                 <div class="section-header">
                     <h3 class="bil-spread">
                         <span class="en">Sheep Inventory</span>
@@ -2255,6 +2549,341 @@
                     </p>
                 </div>
             </div>
+            
+            <!-- Breeding Management Tab -->
+            <div class="breeding-section" x-show="farmActiveTab === 'breeding'">
+                <div class="section-header">
+                    <h3 class="bil-spread">
+                        <span class="en">Breeding Management</span>
+                        <span class="ar">إدارة التربية</span>
+                    </h3>
+                    <button @click="showBreedingForm = true" class="btn bp bil-inline">
+                        <span class="en">+ Record Breeding</span>
+                        <span class="ar">+ تسجيل تزاوج</span>
+                    </button>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🤰</div>
+                        <div class="stat-content">
+                            <h3 class="bil-inline">
+                                <span class="en">Pregnant Ewes</span>
+                                <span class="ar">النعاج الحوامل</span>
+                            </h3>
+                            <p class="stat-value" x-text="farmStats.pregnant">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👶</div>
+                        <div class="stat-content">
+                            <h3 class="bil-inline">
+                                <span class="en">Expected Births</span>
+                                <span class="ar">الولادات المتوقعة</span>
+                            </h3>
+                            <p class="stat-value" x-text="farmStats.expectedBirths">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">♀️</div>
+                        <div class="stat-content">
+                            <h3 class="bil-inline">
+                                <span class="en">Total Ewes</span>
+                                <span class="ar">إجمالي النعاج</span>
+                            </h3>
+                            <p class="stat-value" x-text="farmStats.totalEwes">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">♂️</div>
+                        <div class="stat-content">
+                            <h3 class="bil-inline">
+                                <span class="en">Total Rams</span>
+                                <span class="ar">إجمالي الكباش</span>
+                            </h3>
+                            <p class="stat-value" x-text="farmStats.totalRams">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="breeding-records">
+                    <h4 class="bil-spread">
+                        <span class="en">Recent Breeding Records</span>
+                        <span class="ar">سجلات التزاوج الحديثة</span>
+                    </h4>
+                    <div class="records-list">
+                        <template x-for="record in breedingRecords.slice(0, 5)" :key="record.ewe_id + record.breeding_date">
+                            <div class="record-item">
+                                <span x-text="`Ewe: ${record.ewe_id} × Ram: ${record.ram_id}`"></span>
+                                <span x-text="formatDate(record.breeding_date)"></span>
+                                <span class="bil-inline">
+                                    <span class="en">Due:</span>
+                                    <span class="ar">موعد الولادة:</span>
+                                </span>
+                                <span x-text="formatDate(record.expected_lambing)"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Health Management Tab -->
+            <div class="health-section" x-show="farmActiveTab === 'health'">
+                <div class="section-header">
+                    <h3 class="bil-spread">
+                        <span class="en">Health Management</span>
+                        <span class="ar">إدارة الصحة</span>
+                    </h3>
+                    <button @click="showHealthCheckForm = true" class="btn bp bil-inline">
+                        <span class="en">+ Health Check</span>
+                        <span class="ar">+ فحص صحي</span>
+                    </button>
+                </div>
+                
+                <div class="vaccination-alert" x-show="farmStats.upcomingVaccinations > 0">
+                    <p class="bil-inline">
+                        <span class="en">⚠️ <span x-text="farmStats.upcomingVaccinations"></span> animals need vaccination soon</span>
+                        <span class="ar">⚠️ <span x-text="farmStats.upcomingVaccinations"></span> حيوانات تحتاج للتطعيم قريباً</span>
+                    </p>
+                </div>
+                
+                <div class="health-overview">
+                    <h4 class="bil-spread">
+                        <span class="en">Health Status Overview</span>
+                        <span class="ar">نظرة عامة على الحالة الصحية</span>
+                    </h4>
+                    <div class="health-stats">
+                        <div class="health-stat">
+                            <span class="status-icon healthy">💚</span>
+                            <span x-text="`${farmStats.healthy} Healthy`"></span>
+                        </div>
+                        <div class="health-stat">
+                            <span class="status-icon sick">🤒</span>
+                            <span x-text="`${farmSheep.filter(s => s.status === 'sick').length} Sick`"></span>
+                        </div>
+                        <div class="health-stat">
+                            <span class="status-icon attention">⚠️</span>
+                            <span x-text="`${farmStats.needAttention} Need Attention`"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vaccination-schedule">
+                    <h4 class="bil-spread">
+                        <span class="en">Vaccination Schedule</span>
+                        <span class="ar">جدول التطعيمات</span>
+                    </h4>
+                    <div class="schedule-grid">
+                        <template x-for="(vaccine, key) in vaccinationSchedule" :key="key">
+                            <div class="vaccine-card">
+                                <h5 x-text="vaccine.name[currLang]"></h5>
+                                <p class="bil-inline">
+                                    <span class="en">Every <span x-text="vaccine.frequency"></span> days</span>
+                                    <span class="ar">كل <span x-text="vaccine.frequency"></span> يوم</span>
+                                </p>
+                                <p>EGP <span x-text="vaccine.cost"></span></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feed Management Tab -->
+            <div class="feed-section" x-show="farmActiveTab === 'feed'">
+                <div class="section-header">
+                    <h3 class="bil-spread">
+                        <span class="en">Feed Inventory</span>
+                        <span class="ar">مخزون الأعلاف</span>
+                    </h3>
+                    <button @click="showFeedRestockForm = true" class="btn bp bil-inline">
+                        <span class="en">+ Restock Feed</span>
+                        <span class="ar">+ إضافة علف</span>
+                    </button>
+                </div>
+                
+                <div class="feed-alert" x-show="farmStats.feedInventory < 7">
+                    <p class="bil-inline">
+                        <span class="en">⚠️ Low feed inventory - only <span x-text="farmStats.feedInventory"></span> days remaining</span>
+                        <span class="ar">⚠️ مخزون العلف منخفض - <span x-text="farmStats.feedInventory"></span> أيام متبقية فقط</span>
+                    </p>
+                </div>
+                
+                <div class="feed-inventory-grid">
+                    <div class="feed-type-card">
+                        <h4 class="bil-inline">
+                            <span class="en">Alfalfa</span>
+                            <span class="ar">البرسيم</span>
+                        </h4>
+                        <p class="feed-quantity"><span x-text="feedInventory.alfalfa"></span> kg</p>
+                        <button @click="updateFeedInventory('alfalfa', 100, 'consume')" class="btn btn-sm">
+                            <span class="bil-inline">
+                                <span class="en">Use 100kg</span>
+                                <span class="ar">استخدم 100 كجم</span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="feed-type-card">
+                        <h4 class="bil-inline">
+                            <span class="en">Concentrate</span>
+                            <span class="ar">العلف المركز</span>
+                        </h4>
+                        <p class="feed-quantity"><span x-text="feedInventory.concentrate"></span> kg</p>
+                        <button @click="updateFeedInventory('concentrate', 100, 'consume')" class="btn btn-sm">
+                            <span class="bil-inline">
+                                <span class="en">Use 100kg</span>
+                                <span class="ar">استخدم 100 كجم</span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="feed-type-card">
+                        <h4 class="bil-inline">
+                            <span class="en">Grains</span>
+                            <span class="ar">الحبوب</span>
+                        </h4>
+                        <p class="feed-quantity"><span x-text="feedInventory.grains"></span> kg</p>
+                        <button @click="updateFeedInventory('grains', 100, 'consume')" class="btn btn-sm">
+                            <span class="bil-inline">
+                                <span class="en">Use 100kg</span>
+                                <span class="ar">استخدم 100 كجم</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="feed-consumption">
+                    <h4 class="bil-spread">
+                        <span class="en">Daily Feed Requirements</span>
+                        <span class="ar">متطلبات العلف اليومية</span>
+                    </h4>
+                    <p class="bil-inline">
+                        <span class="en">Total daily requirement: <span x-text="(farmStats.totalSheep * 2.5).toFixed(1)"></span> kg</span>
+                        <span class="ar">الاحتياج اليومي الإجمالي: <span x-text="(farmStats.totalSheep * 2.5).toFixed(1)"></span> كجم</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Tasks Management Tab -->
+            <div class="tasks-section" x-show="farmActiveTab === 'tasks'">
+                <div class="section-header">
+                    <h3 class="bil-spread">
+                        <span class="en">Farm Tasks</span>
+                        <span class="ar">مهام المزرعة</span>
+                    </h3>
+                    <button @click="showTaskForm = true" class="btn bp bil-inline">
+                        <span class="en">+ Add Task</span>
+                        <span class="ar">+ إضافة مهمة</span>
+                    </button>
+                </div>
+                
+                <div class="tasks-overview">
+                    <div class="overdue-tasks" x-show="getOverdueTasks().length > 0">
+                        <h4 class="bil-spread">
+                            <span class="en">⚠️ Overdue Tasks</span>
+                            <span class="ar">⚠️ مهام متأخرة</span>
+                        </h4>
+                        <template x-for="task in getOverdueTasks()" :key="task.id">
+                            <div class="task-item overdue">
+                                <h5 x-text="task.title"></h5>
+                                <p x-text="task.description"></p>
+                                <span class="task-date" x-text="`Due: ${formatDate(task.dueDate)}`"></span>
+                                <button @click="completeTask(task.id)" class="btn btn-sm bp">
+                                    <span class="bil-inline">
+                                        <span class="en">Complete</span>
+                                        <span class="ar">إنجاز</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <div class="upcoming-tasks">
+                        <h4 class="bil-spread">
+                            <span class="en">Upcoming Tasks</span>
+                            <span class="ar">المهام القادمة</span>
+                        </h4>
+                        <template x-for="task in getUpcomingTasks()" :key="task.id">
+                            <div class="task-item" :class="`priority-${task.priority}`">
+                                <h5 x-text="task.title"></h5>
+                                <p x-text="task.description"></p>
+                                <span class="task-date" x-text="`Due: ${formatDate(task.dueDate)}`"></span>
+                                <span class="task-priority" x-text="task.priority"></span>
+                                <button @click="completeTask(task.id)" class="btn btn-sm bp">
+                                    <span class="bil-inline">
+                                        <span class="en">Complete</span>
+                                        <span class="ar">إنجاز</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports Tab -->
+            <div class="reports-section" x-show="farmActiveTab === 'reports'">
+                <div class="section-header">
+                    <h3 class="bil-spread">
+                        <span class="en">Farm Reports</span>
+                        <span class="ar">تقارير المزرعة</span>
+                    </h3>
+                    <button @click="exportFarmData()" class="btn bp bil-inline">
+                        <span class="en">📥 Export Data</span>
+                        <span class="ar">📥 تصدير البيانات</span>
+                    </button>
+                </div>
+                
+                <div class="report-actions">
+                    <button @click="generateHealthReport()" class="btn bac bil-inline">
+                        <span class="en">Health Report</span>
+                        <span class="ar">تقرير صحي</span>
+                    </button>
+                    <button @click="generateFinancialReport()" class="btn bac bil-inline">
+                        <span class="en">Financial Report</span>
+                        <span class="ar">تقرير مالي</span>
+                    </button>
+                    <button @click="generateInventoryReport()" class="btn bac bil-inline">
+                        <span class="en">Inventory Report</span>
+                        <span class="ar">تقرير المخزون</span>
+                    </button>
+                </div>
+                
+                <div class="quick-stats">
+                    <h4 class="bil-spread">
+                        <span class="en">Quick Statistics</span>
+                        <span class="ar">إحصائيات سريعة</span>
+                    </h4>
+                    <div class="stats-summary">
+                        <div class="stat-row">
+                            <span class="bil-inline">
+                                <span class="en">Mortality Rate:</span>
+                                <span class="ar">معدل النفوق:</span>
+                            </span>
+                            <span x-text="`${farmStats.mortalityRate}%`"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="bil-inline">
+                                <span class="en">Average Weight:</span>
+                                <span class="ar">متوسط الوزن:</span>
+                            </span>
+                            <span x-text="`${farmStats.averageWeight} kg`"></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="bil-inline">
+                                <span class="en">Monthly Expenses:</span>
+                                <span class="ar">المصروفات الشهرية:</span>
+                            </span>
+                            <span>EGP <span x-text="farmStats.monthlyExpenses.toLocaleString()"></span></span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="bil-inline">
+                                <span class="en">Total Farm Value:</span>
+                                <span class="ar">قيمة المزرعة الإجمالية:</span>
+                            </span>
+                            <span>EGP <span x-text="farmStats.totalValue.toLocaleString()"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 </div>
 
@@ -2320,6 +2949,48 @@
                     <option value="pregnant">Pregnant / حامل</option>
                     <option value="nursing">Nursing / مرضع</option>
                 </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="bil-spread">
+                        <span class="en">Gender</span>
+                        <span class="ar">الجنس</span>
+                    </label>
+                    <select x-model="sheepForm.gender" required class="form-input">
+                        <option value="female">Female / أنثى</option>
+                        <option value="male">Male / ذكر</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="bil-spread">
+                        <span class="en">Location</span>
+                        <span class="ar">الموقع</span>
+                    </label>
+                    <select x-model="sheepForm.location" class="form-input">
+                        <option value="barn1">Barn 1 / الحظيرة 1</option>
+                        <option value="barn2">Barn 2 / الحظيرة 2</option>
+                        <option value="field">Field / الحقل</option>
+                        <option value="quarantine">Quarantine / الحجر الصحي</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="bil-spread">
+                    <span class="en">Last Vaccination Date</span>
+                    <span class="ar">تاريخ آخر تطعيم</span>
+                </label>
+                <input type="date" x-model="sheepForm.lastVaccination" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="bil-spread">
+                    <span class="en">Notes</span>
+                    <span class="ar">ملاحظات</span>
+                </label>
+                <textarea x-model="sheepForm.notes" rows="3" class="form-input"></textarea>
             </div>
             
             <div class="form-actions">

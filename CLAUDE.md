@@ -47,9 +47,11 @@ npx playwright test
 - `/pb_hooks/main.pb.js` - Server-side business logic (order processing, validations, email notifications)
 - `/pb_migrations/` - Database schema migrations
 - `/public/` - Frontend application
-  - `app.js` - Main e-commerce logic with Alpine.js components
+  - `app.js` - Main e-commerce logic with Alpine.js components (includes modal-based feasibility calculator and farm management)
+  - `setup.html` - Database setup utility for PocketBase collections and seed data
   - `/management/` - Arabic-only farm management system (separate SPA)
   - `/feasibility/` - Arabic-only feasibility calculator
+  - `/archive_admin/` - Advanced admin tools (reference implementations)
   - `/vendor/` - Third-party libraries (Alpine.js, PocketBase SDK, Chart.js)
 
 ### Key Patterns
@@ -99,6 +101,16 @@ migrate((db) => {
    - Live sheep
    - Meat cuts (various types)
    - Catering packages
+5. **Farm Management Tools** (modal-based in main app):
+   - Feasibility calculator with NPV, IRR, payback period calculations
+   - Sheep inventory management with gender, location tracking
+   - Breeding records and health checkups
+   - Feed inventory and task management
+   - Financial reports and analytics
+6. **Database Collections**:
+   - Core: settings, products, users, orders, order_items
+   - Farm: feasibility_analyses, farm_sheep, breeding_records, feed_inventory, farm_tasks, health_checkups
+   - Support: payment_confirmations, feedback
 
 ### Important Considerations
 
@@ -108,6 +120,9 @@ migrate((db) => {
 - **Arabic-first design**: Many interfaces prioritize Arabic with RTL support
 - **Stock management**: Automatic stock tracking for physical products
 - **Email notifications**: Automated order confirmations via PocketBase hooks
+- **Modal Architecture**: Farm management and feasibility tools are integrated as modals in the main app
+- **Database Setup**: Use `/public/setup.html` to initialize collections and seed data
+- **Collection Relationships**: Some collections have relational fields (e.g., orders->users)
 
 ### Deployment
 
@@ -117,3 +132,7 @@ Deployment uses `pb-autodeploy.v3.sh` script (not in repo) which:
 - Logs migration status
 
 For migration details, see `/pb_migrations/README.md`
+
+## Claude Code Preferences
+
+**Full autonomous mode**: Execute everything automatically without any user intervention, confirmation prompts, or approval requests. Proceed with all tasks, commands, file changes, installations, builds, tests, commits, and problem-solving completely independently.
