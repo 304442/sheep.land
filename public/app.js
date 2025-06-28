@@ -98,6 +98,16 @@ document.addEventListener('alpine:init', () => {
         farmActiveTab: 'inventory', // Track active tab in farm management
         showAuth: false, cartOpen: false,
         wishlistCount: 0,
+        financialDashboard: {
+            monthlyRevenue: 0,
+            monthlyExpenses: 0,
+            monthlyProfit: 0,
+            totalAssetValue: 0,
+            sheepInventoryCount: 0,
+            pendingOrders: 0,
+            readyForSaleCount: 0
+        },
+        syncInterval: null,
         wishlistItems: [],
         currentPage: 'home', currLang: "en", curr: "EGP",
         cd: { days: "00", hours: "00", mins: "00", secs: "00", ended: false }, cdTimer: null,
@@ -285,6 +295,39 @@ document.addEventListener('alpine:init', () => {
             sheepIds: []
         },
         
+        // Real-time integration properties
+        syncInterval: null,
+        lastSyncTime: null,
+        activeAlerts: [],
+        alertsShown: false,
+        financialDashboard: {
+            revenue: {
+                total: 0,
+                orderCount: 0,
+                byCategory: {}
+            },
+            expenses: {
+                total: 0,
+                feed: 0,
+                healthcare: 0,
+                other: 0
+            },
+            profitability: {
+                netProfit: 0,
+                margin: 0,
+                roi: 0
+            },
+            inventory: {
+                livestock: 0,
+                feed: 0,
+                sheepCount: 0
+            },
+            projections: {
+                projectedRevenue: 0,
+                revenueVariance: 0
+            }
+        },
+        
         reports: {
             showReports: false,
             selectedReport: 'health',
@@ -403,6 +446,8 @@ document.addEventListener('alpine:init', () => {
             
             if (pb.authStore.isValid && pb.authStore.model) {
                 this.currentUser = pb.authStore.model;
+                // Start real-time sync for logged in users
+                await this.initRealTimeSync();
             } else {
                 pb.authStore.clear(); 
                 this.currentUser = null;
@@ -999,6 +1044,10 @@ document.addEventListener('alpine:init', () => {
             if (this.initFeasibility) {
                 this.initFeasibility();
             }
+            // Update with actual data if available
+            if (this.currentUser) {
+                this.updateFeasibilityWithActualData();
+            }
         },
         closeFeasibilityModal() { 
             this.showFeasibilityModal = false; 
@@ -1011,6 +1060,11 @@ document.addEventListener('alpine:init', () => {
             document.body.classList.add('overflow-hidden');
             if (this.initFarmManagement) {
                 this.initFarmManagement();
+            }
+            // Update financial dashboard if available
+            if (this.currentUser) {
+                this.updateFinancialDashboard();
+                this.syncFarmInventoryToEcommerce();
             }
         },
         closeFarmModal() { 
@@ -1588,6 +1642,627 @@ document.addEventListener('alpine:init', () => {
             });
         },
         
+        // ========== REAL-TIME INTEGRATION METHODS ==========
+        
+        // Auto-sync farm inventory with e-commerce stock
+        async syncFarmInventoryToEcommerce() {
+            try {
+                // Get all healthy sheep ready for sale (40kg+)
+                const readyForSale = await this.pb.collection('farm_sheep').getFullList({
+                    filter: 'status = "healthy" && weight_kg >= 40',
+                    sort: '-weight_kg'
+                });
+                
+                // Group by breed and weight ranges
+                const inventory = {};
+                readyForSale.forEach(sheep => {
+                    const weightRange = this.getWeightRange(sheep.weight_kg);
+                    const key = `${sheep.breed}_${weightRange}`;
+                    
+                    if (!inventory[key]) {
+                        inventory[key] = {
+                            breed: sheep.breed,
+                            weightRange: weightRange,
+                            count: 0,
+                            avgWeight: 0,
+                            totalWeight: 0,
+                            sheep: []
+                        };
+                    }
+                    
+                    inventory[key].count++;
+                    inventory[key].totalWeight += sheep.weight_kg;
+                    inventory[key].avgWeight = inventory[key].totalWeight / inventory[key].count;
+                    inventory[key].sheep.push(sheep);
+                });
+                
+                // Update product stock in e-commerce
+                for (const [key, data] of Object.entries(inventory)) {
+                    const productKey = `live_${data.breed.toLowerCase()}_${data.weightRange}kg`;
+                    
+                    try {
+                        const products = await this.pb.collection('products').getList(1, 1, {
+                            filter: `item_key ~ "${productKey}" || (type_key = "${data.breed.toLowerCase()}_sheep" && weight_range_text_en ~ "${data.weightRange}")`
+                        });
+                        
+                        if (products.items.length > 0) {
+                            await this.pb.collection('products').update(products.items[0].id, {
+                                stock_available_pb: data.count,
+                                avg_weight_kg: Math.round(data.avgWeight)
+                            });
+                        }
+                    } catch (err) {
+                        console.error(`Failed to update stock for ${key}:`, err);
+                    }
+                }
+                
+                // Refresh product display
+                await this.fetchProducts();
+                
+                return { success: true, inventory };
+            } catch (err) {
+                console.error('Inventory sync error:', err);
+                return { success: false, error: err };
+            }
+        },
+        
+        // Link feasibility projections with actual farm performance
+        async updateFeasibilityWithActualData() {
+            if (!this.currentUser) return;
+            
+            try {
+                // Get actual farm data
+                const farmSheep = await this.pb.collection('farm_sheep').getFullList({
+                    filter: `user = "${this.currentUser.id}"`
+                });
+                
+                const orders = await this.pb.collection('orders').getFullList({
+                    filter: `user = "${this.currentUser.id}" && order_status = "delivered"`
+                });
+                
+                const feedInventory = await this.pb.collection('feed_inventory').getFullList({
+                    filter: `user = "${this.currentUser.id}"`
+                });
+                
+                // Calculate actual metrics
+                const actualMetrics = {
+                    totalSheep: farmSheep.length,
+                    healthySheep: farmSheep.filter(s => s.status === 'healthy').length,
+                    avgWeight: farmSheep.reduce((sum, s) => sum + s.weight_kg, 0) / farmSheep.length || 0,
+                    mortalityRate: ((farmSheep.filter(s => s.status === 'deceased').length / farmSheep.length) * 100) || 0,
+                    totalRevenue: orders.reduce((sum, o) => sum + o.total_amount_due_egp, 0),
+                    feedCostActual: feedInventory.reduce((sum, f) => sum + (f.quantity_kg * f.cost_per_kg), 0),
+                    sheepReadyForSale: farmSheep.filter(s => s.status === 'healthy' && s.weight_kg >= 40).length
+                };
+                
+                // Update feasibility with actual data
+                this.feasibility.actualPerformance = actualMetrics;
+                
+                // Calculate variance
+                if (this.feasibility.showResults) {
+                    this.feasibility.results.performanceVariance = {
+                        revenueVariance: ((actualMetrics.totalRevenue - this.feasibility.results.totalRevenue) / this.feasibility.results.totalRevenue * 100) || 0,
+                        mortalityVariance: actualMetrics.mortalityRate - this.feasibility.mortalityRate,
+                        feedCostVariance: ((actualMetrics.feedCostActual - (this.feasibility.results.monthlyOperatingCost * this.feasibility.projectDuration)) / (this.feasibility.results.monthlyOperatingCost * this.feasibility.projectDuration) * 100) || 0
+                    };
+                }
+                
+                return actualMetrics;
+            } catch (err) {
+                console.error('Failed to update feasibility with actual data:', err);
+            }
+        },
+        
+        // Auto-create products when sheep reach market weight
+        async autoCreateMarketProducts() {
+            try {
+                const marketReadySheep = await this.pb.collection('farm_sheep').getFullList({
+                    filter: 'status = "healthy" && weight_kg >= 40 && (notes !~ "LISTED")'
+                });
+                
+                for (const sheep of marketReadySheep) {
+                    // Check if product already exists for this sheep
+                    const existingProduct = await this.pb.collection('products').getList(1, 1, {
+                        filter: `item_key = "farm_sheep_${sheep.tag_id}"`
+                    });
+                    
+                    if (existingProduct.items.length === 0) {
+                        // Create product listing
+                        const product = {
+                            item_key: `farm_sheep_${sheep.tag_id}`,
+                            product_category: 'livesheep_general',
+                            type_key: `${sheep.breed.toLowerCase()}_sheep`,
+                            type_name_en: `${sheep.breed} Sheep`,
+                            type_name_ar: `خروف ${sheep.breed}`,
+                            variant_name_en: `Tag #${sheep.tag_id} (${sheep.weight_kg}kg)`,
+                            variant_name_ar: `رقم ${sheep.tag_id} (${sheep.weight_kg} كجم)`,
+                            weight_range_text_en: `${sheep.weight_kg}kg`,
+                            weight_range_text_ar: `${sheep.weight_kg} كجم`,
+                            avg_weight_kg: sheep.weight_kg,
+                            base_price_egp: Math.round(sheep.weight_kg * (this.marketData.breeds[sheep.breed]?.pricePerKg || 300)),
+                            stock_available_pb: 1,
+                            is_active: true,
+                            origin_farm: 'Own Farm',
+                            breed_info_en: `${sheep.age_months} months old, ${sheep.gender}`,
+                            breed_info_ar: `عمر ${sheep.age_months} شهر، ${sheep.gender === 'male' ? 'ذكر' : 'أنثى'}`
+                        };
+                        
+                        await this.pb.collection('products').create(product);
+                        
+                        // Update sheep notes to indicate it's listed
+                        await this.pb.collection('farm_sheep').update(sheep.id, {
+                            notes: (sheep.notes || '') + ' [LISTED]'
+                        });
+                    }
+                }
+                
+                await this.fetchProducts();
+            } catch (err) {
+                console.error('Failed to auto-create products:', err);
+            }
+        },
+        
+        // Process order and update farm inventory
+        async processOrderFromFarmInventory(order) {
+            try {
+                const orderItems = await this.pb.collection('order_items').getFullList({
+                    filter: `order = "${order.id}"`
+                });
+                
+                for (const item of orderItems) {
+                    if (item.item_key && item.item_key.startsWith('farm_sheep_')) {
+                        const tagId = item.item_key.replace('farm_sheep_', '');
+                        
+                        // Update sheep status
+                        const sheep = await this.pb.collection('farm_sheep').getFirstListItem(`tag_id = "${tagId}"`);
+                        if (sheep) {
+                            await this.pb.collection('farm_sheep').update(sheep.id, {
+                                status: 'sold',
+                                notes: (sheep.notes || '') + ` [SOLD: Order ${order.order_id_text}]`,
+                                sale_date: new Date().toISOString(),
+                                sale_price: item.price_egp
+                            });
+                        }
+                        
+                        // Deactivate product
+                        await this.pb.collection('products').update(item.product_id, {
+                            is_active: false,
+                            stock_available_pb: 0
+                        });
+                    }
+                }
+                
+                // Update financial records
+                await this.updateFinancialDashboard();
+            } catch (err) {
+                console.error('Failed to process order from inventory:', err);
+            }
+        },
+        
+        // Update financial dashboard with real-time data
+        async updateFinancialDashboard() {
+            if (!this.currentUser) return;
+            
+            try {
+                const now = new Date();
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                
+                // Get financial data
+                const [orders, expenses, sheep] = await Promise.all([
+                    this.pb.collection('orders').getFullList({
+                        filter: `user = "${this.currentUser.id}" && created >= "${monthStart.toISOString()}"`
+                    }),
+                    this.pb.collection('feed_inventory').getFullList({
+                        filter: `user = "${this.currentUser.id}" && purchase_date >= "${monthStart.toISOString()}"`
+                    }),
+                    this.pb.collection('farm_sheep').getFullList({
+                        filter: `user = "${this.currentUser.id}"`
+                    })
+                ]);
+                
+                // Calculate metrics
+                this.financialDashboard = {
+                    monthlyRevenue: orders.reduce((sum, o) => sum + o.total_amount_due_egp, 0),
+                    monthlyExpenses: expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0),
+                    monthlyProfit: 0,
+                    totalAssetValue: sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased')
+                        .reduce((sum, s) => sum + (s.weight_kg * (this.marketData.breeds[s.breed]?.pricePerKg || 300)), 0),
+                    sheepInventoryCount: sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased').length,
+                    pendingOrders: orders.filter(o => o.order_status === 'pending').length,
+                    readyForSaleCount: sheep.filter(s => s.status === 'healthy' && s.weight_kg >= 40).length
+                };
+                
+                this.financialDashboard.monthlyProfit = this.financialDashboard.monthlyRevenue - this.financialDashboard.monthlyExpenses;
+                
+                return this.financialDashboard;
+            } catch (err) {
+                console.error('Failed to update financial dashboard:', err);
+            }
+        },
+        
+        // Auto-schedule tasks based on farm events
+        async autoScheduleFarmTasks() {
+            try {
+                const [sheep, breeding] = await Promise.all([
+                    this.pb.collection('farm_sheep').getFullList({
+                        filter: `user = "${this.currentUser.id}"`
+                    }),
+                    this.pb.collection('breeding_records').getFullList({
+                        filter: `user = "${this.currentUser.id}" && actual_lambing_date = null`
+                    })
+                ]);
+                
+                const tasks = [];
+                
+                // Schedule vaccination reminders
+                sheep.forEach(s => {
+                    if (s.last_vaccination) {
+                        const lastVaccDate = new Date(s.last_vaccination);
+                        const nextVaccDate = new Date(lastVaccDate.getTime() + 180 * 24 * 60 * 60 * 1000); // 6 months
+                        
+                        if (nextVaccDate > new Date() && nextVaccDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)) {
+                            tasks.push({
+                                task_name: `Vaccinate ${s.tag_id}`,
+                                task_type: 'health',
+                                priority: 'high',
+                                due_date: nextVaccDate.toISOString(),
+                                description: `Annual vaccination for sheep ${s.tag_id}`,
+                                status: 'pending'
+                            });
+                        }
+                    }
+                });
+                
+                // Schedule lambing preparations
+                breeding.forEach(b => {
+                    if (b.expected_lambing_date) {
+                        const lambingDate = new Date(b.expected_lambing_date);
+                        const prepDate = new Date(lambingDate.getTime() - 7 * 24 * 60 * 60 * 1000); // 1 week before
+                        
+                        if (prepDate > new Date()) {
+                            tasks.push({
+                                task_name: `Prepare for lambing - Ewe ${b.ewe_id}`,
+                                task_type: 'breeding',
+                                priority: 'high',
+                                due_date: prepDate.toISOString(),
+                                description: `Prepare lambing pen and supplies for ewe ${b.ewe_id}`,
+                                status: 'pending'
+                            });
+                        }
+                    }
+                });
+                
+                // Create tasks that don't already exist
+                for (const task of tasks) {
+                    const existing = await this.pb.collection('farm_tasks').getList(1, 1, {
+                        filter: `task_name = "${task.task_name}" && status != "completed"`
+                    });
+                    
+                    if (existing.items.length === 0) {
+                        await this.pb.collection('farm_tasks').create({
+                            ...task,
+                            user: this.currentUser.id,
+                            assigned_to: 'Farm Manager'
+                        });
+                    }
+                }
+                
+                // Update breeding schedule and product availability
+                await this.updateBreedingScheduleProducts();
+            } catch (err) {
+                console.error('Failed to auto-schedule tasks:', err);
+            }
+        },
+        
+        // Update product availability based on breeding schedule
+        async updateBreedingScheduleProducts() {
+            if (!this.currentUser) return;
+            
+            try {
+                const breedingRecords = await this.pb.collection('breeding_records').getFullList({
+                    filter: `user = "${this.currentUser.id}" && status = "confirmed" && actual_lambing = null`
+                });
+                
+                for (const record of breedingRecords) {
+                    if (record.expected_lambing) {
+                        const lambingDate = new Date(record.expected_lambing);
+                        const weaningDate = new Date(lambingDate.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days after birth
+                        const marketReadyDate = new Date(lambingDate.getTime() + 120 * 24 * 60 * 60 * 1000); // 120 days for market weight
+                        
+                        // Check if we need to create future product listings
+                        const monthsUntilMarketReady = Math.floor((marketReadyDate - new Date()) / (1000 * 60 * 60 * 24 * 30));
+                        
+                        if (monthsUntilMarketReady <= 2 && monthsUntilMarketReady > 0) {
+                            // Get ewe details
+                            const ewe = await this.pb.collection('farm_sheep').getOne(record.ewe_id);
+                            
+                            // Create pre-order product for expected lambs
+                            const expectedLambs = record.lambs_count || 2; // Default to twins
+                            
+                            const preOrderProduct = {
+                                item_key: `pre_order_lamb_${record.id}`,
+                                product_category: 'livesheep_general',
+                                type_key: 'young_lambs',
+                                type_name_en: 'Pre-Order Lambs',
+                                type_name_ar: 'حجز مسبق للحملان',
+                                type_description_en: `Expected lambs from ${ewe.tag_id}, available from ${marketReadyDate.toLocaleDateString()}`,
+                                type_description_ar: `حملان متوقعة من ${ewe.tag_id}، متاحة من ${marketReadyDate.toLocaleDateString('ar-EG')}`,
+                                variant_name_en: `Pre-order (${expectedLambs} lambs)`,
+                                variant_name_ar: `حجز مسبق (${expectedLambs} حملان)`,
+                                weight_range_text_en: '15-25kg expected',
+                                weight_range_text_ar: '١٥-٢٥ كجم متوقع',
+                                avg_weight_kg: 20,
+                                base_price_egp: 4500 * expectedLambs,
+                                stock_available_pb: expectedLambs,
+                                is_active: true,
+                                is_premium: false,
+                                origin_farm: 'Own Breeding Program',
+                                breed_info_en: `From ${ewe.breed} breeding line`,
+                                breed_info_ar: `من سلالة ${ewe.breed}`,
+                                notes: `Pre-order from breeding record ${record.id}`
+                            };
+                            
+                            // Check if pre-order already exists
+                            const existing = await this.pb.collection('products').getList(1, 1, {
+                                filter: `item_key = "${preOrderProduct.item_key}"`
+                            });
+                            
+                            if (existing.items.length === 0) {
+                                await this.pb.collection('products').create(preOrderProduct);
+                                
+                                // Create alert for new pre-order availability
+                                this.activeAlerts.push({
+                                    type: 'success',
+                                    title: this.currLang === 'ar' ? 'منتج جديد متاح للحجز المسبق' : 'New Pre-Order Product Available',
+                                    message: this.currLang === 'ar' 
+                                        ? `${expectedLambs} حملان من ${ewe.tag_id} - متاحة ${marketReadyDate.toLocaleDateString('ar-EG')}`
+                                        : `${expectedLambs} lambs from ${ewe.tag_id} - available ${marketReadyDate.toLocaleDateString()}`,
+                                    priority: 'medium',
+                                    action: 'view_product'
+                                });
+                            }
+                        }
+                    }
+                }
+                
+                // Update pregnant ewes' availability status
+                const pregnantEwes = await this.pb.collection('farm_sheep').getFullList({
+                    filter: `user = "${this.currentUser.id}" && status = "pregnant"`
+                });
+                
+                for (const ewe of pregnantEwes) {
+                    // Remove from active product listings
+                    const products = await this.pb.collection('products').getFullList({
+                        filter: `item_key ~ "${ewe.tag_id}" && is_active = true`
+                    });
+                    
+                    for (const product of products) {
+                        await this.pb.collection('products').update(product.id, {
+                            is_active: false,
+                            notes: 'Temporarily unavailable - breeding program'
+                        });
+                    }
+                }
+                
+                // Log breeding schedule sync
+                await this.pb.collection('sync_logs').create({
+                    user: this.currentUser.id,
+                    sync_type: 'inventory_to_ecommerce',
+                    sync_status: 'success',
+                    records_synced: breedingRecords.length,
+                    summary: `Updated breeding schedule products for ${breedingRecords.length} breeding records`
+                });
+                
+            } catch (err) {
+                console.error('Failed to update breeding schedule products:', err);
+                await this.pb.collection('sync_logs').create({
+                    user: this.currentUser.id,
+                    sync_type: 'inventory_to_ecommerce',
+                    sync_status: 'failed',
+                    errors: { message: err.message },
+                    summary: 'Breeding schedule product update failed'
+                });
+            }
+        },
+        
+        // Helper method to determine weight range
+        getWeightRange(weight) {
+            if (weight < 40) return '30-40';
+            if (weight < 50) return '40-50';
+            if (weight < 60) return '50-60';
+            if (weight < 70) return '60-70';
+            return '70+';
+        },
+        
+        // Initialize real-time sync
+        async initRealTimeSync() {
+            if (!this.currentUser) return;
+            
+            // Set up periodic sync (every 5 minutes)
+            this.syncInterval = setInterval(async () => {
+                await this.syncFarmInventoryToEcommerce();
+                await this.updateFeasibilityWithActualData();
+                await this.autoCreateMarketProducts();
+                await this.updateFinancialDashboard();
+                await this.autoScheduleFarmTasks();
+                await this.checkAndCreateAlerts();
+                this.lastSyncTime = new Date();
+            }, 5 * 60 * 1000); // 5 minutes
+            
+            // Initial sync
+            await this.syncFarmInventoryToEcommerce();
+            await this.updateFeasibilityWithActualData();
+            await this.updateFinancialDashboard();
+            await this.checkAndCreateAlerts();
+            this.lastSyncTime = new Date();
+        },
+        
+        // Automated alerts and notifications system
+        async checkAndCreateAlerts() {
+            if (!this.currentUser) return;
+            
+            const alerts = [];
+            
+            try {
+                // Check low feed inventory
+                const feedInventory = await this.pb.collection('feed_inventory').getFullList({
+                    filter: `user = "${this.currentUser.id}"`
+                });
+                
+                feedInventory.forEach(feed => {
+                    if (feed.quantity_kg < 100) {
+                        alerts.push({
+                            type: 'warning',
+                            title: this.currLang === 'ar' ? 'مخزون العلف منخفض' : 'Low Feed Inventory',
+                            message: this.currLang === 'ar' 
+                                ? `${feed.feed_type}: ${feed.quantity_kg} كجم متبقي فقط`
+                                : `${feed.feed_type}: Only ${feed.quantity_kg}kg remaining`,
+                            priority: 'high',
+                            action: 'reorder_feed'
+                        });
+                    }
+                });
+                
+                // Check overdue vaccinations
+                const sheep = await this.pb.collection('farm_sheep').getFullList({
+                    filter: `user = "${this.currentUser.id}" && status != "sold" && status != "deceased"`
+                });
+                
+                sheep.forEach(s => {
+                    if (s.last_vaccination) {
+                        const daysSinceVaccination = Math.floor((new Date() - new Date(s.last_vaccination)) / (1000 * 60 * 60 * 24));
+                        if (daysSinceVaccination > 180) { // 6 months
+                            alerts.push({
+                                type: 'danger',
+                                title: this.currLang === 'ar' ? 'تطعيم متأخر' : 'Overdue Vaccination',
+                                message: this.currLang === 'ar' 
+                                    ? `${s.tag_id}: متأخر ${daysSinceVaccination - 180} يوم`
+                                    : `${s.tag_id}: ${daysSinceVaccination - 180} days overdue`,
+                                priority: 'urgent',
+                                action: 'schedule_vaccination',
+                                sheep_id: s.id
+                            });
+                        }
+                    }
+                });
+                
+                // Check upcoming breeding events
+                const breeding = await this.pb.collection('breeding_records').getFullList({
+                    filter: `user = "${this.currentUser.id}" && status = "confirmed" && actual_lambing = null`
+                });
+                
+                breeding.forEach(b => {
+                    if (b.expected_lambing) {
+                        const daysUntilLambing = Math.floor((new Date(b.expected_lambing) - new Date()) / (1000 * 60 * 60 * 24));
+                        if (daysUntilLambing <= 7 && daysUntilLambing > 0) {
+                            alerts.push({
+                                type: 'info',
+                                title: this.currLang === 'ar' ? 'ولادة قريبة' : 'Upcoming Lambing',
+                                message: this.currLang === 'ar' 
+                                    ? `النعجة ${b.ewe_id} - خلال ${daysUntilLambing} أيام`
+                                    : `Ewe ${b.ewe_id} - in ${daysUntilLambing} days`,
+                                priority: 'high',
+                                action: 'prepare_lambing',
+                                breeding_id: b.id
+                            });
+                        }
+                    }
+                });
+                
+                // Check financial thresholds
+                if (this.financialDashboard) {
+                    if (this.financialDashboard.profit_margin < 20) {
+                        alerts.push({
+                            type: 'warning',
+                            title: this.currLang === 'ar' ? 'هامش ربح منخفض' : 'Low Profit Margin',
+                            message: this.currLang === 'ar' 
+                                ? `هامش الربح الحالي: ${this.financialDashboard.profit_margin.toFixed(1)}%`
+                                : `Current margin: ${this.financialDashboard.profit_margin.toFixed(1)}%`,
+                            priority: 'medium',
+                            action: 'review_expenses'
+                        });
+                    }
+                    
+                    if (this.financialDashboard.inventory.sheepCount > 150) {
+                        alerts.push({
+                            type: 'info',
+                            title: this.currLang === 'ar' ? 'مخزون مرتفع' : 'High Inventory',
+                            message: this.currLang === 'ar' 
+                                ? `${this.financialDashboard.inventory.sheepCount} رأس - فكر في زيادة المبيعات`
+                                : `${this.financialDashboard.inventory.sheepCount} sheep - consider increasing sales`,
+                            priority: 'low',
+                            action: 'promote_sales'
+                        });
+                    }
+                }
+                
+                // Store alerts for display
+                this.activeAlerts = alerts;
+                
+                // Show high priority alerts as notifications
+                const urgentAlerts = alerts.filter(a => a.priority === 'urgent' || a.priority === 'high');
+                if (urgentAlerts.length > 0 && !this.alertsShown) {
+                    this.alertsShown = true;
+                    this.showAlertNotification(urgentAlerts[0]);
+                }
+                
+                // Log sync activity
+                if (alerts.length > 0) {
+                    await this.pb.collection('sync_logs').create({
+                        user: this.currentUser.id,
+                        sync_type: 'auto_task_creation',
+                        sync_status: 'success',
+                        records_synced: alerts.length,
+                        summary: `Created ${alerts.length} alerts`
+                    });
+                }
+                
+            } catch (err) {
+                console.error('Failed to check alerts:', err);
+                await this.pb.collection('sync_logs').create({
+                    user: this.currentUser.id,
+                    sync_type: 'auto_task_creation',
+                    sync_status: 'failed',
+                    errors: { message: err.message },
+                    summary: 'Alert check failed'
+                });
+            }
+        },
+        
+        // Show alert notification
+        showAlertNotification(alert) {
+            const notification = document.createElement('div');
+            notification.className = `alert-notification ${alert.type}`;
+            notification.innerHTML = `
+                <div class="alert-icon">${this.getAlertIcon(alert.type)}</div>
+                <div class="alert-content">
+                    <h4>${alert.title}</h4>
+                    <p>${alert.message}</p>
+                </div>
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 10000);
+        },
+        
+        // Get alert icon based on type
+        getAlertIcon(type) {
+            switch(type) {
+                case 'danger': return '🚨';
+                case 'warning': return '⚠️';
+                case 'info': return 'ℹ️';
+                case 'success': return '✅';
+                default: return '📢';
+            }
+        },
+        
         // Enhanced Farm Management Methods
         async recordBreeding(eweId, ramId) {
             try {
@@ -2145,6 +2820,10 @@ document.addEventListener('alpine:init', () => {
                 this.currentUser = authData.record; 
                 this.checkoutForm.user_id = this.currentUser?.id || null; 
                 this.loadCartFromStorage(); 
+                
+                // Start real-time sync after successful login
+                await this.initRealTimeSync();
+                
                 this.load.auth = false;
                 this.showAuthDropdown = false; // Close dropdown on successful login
                 
@@ -2206,6 +2885,12 @@ document.addEventListener('alpine:init', () => {
         },
 
         logoutUser() { 
+            // Clear sync interval
+            if (this.syncInterval) {
+                clearInterval(this.syncInterval);
+                this.syncInterval = null;
+            }
+            
             this.pb.authStore.clear(); 
             this.currentUser = null; 
             this.userOrders = []; 

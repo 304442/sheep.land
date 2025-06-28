@@ -2001,6 +2001,203 @@
                         "CREATE INDEX `idx_health_checkups_date` ON `health_checkups` (`checkup_date`)",
                         "CREATE INDEX `idx_health_checkups_type` ON `health_checkups` (`checkup_type`)"
                 ]
+        },
+        {
+                "name": "sync_logs",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "viewRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "sync_type",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["inventory_to_ecommerce", "orders_to_farm", "feasibility_to_actuals", "financial_dashboard", "auto_task_creation"]
+                        },
+                        {
+                                "name": "sync_status",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["success", "partial", "failed"]
+                        },
+                        {
+                                "name": "sync_date",
+                                "type": "autodate",
+                                "required": false,
+                                "presentable": true,
+                                "onCreate": true,
+                                "onUpdate": false
+                        },
+                        {
+                                "name": "records_synced",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "errors",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "summary",
+                                "type": "editor",
+                                "required": false,
+                                "presentable": false
+                        }
+                ],
+                "indexes": [
+                        "CREATE INDEX `idx_sync_logs_user` ON `sync_logs` (`user`)",
+                        "CREATE INDEX `idx_sync_logs_type` ON `sync_logs` (`sync_type`)",
+                        "CREATE INDEX `idx_sync_logs_date` ON `sync_logs` (`sync_date`)"
+                ]
+        },
+        {
+                "name": "financial_metrics",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "viewRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "deleteRule": "@request.auth.id = user.id || @request.auth.is_admin = true",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "metric_date",
+                                "type": "date",
+                                "required": true,
+                                "presentable": true
+                        },
+                        {
+                                "name": "metric_type",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["daily", "weekly", "monthly", "quarterly", "annual"]
+                        },
+                        {
+                                "name": "revenue_total",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "revenue_by_category",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "expenses_total",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "expenses_breakdown",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "net_profit",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "profit_margin",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": -100,
+                                "max": 100
+                        },
+                        {
+                                "name": "roi",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true
+                        },
+                        {
+                                "name": "inventory_value",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "sheep_count",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "order_count",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "customer_count",
+                                "type": "number",
+                                "required": false,
+                                "presentable": true,
+                                "min": 0,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "notes",
+                                "type": "editor",
+                                "required": false,
+                                "presentable": false
+                        }
+                ],
+                "indexes": [
+                        "CREATE INDEX `idx_financial_metrics_user` ON `financial_metrics` (`user`)",
+                        "CREATE INDEX `idx_financial_metrics_date` ON `financial_metrics` (`metric_date`)",
+                        "CREATE INDEX `idx_financial_metrics_type` ON `financial_metrics` (`metric_type`)"
+                ]
         }
 ];
 
@@ -3114,6 +3311,72 @@
                         "follow_up_required": true,
                         "next_checkup_date": new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
                         "notes": "Monitor closely, isolate from herd"
+                }
+        ],
+        "sync_logs": [
+                {
+                        "sync_type": "inventory_to_ecommerce",
+                        "sync_status": "success",
+                        "records_synced": 15,
+                        "summary": "Successfully synced 15 sheep from farm inventory to e-commerce products"
+                },
+                {
+                        "sync_type": "financial_dashboard",
+                        "sync_status": "success",
+                        "records_synced": 1,
+                        "summary": "Updated financial dashboard with latest metrics"
+                }
+        ],
+        "financial_metrics": [
+                {
+                        "metric_date": new Date().toISOString().split('T')[0],
+                        "metric_type": "daily",
+                        "revenue_total": 125000,
+                        "revenue_by_category": {
+                                "udheya": 85000,
+                                "livesheep": 25000,
+                                "meat": 15000
+                        },
+                        "expenses_total": 45000,
+                        "expenses_breakdown": {
+                                "feed": 15000,
+                                "healthcare": 5000,
+                                "labor": 20000,
+                                "other": 5000
+                        },
+                        "net_profit": 80000,
+                        "profit_margin": 64,
+                        "roi": 177.8,
+                        "inventory_value": 750000,
+                        "sheep_count": 125,
+                        "order_count": 12,
+                        "customer_count": 10,
+                        "notes": "Strong sales performance during pre-Eid period"
+                },
+                {
+                        "metric_date": new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        "metric_type": "weekly",
+                        "revenue_total": 450000,
+                        "revenue_by_category": {
+                                "udheya": 300000,
+                                "livesheep": 100000,
+                                "meat": 50000
+                        },
+                        "expenses_total": 180000,
+                        "expenses_breakdown": {
+                                "feed": 60000,
+                                "healthcare": 20000,
+                                "labor": 80000,
+                                "other": 20000
+                        },
+                        "net_profit": 270000,
+                        "profit_margin": 60,
+                        "roi": 150,
+                        "inventory_value": 720000,
+                        "sheep_count": 120,
+                        "order_count": 45,
+                        "customer_count": 38,
+                        "notes": "Weekly performance showing consistent growth"
                 }
         ]
 };
@@ -4301,6 +4564,20 @@
             if(healthResult.errors > 0) anySeedErrors = true;
         }
         
+        // Seed sync logs (if present in seed data)
+        if (seedDataToUse.sync_logs && Array.isArray(seedDataToUse.sync_logs)) {
+            log('🔄 Seeding sync logs...', 'i');
+            const syncResult = await seedCollectionData(pb, 'sync_logs', seedDataToUse.sync_logs);
+            if(syncResult.errors > 0) anySeedErrors = true;
+        }
+        
+        // Seed financial metrics (if present in seed data)
+        if (seedDataToUse.financial_metrics && Array.isArray(seedDataToUse.financial_metrics)) {
+            log('💰 Seeding financial metrics...', 'i');
+            const metricsResult = await seedCollectionData(pb, 'financial_metrics', seedDataToUse.financial_metrics);
+            if(metricsResult.errors > 0) anySeedErrors = true;
+        }
+        
         if (anySeedErrors) {
             log('⚠️ Seed data setup completed with errors.', 'w');
             return false; 
@@ -4398,7 +4675,7 @@
     async function clearDatabase(pb) {
         const collections = ['products', 'orders', 'order_items', 'payment_confirmations', 'feedback', 'users', 
                            'breeding_records', 'feed_inventory', 'farm_tasks', 'health_checkups', 
-                           'feasibility_analyses', 'farm_sheep'];
+                           'feasibility_analyses', 'farm_sheep', 'sync_logs', 'financial_metrics'];
         let clearedCount = 0;
         
         for (const collectionName of collections) {
@@ -4477,6 +4754,14 @@
             [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton, clearDatabaseButton].forEach(b => b.disabled = false);
         }
     };
+    
+    // Initialize textareas with default data
+    collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
+    seedTextarea.value = JSON.stringify(seedData, null, 2);
+    
+    // Validate on load
+    validateCollectionsTextarea();
+    validateSeedTextarea();
 </script>
 </body>
 </html>

@@ -2451,6 +2451,10 @@
                     <span class="en">Reports</span>
                     <span class="ar">التقارير</span>
                 </button>
+                <button @click="farmActiveTab = 'dashboard'; updateFinancialDashboard()" :class="{'active': farmActiveTab === 'dashboard'}" class="tab-btn bil-inline">
+                    <span class="en">💰 Dashboard</span>
+                    <span class="ar">💰 لوحة التحكم</span>
+                </button>
             </div>
 
             <!-- Sheep List -->
@@ -2881,6 +2885,205 @@
                             </span>
                             <span>EGP <span x-text="farmStats.totalValue.toLocaleString()"></span></span>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Financial Dashboard Tab -->
+            <div class="dashboard-section" x-show="farmActiveTab === 'dashboard'">
+                <div class="section-header">
+                    <h3 class="bil-spread">
+                        <span class="en">💰 Financial Dashboard</span>
+                        <span class="ar">💰 لوحة المعلومات المالية</span>
+                    </h3>
+                    <button @click="updateFinancialDashboard()" class="btn bp bil-inline">
+                        <span class="en">🔄 Refresh</span>
+                        <span class="ar">🔄 تحديث</span>
+                    </button>
+                </div>
+                
+                <!-- Revenue Overview -->
+                <div class="dashboard-card">
+                    <h4 class="bil-spread">
+                        <span class="en">📈 Revenue Overview</span>
+                        <span class="ar">📈 نظرة عامة على الإيرادات</span>
+                    </h4>
+                    <div class="metrics-grid">
+                        <div class="metric-card success">
+                            <div class="metric-label bil-inline">
+                                <span class="en">Total Revenue</span>
+                                <span class="ar">إجمالي الإيرادات</span>
+                            </div>
+                            <div class="metric-value">EGP <span x-text="financialDashboard.revenue.total.toLocaleString()"></span></div>
+                            <div class="metric-subtext bil-inline">
+                                <span class="en">From <span x-text="financialDashboard.revenue.orderCount"></span> orders</span>
+                                <span class="ar">من <span x-text="financialDashboard.revenue.orderCount"></span> طلبات</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label bil-inline">
+                                <span class="en">By Category</span>
+                                <span class="ar">حسب الفئة</span>
+                            </div>
+                            <template x-for="(amount, category) in financialDashboard.revenue.byCategory" :key="category">
+                                <div class="category-breakdown">
+                                    <span x-text="category"></span>: EGP <span x-text="amount.toLocaleString()"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Expenses Breakdown -->
+                <div class="dashboard-card">
+                    <h4 class="bil-spread">
+                        <span class="en">💸 Expenses Breakdown</span>
+                        <span class="ar">💸 تفصيل المصروفات</span>
+                    </h4>
+                    <div class="metrics-grid">
+                        <div class="metric-card warning">
+                            <div class="metric-label bil-inline">
+                                <span class="en">Total Expenses</span>
+                                <span class="ar">إجمالي المصروفات</span>
+                            </div>
+                            <div class="metric-value">EGP <span x-text="financialDashboard.expenses.total.toLocaleString()"></span></div>
+                        </div>
+                        <div class="expense-breakdown">
+                            <div class="expense-item">
+                                <span class="bil-inline">
+                                    <span class="en">Feed Costs:</span>
+                                    <span class="ar">تكاليف العلف:</span>
+                                </span>
+                                <span>EGP <span x-text="financialDashboard.expenses.feed.toLocaleString()"></span></span>
+                            </div>
+                            <div class="expense-item">
+                                <span class="bil-inline">
+                                    <span class="en">Healthcare:</span>
+                                    <span class="ar">الرعاية الصحية:</span>
+                                </span>
+                                <span>EGP <span x-text="financialDashboard.expenses.healthcare.toLocaleString()"></span></span>
+                            </div>
+                            <div class="expense-item">
+                                <span class="bil-inline">
+                                    <span class="en">Other Costs:</span>
+                                    <span class="ar">تكاليف أخرى:</span>
+                                </span>
+                                <span>EGP <span x-text="financialDashboard.expenses.other.toLocaleString()"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profitability Analysis -->
+                <div class="dashboard-card">
+                    <h4 class="bil-spread">
+                        <span class="en">💰 Profitability Analysis</span>
+                        <span class="ar">💰 تحليل الربحية</span>
+                    </h4>
+                    <div class="metrics-grid">
+                        <div class="metric-card" :class="financialDashboard.profitability.netProfit >= 0 ? 'success' : 'danger'">
+                            <div class="metric-label bil-inline">
+                                <span class="en">Net Profit</span>
+                                <span class="ar">صافي الربح</span>
+                            </div>
+                            <div class="metric-value">
+                                EGP <span x-text="Math.abs(financialDashboard.profitability.netProfit).toLocaleString()"></span>
+                                <span x-show="financialDashboard.profitability.netProfit < 0">(Loss)</span>
+                            </div>
+                            <div class="metric-subtext">
+                                <span x-text="financialDashboard.profitability.margin.toFixed(1)"></span>% margin
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label bil-inline">
+                                <span class="en">ROI</span>
+                                <span class="ar">العائد على الاستثمار</span>
+                            </div>
+                            <div class="metric-value"><span x-text="financialDashboard.profitability.roi.toFixed(1)"></span>%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Value -->
+                <div class="dashboard-card">
+                    <h4 class="bil-spread">
+                        <span class="en">📦 Inventory Value</span>
+                        <span class="ar">📦 قيمة المخزون</span>
+                    </h4>
+                    <div class="metrics-grid">
+                        <div class="metric-card info">
+                            <div class="metric-label bil-inline">
+                                <span class="en">Livestock Value</span>
+                                <span class="ar">قيمة الماشية</span>
+                            </div>
+                            <div class="metric-value">EGP <span x-text="financialDashboard.inventory.livestock.toLocaleString()"></span></div>
+                            <div class="metric-subtext bil-inline">
+                                <span class="en"><span x-text="financialDashboard.inventory.sheepCount"></span> sheep</span>
+                                <span class="ar"><span x-text="financialDashboard.inventory.sheepCount"></span> رأس</span>
+                            </div>
+                        </div>
+                        <div class="metric-card info">
+                            <div class="metric-label bil-inline">
+                                <span class="en">Feed Inventory</span>
+                                <span class="ar">مخزون العلف</span>
+                            </div>
+                            <div class="metric-value">EGP <span x-text="financialDashboard.inventory.feed.toLocaleString()"></span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Projections vs Actuals -->
+                <div class="dashboard-card">
+                    <h4 class="bil-spread">
+                        <span class="en">📊 Projections vs Actuals</span>
+                        <span class="ar">📊 التوقعات مقابل الفعلي</span>
+                    </h4>
+                    <div class="projections-comparison">
+                        <div class="comparison-row">
+                            <span class="bil-inline">
+                                <span class="en">Projected Revenue:</span>
+                                <span class="ar">الإيرادات المتوقعة:</span>
+                            </span>
+                            <span>EGP <span x-text="financialDashboard.projections.projectedRevenue.toLocaleString()"></span></span>
+                        </div>
+                        <div class="comparison-row">
+                            <span class="bil-inline">
+                                <span class="en">Actual Revenue:</span>
+                                <span class="ar">الإيرادات الفعلية:</span>
+                            </span>
+                            <span>EGP <span x-text="financialDashboard.revenue.total.toLocaleString()"></span></span>
+                        </div>
+                        <div class="comparison-row">
+                            <span class="bil-inline">
+                                <span class="en">Variance:</span>
+                                <span class="ar">الفرق:</span>
+                            </span>
+                            <span :class="financialDashboard.projections.revenueVariance >= 0 ? 'text-success' : 'text-danger'">
+                                <span x-text="financialDashboard.projections.revenueVariance >= 0 ? '+' : ''"></span>
+                                <span x-text="financialDashboard.projections.revenueVariance.toFixed(1)"></span>%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-Time Sync Status -->
+                <div class="sync-status-card">
+                    <div class="sync-header bil-spread">
+                        <span class="en">🔄 Real-Time Sync Status</span>
+                        <span class="ar">🔄 حالة المزامنة الفورية</span>
+                    </div>
+                    <div class="sync-info">
+                        <span class="bil-inline">
+                            <span class="en">Last sync:</span>
+                            <span class="ar">آخر مزامنة:</span>
+                        </span>
+                        <span x-text="lastSyncTime ? new Date(lastSyncTime).toLocaleTimeString() : 'Never'"></span>
+                    </div>
+                    <div class="sync-info" x-show="syncInterval">
+                        <span class="bil-inline">
+                            <span class="en">Status: ✅ Active (syncing every 5 minutes)</span>
+                            <span class="ar">الحالة: ✅ نشط (مزامنة كل 5 دقائق)</span>
+                        </span>
                     </div>
                 </div>
             </div>
