@@ -4740,11 +4740,6 @@
         log('🌱 === SEED DATA PHASE ===', 'i');
         if (!await authenticateAdmin(pb)) return false;
 
-        // Clear ID mappings for fresh start
-        idMappings.users = {};
-        idMappings.farm_sheep = {};
-        log('🔄 Cleared ID mappings for fresh seeding', 'i');
-
         log('⏳ Pausing for 1 second before seeding...', 'i');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -4755,6 +4750,11 @@
             log('❌ Invalid Seed Data JSON: ' + e.message, 'e');
             return false;
         }
+        
+        // Clear ID mappings for fresh start
+        idMappings.users = {};
+        idMappings.farm_sheep = {};
+        log('🔄 Cleared ID mappings for fresh seeding', 'i');
         
         // Debug log to check seed data structure
         log(`📋 Seed data contains: ${Object.keys(seedDataToUse).join(', ')}`, 'd');
@@ -5025,9 +5025,14 @@
     collectionsTextarea.value = JSON.stringify(collectionsDefinition, null, 2);
     seedTextarea.value = JSON.stringify(seedData, null, 2);
     
-    // Validate on load
-    validateCollectionsTextarea();
-    validateSeedTextarea();
+    // Debug: Log what seed data contains
+    console.log('Seed data keys:', Object.keys(seedData));
+    console.log('farm_sheep exists?', !!seedData.farm_sheep);
+    console.log('farm_sheep length:', seedData.farm_sheep ? seedData.farm_sheep.length : 0);
+    
+    // Validate on load by triggering input events
+    collectionsTextarea.dispatchEvent(new Event('input'));
+    seedTextarea.dispatchEvent(new Event('input'));
 </script>
 </body>
 </html>
