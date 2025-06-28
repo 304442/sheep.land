@@ -48,6 +48,9 @@ npx playwright test
 - `/pb_migrations/` - Database schema migrations
 - `/public/` - Frontend application
   - `app.js` - Main e-commerce logic with Alpine.js components (includes modal-based feasibility calculator and farm management)
+    - Real-time integration system (lines 1612-2264)
+    - Automated alerts and notifications (lines 2100-2264)
+    - Financial dashboard data management
   - `setup.html` - Database setup utility for PocketBase collections and seed data
   - `/management/` - Arabic-only farm management system (separate SPA)
   - `/feasibility/` - Arabic-only feasibility calculator
@@ -91,6 +94,27 @@ migrate((db) => {
 });
 ```
 
+**Real-Time Integration Methods** (in app.js):
+```javascript
+// Auto-sync farm inventory with e-commerce
+async syncFarmInventoryToEcommerce() { /* lines 1615-1674 */ }
+
+// Link feasibility with actual data
+async updateFeasibilityWithActualData() { /* lines 1677-1733 */ }
+
+// Auto-create products when sheep ready
+async autoCreateMarketProducts() { /* lines 1736-1770 */ }
+
+// Update financial dashboard
+async updateFinancialDashboard() { /* lines 1810-1848 */ }
+
+// Check and create alerts
+async checkAndCreateAlerts() { /* lines 2101-2232 */ }
+
+// Initialize real-time sync (called on login)
+async initRealTimeSync() { /* lines 2078-2098 */ }
+```
+
 ### Business Logic Overview
 
 1. **Order System**: Complex order processing with stock management, multiple payment methods, and email confirmations
@@ -107,9 +131,24 @@ migrate((db) => {
    - Breeding records and health checkups
    - Feed inventory and task management
    - Financial reports and analytics
-6. **Database Collections**:
+   - Real-time financial dashboard with live metrics
+6. **Real-Time Integration System**:
+   - Auto-sync between farm inventory and e-commerce stock (5-minute intervals)
+   - Feasibility projections linked with actual performance data
+   - Automated product creation when sheep reach market weight
+   - Order processing updates farm inventory automatically
+   - Financial dashboard with revenue, expenses, and profitability tracking
+   - Breeding schedule updates product availability with pre-orders
+7. **Automated Alerts & Notifications**:
+   - Low feed inventory warnings
+   - Overdue vaccination reminders
+   - Upcoming breeding event notifications
+   - Financial threshold alerts (low profit margin, high inventory)
+   - Visual notification system with slide-in alerts
+8. **Database Collections**:
    - Core: settings, products, users, orders, order_items
    - Farm: feasibility_analyses, farm_sheep, breeding_records, feed_inventory, farm_tasks, health_checkups
+   - Integration: sync_logs, financial_metrics
    - Support: payment_confirmations, feedback
 
 ### Important Considerations
@@ -123,6 +162,9 @@ migrate((db) => {
 - **Modal Architecture**: Farm management and feasibility tools are integrated as modals in the main app
 - **Database Setup**: Use `/public/setup.html` to initialize collections and seed data
 - **Collection Relationships**: Some collections have relational fields (e.g., orders->users)
+- **Real-Time Sync**: Integration system runs every 5 minutes when user is logged in
+- **Alert System**: High-priority alerts show as slide-in notifications
+- **Financial Tracking**: All transactions automatically update financial metrics
 
 ### Deployment
 
