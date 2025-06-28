@@ -1916,7 +1916,7 @@
                         },
                         {
                                 "name": "checkup_date",
-                                "type": "datetime",
+                                "type": "date",
                                 "required": true,
                                 "presentable": true
                         },
@@ -4009,7 +4009,11 @@
                     return { valid: false, message: `❌ Product ${i + 1} base_price_egp must be positive number`, details: product };
                 }
                 
-                const validCategories = ['udheya', 'meat_cuts', 'gathering_package', 'breeding_stock', 'feed_supplies'];
+                const validCategories = [
+                    "udheya", "livesheep_general", "meat_cuts", "gathering_package", 
+                    "breeding_stock", "feed_supplies", "aqiqah", "charity", 
+                    "vow", "expiation", "ready_to_eat", "live_sheep", "slaughtered"
+                ];
                 if (!validCategories.includes(product.product_category)) {
                     return { valid: false, message: `❌ Product ${i + 1} invalid product_category: ${product.product_category}`, details: product };
                 }
