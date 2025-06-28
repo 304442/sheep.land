@@ -94,6 +94,7 @@ document.addEventListener('alpine:init', () => {
         cartItems: [], 
         isMobNavOpen: false, isCartOpen: false, isRefundModalOpen: false, 
         isOrderStatusModalOpen: false, isUdheyaConfigModalOpen: false, isWishlistOpen: false,
+        showFeasibilityModal: false, showFarmModal: false, showAddSheepForm: false,
         showAuth: false, cartOpen: false,
         wishlistCount: 0,
         wishlistItems: [],
@@ -115,6 +116,86 @@ document.addEventListener('alpine:init', () => {
             terms_agreed: { en: "You must agree to the terms and refund policy.", ar: "يجب أن توافق على الشروط وسياسة الاسترداد." }
         },
         allCities: [], isDelFeeVar: false, configuringUdheyaItem: null,
+        
+        // Feasibility Calculator Data
+        feasibility: {
+            numSheep: 10,
+            pricePerSheep: 3000,
+            facilityCosts: 50000,
+            feedCostPerMonth: 5000,
+            laborCostPerMonth: 3000,
+            vetCostPerMonth: 1000,
+            sellingPricePerSheep: 5000,
+            projectDuration: 6,
+            selectedBreed: 'Barki',
+            selectedSeason: 'Regular',
+            includeBreeding: false,
+            breedingRate: 0.3,
+            lambPrice: 2000,
+            showResults: false,
+            results: {
+                totalInitialCost: 0,
+                monthlyOperatingCost: 0,
+                totalOperatingCost: 0,
+                totalRevenue: 0,
+                breedingRevenue: 0,
+                netProfit: 0,
+                roi: 0,
+                monthlyProfit: 0,
+                breakEvenMonths: 0,
+                isViable: false
+            }
+        },
+        // Market data based on actual product catalog
+        marketData: {
+            breeds: {
+                'Barki': { avgWeight: 45, pricePerKg: 320, growthRate: 1.2, description: { en: 'Barki - Desert breed', ar: 'برقي - سلالة صحراوية' } },
+                'Rahmani': { avgWeight: 52, pricePerKg: 280, growthRate: 1.1, description: { en: 'Rahmani - Egyptian breed', ar: 'رحماني - سلالة مصرية' } },
+                'Ossimi': { avgWeight: 58, pricePerKg: 300, growthRate: 1.15, description: { en: 'Ossimi - Upper Egypt breed', ar: 'أوسيمي - سلالة الصعيد' } },
+                'Saidi': { avgWeight: 65, pricePerKg: 350, growthRate: 1.3, description: { en: 'Saidi - Premium breed', ar: 'صعيدي - سلالة ممتازة' } }
+            },
+            seasonalFactors: {
+                'Eid': { multiplier: 1.4, description: { en: 'Eid Season (+40%)', ar: 'موسم العيد (+40%)' } },
+                'Regular': { multiplier: 1.0, description: { en: 'Regular Season', ar: 'موسم عادي' } },
+                'OffSeason': { multiplier: 0.85, description: { en: 'Off Season (-15%)', ar: 'خارج الموسم (-15%)' } }
+            }
+        },
+        savedAnalyses: [],
+        
+        // Farm Management Data
+        farmSheep: [],
+        filteredFarmSheep: [],
+        farmFilterStatus: '',
+        editingSheepId: null,
+        sheepForm: {
+            tagId: '',
+            breed: '',
+            age: '',
+            weight: '',
+            status: 'healthy',
+            lastVaccination: '',
+            notes: '',
+            purchasePrice: 0,
+            purchaseDate: '',
+            motherTagId: '',
+            fatherTagId: ''
+        },
+        farmStats: {
+            totalSheep: 0,
+            healthy: 0,
+            pregnant: 0,
+            needAttention: 0,
+            totalValue: 0,
+            readyForMarket: 0,
+            averageWeight: 0,
+            monthlyExpenses: 0
+        },
+        vaccinationSchedule: {
+            'FMD': { name: { en: 'Foot & Mouth Disease', ar: 'الحمى القلاعية' }, frequency: 180, cost: 50 },
+            'PPR': { name: { en: 'Peste des Petits', ar: 'طاعون المجترات' }, frequency: 365, cost: 75 },
+            'Clostridial': { name: { en: 'Clostridial Diseases', ar: 'الأمراض الكلوستريدية' }, frequency: 180, cost: 40 },
+            'Brucellosis': { name: { en: 'Brucellosis', ar: 'البروسيلا' }, frequency: 365, cost: 60 }
+        },
         
         get sacrificeDayMapInternal() { return sacrificeDayMapInternal; },
         get availPayMeths() { return payMethods; },
@@ -784,6 +865,440 @@ document.addEventListener('alpine:init', () => {
         closeRefundModal() { this.isRefundModalOpen = false; document.body.classList.remove('overflow-hidden'); },
         openOrderStatusModal() { this.isOrderStatusModalOpen = true; document.body.classList.add('overflow-hidden'); this.$nextTick(() => this.$refs.lookupOrderIdInputModal?.focus()); },
         closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderID = ''; this.statRes = null; this.statNotFound = false; this.clrErr('lookupOrderID');},
+        
+        // Feasibility Calculator Modal
+        openFeasibilityModal() { 
+            this.showFeasibilityModal = true; 
+            document.body.classList.add('overflow-hidden');
+            if (this.initFeasibility) {
+                this.initFeasibility();
+            }
+        },
+        closeFeasibilityModal() { 
+            this.showFeasibilityModal = false; 
+            document.body.classList.remove('overflow-hidden'); 
+        },
+        
+        // Farm Management Modal
+        openFarmModal() { 
+            this.showFarmModal = true; 
+            document.body.classList.add('overflow-hidden');
+            if (this.initFarmManagement) {
+                this.initFarmManagement();
+            }
+        },
+        closeFarmModal() { 
+            this.showFarmModal = false; 
+            document.body.classList.remove('overflow-hidden'); 
+        },
+        
+        // Feasibility Calculator Methods
+        calculateFeasibility() {
+            const f = this.feasibility;
+            const breedData = this.marketData.breeds[f.selectedBreed] || this.marketData.breeds['Barki'];
+            const seasonFactor = this.marketData.seasonalFactors[f.selectedSeason].multiplier;
+            
+            // Calculate initial costs based on breed
+            const youngSheepWeight = breedData.avgWeight * 0.6; // Young sheep are 60% of adult weight
+            const sheepCost = f.numSheep * youngSheepWeight * breedData.pricePerKg;
+            f.results.totalInitialCost = sheepCost + f.facilityCosts;
+            
+            // Calculate operating costs
+            f.results.monthlyOperatingCost = f.feedCostPerMonth + f.laborCostPerMonth + f.vetCostPerMonth;
+            f.results.totalOperatingCost = f.results.monthlyOperatingCost * f.projectDuration;
+            
+            // Calculate final weight after growth
+            const growthFactor = Math.pow(breedData.growthRate, f.projectDuration / 12);
+            const finalWeight = breedData.avgWeight * growthFactor;
+            
+            // Calculate revenue with seasonal adjustment
+            f.results.totalRevenue = f.numSheep * finalWeight * breedData.pricePerKg * seasonFactor;
+            
+            // Calculate breeding revenue if enabled
+            f.results.breedingRevenue = 0;
+            if (f.includeBreeding && f.projectDuration >= 12) {
+                const breedingCycles = Math.floor(f.projectDuration / 6); // Sheep can breed every 6 months
+                const totalLambs = Math.floor(f.numSheep * f.breedingRate * breedingCycles);
+                f.results.breedingRevenue = totalLambs * f.lambPrice;
+            }
+            
+            // Calculate profit metrics
+            const totalCost = f.results.totalInitialCost + f.results.totalOperatingCost;
+            const totalRevenue = f.results.totalRevenue + f.results.breedingRevenue;
+            f.results.netProfit = totalRevenue - totalCost;
+            f.results.monthlyProfit = f.results.netProfit / f.projectDuration;
+            
+            // Calculate ROI
+            f.results.roi = (f.results.netProfit / f.results.totalInitialCost) * 100;
+            
+            // Calculate break-even
+            if (f.results.monthlyProfit > 0) {
+                f.results.breakEvenMonths = Math.ceil(f.results.totalInitialCost / (totalRevenue / f.projectDuration - f.results.monthlyOperatingCost));
+            } else {
+                f.results.breakEvenMonths = 999; // Never breaks even
+            }
+            
+            // Determine viability (consider breed-specific thresholds)
+            f.results.isViable = f.results.netProfit > 0 && f.results.roi > 15 && f.results.breakEvenMonths <= 24;
+            
+            // Show results
+            f.showResults = true;
+        },
+        
+        // Load market prices from products
+        async loadMarketPrices() {
+            try {
+                const products = await this.pb.collection('products').getList(1, 50, {
+                    filter: 'is_active = true && product_category = "live_sheep"',
+                    sort: '-price_per_kg_egp'
+                });
+                
+                // Update market data with real prices
+                products.items.forEach(product => {
+                    if (product.breed_info_en && this.marketData.breeds[product.breed_info_en]) {
+                        this.marketData.breeds[product.breed_info_en].pricePerKg = product.price_per_kg_egp;
+                        this.marketData.breeds[product.breed_info_en].avgWeight = product.avg_weight_kg;
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to load market prices:', err);
+            }
+        },
+
+        async saveFeasibilityAnalysis() {
+            if (!this.pb || !this.currentUser) {
+                alert('Please login to save analyses / يرجى تسجيل الدخول لحفظ التحليلات');
+                return;
+            }
+
+            try {
+                this.loading = true;
+                this.loadingMessage = 'Saving analysis...';
+                
+                const analysisData = {
+                    user: this.currentUser.id,
+                    title: `Analysis - ${this.feasibility.selectedBreed} - ${new Date().toLocaleDateString()}`,
+                    sheep_count: this.feasibility.numSheep,
+                    sheep_price: this.feasibility.pricePerSheep,
+                    land_cost: this.feasibility.facilityCosts,
+                    equipment_cost: 0, // Not separately tracked, included in facility costs
+                    feed_cost: this.feasibility.feedCostPerMonth,
+                    vet_cost: this.feasibility.vetCostPerMonth,
+                    labor_cost: this.feasibility.laborCostPerMonth,
+                    other_cost: 0,
+                    breeding_rate: this.feasibility.breedingRate,
+                    lamb_price: this.feasibility.lambPrice,
+                    wool_revenue: 0, // Not calculated in current version
+                    analysis_period: this.feasibility.projectDuration,
+                    results: {
+                        breed: this.feasibility.selectedBreed,
+                        season: this.feasibility.selectedSeason,
+                        includeBreeding: this.feasibility.includeBreeding,
+                        totalInitialCost: this.feasibility.results.totalInitialCost,
+                        monthlyOperatingCost: this.feasibility.results.monthlyOperatingCost,
+                        totalOperatingCost: this.feasibility.results.totalOperatingCost,
+                        totalRevenue: this.feasibility.results.totalRevenue,
+                        breedingRevenue: this.feasibility.results.breedingRevenue,
+                        netProfit: this.feasibility.results.netProfit,
+                        roi: this.feasibility.results.roi,
+                        monthlyProfit: this.feasibility.results.monthlyProfit,
+                        breakEvenMonths: this.feasibility.results.breakEvenMonths,
+                        isViable: this.feasibility.results.isViable
+                    }
+                };
+                
+                await this.pb.collection('feasibility_analyses').create(analysisData);
+                
+                alert('Analysis saved successfully! / تم حفظ التحليل بنجاح!');
+                await this.loadSavedAnalyses();
+                
+            } catch (err) {
+                console.error('Save analysis error:', err);
+                alert('Failed to save analysis. Please try again.');
+            } finally {
+                this.loading = false;
+                this.loadingMessage = '';
+            }
+        },
+
+        async loadSavedAnalyses() {
+            try {
+                const records = await this.pb.collection('feasibility_analyses').getList(1, 10, {
+                    sort: '-created',
+                    filter: `user = "${this.currentUser.id}"`
+                });
+                
+                this.savedAnalyses = records.items;
+            } catch (err) {
+                console.error('Load analyses error:', err);
+            }
+        },
+
+        async initFeasibility() {
+            if (this.pb && this.currentUser?.is_admin) {
+                await this.loadSavedAnalyses();
+                await this.loadMarketPrices();
+            }
+        },
+        
+        updateBreedPrices() {
+            const breed = this.marketData.breeds[this.feasibility.selectedBreed];
+            if (breed) {
+                // Auto-update price per sheep based on breed
+                const youngSheepWeight = breed.avgWeight * 0.6;
+                this.feasibility.pricePerSheep = Math.round(youngSheepWeight * breed.pricePerKg);
+                
+                // Update selling price projection
+                const matureWeight = breed.avgWeight;
+                this.feasibility.sellingPricePerSheep = Math.round(matureWeight * breed.pricePerKg);
+            }
+        },
+
+        // Farm Management Methods
+        async initFarmManagement() {
+            if (this.pb && this.currentUser?.is_admin) {
+                await this.loadFarmSheep();
+            }
+        },
+
+        async loadFarmSheep() {
+            try {
+                this.loading = true;
+                this.loadingMessage = 'Loading sheep data...';
+                
+                const records = await this.pb.collection('farm_sheep').getList(1, 500, {
+                    sort: '-created',
+                    filter: `user = "${this.currentUser.id}"`
+                });
+                
+                this.farmSheep = records.items;
+                this.filteredFarmSheep = [...this.farmSheep];
+                this.updateFarmStats();
+            } catch (err) {
+                console.error('Load sheep error:', err);
+                this.error = 'Failed to load sheep data.';
+            } finally {
+                this.loading = false;
+                this.loadingMessage = '';
+            }
+        },
+
+        updateFarmStats() {
+            this.farmStats.totalSheep = this.farmSheep.length;
+            this.farmStats.healthy = this.farmSheep.filter(s => s.status === 'healthy').length;
+            this.farmStats.pregnant = this.farmSheep.filter(s => s.status === 'pregnant').length;
+            this.farmStats.needAttention = this.farmSheep.filter(s => s.status === 'sick' || this.needsVaccination(s)).length;
+            
+            // Calculate total value based on current market prices
+            this.farmStats.totalValue = this.farmSheep.reduce((sum, sheep) => {
+                const breed = this.marketData.breeds[sheep.breed] || this.marketData.breeds['Barki'];
+                return sum + (sheep.weight_kg * breed.pricePerKg);
+            }, 0);
+            
+            // Count sheep ready for market (healthy and weight >= 40kg)
+            this.farmStats.readyForMarket = this.farmSheep.filter(s => 
+                s.status === 'healthy' && s.weight_kg >= 40
+            ).length;
+            
+            // Calculate average weight
+            if (this.farmSheep.length > 0) {
+                this.farmStats.averageWeight = Math.round(
+                    this.farmSheep.reduce((sum, s) => sum + s.weight_kg, 0) / this.farmSheep.length
+                );
+            } else {
+                this.farmStats.averageWeight = 0;
+            }
+            
+            // Estimate monthly expenses
+            const feedCostPerSheep = 250; // EGP per month
+            const vetCostPerSheep = 50;   // EGP per month
+            this.farmStats.monthlyExpenses = this.farmSheep.length * (feedCostPerSheep + vetCostPerSheep);
+        },
+
+        needsVaccination(sheep) {
+            if (!sheep.last_vaccination) return true;
+            const lastVac = new Date(sheep.last_vaccination);
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            return lastVac < sixMonthsAgo;
+        },
+
+        filterFarmSheep() {
+            if (this.farmFilterStatus) {
+                this.filteredFarmSheep = this.farmSheep.filter(s => s.status === this.farmFilterStatus);
+            } else {
+                this.filteredFarmSheep = [...this.farmSheep];
+            }
+        },
+
+        async saveFarmSheep() {
+            try {
+                this.loading = true;
+                this.loadingMessage = 'Saving sheep data...';
+                
+                const data = {
+                    user: this.currentUser.id,
+                    tag_id: this.sheepForm.tagId,
+                    breed: this.sheepForm.breed,
+                    age_months: parseInt(this.sheepForm.age),
+                    weight_kg: parseFloat(this.sheepForm.weight),
+                    status: this.sheepForm.status,
+                    last_vaccination: this.sheepForm.lastVaccination || null,
+                    notes: this.sheepForm.notes || ''
+                };
+                
+                if (this.editingSheepId) {
+                    await this.pb.collection('farm_sheep').update(this.editingSheepId, data);
+                } else {
+                    await this.pb.collection('farm_sheep').create(data);
+                }
+                
+                await this.loadFarmSheep();
+                this.resetSheepForm();
+                this.showAddSheepForm = false;
+                
+                alert('Sheep data saved successfully! / تم حفظ بيانات الأغنام بنجاح!');
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Failed to save sheep data. Please try again.');
+            } finally {
+                this.loading = false;
+                this.loadingMessage = '';
+            }
+        },
+
+        editFarmSheep(sheep) {
+            this.editingSheepId = sheep.id;
+            this.sheepForm = {
+                tagId: sheep.tag_id,
+                breed: sheep.breed,
+                age: sheep.age_months.toString(),
+                weight: sheep.weight_kg.toString(),
+                status: sheep.status,
+                lastVaccination: sheep.last_vaccination ? sheep.last_vaccination.split('T')[0] : '',
+                notes: sheep.notes || ''
+            };
+            this.showAddSheepForm = true;
+        },
+
+        async recordSheepHealth(sheep) {
+            const action = prompt('Enter health action:\\n1 - Mark as Healthy\\n2 - Mark as Sick\\n3 - Record Vaccination\\n4 - Mark as Pregnant\\n5 - Record Weight Update\\n6 - Mark for Sale');
+            
+            let updateData = {};
+            let healthRecord = {
+                date: new Date().toISOString(),
+                action: '',
+                notes: ''
+            };
+            
+            switch(action) {
+                case '1':
+                    updateData.status = 'healthy';
+                    healthRecord.action = 'Marked as healthy';
+                    break;
+                case '2':
+                    updateData.status = 'sick';
+                    healthRecord.action = 'Marked as sick';
+                    const symptoms = prompt('Enter symptoms / أدخل الأعراض:');
+                    if (symptoms) healthRecord.notes = symptoms;
+                    break;
+                case '3':
+                    updateData.last_vaccination = new Date().toISOString();
+                    healthRecord.action = 'Vaccination recorded';
+                    // Record which vaccines were given
+                    const vaccines = prompt('Which vaccines? (FMD, PPR, Clostridial, Brucellosis)');
+                    if (vaccines) healthRecord.notes = `Vaccines: ${vaccines}`;
+                    alert('Vaccination recorded / تم تسجيل التطعيم');
+                    break;
+                case '4':
+                    updateData.status = 'pregnant';
+                    healthRecord.action = 'Marked as pregnant';
+                    const dueDate = prompt('Expected delivery date (YYYY-MM-DD)?');
+                    if (dueDate) healthRecord.notes = `Due: ${dueDate}`;
+                    break;
+                case '5':
+                    const newWeight = prompt(`Current weight: ${sheep.weight_kg}kg. Enter new weight (kg):`);
+                    if (newWeight && !isNaN(newWeight)) {
+                        updateData.weight_kg = parseFloat(newWeight);
+                        healthRecord.action = 'Weight updated';
+                        healthRecord.notes = `${sheep.weight_kg}kg → ${newWeight}kg`;
+                    }
+                    break;
+                case '6':
+                    if (sheep.weight_kg >= 40 && sheep.status === 'healthy') {
+                        updateData.notes = (sheep.notes || '') + ' [READY FOR SALE]';
+                        healthRecord.action = 'Marked for sale';
+                        healthRecord.notes = `Weight: ${sheep.weight_kg}kg, Market value: EGP ${Math.round(sheep.weight_kg * (this.marketData.breeds[sheep.breed]?.pricePerKg || 300))}`;
+                        alert('Marked for sale! / تم وضع علامة للبيع!');
+                    } else {
+                        alert('Sheep must be healthy and at least 40kg / يجب أن تكون الأغنام بصحة جيدة وبوزن 40 كجم على الأقل');
+                        return;
+                    }
+                    break;
+                default:
+                    return;
+            }
+            
+            try {
+                this.loading = true;
+                
+                let healthRecords = sheep.health_records || [];
+                if (typeof healthRecords === 'string') {
+                    healthRecords = JSON.parse(healthRecords);
+                }
+                healthRecords.push(healthRecord);
+                
+                updateData.health_records = healthRecords;
+                await this.pb.collection('farm_sheep').update(sheep.id, updateData);
+                
+                await this.loadFarmSheep();
+            } catch (err) {
+                console.error('Health record error:', err);
+                alert('Failed to update health record.');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async deleteFarmSheep(id) {
+            if (!confirm('Are you sure you want to delete this sheep record? / هل أنت متأكد من حذف سجل هذه الأغنام؟')) {
+                return;
+            }
+            
+            try {
+                this.loading = true;
+                await this.pb.collection('farm_sheep').delete(id);
+                await this.loadFarmSheep();
+            } catch (err) {
+                console.error('Delete error:', err);
+                alert('Failed to delete sheep record.');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        resetSheepForm() {
+            this.editingSheepId = null;
+            this.sheepForm = {
+                tagId: '',
+                breed: '',
+                age: '',
+                weight: '',
+                status: 'healthy',
+                lastVaccination: '',
+                notes: ''
+            };
+        },
+
+        formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        },
 
         startCd() { 
             if(this.cdTimer) clearInterval(this.cdTimer); 
