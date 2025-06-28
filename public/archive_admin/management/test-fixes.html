@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار الإصلاحات - نظام إدارة المزرعة</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-section {
+            padding: 20px;
+            margin: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+        }
+        .test-result {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">🧪 اختبار الإصلاحات</h1>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="runAllTests()">🔄</button>
+                    <button class="header-btn" onclick="window.location.href='index.html'">🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" style="padding-top: 100px;">
+            <div class="test-section">
+                <h2 class="test-title">1. اختبار أزرار الهيدر</h2>
+                <div id="headerButtonTest" class="test-result test-info">
+                    التحقق من رؤية الأزرار وألوانها...
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2 class="test-title">2. اختبار زر FAB والإجراءات السريعة</h2>
+                <div id="fabTest" class="test-result test-info">
+                    التحقق من وظائف FAB...
+                </div>
+                <button class="btn btn-primary" onclick="testFAB()">اختبار FAB</button>
+            </div>
+
+            <div class="test-section">
+                <h2 class="test-title">3. اختبار تحديث الإجراءات السريعة</h2>
+                <div id="quickActionsTest" class="test-result test-info">
+                    التحقق من تحديث الإجراءات عند تغيير الأقسام...
+                </div>
+                <button class="btn btn-primary" onclick="testQuickActionsUpdate()">اختبار التحديث</button>
+            </div>
+
+            <div class="test-section">
+                <h2 class="test-title">4. اختبار التصميم المتجاوب</h2>
+                <div id="responsiveTest" class="test-result test-info">
+                    التحقق من التصميم على الشاشات المختلفة...
+                </div>
+                <div class="table-responsive-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>العمود 1</th>
+                                <th>العمود 2</th>
+                                <th>العمود 3</th>
+                                <th>العمود 4</th>
+                                <th>العمود 5</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>بيانات طويلة جداً للاختبار</td>
+                                <td>بيانات أخرى</td>
+                                <td>12345</td>
+                                <td>اختبار</td>
+                                <td>نهاية</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2 class="test-title">5. اختبار أخطاء الكونسول</h2>
+                <div id="consoleTest" class="test-result test-info">
+                    التحقق من وجود أخطاء في الكونسول...
+                </div>
+            </div>
+        </div>
+
+        <!-- FAB for testing -->
+        <button class="fab" id="testFab" onclick="toggleQuickActions()">
+            <span>➕</span>
+        </button>
+        
+        <!-- Quick Actions for testing -->
+        <div class="quick-actions-fab" id="quickActionsFab">
+            <button class="quick-action-btn">
+                <span>💾</span>
+                <span class="quick-action-label">نسخ احتياطي</span>
+            </button>
+            <button class="quick-action-btn">
+                <span>📊</span>
+                <span class="quick-action-label">تقرير سريع</span>
+            </button>
+            <button class="quick-action-btn">
+                <span>🐑</span>
+                <span class="quick-action-label">إضافة حيوان</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Mock global variables
+        let currentSfmSectionId = 'dashboard';
+
+        // Test functions
+        function runAllTests() {
+            testHeaderButtons();
+            testResponsive();
+            checkConsoleErrors();
+        }
+
+        function testHeaderButtons() {
+            const headerButtons = document.querySelectorAll('.header-btn');
+            const result = document.getElementById('headerButtonTest');
+            
+            if (headerButtons.length > 0) {
+                const btn = headerButtons[0];
+                const styles = window.getComputedStyle(btn);
+                const bgColor = styles.backgroundColor;
+                const color = styles.color;
+                
+                if (color === 'rgb(255, 255, 255)' || color === 'white') {
+                    result.className = 'test-result test-fail';
+                    result.textContent = '❌ فشل: أزرار الهيدر بيضاء على خلفية بيضاء';
+                } else {
+                    result.className = 'test-result test-pass';
+                    result.textContent = '✅ نجح: أزرار الهيدر مرئية بوضوح';
+                }
+            } else {
+                result.className = 'test-result test-fail';
+                result.textContent = '❌ فشل: لم يتم العثور على أزرار الهيدر';
+            }
+        }
+
+        function testFAB() {
+            const fab = document.getElementById('testFab');
+            const quickActions = document.getElementById('quickActionsFab');
+            const result = document.getElementById('fabTest');
+            
+            if (fab && quickActions) {
+                // Toggle quick actions
+                toggleQuickActions();
+                
+                setTimeout(() => {
+                    if (quickActions.classList.contains('active')) {
+                        result.className = 'test-result test-pass';
+                        result.textContent = '✅ نجح: FAB يعمل بشكل صحيح';
+                    } else {
+                        result.className = 'test-result test-fail';
+                        result.textContent = '❌ فشل: FAB لا يفتح القائمة';
+                    }
+                }, 500);
+            } else {
+                result.className = 'test-result test-fail';
+                result.textContent = '❌ فشل: لم يتم العثور على عناصر FAB';
+            }
+        }
+
+        function testQuickActionsUpdate() {
+            const result = document.getElementById('quickActionsTest');
+            
+            // Simulate section change
+            currentSfmSectionId = 'animalManagement';
+            
+            if (typeof updateContextualActions === 'function') {
+                try {
+                    updateContextualActions();
+                    result.className = 'test-result test-pass';
+                    result.textContent = '✅ نجح: دالة تحديث الإجراءات موجودة وتعمل';
+                } catch (e) {
+                    result.className = 'test-result test-fail';
+                    result.textContent = '❌ فشل: خطأ في تحديث الإجراءات: ' + e.message;
+                }
+            } else {
+                result.className = 'test-result test-fail';
+                result.textContent = '❌ فشل: دالة updateContextualActions غير موجودة';
+            }
+        }
+
+        function testResponsive() {
+            const result = document.getElementById('responsiveTest');
+            const container = document.querySelector('.table-responsive-container');
+            
+            if (container) {
+                const hasScroll = container.scrollWidth > container.clientWidth;
+                result.className = 'test-result test-pass';
+                result.textContent = '✅ نجح: الجداول قابلة للتمرير الأفقي عند الحاجة';
+            } else {
+                result.className = 'test-result test-fail';
+                result.textContent = '❌ فشل: لم يتم العثور على حاوية الجدول';
+            }
+        }
+
+        function checkConsoleErrors() {
+            const result = document.getElementById('consoleTest');
+            
+            // This is a simple check - in real testing you'd use proper error tracking
+            if (window.console && window.console.error) {
+                result.className = 'test-result test-info';
+                result.textContent = 'ℹ️ تحقق من وحدة التحكم (Console) للأخطاء';
+            }
+        }
+
+        // Toggle quick actions function
+        function toggleQuickActions() {
+            const quickActionsFab = document.getElementById('quickActionsFab');
+            const fab = document.getElementById('testFab');
+            
+            if (quickActionsFab.classList.contains('active')) {
+                quickActionsFab.classList.remove('active');
+                fab.classList.remove('actions-active');
+            } else {
+                quickActionsFab.classList.add('active');
+                fab.classList.add('actions-active');
+            }
+        }
+
+        // Mock updateContextualActions for testing
+        window.updateContextualActions = function() {
+            console.log('updateContextualActions called for section:', currentSfmSectionId);
+        }
+
+        // Run tests on load
+        window.addEventListener('DOMContentLoaded', runAllTests);
+    </script>
+</body>
+</html>

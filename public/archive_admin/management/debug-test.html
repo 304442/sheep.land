@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid #333;
+            padding: 20px;
+            max-width: 400px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 9999;
+        }
+        .debug-log {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f5f5f5;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .debug-error {
+            background: #fee;
+            color: #c00;
+        }
+        .debug-success {
+            background: #efe;
+            color: #060;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <h3>Debug Panel</h3>
+        <button onclick="testInit()">Test Initialization</button>
+        <button onclick="testOpenModal()">Test Open Modal</button>
+        <button onclick="addTestData()">Add Test Animals</button>
+        <div id="debug-output"></div>
+    </div>
+
+    <!-- Include the app container for modal overlay -->
+    <div class="app-container" id="app-container-sfms">
+        <div class="modal-overlay" id="formModalOverlay">
+            <div class="modal-content-sfms" id="formModalContainer">
+                <div class="modal-header-sfms">
+                    <h3 id="formModalTitle"></h3>
+                    <button class="modal-close-btn-sfms" onclick="closeSfmFormModal()">✕</button>
+                </div>
+                <div class="modal-body-sfms" id="formModalBody">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function debugLog(message, type = 'info') {
+            const output = document.getElementById('debug-output');
+            const log = document.createElement('div');
+            log.className = 'debug-log' + (type === 'error' ? ' debug-error' : type === 'success' ? ' debug-success' : '');
+            log.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(log);
+            output.scrollTop = output.scrollHeight;
+            console.log(`[DEBUG ${type}]`, message);
+        }
+
+        function testInit() {
+            debugLog('Testing initialization...');
+            
+            // Check if sfmData exists
+            if (typeof sfmData !== 'undefined') {
+                debugLog('✓ sfmData exists', 'success');
+                debugLog(`Animals: ${sfmData.animals.length}, Matings: ${sfmData.matings.length}`);
+                
+                // Check for active animals
+                const activeFemales = sfmData.animals.filter(a => a.sex === 'female' && a.status === 'active').length;
+                const activeMales = sfmData.animals.filter(a => a.sex === 'male' && a.status === 'active').length;
+                debugLog(`Active females: ${activeFemales}, Active males: ${activeMales}`);
+            } else {
+                debugLog('✗ sfmData not found!', 'error');
+            }
+            
+            // Check if key functions exist
+            const functions = ['openMatingFormModal', 'openSfmFormModal', 'closeSfmFormModal', 'saveMating'];
+            functions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    debugLog(`✓ ${func} exists`, 'success');
+                } else {
+                    debugLog(`✗ ${func} not found!`, 'error');
+                }
+            });
+            
+            // Check modal elements
+            const elements = ['formModalOverlay', 'formModalContainer', 'formModalTitle', 'formModalBody'];
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    debugLog(`✓ Element #${id} exists`, 'success');
+                } else {
+                    debugLog(`✗ Element #${id} not found!`, 'error');
+                }
+            });
+        }
+
+        function testOpenModal() {
+            debugLog('Testing modal open...');
+            
+            try {
+                // First check if we have animals
+                const hasAnimals = sfmData.animals.filter(a => a.status === 'active').length > 0;
+                if (!hasAnimals) {
+                    debugLog('No active animals found. Add test data first!', 'error');
+                    return;
+                }
+                
+                debugLog('Calling openMatingFormModal()...');
+                openMatingFormModal();
+                
+                // Check if modal became active
+                setTimeout(() => {
+                    const overlay = document.getElementById('formModalOverlay');
+                    if (overlay && overlay.classList.contains('active')) {
+                        debugLog('✓ Modal opened successfully!', 'success');
+                        
+                        // Check modal content
+                        const title = document.getElementById('formModalTitle')?.textContent;
+                        const body = document.getElementById('formModalBody')?.innerHTML;
+                        debugLog(`Modal title: "${title}"`);
+                        debugLog(`Modal has content: ${body ? 'Yes' : 'No'}`);
+                    } else {
+                        debugLog('✗ Modal did not open!', 'error');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                debugLog(`Error: ${error.message}`, 'error');
+                debugLog(`Stack: ${error.stack}`, 'error');
+            }
+        }
+
+        function addTestData() {
+            debugLog('Adding test animals...');
+            
+            try {
+                // Add test female sheep
+                sfmData.animals.push({
+                    id: 'test-female-' + Date.now(),
+                    tagId: 'TEST-F001',
+                    name: 'نعجة تجريبية 1',
+                    breed: 'بلدي',
+                    sex: 'female',
+                    birthDate: '2022-01-01',
+                    status: 'active',
+                    notes: 'للاختبار فقط'
+                });
+                
+                // Add test male sheep
+                sfmData.animals.push({
+                    id: 'test-male-' + Date.now() + 1,
+                    tagId: 'TEST-M001',
+                    name: 'كبش تجريبي 1',
+                    breed: 'رحماني',
+                    sex: 'male',
+                    birthDate: '2021-06-01',
+                    status: 'active',
+                    notes: 'للاختبار فقط'
+                });
+                
+                // Save to localStorage
+                saveSfmDataToLocalStorage();
+                
+                debugLog('✓ Added 2 test animals', 'success');
+                debugLog('Refresh the page to see changes in the main system');
+                
+            } catch (error) {
+                debugLog(`Error adding test data: ${error.message}`, 'error');
+            }
+        }
+
+        // Run initial test on load
+        window.addEventListener('load', () => {
+            debugLog('Page loaded. Ready for testing.');
+            testInit();
+        });
+    </script>
+</body>
+</html>
