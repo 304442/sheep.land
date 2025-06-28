@@ -213,7 +213,36 @@ document.addEventListener('alpine:init', () => {
                 sensitivityAnalysis: {},
                 riskAssessment: {},
                 marketAnalysis: {}
-            }
+            },
+            
+            // Advanced Features
+            activeTab: 'basic',
+            feedOptimizer: {
+                targetProtein: 16,
+                maxCostPerTon: 5000,
+                ingredients: {
+                    'Alfalfa': { protein: 18, cost: 4500, fiber: 25 },
+                    'Corn': { protein: 9, cost: 3200, fiber: 2 },
+                    'Soybean': { protein: 44, cost: 8000, fiber: 7 },
+                    'Wheat Bran': { protein: 15, cost: 2800, fiber: 11 },
+                    'Barley': { protein: 11, cost: 3500, fiber: 5 }
+                }
+            },
+            breedingCalendar: {
+                targetSeason: 'spring',
+                ewesCount: 0,
+                calendar: []
+            },
+            sensitivity: {
+                variable: 'feedPrice',
+                range: [-20, -10, 0, 10, 20],
+                results: []
+            },
+            multiYear: {
+                annualGrowthRate: 15,
+                projections: []
+            },
+            advancedResults: null
         },
         // Market data based on actual product catalog
         marketData: {
@@ -1195,6 +1224,232 @@ document.addEventListener('alpine:init', () => {
             
             // Show results
             f.showResults = true;
+        },
+        
+        // Advanced Feasibility Methods
+        initAdvancedFeatures() {
+            // Initialize charts if needed
+            if (this.feasibility.activeTab === 'advanced') {
+                this.initializeAdvancedCalculations();
+            }
+        },
+        
+        initializeAdvancedCalculations() {
+            // Update breeding calendar ewes count
+            this.feasibility.breedingCalendar.ewesCount = Math.floor(this.feasibility.numSheep * 0.7);
+        },
+        
+        optimizeFeedMix() {
+            const f = this.feasibility;
+            const targetProtein = f.feedOptimizer.targetProtein;
+            const maxCost = f.feedOptimizer.maxCostPerTon;
+            
+            // Simple linear optimization for feed mix
+            let bestMix = null;
+            let bestCost = Infinity;
+            
+            // Try different combinations
+            for (let alfalfa = 0; alfalfa <= 50; alfalfa += 10) {
+                for (let corn = 0; corn <= 50; corn += 10) {
+                    for (let soybean = 0; soybean <= 30; soybean += 5) {
+                        const wheatBran = Math.max(0, 100 - alfalfa - corn - soybean - 10);
+                        const barley = 100 - alfalfa - corn - soybean - wheatBran;
+                        
+                        if (barley < 0) continue;
+                        
+                        // Calculate protein content
+                        const protein = (alfalfa * 18 + corn * 9 + soybean * 44 + wheatBran * 15 + barley * 11) / 100;
+                        
+                        // Calculate cost
+                        const cost = (alfalfa * 4500 + corn * 3200 + soybean * 8000 + wheatBran * 2800 + barley * 3500) / 100;
+                        
+                        // Check constraints
+                        if (Math.abs(protein - targetProtein) < 0.5 && cost <= maxCost && cost < bestCost) {
+                            bestMix = {
+                                'Alfalfa': alfalfa,
+                                'Corn': corn,
+                                'Soybean': soybean,
+                                'Wheat Bran': wheatBran,
+                                'Barley': barley
+                            };
+                            bestCost = cost;
+                        }
+                    }
+                }
+            }
+            
+            if (bestMix) {
+                f.advancedResults = f.advancedResults || {};
+                f.advancedResults.feedMix = {
+                    ingredients: bestMix,
+                    costPerTon: Math.round(bestCost),
+                    proteinContent: Object.entries(bestMix).reduce((sum, [ing, pct]) => 
+                        sum + (pct * f.feedOptimizer.ingredients[ing].protein / 100), 0
+                    ).toFixed(1)
+                };
+                
+                this.showNotification('Feed mix optimized successfully!', 'success');
+            } else {
+                this.showNotification('Could not find optimal mix with given constraints', 'error');
+            }
+        },
+        
+        generateBreedingCalendar() {
+            const f = this.feasibility;
+            const targetSeason = f.breedingCalendar.targetSeason;
+            const ewesCount = f.breedingCalendar.ewesCount || Math.floor(f.numSheep * 0.7);
+            
+            // Season to month mapping (Northern Hemisphere)
+            const seasonMonths = {
+                'spring': 3, // March
+                'summer': 6, // June
+                'fall': 9,   // September
+                'winter': 12 // December
+            };
+            
+            const targetLambingMonth = seasonMonths[targetSeason];
+            const breedingMonth = (targetLambingMonth - 5 + 12) % 12 || 12; // 5 months gestation
+            
+            const calendar = [];
+            const currentMonth = new Date().getMonth() + 1;
+            
+            // Generate 12-month calendar
+            for (let i = 0; i < 12; i++) {
+                const month = ((currentMonth + i - 1) % 12) + 1;
+                const event = {
+                    month: month,
+                    monthName: new Date(2024, month - 1, 1).toLocaleString('en', { month: 'long' }),
+                    events: []
+                };
+                
+                if (month === breedingMonth) {
+                    event.events.push(`Breed ${ewesCount} ewes`);
+                }
+                if (month === ((breedingMonth + 2) % 12) || month === 12) {
+                    event.events.push('Pregnancy confirmation');
+                }
+                if (month === targetLambingMonth) {
+                    event.events.push(`Expected lambing (${Math.floor(ewesCount * 0.85)} ewes)`);
+                }
+                if (month === ((targetLambingMonth + 3) % 12) || month === 12) {
+                    event.events.push('Wean lambs');
+                }
+                
+                calendar.push(event);
+            }
+            
+            f.breedingCalendar.calendar = calendar;
+            f.advancedResults = f.advancedResults || {};
+            f.advancedResults.breedingCalendar = calendar;
+            
+            this.showNotification('Breeding calendar generated!', 'success');
+        },
+        
+        runSensitivityAnalysis() {
+            const f = this.feasibility;
+            const variable = f.sensitivity.variable;
+            const baseValue = this.getBaseValueForVariable(variable);
+            const results = [];
+            
+            // Save current values
+            const originalValue = this.getCurrentValueForVariable(variable);
+            
+            // Test each variation
+            f.sensitivity.range.forEach(change => {
+                const newValue = baseValue * (1 + change / 100);
+                this.setValueForVariable(variable, newValue);
+                this.calculateFeasibility();
+                
+                results.push({
+                    change: change,
+                    value: newValue,
+                    roi: f.results.roi,
+                    netProfit: f.results.netProfit,
+                    breakEven: f.results.breakEvenMonths
+                });
+            });
+            
+            // Restore original value
+            this.setValueForVariable(variable, originalValue);
+            this.calculateFeasibility();
+            
+            f.sensitivity.results = results;
+            f.advancedResults = f.advancedResults || {};
+            f.advancedResults.sensitivity = results;
+            
+            this.showNotification('Sensitivity analysis completed!', 'success');
+        },
+        
+        generateMultiYearProjection() {
+            const f = this.feasibility;
+            const growthRate = f.multiYear.annualGrowthRate / 100;
+            const projections = [];
+            
+            let currentSheep = f.numSheep;
+            let cumulativeProfit = 0;
+            
+            for (let year = 1; year <= 5; year++) {
+                // Growth calculations
+                currentSheep = Math.floor(currentSheep * (1 + growthRate));
+                const yearRevenue = currentSheep * 50 * 320 * 12; // Simplified annual revenue
+                const yearCosts = currentSheep * 2.5 * 6 * 365; // Simplified annual costs
+                const yearProfit = yearRevenue - yearCosts;
+                cumulativeProfit += yearProfit;
+                
+                projections.push({
+                    year: year,
+                    sheepCount: currentSheep,
+                    revenue: yearRevenue,
+                    costs: yearCosts,
+                    profit: yearProfit,
+                    cumulativeProfit: cumulativeProfit,
+                    roi: (cumulativeProfit / f.results.totalInitialCost) * 100
+                });
+            }
+            
+            f.multiYear.projections = projections;
+            f.advancedResults = f.advancedResults || {};
+            f.advancedResults.multiYear = projections;
+            
+            this.showNotification('5-year projection generated!', 'success');
+        },
+        
+        // Helper methods for sensitivity analysis
+        getBaseValueForVariable(variable) {
+            switch (variable) {
+                case 'feedPrice': return this.feasibility.feedPricePerKg;
+                case 'sheepPrice': return this.marketData.breeds[this.feasibility.selectedBreed].pricePerKg;
+                case 'mortalityRate': return this.feasibility.mortalityRate;
+                default: return 0;
+            }
+        },
+        
+        getCurrentValueForVariable(variable) {
+            switch (variable) {
+                case 'feedPrice': return this.feasibility.feedPricePerKg;
+                case 'sheepPrice': return this.marketData.breeds[this.feasibility.selectedBreed].pricePerKg;
+                case 'mortalityRate': return this.feasibility.mortalityRate;
+                default: return 0;
+            }
+        },
+        
+        setValueForVariable(variable, value) {
+            switch (variable) {
+                case 'feedPrice': this.feasibility.feedPricePerKg = value; break;
+                case 'sheepPrice': this.marketData.breeds[this.feasibility.selectedBreed].pricePerKg = value; break;
+                case 'mortalityRate': this.feasibility.mortalityRate = value; break;
+            }
+        },
+        
+        // Report Generation Methods
+        generatePDFReport() {
+            // This would integrate with a PDF library like jsPDF
+            this.showNotification('PDF report generation coming soon!', 'info');
+        },
+        
+        exportToExcel() {
+            // This would integrate with a library like SheetJS
+            this.showNotification('Excel export coming soon!', 'info');
         },
         
         calculateOverallRisk(f) {

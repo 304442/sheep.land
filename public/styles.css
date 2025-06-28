@@ -5488,6 +5488,40 @@ img,video,iframe{max-width:100%;height:auto}
 
 
 /* Feasibility Calculator Styles */
+.calc-tabs{display:flex;gap:var(--s2);margin:var(--s3) 0;border-bottom:2px solid var(--b2);overflow-x:auto}
+.tab-button{background:none;border:none;padding:var(--s2) var(--s3);font-weight:600;cursor:pointer;transition:all .3s ease;border-bottom:3px solid transparent;white-space:nowrap}
+.tab-button:hover{background:var(--b2)}
+.tab-active{border-bottom-color:var(--c1)!important;color:var(--c1)}
+.tab-inactive{color:var(--tm)}
+
+.advanced-features-section{margin-top:var(--s3)}
+.advanced-results{margin-top:var(--s3)}
+.feed-mix-results{display:grid;gap:var(--s2)}
+
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:var(--s3);margin:var(--s3) 0}
+.chart-container{background:var(--b2);padding:var(--s3);border-radius:var(--rad);min-height:300px}
+.chart-container canvas{max-width:100%;height:auto}
+
+.report-actions{display:flex;gap:var(--s2);justify-content:center;margin:var(--s3) 0}
+
+/* Enhanced Farm Management */
+.dashboard-card{background:var(--b2);border-radius:var(--rad);padding:var(--s3);margin-bottom:var(--s3);border:1px solid var(--bs)}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:var(--s2);margin-top:var(--s2)}
+.metric-card{background:var(--bc);padding:var(--s3);border-radius:var(--rad);text-align:center;border:1px solid var(--bs)}
+.metric-card.success{border-color:#22c55e;background:#f0fdf4}
+.metric-card.warning{border-color:#f59e0b;background:#fffbeb}
+.metric-card.danger{border-color:#ef4444;background:#fef2f2}
+.metric-card.info{border-color:#3b82f6;background:#eff6ff}
+.metric-label{font-size:0.85rem;color:var(--tm);margin-bottom:var(--s1);font-weight:600}
+.metric-value{font-size:1.5rem;font-weight:700;color:var(--c1);margin:var(--s1) 0}
+.metric-subtext{font-size:0.8rem;color:var(--tm)}
+
+.expense-breakdown,.category-breakdown{display:grid;gap:var(--s1);margin-top:var(--s2)}
+.expense-item{display:flex;justify-content:space-between;padding:var(--s1);background:var(--bc);border-radius:var(--rad);font-size:0.9rem}
+
+.projections-comparison{background:var(--bc);padding:var(--s2);border-radius:var(--rad);margin-top:var(--s2)}
+.comparison-row{display:flex;justify-content:space-between;padding:var(--s1) 0;border-bottom:1px solid var(--b2)}
+.comparison-row:last-child{border-bottom:none}
 .calc-section, .results-section {
     margin-bottom: var(--s4);
 }

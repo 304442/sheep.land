@@ -2282,6 +2282,207 @@
                     </div>
                 </div>
                 
+                <!-- Advanced Features Tabs -->
+                <div class="calc-tabs">
+                    <button @click="feasibility.activeTab = 'basic'" 
+                            :class="feasibility.activeTab === 'basic' ? 'tab-active' : 'tab-inactive'" 
+                            class="tab-button bil-inline">
+                        <span class="en">Basic Analysis</span>
+                        <span class="ar">التحليل الأساسي</span>
+                    </button>
+                    <button @click="feasibility.activeTab = 'advanced'; initAdvancedFeatures()" 
+                            :class="feasibility.activeTab === 'advanced' ? 'tab-active' : 'tab-inactive'" 
+                            class="tab-button bil-inline">
+                        <span class="en">Advanced Features</span>
+                        <span class="ar">المميزات المتقدمة</span>
+                    </button>
+                    <button @click="feasibility.activeTab = 'reports'" 
+                            :class="feasibility.activeTab === 'reports' ? 'tab-active' : 'tab-inactive'" 
+                            class="tab-button bil-inline">
+                        <span class="en">Reports & Charts</span>
+                        <span class="ar">التقارير والرسوم البيانية</span>
+                    </button>
+                </div>
+                
+                <!-- Advanced Features Section -->
+                <div x-show="feasibility.activeTab === 'advanced'" class="advanced-features-section">
+                    <div class="calc-grid">
+                        <!-- Feed Optimizer -->
+                        <div class="calc-card">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">Feed Optimizer</span>
+                                <span class="ar">محسن الأعلاف</span>
+                            </h4>
+                            <div class="input-group">
+                                <label class="bil-spread">
+                                    <span class="en">Target Protein %</span>
+                                    <span class="ar">نسبة البروتين المستهدفة %</span>
+                                </label>
+                                <input type="number" x-model.number="feasibility.feedOptimizer.targetProtein" min="12" max="20" class="calc-input">
+                            </div>
+                            <div class="input-group">
+                                <label class="bil-spread">
+                                    <span class="en">Max Cost per Ton (EGP)</span>
+                                    <span class="ar">أقصى تكلفة للطن (جنيه)</span>
+                                </label>
+                                <input type="number" x-model.number="feasibility.feedOptimizer.maxCostPerTon" min="1000" class="calc-input">
+                            </div>
+                            <button @click="optimizeFeedMix()" class="btn bp btn-sm">
+                                <span class="bil-inline">
+                                    <span class="en">Optimize Mix</span>
+                                    <span class="ar">تحسين الخلطة</span>
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <!-- Breeding Calendar -->
+                        <div class="calc-card">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">Breeding Calendar</span>
+                                <span class="ar">تقويم التربية</span>
+                            </h4>
+                            <div class="input-group">
+                                <label class="bil-spread">
+                                    <span class="en">Target Lambing Season</span>
+                                    <span class="ar">موسم الولادة المستهدف</span>
+                                </label>
+                                <select x-model="feasibility.breedingCalendar.targetSeason" class="calc-input">
+                                    <option value="spring">Spring / الربيع</option>
+                                    <option value="summer">Summer / الصيف</option>
+                                    <option value="fall">Fall / الخريف</option>
+                                    <option value="winter">Winter / الشتاء</option>
+                                </select>
+                            </div>
+                            <button @click="generateBreedingCalendar()" class="btn bp btn-sm">
+                                <span class="bil-inline">
+                                    <span class="en">Generate Calendar</span>
+                                    <span class="ar">إنشاء التقويم</span>
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <!-- Sensitivity Analysis -->
+                        <div class="calc-card">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">Sensitivity Analysis</span>
+                                <span class="ar">تحليل الحساسية</span>
+                            </h4>
+                            <div class="input-group">
+                                <label class="bil-spread">
+                                    <span class="en">Variable to Test</span>
+                                    <span class="ar">المتغير للاختبار</span>
+                                </label>
+                                <select x-model="feasibility.sensitivity.variable" class="calc-input">
+                                    <option value="feedPrice">Feed Price / سعر العلف</option>
+                                    <option value="sheepPrice">Sheep Price / سعر الأغنام</option>
+                                    <option value="mortalityRate">Mortality Rate / معدل النفوق</option>
+                                </select>
+                            </div>
+                            <button @click="runSensitivityAnalysis()" class="btn bp btn-sm">
+                                <span class="bil-inline">
+                                    <span class="en">Run Analysis</span>
+                                    <span class="ar">تشغيل التحليل</span>
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <!-- Multi-Year Projection -->
+                        <div class="calc-card">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">5-Year Projection</span>
+                                <span class="ar">توقعات 5 سنوات</span>
+                            </h4>
+                            <div class="input-group">
+                                <label class="bil-spread">
+                                    <span class="en">Annual Growth Rate %</span>
+                                    <span class="ar">معدل النمو السنوي %</span>
+                                </label>
+                                <input type="number" x-model.number="feasibility.multiYear.annualGrowthRate" min="0" max="50" class="calc-input">
+                            </div>
+                            <button @click="generateMultiYearProjection()" class="btn bp btn-sm">
+                                <span class="bil-inline">
+                                    <span class="en">Generate Projection</span>
+                                    <span class="ar">إنشاء التوقعات</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Results Display -->
+                    <div class="advanced-results" x-show="feasibility.advancedResults">
+                        <div class="result-card" x-show="feasibility.advancedResults.feedMix">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">Optimized Feed Mix</span>
+                                <span class="ar">الخلطة المُحسنة</span>
+                            </h4>
+                            <div class="feed-mix-results">
+                                <template x-for="(percentage, ingredient) in feasibility.advancedResults.feedMix.ingredients" :key="ingredient">
+                                    <div class="result-item">
+                                        <span class="result-label" x-text="ingredient"></span>
+                                        <span class="result-value" x-text="percentage + '%'"></span>
+                                    </div>
+                                </template>
+                                <div class="result-item">
+                                    <span class="result-label bil-inline">
+                                        <span class="en">Total Cost/Ton</span>
+                                        <span class="ar">التكلفة الإجمالية/طن</span>
+                                    </span>
+                                    <span class="result-value">EGP <span x-text="feasibility.advancedResults.feedMix.costPerTon?.toLocaleString()">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reports & Charts Section -->
+                <div x-show="feasibility.activeTab === 'reports'" class="reports-section">
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">Cash Flow Chart</span>
+                                <span class="ar">مخطط التدفق النقدي</span>
+                            </h4>
+                            <canvas id="cashFlowChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">ROI Comparison</span>
+                                <span class="ar">مقارنة العائد على الاستثمار</span>
+                            </h4>
+                            <canvas id="roiComparisonChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">Sensitivity Analysis</span>
+                                <span class="ar">تحليل الحساسية</span>
+                            </h4>
+                            <canvas id="sensitivityChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h4 class="card-title bil-spread">
+                                <span class="en">Break-Even Analysis</span>
+                                <span class="ar">تحليل نقطة التعادل</span>
+                            </h4>
+                            <canvas id="breakEvenChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="report-actions">
+                        <button @click="generatePDFReport()" class="btn bp">
+                            <span class="bil-inline">
+                                <span class="en">📄 Generate PDF Report</span>
+                                <span class="ar">📄 إنشاء تقرير PDF</span>
+                            </span>
+                        </button>
+                        <button @click="exportToExcel()" class="btn bac">
+                            <span class="bil-inline">
+                                <span class="en">📊 Export to Excel</span>
+                                <span class="ar">📊 تصدير إلى Excel</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="recommendation-box">
                     <h3 class="bil-spread">
                         <span class="en">Recommendation</span>

@@ -1483,6 +1483,30 @@
                                 "type": "number",
                                 "required": false,
                                 "presentable": true
+                        },
+                        {
+                                "name": "sensitivity_analysis",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "feed_optimization",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "breeding_calendar",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
+                        },
+                        {
+                                "name": "multi_year_projection",
+                                "type": "json",
+                                "required": false,
+                                "presentable": false
                         }
                 ]
         },
@@ -2197,6 +2221,170 @@
                         "CREATE INDEX `idx_financial_metrics_user` ON `financial_metrics` (`user`)",
                         "CREATE INDEX `idx_financial_metrics_date` ON `financial_metrics` (`metric_date`)",
                         "CREATE INDEX `idx_financial_metrics_type` ON `financial_metrics` (`metric_type`)"
+                ]
+        },
+        {
+                "name": "feed_optimization_results",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id",
+                "viewRule": "@request.auth.id = user.id",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id",
+                "deleteRule": "@request.auth.id = user.id",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "name",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "min": 1,
+                                "max": 100
+                        },
+                        {
+                                "name": "target_protein",
+                                "type": "number",
+                                "required": true,
+                                "min": 10,
+                                "max": 25
+                        },
+                        {
+                                "name": "max_cost_per_ton",
+                                "type": "number",
+                                "required": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "ingredients",
+                                "type": "json",
+                                "required": true,
+                                "presentable": false
+                        },
+                        {
+                                "name": "cost_per_ton",
+                                "type": "number",
+                                "required": true,
+                                "min": 0
+                        },
+                        {
+                                "name": "actual_protein",
+                                "type": "number",
+                                "required": true,
+                                "min": 0,
+                                "max": 100
+                        },
+                        {
+                                "name": "fiber_content",
+                                "type": "number",
+                                "required": false,
+                                "min": 0,
+                                "max": 100
+                        },
+                        {
+                                "name": "energy_content",
+                                "type": "number",
+                                "required": false,
+                                "min": 0
+                        },
+                        {
+                                "name": "optimization_date",
+                                "type": "date",
+                                "required": true
+                        },
+                        {
+                                "name": "notes",
+                                "type": "editor",
+                                "required": false
+                        }
+                ]
+        },
+        {
+                "name": "breeding_calendars",
+                "type": "base",
+                "system": false,
+                "listRule": "@request.auth.id = user.id",
+                "viewRule": "@request.auth.id = user.id",
+                "createRule": "@request.auth.id != \"\"",
+                "updateRule": "@request.auth.id = user.id",
+                "deleteRule": "@request.auth.id = user.id",
+                "fields": [
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": true,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": 1,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
+                        },
+                        {
+                                "name": "name",
+                                "type": "text",
+                                "required": true,
+                                "presentable": true,
+                                "min": 1,
+                                "max": 100
+                        },
+                        {
+                                "name": "target_season",
+                                "type": "select",
+                                "required": true,
+                                "presentable": true,
+                                "maxSelect": 1,
+                                "values": ["spring", "summer", "fall", "winter"]
+                        },
+                        {
+                                "name": "ewes_count",
+                                "type": "number",
+                                "required": true,
+                                "min": 1,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "breeding_month",
+                                "type": "number",
+                                "required": true,
+                                "min": 1,
+                                "max": 12,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "lambing_month",
+                                "type": "number",
+                                "required": true,
+                                "min": 1,
+                                "max": 12,
+                                "noDecimal": true
+                        },
+                        {
+                                "name": "calendar_events",
+                                "type": "json",
+                                "required": true,
+                                "presentable": false
+                        },
+                        {
+                                "name": "created_date",
+                                "type": "date",
+                                "required": true
+                        },
+                        {
+                                "name": "notes",
+                                "type": "editor",
+                                "required": false
+                        }
                 ]
         }
 ];
@@ -3477,7 +3665,7 @@
         "feasibility_analyses": [
                 {
                         "user": "admin@sheep.land",
-                        "title": "Spring 2024 Expansion",
+                        "title": "Spring 2024 Expansion - Advanced Analysis",
                         "sheep_count": 150,
                         "sheep_price": 15000,
                         "land_cost": 100000,
@@ -3498,8 +3686,126 @@
                                 "annual_expenses": 800000,
                                 "net_profit": 1200000,
                                 "roi_percentage": 187.5,
-                                "break_even_months": 6.4
-                        }
+                                "break_even_months": 6.4,
+                                "cash_flow": [
+                                        {"month": 1, "revenue": 166667, "cost": 66667, "flow": 100000},
+                                        {"month": 2, "revenue": 166667, "cost": 66667, "flow": 100000},
+                                        {"month": 3, "revenue": 166667, "cost": 66667, "flow": 100000}
+                                ]
+                        },
+                        "npv": 985000,
+                        "irr": 25.5,
+                        "payback_period": 7,
+                        "profit_margin": 60,
+                        "infrastructure_costs": {
+                                "shelter": 30000,
+                                "fencing": 15000,
+                                "water_system": 10000,
+                                "equipment": 45000
+                        },
+                        "breeding_params": {
+                                "fertility_rate": 85,
+                                "births_per_year": 1.5,
+                                "offspring_per_birth": 1.2,
+                                "mortality_rate": 5
+                        },
+                        "market_params": {
+                                "competitor_count": 10,
+                                "competitor_avg_price": 320,
+                                "price_advantage": 5,
+                                "market_share_target": 5
+                        },
+                        "risk_factors": {
+                                "feed_price_volatility": 15,
+                                "disease_risk": 10,
+                                "market_demand_variation": 20
+                        },
+                        "financial_params": {
+                                "discount_rate": 12,
+                                "inflation_rate": 3,
+                                "tax_rate": 22.5
+                        },
+                        "sensitivity_analysis": {
+                                "feed_price": [
+                                        {"change": -20, "roi": 210},
+                                        {"change": 0, "roi": 187.5},
+                                        {"change": 20, "roi": 165}
+                                ],
+                                "sheep_price": [
+                                        {"change": -10, "roi": 150},
+                                        {"change": 0, "roi": 187.5},
+                                        {"change": 10, "roi": 225}
+                                ]
+                        },
+                        "feed_optimization": {
+                                "target_protein": 16,
+                                "max_cost": 5000,
+                                "optimized_mix": {
+                                        "alfalfa": 30,
+                                        "corn": 20,
+                                        "soybean": 10,
+                                        "wheat_bran": 25,
+                                        "barley": 15
+                                },
+                                "cost_per_ton": 4250,
+                                "protein_achieved": 16.2
+                        },
+                        "breeding_calendar": [
+                                {"month": 1, "event": "Breeding season starts"},
+                                {"month": 6, "event": "Expected lambing"},
+                                {"month": 9, "event": "Weaning period"}
+                        ],
+                        "multi_year_projection": [
+                                {"year": 1, "sheep": 150, "revenue": 2000000, "profit": 1200000},
+                                {"year": 2, "sheep": 173, "revenue": 2300000, "profit": 1500000},
+                                {"year": 3, "sheep": 199, "revenue": 2645000, "profit": 1900000},
+                                {"year": 4, "sheep": 228, "revenue": 3041750, "profit": 2400000},
+                                {"year": 5, "sheep": 263, "revenue": 3498000, "profit": 3000000}
+                        ]
+                }
+        ],
+        "feed_optimization_results": [
+                {
+                        "user": "admin@sheep.land",
+                        "name": "High Protein Mix - Spring 2024",
+                        "target_protein": 18,
+                        "max_cost_per_ton": 5500,
+                        "ingredients": {
+                                "Alfalfa": 40,
+                                "Corn": 15,
+                                "Soybean": 15,
+                                "Wheat Bran": 20,
+                                "Barley": 10
+                        },
+                        "cost_per_ton": 5200,
+                        "actual_protein": 18.2,
+                        "fiber_content": 15,
+                        "energy_content": 2800,
+                        "optimization_date": new Date().toISOString(),
+                        "notes": "Optimized for lactating ewes and growing lambs"
+                }
+        ],
+        "breeding_calendars": [
+                {
+                        "user": "admin@sheep.land",
+                        "name": "Spring Lambing Schedule 2024",
+                        "target_season": "spring",
+                        "ewes_count": 100,
+                        "breeding_month": 10,
+                        "lambing_month": 3,
+                        "calendar_events": [
+                                {"month": 10, "events": ["Start breeding season", "Prepare rams"]},
+                                {"month": 11, "events": ["Continue breeding", "Monitor heat cycles"]},
+                                {"month": 12, "events": ["Pregnancy confirmation via ultrasound"]},
+                                {"month": 1, "events": ["Mid-pregnancy nutrition adjustment"]},
+                                {"month": 2, "events": ["Pre-lambing preparations", "Vaccine boosters"]},
+                                {"month": 3, "events": ["Lambing season begins", "24/7 monitoring"]},
+                                {"month": 4, "events": ["Lamb health checks", "Vaccination schedule"]},
+                                {"month": 5, "events": ["Begin weaning process"]},
+                                {"month": 6, "events": ["Complete weaning", "Market ready lambs"]}
+                        ],
+                        "created_date": new Date().toISOString(),
+                        "notes": "Target 85% conception rate with twin births expected in 30% of ewes"
                 }
         ]
 };
@@ -4924,7 +5230,8 @@
     async function clearDatabase(pb) {
         const collections = ['products', 'orders', 'order_items', 'payment_confirmations', 'feedback', 'users', 
                            'breeding_records', 'feed_inventory', 'farm_tasks', 'health_checkups', 
-                           'feasibility_analyses', 'farm_sheep', 'sync_logs', 'financial_metrics'];
+                           'feasibility_analyses', 'farm_sheep', 'sync_logs', 'financial_metrics',
+                           'feed_optimization_results', 'breeding_calendars'];
         let clearedCount = 0;
         
         for (const collectionName of collections) {
