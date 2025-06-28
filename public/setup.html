@@ -4786,6 +4786,8 @@
                 });
                 log('📌 To access admin panel: Add #admin to the URL', 'i');
             }
+        } else {
+            log('⚠️ No users array found in seed data', 'w');
         }
         
         // Seed farm_sheep FIRST (before breeding_records and health_checkups that reference it)
@@ -4793,6 +4795,9 @@
             log('🐏 Seeding farm sheep...', 'i');
             const sheepResult = await seedCollectionData(pb, 'farm_sheep', seedDataToUse.farm_sheep, 'tag_id');
             if(sheepResult.errors > 0) anySeedErrors = true;
+        } else {
+            log('⚠️ No farm_sheep array found in seed data!', 'w');
+            log(`   Available keys: ${Object.keys(seedDataToUse).join(', ')}`, 'd');
         }
         
         // Seed feasibility_analyses (if present in seed data)
@@ -5029,6 +5034,18 @@
     console.log('Seed data keys:', Object.keys(seedData));
     console.log('farm_sheep exists?', !!seedData.farm_sheep);
     console.log('farm_sheep length:', seedData.farm_sheep ? seedData.farm_sheep.length : 0);
+    
+    // Additional debug: parse it back and check
+    try {
+        const parsedBack = JSON.parse(seedTextarea.value);
+        console.log('Parsed back keys:', Object.keys(parsedBack));
+        console.log('Parsed farm_sheep exists?', !!parsedBack.farm_sheep);
+        if (!parsedBack.farm_sheep) {
+            console.error('farm_sheep missing after JSON.stringify/parse cycle!');
+        }
+    } catch (e) {
+        console.error('Failed to parse seed data back:', e);
+    }
     
     // Validate on load by triggering input events
     collectionsTextarea.dispatchEvent(new Event('input'));
