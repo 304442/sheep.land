@@ -4679,6 +4679,11 @@
     function transformRelationFields(item, collectionName) {
         const transformed = { ...item };
         
+        // Debug: log current mappings
+        if (Object.keys(idMappings.users).length > 0) {
+            log(`   🗺️ Current user mappings: ${JSON.stringify(idMappings.users)}`, 'd');
+        }
+        
         // Transform user relation fields
         if (transformed.user && typeof transformed.user === 'string') {
             const userId = idMappings.users[transformed.user];
@@ -4687,6 +4692,7 @@
                 log(`   🔄 Transformed user relation: ${item.user} -> ${userId}`, 'd');
             } else {
                 log(`   ⚠️ User not found for email: ${item.user}`, 'w');
+                log(`   🗺️ Available user mappings: ${JSON.stringify(idMappings.users)}`, 'd');
             }
         }
         
@@ -4748,6 +4754,14 @@
         } catch (e) {
             log('❌ Invalid Seed Data JSON: ' + e.message, 'e');
             return false;
+        }
+        
+        // Debug log to check seed data structure
+        log(`📋 Seed data contains: ${Object.keys(seedDataToUse).join(', ')}`, 'd');
+        if (seedDataToUse.farm_sheep) {
+            log(`   🐏 farm_sheep array has ${seedDataToUse.farm_sheep.length} records`, 'd');
+        } else {
+            log(`   ⚠️ farm_sheep array is missing!`, 'w');
         }
 
         let anySeedErrors = false;
