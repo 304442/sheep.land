@@ -2204,6 +2204,11 @@
     // All product data is managed through the database
     // No hardcoded products in the application code
     // Admin can modify products via PocketBase admin panel after initial setup
+    
+    // IMPORTANT NOTE: Farm management collections (breeding_records, feed_inventory, etc.) 
+    // require user relations and some require sheep relations. These cannot be seeded 
+    // automatically without knowing the IDs. Use PocketBase admin panel to add these records
+    // after initial setup, or implement a more sophisticated seeding process.
     const seedData = {
         "settings": [
                 {
@@ -3237,40 +3242,35 @@
         ],
         "farm_tasks": [
                 {
-                        "task_name": "Vaccinate Spring Lambs",
-                        "task_type": "health",
+                        "title": "Vaccinate Spring Lambs",
+                        "category": "health",
                         "priority": "high",
                         "status": "pending",
                         "due_date": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                         "assigned_to": "Farm Manager",
                         "description": "Annual vaccination for all spring-born lambs",
-                        "notes": "Use CDT vaccine, check with vet for dosage",
-                        "estimated_hours": 4
+                        "notes": "Use CDT vaccine, check with vet for dosage"
                 },
                 {
-                        "task_name": "Repair North Fence",
-                        "task_type": "maintenance",
+                        "title": "Repair North Fence",
+                        "category": "maintenance",
                         "priority": "medium",
                         "status": "in_progress",
                         "due_date": new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
                         "assigned_to": "Maintenance Team",
                         "description": "Fix damaged section of north pasture fence",
-                        "notes": "Need 20 fence posts and wire mesh",
-                        "estimated_hours": 8,
-                        "completion_percentage": 60
+                        "notes": "Need 20 fence posts and wire mesh"
                 },
                 {
-                        "task_name": "Weekly Feed Inventory Check",
-                        "task_type": "feeding",
+                        "title": "Weekly Feed Inventory Check",
+                        "category": "feeding",
                         "priority": "medium",
                         "status": "completed",
                         "due_date": new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
                         "assigned_to": "Feed Manager",
                         "description": "Check all feed stocks and reorder if needed",
-                        "completion_date": new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                        "estimated_hours": 2,
-                        "actual_hours": 1.5,
-                        "completion_percentage": 100
+                        "completed_date": new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        "notes": "Completed in 1.5 hours"
                 }
         ],
         "health_checkups": [
@@ -3372,140 +3372,14 @@
                         "customer_count": 38,
                         "notes": "Weekly performance showing consistent growth"
                 }
-        ],
-        "farm_sheep": [
-                {
-                        "tag_id": "ram_001",
-                        "breed": "Barki",
-                        "age_months": 24,
-                        "weight_kg": 85,
-                        "status": "healthy",
-                        "gender": "male",
-                        "location": "barn1",
-                        "feeding_plan": "enhanced",
-                        "purchase_price": 15000,
-                        "purchase_date": new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
-                        "notes": "Prime breeding ram, excellent genetics"
-                },
-                {
-                        "tag_id": "ram_002",
-                        "breed": "Rahmani",
-                        "age_months": 18,
-                        "weight_kg": 78,
-                        "status": "healthy",
-                        "gender": "male",
-                        "location": "barn2",
-                        "feeding_plan": "standard",
-                        "purchase_price": 12000,
-                        "purchase_date": new Date(Date.now() - 200 * 24 * 60 * 60 * 1000).toISOString(),
-                        "notes": "Good breeding ram"
-                },
-                {
-                        "tag_id": "ewe_001",
-                        "breed": "Barki",
-                        "age_months": 36,
-                        "weight_kg": 55,
-                        "status": "nursing",
-                        "gender": "female",
-                        "location": "barn1",
-                        "feeding_plan": "enhanced",
-                        "mother_tag_id": "ewe_legacy_01",
-                        "notes": "Excellent mother, twins born 3 days ago"
-                },
-                {
-                        "tag_id": "ewe_002",
-                        "breed": "Rahmani",
-                        "age_months": 30,
-                        "weight_kg": 52,
-                        "status": "healthy",
-                        "gender": "female",
-                        "location": "field",
-                        "feeding_plan": "standard",
-                        "notes": "Ready for next breeding cycle"
-                },
-                {
-                        "tag_id": "ewe_003",
-                        "breed": "Ossimi",
-                        "age_months": 28,
-                        "weight_kg": 58,
-                        "status": "pregnant",
-                        "gender": "female",
-                        "location": "barn2",
-                        "feeding_plan": "enhanced",
-                        "notes": "Expected to lamb in 60 days"
-                },
-                {
-                        "tag_id": "lamb_001",
-                        "breed": "Barki",
-                        "age_months": 4,
-                        "weight_kg": 25,
-                        "status": "healthy",
-                        "gender": "male",
-                        "location": "field",
-                        "feeding_plan": "standard",
-                        "mother_tag_id": "ewe_002",
-                        "father_tag_id": "ram_001",
-                        "notes": "Growing well, potential breeding stock"
-                },
-                {
-                        "tag_id": "lamb_002",
-                        "breed": "Barki",
-                        "age_months": 4,
-                        "weight_kg": 23,
-                        "status": "healthy",
-                        "gender": "female",
-                        "location": "field",
-                        "feeding_plan": "standard",
-                        "mother_tag_id": "ewe_002",
-                        "father_tag_id": "ram_001",
-                        "notes": "Twin sister of lamb_001"
-                }
-        ],
-        "feasibility_analyses": [
-                {
-                        "analysis_name": "Small Farm Startup - 50 Sheep",
-                        "initial_sheep_count": 50,
-                        "analysis_currency": "EGP",
-                        "sheep_purchase_price": 280,
-                        "feed_cost_per_day": 15,
-                        "labor_monthly_cost": 5000,
-                        "vet_cost_per_sheep": 100,
-                        "other_monthly_costs": 2000,
-                        "avg_sale_price": 350,
-                        "avg_sale_weight_kg": 50,
-                        "wool_revenue": 50,
-                        "analysis_period": 3,
-                        "land_type": "rented",
-                        "land_area": 5,
-                        "infrastructure_costs": {
-                                "shelter": 50000,
-                                "fencing": 30000,
-                                "water_system": 20000,
-                                "equipment": 15000
-                        },
-                        "breeding_params": {
-                                "ewes_percentage": 70,
-                                "rams_percentage": 30,
-                                "fertility_rate": 85,
-                                "mortality_rate": 5,
-                                "lambs_per_birth": 1.3
-                        },
-                        "market_params": {
-                                "demand_growth_rate": 5,
-                                "price_volatility": 10,
-                                "seasonal_factor": 1.2
-                        },
-                        "financial_params": {
-                                "interest_rate": 12,
-                                "loan_amount": 200000,
-                                "loan_term_years": 5
-                        },
-                        "npv": 125000,
-                        "irr": 18.5,
-                        "payback_period": 2.8,
-                        "profit_margin": 22
-                }
         ]
+        // NOTE: Farm management collections (farm_sheep, breeding_records, feed_inventory, 
+        // farm_tasks, health_checkups, sync_logs, financial_metrics, feasibility_analyses) 
+        // all require user relation fields that cannot be automatically seeded.
+        // After setup, use PocketBase admin panel to:
+        // 1. Create farm_sheep records with proper user relations
+        // 2. Create breeding_records with user and sheep relations
+        // 3. Add other farm management data as needed
 };
 
     // PocketBase API-compliant validation functions
@@ -4665,6 +4539,20 @@
                 });
                 log('📌 To access admin panel: Add #admin to the URL', 'i');
             }
+        }
+        
+        // Seed farm_sheep FIRST (before breeding_records and health_checkups that reference it)
+        if (seedDataToUse.farm_sheep && Array.isArray(seedDataToUse.farm_sheep)) {
+            log('🐏 Seeding farm sheep...', 'i');
+            const sheepResult = await seedCollectionData(pb, 'farm_sheep', seedDataToUse.farm_sheep, 'tag_id');
+            if(sheepResult.errors > 0) anySeedErrors = true;
+        }
+        
+        // Seed feasibility_analyses (if present in seed data)
+        if (seedDataToUse.feasibility_analyses && Array.isArray(seedDataToUse.feasibility_analyses)) {
+            log('📊 Seeding feasibility analyses...', 'i');
+            const feasibilityResult = await seedCollectionData(pb, 'feasibility_analyses', seedDataToUse.feasibility_analyses);
+            if(feasibilityResult.errors > 0) anySeedErrors = true;
         }
         
         // Seed breeding records (if present in seed data)
