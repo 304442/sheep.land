@@ -5,13 +5,71 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Egypt's premier destination for premium sheep, livesheep, fresh meat, and Sharia-compliant Udheya services. Serving Egypt and international customers with quality guaranteed.">
     <title x-text="pageTitle()">Sheep Land</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="sheep, udheya, qurbani, sacrifice, halal meat, live sheep, Egypt, fresh meat, عيد الأضحى, أضحية">
+    <meta name="author" content="Sheep Land Egypt">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://sheep.land">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Sheep Land - Premium Live Sheep & Udheya Services">
+    <meta property="og:description" content="Egypt's premier destination for premium sheep, livesheep, fresh meat, and Sharia-compliant Udheya services.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sheep.land">
+    <meta property="og:image" content="https://sheep.land/images/og-image.jpg">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_EG">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sheep Land - Premium Live Sheep & Udheya Services">
+    <meta name="twitter:description" content="Egypt's premier destination for premium sheep and Sharia-compliant Udheya services.">
+    <meta name="twitter:image" content="https://sheep.land/images/twitter-card.jpg">
+    
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#2C5F41">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-extra.css">
     <style>[x-cloak]{display:none!important}</style>
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Sheep Land Egypt",
+        "url": "https://sheep.land",
+        "logo": "https://sheep.land/logo.png",
+        "description": "Egypt's premier destination for premium sheep, livesheep, fresh meat, and Sharia-compliant Udheya services.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "EG",
+            "addressRegion": "Cairo"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+201234567890",
+            "contactType": "customer service",
+            "availableLanguage": ["en", "ar"]
+        },
+        "sameAs": [
+            "https://www.facebook.com/sheeplandegypt",
+            "https://www.instagram.com/sheeplandegypt"
+        ]
+    }
+    </script>
 </head>
 <body x-data="sheepLand" x-init="initApp()" x-cloak :class="{'has-promo-bar': settings.promoActive && !cd.ended && !isPromoBarDismissed}">
+
+<!-- Skip to content link for keyboard navigation -->
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
 
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" role="alert" aria-live="assertive" tabindex="-1">
@@ -27,7 +85,7 @@
         <h2 id="refund-modal-title" class="bil-spread modal-title">
             <span class="en">Refund & Cancellation Policy</span><span class="ar" dir="rtl">سياسة الاسترداد والإلغاء</span>
         </h2>
-        <button @click="closeRefundModal()" class="modal-close-btn">×</button>
+        <button @click="closeRefundModal()" class="modal-close-btn" aria-label="Close refund policy modal">×</button>
     </div>
     <div class="modal-content policy-container">
          <div x-html="settings.refundPolicyHTMLContent || '<p>Loading refund policy...</p>'"></div>
@@ -40,7 +98,7 @@
         <h2 id="order-status-modal-title" class="bil-spread modal-title">
             <span class="en">Check Order Status</span><span class="ar">تحقق من حالة الطلب</span>
         </h2>
-        <button @click="closeOrderStatusModal()" class="modal-close-btn">×</button>
+        <button @click="closeOrderStatusModal()" class="modal-close-btn" aria-label="Close order status modal">×</button>
     </div>
     <div class="modal-content">
         <form @submit.prevent="submitStatValid()" novalidate>
@@ -253,7 +311,7 @@
         </nav>
 
         <div class="head-extras desk-extras">
-            <button @click="toggleSearch()" class="header-action-btn" title="Search">
+            <button @click="toggleSearch()" class="header-action-btn" title="Search" aria-label="Toggle search">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"/>
                     <path d="m21 21-4.35-4.35"/>
@@ -300,7 +358,7 @@
         </div>
 
         <div class="head-extras mob-extras">
-            <button @click="toggleSearch()" class="header-action-btn" title="Search">
+            <button @click="toggleSearch()" class="header-action-btn" title="Search" aria-label="Toggle search">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8"/>
                     <path d="m21 21-4.35-4.35"/>
@@ -1561,7 +1619,7 @@
                                         <div class="sum-item-content bil-spread">
                                             <span class="en">Promo Discount</span><span class="ar">خصم الكود</span>
                                         </div>
-                                        <div class="sum-item-price" style="color: #28a745">-<span x-text="fmtPrice(checkoutForm.promo_discount_amount)"></span></div>
+                                        <div class="sum-item-price promo-discount">-<span x-text="fmtPrice(checkoutForm.promo_discount_amount)"></span></div>
                                     </div>
                                 </template>
                                 <hr class="sum-hr">
@@ -1884,7 +1942,7 @@
                         </div>
                         <div class="input-group">
                             <label class="bil-spread">
-                                <input type="checkbox" x-model="feasibility.includeBreeding" style="width: auto; margin-right: 8px;">
+                                <input type="checkbox" x-model="feasibility.includeBreeding" class="feasibility-checkbox">
                                 <span class="en">Include Breeding Revenue</span>
                                 <span class="ar">تضمين إيرادات التربية</span>
                             </label>
@@ -2580,7 +2638,7 @@
             </div>
             
             <!-- Health Status Summary -->
-            <div class="stats-grid" style="margin-top: 1rem;">
+            <div class="stats-grid stats-grid-spaced">
                 <div class="stat-card">
                     <div class="stat-icon">💚</div>
                     <div class="stat-content">
@@ -2715,7 +2773,7 @@
                                     </span>
                                     <span x-text="formatDate(sheep.last_vaccination)"></span>
                                 </p>
-                                <p class="detail-row" x-show="needsVaccination(sheep)" style="color: var(--danger);">
+                                <p class="detail-row vaccination-warning" x-show="needsVaccination(sheep)">
                                     <span class="bil-inline">
                                         <span class="en">⚠️ Vaccination overdue!</span>
                                         <span class="ar">⚠️ التطعيم متأخر!</span>
@@ -3437,12 +3495,26 @@
     </div>
 </footer>
 
-<script src="vendor/pocketbase.umd.js"></script>
-<script src="app.js"></script>
-<script src="wishlist.js"></script>
-<script src="feedback.js"></script>
+<!-- Preload critical resources -->
+<link rel="preload" href="vendor/alpine.min.js" as="script">
+<link rel="preload" href="app.js" as="script">
+
+<!-- Load scripts with proper defer/async -->
+<script src="vendor/pocketbase.umd.js" defer></script>
+<script src="app.js" defer></script>
+<script src="wishlist.js" defer></script>
+<script src="feedback-safe.js" defer></script>
 <script src="vendor/alpine-collapse.min.js" defer></script>
 <script src="vendor/alpine.min.js" defer></script>
+
+<!-- Service Worker for PWA -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+}
+</script>
 
 </body>
 </html>

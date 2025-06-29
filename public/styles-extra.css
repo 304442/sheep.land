@@ -1,0 +1,106 @@
+/* Additional styles to replace inline styles */
+
+/* Promo discount styling */
+.promo-discount {
+    color: #28a745;
+}
+
+/* Checkbox styling for feasibility form */
+.feasibility-checkbox {
+    width: auto;
+    margin-right: 8px;
+}
+
+/* Stats grid spacing */
+.stats-grid-spaced {
+    margin-top: 1rem;
+}
+
+/* Vaccination warning */
+.vaccination-warning {
+    color: var(--danger);
+}
+
+/* Lazy loading placeholder */
+img[loading="lazy"] {
+    background-color: #f0f0f0;
+    min-height: 100px;
+}
+
+/* Improved accessibility focus styles */
+*:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Skip to content link for keyboard navigation */
+.skip-to-content {
+    position: absolute;
+    left: -9999px;
+    z-index: 999;
+    padding: 1em;
+    background-color: var(--primary);
+    color: white;
+    text-decoration: none;
+}
+
+.skip-to-content:focus {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 1rem;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .btn-primary {
+        border: 2px solid currentColor;
+    }
+    
+    .modal {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #1a1a1a;
+        --text: #e0e0e0;
+        --primary: #4a9d6f;
+    }
+    
+    body {
+        background-color: var(--background);
+        color: var(--text);
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print,
+    header,
+    footer,
+    nav,
+    .modal,
+    .btn {
+        display: none !important;
+    }
+    
+    .print-only {
+        display: block !important;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+}
