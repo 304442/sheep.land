@@ -2095,25 +2095,7 @@ document.addEventListener('alpine:init', () => {
         },
         
         // Update financial dashboard with real-time data
-        async updateFinancialDashboard() {
-            if (!this.currentUser) return;
-            
-            try {
-                const now = new Date();
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                
-                // Get financial data
-                const [orders, expenses, sheep] = await Promise.all([
-                    this.pb.collection('orders').getFullList({
-                        filter: `user = "${this.currentUser.id}" && created >= "${monthStart.toISOString()}"`
-                    }),
-                    this.pb.collection('feed_inventory').getFullList({
-                        filter: `user = "${this.currentUser.id}" && purchase_date >= "${monthStart.toISOString()}"`
-                    }),
-                    this.pb.collection('farm_sheep').getFullList({
-                        filter: `user = "${this.currentUser.id}"`
-                    })
-                ]);
+        async updateFinancialDashboard() { if (!this.currentUser) return; try { const now = new Date(); const monthStart = new Date(now.getFullYear(), now.getMonth(), 1); const [orders, expenses, sheep] = await Promise.all([this.pb.collection('orders').getFullList({ filter: `user = "${this.currentUser.id}" && created >= "${monthStart.toISOString()}"` }), this.pb.collection('feed_inventory').getFullList({ filter: `user = "${this.currentUser.id}" && purchase_date >= "${monthStart.toISOString()}"` }), this.pb.collection('farm_sheep').getFullList({ filter: `user = "${this.currentUser.id}"` })]);
                 
                 // Calculate revenue by category
                 const revenueByCategory = {};
