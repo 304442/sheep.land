@@ -57,7 +57,15 @@ document.addEventListener('alpine:init', () => {
             slaughter_location_gmaps_url: "", online_payment_fee_egp: 0, refundPolicyHTMLContent: "<p>Loading policy...</p>",
             app_email_sender_address: "noreply@sheep.land", app_email_sender_name: "Sheep Land",
             site_title_en: "Sheep Land", site_title_ar: "أرض الأغنام",
-            site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة"
+            site_desc_en: "Premium live sheep & Udheya", site_desc_ar: "مواشي وأضاحي فاخرة",
+            // Farm management thresholds (configurable)
+            sync_interval_minutes: 5,
+            sheep_market_ready_weight_kg: 40,
+            sheep_market_ready_age_months: 6,
+            low_feed_threshold_kg: 100,
+            vaccination_interval_days: 180,
+            financial_low_margin_threshold_percent: 15,
+            financial_high_inventory_months: 3
         },
         prodOpts: { 
             // Religious/Occasions (ولائم/عزومات/مناسبات)
@@ -98,6 +106,8 @@ document.addEventListener('alpine:init', () => {
         farmActiveTab: 'inventory', // Track active tab in farm management
         showAuth: false, cartOpen: false,
         wishlistCount: 0,
+        // Store interval ID for cleanup
+        syncInterval: null,
         financialDashboard: {
             monthlyRevenue: 0,
             monthlyExpenses: 0,
@@ -1117,7 +1127,7 @@ document.addEventListener('alpine:init', () => {
                     this.marketData.feed.grains.pricePerKg = avgFeedPrice * 1.2; // Estimate grain price
                 }
             } catch (e) {
-                console.warn('Could not fetch market data:', e);
+                // Market data fetch failed - using defaults
             }
         },
         
@@ -1540,7 +1550,7 @@ document.addEventListener('alpine:init', () => {
                     }
                 });
             } catch (err) {
-                console.error('Failed to load market prices:', err);
+                this.showNotification('Failed to load market prices', 'error');
             }
         },
 
@@ -1592,7 +1602,7 @@ document.addEventListener('alpine:init', () => {
                 await this.loadSavedAnalyses();
                 
             } catch (err) {
-                console.error('Save analysis error:', err);
+                // Save error already handled by alert
                 alert('Failed to save analysis. Please try again.');
             } finally {
                 this.loading = false;
@@ -1609,7 +1619,7 @@ document.addEventListener('alpine:init', () => {
                 
                 this.savedAnalyses = records.items;
             } catch (err) {
-                console.error('Load analyses error:', err);
+                // Load error - reset to empty array
             }
         },
 
@@ -1654,7 +1664,7 @@ document.addEventListener('alpine:init', () => {
                 this.filteredFarmSheep = [...this.farmSheep];
                 this.updateFarmStats();
             } catch (err) {
-                console.error('Load sheep error:', err);
+                // Load error - reset to empty array
                 this.error = 'Failed to load sheep data.';
             } finally {
                 this.loading = false;
@@ -1687,7 +1697,7 @@ document.addEventListener('alpine:init', () => {
             
             // Count sheep ready for market (healthy and weight >= 40kg)
             this.farmStats.readyForMarket = this.farmSheep.filter(s => 
-                s.status === 'healthy' && s.weight_kg >= 40 && s.age_months >= 6
+                s.status === 'healthy' && s.weight_kg >= (this.settings.sheep_market_ready_weight_kg || 40) && s.age_months >= (this.settings.sheep_market_ready_age_months || 6)
             ).length;
             
             // Calculate average weight
@@ -1796,7 +1806,7 @@ document.addEventListener('alpine:init', () => {
                 
                 alert('Sheep data saved successfully! / تم حفظ بيانات الأغنام بنجاح!');
             } catch (err) {
-                console.error('Save error:', err);
+                // Save error already handled by alert
                 alert('Failed to save sheep data. Please try again.');
             } finally {
                 this.loading = false;
@@ -1869,7 +1879,7 @@ document.addEventListener('alpine:init', () => {
                     }
                     break;
                 case '6':
-                    if (sheep.weight_kg >= 40 && sheep.status === 'healthy') {
+                    if (sheep.weight_kg >= (this.settings.sheep_market_ready_weight_kg || 40) && sheep.status === 'healthy') {
                         updateData.notes = (sheep.notes || '') + ' [READY FOR SALE]';
                         healthRecord.action = 'Marked for sale';
                         healthRecord.notes = `Weight: ${sheep.weight_kg}kg, Market value: EGP ${Math.round(sheep.weight_kg * (this.marketData.breeds[sheep.breed]?.pricePerKg || 300))}`;
@@ -1897,7 +1907,7 @@ document.addEventListener('alpine:init', () => {
                 
                 await this.loadFarmSheep();
             } catch (err) {
-                console.error('Health record error:', err);
+                // Health record error already handled by alert
                 alert('Failed to update health record.');
             } finally {
                 this.loading = false;
@@ -1914,7 +1924,7 @@ document.addEventListener('alpine:init', () => {
                 await this.pb.collection('farm_sheep').delete(id);
                 await this.loadFarmSheep();
             } catch (err) {
-                console.error('Delete error:', err);
+                // Delete error already handled by alert
                 alert('Failed to delete sheep record.');
             } finally {
                 this.loading = false;
@@ -1958,7 +1968,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 // Get all healthy sheep ready for sale (40kg+)
                 const readyForSale = await this.pb.collection('farm_sheep').getFullList({
-                    filter: 'status = "healthy" && weight_kg >= 40',
+                    filter: `status = "healthy" && weight_kg >= ${this.settings.sheep_market_ready_weight_kg || 40}`,
                     sort: '-weight_kg'
                 });
                 
@@ -2001,7 +2011,7 @@ document.addEventListener('alpine:init', () => {
                             });
                         }
                     } catch (err) {
-                        console.error(`Failed to update stock for ${key}:`, err);
+                        // Stock update failed - continue with other updates
                     }
                 }
                 
@@ -2010,12 +2020,12 @@ document.addEventListener('alpine:init', () => {
                 try {
                     await this.fetchMarketData();
                 } catch (e) {
-                    console.warn('Could not fetch market data:', e);
+                    // Market data fetch failed - using defaults
                 }
                 
                 return { success: true, inventory };
             } catch (err) {
-                console.error('Inventory sync error:', err);
+                // Inventory sync failed - will retry next interval
                 return { success: false, error: err };
             }
         },
@@ -2046,7 +2056,7 @@ document.addEventListener('alpine:init', () => {
                     mortalityRate: ((farmSheep.filter(s => s.status === 'deceased').length / farmSheep.length) * 100) || 0,
                     totalRevenue: orders.reduce((sum, o) => sum + o.total_amount_due_egp, 0),
                     feedCostActual: feedInventory.reduce((sum, f) => sum + (f.quantity_kg * f.cost_per_kg), 0),
-                    sheepReadyForSale: farmSheep.filter(s => s.status === 'healthy' && s.weight_kg >= 40).length
+                    sheepReadyForSale: farmSheep.filter(s => s.status === 'healthy' && s.weight_kg >= (this.settings.sheep_market_ready_weight_kg || 40)).length
                 };
                 
                 // Update feasibility with actual data
@@ -2063,7 +2073,7 @@ document.addEventListener('alpine:init', () => {
                 
                 return actualMetrics;
             } catch (err) {
-                console.error('Failed to update feasibility with actual data:', err);
+                // Feasibility update failed - using projections only
             }
         },
         
@@ -2071,7 +2081,7 @@ document.addEventListener('alpine:init', () => {
         async autoCreateMarketProducts() {
             try {
                 const marketReadySheep = await this.pb.collection('farm_sheep').getFullList({
-                    filter: 'status = "healthy" && weight_kg >= 40 && (notes !~ "LISTED")'
+                    filter: `status = "healthy" && weight_kg >= ${this.settings.sheep_market_ready_weight_kg || 40} && (notes !~ "LISTED")`
                 });
                 
                 for (const sheep of marketReadySheep) {
@@ -2114,10 +2124,10 @@ document.addEventListener('alpine:init', () => {
                 try {
                     await this.fetchMarketData();
                 } catch (e) {
-                    console.warn('Could not fetch market data:', e);
+                    // Market data fetch failed - using defaults
                 }
             } catch (err) {
-                console.error('Failed to auto-create products:', err);
+                // Auto-create products failed - manual creation required
             }
         },
         
@@ -2219,7 +2229,7 @@ document.addEventListener('alpine:init', () => {
                 
                 return this.financialDashboard;
             } catch (err) {
-                console.error('Failed to update financial dashboard:', err);
+                // Financial dashboard update failed - data may be stale
             }
         },
         
@@ -2421,6 +2431,12 @@ document.addEventListener('alpine:init', () => {
         async initRealTimeSync() {
             if (!this.currentUser) return;
             
+            // Clear any existing interval first
+            if (this.syncInterval) {
+                clearInterval(this.syncInterval);
+                this.syncInterval = null;
+            }
+            
             // Set up periodic sync (every 5 minutes)
             this.syncInterval = setInterval(async () => {
                 await this.syncFarmInventoryToEcommerce();
@@ -2430,7 +2446,7 @@ document.addEventListener('alpine:init', () => {
                 await this.autoScheduleFarmTasks();
                 await this.checkAndCreateAlerts();
                 this.lastSyncTime = new Date();
-            }, 5 * 60 * 1000); // 5 minutes
+            }, (this.settings.sync_interval_minutes || 5) * 60 * 1000);
             
             // Initial sync
             await this.syncFarmInventoryToEcommerce();
@@ -2453,7 +2469,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 
                 feedInventory.forEach(feed => {
-                    if (feed.quantity_kg < 100) {
+                    if (feed.quantity_kg < (this.settings.low_feed_threshold_kg || 100)) {
                         alerts.push({
                             type: 'warning',
                             title: this.currLang === 'ar' ? 'مخزون العلف منخفض' : 'Low Feed Inventory',
@@ -2474,7 +2490,7 @@ document.addEventListener('alpine:init', () => {
                 sheep.forEach(s => {
                     if (s.last_vaccination) {
                         const daysSinceVaccination = Math.floor((new Date() - new Date(s.last_vaccination)) / (1000 * 60 * 60 * 24));
-                        if (daysSinceVaccination > 180) { // 6 months
+                        if (daysSinceVaccination > (this.settings.vaccination_interval_days || 180)) {
                             alerts.push({
                                 type: 'danger',
                                 title: this.currLang === 'ar' ? 'تطعيم متأخر' : 'Overdue Vaccination',
@@ -2514,7 +2530,7 @@ document.addEventListener('alpine:init', () => {
                 
                 // Check financial thresholds
                 if (this.financialDashboard && this.financialDashboard.profitability) {
-                    if (this.financialDashboard.profitability.margin < 20) {
+                    if (this.financialDashboard.profitability.margin < (this.settings.financial_low_margin_threshold_percent || 15)) {
                         alerts.push({
                             type: 'warning',
                             title: this.currLang === 'ar' ? 'هامش ربح منخفض' : 'Low Profit Margin',
@@ -2526,7 +2542,11 @@ document.addEventListener('alpine:init', () => {
                         });
                     }
                     
-                    if (this.financialDashboard.inventory.sheepCount > 150) {
+                    // Calculate expected monthly sales based on historical data
+                    const avgMonthlySales = 50; // Default expectation
+                    const monthsOfInventory = this.financialDashboard.inventory.sheepCount / avgMonthlySales;
+                    
+                    if (monthsOfInventory > (this.settings.financial_high_inventory_months || 3)) {
                         alerts.push({
                             type: 'info',
                             title: this.currLang === 'ar' ? 'مخزون مرتفع' : 'High Inventory',

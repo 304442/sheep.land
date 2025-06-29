@@ -5,10 +5,10 @@ const registerHook = (collection, event, handler) => {
             else if (event === 'afterCreate') $app.onRecordAfterCreateRequest(collection, handler);
             else if (event === 'beforeUpdate') $app.onRecordBeforeUpdateRequest(collection, handler);
         } else {
-            console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: $app not available.`);
+            // Hook registration skipped - $app not available
         }
     } catch (error) {
-        console.error(`HOOK REGISTRATION FAILED for ${collection} - ${event}: ${error}`);
+        // Hook registration failed
     }
 };
 
@@ -38,7 +38,7 @@ registerHook("orders", "beforeCreate", (e) => {
         appSettings = dao.findFirstRecordByFilter("settings", "id!=''");
         if (!appSettings) throw new Error("Application settings not found.");
     } catch (err) {
-        console.error(`[OrderHook] Failed to fetch settings: ${err}`);
+        // Settings fetch failed
         throw new Error("Server configuration error. Please contact support.");
     }
     const defaultServiceFeeEGP = appSettings.getFloat("servFeeEGP") || 0;
@@ -54,7 +54,7 @@ registerHook("orders", "beforeCreate", (e) => {
         try {
             product = dao.findRecordById("products", clientLineItem.item_key_pb);
         } catch (err) {
-            console.error(`[OrderHook] Product lookup failed: ${clientLineItem.item_key_pb}`);
+            // Product lookup failed
             throw new Error(`Product "${clientLineItem.name_en || clientLineItem.item_key_pb}" not found.`);
         }
 
@@ -165,7 +165,7 @@ registerHook("orders", "beforeCreate", (e) => {
 
     const totalAmountDueEGP = calculatedSubtotalEGP + calculatedTotalServiceFeeEGP + deliveryFeeAppliedEGP + onlinePaymentFeeAppliedEGP;
     if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) {
-        console.error(`[OrderHook] Invalid totalAmountDueEGP: ${totalAmountDueEGP}`);
+        // Invalid total calculation
         throw new Error("Internal error calculating total. Please contact support.");
     }
     record.set("total_amount_due_egp", totalAmountDueEGP);
@@ -193,7 +193,7 @@ registerHook("orders", "beforeCreate", (e) => {
             record.set("user_agent_string", e.httpContext.request().header.get("User-Agent"));
         }
     } catch (ipErr) { 
-        console.warn(`[OrderHook] Could not set IP/UserAgent: ${ipErr}`); 
+        // Could not set IP/UserAgent 
     }
 
     for (const update of productStockUpdates) {
@@ -201,7 +201,7 @@ registerHook("orders", "beforeCreate", (e) => {
         try {
             dao.saveRecord(update.productRecord);
         } catch (err) {
-            console.error(`[OrderHook] Failed to update stock for ${update.productRecord.getString("item_key")}: ${err}`);
+            // Stock update failed
             throw new Error(`Failed to update product stock. Order not created.`);
         }
     }
@@ -223,7 +223,7 @@ registerHook("orders", "afterCreate", (e) => {
             senderName = appSettings.getString("app_email_sender_name");
         }
     } catch (err) {
-        console.warn(`[OrderHook] Could not fetch app settings for email. Using defaults.`);
+        // Could not fetch app settings for email - using defaults
     }
 
     const enableEmailConfirmation = true; 
@@ -385,14 +385,14 @@ registerHook("orders", "afterCreate", (e) => {
             
             message.setHtml(emailBody);
             $app.mails.send(message);
-            console.log(`[OrderHook] ✅ Confirmation email sent for order ${record.getString("order_id_text")} to ${customerEmail}.`);
+            // Confirmation email sent successfully
         } catch (err) {
-            console.error(`[OrderHook] ❌ Failed to send email for order ${record.getString("order_id_text")}: ${err}`);
+            // Failed to send confirmation email
         }
     } else if (customerEmail && !($app && typeof $app.newMailMessage === 'function')) {
-        console.warn(`[OrderHook] ⚠️ Email for ${record.getString("order_id_text")} not sent: SMTP not configured.`);
+        // Email not sent - SMTP not configured
     } else if (!customerEmail) {
-        console.warn(`[OrderHook] ⚠️ Email for ${record.getString("order_id_text")} not sent: No customer email.`);
+        // Email not sent - no customer email provided
     }
 });
 
@@ -403,7 +403,7 @@ registerHook("orders", "beforeUpdate", (e) => {
     try {
         originalRecord = dao.findRecordById("orders", record.id);
     } catch (err) { 
-        console.warn(`[OrderHook] Could not find original record ${record.id}.`);
+        // Could not find original record
         return; 
     }
 
@@ -437,7 +437,7 @@ registerHook("orders", "beforeUpdate", (e) => {
                         dao.saveRecord(product);
                         stockUpdateNotes += `Restocked ${quantityToRestock} of ${product.getString("variant_name_en") || lineItem.name_en}. `;
                     } catch (err) {
-                         console.error(`[OrderHook] Failed to restock product ${productID}: ${err}`);
+                         // Failed to restock product
                          stockUpdateNotes += `STOCK INCREMENT FAILED for product ${productID}. `;
                     }
                 }

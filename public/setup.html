@@ -433,13 +433,21 @@
         const time = new Date().toTimeString().slice(0,8);
         const p = document.createElement('p');
         p.className = `l${type[0].toLowerCase()}`;
-        let logMessage = `<span style="color:#666">${time}</span> ${message}`;
+        
+        // Create time span safely
+        const timeSpan = document.createElement('span');
+        timeSpan.style.color = '#666';
+        timeSpan.textContent = time;
+        p.appendChild(timeSpan);
+        
+        // Add message text
+        p.appendChild(document.createTextNode(' ' + message));
+        
         if (data && typeof data === 'object') {
             const pre = document.createElement('pre');
             pre.textContent = JSON.stringify(data, null, 1);
-            logMessage += pre.outerHTML; 
+            p.appendChild(pre);
         }
-        p.innerHTML = logMessage; 
         outputDiv.appendChild(p);
         outputDiv.scrollTop = outputDiv.scrollHeight;
     };
@@ -3367,8 +3375,8 @@
         "users": [
                 {
                         "email": "admin@sheep.land",
-                        "password": "changeThisPassword123!",
-                        "passwordConfirm": "changeThisPassword123!",
+                        "password": "",
+                        "passwordConfirm": "",
                         "name": "Admin User",
                         "phone": "+201234567890",
                         "country": "Egypt",
@@ -4469,7 +4477,7 @@
     }
     
     function updateValidationDisplay(validationDiv, textarea, result) {
-        validationDiv.innerHTML = '';
+        validationDiv.textContent = '';
         
         const statusSpan = document.createElement('span');
         statusSpan.textContent = result.message;
@@ -4539,20 +4547,41 @@
             if (response.ok) {
                 const setupInfo = document.createElement('div');
                 setupInfo.className = 'setup-info';
-                setupInfo.innerHTML = `
-                    <p><strong>✅ PocketBase is already running!</strong></p>
-                    <p>It appears PocketBase is already configured and running. You can:</p>
-                    <div style="margin-top: 8px;">
-                        <button onclick="window.location.href='/'">🏠 Go to Main Site</button>
-                        <button onclick="window.location.href='/_'">⚙️ Open PocketBase Admin</button>
-                        <button onclick="this.parentElement.parentElement.style.display='none'">🔧 Continue with Setup (Advanced)</button>
-                    </div>
-                `;
+                // Create elements safely
+                const p1 = document.createElement('p');
+                const strong = document.createElement('strong');
+                strong.textContent = '✅ PocketBase is already running!';
+                p1.appendChild(strong);
+                setupInfo.appendChild(p1);
+                
+                const p2 = document.createElement('p');
+                p2.textContent = 'It appears PocketBase is already configured and running. You can:';
+                setupInfo.appendChild(p2);
+                
+                const buttonDiv = document.createElement('div');
+                buttonDiv.style.marginTop = '8px';
+                
+                const btn1 = document.createElement('button');
+                btn1.textContent = '🏠 Go to Main Site';
+                btn1.onclick = () => window.location.href = '/';
+                
+                const btn2 = document.createElement('button');
+                btn2.textContent = '⚙️ Open PocketBase Admin';
+                btn2.onclick = () => window.location.href = '/_';
+                
+                const btn3 = document.createElement('button');
+                btn3.textContent = '🔧 Continue with Setup (Advanced)';
+                btn3.onclick = () => setupInfo.style.display = 'none';
+                
+                buttonDiv.appendChild(btn1);
+                buttonDiv.appendChild(btn2);
+                buttonDiv.appendChild(btn3);
+                setupInfo.appendChild(buttonDiv);
                 document.querySelector('.c').insertBefore(setupInfo, document.querySelector('.c').children[1]);
             }
         } catch (error) {
             // PocketBase not running, which is expected for initial setup
-            console.log('PocketBase not detected, ready for initial setup');
+            // PocketBase not detected, ready for initial setup
         }
     }
     
@@ -4573,7 +4602,7 @@
             return { success: true, result };
         } catch (error) {
             log(`❌ ${operationName} FAILED: ${error.message}`, 'e');
-            console.error(`${operationName} error:`, error);
+            // Operation error logged internally
             if (error.response && error.response.data) {
                 log('📋 Server error details:', 'e', error.response.data);
             } else if (error.data) {
@@ -5145,7 +5174,7 @@
 
     runFullSetupButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
-        outputDiv.innerHTML = ''; 
+        outputDiv.textContent = ''; 
         log('🚀 === FULL SETUP PROCESS STARTED ===', 'i');
         pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
@@ -5172,7 +5201,7 @@
 
     runSchemaOnlyButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
-        outputDiv.innerHTML = ''; 
+        outputDiv.textContent = ''; 
         log('📋 === SCHEMA ONLY SETUP STARTED ===', 'i');
         pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
@@ -5193,7 +5222,7 @@
 
     runSeedOnlyButton.onclick = async () => {
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton].forEach(b => b.disabled = true);
-        outputDiv.innerHTML = ''; 
+        outputDiv.textContent = ''; 
         log('🌱 === SEED DATA ONLY STARTED ===', 'i');
         pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
@@ -5286,7 +5315,7 @@
         }
         
         [runFullSetupButton, runSchemaOnlyButton, runSeedOnlyButton, clearDatabaseButton].forEach(b => b.disabled = true);
-        outputDiv.innerHTML = ''; 
+        outputDiv.textContent = ''; 
         log('🗑️ === DATABASE CLEAR STARTED ===', 'i');
         pbUrl = pbUrlInput.value;
         const pb = new PocketBase(pbUrl);
@@ -5318,20 +5347,17 @@
     seedTextarea.value = JSON.stringify(seedData, null, 2);
     
     // Debug: Log what seed data contains
-    console.log('Seed data keys:', Object.keys(seedData));
-    console.log('farm_sheep exists?', !!seedData.farm_sheep);
-    console.log('farm_sheep length:', seedData.farm_sheep ? seedData.farm_sheep.length : 0);
+    // Validate seed data structure
     
     // Additional debug: parse it back and check
     try {
         const parsedBack = JSON.parse(seedTextarea.value);
-        console.log('Parsed back keys:', Object.keys(parsedBack));
-        console.log('Parsed farm_sheep exists?', !!parsedBack.farm_sheep);
+        // Validate parsed data structure
         if (!parsedBack.farm_sheep) {
-            console.error('farm_sheep missing after JSON.stringify/parse cycle!');
+            log('Warning: farm_sheep data may be missing', 'w');
         }
     } catch (e) {
-        console.error('Failed to parse seed data back:', e);
+        log('Failed to parse seed data', 'e');
     }
     
     // Validate on load by triggering input events
