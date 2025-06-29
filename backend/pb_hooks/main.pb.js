@@ -1,5 +1,5 @@
 // PocketBase Hooks for Sheep Land Egypt
-// Updated to match latest PocketBase API documentation
+// Updated for PocketBase v0.28.4 API
 
 const sacrificeDayMap = { 
     "day1_10_dhul_hijjah": { "en": "Day 1 of Eid (10th Dhul Hijjah)", "ar": "اليوم الأول (10 ذو الحجة)" },
@@ -10,7 +10,10 @@ const sacrificeDayMap = {
 
 // Before Create Hook for Orders
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "orders") return;
+    if (e.collection.name !== "orders") {
+        e.next();
+        return;
+    }
     
     const record = e.record;
     const lineItemsData = JSON.parse(JSON.stringify(record.get("line_items"))); 
@@ -172,16 +175,20 @@ onRecordCreateRequest((e) => {
         record.set("order_status", "confirmed_pending_payment");
     }
 
-    if (e.requestInfo.auth && e.requestInfo.auth.id) {
-        record.set("user", e.requestInfo.auth.id);
+    // Get auth record from httpContext
+    const authRecord = e.httpContext.get("authRecord");
+    if (authRecord && authRecord.id) {
+        record.set("user", authRecord.id);
     }
 
     try {
-        if (e.requestInfo && e.requestInfo.realIp) {
-            record.set("user_ip_address", e.requestInfo.realIp);
+        const realIP = e.httpContext.realIP();
+        if (realIP) {
+            record.set("user_ip_address", realIP);
         }
-        if (e.requestInfo && e.requestInfo.userAgent) {
-            record.set("user_agent_string", e.requestInfo.userAgent);
+        const userAgent = e.httpContext.request().header.get("User-Agent");
+        if (userAgent) {
+            record.set("user_agent_string", userAgent);
         }
     } catch (ipErr) { 
         // Could not set IP/UserAgent 
@@ -196,11 +203,17 @@ onRecordCreateRequest((e) => {
             throw new BadRequestError(`Failed to update product stock. Order not created.`);
         }
     }
-});
+    
+    // Continue with the request
+    e.next();
+}, "orders");
 
 // After Create Hook for Orders
-onRecordAfterCreateSuccess((e) => {
-    if (e.collection.name !== "orders") return;
+onRecordAfterCreateRequest((e) => {
+    if (e.collection.name !== "orders") {
+        e.next();
+        return;
+    }
     
     const record = e.record;
     const customerEmail = record.get("customer_email");
@@ -389,11 +402,17 @@ onRecordAfterCreateSuccess((e) => {
     } else if (!customerEmail) {
         // Email not sent: No customer email provided
     }
-});
+    
+    // Continue processing
+    e.next();
+}, "orders");
 
 // Before Update Hook for Orders
 onRecordUpdateRequest((e) => {
-    if (e.collection.name !== "orders") return;
+    if (e.collection.name !== "orders") {
+        e.next();
+        return;
+    }
     
     const record = e.record; 
     let originalRecord;
@@ -401,6 +420,7 @@ onRecordUpdateRequest((e) => {
         originalRecord = $app.dao().findRecordById("orders", record.getId());
     } catch (err) { 
         // Could not find original record
+        e.next();
         return; 
     }
 
@@ -444,5 +464,7 @@ onRecordUpdateRequest((e) => {
             record.set("admin_notes", (record.get("admin_notes") || "" + `\nOrder cancelled (old status: ${oldStatus}, payment: ${paymentStatus}). Stock not auto-incremented.`).trim());
         }
     }
-});
-
+    
+    // Continue processing
+    e.next();
+}, "orders");

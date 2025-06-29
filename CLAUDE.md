@@ -88,6 +88,27 @@ sheep.land/                     # 🏗️ Production-ready repository
 - **orders** - Complete order lifecycle with delivery tracking
 - **settings** - App configuration, SMTP, payment details
 
+### Products Collection Fields
+- `item_key` - Unique product identifier
+- `product_category` - Category (udheya, livesheep_general, meat_cuts, etc.)
+- `variant_name_en` - English product name
+- `variant_name_ar` - Arabic product name
+- `base_price_egp` - Product price (NOT price_egp)
+- `stock_available_pb` - Available stock (NOT current_stock_units)
+- `is_active` - Product availability status
+- `avg_weight_kg` - Average weight for livestock
+
+### Orders Collection Fields
+- `customer_name` - Customer full name
+- `customer_email` - Customer email
+- `customer_phone` - Phone number (NOT phone)
+- `delivery_option` - home_delivery, international_shipping, pickup
+- `delivery_city_id` - Delivery area ID
+- `payment_method` - Payment method selected
+- `line_items` - Order items array
+- `subtotal_amount_egp` - Subtotal before fees
+- `total_amount_due_egp` - Final total (NOT total_amount_egp)
+
 ### Farm Management Collections
 - **farm_sheep** - Livestock tracking with health status
 - **feed_inventory** - Feed stock management
@@ -100,16 +121,83 @@ sheep.land/                     # 🏗️ Production-ready repository
 - **email_templates** - Multilingual notifications
 - **audit_logs** - Security audit trail
 
-## Development Patterns
+## ⚠️ CRITICAL: PocketBase v0.28.4 Patterns
+
+### ✅ CORRECT Hook Patterns (ALWAYS USE THESE)
+```javascript
+// CORRECT: Must call e.next() to continue processing
+onRecordCreateRequest((e) => {
+    if (e.collection.name !== "orders") {
+        e.next(); // CRITICAL: Call next() before return
+        return;
+    }
+    
+    // Process the record
+    const record = e.record;
+    const value = record.get("field_name");
+    
+    // Validation
+    if (!value) {
+        throw new BadRequestError("Field required");
+    }
+    
+    // CRITICAL: Always call e.next() at the end
+    e.next();
+}, "orders"); // Optional: specify collection name
+
+// CORRECT: Access auth from httpContext
+onRecordCreateRequest((e) => {
+    const authRecord = e.httpContext.get("authRecord");
+    if (authRecord) {
+        record.set("user_id", authRecord.id);
+    }
+    e.next();
+});
+
+// CORRECT: After hooks also need e.next()
+onRecordAfterCreateRequest((e) => {
+    // Do something after creation
+    console.log("Record created:", e.record.id);
+    e.next(); // CRITICAL: Don't forget!
+});
+
+// CORRECT: Router endpoints
+routerAdd("GET", "/api/custom/endpoint", (c) => {
+    const authRecord = c.get("authRecord");
+    return c.json(200, { data: "value" });
+});
+```
+
+### ❌ WRONG Patterns (NEVER USE)
+```javascript
+// WRONG: Missing e.next()
+onRecordCreateRequest((e) => {
+    if (e.collection.name !== "orders") return; // WRONG: No e.next()
+    // Process...
+}); // WRONG: No e.next() at end
+
+// WRONG: Direct e.authRecord access
+const authRecord = e.authRecord; // WRONG
+const authRecord = e.httpContext.get("authRecord"); // CORRECT
+
+// WRONG: Non-existent hook names
+onRecordAfterCreateSuccess((e) => {}); // WRONG: Doesn't exist
+onRecordBeforeCreateRequest((e) => {}); // WRONG: Doesn't exist
+onRecordAfterCreateRequest((e) => {}); // CORRECT
+
+// WRONG: Old API patterns
+e.requestInfo.auth.id // WRONG
+e.httpContext.get("authRecord").id // CORRECT
+```
 
 ### PocketBase Migrations (JavaScript)
 ```javascript
 migrate((app) => {
-    // Use 'app' not 'db' as parameter
+    // CORRECT: Use 'app' not 'db' as parameter
     const collection = new Collection({
         name: "products",
         type: "base",
-        fields: [  // Use 'fields' not 'schema'
+        fields: [  // CORRECT: Use 'fields' not 'schema'
             {
                 name: "item_key",
                 type: "text",
@@ -119,28 +207,12 @@ migrate((app) => {
             }
         ]
     });
-    app.save(collection);
+    app.save(collection); // CORRECT: Use app.save()
 });
 ```
 
-### PocketBase Hooks (Latest API)
+### Email Notifications
 ```javascript
-onRecordCreateRequest((e) => {
-    if (e.collection.name !== "orders") return;
-    
-    // Access fields
-    const fieldValue = e.record.get("field_name");
-    
-    // Validation
-    if (!fieldValue) {
-        throw new BadRequestError("Field required");
-    }
-    
-    // Save related records
-    $app.dao().save(otherRecord);
-});
-
-// Email notifications
 const message = new MailerMessage({
     from: { address: "orders@sheep.land", name: "Sheep Land" },
     to: [{ address: customerEmail }],
@@ -167,6 +239,19 @@ Alpine.data('productCatalog', () => ({
     }
 }));
 ```
+
+## Common Field Name Mappings
+
+### Products
+- ✅ `base_price_egp` (NOT ❌ `price_egp`)
+- ✅ `stock_available_pb` (NOT ❌ `current_stock_units`)
+- ✅ `product_category` (NOT ❌ `category_pb`)
+
+### Orders
+- ✅ `customer_phone` (NOT ❌ `phone`)
+- ✅ `customer_email` (NOT ❌ `email`)
+- ✅ `total_amount_due_egp` (NOT ❌ `total_amount_egp`)
+- ✅ `delivery_option` (NOT ❌ `delivery_area`)
 
 ## Admin Access
 
@@ -195,6 +280,8 @@ Alpine.data('productCatalog', () => ({
 4. **Admin Security**: Double-layer protection for admin features
 5. **Rate Limiting**: Implemented to prevent API abuse
 6. **Audit Logging**: Track all sensitive operations
+7. **Hook API Fix**: All hooks must call `e.next()` to continue processing
+8. **Auth Context**: Use `e.httpContext.get("authRecord")` not `e.authRecord`
 
 ## Business Logic
 

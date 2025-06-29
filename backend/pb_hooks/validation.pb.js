@@ -44,7 +44,10 @@ function validatePassword(password) {
 
 // User validation
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "users") return;
+    if (e.collection.name !== "users") {
+        e.next();
+        return;
+    }
     
     const record = e.record;
     
@@ -71,16 +74,22 @@ onRecordCreateRequest((e) => {
     if (record.get("is_admin") === null) {
         record.set("is_admin", false);
     }
-}, "validate_user_create");
+    
+    // Continue processing
+    e.next();
+}, "users");
 
 // Order validation
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "orders") return;
+    if (e.collection.name !== "orders") {
+        e.next();
+        return;
+    }
     
     const record = e.record;
     
     // Validate phone number
-    const phone = record.get("phone");
+    const phone = record.get("customer_phone");
     if (!phone) {
         throw new BadRequestError("Phone number is required");
     }
@@ -90,16 +99,16 @@ onRecordCreateRequest((e) => {
     }
     
     // Validate email
-    const email = record.get("email");
+    const email = record.get("customer_email");
     if (email && !validateEmail(email)) {
         throw new BadRequestError("Invalid email format");
     }
     
-    // Validate delivery area
-    const deliveryArea = record.get("delivery_area");
-    const validAreas = ["cairo", "giza", "alexandria", "international"];
-    if (!validAreas.includes(deliveryArea)) {
-        throw new BadRequestError("Invalid delivery area");
+    // Validate delivery option
+    const deliveryOption = record.get("delivery_option");
+    const validOptions = ["home_delivery", "international_shipping", "pickup"];
+    if (deliveryOption && !validOptions.includes(deliveryOption)) {
+        throw new BadRequestError("Invalid delivery option");
     }
     
     // Validate order quantity limits
@@ -123,34 +132,39 @@ onRecordCreateRequest((e) => {
     }
     
     // Check minimum order amount
-    const totalAmount = record.get("total_amount_egp");
-    if (totalAmount < minAmount) {
+    const totalAmount = record.get("total_amount_due_egp") || record.get("subtotal_amount_egp");
+    if (totalAmount && totalAmount < minAmount) {
         throw new BadRequestError(`Minimum order amount is ${minAmount} EGP`);
     }
     
-}, "validate_order_create");
+    // Continue processing
+    e.next();
+}, "orders");
 
 // Product validation
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "products") return;
+    if (e.collection.name !== "products") {
+        e.next();
+        return;
+    }
     
     const record = e.record;
     
     // Validate price
-    const price = record.get("price_egp");
+    const price = record.get("base_price_egp");
     if (price <= 0) {
         throw new BadRequestError("Price must be greater than 0");
     }
     
     // Validate stock
-    const stock = record.get("current_stock_units");
+    const stock = record.get("stock_available_pb");
     if (stock < 0) {
         throw new BadRequestError("Stock cannot be negative");
     }
     
     // Validate category
-    const category = record.get("category_pb");
-    const validCategories = ["udheya", "local_sheep", "meat_cuts", "gathering_packages"];
+    const category = record.get("product_category");
+    const validCategories = ["udheya", "livesheep_general", "meat_cuts", "gathering_package", "live_sheep"];
     if (!validCategories.includes(category)) {
         throw new BadRequestError("Invalid product category");
     }
@@ -161,11 +175,16 @@ onRecordCreateRequest((e) => {
         throw new BadRequestError("Item key must contain only lowercase letters, numbers, and underscores");
     }
     
-}, "validate_product_create");
+    // Continue processing
+    e.next();
+}, "products");
 
 // Promo code validation on update
 onRecordUpdateRequest((e) => {
-    if (e.collection.name !== "promo_codes") return;
+    if (e.collection.name !== "promo_codes") {
+        e.next();
+        return;
+    }
     
     const record = e.record;
     const oldRecord = e.record.originalCopy();
@@ -191,11 +210,16 @@ onRecordUpdateRequest((e) => {
         throw new BadRequestError(`Cannot set max uses below current usage (${currentUsage})`);
     }
     
-}, "validate_promo_update");
+    // Continue processing
+    e.next();
+}, "promo_codes");
 
 // Farm sheep validation
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "farm_sheep") return;
+    if (e.collection.name !== "farm_sheep") {
+        e.next();
+        return;
+    }
     
     const record = e.record;
     
@@ -223,4 +247,6 @@ onRecordCreateRequest((e) => {
         throw new BadRequestError("Purchase price cannot be negative");
     }
     
-}, "validate_farm_sheep_create");
+    // Continue processing
+    e.next();
+}, "farm_sheep");

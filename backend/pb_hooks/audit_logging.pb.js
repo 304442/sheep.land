@@ -21,7 +21,10 @@ function logAudit(action, entityType, entityId, oldData, newData, userId) {
 
 // Log order status changes
 onRecordAfterUpdateRequest((e) => {
-    if (e.collection.name !== "orders") return;
+    if (e.collection.name !== "orders") {
+        e.next();
+        return;
+    }
     
     const oldStatus = e.record.originalCopy().get("status");
     const newStatus = e.record.get("status");
@@ -33,14 +36,20 @@ onRecordAfterUpdateRequest((e) => {
             e.record.id,
             { status: oldStatus },
             { status: newStatus },
-            e.authRecord?.id
+            e.httpContext.get("authRecord")?.id
         );
     }
-}, "audit_order_status");
+    
+    e.next();
+}, "orders");
 
 // Log admin actions on products
 onRecordAfterCreateRequest((e) => {
-    if (e.collection.name !== "products" || !e.authRecord?.get("is_admin")) return;
+    const authRecord = e.httpContext.get("authRecord");
+    if (e.collection.name !== "products" || !authRecord?.get("is_admin")) {
+        e.next();
+        return;
+    }
     
     logAudit(
         "product_created",
@@ -48,12 +57,18 @@ onRecordAfterCreateRequest((e) => {
         e.record.id,
         null,
         e.record.publicExport(),
-        e.authRecord.id
+        authRecord.id
     );
-}, "audit_product_create");
+    
+    e.next();
+}, "products");
 
 onRecordAfterUpdateRequest((e) => {
-    if (e.collection.name !== "products" || !e.authRecord?.get("is_admin")) return;
+    const authRecord = e.httpContext.get("authRecord");
+    if (e.collection.name !== "products" || !authRecord?.get("is_admin")) {
+        e.next();
+        return;
+    }
     
     logAudit(
         "product_updated",
@@ -61,12 +76,18 @@ onRecordAfterUpdateRequest((e) => {
         e.record.id,
         e.record.originalCopy().publicExport(),
         e.record.publicExport(),
-        e.authRecord.id
+        authRecord.id
     );
-}, "audit_product_update");
+    
+    e.next();
+}, "products");
 
 onRecordAfterDeleteRequest((e) => {
-    if (e.collection.name !== "products" || !e.authRecord?.get("is_admin")) return;
+    const authRecord = e.httpContext.get("authRecord");
+    if (e.collection.name !== "products" || !authRecord?.get("is_admin")) {
+        e.next();
+        return;
+    }
     
     logAudit(
         "product_deleted",
@@ -74,14 +95,20 @@ onRecordAfterDeleteRequest((e) => {
         e.record.id,
         e.record.publicExport(),
         null,
-        e.authRecord.id
+        authRecord.id
     );
-}, "audit_product_delete");
+    
+    e.next();
+}, "products");
 
 // Log financial transactions
 onRecordAfterCreateRequest((e) => {
-    if (e.collection.name !== "financial_transactions") return;
+    if (e.collection.name !== "financial_transactions") {
+        e.next();
+        return;
+    }
     
+    const authRecord = e.httpContext.get("authRecord");
     logAudit(
         "financial_transaction_created",
         "financial_transactions",
@@ -92,6 +119,8 @@ onRecordAfterCreateRequest((e) => {
             amount: e.record.get("amount"),
             category: e.record.get("category")
         },
-        e.authRecord?.id
+        authRecord?.id
     );
-}, "audit_financial_create");
+    
+    e.next();
+}, "financial_transactions");

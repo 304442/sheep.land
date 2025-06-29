@@ -9,9 +9,13 @@ function requireAdmin(authRecord) {
 
 // Farm sheep inventory calculations
 onRecordViewRequest((e) => {
-    if (e.collection.name !== "farm_sheep") return;
+    if (e.collection.name !== "farm_sheep") {
+        e.next();
+        return;
+    }
     
-    requireAdmin(e.authRecord);
+    const authRecord = e.httpContext.get("authRecord");
+    requireAdmin(authRecord);
     
     // Add calculated fields
     const record = e.record;
@@ -26,13 +30,19 @@ onRecordViewRequest((e) => {
     const currentWeight = record.get("current_weight") || 0;
     const pricePerKg = 150; // Default market price
     record.set("estimated_value", currentWeight * pricePerKg);
-}, "farm_sheep_calculations");
+    
+    e.next();
+}, "farm_sheep");
 
 // Feed inventory monitoring
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "feed_inventory") return;
+    if (e.collection.name !== "feed_inventory") {
+        e.next();
+        return;
+    }
     
-    requireAdmin(e.authRecord);
+    const authRecord = e.httpContext.get("authRecord");
+    requireAdmin(authRecord);
     
     const record = e.record;
     const quantity = record.get("quantity_kg") || 0;
@@ -48,13 +58,19 @@ onRecordCreateRequest((e) => {
     // Calculate total value
     const pricePerKg = record.get("price_per_kg") || 0;
     record.set("total_value", quantity * pricePerKg);
-}, "feed_inventory_calculations");
+    
+    e.next();
+}, "feed_inventory");
 
 // Health records validation
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "health_records") return;
+    if (e.collection.name !== "health_records") {
+        e.next();
+        return;
+    }
     
-    requireAdmin(e.authRecord);
+    const authRecord = e.httpContext.get("authRecord");
+    requireAdmin(authRecord);
     
     const record = e.record;
     const checkupDate = new Date(record.get("checkup_date"));
@@ -71,13 +87,19 @@ onRecordCreateRequest((e) => {
         nextCheckup.setDate(nextCheckup.getDate() + 14); // 2 weeks later
         record.set("next_checkup_date", nextCheckup.toISOString());
     }
-}, "health_record_validation");
+    
+    e.next();
+}, "health_records");
 
 // Financial transaction categorization
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "financial_transactions") return;
+    if (e.collection.name !== "financial_transactions") {
+        e.next();
+        return;
+    }
     
-    requireAdmin(e.authRecord);
+    const authRecord = e.httpContext.get("authRecord");
+    requireAdmin(authRecord);
     
     const record = e.record;
     const type = record.get("transaction_type");
@@ -94,7 +116,9 @@ onRecordCreateRequest((e) => {
     if (!record.get("transaction_date")) {
         record.set("transaction_date", new Date().toISOString());
     }
-}, "financial_transaction_processing");
+    
+    e.next();
+}, "financial_transactions");
 
 // Custom API endpoints for farm analytics
 routerAdd("GET", "/api/farm/analytics/overview", (c) => {

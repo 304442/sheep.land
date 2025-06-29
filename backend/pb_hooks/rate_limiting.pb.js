@@ -68,13 +68,18 @@ setInterval(() => {
 
 // Rate limit order creation
 onRecordCreateRequest((e) => {
-    if (e.collection.name !== "orders") return;
+    if (e.collection.name !== "orders") {
+        e.next();
+        return;
+    }
     
     const ip = e.httpContext.realIP();
     if (!checkRateLimit(ip, "orders", MAX_REQUESTS.orders)) {
         throw new BadRequestError("Too many requests. Please try again later.");
     }
-}, "rate_limit_orders");
+    
+    e.next();
+}, "orders");
 
 // Rate limit authentication attempts
 onRecordAuthRequest((e) => {
@@ -82,13 +87,16 @@ onRecordAuthRequest((e) => {
     if (!checkRateLimit(ip, "auth", MAX_REQUESTS.auth)) {
         throw new BadRequestError("Too many authentication attempts. Please try again later.");
     }
-}, "rate_limit_auth");
+    
+    e.next();
+});
 
 // General API rate limiting
 onRequest((e) => {
     // Skip admin dashboard and static files
     if (e.httpContext.path().startsWith("/_/") || 
         e.httpContext.path().startsWith("/api/files/")) {
+        e.next();
         return;
     }
     
@@ -98,5 +106,8 @@ onRequest((e) => {
             message: "Rate limit exceeded. Please slow down.",
             code: 429
         });
+        return; // Don't call next() when rate limited
     }
-}, "rate_limit_general");
+    
+    e.next();
+});
