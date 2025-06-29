@@ -564,7 +564,7 @@ document.addEventListener('alpine:init', () => {
                     });
                 }
 
-                const allProducts = await pb.collection('products').getFullList({ filter: 'is_active = true', sort:'+sort_order_type,+sort_order_variant'});
+                const allProducts = await pb.collection('products').getFullList({ filter: 'is_active=true', sort:'+sort_order_type,+sort_order_variant'});
                 
                 const categorizeProducts = (products, categoryFilter) => {
                     if (!products || !Array.isArray(products)) {
@@ -1562,7 +1562,7 @@ document.addEventListener('alpine:init', () => {
         async loadMarketPrices() {
             try {
                 const products = await this.pb.collection('products').getList(1, 50, {
-                    filter: 'is_active = true && product_category = "live_sheep"',
+                    filter: 'is_active=true && product_category="live_sheep"',
                     sort: '-price_per_kg_egp'
                 });
                 
@@ -1638,7 +1638,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 const records = await this.pb.collection('feasibility_analyses').getList(1, 10, {
                     sort: '-created',
-                    filter: `user = "${this.currentUser.id}"`
+                    filter: `user="${this.currentUser.id}"`
                 });
                 
                 this.savedAnalyses = records.items;
@@ -1681,7 +1681,7 @@ document.addEventListener('alpine:init', () => {
                 
                 const records = await this.pb.collection('farm_sheep').getList(1, 500, {
                     sort: '-created',
-                    filter: `user = "${this.currentUser.id}"`
+                    filter: `user="${this.currentUser.id}"`
                 });
                 
                 this.farmSheep = records.items;
@@ -1992,7 +1992,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 // Get all healthy sheep ready for sale (40kg+)
                 const readyForSale = await this.pb.collection('farm_sheep').getFullList({
-                    filter: `status = "healthy" && weight_kg >= ${this.settings.sheep_market_ready_weight_kg || 40}`,
+                    filter: `status="healthy" && weight_kg>=${this.settings.sheep_market_ready_weight_kg || 40}`,
                     sort: '-weight_kg'
                 });
                 
@@ -2025,7 +2025,7 @@ document.addEventListener('alpine:init', () => {
                     
                     try {
                         const products = await this.pb.collection('products').getList(1, 1, {
-                            filter: `item_key ~ "${productKey}" || (type_key = "${data.breed.toLowerCase()}_sheep" && weight_range_text_en ~ "${data.weightRange}")`
+                            filter: `item_key ~ "${productKey}" || (type_key="${data.breed.toLowerCase()}_sheep" && weight_range_text_en ~ "${data.weightRange}")`
                         });
                         
                         if (products.items.length > 0) {
@@ -2061,15 +2061,15 @@ document.addEventListener('alpine:init', () => {
             try {
                 // Get actual farm data
                 const farmSheep = await this.pb.collection('farm_sheep').getFullList({
-                    filter: `user = "${this.currentUser.id}"`
+                    filter: `user="${this.currentUser.id}"`
                 });
                 
                 const orders = await this.pb.collection('orders').getFullList({
-                    filter: `user = "${this.currentUser.id}" && order_status = "delivered"`
+                    filter: `user="${this.currentUser.id}" && order_status="delivered"`
                 });
                 
                 const feedInventory = await this.pb.collection('feed_inventory').getFullList({
-                    filter: `user = "${this.currentUser.id}"`
+                    filter: `user="${this.currentUser.id}"`
                 });
                 
                 // Calculate actual metrics
@@ -2105,13 +2105,13 @@ document.addEventListener('alpine:init', () => {
         async autoCreateMarketProducts() {
             try {
                 const marketReadySheep = await this.pb.collection('farm_sheep').getFullList({
-                    filter: `status = "healthy" && weight_kg >= ${this.settings.sheep_market_ready_weight_kg || 40} && (notes !~ "LISTED")`
+                    filter: `status="healthy" && weight_kg>=${this.settings.sheep_market_ready_weight_kg || 40} && (notes !~ "LISTED")`
                 });
                 
                 for (const sheep of marketReadySheep) {
                     // Check if product already exists for this sheep
                     const existingProduct = await this.pb.collection('products').getList(1, 1, {
-                        filter: `item_key = "farm_sheep_${sheep.tag_id}"`
+                        filter: `item_key="farm_sheep_${sheep.tag_id}"`
                     });
                     
                     if (existingProduct.items.length === 0) {
@@ -2159,7 +2159,7 @@ document.addEventListener('alpine:init', () => {
         async processOrderFromFarmInventory(order) {
             try {
                 const orderItems = await this.pb.collection('order_items').getFullList({
-                    filter: `order = "${order.id}"`
+                    filter: `order="${order.id}"`
                 });
                 
                 for (const item of orderItems) {
@@ -2196,7 +2196,7 @@ document.addEventListener('alpine:init', () => {
         async calculateHealthcareExpenses(startDate, endDate) {
             try {
                 const checkups = await this.pb.collection('health_checkups').getFullList({
-                    filter: `user = "${this.currentUser.id}" && checkup_date >= "${startDate.toISOString()}" && checkup_date <= "${endDate.toISOString()}"`
+                    filter: `user="${this.currentUser.id}" && checkup_date>="${startDate.toISOString()}" && checkup_date<="${endDate.toISOString()}"`
                 });
                 return checkups.reduce((sum, checkup) => sum + (checkup.cost || 0), 0);
             } catch (e) {
@@ -2206,7 +2206,7 @@ document.addEventListener('alpine:init', () => {
         },
         
         // Update financial dashboard with real-time data
-        async updateFinancialDashboard() { if (!this.currentUser) return; try { const now = new Date(); const monthStart = new Date(now.getFullYear(), now.getMonth(), 1); const [orders, expenses, sheep] = await Promise.all([this.pb.collection('orders').getFullList({ filter: `user = "${this.currentUser.id}" && created >= "${monthStart.toISOString()}"` }), this.pb.collection('feed_inventory').getFullList({ filter: `user = "${this.currentUser.id}" && purchase_date >= "${monthStart.toISOString()}"` }), this.pb.collection('farm_sheep').getFullList({ filter: `user = "${this.currentUser.id}"` })]);
+        async updateFinancialDashboard() { if (!this.currentUser) return; try { const now = new Date(); const monthStart = new Date(now.getFullYear(), now.getMonth(), 1); const [orders, expenses, sheep] = await Promise.all([this.pb.collection('orders').getFullList({ filter: `user="${this.currentUser.id}" && created>="${monthStart.toISOString()}"` }), this.pb.collection('feed_inventory').getFullList({ filter: `user="${this.currentUser.id}" && purchase_date>="${monthStart.toISOString()}"` }), this.pb.collection('farm_sheep').getFullList({ filter: `user="${this.currentUser.id}"` })]);
                 
                 // Calculate revenue by category
                 const revenueByCategory = {};
@@ -2262,10 +2262,10 @@ document.addEventListener('alpine:init', () => {
             try {
                 const [sheep, breeding] = await Promise.all([
                     this.pb.collection('farm_sheep').getFullList({
-                        filter: `user = "${this.currentUser.id}"`
+                        filter: `user="${this.currentUser.id}"`
                     }),
                     this.pb.collection('breeding_records').getFullList({
-                        filter: `user = "${this.currentUser.id}" && actual_lambing_date = null`
+                        filter: `user="${this.currentUser.id}" && actual_lambing_date=null`
                     })
                 ]);
                 
@@ -2312,7 +2312,7 @@ document.addEventListener('alpine:init', () => {
                 // Create tasks that don't already exist
                 for (const task of tasks) {
                     const existing = await this.pb.collection('farm_tasks').getList(1, 1, {
-                        filter: `task_name = "${task.task_name}" && status != "completed"`
+                        filter: `task_name="${task.task_name}" && status!="completed"`
                     });
                     
                     if (existing.items.length === 0) {
@@ -2337,7 +2337,7 @@ document.addEventListener('alpine:init', () => {
             
             try {
                 const breedingRecords = await this.pb.collection('breeding_records').getFullList({
-                    filter: `user = "${this.currentUser.id}" && status = "confirmed" && actual_lambing = null`
+                    filter: `user="${this.currentUser.id}" && status="confirmed" && actual_lambing=null`
                 });
                 
                 for (const record of breedingRecords) {
@@ -2381,7 +2381,7 @@ document.addEventListener('alpine:init', () => {
                             
                             // Check if pre-order already exists
                             const existing = await this.pb.collection('products').getList(1, 1, {
-                                filter: `item_key = "${preOrderProduct.item_key}"`
+                                filter: `item_key="${preOrderProduct.item_key}"`
                             });
                             
                             if (existing.items.length === 0) {
@@ -2404,13 +2404,13 @@ document.addEventListener('alpine:init', () => {
                 
                 // Update pregnant ewes' availability status
                 const pregnantEwes = await this.pb.collection('farm_sheep').getFullList({
-                    filter: `user = "${this.currentUser.id}" && status = "pregnant"`
+                    filter: `user="${this.currentUser.id}" && status="pregnant"`
                 });
                 
                 for (const ewe of pregnantEwes) {
                     // Remove from active product listings
                     const products = await this.pb.collection('products').getFullList({
-                        filter: `item_key ~ "${ewe.tag_id}" && is_active = true`
+                        filter: `item_key ~ "${ewe.tag_id}" && is_active=true`
                     });
                     
                     for (const product of products) {
@@ -2489,7 +2489,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 // Check low feed inventory
                 const feedInventory = await this.pb.collection('feed_inventory').getFullList({
-                    filter: `user = "${this.currentUser.id}"`
+                    filter: `user="${this.currentUser.id}"`
                 });
                 
                 feedInventory.forEach(feed => {
@@ -2508,7 +2508,7 @@ document.addEventListener('alpine:init', () => {
                 
                 // Check overdue vaccinations
                 const sheep = await this.pb.collection('farm_sheep').getFullList({
-                    filter: `user = "${this.currentUser.id}" && status != "sold" && status != "deceased"`
+                    filter: `user="${this.currentUser.id}" && status!="sold" && status!="deceased"`
                 });
                 
                 sheep.forEach(s => {
@@ -2531,7 +2531,7 @@ document.addEventListener('alpine:init', () => {
                 
                 // Check upcoming breeding events
                 const breeding = await this.pb.collection('breeding_records').getFullList({
-                    filter: `user = "${this.currentUser.id}" && status = "confirmed" && actual_lambing = null`
+                    filter: `user="${this.currentUser.id}" && status="confirmed" && actual_lambing=null`
                 });
                 
                 breeding.forEach(b => {
@@ -3327,7 +3327,7 @@ document.addEventListener('alpine:init', () => {
             this.clrErr('orders_fetch');
             try { 
                 const resultList = await this.pb.collection('orders').getFullList({ 
-                    filter: `user = "${this.currentUser.id}"`, 
+                    filter: `user="${this.currentUser.id}"`, 
                     sort: '-created' 
                 });
                 this.userOrders = resultList.map(order => ({ 
