@@ -1,0 +1,49 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((db) => {
+    // Add indexes for frequently queried fields
+    
+    // Orders table indexes
+    db.db().newQuery(`
+        CREATE INDEX IF NOT EXISTS idx_orders_user 
+        ON orders(user);
+        
+        
+        CREATE INDEX IF NOT EXISTS idx_orders_order_status 
+        ON orders(order_status);
+        
+        CREATE INDEX IF NOT EXISTS idx_orders_payment_status 
+        ON orders(payment_status);
+    `).execute();
+    
+    // Products table indexes
+    db.db().newQuery(`
+        CREATE INDEX IF NOT EXISTS idx_products_product_category 
+        ON products(product_category);
+        
+        CREATE INDEX IF NOT EXISTS idx_products_is_active 
+        ON products(is_active);
+        
+        CREATE INDEX IF NOT EXISTS idx_products_stock_available 
+        ON products(stock_available_pb);
+    `).execute();
+    
+
+}, (db) => {
+    // Remove indexes in reverse migration
+    const indexes = [
+        'idx_orders_user',
+        'idx_orders_order_status',
+        'idx_orders_payment_status',
+        'idx_products_product_category',
+        'idx_products_is_active',
+        'idx_products_stock_available'
+    ];
+    
+    indexes.forEach(indexName => {
+        try {
+            db.db().newQuery(`DROP INDEX IF EXISTS ${indexName}`).execute();
+        } catch (e) {
+            // Index might not exist
+        }
+    });
+});

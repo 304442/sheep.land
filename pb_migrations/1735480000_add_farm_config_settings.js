@@ -1,7 +1,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 migrate((db) => {
-    const dao = new Dao(db);
-    const collection = dao.findCollectionByNameOrId("settings");
+    // db is the app instance with DAO methods
+    const collection = db.findCollectionByNameOrId("settings");
     
     // Add farm management configuration fields
     const fields = [
@@ -105,16 +105,38 @@ migrate((db) => {
         }
     ];
     
-    // Add each field
+    // Add each field using the appropriate field type constructor
     fields.forEach(fieldConfig => {
-        const field = new SchemaField(fieldConfig);
-        collection.schema.addField(field);
+        let field;
+        switch (fieldConfig.type) {
+            case 'number':
+                field = new NumberField(fieldConfig);
+                break;
+            case 'text':
+                field = new TextField(fieldConfig);
+                break;
+            case 'bool':
+                field = new BoolField(fieldConfig);
+                break;
+            case 'select':
+                field = new SelectField(fieldConfig);
+                break;
+            case 'date':
+                field = new DateField(fieldConfig);
+                break;
+            case 'json':
+                field = new JSONField(fieldConfig);
+                break;
+            default:
+                throw new Error(`Unknown field type: ${fieldConfig.type}`);
+        }
+        collection.fields.add(field);
     });
     
-    return dao.saveCollection(collection);
+    return db.save(collection);
 }, (db) => {
-    const dao = new Dao(db);
-    const collection = dao.findCollectionByNameOrId("settings");
+    // db is the app instance with DAO methods
+    const collection = db.findCollectionByNameOrId("settings");
     
     // Remove fields in reverse migration
     const fieldNames = [
@@ -128,8 +150,8 @@ migrate((db) => {
     ];
     
     fieldNames.forEach(name => {
-        collection.schema.removeField(collection.schema.getFieldByName(name).id);
+        collection.fields.removeByName(name);
     });
     
-    return dao.saveCollection(collection);
+    return db.save(collection);
 });

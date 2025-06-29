@@ -4,10 +4,10 @@ migrate((db) => {
     // This runs as a separate migration after the field is added
     
     try {
-        const dao = new Dao(db);
+        // db is the app instance with DAO methods
         
         // Get all orders that don't have a user set
-        const orders = dao.findRecordsByFilter(
+        const orders = db.findRecordsByFilter(
             "orders",
             "user = null || user = ''",
             "",
@@ -21,10 +21,10 @@ migrate((db) => {
             if (customerEmail) {
                 try {
                     // Find user by email
-                    const user = dao.findFirstRecordByData("users", "email", customerEmail);
+                    const user = db.findFirstRecordByData("users", "email", customerEmail);
                     if (user) {
                         order.set("user", user.getId());
-                        dao.saveRecord(order);
+                        db.save(order);
                     }
                 } catch (e) {
                     // User not found, skip

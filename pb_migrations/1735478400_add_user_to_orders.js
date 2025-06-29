@@ -1,45 +1,36 @@
 /// <reference path="../pb_data/types.d.ts" />
 migrate((db) => {
-    const dao = new Dao(db);
-    const collection = dao.findCollectionByNameOrId("orders");
+    // In PocketBase v0.28.4, db is the app instance with DAO methods
+    const collection = db.findCollectionByNameOrId("orders");
     
     // Add user field
-    const userField = new SchemaField({
-        "system": false,
-        "id": "userrelation",
+    const userField = new RelationField({
         "name": "user",
-        "type": "relation",
-        "required": false,
-        "presentable": false,
-        "unique": false,
-        "options": {
-            "collectionId": "_pb_users_auth_",
-            "cascadeDelete": false,
-            "minSelect": null,
-            "maxSelect": 1,
-            "displayFields": ["email"]
-        }
+        "collectionId": "_pb_users_auth_",
+        "cascadeDelete": false,
+        "minSelect": null,
+        "maxSelect": 1
     });
+    userField.id = "userrelation";
+    userField.required = false;
     
-    collection.schema.addField(userField);
+    collection.fields.add(userField);
     
-    // Update collection rules to allow user to see their own orders
-    collection.listRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || (@request.auth.id != '' && user = @request.auth.id) || @request.auth.is_admin = true";
-    collection.viewRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || (@request.auth.id != '' && user = @request.auth.id) || @request.auth.is_admin = true";
+    // Keep existing rules for now - they'll be updated in a separate migration
+    // to avoid validation errors when the user field doesn't exist yet
     
     // Save collection with new field
-    return dao.saveCollection(collection);
+    return db.save(collection);
     
 }, (db) => {
-    const dao = new Dao(db);
-    const collection = dao.findCollectionByNameOrId("orders");
+    const collection = db.findCollectionByNameOrId("orders");
     
     // Remove user field
-    collection.schema.removeField("userrelation");
+    collection.fields.removeByName("user");
     
     // Revert collection rules
     collection.listRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true";
     collection.viewRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true";
     
-    return dao.saveCollection(collection);
+    return db.save(collection);
 });
