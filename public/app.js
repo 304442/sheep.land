@@ -565,7 +565,6 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 const allProducts = await pb.collection('products').getFullList({ filter: 'is_active = true', sort:'+sort_order_type,+sort_order_variant'});
-                // console.log('Loaded products from PocketBase:', allProducts.length, 'items');
                 
                 const categorizeProducts = (products, categoryFilter) => {
                     if (!products || !Array.isArray(products)) {
@@ -620,12 +619,6 @@ document.addEventListener('alpine:init', () => {
                 // Legacy compatibility
                 this.prodOpts.gathering_package = ensureValidStructure(categorizeProducts(allProducts, 'gathering_package'));
                 
-                // console.log('Product categories loaded:', {
-                //     udheya: this.prodOpts.udheya.length,
-                //     livesheep: this.prodOpts.livesheep_general.length,
-                //     meat: this.prodOpts.meat_cuts.length,
-                //     gathering: this.prodOpts.gathering_package.length
-                // });
                 
                 // Verify data structure integrity
                 const allCategories = ['udheya', 'meat_cuts', 'gathering_package'];
@@ -638,9 +631,6 @@ document.addEventListener('alpine:init', () => {
                 
                 // Debug: Check structure of first udheya product
                 if (this.prodOpts.udheya.length > 0) {
-                    // console.log('First udheya product structure:', this.prodOpts.udheya[0]);
-                    // console.log('Has wps?', this.prodOpts.udheya[0].hasOwnProperty('wps'));
-                    // console.log('wps is array?', Array.isArray(this.prodOpts.udheya[0].wps));
                 }
             
                 let cities = []; 
