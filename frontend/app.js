@@ -1156,6 +1156,11 @@ document.addEventListener('alpine:init', () => {
         },
         
         openFeasibilityModal() { 
+            // Admin check
+            if (!this.currentUser?.is_admin) {
+                alert(this.currLang === 'ar' ? 'هذه الميزة متاحة للمسؤولين فقط' : 'This feature is only available to administrators');
+                return;
+            }
             this.showFeasibilityModal = true; 
             document.body.classList.add('overflow-hidden');
             if (this.initFeasibility) {
@@ -1173,6 +1178,11 @@ document.addEventListener('alpine:init', () => {
         
         // Farm Management Modal
         openFarmModal() { 
+            // Admin check
+            if (!this.currentUser?.is_admin) {
+                alert(this.currLang === 'ar' ? 'هذه الميزة متاحة للمسؤولين فقط' : 'This feature is only available to administrators');
+                return;
+            }
             this.showFarmModal = true; 
             document.body.classList.add('overflow-hidden');
             if (this.initFarmManagement) {
