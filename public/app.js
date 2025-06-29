@@ -1067,6 +1067,53 @@ document.addEventListener('alpine:init', () => {
         closeOrderStatusModal() { this.isOrderStatusModalOpen = false; document.body.classList.remove('overflow-hidden'); this.lookupOrderID = ''; this.statRes = null; this.statNotFound = false; this.clrErr('lookupOrderID');},
         
         // Feasibility Calculator Modal
+        // Fetch market data for feasibility calculator
+        async fetchMarketData() {
+            try {
+                // Get average prices from recent orders
+                const recentOrders = await this.pb.collection('orders').getList(1, 50, {
+                    filter: 'created >= "' + new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString() + '"',
+                    sort: '-created'
+                });
+                
+                // Calculate average prices by category
+                const pricesByCategory = {};
+                recentOrders.items.forEach(order => {
+                    if (order.line_items) {
+                        order.line_items.forEach(item => {
+                            const category = item.product_category || 'other';
+                            if (!pricesByCategory[category]) {
+                                pricesByCategory[category] = { total: 0, count: 0 };
+                            }
+                            pricesByCategory[category].total += item.price_egp;
+                            pricesByCategory[category].count++;
+                        });
+                    }
+                });
+                
+                // Update market data
+                Object.keys(pricesByCategory).forEach(category => {
+                    const avg = pricesByCategory[category].total / pricesByCategory[category].count;
+                    if (category === 'udheya') {
+                        this.marketData.sheep.pricePerHead = avg;
+                    }
+                });
+                
+                // Get feed prices from inventory
+                const feedInventory = await this.pb.collection('feed_inventory').getList(1, 10, {
+                    sort: '-purchase_date'
+                });
+                
+                if (feedInventory.items.length > 0) {
+                    const avgFeedPrice = feedInventory.items.reduce((sum, f) => sum + f.cost_per_kg, 0) / feedInventory.items.length;
+                    this.marketData.feed.hay.pricePerKg = avgFeedPrice * 0.8; // Estimate hay price
+                    this.marketData.feed.grains.pricePerKg = avgFeedPrice * 1.2; // Estimate grain price
+                }
+            } catch (e) {
+                console.warn('Could not fetch market data:', e);
+            }
+        },
+        
         openFeasibilityModal() { 
             this.showFeasibilityModal = true; 
             document.body.classList.add('overflow-hidden');
@@ -1952,7 +1999,8 @@ document.addEventListener('alpine:init', () => {
                 }
                 
                 // Refresh product display
-                // await this.fetchProducts(); // TODO: Implement if needed
+                // Fetch market data for feasibility calculator
+                await this.fetchMarketData();
                 
                 return { success: true, inventory };
             } catch (err) {
@@ -2051,7 +2099,8 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
                 
-                // await this.fetchProducts(); // TODO: Implement if needed
+                // Fetch market data for feasibility calculator
+                await this.fetchMarketData();
             } catch (err) {
                 console.error('Failed to auto-create products:', err);
             }
@@ -2094,6 +2143,19 @@ document.addEventListener('alpine:init', () => {
             }
         },
         
+        // Calculate healthcare expenses from health checkups
+        async calculateHealthcareExpenses(startDate, endDate) {
+            try {
+                const checkups = await this.pb.collection('health_checkups').getFullList({
+                    filter: `user = "${this.currentUser.id}" && checkup_date >= "${startDate.toISOString()}" && checkup_date <= "${endDate.toISOString()}"`
+                });
+                return checkups.reduce((sum, checkup) => sum + (checkup.cost || 0), 0);
+            } catch (e) {
+                console.warn('Could not fetch health checkups:', e);
+                return 0;
+            }
+        },
+        
         // Update financial dashboard with real-time data
         async updateFinancialDashboard() { if (!this.currentUser) return; try { const now = new Date(); const monthStart = new Date(now.getFullYear(), now.getMonth(), 1); const [orders, expenses, sheep] = await Promise.all([this.pb.collection('orders').getFullList({ filter: `user = "${this.currentUser.id}" && created >= "${monthStart.toISOString()}"` }), this.pb.collection('feed_inventory').getFullList({ filter: `user = "${this.currentUser.id}" && purchase_date >= "${monthStart.toISOString()}"` }), this.pb.collection('farm_sheep').getFullList({ filter: `user = "${this.currentUser.id}"` })]);
                 
@@ -2106,7 +2168,9 @@ document.addEventListener('alpine:init', () => {
                 
                 // Calculate metrics in the expected structure
                 const totalRevenue = orders.reduce((sum, o) => sum + o.total_amount_due_egp, 0);
-                const totalExpenses = expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0);
+                const feedExpenses = expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0);
+                const healthcareExpenses = await this.calculateHealthcareExpenses(monthStart, now);
+                const totalExpenses = feedExpenses + healthcareExpenses;
                 const livestockValue = sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased')
                     .reduce((sum, s) => sum + (s.weight_kg * (this.marketData.breeds[s.breed]?.pricePerKg || 300)), 0);
                 
@@ -2118,8 +2182,8 @@ document.addEventListener('alpine:init', () => {
                     },
                     expenses: {
                         total: totalExpenses,
-                        feed: expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0),
-                        healthcare: 0, // TODO: Get from health checkups
+                        feed: feedExpenses,
+                        healthcare: healthcareExpenses,
                         other: 0
                     },
                     profitability: {
