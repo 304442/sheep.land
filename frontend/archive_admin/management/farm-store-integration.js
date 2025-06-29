@@ -226,8 +226,6 @@ class FarmStoreIntegration {
     
     // Handle store orders in farm system
     async processStoreOrder(order) {
-        console.log('Processing store order:', order.id);
-        
         // Validate inventory
         const validationResult = await this.validateOrderInventory(order);
         if (!validationResult.valid) {
@@ -416,8 +414,6 @@ class FarmStoreIntegration {
     
     async performSync() {
         if (this.syncQueue.length === 0) return;
-        
-        console.log(`Syncing ${this.syncQueue.length} queued items...`);
         
         for (const item of this.syncQueue) {
             try {

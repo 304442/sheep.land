@@ -239,8 +239,6 @@ function addSignatureSection(pdf) {
 
 function savePDF(pdf, filename) {
     // Placeholder for actual PDF save
-    console.log('Saving PDF:', filename, pdf);
-    
     // In actual implementation:
     // pdf.save(filename);
 }

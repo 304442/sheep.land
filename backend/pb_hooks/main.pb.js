@@ -29,7 +29,7 @@ onRecordCreateRequest((e) => {
         appSettings = $app.dao().findFirstRecordByFilter("settings", "id!=''");
         if (!appSettings) throw new Error("Application settings not found.");
     } catch (err) {
-        console.log(`[OrderHook] Failed to fetch settings: ${err}`);
+        console.error(`[OrderHook] Failed to fetch settings: ${err}`);
         throw new BadRequestError("Server configuration error. Please contact support.");
     }
     const defaultServiceFeeEGP = appSettings.get("servFeeEGP") || 0;
@@ -45,7 +45,7 @@ onRecordCreateRequest((e) => {
         try {
             product = $app.dao().findRecordById("products", clientLineItem.item_key_pb);
         } catch (err) {
-            console.log(`[OrderHook] Product lookup failed: ${clientLineItem.item_key_pb}`);
+            console.error(`[OrderHook] Product lookup failed: ${clientLineItem.item_key_pb}`);
             throw new BadRequestError(`Product "${clientLineItem.name_en || clientLineItem.item_key_pb}" not found.`);
         }
 
@@ -156,7 +156,7 @@ onRecordCreateRequest((e) => {
 
     const totalAmountDueEGP = calculatedSubtotalEGP + calculatedTotalServiceFeeEGP + deliveryFeeAppliedEGP + onlinePaymentFeeAppliedEGP;
     if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) {
-        console.log(`[OrderHook] Invalid totalAmountDueEGP: ${totalAmountDueEGP}`);
+        console.error(`[OrderHook] Invalid totalAmountDueEGP: ${totalAmountDueEGP}`);
         throw new BadRequestError("Internal error calculating total. Please contact support.");
     }
     record.set("total_amount_due_egp", totalAmountDueEGP);
@@ -184,7 +184,7 @@ onRecordCreateRequest((e) => {
             record.set("user_agent_string", e.requestInfo.userAgent);
         }
     } catch (ipErr) { 
-        console.log(`[OrderHook] Could not set IP/UserAgent: ${ipErr}`); 
+        // Could not set IP/UserAgent 
     }
 
     for (const update of productStockUpdates) {
@@ -192,7 +192,7 @@ onRecordCreateRequest((e) => {
         try {
             $app.dao().save(update.productRecord);
         } catch (err) {
-            console.log(`[OrderHook] Failed to update stock for ${update.productRecord.get("item_key")}: ${err}`);
+            console.error(`[OrderHook] Failed to update stock for ${update.productRecord.get("item_key")}: ${err}`);
             throw new BadRequestError(`Failed to update product stock. Order not created.`);
         }
     }
@@ -217,7 +217,7 @@ onRecordAfterCreateSuccess((e) => {
             senderName = appSettings.get("app_email_sender_name");
         }
     } catch (err) {
-        console.log(`[OrderHook] Could not fetch app settings for email. Using defaults.`);
+        // Could not fetch app settings for email. Using defaults.
     }
 
     const enableEmailConfirmation = true; 
@@ -380,14 +380,14 @@ onRecordAfterCreateSuccess((e) => {
             });
             $mails.send(message);
             
-            console.log(`[OrderHook] ✅ Confirmation email sent for order ${record.get("order_id_text")} to ${customerEmail}.`);
+            // Confirmation email sent successfully
         } catch (err) {
-            console.log(`[OrderHook] ❌ Failed to send email for order ${record.get("order_id_text")}: ${err}`);
+            console.error(`[OrderHook] Failed to send email for order ${record.get("order_id_text")}: ${err}`);
         }
     } else if (customerEmail) {
-        console.log(`[OrderHook] ⚠️ Email for ${record.get("order_id_text")} not sent: SMTP may not be configured.`);
+        // Email not sent: SMTP may not be configured
     } else if (!customerEmail) {
-        console.log(`[OrderHook] ⚠️ Email for ${record.get("order_id_text")} not sent: No customer email.`);
+        // Email not sent: No customer email provided
     }
 });
 
@@ -400,7 +400,7 @@ onRecordUpdateRequest((e) => {
     try {
         originalRecord = $app.dao().findRecordById("orders", record.getId());
     } catch (err) { 
-        console.log(`[OrderHook] Could not find original record ${record.getId()}.`);
+        // Could not find original record
         return; 
     }
 
@@ -434,7 +434,7 @@ onRecordUpdateRequest((e) => {
                         $app.dao().save(product);
                         stockUpdateNotes += `Restocked ${quantityToRestock} of ${product.get("variant_name_en") || lineItem.name_en}. `;
                     } catch (err) {
-                         console.log(`[OrderHook] Failed to restock product ${productID}: ${err}`);
+                         console.error(`[OrderHook] Failed to restock product ${productID}: ${err}`);
                          stockUpdateNotes += `STOCK INCREMENT FAILED for product ${productID}. `;
                     }
                 }

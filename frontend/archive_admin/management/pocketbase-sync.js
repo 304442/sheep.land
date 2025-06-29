@@ -30,7 +30,6 @@ class PocketBaseSync {
             const health = await this.pb.health.check();
             if (health.code === 200) {
                 this.isConnected = true;
-                console.log('✅ Connected to PocketBase');
                 
                 // Initialize collections if needed
                 await this.initializeCollections();
@@ -59,7 +58,7 @@ class PocketBaseSync {
             
             // Check for farm_sheep collection (renamed from farm_animals)
             if (!existingNames.includes('farm_sheep')) {
-                console.log('Note: farm_sheep collection should be created by migrations');
+                // Note: farm_sheep collection should be created by migrations
             }
             
             // Create farm_inventory collection
@@ -380,8 +379,6 @@ class PocketBaseSync {
     
     // Handle new order from e-commerce
     async handleNewOrder(order) {
-        console.log('📦 New order received:', order.order_id_text);
-        
         // Check if order contains live animals or requires farm action
         const farmItems = order.line_items.filter(item => 
             ['live_sheep', 'udheya', 'aqiqah'].includes(item.product_category)

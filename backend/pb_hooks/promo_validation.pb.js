@@ -75,7 +75,7 @@ onRecordCreateRequest((e) => {
         if (err instanceof BadRequestError) {
             throw err;
         }
-        console.log("Promo validation error:", err);
+        console.error("Promo validation error:", err);
         throw new BadRequestError("Error validating promo code");
     }
 }, "promo_validation");
