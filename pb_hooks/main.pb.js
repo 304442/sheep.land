@@ -1,16 +1,7 @@
-const registerHook = (collection, event, handler) => {
-    try {
-        if (typeof $app !== 'undefined') {
-            if (event === 'beforeCreate') $app.onRecordBeforeCreateRequest(collection, handler);
-            else if (event === 'afterCreate') $app.onRecordAfterCreateRequest(collection, handler);
-            else if (event === 'beforeUpdate') $app.onRecordBeforeUpdateRequest(collection, handler);
-        } else {
-            console.warn(`HOOK REGISTRATION SKIPPED for ${collection} - ${event}: $app not available.`);
-        }
-    } catch (error) {
-        console.error(`HOOK REGISTRATION FAILED for ${collection} - ${event}: ${error}`);
-    }
-};
+/// <reference path="../pb_data/types.d.ts" />
+
+// PocketBase hooks for orders collection
+// In PocketBase 0.28+, JavaScript hooks are automatically loaded from pb_hooks/*.pb.js files
 
 const sacrificeDayMap = { 
     "day1_10_dhul_hijjah": { "en": "Day 1 of Eid (10th Dhul Hijjah)", "ar": "اليوم الأول (10 ذو الحجة)" },
@@ -19,7 +10,8 @@ const sacrificeDayMap = {
     "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" },
 };
 
-registerHook("orders", "beforeCreate", (e) => {
+// Hook: beforeCreate for orders collection  
+onRecordCreateRequest("orders", (e) => {
     const record = e.record;
     const dao = $app.dao();
     const lineItemsData = JSON.parse(JSON.stringify(record.get("line_items"))); 
@@ -207,7 +199,8 @@ registerHook("orders", "beforeCreate", (e) => {
     }
 });
 
-registerHook("orders", "afterCreate", (e) => {
+// Hook: afterCreate for orders collection
+onRecordAfterCreateSuccess("orders", (e) => {
     const record = e.record;
     const customerEmail = record.getString("customer_email");
     
@@ -228,12 +221,15 @@ registerHook("orders", "afterCreate", (e) => {
 
     const enableEmailConfirmation = true; 
 
-    if (enableEmailConfirmation && customerEmail && $app && typeof $app.newMailMessage === 'function') {
+    if (enableEmailConfirmation && customerEmail && $app && typeof $app.newMailClient === 'function') {
         try {
-            const message = $app.newMailMessage();
-            message.setFrom(senderAddress, senderName);
-            message.setTo(customerEmail);
-            message.setSubject(`🐑 Your Sheep Land Egypt Order Confirmed: ${record.getString("order_id_text")}`);
+            const message = new MailerMessage();
+            message.from = {
+                address: senderAddress,
+                name: senderName
+            };
+            message.to = [{address: customerEmail}];
+            message.subject = `🐑 Your Sheep Land Egypt Order Confirmed: ${record.getString("order_id_text")}`;
             
             const lineItems = record.get("line_items") || [];
             let itemsListHTML = "<ul style='list-style-type: none; padding: 0;'>";
@@ -383,20 +379,21 @@ registerHook("orders", "afterCreate", (e) => {
                 </div>
             </div>`;
             
-            message.setHtml(emailBody);
-            $app.mails.send(message);
+            message.html = emailBody;
+            $mails.send(message);
             console.log(`[OrderHook] ✅ Confirmation email sent for order ${record.getString("order_id_text")} to ${customerEmail}.`);
         } catch (err) {
             console.error(`[OrderHook] ❌ Failed to send email for order ${record.getString("order_id_text")}: ${err}`);
         }
-    } else if (customerEmail && !($app && typeof $app.newMailMessage === 'function')) {
+    } else if (customerEmail && !($app && typeof $app.newMailClient === 'function')) {
         console.warn(`[OrderHook] ⚠️ Email for ${record.getString("order_id_text")} not sent: SMTP not configured.`);
     } else if (!customerEmail) {
         console.warn(`[OrderHook] ⚠️ Email for ${record.getString("order_id_text")} not sent: No customer email.`);
     }
 });
 
-registerHook("orders", "beforeUpdate", (e) => {
+// Hook: beforeUpdate for orders collection
+onRecordUpdateRequest("orders", (e) => {
     const record = e.record; 
     const dao = $app.dao();
     let originalRecord;
