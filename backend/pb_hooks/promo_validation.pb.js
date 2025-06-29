@@ -73,13 +73,13 @@ onRecordCreateRequest((e) => {
         promo.set("used_count", usedCount + 1);
         $app.dao().save(promo);
         
-        console.log(`Applied promo code ${promoCode} with discount ${discountAmount} EGP`);
+        // Promo code applied successfully
         
     } catch (err) {
         if (err instanceof BadRequestError) {
             throw err;
         }
-        console.error("Promo validation error:", err);
+        console.error(`[PromoValidation] Error applying promo ${promoCode} to order: ${err.message}`);
         throw new BadRequestError("Failed to validate promo code");
     }
     
@@ -113,7 +113,7 @@ onRecordAfterCreateRequest((e) => {
             $app.dao().saveRecord(usageRecord);
         }
     } catch (err) {
-        console.error("Failed to track promo usage:", err);
+        console.error(`[PromoValidation] Failed to track usage for promo ${promoRecord.getId()} on order ${e.record.getId()}: ${err.message}`);
     }
     
     e.next();

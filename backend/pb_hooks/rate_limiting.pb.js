@@ -19,7 +19,7 @@ try {
         MAX_REQUESTS.auth = settings.get("rate_limit_auth_per_minute") || MAX_REQUESTS.auth;
     }
 } catch (e) {
-    console.warn("Using default rate limits");
+    // Using default rate limits
 }
 
 function getRateLimitKey(ip, collection) {

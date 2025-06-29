@@ -45,7 +45,7 @@ onRequest((e) => {
         
     } catch (error) {
         // If settings check fails, allow request to continue
-        console.error("Maintenance mode check failed:", error);
+        console.error(`[MaintenanceMode] Check failed for path ${e.httpContext.path()}: ${error.message}`);
         e.next();
     }
 });

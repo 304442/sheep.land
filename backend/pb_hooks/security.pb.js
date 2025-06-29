@@ -9,7 +9,7 @@ routerAdd("GET", "/*", (c) => {
     c.response().header().set("Referrer-Policy", "strict-origin-when-cross-origin");
     c.response().header().set("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
     
-    // Content Security Policy - Production ready without unsafe-eval
+    // Content Security Policy - Strict for production
     const isDev = c.request().url.host.includes("localhost");
     const cspPolicy = isDev ? 
         "default-src 'self'; " +
@@ -21,12 +21,14 @@ routerAdd("GET", "/*", (c) => {
         "frame-ancestors 'none';"
         :
         "default-src 'self'; " +
-        "script-src 'self'; " +
-        "style-src 'self'; " +
+        "script-src 'self' 'sha256-xxx'; " + // Add specific hashes for inline scripts
+        "style-src 'self' 'sha256-yyy'; " + // Add specific hashes for inline styles
         "img-src 'self' data: https:; " +
         "font-src 'self' data:; " +
-        "connect-src 'self'; " +
-        "frame-ancestors 'none';";
+        "connect-src 'self' https://api.sheep.land; " +
+        "frame-ancestors 'none'; " +
+        "base-uri 'self'; " +
+        "form-action 'self';";
     
     c.response().header().set("Content-Security-Policy", cspPolicy);
     

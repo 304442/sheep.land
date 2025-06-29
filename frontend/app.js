@@ -2198,7 +2198,7 @@ document.addEventListener('alpine:init', () => {
                 // Update financial records
                 await this.updateFinancialDashboard();
             } catch (err) {
-                console.error('Failed to process order from inventory:', err);
+                // Failed to process order from inventory
             }
         },
         
@@ -2337,7 +2337,7 @@ document.addEventListener('alpine:init', () => {
                 // Update breeding schedule and product availability
                 await this.updateBreedingScheduleProducts();
             } catch (err) {
-                console.error('Failed to auto-schedule tasks:', err);
+                // Failed to auto-schedule tasks
             }
         },
         
@@ -2441,7 +2441,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 
             } catch (err) {
-                console.error('Failed to update breeding schedule products:', err);
+                // Failed to update breeding schedule products
                 await this.pb.collection('sync_logs').create({
                     user: this.currentUser.id,
                     sync_type: 'inventory_to_ecommerce',
@@ -2615,7 +2615,7 @@ document.addEventListener('alpine:init', () => {
                 }
                 
             } catch (err) {
-                console.error('Failed to check alerts:', err);
+                // Failed to check alerts
                 await this.pb.collection('sync_logs').create({
                     user: this.currentUser.id,
                     sync_type: 'auto_task_creation',
@@ -2704,7 +2704,7 @@ document.addEventListener('alpine:init', () => {
                 this.updateFarmStats();
                 alert('Breeding recorded successfully! / تم تسجيل التزاوج بنجاح!');
             } catch (err) {
-                console.error('Breeding record error:', err);
+                // Breeding record error
                 alert('Failed to record breeding');
             }
         },
@@ -2729,7 +2729,7 @@ document.addEventListener('alpine:init', () => {
                 
                 this.updateFarmStats();
             } catch (err) {
-                console.error('Feed inventory update error:', err);
+                // Feed inventory update error
             }
         },
         
@@ -2757,7 +2757,7 @@ document.addEventListener('alpine:init', () => {
                     sheepIds: []
                 };
             } catch (err) {
-                console.error('Task creation error:', err);
+                // Task creation error
             }
         },
         

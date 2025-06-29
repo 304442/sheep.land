@@ -15,7 +15,7 @@ function logAudit(action, entityType, entityId, oldData, newData, userId) {
         
         $app.dao().saveRecord(record);
     } catch (e) {
-        console.error("Audit logging failed:", e);
+        console.error(`[AuditLog] Failed to log ${action} on ${entityType}/${entityId} by user ${userId}: ${e.message}`);
     }
 }
 

@@ -75,7 +75,7 @@ routerAdd("POST", "/api/payments/confirm", (c) => {
             auditRecord.set("user_id", authRecord.id);
             $app.dao().saveRecord(auditRecord);
         } catch (e) {
-            console.error("Audit log failed:", e);
+            console.error(`[PaymentProcessing] Audit log failed for order ${orderId}, method ${paymentMethod}: ${e.message}`);
         }
         
         // Send confirmation email
@@ -128,7 +128,7 @@ routerAdd("POST", "/api/payments/confirm", (c) => {
                 $mails.send(message);
             }
         } catch (e) {
-            console.error("Email sending failed:", e);
+            console.error(`[PaymentProcessing] Email failed for order ${orderId} to ${order.get("customer_email") ? order.get("customer_email").substring(0, 3) + '***' : 'unknown'}: ${e.message}`);
         }
         
         return c.json(200, {
@@ -183,7 +183,7 @@ routerAdd("POST", "/api/admin/payments/verify", (c) => {
             const template = verified ? "order_confirmation_ar" : "order_status_update_ar";
             // Email sending logic here...
         } catch (e) {
-            console.error("Email failed:", e);
+            console.error(`[PaymentProcessing] Verification email failed for order ${orderId}: ${e.message}`);
         }
         
         return c.json(200, {
@@ -307,7 +307,7 @@ routerAdd("POST", "/api/orders/{id}/cancel", (c) => {
                 product.set("current_stock_units", currentStock + item.quantity);
                 $app.dao().saveRecord(product);
             } catch (e) {
-                console.error("Stock restoration failed:", e);
+                console.error(`[PaymentProcessing] Stock restoration failed for product ${item.item_key_pb}, quantity ${item.quantity}: ${e.message}`);
             }
         });
         
