@@ -4,12 +4,12 @@
 migrate((db) => {
     console.log("Fixing seed data...");
     
-    // Get the DAO instance from the db (which is actually the app)
-    const dao = db.dao();
+    // In PocketBase migrations, 'db' is the Dao instance
+    const dao = db;
     
     // Fix settings if incomplete
     try {
-        const settings = dao.findRecordsByFilter("settings", "", 1, 0);
+        const settings = dao.findRecordsByFilter("settings", "", "", 1, 0);
         if (settings.length > 0) {
             const record = settings[0];
             
@@ -111,7 +111,7 @@ migrate((db) => {
     
     // Check and fix products
     try {
-        const products = dao.findRecordsByFilter("products", "", 100, 0);
+        const products = dao.findRecordsByFilter("products", "", "", 100, 0);
         console.log(`Found ${products.length} products`);
         
         // If products exist but have no field data, delete and recreate
