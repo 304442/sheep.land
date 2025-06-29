@@ -9,7 +9,7 @@ const sacrificeDayMap = {
 };
 
 // Before Create Hook for Orders
-onRecordBeforeCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     if (e.collection.name !== "orders") return;
     
     const record = e.record;
@@ -26,7 +26,7 @@ onRecordBeforeCreateRequest((e) => {
 
     let appSettings;
     try {
-        appSettings = $app.findFirstRecordByFilter("settings", "id!=''");
+        appSettings = $app.dao().findFirstRecordByFilter("settings", "id!=''");
         if (!appSettings) throw new Error("Application settings not found.");
     } catch (err) {
         console.log(`[OrderHook] Failed to fetch settings: ${err}`);
@@ -43,7 +43,7 @@ onRecordBeforeCreateRequest((e) => {
 
         let product;
         try {
-            product = $app.findRecordById("products", clientLineItem.item_key_pb);
+            product = $app.dao().findRecordById("products", clientLineItem.item_key_pb);
         } catch (err) {
             console.log(`[OrderHook] Product lookup failed: ${clientLineItem.item_key_pb}`);
             throw new BadRequestError(`Product "${clientLineItem.name_en || clientLineItem.item_key_pb}" not found.`);
@@ -190,7 +190,7 @@ onRecordBeforeCreateRequest((e) => {
     for (const update of productStockUpdates) {
         update.productRecord.set("stock_available_pb", update.newStock);
         try {
-            $app.save(update.productRecord);
+            $app.dao().save(update.productRecord);
         } catch (err) {
             console.log(`[OrderHook] Failed to update stock for ${update.productRecord.get("item_key")}: ${err}`);
             throw new BadRequestError(`Failed to update product stock. Order not created.`);
@@ -199,7 +199,7 @@ onRecordBeforeCreateRequest((e) => {
 });
 
 // After Create Hook for Orders
-onRecordAfterCreateRequest((e) => {
+onRecordAfterCreateSuccess((e) => {
     if (e.collection.name !== "orders") return;
     
     const record = e.record;
@@ -209,7 +209,7 @@ onRecordAfterCreateRequest((e) => {
     let senderName = "Sheep Land Egypt"; 
     let appSettings;
     try {
-        appSettings = $app.findFirstRecordByFilter("settings", "id!=''");
+        appSettings = $app.dao().findFirstRecordByFilter("settings", "id!=''");
         if (appSettings && appSettings.get("app_email_sender_address")) { 
             senderAddress = appSettings.get("app_email_sender_address");
         }
@@ -372,12 +372,13 @@ onRecordAfterCreateRequest((e) => {
                 </div>
             </div>`;
             
-            $app.sendMail({
+            const message = new MailerMessage({
                 from: { address: senderAddress, name: senderName },
                 to: [{ address: customerEmail }],
                 subject: `🐑 Your Sheep Land Egypt Order Confirmed: ${record.get("order_id_text")}`,
                 html: emailBody
             });
+            $mails.send(message);
             
             console.log(`[OrderHook] ✅ Confirmation email sent for order ${record.get("order_id_text")} to ${customerEmail}.`);
         } catch (err) {
@@ -391,13 +392,13 @@ onRecordAfterCreateRequest((e) => {
 });
 
 // Before Update Hook for Orders
-onRecordBeforeUpdateRequest((e) => {
+onRecordUpdateRequest((e) => {
     if (e.collection.name !== "orders") return;
     
     const record = e.record; 
     let originalRecord;
     try {
-        originalRecord = $app.findRecordById("orders", record.getId());
+        originalRecord = $app.dao().findRecordById("orders", record.getId());
     } catch (err) { 
         console.log(`[OrderHook] Could not find original record ${record.getId()}.`);
         return; 
@@ -427,10 +428,10 @@ onRecordBeforeUpdateRequest((e) => {
 
                 if (productID && quantityToRestock > 0) {
                     try {
-                        const product = $app.findRecordById("products", productID);
+                        const product = $app.dao().findRecordById("products", productID);
                         const currentStock = product.get("stock_available_pb");
                         product.set("stock_available_pb", currentStock + quantityToRestock);
-                        $app.save(product);
+                        $app.dao().save(product);
                         stockUpdateNotes += `Restocked ${quantityToRestock} of ${product.get("variant_name_en") || lineItem.name_en}. `;
                     } catch (err) {
                          console.log(`[OrderHook] Failed to restock product ${productID}: ${err}`);
@@ -443,4 +444,5 @@ onRecordBeforeUpdateRequest((e) => {
             record.set("admin_notes", (record.get("admin_notes") || "" + `\nOrder cancelled (old status: ${oldStatus}, payment: ${paymentStatus}). Stock not auto-incremented.`).trim());
         }
     }
-});
+});// Test comment
+
