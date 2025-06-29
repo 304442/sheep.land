@@ -564,7 +564,7 @@ document.addEventListener('alpine:init', () => {
                     });
                 }
 
-                const allProducts = await pb.collection('products').getFullList({ filter: 'is_active=true', sort:'+sort_order_type,+sort_order_variant'});
+                const allProducts = await pb.collection('products').getFullList({ filter: 'is_active=true'});
                 
                 const categorizeProducts = (products, categoryFilter) => {
                     if (!products || !Array.isArray(products)) {
