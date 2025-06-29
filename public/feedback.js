@@ -45,8 +45,13 @@ const feedbackSystem = {
         
         try {
             // Always use localStorage for export
-            feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
-            testimonials = JSON.parse(localStorage.getItem('sheepland_testimonials') || '[]');
+            try {
+                feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
+                testimonials = JSON.parse(localStorage.getItem('sheepland_testimonials') || '[]');
+            } catch (e) {
+                feedbacks = [];
+                testimonials = [];
+            }
         } catch (error) {
             // console.error('Error loading data for export:', error);
             feedbacks = [];
@@ -348,15 +353,23 @@ const feedbackSystem = {
                 }
                 
                 // Also store in localStorage for offline access
-                const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
-                feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
-                localStorage.setItem('sheepland_feedbacks', JSON.stringify(feedbacks));
+                try {
+                    const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
+                    feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
+                    localStorage.setItem('sheepland_feedbacks', JSON.stringify(feedbacks));
+                } catch (e) {
+                    // Storage may be full or disabled
+                }
             } else {
-                // console.log('PocketBase not available, saving to localStorage only');
                 // Fallback to localStorage only
-                const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
-                feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
-                localStorage.setItem('sheepland_feedbacks', JSON.stringify(feedbacks));
+                try {
+                    const feedbacks = JSON.parse(localStorage.getItem('sheepland_feedbacks') || '[]');
+                    feedbacks.push({...feedbackData, created_at: new Date().toISOString()});
+                    localStorage.setItem('sheepland_feedbacks', JSON.stringify(feedbacks));
+                } catch (e) {
+                    // Storage may be full or disabled
+                    alert('Unable to save feedback. Please try again.');
+                }
             }
 
             // Show success message

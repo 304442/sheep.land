@@ -1224,17 +1224,17 @@
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Full Name *</span><span class="ar">الاسم الكامل *</span></label>
-                                    <input type="text" class="input" x-model="checkoutForm.customer_name" @input="clrErr('customer_name')">
+                                    <input type="text" class="input" x-model="checkoutForm.customer_name" @input="clrErr('customer_name')" required>
                                     <div class="err-msg" x-show="errs.customer_name" x-text="errs.customer_name ? (currLang === 'ar' ? errs.customer_name.ar : errs.customer_name.en) : ''"></div>
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Phone Number *</span><span class="ar">رقم الهاتف *</span></label>
-                                    <input type="tel" class="input" x-model="checkoutForm.customer_phone" @input="clrErr('customer_phone')">
+                                    <input type="tel" class="input" x-model="checkoutForm.customer_phone" @input="clrErr('customer_phone')" required>
                                     <div class="err-msg" x-show="errs.customer_phone" x-text="errs.customer_phone ? (currLang === 'ar' ? errs.customer_phone.ar : errs.customer_phone.en) : ''"></div>
                                 </div>
                                 <div class="fg">
                                     <label class="bil-spread lbl-req"><span class="en">Email Address *</span><span class="ar">البريد الإلكتروني *</span></label>
-                                    <input type="email" class="input" x-model="checkoutForm.customer_email" @input="clrErr('customer_email')">
+                                    <input type="email" class="input" x-model="checkoutForm.customer_email" @input="clrErr('customer_email')" required>
                                     <div class="err-msg" x-show="errs.customer_email" x-text="errs.customer_email ? (currLang === 'ar' ? errs.customer_email.ar : errs.customer_email.en) : ''"></div>
                                 </div>
                                 <div class="fg">

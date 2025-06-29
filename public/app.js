@@ -446,6 +446,19 @@ document.addEventListener('alpine:init', () => {
             };
             return titles[this.currentPage] || titles.home;
         },
+        
+        // Safe API call wrapper with error handling
+        async safeApiCall(apiFunction, errorMessage = 'Operation failed', showNotification = true) {
+            try {
+                return await apiFunction();
+            } catch (error) {
+                if (showNotification) {
+                    this.showNotification(errorMessage, 'error');
+                }
+                // Return null or appropriate default value
+                return null;
+            }
+        },
 
         async initApp() {
             // Check if PocketBase is set up FIRST before doing anything else
@@ -2176,7 +2189,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 return checkups.reduce((sum, checkup) => sum + (checkup.cost || 0), 0);
             } catch (e) {
-                console.warn('Could not fetch health checkups:', e);
+                // Could not fetch health checkups - return 0
                 return 0;
             }
         },

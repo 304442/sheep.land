@@ -1,7 +1,13 @@
 // Wishlist functionality for Sheep.land
 const wishlist = {
     // Initialize wishlist from localStorage
-    items: JSON.parse(localStorage.getItem('sheepland_wishlist') || '[]'),
+    items: (() => {
+        try {
+            return JSON.parse(localStorage.getItem('sheepland_wishlist') || '[]');
+        } catch (e) {
+            return [];
+        }
+    })(),
     
     // Add item to wishlist
     add(product) {
@@ -36,7 +42,14 @@ const wishlist = {
     
     // Save to localStorage
     save() {
-        localStorage.setItem('sheepland_wishlist', JSON.stringify(this.items));
+        try {
+            localStorage.setItem('sheepland_wishlist', JSON.stringify(this.items));
+        } catch (e) {
+            // Storage may be full or disabled
+            if (window.Alpine && window.Alpine.store('sheepLand')) {
+                window.Alpine.store('sheepLand').showNotification('Unable to save wishlist', 'error');
+            }
+        }
         // Dispatch custom event for UI updates
         window.dispatchEvent(new CustomEvent('wishlistUpdated', { 
             detail: { count: this.items.length } 
@@ -154,10 +167,17 @@ document.addEventListener('alpine:init', () => {
             // Create notification element
             const notification = document.createElement('div');
             notification.className = `wishlist-notification ${type}`;
-            notification.innerHTML = `
-                <span>${message}</span>
-                <span class="close">&times;</span>
-            `;
+            
+            // Create message span
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            notification.appendChild(messageSpan);
+            
+            // Create close button
+            const closeSpan = document.createElement('span');
+            closeSpan.className = 'close';
+            closeSpan.textContent = '×';
+            notification.appendChild(closeSpan);
             
             document.body.appendChild(notification);
             
