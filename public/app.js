@@ -820,10 +820,17 @@ document.addEventListener('alpine:init', () => {
             // Create notification element
             const notification = document.createElement('div');
             notification.className = `wishlist-notification ${type}`;
-            notification.innerHTML = `
-                <span>${message}</span>
-                <span class="close">&times;</span>
-            `;
+            
+            // Create elements safely to prevent XSS
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            
+            const closeSpan = document.createElement('span');
+            closeSpan.className = 'close';
+            closeSpan.textContent = '×';
+            
+            notification.appendChild(messageSpan);
+            notification.appendChild(closeSpan);
             
             document.body.appendChild(notification);
             
@@ -1144,7 +1151,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
         closeFarmModal() { 
-            this.showFarmModal = false; 
+            this.showFarmModal = false;
             document.body.classList.remove('overflow-hidden'); 
         },
         
@@ -2000,7 +2007,11 @@ document.addEventListener('alpine:init', () => {
                 
                 // Refresh product display
                 // Fetch market data for feasibility calculator
-                await this.fetchMarketData();
+                try {
+                    await this.fetchMarketData();
+                } catch (e) {
+                    console.warn('Could not fetch market data:', e);
+                }
                 
                 return { success: true, inventory };
             } catch (err) {
@@ -2100,7 +2111,11 @@ document.addEventListener('alpine:init', () => {
                 }
                 
                 // Fetch market data for feasibility calculator
-                await this.fetchMarketData();
+                try {
+                    await this.fetchMarketData();
+                } catch (e) {
+                    console.warn('Could not fetch market data:', e);
+                }
             } catch (err) {
                 console.error('Failed to auto-create products:', err);
             }
@@ -2561,14 +2576,34 @@ document.addEventListener('alpine:init', () => {
         showAlertNotification(alert) {
             const notification = document.createElement('div');
             notification.className = `alert-notification ${alert.type}`;
-            notification.innerHTML = `
-                <div class="alert-icon">${this.getAlertIcon(alert.type)}</div>
-                <div class="alert-content">
-                    <h4>${alert.title}</h4>
-                    <p>${alert.message}</p>
-                </div>
-                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
-            `;
+            
+            // Create icon div
+            const iconDiv = document.createElement('div');
+            iconDiv.className = 'alert-icon';
+            iconDiv.innerHTML = this.getAlertIcon(alert.type); // Icons are safe HTML
+            
+            // Create content div safely
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'alert-content';
+            
+            const title = document.createElement('h4');
+            title.textContent = alert.title;
+            
+            const message = document.createElement('p');
+            message.textContent = alert.message;
+            
+            contentDiv.appendChild(title);
+            contentDiv.appendChild(message);
+            
+            // Create close button
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'alert-close';
+            closeBtn.textContent = '×';
+            closeBtn.onclick = () => notification.remove();
+            
+            notification.appendChild(iconDiv);
+            notification.appendChild(contentDiv);
+            notification.appendChild(closeBtn);
             
             document.body.appendChild(notification);
             
