@@ -242,7 +242,7 @@ document.addEventListener('alpine:init', () => {
                 annualGrowthRate: 15,
                 projections: []
             },
-            advancedResults: null
+            advancedResults: {}
         },
         // Market data based on actual product catalog
         marketData: {
@@ -1952,7 +1952,7 @@ document.addEventListener('alpine:init', () => {
                 }
                 
                 // Refresh product display
-                await this.fetchProducts();
+                // await this.fetchProducts(); // TODO: Implement if needed
                 
                 return { success: true, inventory };
             } catch (err) {
@@ -2051,7 +2051,7 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
                 
-                await this.fetchProducts();
+                // await this.fetchProducts(); // TODO: Implement if needed
             } catch (err) {
                 console.error('Failed to auto-create products:', err);
             }
@@ -2115,19 +2115,46 @@ document.addEventListener('alpine:init', () => {
                     })
                 ]);
                 
-                // Calculate metrics
-                this.financialDashboard = {
-                    monthlyRevenue: orders.reduce((sum, o) => sum + o.total_amount_due_egp, 0),
-                    monthlyExpenses: expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0),
-                    monthlyProfit: 0,
-                    totalAssetValue: sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased')
-                        .reduce((sum, s) => sum + (s.weight_kg * (this.marketData.breeds[s.breed]?.pricePerKg || 300)), 0),
-                    sheepInventoryCount: sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased').length,
-                    pendingOrders: orders.filter(o => o.order_status === 'pending').length,
-                    readyForSaleCount: sheep.filter(s => s.status === 'healthy' && s.weight_kg >= 40).length
-                };
+                // Calculate revenue by category
+                const revenueByCategory = {};
+                orders.forEach(order => {
+                    const category = order.primary_category || 'other';
+                    revenueByCategory[category] = (revenueByCategory[category] || 0) + order.total_amount_due_egp;
+                });
                 
-                this.financialDashboard.monthlyProfit = this.financialDashboard.monthlyRevenue - this.financialDashboard.monthlyExpenses;
+                // Calculate metrics in the expected structure
+                const totalRevenue = orders.reduce((sum, o) => sum + o.total_amount_due_egp, 0);
+                const totalExpenses = expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0);
+                const livestockValue = sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased')
+                    .reduce((sum, s) => sum + (s.weight_kg * (this.marketData.breeds[s.breed]?.pricePerKg || 300)), 0);
+                
+                this.financialDashboard = {
+                    revenue: {
+                        total: totalRevenue,
+                        orderCount: orders.length,
+                        byCategory: revenueByCategory
+                    },
+                    expenses: {
+                        total: totalExpenses,
+                        feed: expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0),
+                        healthcare: 0, // TODO: Get from health checkups
+                        other: 0
+                    },
+                    profitability: {
+                        netProfit: totalRevenue - totalExpenses,
+                        margin: totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue * 100) : 0,
+                        roi: livestockValue > 0 ? ((totalRevenue - totalExpenses) / livestockValue * 100) : 0
+                    },
+                    inventory: {
+                        livestock: livestockValue,
+                        feed: expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg * 0.2), 0), // Estimate 20% remaining
+                        sheepCount: sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased').length
+                    },
+                    projections: {
+                        projectedRevenue: totalRevenue * 1.1, // Simple 10% growth projection
+                        revenueVariance: 0
+                    }
+                };
                 
                 return this.financialDashboard;
             } catch (err) {

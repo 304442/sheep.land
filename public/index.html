@@ -2410,13 +2410,13 @@
                     
                     <!-- Advanced Results Display -->
                     <div class="advanced-results" x-show="feasibility.advancedResults">
-                        <div class="result-card" x-show="feasibility.advancedResults.feedMix">
+                        <div class="result-card" x-show="feasibility.advancedResults && feasibility.advancedResults.feedMix">
                             <h4 class="card-title bil-spread">
                                 <span class="en">Optimized Feed Mix</span>
                                 <span class="ar">الخلطة المُحسنة</span>
                             </h4>
                             <div class="feed-mix-results">
-                                <template x-for="(percentage, ingredient) in feasibility.advancedResults.feedMix.ingredients" :key="ingredient">
+                                <template x-for="(percentage, ingredient) in (feasibility.advancedResults && feasibility.advancedResults.feedMix ? feasibility.advancedResults.feedMix.ingredients : {})" :key="ingredient">
                                     <div class="result-item">
                                         <span class="result-label" x-text="ingredient"></span>
                                         <span class="result-value" x-text="percentage + '%'"></span>
@@ -2427,7 +2427,7 @@
                                         <span class="en">Total Cost/Ton</span>
                                         <span class="ar">التكلفة الإجمالية/طن</span>
                                     </span>
-                                    <span class="result-value">EGP <span x-text="feasibility.advancedResults.feedMix.costPerTon?.toLocaleString()">0</span></span>
+                                    <span class="result-value">EGP <span x-text="feasibility.advancedResults && feasibility.advancedResults.feedMix ? feasibility.advancedResults.feedMix.costPerTon?.toLocaleString() : '0'">0</span></span>
                                 </div>
                             </div>
                         </div>
