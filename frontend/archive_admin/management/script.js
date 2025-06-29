@@ -102,25 +102,20 @@ window.toggleAppDrawer = function() {
 // Ensure toggleQuickActions is available immediately
 if (typeof window.toggleQuickActions === 'undefined') {
     window.toggleQuickActions = function() {
-        console.log('FAB clicked - simple fallback');
         const quickActionsFab = document.getElementById('quickActionsFab');
         const fab = document.getElementById('sfmMainFab');
         if (!quickActionsFab || !fab) {
-            console.log('Elements not found');
             return;
         }
         
         const isActive = quickActionsFab.classList.contains('active');
-        console.log('Current state:', isActive ? 'active' : 'inactive');
         
         if (isActive) {
             quickActionsFab.classList.remove('active');
             fab.classList.remove('actions-active');
-            console.log('Hiding quick actions');
         } else {
             quickActionsFab.classList.add('active');
             fab.classList.add('actions-active');
-            console.log('Showing quick actions');
         }
     }
 }

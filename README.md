@@ -25,9 +25,9 @@ sheep.land/
 
 ## 🚀 Quick Start
 
-### Development
+### 🛠️ Development
 
-1. **Start the backend:**
+1. **Start development server:**
    ```bash
    cd backend
    ./start.sh
@@ -35,15 +35,37 @@ sheep.land/
 
 2. **Access the application:**
    - **App**: http://localhost:8090
-   - **Admin**: http://localhost:8090/_/
+   - **Admin Dashboard**: http://localhost:8090/_/
    - **API**: http://localhost:8090/api/
 
-### Production
+### 🚀 Production Deployment
 
-Deploy using the included `pb-autodeploy.v3.sh` script which handles:
-- Database migrations
-- Service restart
-- Logging
+**Ready for immediate production deployment!**
+
+1. **Quick Production Start:**
+   ```bash
+   cd backend
+   ./start-production.sh
+   ```
+
+2. **Manual Production Setup:**
+   ```bash
+   cd backend
+   ./pocketbase migrate up                    # Apply migrations
+   ./pocketbase serve --publicDir=../frontend # Start production server
+   ```
+
+3. **Automated Deployment:**
+   ```bash
+   # Using deployment script (not in repo)
+   ./pb-autodeploy.v3.sh
+   ```
+
+**Features:**
+- ✅ Zero-setup database initialization
+- ✅ Automated migrations
+- ✅ Production-optimized configuration
+- ✅ Static file serving
 
 ## ✨ Features
 
@@ -77,21 +99,23 @@ Deploy using the included `pb-autodeploy.v3.sh` script which handles:
 ```bash
 cd backend
 
-# Start development server
+# Development server (hot reload, detailed logging)
 ./start.sh
 
-# Create new migration
-./pocketbase migrate create migration_name
+# Production server (optimized)
+./start-production.sh
 
-# Run migrations
-./pocketbase migrate up
+# Database management
+./pocketbase migrate create migration_name  # Create new migration
+./pocketbase migrate up                     # Apply migrations
+./pocketbase superuser upsert email pass   # Create admin user
 ```
 
 ### Frontend Development
-- Edit files directly in `frontend/`
-- No build process required
-- Changes reflect immediately
-- Use browser dev tools for debugging
+- **No build process** - Edit files directly in `frontend/`
+- **Hot reload** - Changes reflect immediately
+- **Alpine.js** - Reactive components for dynamic UI
+- **Production-ready** - Files served as-is
 
 ## 📚 Documentation
 

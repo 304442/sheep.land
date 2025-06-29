@@ -14,7 +14,6 @@ class FarmStoreIntegration {
         if (typeof pb !== 'undefined') {
             this.startRealtimeSync();
         } else {
-            console.warn('Store connection not available - working in offline mode');
             this.workOffline();
         }
         
@@ -383,7 +382,6 @@ class FarmStoreIntegration {
     startRealtimeSync() {
         // Subscribe to store order changes
         pb.collection('orders').subscribe('*', (e) => {
-            console.log('Store order event:', e.action);
             
             switch(e.action) {
                 case 'create':

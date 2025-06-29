@@ -444,5 +444,5 @@ onRecordUpdateRequest((e) => {
             record.set("admin_notes", (record.get("admin_notes") || "" + `\nOrder cancelled (old status: ${oldStatus}, payment: ${paymentStatus}). Stock not auto-incremented.`).trim());
         }
     }
-});// Test comment
+});
 

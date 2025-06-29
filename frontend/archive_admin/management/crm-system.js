@@ -266,7 +266,6 @@ class SheepFarmCRM {
             .replace('{points}', this.getCustomerPoints(customer.id));
         
         // In production, this would use actual WhatsApp Business API
-        console.log(`WhatsApp to ${customer.phone}: ${personalizedMessage}`);
         
         return {
             success: true,

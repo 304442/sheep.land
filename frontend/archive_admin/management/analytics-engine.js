@@ -624,7 +624,6 @@ function enhanceWithPredictions() {
             if (prediction && prediction.confidence !== 'low') {
                 // Update expected date if significantly different
                 if (Math.abs(new Date(prediction.expectedDate) - new Date(mating.expectedDueDate)) > 7*24*60*60*1000) {
-                    console.log(`Predicted lambing date for ${mating.id}: ${prediction.expectedDate}`);
                 }
             }
         });
