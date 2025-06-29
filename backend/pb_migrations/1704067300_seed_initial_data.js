@@ -4,15 +4,16 @@
 migrate((db) => {
     console.log("Seeding initial data...");
     
-    // Check if settings already exist
+    // Check if e-commerce settings already exist (not just any settings)
     try {
-        const existingSettings = db.findRecordsByFilter("settings", "", 1, 0);
+        const existingSettings = db.findRecordsByFilter("settings", "servFeeEGP > 0", 1, 0);
         if (existingSettings.length > 0) {
-            console.log("Settings already exist, skipping seed data");
+            console.log("E-commerce settings already exist, skipping seed data");
             return;
         }
     } catch (e) {
-        // Settings might not exist yet
+        // Settings might not exist yet, continue with seeding
+        console.log("No e-commerce settings found, proceeding with seed data");
     }
     
     // Create initial settings using PocketBase API
