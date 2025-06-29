@@ -44,8 +44,11 @@ npx playwright test
 ## Architecture
 
 ### Directory Structure
-- `/pb_hooks/main.pb.js` - Server-side business logic (order processing, validations, email notifications)
+- `/pb_hooks/` - Server-side business logic
+  - `main.pb.js` - Order processing, validations, email notifications (Updated to latest PocketBase API)
+  - `validation_helpers.pb.js` - Reusable validation functions
 - `/pb_migrations/` - Database schema migrations
+  - Example migrations included for adding fields, creating collections, and data migrations
 - `/public/` - Frontend application
   - `app.js` - Main e-commerce logic with Alpine.js components
   - `/management/` - Arabic-only farm management system (separate SPA)
@@ -54,12 +57,32 @@ npx playwright test
 
 ### Key Patterns
 
-**PocketBase Hooks** (server-side logic):
+**PocketBase Hooks** (server-side logic - Updated to latest API):
 ```javascript
-registerHook("collection_name", "beforeCreate", (e) => {
+// Hook registration (no wrapper function needed)
+onRecordBeforeCreateRequest((e) => {
+    if (e.collection.name !== "collection_name") return;
+    
     // e.record - the record being created/updated
-    // $app.dao() - database access object
-    // e.error() - to throw validation errors
+    // e.requestInfo - request context (auth, IP, etc.)
+    // throw new BadRequestError("message") - for validation errors
+    
+    // Access fields
+    const fieldValue = e.record.get("field_name");
+    
+    // Set fields
+    e.record.set("field_name", value);
+    
+    // Save other records
+    $app.save(otherRecord);
+});
+
+// Email sending
+$app.sendMail({
+    from: { address: "noreply@example.com", name: "App Name" },
+    to: [{ address: "user@example.com" }],
+    subject: "Subject",
+    html: "<p>HTML content</p>"
 });
 ```
 
@@ -82,10 +105,22 @@ migrate((db) => {
     // Forward migration
     const dao = new Dao(db);
     const collection = dao.findCollectionByNameOrId("collection_name");
-    // Make changes
+    
+    // Add fields
+    collection.schema.addField(new SchemaField({
+        "name": "field_name",
+        "type": "text",
+        "required": true,
+        "options": { "min": 1, "max": 200 }
+    }));
+    
     return dao.saveCollection(collection);
 }, (db) => {
     // Rollback migration
+    const dao = new Dao(db);
+    const collection = dao.findCollectionByNameOrId("collection_name");
+    collection.schema.removeField("field_name");
+    return dao.saveCollection(collection);
 });
 ```
 
@@ -117,3 +152,27 @@ Deployment uses `pb-autodeploy.v3.sh` script (not in repo) which:
 - Logs migration status
 
 For migration details, see `/pb_migrations/README.md`
+
+### Recent Updates (PocketBase API Migration)
+
+The codebase has been updated to use the latest PocketBase API:
+
+1. **Hooks API Changes**:
+   - Direct hook registration without wrapper functions
+   - Updated record field access methods (`.get()` instead of `.getString()`, etc.)
+   - New error handling with `BadRequestError`
+   - Updated email API using `$app.sendMail()`
+   - Direct `$app` methods instead of `dao` pattern
+
+2. **Migration Examples Added**:
+   - Product discount fields
+   - Order tracking system
+   - Customer reviews collection
+   - Loyalty points system
+   - Data migration patterns
+
+3. **Validation Improvements**:
+   - Separate validation helper functions
+   - Egyptian phone number validation
+   - Comprehensive order validation
+   - HTML sanitization helpers
