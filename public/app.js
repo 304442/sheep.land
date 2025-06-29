@@ -48,7 +48,20 @@ const initForm = {
 // Register Alpine component when Alpine initializes
 document.addEventListener('alpine:init', () => {
     Alpine.data('sheepLand', () => ({
-        load: { init: true, status: false, checkout: false, auth: false, orders: false, addingToCart: null },
+        load: { 
+            init: true, 
+            status: false, 
+            checkout: false, 
+            auth: false, 
+            orders: false, 
+            addingToCart: null,
+            // Additional loading states
+            products: false,
+            feasibility: false,
+            farm: false,
+            sync: false,
+            dashboard: false
+        },
         settings: {
             xchgRates: { EGP: { rate_from_egp: 1, symbol: "LE", is_active: true } },
             defCurr: "EGP", waNumRaw: "", waNumDisp: "", promoEndISO: new Date().toISOString(), 
@@ -458,6 +471,14 @@ document.addEventListener('alpine:init', () => {
                 // Return null or appropriate default value
                 return null;
             }
+        },
+        
+        // Generate cryptographically secure random ID
+        generateSecureId(prefix = '') {
+            const array = new Uint8Array(16);
+            crypto.getRandomValues(array);
+            const hex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+            return prefix + hex;
         },
 
         async initApp() {
@@ -898,7 +919,7 @@ document.addEventListener('alpine:init', () => {
                     return; 
                 }
             } else {
-                const newItem = { ...productVariant, quantity: 1, uniqueIdInCart: Date.now().toString(36) + Math.random().toString(36).substring(2) };
+                const newItem = { ...productVariant, quantity: 1, uniqueIdInCart: this.generateSecureId('cart_') };
                 if (isUdheya && udheyaConfigDetails) { 
                     newItem.udheya_details = { ...udheyaConfigDetails }; 
                 }
@@ -925,7 +946,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            const buyNowItem = { ...productVariant, quantity: 1, uniqueIdInCart: Date.now().toString(36) + Math.random().toString(36).substring(2) };
+            const buyNowItem = { ...productVariant, quantity: 1, uniqueIdInCart: this.generateSecureId('buy_') };
 
             if (productVariant.product_category === 'udheya') {
                 if (!udheyaConfigDetails) {
@@ -3544,7 +3565,7 @@ document.addEventListener('alpine:init', () => {
             };
             
             const orderPayload = { 
-                order_id_text: `${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`, 
+                order_id_text: this.generateSecureId('ORD').substring(0, 10).toUpperCase(), 
                 user: this.checkoutForm.user_id, 
                 customer_name: sanitizeInput(this.checkoutForm.customer_name), 
                 customer_phone: sanitizeInput(this.checkoutForm.customer_phone), 

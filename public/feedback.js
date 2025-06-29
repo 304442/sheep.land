@@ -1,5 +1,12 @@
 // Feedback & Customer Satisfaction System for Sheep.land
 const feedbackSystem = {
+    // Generate cryptographically secure random ID
+    generateSecureId(prefix = '') {
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+        const hex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+        return prefix + hex;
+    },
     // Initialize feedback system
     init() {
         // this.setupFeedbackWidget(); // Removed - using top bar button instead
@@ -581,7 +588,7 @@ const feedbackSystem = {
         const params = new URLSearchParams();
         
         // Generate unique feedback token
-        const feedbackToken = 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const feedbackToken = this.generateSecureId('fb_');
         params.set('feedback', feedbackToken);
         
         if (orderId) params.set('order', orderId);

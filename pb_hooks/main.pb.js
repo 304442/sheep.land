@@ -12,6 +12,39 @@ const registerHook = (collection, event, handler) => {
     }
 };
 
+// Simple in-memory rate limiter
+const rateLimiter = {
+    requests: new Map(),
+    windowMs: 60000, // 1 minute window
+    maxRequests: 10, // Max 10 orders per minute per IP
+    
+    check(ip) {
+        const now = Date.now();
+        const userRequests = this.requests.get(ip) || [];
+        
+        // Clean old requests
+        const validRequests = userRequests.filter(time => now - time < this.windowMs);
+        
+        if (validRequests.length >= this.maxRequests) {
+            return false; // Rate limit exceeded
+        }
+        
+        validRequests.push(now);
+        this.requests.set(ip, validRequests);
+        
+        // Cleanup old IPs periodically
+        if (this.requests.size > 1000) {
+            for (const [key, times] of this.requests.entries()) {
+                if (times.length === 0 || now - times[times.length - 1] > this.windowMs) {
+                    this.requests.delete(key);
+                }
+            }
+        }
+        
+        return true;
+    }
+};
+
 const sacrificeDayMap = { 
     "day1_10_dhul_hijjah": { "en": "Day 1 of Eid (10th Dhul Hijjah)", "ar": "اليوم الأول (10 ذو الحجة)" },
     "day2_11_dhul_hijjah": { "en": "Day 2 of Eid (11th Dhul Hijjah)", "ar": "اليوم الثاني (11 ذو الحجة)" },
@@ -22,6 +55,13 @@ const sacrificeDayMap = {
 registerHook("orders", "beforeCreate", (e) => {
     const record = e.record;
     const dao = $app.dao();
+    
+    // Rate limiting check
+    const clientIp = e.httpContext?.realIp() || 'unknown';
+    if (!rateLimiter.check(clientIp)) {
+        throw new Error("Too many orders. Please wait a moment before trying again.");
+    }
+    
     const lineItemsData = JSON.parse(JSON.stringify(record.get("line_items"))); 
 
     if (!Array.isArray(lineItemsData) || lineItemsData.length === 0) {
