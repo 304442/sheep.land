@@ -1,0 +1,3933 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام مراقبة مزرعة الأغنام - النسخة المطورة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .metric-card h3 {
+            margin: 0;
+            color: white;
+            border: none;
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .warning {
+            background-color: #ffe6e6;
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #e6ffe6;
+            color: #5cb85c;
+            font-weight: bold;
+        }
+        .input-cell {
+            background-color: #fffacd;
+        }
+        input[type="number"], input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .summary-box {
+            background-color: #e3f2fd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border: 1px solid #3498db;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85em;
+            margin: 5px 3px;
+        }
+        .btn-success {
+            background-color: #5cb85c;
+        }
+        .btn-danger {
+            background-color: #d9534f;
+        }
+        .alert {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #3498db;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        .tab {
+            padding: 8px 12px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 3px;
+            margin-bottom: -2px;
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .qr-section {
+            border: 2px dashed #3498db;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        @media print {
+            .btn, .tabs {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐑 نظام مراقبة مزرعة الأغنام - النسخة المطورة</h1>
+        
+        <!-- Critical Alerts Bar -->
+        <div id="criticalAlerts" style="background-color: #ffebee; padding: 10px; border-radius: 5px; margin-bottom: 20px; display: none;">
+            <strong>⚠️ تنبيهات حرجة:</strong>
+            <span id="criticalAlertsText"></span>
+        </div>
+
+        <!-- Feed Inventory Tab -->
+        <div id="feed" class="tab-content">
+            <h2>نظام مخزون العلف</h2>
+            
+            <div class="alert alert-danger" id="feedAlert" style="display: block;">
+                <strong>⚠️ تحذير:</strong> المخزون المتبقي يكفي لـ 5 أيام فقط!
+            </div>
+
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>مخزون العليقة</h3>
+                    <div class="metric-value" id="feedStock">500 كجم</div>
+                    <small>يكفي لـ <span id="feedDays">10</span> أيام</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>مخزون التبن</h3>
+                    <div class="metric-value" id="hayStock">200 كجم</div>
+                    <small>يكفي لـ <span id="hayDays">8</span> أيام</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>استهلاك يومي</h3>
+                    <div class="metric-value" id="dailyConsumption">75 كجم</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>تاريخ الطلب القادم</h3>
+                    <div class="metric-value" id="nextOrder">25/12</div>
+                </div>
+            </div>
+
+            <h3>سجل المشتريات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>الكمية</th>
+                        <th>السعر/كجم</th>
+                        <th>الإجمالي</th>
+                        <th>المورد</th>
+                        <th>الجودة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="date"></td>
+                        <td>
+                            <select>
+                                <option>عليقة مركزة</option>
+                                <option>تبن</option>
+                                <option>ذرة صفراء</option>
+                            </select>
+                        </td>
+                        <td><input type="number" placeholder="1000"></td>
+                        <td><input type="number" placeholder="8.5"></td>
+                        <td>8500</td>
+                        <td><input type="text" placeholder="اسم المورد"></td>
+                        <td>
+                            <select>
+                                <option>ممتاز</option>
+                                <option>جيد</option>
+                                <option>متوسط</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <button class="btn btn-success">إضافة مشتريات</button>
+            <button class="btn" onclick="calculateFeedNeeds()">حساب احتياجات الدورة</button>
+        </div>
+
+        <!-- Market Intelligence Tab -->
+        <div id="market" class="tab-content">
+            <h2>معلومات السوق</h2>
+            
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>سعر اليوم</h3>
+                    <div class="metric-value" id="todayPrice">225 جنيه/كجم</div>
+                    <small>آخر تحديث: اليوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>أفضل سعر الأسبوع</h3>
+                    <div class="metric-value">242 جنيه/كجم</div>
+                    <small>الخميس الماضي</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>توقع السعر</h3>
+                    <div class="metric-value">↑ 235</div>
+                    <small>الأسبوع القادم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>أفضل وقت للبيع</h3>
+                    <div class="metric-value">بعد 15 يوم</div>
+                    <small>عند 65 كجم</small>
+                </div>
+            </div>
+
+            <h3>جهات الشراء</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم المشتري</th>
+                        <th>رقم الهاتف</th>
+                        <th>آخر سعر</th>
+                        <th>التقييم</th>
+                        <th>ملاحظات</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" placeholder="اسم المشتري"></td>
+                        <td><input type="text" placeholder="01234567890"></td>
+                        <td><input type="number" placeholder="220"></td>
+                        <td>
+                            <select>
+                                <option>⭐⭐⭐⭐⭐</option>
+                                <option>⭐⭐⭐⭐</option>
+                                <option>⭐⭐⭐</option>
+                            </select>
+                        </td>
+                        <td><input type="text" placeholder="يدفع كاش"></td>
+                        <td><button class="btn btn-success">اتصال</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Visual Documentation Tab -->
+        <div id="visual" class="tab-content">
+            <h2>📸 نظام التوثيق المرئي</h2>
+            
+            <!-- Photo Progress Dashboard -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>إجمالي الصور</h3>
+                    <div class="metric-value">247</div>
+                    <small>منذ بداية الدورة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>صور هذا الأسبوع</h3>
+                    <div class="metric-value">35</div>
+                    <small>5 صور/يوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>توثيق المشاكل</h3>
+                    <div class="metric-value">12</div>
+                    <small>حالات موثقة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>متوسط الحجم</h3>
+                    <div class="metric-value">2.3 MB</div>
+                    <small>لكل صورة</small>
+                </div>
+            </div>
+
+            <!-- Weekly Photo Comparison -->
+            <h3>📊 مقارنة التقدم الأسبوعي</h3>
+            <div class="summary-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الأسبوع</th>
+                            <th>صورة البداية</th>
+                            <th>صورة النهاية</th>
+                            <th>التغيير المرئي</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>الأسبوع 1</td>
+                            <td><button class="btn">📷 عرض</button></td>
+                            <td><button class="btn">📷 عرض</button></td>
+                            <td>نمو بطيء، نحافة واضحة</td>
+                            <td>يحتاج تحسين تغذية</td>
+                        </tr>
+                        <tr>
+                            <td>الأسبوع 2</td>
+                            <td><button class="btn">📷 عرض</button></td>
+                            <td><button class="btn">📷 عرض</button></td>
+                            <td>تحسن طفيف</td>
+                            <td>بداية استجابة للعلف الجديد</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Photo Upload Section -->
+            <h3>📤 رفع صور جديدة</h3>
+            <div class="qr-section">
+                <h4>التقط وارفع الصور</h4>
+                <input type="file" accept="image/*" multiple>
+                <select style="margin: 10px;">
+                    <option>اختر نوع الصورة</option>
+                    <option>صورة تقدم أسبوعية</option>
+                    <option>حالة مرضية</option>
+                    <option>جودة العلف</option>
+                    <option>حالة الحظائر</option>
+                    <option>مقارنة قبل/بعد</option>
+                </select>
+                <button class="btn btn-success">رفع الصور</button>
+            </div>
+
+            <!-- Problem Documentation -->
+            <h3>🚨 توثيق المشاكل بالصور</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>نوع المشكلة</th>
+                        <th>الصورة</th>
+                        <th>الإجراء المتخذ</th>
+                        <th>النتيجة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>20/06/2025</td>
+                        <td>علف متعفن</td>
+                        <td><button class="btn">📷 عرض</button></td>
+                        <td>رفض الشحنة، تغيير المورد</td>
+                        <td>✅ تم الحل</td>
+                    </tr>
+                    <tr>
+                        <td>18/06/2025</td>
+                        <td>إصابة جلدية</td>
+                        <td><button class="btn">📷 عرض</button></td>
+                        <td>عزل + علاج</td>
+                        <td>🔄 تحت المتابعة</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Historical Analysis Tab -->
+        <div id="history" class="tab-content">
+            <h2>📚 السجل التاريخي ومقارنة الدورات</h2>
+            
+            <!-- Multi-Cycle Comparison Dashboard -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>عدد الدورات السابقة</h3>
+                    <div class="metric-value">5 دورات</div>
+                    <small>خلال 3 سنوات</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>أفضل دورة</h3>
+                    <div class="metric-value">دورة 3</div>
+                    <small>ربح: 125,000 جنيه</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>متوسط الربح</h3>
+                    <div class="metric-value">45,000 جنيه</div>
+                    <small>لكل دورة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>معدل التحسن</h3>
+                    <div class="metric-value">+15%</div>
+                    <small>سنوياً</small>
+                </div>
+            </div>
+
+            <!-- Cycle Comparison Table -->
+            <h3>📊 مقارنة الدورات السابقة</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الدورة</th>
+                        <th>التاريخ</th>
+                        <th>العدد</th>
+                        <th>معدل النمو</th>
+                        <th>التكلفة/كجم</th>
+                        <th>الربح/الخسارة</th>
+                        <th>أهم الدروس</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="success">
+                        <td>دورة 3</td>
+                        <td>مارس 2024</td>
+                        <td>50</td>
+                        <td>0.24</td>
+                        <td>135</td>
+                        <td>+125,000</td>
+                        <td>علف عالي الجودة = نتائج ممتازة</td>
+                    </tr>
+                    <tr>
+                        <td>دورة 4</td>
+                        <td>أغسطس 2024</td>
+                        <td>45</td>
+                        <td>0.21</td>
+                        <td>145</td>
+                        <td>+85,000</td>
+                        <td>الصيف يحتاج رعاية خاصة</td>
+                    </tr>
+                    <tr class="warning">
+                        <td>دورة 5</td>
+                        <td>يناير 2025</td>
+                        <td>31</td>
+                        <td>0.15</td>
+                        <td>165</td>
+                        <td>-85,000</td>
+                        <td>لا تقلل العلف أبداً!</td>
+                    </tr>
+                    <tr style="background-color: #e3f2fd;">
+                        <td><strong>الحالية</strong></td>
+                        <td>يونيو 2025</td>
+                        <td>31</td>
+                        <td>0.15</td>
+                        <td>165</td>
+                        <td>؟</td>
+                        <td>جاري...</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Trend Analysis -->
+            <h3>📈 تحليل الاتجاهات طويلة المدى</h3>
+            <div class="summary-box">
+                <h4>النتائج الرئيسية:</h4>
+                <ul>
+                    <li>📈 <strong>أفضل الشهور:</strong> مارس-مايو (ربيع) | سبتمبر-نوفمبر (خريف)</li>
+                    <li>📉 <strong>أسوأ الشهور:</strong> يوليو-أغسطس (حر شديد) | يناير (برد)</li>
+                    <li>💰 <strong>أفضل حجم قطيع:</strong> 45-50 رأس (الحجم الاقتصادي الأمثل)</li>
+                    <li>🎯 <strong>معدل النمو المربح:</strong> أعلى من 0.21 كجم/يوم</li>
+                    <li>⚖️ <strong>الوزن الأمثل للبيع:</strong> 65-70 كجم</li>
+                </ul>
+            </div>
+
+            <!-- Success Factors -->
+            <h3>✅ عوامل النجاح المثبتة</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>العامل</th>
+                        <th>التأثير على الربح</th>
+                        <th>عدد مرات التطبيق</th>
+                        <th>نسبة النجاح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="success">
+                        <td>علف عالي الجودة (8+ جنيه/كجم)</td>
+                        <td>+40%</td>
+                        <td>3/5</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr class="success">
+                        <td>بداية في الربيع</td>
+                        <td>+25%</td>
+                        <td>2/5</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr class="success">
+                        <td>50 رأس كاملة</td>
+                        <td>+30%</td>
+                        <td>3/5</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr class="warning">
+                        <td>تقليل التكاليف</td>
+                        <td>-60%</td>
+                        <td>2/5</td>
+                        <td>0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contracts Management Tab -->
+        <div id="contracts" class="tab-content">
+            <h2>📄 إدارة العقود والاتفاقيات</h2>
+            
+            <!-- Contracts Overview -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>العقود النشطة</h3>
+                    <div class="metric-value">7</div>
+                    <small>عقود سارية</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>قيمة العقود</h3>
+                    <div class="metric-value">850,000 جنيه</div>
+                    <small>إجمالي القيمة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>تنتهي قريباً</h3>
+                    <div class="metric-value">2</div>
+                    <small>خلال 30 يوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>مخالفات</h3>
+                    <div class="metric-value">1</div>
+                    <small>تحتاج حل</small>
+                </div>
+            </div>
+
+            <!-- Active Contracts -->
+            <h3>📋 العقود النشطة</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>نوع العقد</th>
+                        <th>الطرف الآخر</th>
+                        <th>القيمة</th>
+                        <th>تاريخ البداية</th>
+                        <th>تاريخ الانتهاء</th>
+                        <th>الحالة</th>
+                        <th>المستندات</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>شراكة تشغيل</td>
+                        <td>أحمد محمد (الشريك)</td>
+                        <td>50% أرباح</td>
+                        <td>01/06/2025</td>
+                        <td>01/12/2025</td>
+                        <td>✅ ساري</td>
+                        <td><button class="btn">📄 عرض</button></td>
+                        <td><button class="btn">تعديل</button></td>
+                    </tr>
+                    <tr>
+                        <td>توريد علف</td>
+                        <td>محمد الصعيدي</td>
+                        <td>8.2 جنيه/كجم</td>
+                        <td>15/06/2025</td>
+                        <td>15/09/2025</td>
+                        <td>✅ ساري</td>
+                        <td><button class="btn">📄 عرض</button></td>
+                        <td><button class="btn">تجديد</button></td>
+                    </tr>
+                    <tr class="warning">
+                        <td>إيجار مزرعة</td>
+                        <td>حسين الملاك</td>
+                        <td>5,000/شهر</td>
+                        <td>01/01/2025</td>
+                        <td>01/07/2025</td>
+                        <td>⚠️ ينتهي قريباً</td>
+                        <td><button class="btn">📄 عرض</button></td>
+                        <td><button class="btn btn-danger">تجديد عاجل</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Partnership Agreement Details -->
+            <h3>🤝 تفاصيل اتفاق الشراكة</h3>
+            <div class="summary-box">
+                <h4>الشريك: أحمد محمد | النسبة: 50-50</h4>
+                <table>
+                    <tr>
+                        <td><strong>مسؤوليات الشريك الأول (أنت):</strong></td>
+                        <td>
+                            ✅ رأس المال الكامل<br>
+                            ✅ القرارات المالية<br>
+                            ✅ اختيار الموردين<br>
+                            ✅ تحديد وقت البيع
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>مسؤوليات الشريك الثاني:</strong></td>
+                        <td>
+                            ✅ الإدارة اليومية<br>
+                            ✅ رعاية الأغنام<br>
+                            ✅ شراء العلف (بموافقتك)<br>
+                            ✅ التقارير الأسبوعية
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>القيود:</strong></td>
+                        <td>
+                            ❌ لا يحق تغيير العلف بدون موافقة<br>
+                            ❌ لا يحق البيع بدون موافقة<br>
+                            ❌ لا يحق صرف أكثر من 5000 جنيه<br>
+                            ❌ لا يحق تقليل العمالة
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Contract Violations -->
+            <h3>⚠️ مخالفات العقود</h3>
+            <div class="alert alert-danger" style="display: block;">
+                <strong>مخالفة:</strong> الشريك قلل العلف بدون موافقة (15/06/2025)
+                <button class="btn btn-danger" style="float: left;">اتخاذ إجراء</button>
+            </div>
+        </div>
+
+        <!-- HR Management Tab -->
+        <div id="hr" class="tab-content">
+            <h2>👥 إدارة الموارد البشرية</h2>
+            
+            <!-- HR Dashboard -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>عدد العاملين</h3>
+                    <div class="metric-value">3</div>
+                    <small>2 عمال + 1 مشرف</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>إجمالي الرواتب</h3>
+                    <div class="metric-value">8,000 جنيه</div>
+                    <small>شهرياً</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>معدل الحضور</h3>
+                    <div class="metric-value">92%</div>
+                    <small>هذا الشهر</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>الإنتاجية</h3>
+                    <div class="metric-value">75%</div>
+                    <small>متوسط</small>
+                </div>
+            </div>
+
+            <!-- Employee Records -->
+            <h3>👷 سجل العاملين</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>الوظيفة</th>
+                        <th>الراتب</th>
+                        <th>تاريخ البدء</th>
+                        <th>الحضور الشهر</th>
+                        <th>الأداء</th>
+                        <th>المهارات</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>محمود أحمد</td>
+                        <td>مشرف</td>
+                        <td>4,000</td>
+                        <td>01/01/2024</td>
+                        <td>100%</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>إدارة، تطعيمات</td>
+                        <td><button class="btn">تفاصيل</button></td>
+                    </tr>
+                    <tr>
+                        <td>سيد حسن</td>
+                        <td>عامل</td>
+                        <td>2,500</td>
+                        <td>15/03/2025</td>
+                        <td>95%</td>
+                        <td>⭐⭐⭐</td>
+                        <td>تغذية، نظافة</td>
+                        <td><button class="btn">تفاصيل</button></td>
+                    </tr>
+                    <tr class="warning">
+                        <td>عمر محمد</td>
+                        <td>عامل</td>
+                        <td>1,500</td>
+                        <td>01/06/2025</td>
+                        <td>80%</td>
+                        <td>⭐⭐</td>
+                        <td>تدريب</td>
+                        <td><button class="btn btn-danger">تحذير</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Daily Attendance -->
+            <h3>📅 سجل الحضور اليومي</h3>
+            <div class="summary-box">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اليوم</th>
+                            <th>محمود</th>
+                            <th>سيد</th>
+                            <th>عمر</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>23/06/2025</td>
+                            <td>✅ 7:00-6:00</td>
+                            <td>✅ 7:00-6:00</td>
+                            <td>⚠️ 9:00-5:00</td>
+                            <td>عمر تأخر ساعتين</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payroll -->
+            <h3>💰 كشف المرتبات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الموظف</th>
+                        <th>الأساسي</th>
+                        <th>حوافز</th>
+                        <th>خصومات</th>
+                        <th>الصافي</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>محمود أحمد</td>
+                        <td>4,000</td>
+                        <td>500</td>
+                        <td>0</td>
+                        <td>4,500</td>
+                        <td>✅ مدفوع</td>
+                    </tr>
+                    <tr>
+                        <td>سيد حسن</td>
+                        <td>2,500</td>
+                        <td>200</td>
+                        <td>0</td>
+                        <td>2,700</td>
+                        <td>✅ مدفوع</td>
+                    </tr>
+                    <tr>
+                        <td>عمر محمد</td>
+                        <td>1,500</td>
+                        <td>0</td>
+                        <td>200</td>
+                        <td>1,300</td>
+                        <td>⏳ معلق</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Compliance Tab -->
+        <div id="compliance" class="tab-content">
+            <h2>⚖️ الامتثال والتراخيص</h2>
+            
+            <!-- Compliance Dashboard -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>التراخيص السارية</h3>
+                    <div class="metric-value">5/6</div>
+                    <small>ترخيص واحد منتهي</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>آخر تفتيش</h3>
+                    <div class="metric-value">45 يوم</div>
+                    <small>نتيجة: ناجح</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>الضرائب المستحقة</h3>
+                    <div class="metric-value">12,500 جنيه</div>
+                    <small>موعد السداد: 30/07</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>التأمينات</h3>
+                    <div class="metric-value">✅ سارية</div>
+                    <small>حتى 31/12/2025</small>
+                </div>
+            </div>
+
+            <!-- Licenses & Permits -->
+            <h3>📋 التراخيص والتصاريح</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>نوع الترخيص</th>
+                        <th>رقم الترخيص</th>
+                        <th>تاريخ الإصدار</th>
+                        <th>تاريخ الانتهاء</th>
+                        <th>الحالة</th>
+                        <th>التجديد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>رخصة تشغيل مزرعة</td>
+                        <td>MF-2024-1234</td>
+                        <td>01/01/2024</td>
+                        <td>31/12/2025</td>
+                        <td>✅ ساري</td>
+                        <td><button class="btn">تجديد</button></td>
+                    </tr>
+                    <tr class="warning">
+                        <td>شهادة صحة بيطرية</td>
+                        <td>VH-2025-5678</td>
+                        <td>01/05/2025</td>
+                        <td>01/07/2025</td>
+                        <td>⚠️ ينتهي قريباً</td>
+                        <td><button class="btn btn-danger">تجديد عاجل</button></td>
+                    </tr>
+                    <tr>
+                        <td>تصريح نقل حيوانات</td>
+                        <td>AT-2025-9012</td>
+                        <td>15/06/2025</td>
+                        <td>15/06/2026</td>
+                        <td>✅ ساري</td>
+                        <td><button class="btn">تجديد</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Tax Records -->
+            <h3>💰 السجل الضريبي</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الفترة</th>
+                        <th>الإيرادات</th>
+                        <th>المصروفات</th>
+                        <th>الربح</th>
+                        <th>الضريبة</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Q1 2025</td>
+                        <td>320,000</td>
+                        <td>405,000</td>
+                        <td>-85,000</td>
+                        <td>0</td>
+                        <td>✅ مقدم</td>
+                    </tr>
+                    <tr>
+                        <td>Q2 2025</td>
+                        <td>0</td>
+                        <td>425,000</td>
+                        <td>-425,000</td>
+                        <td>0</td>
+                        <td>⏳ جاري</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Insurance -->
+            <h3>🛡️ التأمينات</h3>
+            <div class="summary-box">
+                <table>
+                    <tr>
+                        <td>تأمين ضد الحريق:</td>
+                        <td>✅ ساري حتى 31/12/2025</td>
+                        <td>قسط: 500 جنيه/شهر</td>
+                    </tr>
+                    <tr>
+                        <td>تأمين المسؤولية:</td>
+                        <td>✅ ساري حتى 30/09/2025</td>
+                        <td>قسط: 300 جنيه/شهر</td>
+                    </tr>
+                    <tr>
+                        <td>تأمين صحي للعمال:</td>
+                        <td>✅ ساري حتى 31/12/2025</td>
+                        <td>قسط: 200 جنيه/شهر</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Communication Log Tab -->
+        <div id="communication" class="tab-content">
+            <h2>📞 سجل التواصل والقرارات</h2>
+            
+            <!-- Communication Overview -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>إجمالي الرسائل</h3>
+                    <div class="metric-value">324</div>
+                    <small>هذا الشهر</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>المكالمات</h3>
+                    <div class="metric-value">47</div>
+                    <small>مكالمة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>القرارات الموثقة</h3>
+                    <div class="metric-value">23</div>
+                    <small>قرار</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>النزاعات</h3>
+                    <div class="metric-value">2</div>
+                    <small>تحت الحل</small>
+                </div>
+            </div>
+
+            <!-- Communication Log -->
+            <h3>📱 سجل المراسلات</h3>
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>التاريخ/الوقت</th>
+                            <th>النوع</th>
+                            <th>من/إلى</th>
+                            <th>الموضوع</th>
+                            <th>الملخص</th>
+                            <th>المرفقات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color: #ffebee;">
+                            <td>23/06 10:30 ص</td>
+                            <td>📱 WhatsApp</td>
+                            <td>الشريك</td>
+                            <td>تقليل العلف</td>
+                            <td>الشريك يريد تقليل العلف لتوفير المال</td>
+                            <td>صورة</td>
+                        </tr>
+                        <tr style="background-color: #e8f5e9;">
+                            <td>23/06 10:45 ص</td>
+                            <td>📱 WhatsApp</td>
+                            <td>أنت</td>
+                            <td>رفض تقليل العلف</td>
+                            <td>ممنوع تقليل العلف، الجودة أولوية</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>22/06 2:00 م</td>
+                            <td>📞 مكالمة</td>
+                            <td>المورد</td>
+                            <td>تأكيد الطلبية</td>
+                            <td>تأكيد توريد 2 طن علف يوم 25/6</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>21/06 9:00 ص</td>
+                            <td>✉️ إيميل</td>
+                            <td>المحاسب</td>
+                            <td>تقرير مالي</td>
+                            <td>تقرير المصروفات الشهرية</td>
+                            <td>Excel</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Decision Log -->
+            <h3>📋 سجل القرارات المهمة</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>القرار</th>
+                        <th>صاحب القرار</th>
+                        <th>السبب</th>
+                        <th>النتيجة</th>
+                        <th>التوثيق</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="success">
+                        <td>15/06/2025</td>
+                        <td>تغيير مورد العلف</td>
+                        <td>أنت</td>
+                        <td>جودة سيئة من المورد السابق</td>
+                        <td>تحسن معدل النمو 10%</td>
+                        <td>✅ موثق</td>
+                    </tr>
+                    <tr class="warning">
+                        <td>10/06/2025</td>
+                        <td>تقليل عدد الأغنام</td>
+                        <td>الشريك</td>
+                        <td>نقص السيولة</td>
+                        <td>31 بدلاً من 50</td>
+                        <td>⚠️ بدون موافقة</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Disputes -->
+            <h3>⚠️ النزاعات والخلافات</h3>
+            <div class="alert alert-warning" style="display: block;">
+                <h4>نزاع #1: تقليل العلف بدون موافقة</h4>
+                <strong>التاريخ:</strong> 15/06/2025<br>
+                <strong>الأطراف:</strong> أنت vs الشريك<br>
+                <strong>الموضوع:</strong> الشريك قلل كمية العلف من 2 كجم إلى 1.2 كجم لكل رأس<br>
+                <strong>الحالة:</strong> تحت المناقشة<br>
+                <button class="btn btn-danger">عرض التفاصيل</button>
+            </div>
+        </div>
+
+        <!-- Detailed Expenses Tab -->
+        <div id="expenses" class="tab-content">
+            <h2>💸 نظام إدارة المصروفات التفصيلية</h2>
+            
+            <!-- Expense Overview Dashboard -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>إجمالي المصروفات</h3>
+                    <div class="metric-value" id="totalExpenses">425,000 جنيه</div>
+                    <small>منذ بداية الدورة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>مصروفات ثابتة</h3>
+                    <div class="metric-value">85,000 جنيه</div>
+                    <small>20% من الإجمالي</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>مصروفات متغيرة</h3>
+                    <div class="metric-value">340,000 جنيه</div>
+                    <small>80% من الإجمالي</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>تكلفة الكيلو</h3>
+                    <div class="metric-value">165 جنيه/كجم</div>
+                    <small>الهدف: 140 جنيه/كجم</small>
+                </div>
+            </div>
+
+            <!-- Fixed vs Variable Costs -->
+            <h3>📊 تحليل المصروفات الثابتة والمتغيرة</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <!-- Fixed Costs -->
+                <div class="summary-box">
+                    <h4>💰 المصروفات الثابتة (لا تتغير بعدد الأغنام)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>البند</th>
+                                <th>المبلغ الشهري</th>
+                                <th>إجمالي الدورة</th>
+                                <th>مدفوع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>إيجار المزرعة</td>
+                                <td>5,000</td>
+                                <td>30,000</td>
+                                <td><input type="checkbox" checked> ✅</td>
+                            </tr>
+                            <tr>
+                                <td>رواتب العمال</td>
+                                <td>4,000</td>
+                                <td>24,000</td>
+                                <td><input type="checkbox"> ⏳</td>
+                            </tr>
+                            <tr>
+                                <td>كهرباء ومياه</td>
+                                <td>500</td>
+                                <td>3,000</td>
+                                <td><input type="checkbox" checked> ✅</td>
+                            </tr>
+                            <tr>
+                                <td>تأمين</td>
+                                <td>1,000</td>
+                                <td>6,000</td>
+                                <td><input type="checkbox"> ⏳</td>
+                            </tr>
+                            <tr>
+                                <td>صيانة معدات</td>
+                                <td>833</td>
+                                <td>5,000</td>
+                                <td><input type="checkbox"> ⏳</td>
+                            </tr>
+                            <tr>
+                                <td>رسوم وتراخيص</td>
+                                <td>2,833</td>
+                                <td>17,000</td>
+                                <td><input type="checkbox" checked> ✅</td>
+                            </tr>
+                            <tr style="background-color: #e3f2fd; font-weight: bold;">
+                                <td>الإجمالي</td>
+                                <td>14,166</td>
+                                <td>85,000</td>
+                                <td>35%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Variable Costs -->
+                <div class="summary-box">
+                    <h4>📈 المصروفات المتغيرة (تتغير بعدد الأغنام)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>البند</th>
+                                <th>لكل رأس</th>
+                                <th>الإجمالي</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>شراء الأغنام</td>
+                                <td>7,765</td>
+                                <td>240,725</td>
+                                <td>71%</td>
+                            </tr>
+                            <tr>
+                                <td>العلف المركز</td>
+                                <td>2,919</td>
+                                <td>90,488</td>
+                                <td>27%</td>
+                            </tr>
+                            <tr>
+                                <td>الأعلاف الخشنة</td>
+                                <td>368</td>
+                                <td>11,430</td>
+                                <td>3%</td>
+                            </tr>
+                            <tr>
+                                <td>أدوية ولقاحات</td>
+                                <td>339</td>
+                                <td>10,505</td>
+                                <td>3%</td>
+                            </tr>
+                            <tr>
+                                <td>نقل</td>
+                                <td>161</td>
+                                <td>5,000</td>
+                                <td>1.5%</td>
+                            </tr>
+                            <tr>
+                                <td>طوارئ 5%</td>
+                                <td>565</td>
+                                <td>17,500</td>
+                                <td>5%</td>
+                            </tr>
+                            <tr style="background-color: #e3f2fd; font-weight: bold;">
+                                <td>الإجمالي</td>
+                                <td>12,117</td>
+                                <td>375,648</td>
+                                <td>100%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Daily Expense Tracking -->
+            <h3>📝 تسجيل المصروفات اليومية</h3>
+            <button class="btn btn-success" onclick="addDailyExpense()">+ إضافة مصروف جديد</button>
+            
+            <table style="margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>التصنيف</th>
+                        <th>البند</th>
+                        <th>المبلغ</th>
+                        <th>طريقة الدفع</th>
+                        <th>المستند</th>
+                        <th>ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody id="dailyExpenses">
+                    <tr>
+                        <td>23/06/2025</td>
+                        <td>متغير</td>
+                        <td>علف</td>
+                        <td>علف مركز - دفعة 3</td>
+                        <td>15,000</td>
+                        <td>كاش</td>
+                        <td>✅ فاتورة</td>
+                        <td>1.5 طن من محمد الصعيدي</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Cost Analysis -->
+            <h3>📊 تحليل التكاليف</h3>
+            <div class="alert alert-warning" style="display: block;">
+                <strong>⚠️ تنبيه:</strong> تكلفة الكيلو الحالية (165 جنيه) أعلى من الهدف (140 جنيه) بنسبة 18%
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>مؤشر التكلفة</th>
+                        <th>الفعلي</th>
+                        <th>المستهدف</th>
+                        <th>الفرق</th>
+                        <th>التوصية</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>تكلفة العلف/كجم نمو</td>
+                        <td class="warning">60 جنيه</td>
+                        <td>40 جنيه</td>
+                        <td>+50%</td>
+                        <td>تحسين كفاءة التحويل</td>
+                    </tr>
+                    <tr>
+                        <td>تكلفة العمالة/رأس</td>
+                        <td class="success">97 جنيه</td>
+                        <td>480 جنيه</td>
+                        <td>-80%</td>
+                        <td>⚠️ قد تكون قليلة جداً</td>
+                    </tr>
+                    <tr>
+                        <td>نسبة الثابت:المتغير</td>
+                        <td>20:80</td>
+                        <td>25:75</td>
+                        <td>جيد</td>
+                        <td>✅ نسبة صحية</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Operations Monitoring Tab -->
+        <div id="operations" class="tab-content">
+            <h2>⚙️ نظام مراقبة العمليات اليومية</h2>
+            
+            <!-- Operations KPIs -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>كفاءة العمليات</h3>
+                    <div class="metric-value">72%</div>
+                    <small>يحتاج تحسين</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>ساعات العمل/يوم</h3>
+                    <div class="metric-value">4.5 ساعة</div>
+                    <small>الهدف: 8 ساعات</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>معدل الأخطاء</h3>
+                    <div class="metric-value">15%</div>
+                    <small>مرتفع</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>الالتزام بالجدول</h3>
+                    <div class="metric-value">65%</div>
+                    <small>ضعيف</small>
+                </div>
+            </div>
+
+            <!-- Daily Operations Checklist -->
+            <h3>✅ قائمة المهام اليومية</h3>
+            <div class="summary-box">
+                <h4>📅 اليوم: <span id="operationsDate"></span></h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الوقت</th>
+                            <th>المهمة</th>
+                            <th>المسؤول</th>
+                            <th>تمت</th>
+                            <th>الوقت الفعلي</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>6:00 ص</td>
+                            <td>فحص المياه وتنظيف الأحواض</td>
+                            <td>العامل 1</td>
+                            <td><input type="checkbox" onchange="updateOperations()"></td>
+                            <td><input type="time"></td>
+                            <td><input type="text" placeholder="ملاحظات"></td>
+                        </tr>
+                        <tr>
+                            <td>7:00 ص</td>
+                            <td>توزيع العلف الصباحي</td>
+                            <td>العامل 1+2</td>
+                            <td><input type="checkbox" onchange="updateOperations()"></td>
+                            <td><input type="time"></td>
+                            <td><input type="text"></td>
+                        </tr>
+                        <tr>
+                            <td>8:00 ص</td>
+                            <td>فحص صحي سريع</td>
+                            <td>المشرف</td>
+                            <td><input type="checkbox" onchange="updateOperations()"></td>
+                            <td><input type="time"></td>
+                            <td><input type="text"></td>
+                        </tr>
+                        <tr>
+                            <td>12:00 م</td>
+                            <td>تنظيف الحظائر</td>
+                            <td>العامل 2</td>
+                            <td><input type="checkbox" onchange="updateOperations()"></td>
+                            <td><input type="time"></td>
+                            <td><input type="text"></td>
+                        </tr>
+                        <tr>
+                            <td>5:00 م</td>
+                            <td>توزيع العلف المسائي</td>
+                            <td>العامل 1+2</td>
+                            <td><input type="checkbox" onchange="updateOperations()"></td>
+                            <td><input type="time"></td>
+                            <td><input type="text"></td>
+                        </tr>
+                        <tr>
+                            <td>6:00 م</td>
+                            <td>عد الأغنام والتأكد من السلامة</td>
+                            <td>المشرف</td>
+                            <td><input type="checkbox" onchange="updateOperations()"></td>
+                            <td><input type="time"></td>
+                            <td><input type="text"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin-top: 10px;">
+                    <strong>إنجاز المهام اليوم:</strong> <span id="taskCompletion">0%</span>
+                </div>
+            </div>
+
+            <!-- Resource Utilization -->
+            <h3>📊 استخدام الموارد</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>المورد</th>
+                        <th>المتاح</th>
+                        <th>المستخدم</th>
+                        <th>الكفاءة</th>
+                        <th>التكلفة/وحدة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>العمالة (ساعات/يوم)</td>
+                        <td>16</td>
+                        <td>9</td>
+                        <td class="warning">56%</td>
+                        <td>25 جنيه/ساعة</td>
+                    </tr>
+                    <tr>
+                        <td>مساحة الحظائر (م²)</td>
+                        <td>500</td>
+                        <td>310</td>
+                        <td class="success">62%</td>
+                        <td>0.5 جنيه/م²/يوم</td>
+                    </tr>
+                    <tr>
+                        <td>معدات التغذية</td>
+                        <td>10</td>
+                        <td>8</td>
+                        <td class="success">80%</td>
+                        <td>5 جنيه/يوم</td>
+                    </tr>
+                    <tr>
+                        <td>خزانات المياه</td>
+                        <td>5000 لتر</td>
+                        <td>3100 لتر</td>
+                        <td class="success">62%</td>
+                        <td>0.02 جنيه/لتر</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Standard Operating Procedures -->
+            <h3>📋 إجراءات التشغيل القياسية (SOPs)</h3>
+            <div class="summary-box">
+                <h4>دليل العمليات اليومية</h4>
+                <ol>
+                    <li><strong>التغذية:</strong> 3 مرات يومياً (6ص، 12م، 6م) - 1.5-2 كجم/رأس/يوم</li>
+                    <li><strong>المياه:</strong> متوفرة 24/7 - فحص كل 4 ساعات</li>
+                    <li><strong>النظافة:</strong> كنس يومي، غسيل أسبوعي، تطهير شهري</li>
+                    <li><strong>الفحص الصحي:</strong> بصري يومياً، وزن أسبوعي، بيطري شهري</li>
+                    <li><strong>السجلات:</strong> تحديث يومي للأوزان، العلف، الصحة</li>
+                    <li><strong>الأمان:</strong> عد مرتين يومياً، فحص السياج أسبوعياً</li>
+                </ol>
+            </div>
+
+            <!-- Performance Metrics -->
+            <h3>📈 مؤشرات أداء العمليات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>المؤشر</th>
+                        <th>هذا الأسبوع</th>
+                        <th>الأسبوع الماضي</th>
+                        <th>التغيير</th>
+                        <th>الهدف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>وقت التغذية/رأس</td>
+                        <td>2.5 دقيقة</td>
+                        <td>3 دقائق</td>
+                        <td class="success">-17%</td>
+                        <td>2 دقيقة</td>
+                    </tr>
+                    <tr>
+                        <td>معدل الهدر في العلف</td>
+                        <td>8%</td>
+                        <td>12%</td>
+                        <td class="success">-33%</td>
+                        <td><5%</td>
+                    </tr>
+                    <tr>
+                        <td>وقت التنظيف اليومي</td>
+                        <td>1.5 ساعة</td>
+                        <td>2 ساعة</td>
+                        <td class="success">-25%</td>
+                        <td>1 ساعة</td>
+                    </tr>
+                    <tr>
+                        <td>الحوادث/الإصابات</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td class="success">-100%</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Cash Flow Tab -->
+        <div id="cashflow" class="tab-content">
+            <h2>💵 إدارة التدفق النقدي</h2>
+            
+            <!-- Cash Flow Overview -->
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>الرصيد الحالي</h3>
+                    <div class="metric-value">45,000 جنيه</div>
+                    <small>آخر تحديث: اليوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>المتحصلات المتوقعة</h3>
+                    <div class="metric-value">0 جنيه</div>
+                    <small>خلال 30 يوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>المدفوعات المجدولة</h3>
+                    <div class="metric-value">85,000 جنيه</div>
+                    <small>خلال 30 يوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #EB3349 0%, #F45C43 100%);">
+                    <h3>العجز المتوقع</h3>
+                    <div class="metric-value">-40,000 جنيه</div>
+                    <small>يحتاج تمويل!</small>
+                </div>
+            </div>
+
+            <!-- Cash Flow Forecast -->
+            <h3>📅 توقعات التدفق النقدي (الـ 8 أسابيع القادمة)</h3>
+            <div class="alert alert-danger" style="display: block;">
+                <strong>🚨 تحذير:</strong> ستواجه عجز نقدي بعد 3 أسابيع! خطط للتمويل الآن
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>الأسبوع</th>
+                        <th>الرصيد الافتتاحي</th>
+                        <th>المتحصلات</th>
+                        <th>المدفوعات</th>
+                        <th>الرصيد الختامي</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>الحالي</td>
+                        <td>45,000</td>
+                        <td>0</td>
+                        <td>15,000</td>
+                        <td>30,000</td>
+                        <td class="success">✅</td>
+                    </tr>
+                    <tr>
+                        <td>أسبوع 1</td>
+                        <td>30,000</td>
+                        <td>0</td>
+                        <td>20,000</td>
+                        <td>10,000</td>
+                        <td class="warning">⚠️</td>
+                    </tr>
+                    <tr>
+                        <td>أسبوع 2</td>
+                        <td>10,000</td>
+                        <td>0</td>
+                        <td>15,000</td>
+                        <td class="warning">-5,000</td>
+                        <td class="warning">❌</td>
+                    </tr>
+                    <tr>
+                        <td>أسبوع 3</td>
+                        <td>-5,000</td>
+                        <td>0</td>
+                        <td>18,000</td>
+                        <td class="warning">-23,000</td>
+                        <td class="warning">❌</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Working Capital Management -->
+            <h3>💰 إدارة رأس المال العامل</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="summary-box">
+                    <h4>📥 المقبوضات</h4>
+                    <table>
+                        <tr>
+                            <td>مبيعات متوقعة</td>
+                            <td>0 (لم تبدأ)</td>
+                        </tr>
+                        <tr>
+                            <td>قروض/تسهيلات</td>
+                            <td><input type="number" placeholder="0"></td>
+                        </tr>
+                        <tr>
+                            <td>رأس مال إضافي</td>
+                            <td><input type="number" placeholder="0"></td>
+                        </tr>
+                        <tr>
+                            <td>أخرى</td>
+                            <td><input type="number" placeholder="0"></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="summary-box">
+                    <h4>📤 المدفوعات المجدولة</h4>
+                    <table>
+                        <tr>
+                            <td>علف (أسبوعي)</td>
+                            <td>15,000</td>
+                        </tr>
+                        <tr>
+                            <td>رواتب (شهري)</td>
+                            <td>4,000</td>
+                        </tr>
+                        <tr>
+                            <td>إيجار (شهري)</td>
+                            <td>5,000</td>
+                        </tr>
+                        <tr>
+                            <td>أدوية</td>
+                            <td>2,000</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Financial Ratios -->
+            <h3>📊 النسب المالية الحرجة</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>النسبة</th>
+                        <th>القيمة الحالية</th>
+                        <th>المستهدف</th>
+                        <th>التقييم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>نسبة السيولة السريعة</td>
+                        <td class="warning">0.53</td>
+                        <td>> 1.0</td>
+                        <td>❌ ضعيف</td>
+                    </tr>
+                    <tr>
+                        <td>دورة التحويل النقدي</td>
+                        <td>150 يوم</td>
+                        <td>< 120 يوم</td>
+                        <td>⚠️ طويلة</td>
+                    </tr>
+                    <tr>
+                        <td>نسبة التكاليف الثابتة</td>
+                        <td class="success">20%</td>
+                        <td>< 25%</td>
+                        <td>✅ جيد</td>
+                    </tr>
+                    <tr>
+                        <td>معدل حرق النقد/يوم</td>
+                        <td class="warning">2,833 جنيه</td>
+                        <td>< 2,000</td>
+                        <td>⚠️ مرتفع</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Quick Access Stats -->
+        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center;">
+                <div>
+                    <strong>📅 اليوم:</strong><br>
+                    <span id="todayDate"></span>
+                </div>
+                <div>
+                    <strong>🐑 العدد:</strong><br>
+                    <span id="quickSheepCount">31/50</span>
+                </div>
+                <div>
+                    <strong>⚖️ الوزن:</strong><br>
+                    <span id="quickAvgWeight">52 كجم</span>
+                </div>
+                <div>
+                    <strong>📈 النمو:</strong><br>
+                    <span id="quickGrowthRate" style="color: red;">0.15 كجم/يوم ⚠️</span>
+                </div>
+                <div>
+                    <strong>💰 P&L:</strong><br>
+                    <span id="quickPnL" style="color: red;">-85,000 جنيه</span>
+                </div>
+                <div>
+                    <strong>💸 التكلفة/كجم:</strong><br>
+                    <span id="quickCostPerKg" style="color: orange;">165 جنيه</span>
+                </div>
+                <div>
+                    <strong>💵 الكاش:</strong><br>
+                    <span id="quickCash" style="color: orange;">45,000 جنيه</span>
+                </div>
+                <div>
+                    <strong>🎯 الحالة:</strong><br>
+                    <span id="quickStatus" style="color: red;">❌ خطر</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Navigation -->
+        <div style="background-color: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <strong>⚡ الوصول السريع:</strong>
+            <button class="btn btn-sm" onclick="showTab('weekly')" style="padding: 5px 10px; font-size: 0.85em;">📊 الأسبوعية</button>
+            <button class="btn btn-sm" onclick="showTab('pnl')" style="padding: 5px 10px; font-size: 0.85em;">💰 P&L</button>
+            <button class="btn btn-sm" onclick="showTab('cashflow')" style="padding: 5px 10px; font-size: 0.85em;">💵 النقدية</button>
+            <button class="btn btn-sm" onclick="showTab('health')" style="padding: 5px 10px; font-size: 0.85em;">🏥 الصحة</button>
+            <button class="btn btn-sm" onclick="showTab('visual')" style="padding: 5px 10px; font-size: 0.85em;">📸 الصور</button>
+            <button class="btn btn-sm" onclick="showTab('communication')" style="padding: 5px 10px; font-size: 0.85em;">📞 التواصل</button>
+            <button class="btn btn-sm" onclick="showTab('reports')" style="padding: 5px 10px; font-size: 0.85em;">📄 التقارير</button>
+        </div>
+        
+        <!-- Live Dashboard -->
+        <div class="dashboard">
+            <div class="metric-card">
+                <h3>💰 الربح المتوقع</h3>
+                <div class="metric-value" id="expectedProfit">0 جنيه</div>
+                <small>بناءً على الوزن الحالي</small>
+            </div>
+            <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h3>⚖️ متوسط الوزن</h3>
+                <div class="metric-value" id="avgWeight">0 كجم</div>
+                <small id="weightTrend">↑ +0 كجم هذا الأسبوع</small>
+            </div>
+            <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h3>📈 معدل النمو</h3>
+                <div class="metric-value" id="growthRate">0 كجم/يوم</div>
+                <small id="growthStatus">الهدف: 0.225 كجم/يوم</small>
+            </div>
+            <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <h3>🎯 المسار الحالي</h3>
+                <div class="metric-value" id="trackStatus">❌ خارج المسار</div>
+                <small id="trackDetails">يحتاج تحسين عاجل</small>
+            </div>
+        </div>
+
+        <!-- Alert System -->
+        <div id="alertBox" class="alert alert-danger">
+            <strong>⚠️ تنبيه:</strong> <span id="alertMessage"></span>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('weekly')">المتابعة الأسبوعية</div>
+            <div class="tab" onclick="showTab('financial')">المتابعة المالية</div>
+            <div class="tab" onclick="showTab('expenses')">المصروفات التفصيلية</div>
+            <div class="tab" onclick="showTab('operations')">العمليات اليومية</div>
+            <div class="tab" onclick="showTab('visual')">التوثيق المرئي</div>
+            <div class="tab" onclick="showTab('pnl')">P&L الأرباح والخسائر</div>
+            <div class="tab" onclick="showTab('cashflow')">التدفق النقدي</div>
+            <div class="tab" onclick="showTab('history')">السجل التاريخي</div>
+            <div class="tab" onclick="showTab('contracts')">العقود والاتفاقيات</div>
+            <div class="tab" onclick="showTab('hr')">الموارد البشرية</div>
+            <div class="tab" onclick="showTab('health')">الصحة والطوارئ</div>
+            <div class="tab" onclick="showTab('suppliers')">الموردين</div>
+            <div class="tab" onclick="showTab('predictions')">التنبؤات الذكية</div>
+            <div class="tab" onclick="showTab('compliance')">الامتثال والتراخيص</div>
+            <div class="tab" onclick="showTab('communication')">سجل التواصل</div>
+            <div class="tab" onclick="showTab('feed')">مخزون العلف</div>
+            <div class="tab" onclick="showTab('market')">أسعار السوق</div>
+            <div class="tab" onclick="showTab('reports')">التقارير</div>
+        </div>
+
+        <!-- Weekly Monitoring Tab -->
+        <div id="weekly" class="tab-content active">
+            <h2>جدول المتابعة الأسبوعية</h2>
+            <div class="summary-box">
+                <strong>تاريخ بداية الدورة:</strong> <input type="date" id="startDate" onchange="calculateTargets()">
+                <strong>عدد الأغنام:</strong> <input type="number" id="sheepCount" value="50" onchange="updateDashboard()">
+                <strong>متوسط الوزن الابتدائي:</strong> <input type="number" id="initialWeight" value="35" onchange="updateDashboard()"> كجم
+            </div>
+            
+            <table id="weeklyTable">
+                <thead>
+                    <tr>
+                        <th>الأسبوع</th>
+                        <th>التاريخ</th>
+                        <th>الوزن المستهدف</th>
+                        <th>الوزن الفعلي</th>
+                        <th>الفرق</th>
+                        <th>معدل النمو اليومي</th>
+                        <th>استهلاك العلف</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="weeklyData">
+                    <!-- Rows will be generated by JavaScript -->
+                </tbody>
+            </table>
+            
+            <button class="btn btn-success" onclick="addWeeklyData()">إضافة بيانات الأسبوع</button>
+            <button class="btn" onclick="exportToWhatsApp()">📱 إرسال تقرير WhatsApp</button>
+        </div>
+
+        <!-- Financial Tracking Tab -->
+        <div id="financial" class="tab-content">
+            <h2>المتابعة المالية اللحظية</h2>
+            
+            <div class="dashboard">
+                <div class="metric-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3>التكلفة الإجمالية</h3>
+                    <div class="metric-value" id="totalCost">0 جنيه</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>الإيراد المتوقع</h3>
+                    <div class="metric-value" id="expectedRevenue">0 جنيه</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>نقطة التعادل</h3>
+                    <div class="metric-value" id="breakEven">0 كجم</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>التكلفة/كجم</h3>
+                    <div class="metric-value" id="costPerKg">0 جنيه</div>
+                </div>
+            </div>
+
+            <h3>تفاصيل المصروفات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>البند</th>
+                        <th>المخطط</th>
+                        <th>الفعلي</th>
+                        <th>المتبقي</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>شراء الأغنام</td>
+                        <td><input type="number" id="plannedPurchase" value="300000"></td>
+                        <td><input type="number" id="actualPurchase" onchange="updateFinancials()"></td>
+                        <td id="remainingPurchase">-</td>
+                        <td id="percentPurchase">-</td>
+                    </tr>
+                    <tr>
+                        <td>العليقة المركزة</td>
+                        <td><input type="number" id="plannedFeed" value="168000"></td>
+                        <td><input type="number" id="actualFeed" onchange="updateFinancials()"></td>
+                        <td id="remainingFeed">-</td>
+                        <td id="percentFeed">-</td>
+                    </tr>
+                    <tr>
+                        <td>الأعلاف الخشنة</td>
+                        <td><input type="number" id="plannedRoughage" value="48000"></td>
+                        <td><input type="number" id="actualRoughage" onchange="updateFinancials()"></td>
+                        <td id="remainingRoughage">-</td>
+                        <td id="percentRoughage">-</td>
+                    </tr>
+                    <tr>
+                        <td>العمالة</td>
+                        <td><input type="number" id="plannedLabor" value="24000"></td>
+                        <td><input type="number" id="actualLabor" onchange="updateFinancials()"></td>
+                        <td id="remainingLabor">-</td>
+                        <td id="percentLabor">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Health & Emergency Tab -->
+        <div id="health" class="tab-content">
+            <h2>🏥 نظام إدارة الصحة والطوارئ</h2>
+            
+            <!-- Health Status Dashboard -->
+            <div class="dashboard">
+                <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <h3>الحالة الصحية</h3>
+                    <div class="metric-value">✅ ممتاز</div>
+                    <small>0 حالات مرضية</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #EB3349 0%, #F45C43 100%);">
+                    <h3>التطعيمات القادمة</h3>
+                    <div class="metric-value">3 أيام</div>
+                    <small>تطعيم الحمى القلاعية</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);">
+                    <h3>معدل النفوق</h3>
+                    <div class="metric-value">0%</div>
+                    <small>الهدف: <2%</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3>مخزون الأدوية</h3>
+                    <div class="metric-value">85%</div>
+                    <small>كافي لـ 30 يوم</small>
+                </div>
+            </div>
+
+            <!-- Emergency Protocols -->
+            <h3>🚨 بروتوكولات الطوارئ</h3>
+            <div class="alert alert-danger" style="display: block;">
+                <strong>في حالة الطوارئ اتبع البروتوكول المناسب فوراً!</strong>
+            </div>
+            
+            <div class="summary-box">
+                <h4>🚑 الإجراءات الفورية حسب الحالة:</h4>
+                <table>
+                    <tr onclick="showProtocol('no-eating')">
+                        <td>❌ الأغنام لا تأكل</td>
+                        <td><button class="btn btn-danger">عرض البروتوكول</button></td>
+                    </tr>
+                    <tr onclick="showProtocol('sudden-death')">
+                        <td>💀 نفوق مفاجئ</td>
+                        <td><button class="btn btn-danger">عرض البروتوكول</button></td>
+                    </tr>
+                    <tr onclick="showProtocol('diarrhea')">
+                        <td>💩 إسهال شديد</td>
+                        <td><button class="btn btn-danger">عرض البروتوكول</button></td>
+                    </tr>
+                    <tr onclick="showProtocol('respiratory')">
+                        <td>🫁 صعوبة تنفس</td>
+                        <td><button class="btn btn-danger">عرض البروتوكول</button></td>
+                    </tr>
+                    <tr onclick="showProtocol('bloat')">
+                        <td>🎈 انتفاخ</td>
+                        <td><button class="btn btn-danger">عرض البروتوكول</button></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="protocolDetails" style="display:none;" class="alert alert-warning">
+                <!-- Protocol details will appear here -->
+            </div>
+
+            <!-- Vaccination Schedule -->
+            <h3>📅 جدول التطعيمات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التطعيم</th>
+                        <th>آخر جرعة</th>
+                        <th>الجرعة القادمة</th>
+                        <th>الأيام المتبقية</th>
+                        <th>الحالة</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>الحمى القلاعية</td>
+                        <td><input type="date" value="2025-05-01"></td>
+                        <td>2025-06-26</td>
+                        <td class="warning">3</td>
+                        <td>⏰ قريب</td>
+                        <td><button class="btn">تم التطعيم</button></td>
+                    </tr>
+                    <tr>
+                        <td>الجدري</td>
+                        <td><input type="date" value="2025-04-15"></td>
+                        <td>2025-07-15</td>
+                        <td>22</td>
+                        <td>✅ جيد</td>
+                        <td><button class="btn">تم التطعيم</button></td>
+                    </tr>
+                    <tr>
+                        <td>التسمم المعوي</td>
+                        <td><input type="date" value="2025-05-20"></td>
+                        <td>2025-07-20</td>
+                        <td>27</td>
+                        <td>✅ جيد</td>
+                        <td><button class="btn">تم التطعيم</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Health Log -->
+            <h3>📝 سجل الحالات الصحية</h3>
+            <button class="btn btn-danger" onclick="addHealthCase()">+ إضافة حالة مرضية</button>
+            <table style="margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>رقم الخروف</th>
+                        <th>الأعراض</th>
+                        <th>التشخيص</th>
+                        <th>العلاج</th>
+                        <th>النتيجة</th>
+                    </tr>
+                </thead>
+                <tbody id="healthLog">
+                    <tr>
+                        <td colspan="6" style="text-align: center;">لا توجد حالات مرضية مسجلة</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Suppliers Tab -->
+        <div id="suppliers" class="tab-content">
+            <h2>⭐ نظام تقييم الموردين</h2>
+            
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>أفضل مورد علف</h3>
+                    <div class="metric-value">محمد الصعيدي</div>
+                    <small>معدل نمو: 0.24 كجم/يوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>أسوأ مورد</h3>
+                    <div class="metric-value">تجنب: أحمد التاجر</div>
+                    <small>معدل نمو: 0.12 كجم/يوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>متوسط سعر العلف</h3>
+                    <div class="metric-value">8.5 جنيه/كجم</div>
+                    <small>آخر 30 يوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>عدد الموردين</h3>
+                    <div class="metric-value">7 موردين</div>
+                    <small>3 ممتاز، 2 جيد، 2 ضعيف</small>
+                </div>
+            </div>
+
+            <h3>🏆 قائمة الموردين وتقييماتهم</h3>
+            <button class="btn btn-success" onclick="addSupplier()">+ إضافة مورد جديد</button>
+            
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>اسم المورد</th>
+                        <th>النوع</th>
+                        <th>آخر سعر</th>
+                        <th>جودة المنتج</th>
+                        <th>معدل النمو المحقق</th>
+                        <th>التقييم</th>
+                        <th>ملاحظات</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color: #e8f5e9;">
+                        <td><strong>محمد الصعيدي</strong></td>
+                        <td>علف مركز</td>
+                        <td>8.2 جنيه</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td class="success">0.24 كجم/يوم</td>
+                        <td><span class="success">ممتاز</span></td>
+                        <td>دائماً في الموعد، جودة ثابتة</td>
+                        <td><button class="btn btn-success">اطلب الآن</button></td>
+                    </tr>
+                    <tr>
+                        <td>شركة الوادي</td>
+                        <td>علف مركز</td>
+                        <td>7.9 جنيه</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>0.21 كجم/يوم</td>
+                        <td>جيد جداً</td>
+                        <td>سعر مناسب</td>
+                        <td><button class="btn">اطلب الآن</button></td>
+                    </tr>
+                    <tr style="background-color: #ffebee;">
+                        <td><strong>أحمد التاجر</strong></td>
+                        <td>علف مركز</td>
+                        <td>6.5 جنيه</td>
+                        <td>⭐⭐</td>
+                        <td class="warning">0.12 كجم/يوم</td>
+                        <td><span class="warning">⚠️ تجنب</span></td>
+                        <td>جودة سيئة، خلط غش</td>
+                        <td><button class="btn btn-danger" disabled>محظور</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="summary-box" style="margin-top: 20px;">
+                <h4>📊 تحليل أداء الموردين</h4>
+                <p><strong>أهم النتائج:</strong></p>
+                <ul>
+                    <li>الموردون بسعر أقل من 7 جنيه عادة ما يكون علفهم مغشوش</li>
+                    <li>أفضل نتائج نمو من علف بسعر 8-9 جنيه/كجم</li>
+                    <li>محمد الصعيدي حقق أفضل معدل نمو رغم أن سعره ليس الأقل</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- AI Predictions Tab -->
+        <div id="predictions" class="tab-content">
+            <h2>🤖 التنبؤات الذكية بالذكاء الاصطناعي</h2>
+            
+            <!-- AI Predictions Dashboard -->
+            <div class="dashboard">
+                <div class="metric-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3>📅 موعد الوصول لـ 65 كجم</h3>
+                    <div class="metric-value">15 يوليو</div>
+                    <small>بناءً على معدل النمو الحالي</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>💰 أفضل وقت للبيع</h3>
+                    <div class="metric-value">28 يونيو</div>
+                    <small>توقع سعر: 248 جنيه/كجم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>⚠️ احتمال تحقيق الهدف</h3>
+                    <div class="metric-value">35%</div>
+                    <small>يحتاج تحسين عاجل!</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>🎯 الربح المتوقع</h3>
+                    <div class="metric-value">-85,000 جنيه</div>
+                    <small>إذا استمر الأداء الحالي</small>
+                </div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <h3>💡 توصيات الذكاء الاصطناعي</h3>
+            <div class="alert alert-warning" style="display: block;">
+                <h4>⚡ إجراءات عاجلة مطلوبة:</h4>
+                <ol>
+                    <li><strong>زيادة البروتين:</strong> أضف 500 جرام فول صويا لكل رأس يومياً (+15% بروتين)</li>
+                    <li><strong>تحسين العلف:</strong> اشتري من "محمد الصعيدي" بدلاً من المورد الحالي</li>
+                    <li><strong>فحص صحي:</strong> 30% من القطيع أقل من معدل النمو المطلوب</li>
+                    <li><strong>توقيت البيع:</strong> لا تبيع قبل 28 يونيو - الأسعار سترتفع 10%</li>
+                </ol>
+            </div>
+
+            <!-- Prediction Details -->
+            <h3>📊 تفاصيل التنبؤات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>المؤشر</th>
+                        <th>الوضع الحالي</th>
+                        <th>التنبؤ (30 يوم)</th>
+                        <th>التنبؤ (60 يوم)</th>
+                        <th>الثقة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>متوسط الوزن</td>
+                        <td>52 كجم</td>
+                        <td>56.5 كجم</td>
+                        <td>61 كجم</td>
+                        <td>85%</td>
+                    </tr>
+                    <tr class="warning">
+                        <td>معدل النمو</td>
+                        <td>0.15 كجم/يوم</td>
+                        <td>0.17 كجم/يوم</td>
+                        <td>0.16 كجم/يوم</td>
+                        <td>75%</td>
+                    </tr>
+                    <tr>
+                        <td>سعر السوق</td>
+                        <td>225 جنيه</td>
+                        <td>248 جنيه</td>
+                        <td>235 جنيه</td>
+                        <td>70%</td>
+                    </tr>
+                    <tr>
+                        <td>تكلفة العلف</td>
+                        <td>8.5 جنيه/كجم</td>
+                        <td>9.2 جنيه/كجم</td>
+                        <td>9.5 جنيه/كجم</td>
+                        <td>80%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Weather Impact -->
+            <h3>🌡️ تأثير الطقس المتوقع</h3>
+            <div class="summary-box">
+                <table>
+                    <tr>
+                        <td>الأسبوع القادم:</td>
+                        <td>🌡️ 38-42°م</td>
+                        <td class="warning">حرارة شديدة</td>
+                        <td>⚠️ خطر إجهاد حراري</td>
+                    </tr>
+                    <tr>
+                        <td>التوصيات:</td>
+                        <td colspan="3">
+                            • زيادة المياه 20% | • تقديم العلف مبكراً (5 صباحاً) | • توفير ظل إضافي
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Risk Analysis -->
+            <h3>⚠️ تحليل المخاطر</h3>
+            <div class="dashboard">
+                <div class="metric-card" style="background: linear-gradient(135deg, #EB3349 0%, #F45C43 100%);">
+                    <h3>خطر الخسارة</h3>
+                    <div class="metric-value">65%</div>
+                    <small>مرتفع</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);">
+                    <h3>خطر الأمراض</h3>
+                    <div class="metric-value">25%</div>
+                    <small>متوسط</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <h3>فرصة تحسن السوق</h3>
+                    <div class="metric-value">80%</div>
+                    <small>ممتازة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>جودة التنبؤ</h3>
+                    <div class="metric-value">78%</div>
+                    <small>موثوق</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feed Inventory Tab -->
+        <div id="feed" class="tab-content">
+            <h2>نظام مخزون العلف</h2>
+            
+            <div class="alert alert-danger" id="feedAlert" style="display: block;">
+                <strong>⚠️ تحذير:</strong> المخزون المتبقي يكفي لـ 5 أيام فقط!
+            </div>
+
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>مخزون العليقة</h3>
+                    <div class="metric-value" id="feedStock">500 كجم</div>
+                    <small>يكفي لـ <span id="feedDays">10</span> أيام</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>مخزون التبن</h3>
+                    <div class="metric-value" id="hayStock">200 كجم</div>
+                    <small>يكفي لـ <span id="hayDays">8</span> أيام</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>استهلاك يومي</h3>
+                    <div class="metric-value" id="dailyConsumption">75 كجم</div>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>تاريخ الطلب القادم</h3>
+                    <div class="metric-value" id="nextOrder">25/12</div>
+                </div>
+            </div>
+
+            <h3>سجل المشتريات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>الكمية</th>
+                        <th>السعر/كجم</th>
+                        <th>الإجمالي</th>
+                        <th>المورد</th>
+                        <th>الجودة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="date"></td>
+                        <td>
+                            <select>
+                                <option>عليقة مركزة</option>
+                                <option>تبن</option>
+                                <option>ذرة صفراء</option>
+                            </select>
+                        </td>
+                        <td><input type="number" placeholder="1000"></td>
+                        <td><input type="number" placeholder="8.5"></td>
+                        <td>8500</td>
+                        <td><input type="text" placeholder="اسم المورد"></td>
+                        <td>
+                            <select>
+                                <option>ممتاز</option>
+                                <option>جيد</option>
+                                <option>متوسط</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <button class="btn btn-success">إضافة مشتريات</button>
+            <button class="btn" onclick="calculateFeedNeeds()">حساب احتياجات الدورة</button>
+        </div>
+
+        <!-- Market Intelligence Tab -->
+        <div id="market" class="tab-content">
+            <h2>معلومات السوق</h2>
+            
+            <div class="dashboard">
+                <div class="metric-card">
+                    <h3>سعر اليوم</h3>
+                    <div class="metric-value" id="todayPrice">225 جنيه/كجم</div>
+                    <small>آخر تحديث: اليوم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>أفضل سعر الأسبوع</h3>
+                    <div class="metric-value">242 جنيه/كجم</div>
+                    <small>الخميس الماضي</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>توقع السعر</h3>
+                    <div class="metric-value">↑ 235</div>
+                    <small>الأسبوع القادم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>أفضل وقت للبيع</h3>
+                    <div class="metric-value">بعد 15 يوم</div>
+                    <small>عند 65 كجم</small>
+                </div>
+            </div>
+
+            <h3>جهات الشراء</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم المشتري</th>
+                        <th>رقم الهاتف</th>
+                        <th>آخر سعر</th>
+                        <th>التقييم</th>
+                        <th>ملاحظات</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" placeholder="اسم المشتري"></td>
+                        <td><input type="text" placeholder="01234567890"></td>
+                        <td><input type="number" placeholder="220"></td>
+                        <td>
+                            <select>
+                                <option>⭐⭐⭐⭐⭐</option>
+                                <option>⭐⭐⭐⭐</option>
+                                <option>⭐⭐⭐</option>
+                            </select>
+                        </td>
+                        <td><input type="text" placeholder="يدفع كاش"></td>
+                        <td><button class="btn btn-success">اتصال</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- P&L Tab -->
+        <div id="pnl" class="tab-content">
+            <h2>📊 قائمة الأرباح والخسائر - Live P&L</h2>
+            
+            <!-- P&L Status Cards -->
+            <div class="dashboard">
+                <div class="metric-card" id="pnlStatusCard">
+                    <h3>حالة P&L الحالية</h3>
+                    <div class="metric-value" id="currentPnL">-50,000 جنيه</div>
+                    <small id="pnlTrend">📉 خسارة متزايدة</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>P&L المتوقع (نهاية الدورة)</h3>
+                    <div class="metric-value" id="projectedPnL">+25,000 جنيه</div>
+                    <small>بناءً على الأداء الحالي</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>نقطة التحول للربح</h3>
+                    <div class="metric-value" id="profitTurningPoint">الأسبوع 12</div>
+                    <small>عند وزن 58 كجم</small>
+                </div>
+                <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>هامش الربح الحالي</h3>
+                    <div class="metric-value" id="profitMargin">-15%</div>
+                    <small>الهدف: +20%</small>
+                </div>
+            </div>
+
+            <!-- P&L Warning System -->
+            <div class="alert alert-danger" id="pnlAlert" style="display: block;">
+                <strong>⚠️ تحذير P&L:</strong> أنت حالياً في مسار خسارة! يجب تحسين معدل النمو أو خفض التكاليف
+            </div>
+
+            <!-- Detailed P&L Statement -->
+            <h3>📋 بيان الأرباح والخسائر التفصيلي</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>البند</th>
+                        <th>المخطط</th>
+                        <th>الفعلي حتى الآن</th>
+                        <th>المتوقع نهاية الدورة</th>
+                        <th>الفرق</th>
+                        <th>التأثير على P&L</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color: #e8f5e9;">
+                        <td colspan="6"><strong>الإيرادات</strong></td>
+                    </tr>
+                    <tr>
+                        <td>مبيعات الأغنام</td>
+                        <td>800,400</td>
+                        <td id="actualRevenue">0</td>
+                        <td id="projectedRevenue">620,000</td>
+                        <td id="revenueDiff" class="warning">-180,400</td>
+                        <td id="revenueImpact" class="warning">⬇️ -22.5%</td>
+                    </tr>
+                    <tr style="background-color: #ffebee;">
+                        <td colspan="6"><strong>التكاليف</strong></td>
+                    </tr>
+                    <tr>
+                        <td>شراء الأغنام</td>
+                        <td>300,000</td>
+                        <td id="plActualPurchase">240,725</td>
+                        <td>240,725</td>
+                        <td class="success">-59,275</td>
+                        <td class="success">⬆️ +7.4%</td>
+                    </tr>
+                    <tr>
+                        <td>الأعلاف</td>
+                        <td>216,000</td>
+                        <td id="plActualFeed">45,000</td>
+                        <td id="plProjectedFeed">135,000</td>
+                        <td class="success">-81,000</td>
+                        <td class="warning">⚠️ توفير مضر</td>
+                    </tr>
+                    <tr>
+                        <td>العمالة</td>
+                        <td>24,000</td>
+                        <td id="plActualLabor">1,500</td>
+                        <td>4,500</td>
+                        <td class="success">-19,500</td>
+                        <td class="warning">⚠️ توفير مضر</td>
+                    </tr>
+                    <tr>
+                        <td>مصاريف أخرى</td>
+                        <td>45,000</td>
+                        <td id="plActualOther">20,000</td>
+                        <td>35,000</td>
+                        <td class="success">-10,000</td>
+                        <td>✅ توفير جيد</td>
+                    </tr>
+                    <tr style="background-color: #fff3e0; font-weight: bold;">
+                        <td>صافي الربح/الخسارة</td>
+                        <td>215,400</td>
+                        <td id="currentNetPnL">-307,225</td>
+                        <td id="projectedNetPnL">205,775</td>
+                        <td id="pnlDifference">-9,625</td>
+                        <td id="pnlStatus">📈 متجه للربح</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Scenario Analysis -->
+            <h3>🔮 تحليل السيناريوهات - ماذا لو؟</h3>
+            <div class="summary-box">
+                <h4>احسب تأثير التغييرات على P&L</h4>
+                <table>
+                    <tr>
+                        <td>إذا زاد معدل النمو إلى:</td>
+                        <td><input type="number" id="scenarioGrowth" value="0.225" step="0.01"></td>
+                        <td>كجم/يوم</td>
+                        <td><button class="btn" onclick="calculateScenario()">احسب</button></td>
+                    </tr>
+                    <tr>
+                        <td>إذا تغير سعر البيع إلى:</td>
+                        <td><input type="number" id="scenarioPrice" value="240"></td>
+                        <td>جنيه/كجم</td>
+                        <td id="scenarioResult" rowspan="3" style="font-size: 1.2em; color: green;">
+                            النتيجة: +350,000 جنيه
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>إذا انخفضت التكاليف بنسبة:</td>
+                        <td><input type="number" id="scenarioCostReduction" value="10"></td>
+                        <td>%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Track Record vs Plan -->
+            <h3>📈 مقارنة الأداء بالخطة</h3>
+            <canvas id="pnlChart" style="max-height: 300px;"></canvas>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <h2>التقارير الآلية</h2>
+            
+            <div class="summary-box">
+                <h3>تقرير الأداء الأسبوعي</h3>
+                <button class="btn" onclick="generateWeeklyReport()">📊 إنشاء التقرير</button>
+                <button class="btn btn-success" onclick="sendWhatsAppReport()">📱 إرسال WhatsApp</button>
+                <button class="btn" onclick="window.print()">🖨️ طباعة</button>
+            </div>
+
+            <div id="reportContent" style="display:none;">
+                <!-- Report will be generated here -->
+            </div>
+
+            <h3>تقييم أداء الشريك</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>المعيار</th>
+                        <th>الهدف</th>
+                        <th>المحقق</th>
+                        <th>النقاط (100)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>معدل النمو اليومي</td>
+                        <td>0.225 كجم</td>
+                        <td id="partnerGrowth">0.15</td>
+                        <td id="growthScore">67</td>
+                    </tr>
+                    <tr>
+                        <td>معدل النفوق</td>
+                        <td>&lt; 2%</td>
+                        <td id="partnerMortality">0%</td>
+                        <td id="mortalityScore">100</td>
+                    </tr>
+                    <tr>
+                        <td>كفاءة استخدام العلف</td>
+                        <td>7:1</td>
+                        <td id="partnerFeedEff">9:1</td>
+                        <td id="feedScore">78</td>
+                    </tr>
+                    <tr>
+                        <td>الالتزام بالميزانية</td>
+                        <td>100%</td>
+                        <td id="partnerBudget">45%</td>
+                        <td id="budgetScore">45</td>
+                    </tr>
+                    <tr>
+                        <td>كفاءة العمليات</td>
+                        <td>90%</td>
+                        <td id="partnerOperations">72%</td>
+                        <td id="operationsScore">80</td>
+                    </tr>
+                    <tr>
+                        <td>إدارة التكاليف</td>
+                        <td>140 جنيه/كجم</td>
+                        <td id="partnerCostMgmt">165 جنيه/كجم</td>
+                        <td id="costScore">60</td>
+                    </tr>
+                    <tr class="warning">
+                        <td colspan="3"><strong>التقييم الإجمالي</strong></td>
+                        <td id="totalScore"><strong>71.7 (C)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>🚚 إدارة النقل واللوجستيات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>من/إلى</th>
+                        <th>المسافة</th>
+                        <th>التكلفة</th>
+                        <th>السائق</th>
+                        <th>ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>01/06/2025</td>
+                        <td>نقل أغنام</td>
+                        <td>السوق → المزرعة</td>
+                        <td>45 كم</td>
+                        <td>800 جنيه</td>
+                        <td>محمد النقل</td>
+                        <td>31 رأس، وصلت بسلام</td>
+                    </tr>
+                    <tr>
+                        <td>15/06/2025</td>
+                        <td>نقل علف</td>
+                        <td>المورد → المزرعة</td>
+                        <td>20 كم</td>
+                        <td>300 جنيه</td>
+                        <td>حسين</td>
+                        <td>2 طن علف</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>🐑 سجل التناسل والولادات (إن وجد)</h3>
+            <div class="summary-box">
+                <p><strong>ملاحظة:</strong> هذا القسم للمزارع التي تربي للتناسل</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم النعجة</th>
+                            <th>تاريخ التلقيح</th>
+                            <th>الكبش</th>
+                            <th>موعد الولادة المتوقع</th>
+                            <th>عدد المواليد</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" style="text-align: center;">لا يوجد - تسمين فقط</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>🌡️ سجل العوامل البيئية</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>درجة الحرارة</th>
+                        <th>الرطوبة</th>
+                        <th>الطقس</th>
+                        <th>التأثير على الأغنام</th>
+                        <th>الإجراءات المتخذة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>23/06/2025</td>
+                        <td>42°م</td>
+                        <td>25%</td>
+                        <td>حار جاف</td>
+                        <td>انخفاض الشهية</td>
+                        <td>زيادة المياه، تغذية مبكرة</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-success" onclick="generateComprehensiveReport()">📄 إنشاء تقرير شامل</button>
+            <button class="btn" onclick="generateFinancialSummary()">💰 ملخص مالي</button>
+            <button class="btn" onclick="generateOperationalSummary()">⚙️ ملخص عمليات</button>
+            
+            <h3>🎯 نظام المراقبة الشامل - الميزات الكاملة</h3>
+            <div class="summary-box" style="margin-top: 20px; background-color: #e8f5e9;">
+                <h4>✅ ما يتضمنه هذا النظام الآن:</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <strong>📊 المراقبة الأساسية:</strong>
+                        <ul>
+                            <li>متابعة أسبوعية للأوزان والنمو</li>
+                            <li>تحليل مالي كامل (ثابت vs متغير)</li>
+                            <li>P&L حي مع تنبؤات</li>
+                            <li>إدارة التدفق النقدي</li>
+                            <li>مراقبة العمليات اليومية</li>
+                        </ul>
+                        
+                        <strong>🏥 الصحة والسلامة:</strong>
+                        <ul>
+                            <li>بروتوكولات طوارئ لـ 5 حالات</li>
+                            <li>جدول تطعيمات بتنبيهات</li>
+                            <li>سجل صحي مفصل</li>
+                            <li>مخزون الأدوية</li>
+                        </ul>
+                        
+                        <strong>📸 التوثيق البصري:</strong>
+                        <ul>
+                            <li>مقارنة صور أسبوعية</li>
+                            <li>توثيق المشاكل بالصور</li>
+                            <li>تتبع التقدم المرئي</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <strong>👥 إدارة الأطراف:</strong>
+                        <ul>
+                            <li>تقييم الموردين بالأداء</li>
+                            <li>إدارة العقود والاتفاقيات</li>
+                            <li>سجلات الموارد البشرية</li>
+                            <li>تتبع التواصل والقرارات</li>
+                        </ul>
+                        
+                        <strong>📚 التعلم والتحسين:</strong>
+                        <ul>
+                            <li>مقارنة 5 دورات سابقة</li>
+                            <li>تحليل عوامل النجاح/الفشل</li>
+                            <li>توصيات AI ذكية</li>
+                            <li>دروس مستفادة موثقة</li>
+                        </ul>
+                        
+                        <strong>⚖️ الامتثال والقانون:</strong>
+                        <ul>
+                            <li>تتبع التراخيص والتجديد</li>
+                            <li>السجلات الضريبية</li>
+                            <li>التأمينات والتغطية</li>
+                            <li>سجلات النقل واللوجستيات</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px;">🚀 النتيجة: نظام متكامل 360° لإدارة مزرعة الأغنام</h4>
+                <p style="font-size: 1.1em;">
+                    <strong>لا يمكن أن تفاجئك أي مشكلة!</strong> كل جانب من جوانب العمل مُراقب ومُوثق ومُحلل
+                </p>
+            </div>
+            <div class="alert alert-warning" style="display: block; margin-top: 20px;">
+                <h4>⚠️ أخطاء يجب تجنبها (من تجربتك السابقة):</h4>
+                <ol style="font-size: 1.1em; line-height: 1.8;">
+                    <li><strong>❌ خفض تكاليف العلف:</strong> وفرت 77,512 جنيه لكن خسرت 431,011 جنيه</li>
+                    <li><strong>❌ تقليل العمالة:</strong> وفرت 21,000 جنيه لكن أثر على الرعاية</li>
+                    <li><strong>❌ شراء عدد أقل:</strong> اشتريت 31 بدلاً من 50 = خسارة الحجم الاقتصادي</li>
+                    <li><strong>❌ عدم المتابعة:</strong> اكتشفت المشاكل متأخراً جداً</li>
+                </ol>
+                
+                <h4>✅ ما يجب فعله هذه المرة:</h4>
+                <ol style="font-size: 1.1em; line-height: 1.8;">
+                    <li><strong>✅ ميزانية العلف مقدسة:</strong> لا تخفض أبداً تحت 3.5 جنيه/رأس/يوم</li>
+                    <li><strong>✅ العدد الكامل أو لا شيء:</strong> 50 رأس أو تأجيل الدورة</li>
+                    <li><strong>✅ متابعة أسبوعية:</strong> وزن + تقرير + اجتماع</li>
+                    <li><strong>✅ احتياطي نقدي:</strong> 20% فوق الميزانية للطوارئ</li>
+                    <li><strong>✅ عقد واضح:</strong> صلاحيات محددة للشريك</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin-top: 40px; text-align: center;">
+            <button class="btn btn-danger" onclick="sendEmergencyAlert()">🚨 إرسال تنبيه طارئ</button>
+            <button class="btn btn-success" onclick="setupWhatsAppBot()">📱 نسخ رسائل WhatsApp اليومية</button>
+            <button class="btn" onclick="generateAIReport()">🤖 تقرير AI شامل</button>
+            <button class="btn btn-success" onclick="saveAllData()">💾 حفظ جميع البيانات</button>
+            <button class="btn" onclick="exportToExcel()">📊 تصدير Excel</button>
+            <button class="btn" onclick="window.print()">🖨️ طباعة</button>
+        </div>
+    </div>
+
+    <!-- Floating Emergency Button -->
+    <div class="floating-emergency" onclick="showEmergencyMenu()" title="طوارئ">
+        🚨
+    </div>
+
+    <script>
+        // Tab Management
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Find the correct tab button
+            const tabButtons = {
+                'weekly': 0,
+                'financial': 1,
+                'expenses': 2,
+                'operations': 3,
+                'visual': 4,
+                'pnl': 5,
+                'cashflow': 6,
+                'history': 7,
+                'contracts': 8,
+                'hr': 9,
+                'health': 10,
+                'suppliers': 11,
+                'predictions': 12,
+                'compliance': 13,
+                'communication': 14,
+                'feed': 15,
+                'market': 16,
+                'reports': 17
+            };
+            
+            if (tabButtons[tabName] !== undefined) {
+                tabs[tabButtons[tabName]].classList.add('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Dashboard Updates
+        function updateDashboard() {
+            const sheepCount = document.getElementById('sheepCount').value || 50;
+            const currentWeight = parseFloat(document.getElementById('avgWeight').textContent) || 52;
+            const marketPrice = 225;
+            const totalCosts = calculateTotalCosts();
+            
+            // Update profit calculation
+            const revenue = sheepCount * currentWeight * marketPrice;
+            const profit = revenue - totalCosts;
+            document.getElementById('expectedProfit').textContent = profit.toLocaleString() + ' جنيه';
+            
+            // Update track status based on multiple factors
+            updateTrackStatus();
+            
+            // Check alerts
+            checkAlerts();
+            
+            // Update P&L if on that tab
+            if (document.getElementById('pnl').classList.contains('active')) {
+                updatePnL();
+            }
+        }
+
+        // Update Track Status
+        function updateTrackStatus() {
+            const growthRate = parseFloat(document.getElementById('growthRate').textContent) || 0;
+            const targetGrowth = 0.225;
+            const sheepCount = parseInt(document.getElementById('sheepCount').value) || 0;
+            const targetSheepCount = 50;
+            const currentWeight = parseFloat(document.getElementById('avgWeight').textContent) || 0;
+            const weekNumber = 8; // Should be calculated from start date
+            const targetWeight = 35 + (targetGrowth * weekNumber * 7);
+            
+            let score = 0;
+            let issues = [];
+            
+            // Check growth rate (40% weight)
+            if (growthRate >= targetGrowth) {
+                score += 40;
+            } else if (growthRate >= targetGrowth * 0.8) {
+                score += 30;
+                issues.push('معدل نمو أقل من الهدف');
+            } else if (growthRate >= targetGrowth * 0.6) {
+                score += 20;
+                issues.push('معدل نمو ضعيف');
+            } else {
+                score += 0;
+                issues.push('معدل نمو خطير');
+            }
+            
+            // Check sheep count (30% weight)
+            if (sheepCount >= targetSheepCount * 0.9) {
+                score += 30;
+            } else if (sheepCount >= targetSheepCount * 0.7) {
+                score += 20;
+                issues.push('عدد أغنام أقل');
+            } else {
+                score += 10;
+                issues.push('عدد أغنام قليل جداً');
+            }
+            
+            // Check weight progress (30% weight)
+            if (currentWeight >= targetWeight) {
+                score += 30;
+            } else if (currentWeight >= targetWeight * 0.9) {
+                score += 25;
+                issues.push('وزن أقل من المستهدف');
+            } else if (currentWeight >= targetWeight * 0.8) {
+                score += 15;
+                issues.push('وزن ضعيف');
+            } else {
+                score += 0;
+                issues.push('وزن منخفض جداً');
+            }
+            
+            // Update track status display
+            const trackStatus = document.getElementById('trackStatus');
+            const trackDetails = document.getElementById('trackDetails');
+            const trackCard = trackStatus.parentElement.parentElement;
+            
+            if (score >= 90) {
+                trackStatus.textContent = '✅ على المسار الصحيح';
+                trackDetails.textContent = 'أداء ممتاز!';
+                trackCard.style.background = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
+            } else if (score >= 70) {
+                trackStatus.textContent = '⚠️ يحتاج متابعة';
+                trackDetails.textContent = issues.join('، ');
+                trackCard.style.background = 'linear-gradient(135deg, #f2994a 0%, #f2c94c 100%)';
+            } else if (score >= 50) {
+                trackStatus.textContent = '❌ خارج المسار';
+                trackDetails.textContent = issues.join('، ');
+                trackCard.style.background = 'linear-gradient(135deg, #eb3349 0%, #f45c43 100%)';
+            } else {
+                trackStatus.textContent = '🚨 خطر شديد';
+                trackDetails.textContent = 'يحتاج تدخل فوري!';
+                trackCard.style.background = 'linear-gradient(135deg, #000000 0%, #e74c3c 100%)';
+            }
+        }
+
+        // Calculate Total Costs
+        function calculateTotalCosts() {
+            const costs = ['actualPurchase', 'actualFeed', 'actualRoughage', 'actualLabor'];
+            let total = 0;
+            costs.forEach(id => {
+                const value = document.getElementById(id)?.value || 0;
+                total += parseFloat(value);
+            });
+            return total;
+        }
+
+        // Alert System
+        function checkAlerts() {
+            const alertBox = document.getElementById('alertBox');
+            const alertMessage = document.getElementById('alertMessage');
+            const growthRate = parseFloat(document.getElementById('growthRate').textContent);
+            
+            if (growthRate < 0.15) {
+                alertMessage.textContent = 'معدل النمو أقل من الحد الأدنى! يجب اتخاذ إجراء فوري.';
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+            } else if (growthRate < 0.2) {
+                alertMessage.textContent = 'معدل النمو أقل من المستهدف. يُنصح بمراجعة التغذية.';
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-warning';
+            } else {
+                alertBox.style.display = 'none';
+            }
+        }
+
+        // Weekly Data Management
+        function addWeeklyData() {
+            // This would open a form to add weekly data
+            const weight = prompt('أدخل متوسط الوزن الحالي (كجم):');
+            if (weight) {
+                document.getElementById('avgWeight').textContent = weight + ' كجم';
+                // Calculate growth rate
+                const initialWeight = document.getElementById('initialWeight').value || 35;
+                const weeks = 8; // Example
+                const totalGain = weight - initialWeight;
+                const dailyGain = totalGain / (weeks * 7);
+                document.getElementById('growthRate').textContent = dailyGain.toFixed(3) + ' كجم/يوم';
+                
+                updateDashboard();
+            }
+        }
+
+        // WhatsApp Export
+        function exportToWhatsApp() {
+            const sheepCount = document.getElementById('sheepCount').value;
+            const avgWeight = document.getElementById('avgWeight').textContent;
+            const growthRate = document.getElementById('growthRate').textContent;
+            
+            const message = `🐑 تقرير الأسبوع
+📅 التاريخ: ${new Date().toLocaleDateString('ar-EG')}
+
+📊 الأوزان:
+• عدد الأغنام: ${sheepCount}
+• متوسط الوزن: ${avgWeight}
+• معدل النمو: ${growthRate}
+
+✅ الحالة: ${growthRate > '0.2' ? '✅ ممتاز' : '⚠️ يحتاج متابعة'}
+
+المسؤول: _______`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(message).then(() => {
+                alert('تم نسخ التقرير! الصقه في WhatsApp');
+            });
+        }
+
+        // Feed Calculations
+        function calculateFeedNeeds() {
+            const sheepCount = document.getElementById('sheepCount').value || 50;
+            const daysRemaining = 60; // Example
+            const dailyFeedPerSheep = 1.5; // kg
+            
+            const totalNeeded = sheepCount * daysRemaining * dailyFeedPerSheep;
+            const currentStock = parseFloat(document.getElementById('feedStock').textContent) || 500;
+            const toOrder = totalNeeded - currentStock;
+            
+            alert(`احتياجات العلف:
+            المطلوب الكلي: ${totalNeeded} كجم
+            المخزون الحالي: ${currentStock} كجم
+            يجب طلب: ${toOrder} كجم`);
+        }
+
+        // Emergency Alert
+        function sendEmergencyAlert() {
+            const problem = prompt('ما هي المشكلة الطارئة؟');
+            if (problem) {
+                const alert = `⛔ تنبيه طارئ ⛔
+                
+المشكلة: ${problem}
+التاريخ: ${new Date().toLocaleDateString('ar-EG')}
+الوقت: ${new Date().toLocaleTimeString('ar-EG')}
+
+يرجى الرد خلال 24 ساعة`;
+
+                navigator.clipboard.writeText(alert).then(() => {
+                    alert('تم نسخ التنبيه الطارئ! أرسله فوراً عبر WhatsApp');
+                });
+            }
+        }
+
+        // Update Financials
+        function updateFinancials() {
+            const fields = ['Purchase', 'Feed', 'Roughage', 'Labor'];
+            let totalPlanned = 0;
+            let totalActual = 0;
+            
+            fields.forEach(field => {
+                const planned = parseFloat(document.getElementById('planned' + field).value) || 0;
+                const actual = parseFloat(document.getElementById('actual' + field).value) || 0;
+                const remaining = planned - actual;
+                const percent = planned > 0 ? (actual / planned * 100).toFixed(1) : 0;
+                
+                document.getElementById('remaining' + field).textContent = remaining.toLocaleString();
+                document.getElementById('percent' + field).textContent = percent + '%';
+                
+                totalPlanned += planned;
+                totalActual += actual;
+            });
+            
+            document.getElementById('totalCost').textContent = totalActual.toLocaleString() + ' جنيه';
+            updateDashboard();
+        }
+
+        // Update P&L Calculations
+        function updatePnL() {
+            // Get current data
+            const sheepCount = parseInt(document.getElementById('sheepCount').value) || 31;
+            const currentWeight = parseFloat(document.getElementById('avgWeight').textContent) || 52;
+            const marketPrice = parseFloat(document.getElementById('todayPrice')?.textContent) || 225;
+            const growthRate = parseFloat(document.getElementById('growthRate').textContent) || 0.15;
+            const weeksElapsed = 8; // Example - should be calculated from start date
+            const totalWeeks = 20; // Total cycle duration
+            
+            // Calculate current revenue (if sold today)
+            const currentRevenue = sheepCount * currentWeight * marketPrice;
+            document.getElementById('actualRevenue').textContent = currentRevenue.toLocaleString();
+            
+            // Calculate projected final weight and revenue
+            const daysRemaining = (totalWeeks - weeksElapsed) * 7;
+            const projectedFinalWeight = currentWeight + (growthRate * daysRemaining);
+            const projectedRevenue = sheepCount * projectedFinalWeight * marketPrice;
+            document.getElementById('projectedRevenue').textContent = projectedRevenue.toLocaleString();
+            
+            // Calculate costs
+            const actualCosts = calculateTotalCosts();
+            const projectedTotalCosts = actualCosts * (totalWeeks / weeksElapsed); // Simple projection
+            
+            // Calculate P&L
+            const currentPnL = 0 - actualCosts; // No revenue yet (not sold)
+            const projectedPnL = projectedRevenue - projectedTotalCosts;
+            
+            // Update P&L displays
+            document.getElementById('currentPnL').textContent = currentPnL.toLocaleString() + ' جنيه';
+            document.getElementById('projectedPnL').textContent = projectedPnL.toLocaleString() + ' جنيه';
+            document.getElementById('currentNetPnL').textContent = currentPnL.toLocaleString();
+            document.getElementById('projectedNetPnL').textContent = projectedPnL.toLocaleString();
+            
+            // Calculate profit margin
+            const profitMargin = projectedRevenue > 0 ? (projectedPnL / projectedRevenue * 100) : 0;
+            document.getElementById('profitMargin').textContent = profitMargin.toFixed(1) + '%';
+            
+            // Update status card color based on P&L
+            const statusCard = document.getElementById('pnlStatusCard');
+            if (projectedPnL > 0) {
+                statusCard.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                document.getElementById('pnlTrend').textContent = '📈 متجه نحو الربح';
+            } else {
+                statusCard.style.background = 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)';
+                document.getElementById('pnlTrend').textContent = '📉 خسارة متوقعة';
+            }
+            
+            // Calculate break-even point
+            const breakEvenWeight = projectedTotalCosts / (sheepCount * marketPrice);
+            const weeksToBreakEven = Math.ceil((breakEvenWeight - currentWeight) / (growthRate * 7));
+            document.getElementById('profitTurningPoint').textContent = `الأسبوع ${weeksElapsed + weeksToBreakEven}`;
+            
+            // Update P&L alert
+            checkPnLAlert(projectedPnL, growthRate);
+        }
+
+        // Check P&L Alert
+        function checkPnLAlert(projectedPnL, growthRate) {
+            const pnlAlert = document.getElementById('pnlAlert');
+            if (projectedPnL < 0) {
+                pnlAlert.style.display = 'block';
+                pnlAlert.className = 'alert alert-danger';
+                pnlAlert.innerHTML = '<strong>⚠️ تحذير P&L:</strong> أنت حالياً في مسار خسارة! يجب تحسين معدل النمو أو خفض التكاليف';
+            } else if (projectedPnL < 50000) {
+                pnlAlert.style.display = 'block';
+                pnlAlert.className = 'alert alert-warning';
+                pnlAlert.innerHTML = '<strong>📊 تنبيه P&L:</strong> هامش الربح أقل من المستهدف. حاول تحسين الأداء';
+            } else {
+                pnlAlert.style.display = 'block';
+                pnlAlert.className = 'alert alert-success';
+                pnlAlert.innerHTML = '<strong>✅ P&L جيد:</strong> أنت على المسار الصحيح لتحقيق ربح جيد!';
+            }
+        }
+
+        // Scenario Analysis
+        function calculateScenario() {
+            const sheepCount = parseInt(document.getElementById('sheepCount').value) || 31;
+            const currentWeight = parseFloat(document.getElementById('avgWeight').textContent) || 52;
+            const scenarioGrowth = parseFloat(document.getElementById('scenarioGrowth').value);
+            const scenarioPrice = parseFloat(document.getElementById('scenarioPrice').value);
+            const costReduction = parseFloat(document.getElementById('scenarioCostReduction').value) / 100;
+            
+            const weeksRemaining = 12; // Example
+            const projectedWeight = currentWeight + (scenarioGrowth * weeksRemaining * 7);
+            const revenue = sheepCount * projectedWeight * scenarioPrice;
+            const costs = calculateTotalCosts() * (1 - costReduction) * 1.5; // Projected to end
+            const scenarioPnL = revenue - costs;
+            
+            const resultElement = document.getElementById('scenarioResult');
+            resultElement.textContent = `النتيجة: ${scenarioPnL > 0 ? '+' : ''}${scenarioPnL.toLocaleString()} جنيه`;
+            resultElement.style.color = scenarioPnL > 0 ? 'green' : 'red';
+            
+            // Show improvement needed
+            if (scenarioPnL > 0) {
+                resultElement.textContent += '\n✅ هذا السيناريو سيحقق ربح!';
+            } else {
+                resultElement.textContent += '\n❌ لا يزال هذا السيناريو يحقق خسارة';
+            }
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // Set dates
+            document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ar-EG');
+            const operationsDateElement = document.getElementById('operationsDate');
+            if (operationsDateElement) {
+                operationsDateElement.textContent = new Date().toLocaleDateString('ar-EG');
+            }
+            
+            // Initialize all components
+            updateDashboard();
+            updateFinancials();
+            updatePnL();
+            checkVaccinations();
+            updateAIPredictions();
+            updateQuickStats();
+            checkCriticalAlerts();
+            updateExpenseTotals();
+            updateCashFlow();
+            updateOperations();
+            checkContractExpirations();
+            checkComplianceStatus();
+            
+            // Set up file upload listener
+            const photoInput = document.querySelector('#visual input[type="file"]');
+            if (photoInput) {
+                photoInput.addEventListener('change', handlePhotoUpload);
+            }
+        };
+        
+        // Update Quick Stats
+        function updateQuickStats() {
+            const sheepCount = document.getElementById('sheepCount').value || 31;
+            const avgWeight = document.getElementById('avgWeight').textContent || '52';
+            const growthRate = parseFloat(document.getElementById('growthRate').textContent) || 0.15;
+            
+            document.getElementById('quickSheepCount').textContent = `${sheepCount}/50`;
+            document.getElementById('quickAvgWeight').textContent = avgWeight + ' كجم';
+            
+            const growthElement = document.getElementById('quickGrowthRate');
+            growthElement.textContent = growthRate + ' كجم/يوم';
+            growthElement.style.color = growthRate >= 0.225 ? 'green' : growthRate >= 0.15 ? 'orange' : 'red';
+            if (growthRate < 0.225) growthElement.textContent += ' ⚠️';
+            
+            // Update cost per kg
+            const costPerKg = 165; // Calculate from actual expenses
+            const costElement = document.getElementById('quickCostPerKg');
+            if (costElement) {
+                costElement.textContent = costPerKg + ' جنيه';
+                costElement.style.color = costPerKg <= 140 ? 'green' : costPerKg <= 160 ? 'orange' : 'red';
+            }
+            
+            // Update cash position
+            const cashElement = document.getElementById('quickCash');
+            if (cashElement) {
+                const cash = 45000; // Get from cash flow
+                cashElement.textContent = cash.toLocaleString() + ' جنيه';
+                cashElement.style.color = cash >= 100000 ? 'green' : cash >= 50000 ? 'orange' : 'red';
+            }
+            
+            // Update quick status
+            const statusElement = document.getElementById('quickStatus');
+            if (growthRate >= 0.2 && sheepCount >= 45) {
+                statusElement.textContent = '✅ ممتاز';
+                statusElement.style.color = 'green';
+            } else if (growthRate >= 0.15 && sheepCount >= 35) {
+                statusElement.textContent = '⚠️ يحتاج متابعة';
+                statusElement.style.color = 'orange';
+            } else {
+                statusElement.textContent = '❌ خطر';
+                statusElement.style.color = 'red';
+            }
+        }
+        
+        // Check Critical Alerts
+        function checkCriticalAlerts() {
+            const alerts = [];
+            const growthRate = parseFloat(document.getElementById('growthRate').textContent) || 0.15;
+            const feedDays = parseInt(document.getElementById('feedDays')?.textContent) || 10;
+            
+            if (growthRate < 0.15) {
+                alerts.push('معدل النمو خطير جداً!');
+            }
+            if (feedDays < 5) {
+                alerts.push('العلف سينفذ خلال أيام!');
+            }
+            
+            // Check for upcoming vaccinations
+            const urgentVaccinations = document.querySelectorAll('#health tbody tr td.warning');
+            if (urgentVaccinations.length > 0) {
+                alerts.push(`${urgentVaccinations.length} تطعيمات عاجلة!`);
+            }
+            
+            if (alerts.length > 0) {
+                document.getElementById('criticalAlerts').style.display = 'block';
+                document.getElementById('criticalAlertsText').textContent = alerts.join(' | ');
+            }
+        }
+        
+        // Emergency Protocols
+        function showProtocol(type) {
+            const protocols = {
+                'no-eating': {
+                    title: 'بروتوكول: الأغنام لا تأكل',
+                    steps: [
+                        '1️⃣ فحص المياه فوراً - تأكد من توفر مياه نظيفة',
+                        '2️⃣ فحص العلف - هل تغير لونه أو رائحته؟',
+                        '3️⃣ قياس الحرارة - الطبيعي 38.5-39.5°م',
+                        '4️⃣ فحص الأسنان واللثة - التهابات؟',
+                        '5️⃣ عزل المصابة فوراً',
+                        '6️⃣ اتصل بالطبيب البيطري',
+                        '⚡ علاج سريع: فيتامين ب المركب + محلول معالجة جفاف'
+                    ]
+                },
+                'sudden-death': {
+                    title: 'بروتوكول: نفوق مفاجئ',
+                    steps: [
+                        '🚨 لا تحرك الجثة - خطر العدوى!',
+                        '1️⃣ عزل المنطقة فوراً',
+                        '2️⃣ منع باقي القطيع من الاقتراب',
+                        '3️⃣ اتصل بالطبيب البيطري فوراً',
+                        '4️⃣ تصوير الجثة من جميع الجهات',
+                        '5️⃣ فحص باقي القطيع',
+                        '6️⃣ عدم إطعام القطيع حتى يأتي الطبيب',
+                        '⚠️ احتمال تسمم أو مرض معدي'
+                    ]
+                },
+                'diarrhea': {
+                    title: 'بروتوكول: إسهال شديد',
+                    steps: [
+                        '1️⃣ عزل المصابة فوراً',
+                        '2️⃣ إيقاف العلف المركز 12 ساعة',
+                        '3️⃣ توفير مياه نظيفة + ملح',
+                        '4️⃣ إعطاء: 20مل زيت طعام + فحم نشط',
+                        '5️⃣ مضاد حيوي واسع المجال',
+                        '6️⃣ تطهير الحظيرة بالكامل',
+                        '⚡ خطر الجفاف - محاليل معالجة ضرورية'
+                    ]
+                },
+                'respiratory': {
+                    title: 'بروتوكول: صعوبة تنفس',
+                    steps: [
+                        '1️⃣ نقل للهواء الطلق فوراً',
+                        '2️⃣ وضع رأس مرفوع قليلاً',
+                        '3️⃣ حقن مضاد التهاب (ديكساميثازون)',
+                        '4️⃣ مضاد حيوي للجهاز التنفسي',
+                        '5️⃣ تهوية الحظيرة جيداً',
+                        '6️⃣ فحص باقي القطيع',
+                        '⚠️ احتمال التهاب رئوي - علاج سريع مهم'
+                    ]
+                },
+                'bloat': {
+                    title: 'بروتوكول: انتفاخ البطن',
+                    steps: [
+                        '🚨 حالة طارئة - تصرف خلال 30 دقيقة!',
+                        '1️⃣ وقوف الخروف + رفع الأرجل الأمامية',
+                        '2️⃣ تدليك الجانب الأيسر بقوة',
+                        '3️⃣ إعطاء 50-100مل زيت طعام',
+                        '4️⃣ حقن مضاد انتفاخ',
+                        '5️⃣ إذا فشل: اتصل بالطبيب لعمل بذل',
+                        '⚡ منع العلف الأخضر فوراً'
+                    ]
+                }
+            };
+            
+            const protocol = protocols[type];
+            const detailsDiv = document.getElementById('protocolDetails');
+            
+            if (protocol) {
+                detailsDiv.innerHTML = `
+                    <h4>${protocol.title}</h4>
+                    <ol style="font-size: 1.1em; line-height: 1.8;">
+                        ${protocol.steps.map(step => `<li>${step}</li>`).join('')}
+                    </ol>
+                    <button class="btn btn-danger" onclick="callVet()">📞 اتصل بالطبيب البيطري</button>
+                    <button class="btn" onclick="document.getElementById('protocolDetails').style.display='none'">إغلاق</button>
+                `;
+                detailsDiv.style.display = 'block';
+                detailsDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Health Management Functions
+        function checkVaccinations() {
+            // This would check vaccination dates and send alerts
+            const today = new Date();
+            const vaccinations = document.querySelectorAll('#health tbody tr');
+            let urgentCount = 0;
+            
+            vaccinations.forEach(row => {
+                const daysRemaining = parseInt(row.cells[3].textContent);
+                if (daysRemaining <= 7) {
+                    urgentCount++;
+                }
+            });
+            
+            if (urgentCount > 0) {
+                alert(`تنبيه: يوجد ${urgentCount} تطعيمات تحتاج إعطاؤها خلال أسبوع!`);
+            }
+        }
+        
+        function addHealthCase() {
+            const symptoms = prompt('ما هي الأعراض؟');
+            if (symptoms) {
+                const healthLog = document.getElementById('healthLog');
+                const newRow = healthLog.insertRow(0);
+                newRow.innerHTML = `
+                    <td>${new Date().toLocaleDateString('ar-EG')}</td>
+                    <td><input type="text" placeholder="رقم"></td>
+                    <td>${symptoms}</td>
+                    <td><input type="text" placeholder="التشخيص"></td>
+                    <td><input type="text" placeholder="العلاج"></td>
+                    <td>
+                        <select>
+                            <option>تحت العلاج</option>
+                            <option>تحسن</option>
+                            <option>شفاء تام</option>
+                            <option>نفوق</option>
+                        </select>
+                    </td>
+                `;
+            }
+        }
+        
+        // Supplier Management
+        function addSupplier() {
+            const name = prompt('اسم المورد:');
+            if (name) {
+                alert(`تم إضافة المورد: ${name}\nسيتم تقييمه بعد أول عملية شراء`);
+                // In real app, would add to suppliers table
+            }
+        }
+        
+        // AI Predictions
+        function updateAIPredictions() {
+            const currentWeight = parseFloat(document.getElementById('avgWeight').textContent) || 52;
+            const growthRate = parseFloat(document.getElementById('growthRate').textContent) || 0.15;
+            const targetWeight = 65;
+            
+            // Calculate days to target
+            const daysToTarget = Math.ceil((targetWeight - currentWeight) / growthRate);
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + daysToTarget);
+            
+            // Update prediction cards
+            document.querySelector('#predictions .metric-value').textContent = 
+                targetDate.toLocaleDateString('ar-EG', { month: 'long', day: 'numeric' });
+            
+            // Calculate success probability
+            const successProb = growthRate >= 0.225 ? 85 : 
+                               growthRate >= 0.2 ? 65 :
+                               growthRate >= 0.15 ? 35 : 15;
+            
+            document.querySelector('#predictions .dashboard .metric-card:nth-child(3) .metric-value').textContent = 
+                successProb + '%';
+            
+            // Market price prediction based on season
+            const month = targetDate.getMonth();
+            const isEidSeason = [2, 3, 8, 9].includes(month); // Ramadan/Eid months
+            const predictedPrice = isEidSeason ? 248 : 225;
+            
+            // Update best selling time
+            if (isEidSeason) {
+                document.querySelector('#predictions .dashboard .metric-card:nth-child(2) small').textContent = 
+                    `توقع سعر: ${predictedPrice} جنيه/كجم (موسم العيد)`;
+            }
+        }
+        
+        // Call Vet Function
+        function callVet() {
+            const vetNumber = '01234567890'; // Replace with actual vet number
+            if (confirm(`الاتصال بالطبيب البيطري على ${vetNumber}?`)) {
+                window.location.href = `tel:${vetNumber}`;
+            }
+        }
+        
+        // WhatsApp Integration for Daily Updates
+        function setupWhatsAppBot() {
+            const dailyQuestions = [
+                'صباح الخير! هل تم فحص المياه؟ ✅/❌',
+                'كم كيلو علف تم توزيعه اليوم؟',
+                'هل يوجد أغنام مريضة؟ (أرسل 0 إذا لا يوجد)',
+                'ما هو متوسط نشاط القطيع؟ (1-10)',
+                'هل تم تنظيف الحظيرة؟ ✅/❌'
+            ];
+            
+            const message = `📱 رسائل المتابعة اليومية:
+            
+${dailyQuestions.join('\n')}
+
+انسخ هذه الأسئلة وأرسلها للشريك يومياً الساعة 7 صباحاً`;
+            
+            navigator.clipboard.writeText(message).then(() => {
+                alert('تم نسخ رسائل المتابعة اليومية!');
+            });
+        }
+        
+        // Generate AI Report
+        function generateAIReport() {
+            const growthRate = parseFloat(document.getElementById('growthRate').textContent) || 0.15;
+            const currentWeight = parseFloat(document.getElementById('avgWeight').textContent) || 52;
+            const sheepCount = parseInt(document.getElementById('sheepCount').value) || 31;
+            
+            const report = `🤖 تقرير الذكاء الاصطناعي الشامل
+📅 التاريخ: ${new Date().toLocaleDateString('ar-EG')}
+
+📊 التحليل الحالي:
+• عدد الأغنام: ${sheepCount} (${sheepCount < 50 ? '⚠️ أقل من المخطط' : '✅'})
+• متوسط الوزن: ${currentWeight} كجم
+• معدل النمو: ${growthRate} كجم/يوم (${growthRate < 0.225 ? '⚠️ أقل من الهدف' : '✅'})
+
+🎯 التوقعات:
+• الوصول لـ 65 كجم: ${Math.ceil((65 - currentWeight) / growthRate)} يوم
+• احتمال النجاح: ${growthRate >= 0.2 ? 'مرتفع' : 'منخفض'}
+• الربح المتوقع: ${growthRate >= 0.2 ? 'إيجابي' : 'سلبي'}
+
+💡 التوصيات العاجلة:
+${growthRate < 0.2 ? `1. زيادة البروتين في العلف بنسبة 20%
+2. تغيير المورد الحالي
+3. فحص صحي شامل للقطيع
+4. زيادة عدد الوجبات إلى 3 يومياً` : 
+'1. الاستمرار على نفس النظام\n2. مراقبة الأوزان أسبوعياً'}
+
+⚠️ المخاطر الرئيسية:
+• خطر الخسارة: ${growthRate < 0.2 ? 'مرتفع جداً' : 'متوسط'}
+• خطر الأمراض: ${sheepCount > 40 ? 'مرتفع (ازدحام)' : 'منخفض'}
+
+📈 خطة الإنقاذ:
+${growthRate < 0.2 ? `• الأسبوع 1-2: تحسين التغذية
+• الأسبوع 3-4: تقييم التحسن
+• الأسبوع 5: قرار البيع المبكر إذا لم يتحسن` : 
+'• المتابعة العادية مع التركيز على الحفاظ على المعدل'}
+
+👈 الخطوة التالية: ${growthRate < 0.2 ? 'اجتماع طارئ مع الشريك' : 'متابعة أسبوعية عادية'}`;
+
+            navigator.clipboard.writeText(report).then(() => {
+                alert('تم نسخ التقرير الشامل! يمكنك لصقه في WhatsApp');
+            });
+        }
+        
+        // Show Emergency Menu
+        function showEmergencyMenu() {
+            const menu = `
+🚨 قائمة الطوارئ السريعة
+
+1️⃣ الأغنام لا تأكل
+2️⃣ نفوق مفاجئ
+3️⃣ إسهال شديد
+4️⃣ صعوبة تنفس
+5️⃣ انتفاخ
+6️⃣ اتصل بالطبيب البيطري
+
+اختر رقم الحالة الطارئة:`;
+            
+            const choice = prompt(menu);
+            
+            switch(choice) {
+                case '1':
+                    showProtocol('no-eating');
+                    showTab('health');
+                    break;
+                case '2':
+                    showProtocol('sudden-death');
+                    showTab('health');
+                    break;
+                case '3':
+                    showProtocol('diarrhea');
+                    showTab('health');
+                    break;
+                case '4':
+                    showProtocol('respiratory');
+                    showTab('health');
+                    break;
+                case '5':
+                    showProtocol('bloat');
+                    showTab('health');
+                    break;
+                case '6':
+                    callVet();
+                    break;
+                default:
+                    alert('اختيار غير صحيح');
+            }
+        }
+        
+        // Add Daily Expense
+        function addDailyExpense() {
+            const expense = prompt('نوع المصروف (ثابت/متغير):');
+            if (expense) {
+                const amount = prompt('المبلغ:');
+                const category = prompt('التصنيف (علف/أدوية/عمالة/إيجار/أخرى):');
+                const details = prompt('التفاصيل:');
+                
+                if (amount && category) {
+                    const expensesTable = document.getElementById('dailyExpenses');
+                    const newRow = expensesTable.insertRow(0);
+                    newRow.innerHTML = `
+                        <td>${new Date().toLocaleDateString('ar-EG')}</td>
+                        <td>${expense}</td>
+                        <td>${category}</td>
+                        <td>${details || '-'}</td>
+                        <td>${amount}</td>
+                        <td>
+                            <select>
+                                <option>كاش</option>
+                                <option>تحويل</option>
+                                <option>شيك</option>
+                                <option>آجل</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="checkbox"> فاتورة
+                        </td>
+                        <td><input type="text" placeholder="ملاحظات"></td>
+                    `;
+                    
+                    // Update total expenses
+                    updateExpenseTotals();
+                    alert('تم إضافة المصروف بنجاح');
+                }
+            }
+        }
+        
+        // Update Expense Totals
+        function updateExpenseTotals() {
+            // Calculate total expenses from table
+            const rows = document.getElementById('dailyExpenses').rows;
+            let total = 0;
+            let fixed = 0;
+            let variable = 0;
+            
+            for (let i = 0; i < rows.length; i++) {
+                const amount = parseFloat(rows[i].cells[4]?.textContent) || 0;
+                const type = rows[i].cells[1]?.textContent;
+                
+                total += amount;
+                if (type === 'ثابت') {
+                    fixed += amount;
+                } else {
+                    variable += amount;
+                }
+            }
+            
+            // Update dashboard
+            document.getElementById('totalExpenses').textContent = total.toLocaleString() + ' جنيه';
+            
+            // Calculate cost per kg
+            const currentWeight = parseFloat(document.getElementById('avgWeight').textContent) || 52;
+            const sheepCount = parseInt(document.getElementById('sheepCount').value) || 31;
+            const totalWeight = currentWeight * sheepCount;
+            const costPerKg = totalWeight > 0 ? total / totalWeight : 0;
+            
+            // Update cost per kg in dashboard
+            const costPerKgElement = document.querySelector('#expenses .metric-card:nth-child(4) .metric-value');
+            if (costPerKgElement) {
+                costPerKgElement.textContent = costPerKg.toFixed(0) + ' جنيه/كجم';
+            }
+        }
+        
+        // Update Operations
+        function updateOperations() {
+            const checkboxes = document.querySelectorAll('#operations input[type="checkbox"]');
+            let completed = 0;
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) completed++;
+            });
+            
+            const completion = checkboxes.length > 0 ? (completed / checkboxes.length * 100).toFixed(0) : 0;
+            document.getElementById('taskCompletion').textContent = completion + '%';
+            
+            // Update operations efficiency
+            const efficiencyCard = document.querySelector('#operations .metric-card:first-child .metric-value');
+            if (efficiencyCard) {
+                efficiencyCard.textContent = completion + '%';
+            }
+        }
+        
+        // Update Cash Flow
+        function updateCashFlow() {
+            const currentBalance = 45000; // Starting balance
+            const weeklyFeedCost = 15000;
+            const monthlyFixedCosts = 13000;
+            
+            // Calculate weeks until cash runs out
+            const burnRate = weeklyFeedCost + (monthlyFixedCosts / 4);
+            const weeksUntilEmpty = Math.floor(currentBalance / burnRate);
+            
+            // Show alert if less than 4 weeks
+            if (weeksUntilEmpty < 4) {
+                const cashAlert = document.querySelector('#cashflow .alert-danger');
+                if (cashAlert) {
+                    cashAlert.style.display = 'block';
+                    cashAlert.innerHTML = `<strong>🚨 تحذير:</strong> ستواجه عجز نقدي بعد ${weeksUntilEmpty} أسابيع! خطط للتمويل الآن`;
+                }
+            }
+        }
+        
+        // Calculate Break-even Analysis
+        function calculateBreakeven() {
+            const fixedCosts = 85000;
+            const variableCostPerKg = 140;
+            const sellingPricePerKg = 225;
+            
+            const contributionMarginPerKg = sellingPricePerKg - variableCostPerKg;
+            const breakEvenKg = fixedCosts / contributionMarginPerKg;
+            
+            return {
+                breakEvenKg: breakEvenKg,
+                breakEvenSheep: breakEvenKg / 65, // Assuming 65kg target weight
+                currentMargin: contributionMarginPerKg
+            };
+        }
+        
+        // Generate Comprehensive Report
+        function generateComprehensiveReport() {
+            const report = `📊 التقرير الشامل لدورة تربية الأغنام
+📅 التاريخ: ${new Date().toLocaleDateString('ar-EG')}
+
+════════════════════════════════════════
+
+📈 الأداء الإنتاجي:
+• عدد الأغنام: 31 من 50 (62%)
+• متوسط الوزن: 52 كجم (الهدف: 69 كجم)
+• معدل النمو: 0.15 كجم/يوم (الهدف: 0.225)
+• معدل النفوق: 0%
+
+💰 التحليل المالي:
+• إجمالي المصروفات: 425,000 جنيه
+  - ثابتة: 85,000 (20%)
+  - متغيرة: 340,000 (80%)
+• تكلفة الكيلو: 165 جنيه (الهدف: 140)
+• الربح المتوقع: -85,000 جنيه (خسارة)
+• نقطة التعادل: 1,000 كجم
+
+💵 الوضع النقدي:
+• الرصيد الحالي: 45,000 جنيه
+• معدل الحرق: 2,833 جنيه/يوم
+• أسابيع حتى النفاد: 3 أسابيع
+• العجز المتوقع: 40,000 جنيه
+
+⚙️ كفاءة العمليات:
+• إنجاز المهام اليومية: 72%
+• كفاءة استخدام الموارد: 65%
+• معدل الأخطاء: 15%
+• الالتزام بالجدول: 65%
+
+👥 الموارد البشرية:
+• عدد العاملين: 3 (2 عمال + 1 مشرف)
+• معدل الحضور: 92%
+• الإنتاجية: 75%
+• إجمالي الرواتب: 8,000 جنيه/شهر
+
+📸 التوثيق المرئي:
+• إجمالي الصور: 247 صورة
+• توثيق المشاكل: 12 حالة
+• متابعة أسبوعية: منتظمة
+
+📄 العقود والاتفاقيات:
+• العقود النشطة: 7
+• قيمة العقود: 850,000 جنيه
+• مخالفات: 1 (تقليل العلف)
+
+⚖️ الامتثال:
+• التراخيص السارية: 5/6
+• الضرائب: محدثة
+• التأمينات: سارية
+
+📞 التواصل:
+• إجمالي المراسلات: 324
+• القرارات الموثقة: 23
+• النزاعات: 2
+
+🚨 المخاطر الرئيسية:
+1. معدل نمو منخفض جداً (-33% من الهدف)
+2. نفاد السيولة خلال 3 أسابيع
+3. تكلفة إنتاج أعلى من سعر البيع
+4. عدد أغنام أقل من المخطط
+5. مخالفة شراكة (تقليل العلف)
+
+💡 التوصيات العاجلة:
+1. تأمين تمويل 50,000 جنيه فوراً
+2. تحسين العلف لرفع معدل النمو
+3. إكمال العدد إلى 50 رأس
+4. خفض التكاليف المتغيرة 15%
+5. البيع المبكر إذا لم يتحسن النمو
+6. مراجعة اتفاق الشراكة
+7. تجديد الترخيص المنتهي
+
+⭐ تقييم الشريك: C (71.7/100)
+- نقاط القوة: صفر نفوق، حضور منتظم
+- نقاط الضعف: معدل نمو ضعيف، مخالفة العقد
+
+📚 الدروس المستفادة من الدورات السابقة:
+✅ عوامل النجاح المثبتة:
+- علف عالي الجودة = +40% ربح
+- البدء في الربيع = +25% ربح
+- 50 رأس كاملة = +30% ربح
+
+❌ عوامل الفشل المؤكدة:
+- تقليل العلف = -60% خسارة
+- عدد قليل = -30% خسارة
+- ضعف المتابعة = -40% خسارة
+
+الخلاصة: الدورة في خطر شديد وتحتاج تدخل عاجل في كل المجالات`;
+
+            navigator.clipboard.writeText(report).then(() => {
+                alert('تم نسخ التقرير الشامل الكامل!');
+            });
+        }
+        
+        // Generate Financial Summary
+        function generateFinancialSummary() {
+            const summary = `💰 الملخص المالي التفصيلي
+
+📊 هيكل التكاليف:
+├─ تكاليف ثابتة: 85,000 جنيه (20%)
+│  ├─ إيجار: 30,000
+│  ├─ عمالة: 24,000
+│  ├─ رسوم: 17,000
+│  └─ أخرى: 14,000
+│
+└─ تكاليف متغيرة: 340,000 جنيه (80%)
+   ├─ شراء أغنام: 240,725
+   ├─ أعلاف: 101,918
+   ├─ أدوية: 10,505
+   └─ أخرى: 27,240
+
+📈 تحليل الربحية:
+• سعر البيع المتوقع: 225 جنيه/كجم
+• تكلفة الإنتاج: 165 جنيه/كجم
+• هامش الربح: 60 جنيه/كجم (27%)
+• نقطة التعادل: 1,000 كجم
+• الكمية الحالية: 1,612 كجم
+• الربح/الخسارة: -85,000 جنيه
+
+💸 إدارة النقدية:
+• دورة التحويل النقدي: 150 يوم
+• فترة التحصيل: 0 يوم (كاش)
+• فترة السداد: 30 يوم
+• احتياج رأس المال العامل: 125,000 جنيه
+
+⚠️ مؤشرات الخطر المالي:
+1. تكلفة أعلى من المخطط بـ 18%
+2. سيولة غير كافية لإكمال الدورة
+3. عائد سلبي على الاستثمار
+4. مخاطر عدم تغطية التكاليف الثابتة`;
+
+            navigator.clipboard.writeText(summary).then(() => {
+                alert('تم نسخ الملخص المالي!');
+            });
+        }
+        
+        // Generate Operational Summary
+        function generateOperationalSummary() {
+            const summary = `⚙️ ملخص العمليات والكفاءة
+
+📊 مؤشرات الأداء التشغيلي:
+• كفاءة العمليات الكلية: 72%
+• معدل إنجاز المهام اليومية: 85%
+• الالتزام بالمواعيد: 65%
+• معدل الأخطاء: 15%
+
+⏱️ توزيع الوقت اليومي:
+• التغذية: 3 ساعات (37.5%)
+• النظافة: 1.5 ساعة (18.75%)
+• الفحص الصحي: 1 ساعة (12.5%)
+• الصيانة: 0.5 ساعة (6.25%)
+• أخرى: 2 ساعات (25%)
+• الإجمالي: 8 ساعات
+
+📈 كفاءة الموارد:
+• استخدام العمالة: 56% (ضعيف)
+• استخدام المساحة: 62% (مقبول)
+• استخدام المعدات: 80% (جيد)
+• استهلاك المياه: 62 لتر/رأس/يوم
+
+🔧 مشاكل العمليات الرئيسية:
+1. عدم الالتزام بمواعيد التغذية (35% تأخير)
+2. نقص في ساعات العمل الفعلية
+3. عدم توثيق العمليات بشكل منتظم
+4. ضعف التنسيق بين العمال
+
+💡 تحسينات مطلوبة:
+1. نظام مراقبة أداء يومي
+2. تدريب العمال على SOPs
+3. أتمتة بعض العمليات
+4. نظام حوافز مرتبط بالأداء`;
+
+            navigator.clipboard.writeText(summary).then(() => {
+                alert('تم نسخ ملخص العمليات!');
+            });
+        }
+        
+        // Photo Upload Handler
+        function handlePhotoUpload(event) {
+            const files = event.target.files;
+            const fileCount = files.length;
+            
+            if (fileCount > 0) {
+                alert(`تم اختيار ${fileCount} صورة. سيتم رفعها وتصنيفها.`);
+                // In real app, would upload to server
+                updatePhotoStats(fileCount);
+            }
+        }
+        
+        // Update Photo Statistics
+        function updatePhotoStats(newPhotos) {
+            const totalPhotosElement = document.querySelector('#visual .metric-card:first-child .metric-value');
+            if (totalPhotosElement) {
+                const currentTotal = parseInt(totalPhotosElement.textContent) || 0;
+                totalPhotosElement.textContent = currentTotal + newPhotos;
+            }
+            
+            const weeklyPhotosElement = document.querySelector('#visual .metric-card:nth-child(2) .metric-value');
+            if (weeklyPhotosElement) {
+                const currentWeekly = parseInt(weeklyPhotosElement.textContent) || 0;
+                weeklyPhotosElement.textContent = currentWeekly + newPhotos;
+            }
+        }
+        
+        // Log Communication
+        function logCommunication(type, party, subject, summary) {
+            const commTable = document.querySelector('#communication tbody');
+            if (commTable) {
+                const newRow = commTable.insertRow(0);
+                const now = new Date();
+                const timeString = now.toLocaleString('ar-EG');
+                
+                newRow.innerHTML = `
+                    <td>${timeString}</td>
+                    <td>${type}</td>
+                    <td>${party}</td>
+                    <td>${subject}</td>
+                    <td>${summary}</td>
+                    <td>-</td>
+                `;
+                
+                // Update communication stats
+                updateCommunicationStats();
+            }
+        }
+        
+        // Update Communication Statistics
+        function updateCommunicationStats() {
+            const totalMessages = document.querySelector('#communication .metric-card:first-child .metric-value');
+            if (totalMessages) {
+                const current = parseInt(totalMessages.textContent) || 0;
+                totalMessages.textContent = current + 1;
+            }
+        }
+        
+        // Check Contract Expirations
+        function checkContractExpirations() {
+            const contracts = document.querySelectorAll('#contracts tbody tr');
+            let expiringCount = 0;
+            const today = new Date();
+            
+            contracts.forEach(row => {
+                const expiryCell = row.cells[4];
+                if (expiryCell) {
+                    const expiryDate = new Date(expiryCell.textContent);
+                    const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysUntilExpiry <= 30 && daysUntilExpiry > 0) {
+                        expiringCount++;
+                        row.classList.add('warning');
+                    }
+                }
+            });
+            
+            if (expiringCount > 0) {
+                alert(`تنبيه: يوجد ${expiringCount} عقود تنتهي خلال 30 يوم!`);
+            }
+        }
+        
+        // Check Compliance Status
+        function checkComplianceStatus() {
+            const licenses = document.querySelectorAll('#compliance tbody tr');
+            let expiredCount = 0;
+            let expiringCount = 0;
+            
+            licenses.forEach(row => {
+                const statusCell = row.cells[4];
+                if (statusCell && statusCell.textContent.includes('ينتهي قريباً')) {
+                    expiringCount++;
+                } else if (statusCell && statusCell.textContent.includes('منتهي')) {
+                    expiredCount++;
+                }
+            });
+            
+            if (expiredCount > 0 || expiringCount > 0) {
+                const alertText = `تحذير امتثال: ${expiredCount} تراخيص منتهية، ${expiringCount} تنتهي قريباً`;
+                document.getElementById('criticalAlertsText').textContent += ' | ' + alertText;
+                document.getElementById('criticalAlerts').style.display = 'block';
+            }
+        }
+        
+        // Calculate Transport Costs
+        function calculateTransportCosts() {
+            const transportRows = document.querySelectorAll('#operations tbody tr');
+            let totalTransportCost = 0;
+            
+            transportRows.forEach(row => {
+                const costCell = row.cells[4];
+                if (costCell) {
+                    const cost = parseFloat(costCell.textContent) || 0;
+                    totalTransportCost += cost;
+                }
+            });
+            
+            return totalTransportCost;
+        }
+        
+        // Generate Comprehensive Lessons Learned
+        function generateLessonsLearned() {
+            const historicalData = {
+                bestCycle: { number: 3, profit: 125000, growthRate: 0.24 },
+                worstCycle: { number: 5, profit: -85000, growthRate: 0.15 },
+                averageProfit: 45000,
+                successFactors: [
+                    'علف عالي الجودة',
+                    'البدء في الربيع',
+                    '50 رأس كاملة',
+                    'متابعة يومية'
+                ],
+                failureFactors: [
+                    'تقليل العلف',
+                    'عدد أغنام قليل',
+                    'ضعف المتابعة',
+                    'توفير خاطئ'
+                ]
+            };
+            
+            return historicalData;
+        }
+    </script>
+</body>
+</html>

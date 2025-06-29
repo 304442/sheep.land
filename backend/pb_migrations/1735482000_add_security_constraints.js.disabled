@@ -1,0 +1,96 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((db) => {
+    // db is the app instance with DAO methods
+    
+    // Add constraints to orders collection
+    const ordersCollection = db.findCollectionByNameOrId("orders");
+    
+    // Ensure line_items is required and validated
+    const lineItemsField = ordersCollection.fields.getByName("line_items");
+    if (lineItemsField) {
+        lineItemsField.required = true;
+        if (!lineItemsField.options) {
+            lineItemsField.options = {};
+        }
+        lineItemsField.options.minSelect = 1;
+    }
+    
+    // Add validation rules to prevent negative amounts
+    const amountFields = [
+        'subtotal_amount_egp',
+        'total_amount_due_egp',
+        'delivery_fee_applied_egp',
+        'total_udheya_service_fee_egp'
+    ];
+    
+    amountFields.forEach(fieldName => {
+        const field = ordersCollection.fields.getByName(fieldName);
+        if (field && field.type === 'number') {
+            if (!field.options) {
+                field.options = {};
+            }
+            field.options.min = 0;
+            field.options.noDecimal = false;
+        }
+    });
+    
+    db.save(ordersCollection);
+    
+    // Add constraints to products collection
+    const productsCollection = db.findCollectionByNameOrId("products");
+    
+    // Ensure stock cannot be negative
+    const stockField = productsCollection.fields.getByName("stock_available_pb");
+    if (stockField) {
+        if (!stockField.options) {
+            stockField.options = {};
+        }
+        stockField.options.min = 0;
+        stockField.options.noDecimal = true;
+    }
+    
+    // Ensure price cannot be negative
+    const priceField = productsCollection.fields.getByName("base_price_egp");
+    if (priceField) {
+        if (!priceField.options) {
+            priceField.options = {};
+        }
+        priceField.options.min = 0;
+        priceField.options.noDecimal = false;
+    }
+    
+    db.save(productsCollection);
+    
+    // Add unique constraint on order_id_text
+    db.db().newQuery(`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_order_id_text 
+        ON orders(order_id_text);
+    `).execute();
+    
+
+}, (db) => {
+    // Remove constraints in reverse migration
+    try {
+        db.db().newQuery(`DROP INDEX IF EXISTS idx_orders_order_id_text`).execute();
+    } catch (e) {
+        // Indexes might not exist
+    }
+    
+    // Reset field constraints
+    const ordersCollection = db.findCollectionByNameOrId("orders");
+    const amountFields = [
+        'subtotal_amount_egp',
+        'total_amount_due_egp',
+        'delivery_fee_applied_egp',
+        'total_udheya_service_fee_egp'
+    ];
+    
+    amountFields.forEach(fieldName => {
+        const field = ordersCollection.fields.getByName(fieldName);
+        if (field && field.type === 'number') {
+            delete field.options.min;
+        }
+    });
+    
+    db.save(ordersCollection);
+});

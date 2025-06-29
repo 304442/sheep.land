@@ -24,9 +24,11 @@ This is a full-stack e-commerce web application for a sheep farming business in 
 # Install dependencies (mainly for testing)
 npm install
 
-# Run PocketBase locally
-# Download PocketBase binary first from https://pocketbase.io/docs/
-./pocketbase serve
+# Start the backend server (from backend directory)
+cd backend
+./start.sh
+# OR manually:
+./pocketbase serve --dev --publicDir=../frontend
 
 # Access points during local development:
 # Main app: http://localhost:8090
@@ -36,24 +38,41 @@ npm install
 # Run Playwright tests (when implemented)
 npx playwright test
 
-# Create a new database migration
-# Use format: pb_migrations/[timestamp]_[description].js
-# Example: pb_migrations/1704067200_add_new_field.js
+# Create a new database migration (from backend directory)
+cd backend
+./pocketbase migrate create description_here
 ```
 
 ## Architecture
 
 ### Directory Structure
-- `/pb_hooks/` - Server-side business logic
-  - `main.pb.js` - Order processing, validations, email notifications (Updated to latest PocketBase API)
-  - `validation_helpers.pb.js` - Reusable validation functions
-- `/pb_migrations/` - Database schema migrations
-  - Example migrations included for adding fields, creating collections, and data migrations
-- `/public/` - Frontend application
+```
+sheep.land/
+├── backend/                    # PocketBase backend server
+│   ├── pocketbase             # PocketBase executable
+│   ├── pb_hooks/              # Server-side business logic
+│   ├── pb_migrations/         # Database schema migrations  
+│   ├── pb_data/               # Database and runtime files
+│   └── start.sh               # Development start script
+├── frontend/                   # Static frontend application
+│   ├── index.html             # Main e-commerce app
+│   ├── app.js                 # Alpine.js application logic
+│   ├── management/            # Farm management system (Arabic)
+│   ├── feasibility/           # Feasibility calculator (Arabic)
+│   └── vendor/                # Third-party libraries
+└── docs/                      # Documentation and configs
+```
+
+### Key Components
+- **Backend (`/backend/`)**:
+  - `pb_hooks/main.pb.js` - Order processing, validations, email notifications (Updated to latest PocketBase API)
+  - `pb_hooks/validation_helpers.pb.js` - Reusable validation functions
+  - `pb_migrations/` - Database schema migrations with automated seed data
+- **Frontend (`/frontend/`)**:
   - `app.js` - Main e-commerce logic with Alpine.js components
-  - `/management/` - Arabic-only farm management system (separate SPA)
-  - `/feasibility/` - Arabic-only feasibility calculator
-  - `/vendor/` - Third-party libraries (Alpine.js, PocketBase SDK, Chart.js)
+  - `management/` - Arabic-only farm management system (separate SPA)
+  - `feasibility/` - Arabic-only feasibility calculator
+  - `vendor/` - Third-party libraries (Alpine.js, PocketBase SDK, Chart.js)
 
 ### Key Patterns
 
@@ -137,7 +156,7 @@ migrate((db) => {
 
 ### Important Considerations
 
-- **No build process**: Edit files directly in `/public/` - they're served as-is
+- **No build process**: Edit files directly in `/frontend/` - they're served as-is
 - **Alpine.js reactivity**: All frontend interactivity uses Alpine.js directives
 - **PocketBase authentication**: Built-in auth system handles user sessions
 - **Arabic-first design**: Many interfaces prioritize Arabic with RTL support

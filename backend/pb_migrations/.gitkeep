@@ -1,0 +1,17 @@
+# PocketBase Migrations Directory
+
+This directory contains database migrations that are automatically executed by PocketBase.
+
+## How it works with your deployment:
+
+1. Your deployment script checks for migrations: `pb_migrations/*.js`
+2. If found, it runs: `pocketbase migrate up`
+3. Migrations are tracked and run only once
+
+## To add future migrations:
+
+Create new migration files like:
+- `1704067200_add_new_field.js`
+- `1704153600_update_products.js`
+
+Use Unix timestamp prefix for ordering.
