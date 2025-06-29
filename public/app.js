@@ -2105,7 +2105,7 @@ document.addEventListener('alpine:init', () => {
                 // Get financial data
                 const [orders, expenses, sheep] = await Promise.all([
                     this.pb.collection('orders').getFullList({
-                        filter: `user = "${this.currentUser.id}" && created >= "${monthStart.toISOString()}"`
+                        filter: `customer_email = "${this.currentUser.email}" && created >= "${monthStart.toISOString()}"`
                     }),
                     this.pb.collection('feed_inventory').getFullList({
                         filter: `user = "${this.currentUser.id}" && purchase_date >= "${monthStart.toISOString()}"`
@@ -2452,14 +2452,14 @@ document.addEventListener('alpine:init', () => {
                 });
                 
                 // Check financial thresholds
-                if (this.financialDashboard) {
-                    if (this.financialDashboard.profit_margin < 20) {
+                if (this.financialDashboard && this.financialDashboard.profitability) {
+                    if (this.financialDashboard.profitability.margin < 20) {
                         alerts.push({
                             type: 'warning',
                             title: this.currLang === 'ar' ? 'هامش ربح منخفض' : 'Low Profit Margin',
                             message: this.currLang === 'ar' 
-                                ? `هامش الربح الحالي: ${this.financialDashboard.profit_margin.toFixed(1)}%`
-                                : `Current margin: ${this.financialDashboard.profit_margin.toFixed(1)}%`,
+                                ? `هامش الربح الحالي: ${this.financialDashboard.profitability.margin.toFixed(1)}%`
+                                : `Current margin: ${this.financialDashboard.profitability.margin.toFixed(1)}%`,
                             priority: 'medium',
                             action: 'review_expenses'
                         });
