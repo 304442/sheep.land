@@ -3,11 +3,24 @@
 // Simple in-memory rate limiter (resets on server restart)
 const rateLimitStore = {};
 const WINDOW_MS = 60 * 1000; // 1 minute window
-const MAX_REQUESTS = {
-    orders: 5,        // 5 orders per minute
-    auth: 10,         // 10 auth attempts per minute
-    general: 100      // 100 general requests per minute
+
+// Get rate limits from settings or use defaults
+let MAX_REQUESTS = {
+    orders: 5,        // Default: 5 orders per minute
+    auth: 10,         // Default: 10 auth attempts per minute
+    general: 100      // Default: 100 general requests per minute
 };
+
+// Load rate limits from settings
+try {
+    const settings = $app.dao().findFirstRecordByFilter("settings", "");
+    if (settings) {
+        MAX_REQUESTS.orders = settings.get("rate_limit_orders_per_minute") || MAX_REQUESTS.orders;
+        MAX_REQUESTS.auth = settings.get("rate_limit_auth_per_minute") || MAX_REQUESTS.auth;
+    }
+} catch (e) {
+    console.log("Using default rate limits");
+}
 
 function getRateLimitKey(ip, collection) {
     return `${ip}:${collection}`;
