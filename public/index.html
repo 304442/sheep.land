@@ -74,7 +74,7 @@
 <div x-show="load.init && !apiErr" class="load-ind" aria-live="polite">Loading Sheep Land...</div>
 <div x-show="apiErr" class="err-ind" role="alert" aria-live="assertive" tabindex="-1">
     <span x-show="!setupRequired" x-text="usrApiErr || 'Service temporarily unavailable. Please try again.'"></span>
-    <a x-show="setupRequired" href="/setup.html" class="err-link" x-text="usrApiErr"></a>
+    <span x-show="setupRequired" class="err-text" x-text="usrApiErr || 'System initialization required. Please contact administrator.'"></span>
 </div>
 
 
