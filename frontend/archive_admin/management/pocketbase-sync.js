@@ -8,9 +8,9 @@ class PocketBaseSync {
         this.syncInProgress = false;
         this.lastSync = null;
         this.collections = {
-            animals: 'farm_animals',
-            inventory: 'farm_inventory', 
-            health_records: 'farm_health_records',
+            animals: 'farm_sheep',
+            inventory: 'feed_inventory', 
+            health_records: 'health_records',
             matings: 'farm_matings',
             tasks: 'farm_tasks',
             equipment: 'farm_equipment',
@@ -57,18 +57,18 @@ class PocketBaseSync {
             const collections = await this.pb.collections.getFullList();
             const existingNames = collections.map(c => c.name);
             
-            // Create farm_animals collection
-            if (!existingNames.includes('farm_animals')) {
-                await this.createAnimalsCollection();
+            // Check for farm_sheep collection (renamed from farm_animals)
+            if (!existingNames.includes('farm_sheep')) {
+                console.log('Note: farm_sheep collection should be created by migrations');
             }
             
             // Create farm_inventory collection
-            if (!existingNames.includes('farm_inventory')) {
+            if (!existingNames.includes('feed_inventory')) {
                 await this.createInventoryCollection();
             }
             
             // Create farm_health_records collection
-            if (!existingNames.includes('farm_health_records')) {
+            if (!existingNames.includes('health_records')) {
                 await this.createHealthRecordsCollection();
             }
             
@@ -83,7 +83,7 @@ class PocketBaseSync {
     // Create animals collection schema
     async createAnimalsCollection() {
         const schema = {
-            name: 'farm_animals',
+            name: 'farm_sheep',
             type: 'base',
             schema: [
                 {
@@ -126,7 +126,7 @@ class PocketBaseSync {
                     name: 'dam_id',
                     type: 'relation',
                     options: {
-                        collectionId: 'farm_animals',
+                        collectionId: 'farm_sheep',
                         cascadeDelete: false
                     }
                 },
@@ -134,7 +134,7 @@ class PocketBaseSync {
                     name: 'sire_id',
                     type: 'relation',
                     options: {
-                        collectionId: 'farm_animals',
+                        collectionId: 'farm_sheep',
                         cascadeDelete: false
                     }
                 },
@@ -224,7 +224,7 @@ class PocketBaseSync {
                 // Check if animal exists in PocketBase
                 let pbAnimal;
                 try {
-                    pbAnimal = await this.pb.collection('farm_animals')
+                    pbAnimal = await this.pb.collection('farm_sheep')
                         .getFirstListItem(`tag_id = "${animal.tagId}"`);
                 } catch (e) {
                     // Animal doesn't exist, create it
@@ -261,10 +261,10 @@ class PocketBaseSync {
                 
                 if (pbAnimal) {
                     // Update existing
-                    await this.pb.collection('farm_animals').update(pbAnimal.id, animalData);
+                    await this.pb.collection('farm_sheep').update(pbAnimal.id, animalData);
                 } else {
                     // Create new
-                    await this.pb.collection('farm_animals').create(
+                    await this.pb.collection('farm_sheep').create(
                         animalData._formData || animalData
                     );
                 }
@@ -283,7 +283,7 @@ class PocketBaseSync {
     async updateProductsFromAnimals(results) {
         try {
             // Get animals marked for sale
-            const forSaleAnimals = await this.pb.collection('farm_animals')
+            const forSaleAnimals = await this.pb.collection('farm_sheep')
                 .getFullList({
                     filter: 'status = "active" && for_sale = true'
                 });
@@ -371,7 +371,7 @@ class PocketBaseSync {
         });
         
         // Subscribe to farm animals changes
-        this.pb.collection('farm_animals').subscribe('*', (e) => {
+        this.pb.collection('farm_sheep').subscribe('*', (e) => {
             if (e.action === 'update' || e.action === 'delete') {
                 this.syncAnimalToLocal(e.record, e.action);
             }
@@ -428,7 +428,7 @@ class PocketBaseSync {
     async reserveAnimal(animalId, orderId) {
         try {
             // Update in PocketBase
-            await this.pb.collection('farm_animals').update(animalId, {
+            await this.pb.collection('farm_sheep').update(animalId, {
                 status: 'reserved',
                 reserved_for_order: orderId,
                 reserved_until: new Date(Date.now() + 48*60*60*1000) // 48 hours
@@ -456,7 +456,7 @@ class PocketBaseSync {
         
         try {
             // Sync animals
-            const pbAnimals = await this.pb.collection('farm_animals').getFullList();
+            const pbAnimals = await this.pb.collection('farm_sheep').getFullList();
             
             pbAnimals.forEach(pbAnimal => {
                 const localIndex = sfmData.animals.findIndex(a => 
