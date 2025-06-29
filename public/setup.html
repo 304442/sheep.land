@@ -933,8 +933,8 @@
                 "name": "orders",
                 "type": "base",
                 "system": false,
-                "listRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true",
-                "viewRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true",
+                "listRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || (@request.auth.id != '' && user = @request.auth.id) || @request.auth.is_admin = true",
+                "viewRule": "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || (@request.auth.id != '' && user = @request.auth.id) || @request.auth.is_admin = true",
                 "createRule": "",
                 "updateRule": "@request.auth.id != '' && @request.auth.verified = true",
                 "deleteRule": "@request.auth.id != '' && @request.auth.verified = true",
@@ -1170,10 +1170,22 @@
                                 "required": false,
                                 "presentable": true,
                                 "min": 0
+                        },
+                        {
+                                "name": "user",
+                                "type": "relation",
+                                "required": false,
+                                "presentable": false,
+                                "collectionId": "_pb_users_auth_",
+                                "cascadeDelete": false,
+                                "minSelect": null,
+                                "maxSelect": 1,
+                                "displayFields": ["email"]
                         }
                 ],
                 "indexes": [
-                        "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)"
+                        "CREATE UNIQUE INDEX `idx_orders_order_id_text` ON `orders` (`order_id_text`)",
+                        "CREATE INDEX `idx_orders_user` ON `orders` (`user`)"
                 ]
         },
         {

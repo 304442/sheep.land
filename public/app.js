@@ -2103,69 +2103,40 @@ document.addEventListener('alpine:init', () => {
                 const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
                 
                 // Get financial data
-                // Try to get orders - if it fails, just continue without them
-                let orders = [];
-                let expenses = [];
-                let sheep = [];
-                
-                try {
-                    orders = await this.pb.collection('orders').getFullList({
-                        filter: `customer_email = "${this.currentUser.email}"`
-                    });
-                } catch (e) {
-                    console.warn('Could not fetch orders for financial dashboard:', e);
-                }
-                
-                try {
-                    expenses = await this.pb.collection('feed_inventory').getFullList({
+                const [orders, expenses, sheep] = await Promise.all([
+                    this.pb.collection('orders').getFullList({
+                        filter: `user = "${this.currentUser.id}" && created >= "${monthStart.toISOString()}"`
+                    }),
+                    this.pb.collection('feed_inventory').getFullList({
+                        filter: `user = "${this.currentUser.id}" && purchase_date >= "${monthStart.toISOString()}"`
+                    }),
+                    this.pb.collection('farm_sheep').getFullList({
                         filter: `user = "${this.currentUser.id}"`
-                    });
-                } catch (e) {
-                    console.warn('Could not fetch feed inventory for financial dashboard:', e);
-                }
-                
-                try {
-                    sheep = await this.pb.collection('farm_sheep').getFullList({
-                        filter: `user = "${this.currentUser.id}"`
-                    });
-                } catch (e) {
-                    console.warn('Could not fetch sheep for financial dashboard:', e);
-                }
-                
-                // Filter orders to current month in JavaScript
-                const currentMonthOrders = orders.filter(order => {
-                    const orderDate = new Date(order.created);
-                    return orderDate >= monthStart && orderDate <= now;
-                });
-                
-                // Filter expenses to current month
-                const currentMonthExpenses = expenses.filter(expense => {
-                    const purchaseDate = new Date(expense.purchase_date);
-                    return purchaseDate >= monthStart && purchaseDate <= now;
-                });
+                    })
+                ]);
                 
                 // Calculate revenue by category
                 const revenueByCategory = {};
-                currentMonthOrders.forEach(order => {
+                orders.forEach(order => {
                     const category = order.primary_category || 'other';
                     revenueByCategory[category] = (revenueByCategory[category] || 0) + order.total_amount_due_egp;
                 });
                 
                 // Calculate metrics in the expected structure
-                const totalRevenue = currentMonthOrders.reduce((sum, o) => sum + o.total_amount_due_egp, 0);
-                const totalExpenses = currentMonthExpenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0);
+                const totalRevenue = orders.reduce((sum, o) => sum + o.total_amount_due_egp, 0);
+                const totalExpenses = expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0);
                 const livestockValue = sheep.filter(s => s.status !== 'sold' && s.status !== 'deceased')
                     .reduce((sum, s) => sum + (s.weight_kg * (this.marketData.breeds[s.breed]?.pricePerKg || 300)), 0);
                 
                 this.financialDashboard = {
                     revenue: {
                         total: totalRevenue,
-                        orderCount: currentMonthOrders.length,
+                        orderCount: orders.length,
                         byCategory: revenueByCategory
                     },
                     expenses: {
                         total: totalExpenses,
-                        feed: currentMonthExpenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0),
+                        feed: expenses.reduce((sum, e) => sum + (e.quantity_kg * e.cost_per_kg), 0),
                         healthcare: 0, // TODO: Get from health checkups
                         other: 0
                     },
