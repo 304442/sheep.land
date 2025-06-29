@@ -2,13 +2,16 @@
 migrate((db) => {
     const dao = new Dao(db);
     const collection = dao.findCollectionByNameOrId("orders");
-
-    // Add user field if it doesn't exist
-    const userField = {
+    
+    // Add user field
+    const userField = new SchemaField({
+        "system": false,
+        "id": "userrelation",
         "name": "user",
         "type": "relation",
         "required": false,
         "presentable": false,
+        "unique": false,
         "options": {
             "collectionId": "_pb_users_auth_",
             "cascadeDelete": false,
@@ -16,53 +19,27 @@ migrate((db) => {
             "maxSelect": 1,
             "displayFields": ["email"]
         }
-    };
-
-    // Check if field already exists
-    const existingField = collection.schema.find(field => field.name === 'user');
-    if (!existingField) {
-        collection.schema.push(userField);
-    }
-
+    });
+    
+    collection.schema.addField(userField);
+    
     // Update collection rules to allow user to see their own orders
     collection.listRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || (@request.auth.id != '' && user = @request.auth.id) || @request.auth.is_admin = true";
     collection.viewRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || (@request.auth.id != '' && user = @request.auth.id) || @request.auth.is_admin = true";
-
+    
     // Save collection with new field
-    dao.saveCollection(collection);
-
-    // Add index for better performance
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_orders_user ON orders (user)`);
-
-    // Populate user field for existing orders based on customer_email
-    db.exec(`
-        UPDATE orders 
-        SET user = (
-            SELECT id FROM users 
-            WHERE users.email = orders.customer_email 
-            LIMIT 1
-        )
-        WHERE user IS NULL 
-        AND customer_email IS NOT NULL
-        AND EXISTS (
-            SELECT 1 FROM users 
-            WHERE users.email = orders.customer_email
-        )
-    `);
-
+    return dao.saveCollection(collection);
+    
 }, (db) => {
     const dao = new Dao(db);
     const collection = dao.findCollectionByNameOrId("orders");
-
+    
+    // Remove user field
+    collection.schema.removeField("userrelation");
+    
     // Revert collection rules
     collection.listRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true";
     collection.viewRule = "(@request.query.lookupOrderID != '' && order_id_text = @request.query.lookupOrderID) || @request.auth.is_admin = true";
-
-    // Remove user field
-    collection.schema = collection.schema.filter(field => field.name !== 'user');
-
-    dao.saveCollection(collection);
-
-    // Drop index
-    db.exec(`DROP INDEX IF EXISTS idx_orders_user`);
+    
+    return dao.saveCollection(collection);
 });
