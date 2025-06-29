@@ -1,6 +1,8 @@
 # PocketBase Migrations
 
-This directory is for PocketBase native migrations that work with your Docker deployment.
+This directory contains PocketBase native migrations that work with your Docker deployment.
+
+**⚠️ IMPORTANT**: This replaces the old `setup.html` manual database initialization. See `MIGRATION_FROM_SETUP.md` for details.
 
 ## How It Works
 
@@ -8,6 +10,13 @@ Your deployment script (`pb-autodeploy.v3.sh`) automatically:
 1. Detects migration files in this directory
 2. Runs `pocketbase migrate up` command
 3. Applies migrations in order (by filename)
+
+## Current Migrations
+
+- `1704067200_initial_schema.js` - **Initial database schema** (replaces setup.html)
+  - Creates users, settings, products, orders collections
+  - Sets up API rules and field validations
+  - Essential for new deployments
 
 ## Migration File Format
 

@@ -1,49 +1,5 @@
-const registerHook = (collection, event, handler) => {
-    try {
-        if (typeof $app !== 'undefined') {
-            if (event === 'beforeCreate') $app.onRecordBeforeCreateRequest(collection, handler);
-            else if (event === 'afterCreate') $app.onRecordAfterCreateRequest(collection, handler);
-            else if (event === 'beforeUpdate') $app.onRecordBeforeUpdateRequest(collection, handler);
-        } else {
-            // Hook registration skipped - $app not available
-        }
-    } catch (error) {
-        // Hook registration failed
-    }
-};
-
-// Simple in-memory rate limiter
-const rateLimiter = {
-    requests: new Map(),
-    windowMs: 60000, // 1 minute window
-    maxRequests: 10, // Max 10 orders per minute per IP
-    
-    check(ip) {
-        const now = Date.now();
-        const userRequests = this.requests.get(ip) || [];
-        
-        // Clean old requests
-        const validRequests = userRequests.filter(time => now - time < this.windowMs);
-        
-        if (validRequests.length >= this.maxRequests) {
-            return false; // Rate limit exceeded
-        }
-        
-        validRequests.push(now);
-        this.requests.set(ip, validRequests);
-        
-        // Cleanup old IPs periodically
-        if (this.requests.size > 1000) {
-            for (const [key, times] of this.requests.entries()) {
-                if (times.length === 0 || now - times[times.length - 1] > this.windowMs) {
-                    this.requests.delete(key);
-                }
-            }
-        }
-        
-        return true;
-    }
-};
+// PocketBase Hooks for Sheep Land Egypt
+// Updated to match latest PocketBase API documentation
 
 const sacrificeDayMap = { 
     "day1_10_dhul_hijjah": { "en": "Day 1 of Eid (10th Dhul Hijjah)", "ar": "اليوم الأول (10 ذو الحجة)" },
@@ -52,20 +8,15 @@ const sacrificeDayMap = {
     "day4_13_dhul_hijjah": { "en": "Day 4 of Eid (13th Dhul Hijjah)", "ar": "اليوم الرابع (13 ذو الحجة)" },
 };
 
-registerHook("orders", "beforeCreate", (e) => {
+// Before Create Hook for Orders
+onRecordBeforeCreateRequest((e) => {
+    if (e.collection.name !== "orders") return;
+    
     const record = e.record;
-    const dao = $app.dao();
-    
-    // Rate limiting check
-    const clientIp = e.httpContext?.realIp() || 'unknown';
-    if (!rateLimiter.check(clientIp)) {
-        throw new Error("Too many orders. Please wait a moment before trying again.");
-    }
-    
     const lineItemsData = JSON.parse(JSON.stringify(record.get("line_items"))); 
 
     if (!Array.isArray(lineItemsData) || lineItemsData.length === 0) {
-        throw new Error("Order must contain at least one item.");
+        throw new BadRequestError("Order must contain at least one item.");
     }
 
     let calculatedSubtotalEGP = 0;
@@ -75,47 +26,47 @@ registerHook("orders", "beforeCreate", (e) => {
 
     let appSettings;
     try {
-        appSettings = dao.findFirstRecordByFilter("settings", "id!=''");
+        appSettings = $app.findFirstRecordByFilter("settings", "id!=''");
         if (!appSettings) throw new Error("Application settings not found.");
     } catch (err) {
-        // Settings fetch failed
-        throw new Error("Server configuration error. Please contact support.");
+        console.log(`[OrderHook] Failed to fetch settings: ${err}`);
+        throw new BadRequestError("Server configuration error. Please contact support.");
     }
-    const defaultServiceFeeEGP = appSettings.getFloat("servFeeEGP") || 0;
+    const defaultServiceFeeEGP = appSettings.get("servFeeEGP") || 0;
 
     for (let i = 0; i < lineItemsData.length; i++) {
         const clientLineItem = lineItemsData[i]; 
 
         if (!clientLineItem.item_key_pb || typeof clientLineItem.quantity !== 'number' || clientLineItem.quantity <= 0) {
-            throw new Error(`Invalid line item data at index ${i}.`);
+            throw new BadRequestError(`Invalid line item data at index ${i}.`);
         }
 
         let product;
         try {
-            product = dao.findRecordById("products", clientLineItem.item_key_pb);
+            product = $app.findRecordById("products", clientLineItem.item_key_pb);
         } catch (err) {
-            // Product lookup failed
-            throw new Error(`Product "${clientLineItem.name_en || clientLineItem.item_key_pb}" not found.`);
+            console.log(`[OrderHook] Product lookup failed: ${clientLineItem.item_key_pb}`);
+            throw new BadRequestError(`Product "${clientLineItem.name_en || clientLineItem.item_key_pb}" not found.`);
         }
 
-        if (!product.getBool("is_active")) {
-            throw new Error(`Product "${product.getString("variant_name_en")}" is not active.`);
+        if (!product.get("is_active")) {
+            throw new BadRequestError(`Product "${product.get("variant_name_en")}" is not active.`);
         }
 
-        const currentStock = product.getInt("stock_available_pb");
+        const currentStock = product.get("stock_available_pb");
         if (currentStock < clientLineItem.quantity) {
-            throw new Error(`Not enough stock for "${product.getString("variant_name_en")}". Available: ${currentStock}, Requested: ${clientLineItem.quantity}.`);
+            throw new BadRequestError(`Not enough stock for "${product.get("variant_name_en")}". Available: ${currentStock}, Requested: ${clientLineItem.quantity}.`);
         }
         
         productStockUpdates.push({ productRecord: product, newStock: currentStock - clientLineItem.quantity });
 
-        const pricePerItemEGP = product.getFloat("base_price_egp");
+        const pricePerItemEGP = product.get("base_price_egp");
         
         const processedItem = {
-            item_key_pb: product.id, 
-            product_category: product.getString("product_category"),
-            name_en: product.getString("variant_name_en"),
-            name_ar: product.getString("variant_name_ar"),
+            item_key_pb: product.getId(), 
+            product_category: product.get("product_category"),
+            name_en: product.get("variant_name_en"),
+            name_ar: product.get("variant_name_ar"),
             quantity: clientLineItem.quantity,
             price_egp_each: pricePerItemEGP, 
             udheya_details: null 
@@ -129,7 +80,7 @@ registerHook("orders", "beforeCreate", (e) => {
                 calculatedTotalServiceFeeEGP += defaultServiceFeeEGP;
             }
             if (!clientLineItem.udheya_details.sacrificeDay || !clientLineItem.udheya_details.distribution?.choice) {
-                 throw new Error(`Missing Udheya details for "${processedItem.name_en}".`);
+                 throw new BadRequestError(`Missing Udheya details for "${processedItem.name_en}".`);
             }
         }
         processedLineItems.push(processedItem);
@@ -139,13 +90,13 @@ registerHook("orders", "beforeCreate", (e) => {
     record.set("subtotal_amount_egp", calculatedSubtotalEGP);
     record.set("total_udheya_service_fee_egp", calculatedTotalServiceFeeEGP);
 
-    let deliveryFeeAppliedEGP = record.getFloat("delivery_fee_applied_egp") || 0; 
-    const deliveryOption = record.getString("delivery_option");
-    let areaNameEnToSet = record.getString("delivery_area_name_en") || ""; 
-    let areaNameArToSet = record.getString("delivery_area_name_ar") || "";
+    let deliveryFeeAppliedEGP = record.get("delivery_fee_applied_egp") || 0; 
+    const deliveryOption = record.get("delivery_option");
+    let areaNameEnToSet = record.get("delivery_area_name_en") || ""; 
+    let areaNameArToSet = record.get("delivery_area_name_ar") || "";
 
     if (deliveryOption === "home_delivery") {
-        const deliveryAreaID = record.getString("delivery_city_id");
+        const deliveryAreaID = record.get("delivery_city_id");
         const deliveryAreasJSON = appSettings.get("delAreas");
         let foundFee = false;
         
@@ -197,16 +148,16 @@ registerHook("orders", "beforeCreate", (e) => {
     }
 
     let onlinePaymentFeeAppliedEGP = 0.0;
-    const paymentMethod = record.getString("payment_method");
+    const paymentMethod = record.get("payment_method");
     if (paymentMethod === "online_card") {
-        onlinePaymentFeeAppliedEGP = appSettings.getFloat("online_payment_fee_egp") || 0;
+        onlinePaymentFeeAppliedEGP = appSettings.get("online_payment_fee_egp") || 0;
     }
     record.set("online_payment_fee_applied_egp", onlinePaymentFeeAppliedEGP);
 
     const totalAmountDueEGP = calculatedSubtotalEGP + calculatedTotalServiceFeeEGP + deliveryFeeAppliedEGP + onlinePaymentFeeAppliedEGP;
     if (isNaN(totalAmountDueEGP) || totalAmountDueEGP < 0) {
-        // Invalid total calculation
-        throw new Error("Internal error calculating total. Please contact support.");
+        console.log(`[OrderHook] Invalid totalAmountDueEGP: ${totalAmountDueEGP}`);
+        throw new BadRequestError("Internal error calculating total. Please contact support.");
     }
     record.set("total_amount_due_egp", totalAmountDueEGP);
 
@@ -221,60 +172,58 @@ registerHook("orders", "beforeCreate", (e) => {
         record.set("order_status", "confirmed_pending_payment");
     }
 
-    if (e.httpContext?.get("authRecord") && e.httpContext.get("authRecord").id) {
-        record.set("user", e.httpContext.get("authRecord").id);
+    if (e.requestInfo.auth && e.requestInfo.auth.id) {
+        record.set("user", e.requestInfo.auth.id);
     }
 
     try {
-        if (record.has("user_ip_address") && e.httpContext && e.httpContext.realIp) {
-            record.set("user_ip_address", e.httpContext.realIp());
+        if (e.requestInfo && e.requestInfo.realIp) {
+            record.set("user_ip_address", e.requestInfo.realIp);
         }
-        if (record.has("user_agent_string") && e.httpContext && e.httpContext.request) {
-            record.set("user_agent_string", e.httpContext.request().header.get("User-Agent"));
+        if (e.requestInfo && e.requestInfo.userAgent) {
+            record.set("user_agent_string", e.requestInfo.userAgent);
         }
     } catch (ipErr) { 
-        // Could not set IP/UserAgent 
+        console.log(`[OrderHook] Could not set IP/UserAgent: ${ipErr}`); 
     }
 
     for (const update of productStockUpdates) {
         update.productRecord.set("stock_available_pb", update.newStock);
         try {
-            dao.saveRecord(update.productRecord);
+            $app.save(update.productRecord);
         } catch (err) {
-            // Stock update failed
-            throw new Error(`Failed to update product stock. Order not created.`);
+            console.log(`[OrderHook] Failed to update stock for ${update.productRecord.get("item_key")}: ${err}`);
+            throw new BadRequestError(`Failed to update product stock. Order not created.`);
         }
     }
 });
 
-registerHook("orders", "afterCreate", (e) => {
+// After Create Hook for Orders
+onRecordAfterCreateRequest((e) => {
+    if (e.collection.name !== "orders") return;
+    
     const record = e.record;
-    const customerEmail = record.getString("customer_email");
+    const customerEmail = record.get("customer_email");
     
     let senderAddress = "noreply@sheep.land"; 
     let senderName = "Sheep Land Egypt"; 
     let appSettings;
     try {
-        appSettings = $app.dao().findFirstRecordByFilter("settings", "id!=''");
-        if (appSettings && appSettings.getString("app_email_sender_address")) { 
-            senderAddress = appSettings.getString("app_email_sender_address");
+        appSettings = $app.findFirstRecordByFilter("settings", "id!=''");
+        if (appSettings && appSettings.get("app_email_sender_address")) { 
+            senderAddress = appSettings.get("app_email_sender_address");
         }
-        if (appSettings && appSettings.getString("app_email_sender_name")) {
-            senderName = appSettings.getString("app_email_sender_name");
+        if (appSettings && appSettings.get("app_email_sender_name")) {
+            senderName = appSettings.get("app_email_sender_name");
         }
     } catch (err) {
-        // Could not fetch app settings for email - using defaults
+        console.log(`[OrderHook] Could not fetch app settings for email. Using defaults.`);
     }
 
     const enableEmailConfirmation = true; 
 
-    if (enableEmailConfirmation && customerEmail && $app && typeof $app.newMailMessage === 'function') {
+    if (enableEmailConfirmation && customerEmail) {
         try {
-            const message = $app.newMailMessage();
-            message.setFrom(senderAddress, senderName);
-            message.setTo(customerEmail);
-            message.setSubject(`🐑 Your Sheep Land Egypt Order Confirmed: ${record.getString("order_id_text")}`);
-            
             const lineItems = record.get("line_items") || [];
             let itemsListHTML = "<ul style='list-style-type: none; padding: 0;'>";
             
@@ -284,7 +233,7 @@ registerHook("orders", "afterCreate", (e) => {
                 let premiumBadge = "";
                 
                 if (item.product_category === 'udheya' && item.udheya_details && item.udheya_details.serviceOption === 'standard_service' && appSettings) {
-                    const udheyaServiceFee = appSettings.getFloat("servFeeEGP") || 0;
+                    const udheyaServiceFee = appSettings.get("servFeeEGP") || 0;
                     serviceFeeText = ` (+ ${udheyaServiceFee} EGP service)`; 
                 }
                 
@@ -317,44 +266,44 @@ registerHook("orders", "afterCreate", (e) => {
                     
                     <div style='background: #f0ebe3; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;'>
                         <p style='margin: 0; font-size: 14px; color: #8B4513;'><strong>Order ID</strong></p>
-                        <p style='margin: 5px 0 0 0; font-size: 20px; font-weight: bold; color: #2C5F41;'>${record.getString("order_id_text")}</p>
+                        <p style='margin: 5px 0 0 0; font-size: 20px; font-weight: bold; color: #2C5F41;'>${record.get("order_id_text")}</p>
                     </div>
 
                     <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>📦 Order Summary</h3>
                     ${itemsListHTML}`;
             
-            if (record.getFloat("total_udheya_service_fee_egp") > 0) {
-                 emailBody += `<p style='margin: 15px 0 5px 0; font-size: 14px;'><strong>🕌 Total Udheya Service Fee(s):</strong> <span style='color: #2C5F41;'>${record.getFloat("total_udheya_service_fee_egp")} EGP</span></p>`;
+            if (record.get("total_udheya_service_fee_egp") > 0) {
+                 emailBody += `<p style='margin: 15px 0 5px 0; font-size: 14px;'><strong>🕌 Total Udheya Service Fee(s):</strong> <span style='color: #2C5F41;'>${record.get("total_udheya_service_fee_egp")} EGP</span></p>`;
             }
-            if (record.getFloat("delivery_fee_applied_egp") > 0) {
-                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>🚚 Delivery Fee:</strong> <span style='color: #2C5F41;'>${record.getFloat("delivery_fee_applied_egp")} EGP</span></p>`;
+            if (record.get("delivery_fee_applied_egp") > 0) {
+                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>🚚 Delivery Fee:</strong> <span style='color: #2C5F41;'>${record.get("delivery_fee_applied_egp")} EGP</span></p>`;
             }
-            if (record.getFloat("international_shipping_fee_egp") > 0) {
-                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>🌍 International Shipping:</strong> <span style='color: #2C5F41;'>${record.getFloat("international_shipping_fee_egp")} EGP</span></p>`;
+            if (record.get("international_shipping_fee_egp") > 0) {
+                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>🌍 International Shipping:</strong> <span style='color: #2C5F41;'>${record.get("international_shipping_fee_egp")} EGP</span></p>`;
             }
-            if (record.getFloat("online_payment_fee_applied_egp") > 0) {
-                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>💳 Online Payment Fee:</strong> <span style='color: #2C5F41;'>${record.getFloat("online_payment_fee_applied_egp")} EGP</span></p>`;
+            if (record.get("online_payment_fee_applied_egp") > 0) {
+                emailBody += `<p style='margin: 5px 0; font-size: 14px;'><strong>💳 Online Payment Fee:</strong> <span style='color: #2C5F41;'>${record.get("online_payment_fee_applied_egp")} EGP</span></p>`;
             }
             
             emailBody += `
                     <div style='background: #2C5F41; color: white; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;'>
-                        <p style='margin: 0; font-size: 18px; font-weight: bold;'>💰 Total Amount Due: ${record.getFloat("total_amount_due_egp")} EGP</p>
+                        <p style='margin: 0; font-size: 18px; font-weight: bold;'>💰 Total Amount Due: ${record.get("total_amount_due_egp")} EGP</p>
                     </div>
 
                     <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>💳 Payment Instructions</h3>`;
 
-            const paymentMethod = record.getString("payment_method");
-            const totalAmount = record.getFloat("total_amount_due_egp");
-            const orderId = record.getString("order_id_text");
-            const waNumRaw = appSettings?.getString("waNumRaw") || "";
-            const waNumDisp = appSettings?.getString("waNumDisp") || waNumRaw;
+            const paymentMethod = record.get("payment_method");
+            const totalAmount = record.get("total_amount_due_egp");
+            const orderId = record.get("order_id_text");
+            const waNumRaw = appSettings?.get("waNumRaw") || "";
+            const waNumDisp = appSettings?.get("waNumDisp") || waNumRaw;
             const payDetails = appSettings?.get("payDetails") || {};
             const waConfirmationLink = `https://wa.me/${waNumRaw}?text=Order%20Payment%20Confirmation%3A%20${orderId}`;
             
             if (paymentMethod === "online_card") {
                 emailBody += `<div style='background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>💳 <strong>Online Payment:</strong> To complete your order for <strong>${totalAmount} EGP</strong>, please follow the payment instructions on our website or contact us directly. Order ID: <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${orderId}</code></p></div>`;
             } else if (paymentMethod === "cod") {
-                emailBody += `<div style='background: #fff3cd; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>💵 <strong>Cash on Delivery:</strong> Our team will contact you on <strong>${record.getString("customer_phone")}</strong> to confirm delivery and collect payment of <strong>${totalAmount} EGP</strong>. Order ID: <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${orderId}</code></p></div>`;
+                emailBody += `<div style='background: #fff3cd; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>💵 <strong>Cash on Delivery:</strong> Our team will contact you on <strong>${record.get("customer_phone")}</strong> to confirm delivery and collect payment of <strong>${totalAmount} EGP</strong>. Order ID: <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${orderId}</code></p></div>`;
             } else if (paymentMethod === "fawry") {
                 emailBody += `<div style='background: #d1ecf1; padding: 15px; border-radius: 8px; margin: 10px 0;'><p>🏪 <strong>Fawry:</strong> Pay <strong>${totalAmount} EGP</strong> at any Fawry location. Use Order ID <code style='background: #fff; padding: 2px 6px; border-radius: 4px;'>${orderId}</code>. Payment due within 24 hours. Confirm via <a href="${waConfirmationLink}" style='color: #2C5F41;'>${waNumDisp}</a>.</p></div>`;
             } else if (paymentMethod === "vodafone_cash") {
@@ -381,30 +330,30 @@ registerHook("orders", "afterCreate", (e) => {
                 </div>`;
             }
 
-            if (record.getString("delivery_option") === "home_delivery" && record.getString("delivery_address")) {
+            if (record.get("delivery_option") === "home_delivery" && record.get("delivery_address")) {
                 emailBody += `
                     <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>🚚 Delivery Details</h3>
                     <div style='background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 10px 0;'>
-                        <p><strong>📍 Address:</strong> ${record.getString("delivery_address")}</p>
-                        <p><strong>🏙️ Area:</strong> ${record.getString("delivery_area_name_en") || record.getString("delivery_city_id") || 'N/A'}</p>
-                        <p><strong>⏰ Preferred Time:</strong> ${record.getString("delivery_time_slot") || 'Flexible'}</p>
-                        ${record.getString("delivery_instructions") ? `<p><strong>📝 Instructions:</strong> ${record.getString("delivery_instructions")}</p>` : ''}
+                        <p><strong>📍 Address:</strong> ${record.get("delivery_address")}</p>
+                        <p><strong>🏙️ Area:</strong> ${record.get("delivery_area_name_en") || record.get("delivery_city_id") || 'N/A'}</p>
+                        <p><strong>⏰ Preferred Time:</strong> ${record.get("delivery_time_slot") || 'Flexible'}</p>
+                        ${record.get("delivery_instructions") ? `<p><strong>📝 Instructions:</strong> ${record.get("delivery_instructions")}</p>` : ''}
                     </div>`;
-            } else if (record.getString("delivery_option") === "international_shipping") {
+            } else if (record.get("delivery_option") === "international_shipping") {
                 emailBody += `
                     <h3 style='color: #8B4513; border-bottom: 2px solid #D2B48C; padding-bottom: 5px;'>🌍 International Shipping</h3>
                     <div style='background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 10px 0;'>
-                        <p><strong>🌎 Country:</strong> ${record.getString("customer_country") || 'International'}</p>
+                        <p><strong>🌎 Country:</strong> ${record.get("customer_country") || 'International'}</p>
                         <p>📦 International shipping arrangements will be coordinated separately after payment confirmation.</p>
                     </div>`;
             }
             
-            if (appSettings?.getString("slaughter_location_gmaps_url")) {
+            if (appSettings?.get("slaughter_location_gmaps_url")) {
                 let hasUdheyaStandardService = lineItems.some(item => item.product_category === 'udheya' && item.udheya_details?.serviceOption === 'standard_service');
                 if (hasUdheyaStandardService) {
                     emailBody += `
                         <div style='background: #f0ebe3; padding: 15px; border-radius: 8px; margin: 20px 0;'>
-                            <p>🏭 <strong>Our Certified Slaughter Facility:</strong> <a href="${appSettings.getString("slaughter_location_gmaps_url")}" style='color: #2C5F41;'>📍 View Location on Maps</a></p>
+                            <p>🏭 <strong>Our Certified Slaughter Facility:</strong> <a href="${appSettings.get("slaughter_location_gmaps_url")}" style='color: #2C5F41;'>📍 View Location on Maps</a></p>
                             <p style='font-size: 14px; color: #666;'>All Udheya services are performed according to Islamic guidelines with full Halal certification.</p>
                         </div>`;
                 }
@@ -423,33 +372,40 @@ registerHook("orders", "afterCreate", (e) => {
                 </div>
             </div>`;
             
-            message.setHtml(emailBody);
-            $app.mails.send(message);
-            // Confirmation email sent successfully
+            $app.sendMail({
+                from: { address: senderAddress, name: senderName },
+                to: [{ address: customerEmail }],
+                subject: `🐑 Your Sheep Land Egypt Order Confirmed: ${record.get("order_id_text")}`,
+                html: emailBody
+            });
+            
+            console.log(`[OrderHook] ✅ Confirmation email sent for order ${record.get("order_id_text")} to ${customerEmail}.`);
         } catch (err) {
-            // Failed to send confirmation email
+            console.log(`[OrderHook] ❌ Failed to send email for order ${record.get("order_id_text")}: ${err}`);
         }
-    } else if (customerEmail && !($app && typeof $app.newMailMessage === 'function')) {
-        // Email not sent - SMTP not configured
+    } else if (customerEmail) {
+        console.log(`[OrderHook] ⚠️ Email for ${record.get("order_id_text")} not sent: SMTP may not be configured.`);
     } else if (!customerEmail) {
-        // Email not sent - no customer email provided
+        console.log(`[OrderHook] ⚠️ Email for ${record.get("order_id_text")} not sent: No customer email.`);
     }
 });
 
-registerHook("orders", "beforeUpdate", (e) => {
+// Before Update Hook for Orders
+onRecordBeforeUpdateRequest((e) => {
+    if (e.collection.name !== "orders") return;
+    
     const record = e.record; 
-    const dao = $app.dao();
     let originalRecord;
     try {
-        originalRecord = dao.findRecordById("orders", record.id);
+        originalRecord = $app.findRecordById("orders", record.getId());
     } catch (err) { 
-        // Could not find original record
+        console.log(`[OrderHook] Could not find original record ${record.getId()}.`);
         return; 
     }
 
-    const oldStatus = originalRecord.getString("order_status") || "";
-    const newStatus = record.getString("order_status");
-    const paymentStatus = record.getString("payment_status"); 
+    const oldStatus = originalRecord.get("order_status") || "";
+    const newStatus = record.get("order_status");
+    const paymentStatus = record.get("payment_status"); 
     
     if ((newStatus === "cancelled_by_user" || newStatus === "cancelled_by_admin") && oldStatus !== newStatus) {
         const cancellableStates = ["pending_confirmation", "confirmed_pending_payment", "awaiting_payment_gateway", "payment_confirmed_processing"];
@@ -471,20 +427,20 @@ registerHook("orders", "beforeUpdate", (e) => {
 
                 if (productID && quantityToRestock > 0) {
                     try {
-                        const product = dao.findRecordById("products", productID);
-                        const currentStock = product.getInt("stock_available_pb");
+                        const product = $app.findRecordById("products", productID);
+                        const currentStock = product.get("stock_available_pb");
                         product.set("stock_available_pb", currentStock + quantityToRestock);
-                        dao.saveRecord(product);
-                        stockUpdateNotes += `Restocked ${quantityToRestock} of ${product.getString("variant_name_en") || lineItem.name_en}. `;
+                        $app.save(product);
+                        stockUpdateNotes += `Restocked ${quantityToRestock} of ${product.get("variant_name_en") || lineItem.name_en}. `;
                     } catch (err) {
-                         // Failed to restock product
+                         console.log(`[OrderHook] Failed to restock product ${productID}: ${err}`);
                          stockUpdateNotes += `STOCK INCREMENT FAILED for product ${productID}. `;
                     }
                 }
             }
-            record.set("admin_notes", (record.getString("admin_notes") || "" + `\nOrder Cancellation: ${stockUpdateNotes}`).trim());
+            record.set("admin_notes", (record.get("admin_notes") || "" + `\nOrder Cancellation: ${stockUpdateNotes}`).trim());
         } else {
-            record.set("admin_notes", (record.getString("admin_notes") || "" + `\nOrder cancelled (old status: ${oldStatus}, payment: ${paymentStatus}). Stock not auto-incremented.`).trim());
+            record.set("admin_notes", (record.get("admin_notes") || "" + `\nOrder cancelled (old status: ${oldStatus}, payment: ${paymentStatus}). Stock not auto-incremented.`).trim());
         }
     }
 });

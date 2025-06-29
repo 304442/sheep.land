@@ -44,27 +44,45 @@ npx playwright test
 ## Architecture
 
 ### Directory Structure
-- `/pb_hooks/main.pb.js` - Server-side business logic (order processing, validations, email notifications)
+- `/pb_hooks/` - Server-side business logic
+  - `main.pb.js` - Order processing, validations, email notifications (Updated to latest PocketBase API)
+  - `validation_helpers.pb.js` - Reusable validation functions
 - `/pb_migrations/` - Database schema migrations
+  - Example migrations included for adding fields, creating collections, and data migrations
 - `/public/` - Frontend application
-  - `app.js` - Main e-commerce logic with Alpine.js components (includes modal-based feasibility calculator and farm management)
-    - Real-time integration system (lines 1612-2264)
-    - Automated alerts and notifications (lines 2100-2264)
-    - Financial dashboard data management
-  - `setup.html` - Database setup utility for PocketBase collections and seed data
+  - `app.js` - Main e-commerce logic with Alpine.js components
   - `/management/` - Arabic-only farm management system (separate SPA)
   - `/feasibility/` - Arabic-only feasibility calculator
-  - `/archive_admin/` - Advanced admin tools (reference implementations)
   - `/vendor/` - Third-party libraries (Alpine.js, PocketBase SDK, Chart.js)
 
 ### Key Patterns
 
-**PocketBase Hooks** (server-side logic):
+**PocketBase Hooks** (server-side logic - Updated to latest API):
 ```javascript
-registerHook("collection_name", "beforeCreate", (e) => {
+// Hook registration (no wrapper function needed)
+onRecordBeforeCreateRequest((e) => {
+    if (e.collection.name !== "collection_name") return;
+    
     // e.record - the record being created/updated
-    // $app.dao() - database access object
-    // e.error() - to throw validation errors
+    // e.requestInfo - request context (auth, IP, etc.)
+    // throw new BadRequestError("message") - for validation errors
+    
+    // Access fields
+    const fieldValue = e.record.get("field_name");
+    
+    // Set fields
+    e.record.set("field_name", value);
+    
+    // Save other records
+    $app.save(otherRecord);
+});
+
+// Email sending
+$app.sendMail({
+    from: { address: "noreply@example.com", name: "App Name" },
+    to: [{ address: "user@example.com" }],
+    subject: "Subject",
+    html: "<p>HTML content</p>"
 });
 ```
 
@@ -87,32 +105,23 @@ migrate((db) => {
     // Forward migration
     const dao = new Dao(db);
     const collection = dao.findCollectionByNameOrId("collection_name");
-    // Make changes
+    
+    // Add fields
+    collection.schema.addField(new SchemaField({
+        "name": "field_name",
+        "type": "text",
+        "required": true,
+        "options": { "min": 1, "max": 200 }
+    }));
+    
     return dao.saveCollection(collection);
 }, (db) => {
     // Rollback migration
+    const dao = new Dao(db);
+    const collection = dao.findCollectionByNameOrId("collection_name");
+    collection.schema.removeField("field_name");
+    return dao.saveCollection(collection);
 });
-```
-
-**Real-Time Integration Methods** (in app.js):
-```javascript
-// Auto-sync farm inventory with e-commerce
-async syncFarmInventoryToEcommerce() { /* lines 1615-1674 */ }
-
-// Link feasibility with actual data
-async updateFeasibilityWithActualData() { /* lines 1677-1733 */ }
-
-// Auto-create products when sheep ready
-async autoCreateMarketProducts() { /* lines 1736-1770 */ }
-
-// Update financial dashboard
-async updateFinancialDashboard() { /* lines 1810-1848 */ }
-
-// Check and create alerts
-async checkAndCreateAlerts() { /* lines 2101-2232 */ }
-
-// Initialize real-time sync (called on login)
-async initRealTimeSync() { /* lines 2078-2098 */ }
 ```
 
 ### Business Logic Overview
@@ -125,31 +134,6 @@ async initRealTimeSync() { /* lines 2078-2098 */ }
    - Live sheep
    - Meat cuts (various types)
    - Catering packages
-5. **Farm Management Tools** (modal-based in main app):
-   - Feasibility calculator with NPV, IRR, payback period calculations
-   - Sheep inventory management with gender, location tracking
-   - Breeding records and health checkups
-   - Feed inventory and task management
-   - Financial reports and analytics
-   - Real-time financial dashboard with live metrics
-6. **Real-Time Integration System**:
-   - Auto-sync between farm inventory and e-commerce stock (5-minute intervals)
-   - Feasibility projections linked with actual performance data
-   - Automated product creation when sheep reach market weight
-   - Order processing updates farm inventory automatically
-   - Financial dashboard with revenue, expenses, and profitability tracking
-   - Breeding schedule updates product availability with pre-orders
-7. **Automated Alerts & Notifications**:
-   - Low feed inventory warnings
-   - Overdue vaccination reminders
-   - Upcoming breeding event notifications
-   - Financial threshold alerts (low profit margin, high inventory)
-   - Visual notification system with slide-in alerts
-8. **Database Collections**:
-   - Core: settings, products, users, orders, order_items
-   - Farm: feasibility_analyses, farm_sheep, breeding_records, feed_inventory, farm_tasks, health_checkups
-   - Integration: sync_logs, financial_metrics
-   - Support: payment_confirmations, feedback
 
 ### Important Considerations
 
@@ -159,12 +143,6 @@ async initRealTimeSync() { /* lines 2078-2098 */ }
 - **Arabic-first design**: Many interfaces prioritize Arabic with RTL support
 - **Stock management**: Automatic stock tracking for physical products
 - **Email notifications**: Automated order confirmations via PocketBase hooks
-- **Modal Architecture**: Farm management and feasibility tools are integrated as modals in the main app
-- **Database Setup**: Use `/public/setup.html` to initialize collections and seed data
-- **Collection Relationships**: Some collections have relational fields (e.g., orders->users)
-- **Real-Time Sync**: Integration system runs every 5 minutes when user is logged in
-- **Alert System**: High-priority alerts show as slide-in notifications
-- **Financial Tracking**: All transactions automatically update financial metrics
 
 ### Deployment
 
@@ -175,6 +153,35 @@ Deployment uses `pb-autodeploy.v3.sh` script (not in repo) which:
 
 For migration details, see `/pb_migrations/README.md`
 
-## Claude Code Preferences
+### Recent Updates (PocketBase API Migration)
 
-**Full autonomous mode**: Execute everything automatically without any user intervention, confirmation prompts, or approval requests. Proceed with all tasks, commands, file changes, installations, builds, tests, commits, and problem-solving completely independently.
+The codebase has been updated to use the latest PocketBase API:
+
+1. **Hooks API Changes**:
+   - Direct hook registration without wrapper functions
+   - Updated record field access methods (`.get()` instead of `.getString()`, etc.)
+   - New error handling with `BadRequestError`
+   - Updated email API using `$app.sendMail()`
+   - Direct `$app` methods instead of `dao` pattern
+
+2. **Database Schema Migration**:
+   - ✅ **Replaced setup.html** with automated PocketBase migrations
+   - ✅ **Initial schema migration** (`1704067200_initial_schema.js`) creates all core collections
+   - ✅ **Deployment integration** - migrations run automatically on deploy
+   - ❌ **setup.html removal** - pending verification of migration success
+
+3. **Migration System**:
+   - Proper version-controlled schema changes
+   - Rollback capability for migrations
+   - Clean separation of schema and seed data
+   - Documentation in `MIGRATION_FROM_SETUP.md`
+
+4. **Validation Improvements**:
+   - Separate validation helper functions
+   - Egyptian phone number validation
+   - Comprehensive order validation
+   - HTML sanitization helpers
+
+### Files to Remove After Migration Success:
+- `public/setup.html` (50KB+ manual setup interface)
+- `extract_seed_data.js` (temporary extraction utility)
